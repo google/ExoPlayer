@@ -562,9 +562,17 @@ import java.util.Arrays;
       mediaChunks.add(mediaChunk);
     }
     long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
-    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
-        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
-        loadable.endTimeUs, elapsedRealtimeMs);
+    eventDispatcher.loadStarted(
+        loadable.dataSpec,
+        loadable.dataSpec.uri,
+        loadable.type,
+        trackType,
+        loadable.trackFormat,
+        loadable.trackSelectionReason,
+        loadable.trackSelectionData,
+        loadable.startTimeUs,
+        loadable.endTimeUs,
+        elapsedRealtimeMs);
     return true;
   }
 
@@ -578,9 +586,19 @@ import java.util.Arrays;
   @Override
   public void onLoadCompleted(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs) {
     chunkSource.onChunkLoadCompleted(loadable);
-    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
-        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
-        loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
+    eventDispatcher.loadCompleted(
+        loadable.dataSpec,
+        loadable.getUri(),
+        loadable.type,
+        trackType,
+        loadable.trackFormat,
+        loadable.trackSelectionReason,
+        loadable.trackSelectionData,
+        loadable.startTimeUs,
+        loadable.endTimeUs,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded());
     if (!prepared) {
       continueLoading(lastSeekPositionUs);
     } else {
@@ -591,9 +609,19 @@ import java.util.Arrays;
   @Override
   public void onLoadCanceled(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs,
       boolean released) {
-    eventDispatcher.loadCanceled(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
-        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
-        loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded());
+    eventDispatcher.loadCanceled(
+        loadable.dataSpec,
+        loadable.getUri(),
+        loadable.type,
+        trackType,
+        loadable.trackFormat,
+        loadable.trackSelectionReason,
+        loadable.trackSelectionData,
+        loadable.startTimeUs,
+        loadable.endTimeUs,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded());
     if (!released) {
       resetSampleQueues();
       if (enabledTrackGroupCount > 0) {
@@ -623,9 +651,20 @@ import java.util.Arrays;
       }
       canceled = true;
     }
-    eventDispatcher.loadError(loadable.dataSpec, loadable.type, trackType, loadable.trackFormat,
-        loadable.trackSelectionReason, loadable.trackSelectionData, loadable.startTimeUs,
-        loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, loadable.bytesLoaded(), error,
+    eventDispatcher.loadError(
+        loadable.dataSpec,
+        loadable.getUri(),
+        loadable.type,
+        trackType,
+        loadable.trackFormat,
+        loadable.trackSelectionReason,
+        loadable.trackSelectionData,
+        loadable.startTimeUs,
+        loadable.endTimeUs,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        loadable.bytesLoaded(),
+        error,
         canceled);
     if (canceled) {
       if (!prepared) {

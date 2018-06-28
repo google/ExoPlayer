@@ -77,11 +77,10 @@ public final class ParsingLoadable<T> implements Loadable {
    */
   public final int type;
 
-  private final DataSource dataSource;
+  private final StatsDataSource dataSource;
   private final Parser<? extends T> parser;
 
   private volatile @Nullable T result;
-  private volatile long bytesLoaded;
 
   /**
    * @param dataSource A {@link DataSource} to use when loading the data.
@@ -105,7 +104,7 @@ public final class ParsingLoadable<T> implements Loadable {
    */
   public ParsingLoadable(DataSource dataSource, DataSpec dataSpec, int type,
       Parser<? extends T> parser) {
-    this.dataSource = dataSource;
+    this.dataSource = new StatsDataSource(dataSource);
     this.dataSpec = dataSpec;
     this.type = type;
     this.parser = parser;
@@ -118,12 +117,19 @@ public final class ParsingLoadable<T> implements Loadable {
 
   /**
    * Returns the number of bytes loaded. In the case that the network response was compressed, the
-   * value returned is the size of the data <em>after</em> decompression.
-   *
-   * @return The number of bytes loaded.
+   * value returned is the size of the data <em>after</em> decompression. Must only be called after
+   * the load completed, failed, or was canceled.
    */
   public long bytesLoaded() {
-    return bytesLoaded;
+    return dataSource.getBytesRead();
+  }
+
+  /**
+   * Returns the {@link Uri} from which data was read. If redirection occurred, this is the
+   * redirected uri. Must only be called after the load completed, failed, or was canceled.
+   */
+  public Uri getUri() {
+    return dataSource.getLastOpenedUri();
   }
 
   @Override
@@ -133,13 +139,14 @@ public final class ParsingLoadable<T> implements Loadable {
 
   @Override
   public final void load() throws IOException {
+    // We always load from the beginning, so reset bytesRead to 0.
+    dataSource.resetBytesRead();
     DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
     try {
       inputStream.open();
       Uri dataSourceUri = Assertions.checkNotNull(dataSource.getUri());
       result = parser.parse(dataSourceUri, inputStream);
     } finally {
-      bytesLoaded = inputStream.bytesRead();
       Util.closeQuietly(inputStream);
     }
   }

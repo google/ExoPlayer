@@ -47,6 +47,11 @@ public final class StatsDataSource implements DataSource {
     lastResponseHeaders = Collections.emptyMap();
   }
 
+  /** Resets the number of bytes read as returned from {@link #getBytesRead()} to zero. */
+  public void resetBytesRead() {
+    bytesRead = 0;
+  }
+
   /** Returns the total number of bytes that have been read from the data source. */
   public long getBytesRead() {
     return bytesRead;

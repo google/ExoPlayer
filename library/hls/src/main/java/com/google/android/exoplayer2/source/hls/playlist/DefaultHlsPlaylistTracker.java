@@ -102,7 +102,10 @@ public final class DefaultHlsPlaylistTracker
     long elapsedRealtime =
         initialPlaylistLoader.startLoading(masterPlaylistLoadable, this, minRetryCount);
     eventDispatcher.loadStarted(
-        masterPlaylistLoadable.dataSpec, masterPlaylistLoadable.type, elapsedRealtime);
+        masterPlaylistLoadable.dataSpec,
+        masterPlaylistLoadable.dataSpec.uri,
+        masterPlaylistLoadable.type,
+        elapsedRealtime);
   }
 
   @Override
@@ -209,6 +212,7 @@ public final class DefaultHlsPlaylistTracker
     }
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
+        loadable.getUri(),
         C.DATA_TYPE_MANIFEST,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -223,6 +227,7 @@ public final class DefaultHlsPlaylistTracker
       boolean released) {
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
+        loadable.getUri(),
         C.DATA_TYPE_MANIFEST,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -239,6 +244,7 @@ public final class DefaultHlsPlaylistTracker
     boolean isFatal = error instanceof ParserException;
     eventDispatcher.loadError(
         loadable.dataSpec,
+        loadable.getUri(),
         C.DATA_TYPE_MANIFEST,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -463,6 +469,7 @@ public final class DefaultHlsPlaylistTracker
         processLoadedPlaylist((HlsMediaPlaylist) result);
         eventDispatcher.loadCompleted(
             loadable.dataSpec,
+            loadable.getUri(),
             C.DATA_TYPE_MANIFEST,
             elapsedRealtimeMs,
             loadDurationMs,
@@ -480,6 +487,7 @@ public final class DefaultHlsPlaylistTracker
         boolean released) {
       eventDispatcher.loadCanceled(
           loadable.dataSpec,
+          loadable.getUri(),
           C.DATA_TYPE_MANIFEST,
           elapsedRealtimeMs,
           loadDurationMs,
@@ -496,6 +504,7 @@ public final class DefaultHlsPlaylistTracker
       boolean isFatal = error instanceof ParserException;
       eventDispatcher.loadError(
           loadable.dataSpec,
+          loadable.getUri(),
           C.DATA_TYPE_MANIFEST,
           elapsedRealtimeMs,
           loadDurationMs,
@@ -528,7 +537,10 @@ public final class DefaultHlsPlaylistTracker
       long elapsedRealtime =
           mediaPlaylistLoader.startLoading(mediaPlaylistLoadable, this, minRetryCount);
       eventDispatcher.loadStarted(
-          mediaPlaylistLoadable.dataSpec, mediaPlaylistLoadable.type, elapsedRealtime);
+          mediaPlaylistLoadable.dataSpec,
+          mediaPlaylistLoadable.dataSpec.uri,
+          mediaPlaylistLoadable.type,
+          elapsedRealtime);
     }
 
     private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist) {

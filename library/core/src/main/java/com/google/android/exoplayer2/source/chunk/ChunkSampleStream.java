@@ -386,9 +386,18 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   @Override
   public void onLoadCompleted(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs) {
     chunkSource.onChunkLoadCompleted(loadable);
-    eventDispatcher.loadCompleted(loadable.dataSpec, loadable.type, primaryTrackType,
-        loadable.trackFormat, loadable.trackSelectionReason, loadable.trackSelectionData,
-        loadable.startTimeUs, loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs,
+    eventDispatcher.loadCompleted(
+        loadable.dataSpec,
+        loadable.getUri(),
+        loadable.type,
+        primaryTrackType,
+        loadable.trackFormat,
+        loadable.trackSelectionReason,
+        loadable.trackSelectionData,
+        loadable.startTimeUs,
+        loadable.endTimeUs,
+        elapsedRealtimeMs,
+        loadDurationMs,
         loadable.bytesLoaded());
     callback.onContinueLoadingRequested(this);
   }
@@ -396,9 +405,18 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   @Override
   public void onLoadCanceled(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs,
       boolean released) {
-    eventDispatcher.loadCanceled(loadable.dataSpec, loadable.type, primaryTrackType,
-        loadable.trackFormat, loadable.trackSelectionReason, loadable.trackSelectionData,
-        loadable.startTimeUs, loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs,
+    eventDispatcher.loadCanceled(
+        loadable.dataSpec,
+        loadable.getUri(),
+        loadable.type,
+        primaryTrackType,
+        loadable.trackFormat,
+        loadable.trackSelectionReason,
+        loadable.trackSelectionData,
+        loadable.startTimeUs,
+        loadable.endTimeUs,
+        elapsedRealtimeMs,
+        loadDurationMs,
         loadable.bytesLoaded());
     if (!released) {
       primarySampleQueue.reset();
@@ -436,10 +454,21 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         }
       }
     }
-    eventDispatcher.loadError(loadable.dataSpec, loadable.type, primaryTrackType,
-        loadable.trackFormat, loadable.trackSelectionReason, loadable.trackSelectionData,
-        loadable.startTimeUs, loadable.endTimeUs, elapsedRealtimeMs, loadDurationMs, bytesLoaded,
-        error, canceled);
+    eventDispatcher.loadError(
+        loadable.dataSpec,
+        loadable.getUri(),
+        loadable.type,
+        primaryTrackType,
+        loadable.trackFormat,
+        loadable.trackSelectionReason,
+        loadable.trackSelectionData,
+        loadable.startTimeUs,
+        loadable.endTimeUs,
+        elapsedRealtimeMs,
+        loadDurationMs,
+        bytesLoaded,
+        error,
+        canceled);
     if (canceled) {
       callback.onContinueLoadingRequested(this);
       return Loader.DONT_RETRY;
@@ -493,9 +522,17 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       mediaChunks.add(mediaChunk);
     }
     long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
-    eventDispatcher.loadStarted(loadable.dataSpec, loadable.type, primaryTrackType,
-        loadable.trackFormat, loadable.trackSelectionReason, loadable.trackSelectionData,
-        loadable.startTimeUs, loadable.endTimeUs, elapsedRealtimeMs);
+    eventDispatcher.loadStarted(
+        loadable.dataSpec,
+        loadable.dataSpec.uri,
+        loadable.type,
+        primaryTrackType,
+        loadable.trackFormat,
+        loadable.trackSelectionReason,
+        loadable.trackSelectionData,
+        loadable.startTimeUs,
+        loadable.endTimeUs,
+        elapsedRealtimeMs);
     return true;
   }
 

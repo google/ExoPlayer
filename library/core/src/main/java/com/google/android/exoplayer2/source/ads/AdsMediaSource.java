@@ -539,6 +539,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       createEventDispatcher(/* mediaPeriodId= */ null)
           .loadError(
               dataSpec,
+              dataSpec.uri,
               C.DATA_TYPE_AD,
               C.TRACK_TYPE_UNKNOWN,
               /* loadDurationMs= */ 0,
@@ -580,6 +581,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       createEventDispatcher(mediaPeriodId)
           .loadError(
               new DataSpec(adUri),
+              adUri,
               C.DATA_TYPE_AD,
               C.TRACK_TYPE_UNKNOWN,
               /* loadDurationMs= */ 0,
