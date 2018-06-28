@@ -216,11 +216,16 @@ public class FakeMediaSource extends BaseMediaSource {
       EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
       eventDispatcher.loadStarted(
           new LoadEventInfo(
-              FAKE_DATA_SPEC, elapsedRealTimeMs, /* loadDurationMs= */ 0, /* bytesLoaded= */ 0),
+              FAKE_DATA_SPEC,
+              FAKE_DATA_SPEC.uri,
+              elapsedRealTimeMs,
+              /* loadDurationMs= */ 0,
+              /* bytesLoaded= */ 0),
           mediaLoadData);
       eventDispatcher.loadCompleted(
           new LoadEventInfo(
               FAKE_DATA_SPEC,
+              FAKE_DATA_SPEC.uri,
               elapsedRealTimeMs,
               /* loadDurationMs= */ 0,
               /* bytesLoaded= */ MANIFEST_LOAD_BYTES),

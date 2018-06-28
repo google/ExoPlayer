@@ -638,6 +638,7 @@ public final class DashMediaSource extends BaseMediaSource {
       long elapsedRealtimeMs, long loadDurationMs) {
     manifestEventDispatcher.loadCompleted(
         loadable.dataSpec,
+        loadable.getUri(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -699,7 +700,9 @@ public final class DashMediaSource extends BaseMediaSource {
       synchronized (manifestUriLock) {
         // This condition checks that replaceManifestUri wasn't called between the start and end of
         // this load. If it was, we ignore the manifest location and prefer the manual replacement.
-        if (loadable.dataSpec.uri == manifestUri) {
+        @SuppressWarnings("ReferenceEquality")
+        boolean isSameUriInstance = loadable.dataSpec.uri == manifestUri;
+        if (isSameUriInstance) {
           manifestUri = manifest.location;
         }
       }
@@ -725,6 +728,7 @@ public final class DashMediaSource extends BaseMediaSource {
     boolean isFatal = error instanceof ParserException;
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
+        loadable.getUri(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -738,6 +742,7 @@ public final class DashMediaSource extends BaseMediaSource {
       long elapsedRealtimeMs, long loadDurationMs) {
     manifestEventDispatcher.loadCompleted(
         loadable.dataSpec,
+        loadable.getUri(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -752,6 +757,7 @@ public final class DashMediaSource extends BaseMediaSource {
       IOException error) {
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
+        loadable.getUri(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -766,6 +772,7 @@ public final class DashMediaSource extends BaseMediaSource {
       long loadDurationMs) {
     manifestEventDispatcher.loadCanceled(
         loadable.dataSpec,
+        loadable.getUri(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -953,7 +960,8 @@ public final class DashMediaSource extends BaseMediaSource {
   private <T> void startLoading(ParsingLoadable<T> loadable,
       Loader.Callback<ParsingLoadable<T>> callback, int minRetryCount) {
     long elapsedRealtimeMs = loader.startLoading(loadable, callback, minRetryCount);
-    manifestEventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
+    manifestEventDispatcher.loadStarted(
+        loadable.dataSpec, loadable.dataSpec.uri, loadable.type, elapsedRealtimeMs);
   }
 
   private long getNowUnixTimeUs() {

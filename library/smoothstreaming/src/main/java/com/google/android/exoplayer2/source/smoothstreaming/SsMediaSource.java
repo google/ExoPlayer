@@ -519,6 +519,7 @@ public final class SsMediaSource extends BaseMediaSource
       long loadDurationMs) {
     manifestEventDispatcher.loadCompleted(
         loadable.dataSpec,
+        loadable.getUri(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -534,6 +535,7 @@ public final class SsMediaSource extends BaseMediaSource
       long loadDurationMs, boolean released) {
     manifestEventDispatcher.loadCanceled(
         loadable.dataSpec,
+        loadable.getUri(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -550,6 +552,7 @@ public final class SsMediaSource extends BaseMediaSource
     boolean isFatal = error instanceof ParserException;
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
+        loadable.getUri(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -643,7 +646,8 @@ public final class SsMediaSource extends BaseMediaSource
     ParsingLoadable<SsManifest> loadable = new ParsingLoadable<>(manifestDataSource,
         manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
     long elapsedRealtimeMs = manifestLoader.startLoading(loadable, this, minLoadableRetryCount);
-    manifestEventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
+    manifestEventDispatcher.loadStarted(
+        loadable.dataSpec, loadable.dataSpec.uri, loadable.type, elapsedRealtimeMs);
   }
 
 }

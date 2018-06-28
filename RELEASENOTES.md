@@ -50,6 +50,9 @@
   ([#4403](https://github.com/google/ExoPlayer/issues/4413)).
 * Add support for multiple audio and video tracks in MPEG-PS streams
   ([#4406](https://github.com/google/ExoPlayer/issues/4406)).
+* Add uri field to `LoadEventInfo` in `MediaSourceEventListener` or
+  `AnalyticsListener` callbacks. This uri is the redirected uri if redirection
+  occurred ([#2054](https://github.com/google/ExoPlayer/issues/2054)).
 
 ### 2.8.2 ###
 
