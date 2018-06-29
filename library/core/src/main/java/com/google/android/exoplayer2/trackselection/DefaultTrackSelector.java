@@ -584,28 +584,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * Maximum allowed video width. The default value is {@link Integer#MAX_VALUE} (i.e. no
      * constraint).
      *
-     * <p>Note: To restrict adaptive video track selections to be suitable for a given viewport (the
-     * region of the display within which video will be played), it's preferable to use viewport
-     * constraints ({@link #viewportWidth}, {@link #viewportHeight} and
-     * {@link #viewportOrientationMayChange}) rather than video size constraints
-     * ({@link #maxVideoWidth and {@link #maxVideoHeight}). This is because selecting video tracks
-     * for a given viewport is normally more nuanced than imposing fixed limits on resolution (e.g.
-     * it's normally preferable to select one format that exceeds the size of the viewport, and to
-     * take into account the possibility that the orientation of the viewport may change).
+     * <p>To constrain adaptive video track selections to be suitable for a given viewport (the
+     * region of the display within which video will be played), use ({@link #viewportWidth}, {@link
+     * #viewportHeight} and {@link #viewportOrientationMayChange}) instead.
      */
     public final int maxVideoWidth;
     /**
      * Maximum allowed video height. The default value is {@link Integer#MAX_VALUE} (i.e. no
      * constraint).
      *
-     * <p>Note: To restrict adaptive video track selections to be suitable for a given viewport (the
-     * region of the display within which video will be played), it's preferable to use viewport
-     * constraints ({@link #viewportWidth}, {@link #viewportHeight} and
-     * {@link #viewportOrientationMayChange}) rather than video size constraints
-     * ({@link #maxVideoWidth and {@link #maxVideoHeight}). This is because selecting video tracks
-     * for a given viewport is normally more nuanced than imposing fixed limits on resolution (e.g.
-     * it's normally preferable to select one format that exceeds the size of the viewport, and to
-     * take into account the possibility that the orientation of the viewport may change).
+     * <p>To constrain adaptive video track selections to be suitable for a given viewport (the
+     * region of the display within which video will be played), use ({@link #viewportWidth}, {@link
+     * #viewportHeight} and {@link #viewportOrientationMayChange}) instead.
      */
     public final int maxVideoHeight;
     /**
@@ -654,12 +644,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public final boolean allowNonSeamlessAdaptiveness;
     /**
-     * Whether to exceed renderer capabilities when no selection can be made otherwise. This
-     * parameter applies when all of the tracks available for a renderer exceed the renderer's
-     * reported capabilities. If the parameter is {@code true} then the lowest quality track will
-     * still be selected. Playback may succeed if the renderer has under-reported its true
-     * capabilities. If {@code false} then no track will be selected. The default value is {@code
-     * true}.
+     * Whether to exceed renderer capabilities when no selection can be made otherwise.
+     *
+     * <p>This parameter applies when all of the tracks available for a renderer exceed the
+     * renderer's reported capabilities. If the parameter is {@code true} then the lowest quality
+     * track will still be selected. Playback may succeed if the renderer has under-reported its
+     * true capabilities. If {@code false} then no track will be selected. The default value is
+     * {@code true}.
      */
     public final boolean exceedRendererCapabilitiesIfNecessary;
     /**
