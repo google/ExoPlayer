@@ -667,7 +667,7 @@ public final class ImaAdsLoader
     }
   }
 
-  @Override
+  // TODO: Add @Override when the next IMA release is available.
   public int getVolume() {
     if (player == null) {
       return lastVolumePercentage;
