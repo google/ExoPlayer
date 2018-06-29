@@ -248,7 +248,7 @@ import java.util.List;
       return;
     }
     HlsMediaPlaylist mediaPlaylist = playlistTracker.getPlaylistSnapshot(selectedUrl);
-    independentSegments = mediaPlaylist.hasIndependentSegmentsTag;
+    independentSegments = mediaPlaylist.hasIndependentSegments;
 
     updateLiveEdgeTimeUs(mediaPlaylist);
 

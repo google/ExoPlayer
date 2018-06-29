@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -277,5 +278,43 @@ public class HlsMediaPlaylistParserTest {
         .isSameAs(segments.get(2).initializationSegment);
     assertThat(segments.get(1).initializationSegment.url).isEqualTo("init1.ts");
     assertThat(segments.get(3).initializationSegment.url).isEqualTo("init2.ts");
+  }
+
+  @Test
+  public void testMasterPlaylistAttributeInheritance() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-TARGETDURATION:5\n"
+            + "#EXT-X-MEDIA-SEQUENCE:10\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/27.ts\n"
+            + "#EXT-X-MAP:URI=\"init1.ts\""
+            + "#EXTINF:5.005,\n"
+            + "02/00/32.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "02/00/42.ts\n"
+            + "#EXT-X-MAP:URI=\"init2.ts\""
+            + "#EXTINF:5.005,\n"
+            + "02/00/47.ts\n";
+    InputStream inputStream =
+        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+    assertThat(playlist.hasIndependentSegments).isFalse();
+
+    HlsMasterPlaylist masterPlaylist =
+        new HlsMasterPlaylist(
+            /* baseUri= */ "https://example.com/",
+            /* tags= */ Collections.emptyList(),
+            /* variants= */ Collections.emptyList(),
+            /* audios= */ Collections.emptyList(),
+            /* subtitles= */ Collections.emptyList(),
+            /* muxedAudioFormat= */ null,
+            /* muxedCaptionFormats= */ null,
+            /* hasIndependentSegments= */ true);
+
+    assertThat(playlist.copyWithMasterPlaylistInfo(masterPlaylist).hasIndependentSegments).isTrue();
   }
 }

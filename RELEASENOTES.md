@@ -18,9 +18,12 @@
 * Error handling:
   * Allow configuration of the Loader retry delay
     ([#3370](https://github.com/google/ExoPlayer/issues/3370)).
-* HLS: Pass HTTP response headers to `HlsExtractorFactory.createExtractor`.
-* DRM: Allow DrmInitData to carry a license server URL
-  ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
+* HLS:
+  * Pass HTTP response headers to `HlsExtractorFactory.createExtractor`.
+  * Add support for EXT-X-INDEPENDENT-SEGMENTS in the master playlist.
+* DRM:
+  * Allow DrmInitData to carry a license server URL
+    ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
 * Add method to `BandwidthMeter` to return the `TransferListener` used to gather
   bandwidth information.
 * Add callback to `VideoListener` to notify of surface size changes.

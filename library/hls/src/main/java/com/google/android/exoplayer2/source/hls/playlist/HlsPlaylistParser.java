@@ -217,6 +217,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     Format muxedAudioFormat = null;
     List<Format> muxedCaptionFormats = null;
     boolean noClosedCaptions = false;
+    boolean hasIndependentSegmentsTag = false;
 
     String line;
     while (iterator.hasNext()) {
@@ -227,7 +228,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         tags.add(line);
       }
 
-      if (line.startsWith(TAG_MEDIA)) {
+      if (line.equals(TAG_INDEPENDENT_SEGMENTS)) {
+        hasIndependentSegmentsTag = true;
+      } else if (line.startsWith(TAG_MEDIA)) {
         // Media tags are parsed at the end to include codec information from #EXT-X-STREAM-INF
         // tags.
         mediaTags.add(line);
@@ -326,8 +329,15 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     if (noClosedCaptions) {
       muxedCaptionFormats = Collections.emptyList();
     }
-    return new HlsMasterPlaylist(baseUri, tags, variants, audios, subtitles, muxedAudioFormat,
-        muxedCaptionFormats);
+    return new HlsMasterPlaylist(
+        baseUri,
+        tags,
+        variants,
+        audios,
+        subtitles,
+        muxedAudioFormat,
+        muxedCaptionFormats,
+        hasIndependentSegmentsTag);
   }
 
   @C.SelectionFlags
