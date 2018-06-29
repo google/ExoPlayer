@@ -77,6 +77,9 @@ public final class C {
    */
   public static final long NANOS_PER_SECOND = 1000000000L;
 
+  /** The number of bits per byte. */
+  public static final int BITS_PER_BYTE = 8;
+
   /**
    * The name of the ASCII charset.
    */

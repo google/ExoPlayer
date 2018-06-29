@@ -15,9 +15,12 @@
  */
 package com.google.android.exoplayer2.extractor.amr;
 
+import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.extractor.ConstantBitrateSeekMap;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -29,6 +32,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 
 /**
@@ -48,6 +53,18 @@ public final class AmrExtractor implements Extractor {
           return new Extractor[] {new AmrExtractor()};
         }
       };
+
+  /** Flags controlling the behavior of the extractor. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      flag = true,
+      value = {FLAG_ENABLE_CONSTANT_BITRATE_SEEKING})
+  public @interface Flags {}
+  /**
+   * Flag to force enable seeking using a constant bitrate assumption in cases where seeking would
+   * otherwise not be possible.
+   */
+  public static final int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING = 1;
 
   /**
    * The frame size in bytes, including header (1 byte), for each of the 16 frame types for AMR
@@ -100,23 +117,43 @@ public final class AmrExtractor implements Extractor {
 
   /** Theoretical maximum frame size for a AMR frame. */
   private static final int MAX_FRAME_SIZE_BYTES = frameSizeBytesByTypeWb[8];
+  /**
+   * The required number of samples in the stream with same sample size to classify the stream as a
+   * constant-bitrate-stream.
+   */
+  private static final int NUM_SAME_SIZE_CONSTANT_BIT_RATE_THRESHOLD = 20;
 
   private static final int SAMPLE_RATE_WB = 16_000;
   private static final int SAMPLE_RATE_NB = 8_000;
   private static final int SAMPLE_TIME_PER_FRAME_US = 20_000;
 
   private final byte[] scratch;
+  private final @Flags int flags;
 
   private boolean isWideBand;
   private long currentSampleTimeUs;
-  private int currentSampleTotalBytes;
+  private int currentSampleSize;
   private int currentSampleBytesRemaining;
+  private boolean hasOutputSeekMap;
+  private long firstSamplePosition;
+  private int firstSampleSize;
+  private int numSamplesWithSameSize;
+  private long timeOffsetUs;
 
+  private ExtractorOutput extractorOutput;
   private TrackOutput trackOutput;
+  private @Nullable SeekMap seekMap;
   private boolean hasOutputFormat;
 
   public AmrExtractor() {
+    this(/* flags= */ 0);
+  }
+
+  /** @param flags Flags that control the extractor's behavior. */
+  public AmrExtractor(@Flags int flags) {
+    this.flags = flags;
     scratch = new byte[1];
+    firstSampleSize = C.LENGTH_UNSET;
   }
 
   // Extractor implementation.
@@ -127,10 +164,10 @@ public final class AmrExtractor implements Extractor {
   }
 
   @Override
-  public void init(ExtractorOutput output) {
-    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
-    trackOutput = output.track(/* id= */ 0, C.TRACK_TYPE_AUDIO);
-    output.endTracks();
+  public void init(ExtractorOutput extractorOutput) {
+    this.extractorOutput = extractorOutput;
+    trackOutput = extractorOutput.track(/* id= */ 0, C.TRACK_TYPE_AUDIO);
+    extractorOutput.endTracks();
   }
 
   @Override
@@ -142,14 +179,21 @@ public final class AmrExtractor implements Extractor {
       }
     }
     maybeOutputFormat();
-    return readSample(input);
+    int sampleReadResult = readSample(input);
+    maybeOutputSeekMap(input.getLength(), sampleReadResult);
+    return sampleReadResult;
   }
 
   @Override
   public void seek(long position, long timeUs) {
     currentSampleTimeUs = 0;
-    currentSampleTotalBytes = 0;
+    currentSampleSize = 0;
     currentSampleBytesRemaining = 0;
+    if (position != 0 && seekMap instanceof ConstantBitrateSeekMap) {
+      timeOffsetUs = ((ConstantBitrateSeekMap) seekMap).getTimeUsAtPosition(position);
+    } else {
+      timeOffsetUs = 0;
+    }
   }
 
   @Override
@@ -228,11 +272,18 @@ public final class AmrExtractor implements Extractor {
   private int readSample(ExtractorInput extractorInput) throws IOException, InterruptedException {
     if (currentSampleBytesRemaining == 0) {
       try {
-        currentSampleTotalBytes = readNextSampleSize(extractorInput);
+        currentSampleSize = peekNextSampleSize(extractorInput);
       } catch (EOFException e) {
         return RESULT_END_OF_INPUT;
       }
-      currentSampleBytesRemaining = currentSampleTotalBytes;
+      currentSampleBytesRemaining = currentSampleSize;
+      if (firstSampleSize == C.LENGTH_UNSET) {
+        firstSamplePosition = extractorInput.getPosition();
+        firstSampleSize = currentSampleSize;
+      }
+      if (firstSampleSize == currentSampleSize) {
+        numSamplesWithSameSize++;
+      }
     }
 
     int bytesAppended =
@@ -247,16 +298,16 @@ public final class AmrExtractor implements Extractor {
     }
 
     trackOutput.sampleMetadata(
-        currentSampleTimeUs,
+        timeOffsetUs + currentSampleTimeUs,
         C.BUFFER_FLAG_KEY_FRAME,
-        currentSampleTotalBytes,
+        currentSampleSize,
         /* offset= */ 0,
         /* encryptionData= */ null);
     currentSampleTimeUs += SAMPLE_TIME_PER_FRAME_US;
     return RESULT_CONTINUE;
   }
 
-  private int readNextSampleSize(ExtractorInput extractorInput)
+  private int peekNextSampleSize(ExtractorInput extractorInput)
       throws IOException, InterruptedException {
     extractorInput.resetPeekPosition();
     extractorInput.peekFully(scratch, /* offset= */ 0, /* length= */ 1);
@@ -295,5 +346,40 @@ public final class AmrExtractor implements Extractor {
   private boolean isNarrowBandValidFrameType(int frameType) {
     // For narrow band, type 12-14 are for future use.
     return !isWideBand && (frameType < 12 || frameType > 14);
+  }
+
+  private void maybeOutputSeekMap(long inputLength, int sampleReadResult) {
+    if (hasOutputSeekMap) {
+      return;
+    }
+
+    if ((flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING) == 0
+        || inputLength == C.LENGTH_UNSET
+        || (firstSampleSize != C.LENGTH_UNSET && firstSampleSize != currentSampleSize)) {
+      seekMap = new SeekMap.Unseekable(C.TIME_UNSET);
+      extractorOutput.seekMap(seekMap);
+      hasOutputSeekMap = true;
+    } else if (numSamplesWithSameSize >= NUM_SAME_SIZE_CONSTANT_BIT_RATE_THRESHOLD
+        || sampleReadResult == RESULT_END_OF_INPUT) {
+      seekMap = getConstantBitrateSeekMap(inputLength);
+      extractorOutput.seekMap(seekMap);
+      hasOutputSeekMap = true;
+    }
+  }
+
+  private SeekMap getConstantBitrateSeekMap(long inputLength) {
+    int bitrate = getBitrateFromFrameSize(firstSampleSize, SAMPLE_TIME_PER_FRAME_US);
+    return new ConstantBitrateSeekMap(inputLength, firstSamplePosition, bitrate, firstSampleSize);
+  }
+
+  /**
+   * Returns the stream bitrate, given a frame size and the duration of that frame in microseconds.
+   *
+   * @param frameSize The size of each frame in the stream.
+   * @param durationUsPerFrame The duration of the given frame in microseconds.
+   * @return The stream bitrate.
+   */
+  private static int getBitrateFromFrameSize(int frameSize, long durationUsPerFrame) {
+    return (int) ((frameSize * C.BITS_PER_BYTE * C.MICROS_PER_SECOND) / durationUsPerFrame);
   }
 }
