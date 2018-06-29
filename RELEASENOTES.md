@@ -39,6 +39,8 @@
   * Allow DrmInitData to carry a license server URL
     ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
 * Add callback to `VideoListener` to notify of surface size changes.
+* CEA-608: Improve handling of embedded styles
+  ([#4321](https://github.com/google/ExoPlayer/issues/4321)).
 * Fix bug when reporting buffered position for multi-period windows and add
   two additional convenience methods `Player.getTotalBufferedDuration` and
   `Player.getContentBufferedDuration`
