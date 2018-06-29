@@ -4,6 +4,11 @@
 
 * MediaSession extension:
   * Allow apps to set custom errors.
+* Audio:
+  * Support seeking for the AMR container format using constant bitrate seek
+    map.
+  * Add support for mu-law and A-law PCM with the ffmpeg extension
+    ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
 * Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
   creating a `CacheDataSource`.
 * Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend
@@ -31,8 +36,6 @@
   two additional convenience methods `Player.getTotalBufferedDuration` and
   `Player.getContentBufferedDuration`
   ([#4023](https://github.com/google/ExoPlayer/issues/4023)).
-* Add support for mu-law and A-law PCM with the ffmpeg extension
-  ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
 * MediaSession extension:
   * Allow apps to set custom metadata with a MediaMetadataProvider
     ([#3497](https://github.com/google/ExoPlayer/issues/3497)).
