@@ -18,8 +18,13 @@
 * Add support for lazy preparation of playlist media sources in
   `ConcatenatingMediaSource`
   ([#3972](https://github.com/google/ExoPlayer/issues/3972)).
-* Pass `BandwidthMeter` to `TrackSelection.Factory` which can be used to obtain
-  bandwidth estimates in the future. Always null at the moment.
+* `BandwidthMeter` management (work in progress):
+  * Pass `BandwidthMeter` to `TrackSelection.Factory` which can be used to
+    obtain bandwidth estimates in the future. Always null at the moment.
+  * Add method to `BandwidthMeter` to return the `TransferListener` used to
+    gather bandwidth information.
+  * Pass `TransferListener` to `MediaSource`s to listen to media data transfers.
+    Always null at the moment.
 * Error handling:
   * Allow configuration of the Loader retry delay
     ([#3370](https://github.com/google/ExoPlayer/issues/3370)).
@@ -29,8 +34,6 @@
 * DRM:
   * Allow DrmInitData to carry a license server URL
     ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
-* Add method to `BandwidthMeter` to return the `TransferListener` used to gather
-  bandwidth information.
 * Add callback to `VideoListener` to notify of surface size changes.
 * Fix bug when reporting buffered position for multi-period windows and add
   two additional convenience methods `Player.getTotalBufferedDuration` and

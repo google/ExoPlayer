@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListene
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 
 /**
@@ -76,8 +77,12 @@ public final class ImaAdsMediaSource extends BaseMediaSource implements SourceIn
   }
 
   @Override
-  public void prepareSourceInternal(final ExoPlayer player, boolean isTopLevelSource) {
-    adsMediaSource.prepareSource(player, isTopLevelSource, /* listener= */ this);
+  public void prepareSourceInternal(
+      final ExoPlayer player,
+      boolean isTopLevelSource,
+      @Nullable TransferListener<?> mediaTransferListener) {
+    adsMediaSource.prepareSource(
+        player, isTopLevelSource, /* listener= */ this, mediaTransferListener);
   }
 
   @Override

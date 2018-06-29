@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import android.support.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Timeline.Window;
@@ -44,6 +45,7 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -229,8 +231,10 @@ public final class ExoPlayerTest {
         new FakeMediaSource(timeline, new Object(), Builder.VIDEO_FORMAT) {
           @Override
           public synchronized void prepareSourceInternal(
-              ExoPlayer player, boolean isTopLevelSource) {
-            super.prepareSourceInternal(player, isTopLevelSource);
+              ExoPlayer player,
+              boolean isTopLevelSource,
+              @Nullable TransferListener<?> mediaTransferListener) {
+            super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
             // We've queued a source info refresh on the playback thread's event queue. Allow the
             // test thread to prepare the player with the third source, and block this thread (the
             // playback thread) until the test thread's call to prepare() has returned.
