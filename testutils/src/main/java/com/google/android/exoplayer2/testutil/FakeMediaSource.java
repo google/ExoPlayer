@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,7 +87,10 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public synchronized void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+  public synchronized void prepareSourceInternal(
+      ExoPlayer player,
+      boolean isTopLevelSource,
+      @Nullable TransferListener<?> mediaTransferListener) {
     assertThat(preparedSource).isFalse();
     preparedSource = true;
     releasedSource = false;

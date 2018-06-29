@@ -393,7 +393,11 @@ import java.util.Collections;
     loadControl.onPrepared();
     this.mediaSource = mediaSource;
     setState(Player.STATE_BUFFERING);
-    mediaSource.prepareSource(player, /* isTopLevelSource= */ true, /* listener= */ this);
+    mediaSource.prepareSource(
+        player,
+        /* isTopLevelSource= */ true,
+        /* listener= */ this,
+        /* mediaTransferListener= */ null);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
