@@ -175,10 +175,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   public final long targetDurationUs;
   /**
-   * Whether the playlist contains the #EXT-X-INDEPENDENT-SEGMENTS tag.
-   */
-  public final boolean hasIndependentSegmentsTag;
-  /**
    * Whether the playlist contains the #EXT-X-ENDLIST tag.
    */
   public final boolean hasEndTag;
@@ -211,7 +207,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * @param mediaSequence See {@link #mediaSequence}.
    * @param version See {@link #version}.
    * @param targetDurationUs See {@link #targetDurationUs}.
-   * @param hasIndependentSegmentsTag See {@link #hasIndependentSegmentsTag}.
+   * @param hasIndependentSegments See {@link #hasIndependentSegments}.
    * @param hasEndTag See {@link #hasEndTag}.
    * @param hasProgramDateTime See {@link #hasProgramDateTime}.
    * @param drmInitData See {@link #drmInitData}.
@@ -228,12 +224,12 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       long mediaSequence,
       int version,
       long targetDurationUs,
-      boolean hasIndependentSegmentsTag,
+      boolean hasIndependentSegments,
       boolean hasEndTag,
       boolean hasProgramDateTime,
       DrmInitData drmInitData,
       List<Segment> segments) {
-    super(baseUri, tags);
+    super(baseUri, tags, hasIndependentSegments);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;
     this.hasDiscontinuitySequence = hasDiscontinuitySequence;
@@ -241,7 +237,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.mediaSequence = mediaSequence;
     this.version = version;
     this.targetDurationUs = targetDurationUs;
-    this.hasIndependentSegmentsTag = hasIndependentSegmentsTag;
     this.hasEndTag = hasEndTag;
     this.hasProgramDateTime = hasProgramDateTime;
     this.drmInitData = drmInitData;
@@ -295,7 +290,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    *
    * @param startTimeUs The start time for the returned playlist.
    * @param discontinuitySequence The discontinuity sequence for the returned playlist.
-   * @return The playlist.
+   * @return An identical playlist including the provided discontinuity and timing information.
    */
   public HlsMediaPlaylist copyWith(long startTimeUs, int discontinuitySequence) {
     return new HlsMediaPlaylist(
@@ -309,7 +304,41 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         mediaSequence,
         version,
         targetDurationUs,
-        hasIndependentSegmentsTag,
+        hasIndependentSegments,
+        hasEndTag,
+        hasProgramDateTime,
+        drmInitData,
+        segments);
+  }
+
+  /**
+   * Returns a playlist identical to this one, except for adding any inheritable attributes from the
+   * provided {@link HlsMasterPlaylist}.
+   *
+   * <p>The inheritable attributes are:
+   *
+   * <ul>
+   *   <li>{@link #hasIndependentSegments}.
+   * </ul>
+   *
+   * @return An identical playlist including the inheritable attributes from {@code masterPlaylist}.
+   */
+  public HlsMediaPlaylist copyWithMasterPlaylistInfo(HlsMasterPlaylist masterPlaylist) {
+    if (hasIndependentSegments || !masterPlaylist.hasIndependentSegments) {
+      return this;
+    }
+    return new HlsMediaPlaylist(
+        playlistType,
+        baseUri,
+        tags,
+        startOffsetUs,
+        startTimeUs,
+        hasDiscontinuitySequence,
+        discontinuitySequence,
+        mediaSequence,
+        version,
+        targetDurationUs,
+        hasIndependentSegments || masterPlaylist.hasIndependentSegments,
         hasEndTag,
         hasProgramDateTime,
         drmInitData,
@@ -319,8 +348,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   /**
    * Returns a playlist identical to this one except that an end tag is added. If an end tag is
    * already present then the playlist will return itself.
-   *
-   * @return The playlist.
    */
   public HlsMediaPlaylist copyWithEndTag() {
     if (this.hasEndTag) {
@@ -337,7 +364,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         mediaSequence,
         version,
         targetDurationUs,
-        hasIndependentSegmentsTag,
+        hasIndependentSegments,
         /* hasEndTag= */ true,
         hasProgramDateTime,
         drmInitData,

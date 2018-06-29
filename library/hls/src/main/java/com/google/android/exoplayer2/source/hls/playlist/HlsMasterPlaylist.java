@@ -99,11 +99,18 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    * @param subtitles See {@link #subtitles}.
    * @param muxedAudioFormat See {@link #muxedAudioFormat}.
    * @param muxedCaptionFormats See {@link #muxedCaptionFormats}.
+   * @param hasIndependentSegments See {@link #hasIndependentSegments}.
    */
-  public HlsMasterPlaylist(String baseUri, List<String> tags, List<HlsUrl> variants,
-      List<HlsUrl> audios, List<HlsUrl> subtitles, Format muxedAudioFormat,
-      List<Format> muxedCaptionFormats) {
-    super(baseUri, tags);
+  public HlsMasterPlaylist(
+      String baseUri,
+      List<String> tags,
+      List<HlsUrl> variants,
+      List<HlsUrl> audios,
+      List<HlsUrl> subtitles,
+      Format muxedAudioFormat,
+      List<Format> muxedCaptionFormats,
+      boolean hasIndependentSegments) {
+    super(baseUri, tags, hasIndependentSegments);
     this.variants = Collections.unmodifiableList(variants);
     this.audios = Collections.unmodifiableList(audios);
     this.subtitles = Collections.unmodifiableList(subtitles);
@@ -121,7 +128,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
         copyRenditionsList(audios, GROUP_INDEX_AUDIO, streamKeys),
         copyRenditionsList(subtitles, GROUP_INDEX_SUBTITLE, streamKeys),
         muxedAudioFormat,
-        muxedCaptionFormats);
+        muxedCaptionFormats,
+        hasIndependentSegments);
   }
 
   /**
@@ -133,8 +141,15 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   public static HlsMasterPlaylist createSingleVariantMasterPlaylist(String variantUrl) {
     List<HlsUrl> variant = Collections.singletonList(HlsUrl.createMediaPlaylistHlsUrl(variantUrl));
     List<HlsUrl> emptyList = Collections.emptyList();
-    return new HlsMasterPlaylist(null, Collections.<String>emptyList(), variant, emptyList,
-        emptyList, null, null);
+    return new HlsMasterPlaylist(
+        null,
+        Collections.<String>emptyList(),
+        variant,
+        emptyList,
+        emptyList,
+        /* muxedAudioFormat= */ null,
+        /* muxedCaptionFormats= */ null,
+        /* hasIndependentSegments= */ false);
   }
 
   private static List<HlsUrl> copyRenditionsList(

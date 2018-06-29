@@ -544,6 +544,9 @@ public final class DefaultHlsPlaylistTracker
     }
 
     private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist) {
+      // Update the loaded playlist with any inheritable information from the master playlist.
+      loadedPlaylist = loadedPlaylist.copyWithMasterPlaylistInfo(masterPlaylist);
+
       HlsMediaPlaylist oldPlaylist = playlistSnapshot;
       long currentTimeMs = SystemClock.elapsedRealtime();
       lastSnapshotLoadMs = currentTimeMs;
