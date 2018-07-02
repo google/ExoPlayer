@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispat
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerEmsgCallback;
+import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
@@ -985,8 +986,25 @@ public final class DashMediaSource extends BaseMediaSource {
       long availableEndTimeUs = Long.MAX_VALUE;
       boolean isIndexExplicit = false;
       boolean seenEmptyIndex = false;
+
+      boolean haveAudioVideoAdaptationSets = false;
       for (int i = 0; i < adaptationSetCount; i++) {
-        DashSegmentIndex index = period.adaptationSets.get(i).representations.get(0).getIndex();
+        int type = period.adaptationSets.get(i).type;
+        if (type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO) {
+          haveAudioVideoAdaptationSets = true;
+          break;
+        }
+      }
+
+      for (int i = 0; i < adaptationSetCount; i++) {
+        AdaptationSet adaptationSet = period.adaptationSets.get(i);
+        // Exclude text adaptation sets from duration calculations, if we have at least one audio
+        // or video adaptation set. See: https://github.com/google/ExoPlayer/issues/4029
+        if (haveAudioVideoAdaptationSets && adaptationSet.type == C.TRACK_TYPE_TEXT) {
+          continue;
+        }
+
+        DashSegmentIndex index = adaptationSet.representations.get(0).getIndex();
         if (index == null) {
           return new PeriodSeekInfo(true, 0, durationUs);
         }

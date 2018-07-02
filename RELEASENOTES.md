@@ -32,6 +32,8 @@
 * Error handling:
   * Allow configuration of the Loader retry delay
     ([#3370](https://github.com/google/ExoPlayer/issues/3370)).
+* DASH: Exclude text streams from duration calculations
+  ([#4029](https://github.com/google/ExoPlayer/issues/4029)).
 * HLS:
   * Pass HTTP response headers to `HlsExtractorFactory.createExtractor`.
   * Add support for EXT-X-INDEPENDENT-SEGMENTS in the master playlist.
