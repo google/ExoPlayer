@@ -166,7 +166,10 @@ public class DefaultSsChunkSource implements SsChunkSource {
   }
 
   @Override
-  public final void getNextChunk(MediaChunk previous, long playbackPositionUs, long loadPositionUs,
+  public final void getNextChunk(
+      long playbackPositionUs,
+      long loadPositionUs,
+      List<? extends MediaChunk> queue,
       ChunkHolder out) {
     if (fatalError != null) {
       return;
@@ -180,10 +183,11 @@ public class DefaultSsChunkSource implements SsChunkSource {
     }
 
     int chunkIndex;
-    if (previous == null) {
+    if (queue.isEmpty()) {
       chunkIndex = streamElement.getChunkIndex(loadPositionUs);
     } else {
-      chunkIndex = (int) (previous.getNextChunkIndex() - currentManifestChunkOffset);
+      chunkIndex =
+          (int) (queue.get(queue.size() - 1).getNextChunkIndex() - currentManifestChunkOffset);
       if (chunkIndex < 0) {
         // This is before the first chunk in the current manifest.
         fatalError = new BehindLiveWindowException();
@@ -203,7 +207,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
     long chunkStartTimeUs = streamElement.getStartTimeUs(chunkIndex);
     long chunkEndTimeUs = chunkStartTimeUs + streamElement.getChunkDurationUs(chunkIndex);
-    long chunkSeekTimeUs = previous == null ? loadPositionUs : C.TIME_UNSET;
+    long chunkSeekTimeUs = queue.isEmpty() ? loadPositionUs : C.TIME_UNSET;
     int currentAbsoluteChunkIndex = chunkIndex + currentManifestChunkOffset;
 
     int trackSelectionIndex = trackSelection.getSelectedIndex();

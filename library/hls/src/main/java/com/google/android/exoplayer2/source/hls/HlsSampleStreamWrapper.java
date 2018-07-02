@@ -49,6 +49,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
@@ -100,6 +102,7 @@ import java.util.Arrays;
   private final EventDispatcher eventDispatcher;
   private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
   private final ArrayList<HlsMediaChunk> mediaChunks;
+  private final List<HlsMediaChunk> readOnlyMediaChunks;
   private final Runnable maybeFinishPrepareRunnable;
   private final Runnable onTracksEndedRunnable;
   private final Handler handler;
@@ -168,6 +171,7 @@ import java.util.Arrays;
     sampleQueueIsAudioVideoFlags = new boolean[0];
     sampleQueuesEnabledStates = new boolean[0];
     mediaChunks = new ArrayList<>();
+    readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     hlsSampleStreams = new ArrayList<>();
     maybeFinishPrepareRunnable =
         new Runnable() {
@@ -527,16 +531,16 @@ import java.util.Arrays;
       return false;
     }
 
-    HlsMediaChunk previousChunk;
+    List<HlsMediaChunk> chunkQueue;
     long loadPositionUs;
     if (isPendingReset()) {
-      previousChunk = null;
+      chunkQueue = Collections.emptyList();
       loadPositionUs = pendingResetPositionUs;
     } else {
-      previousChunk = getLastMediaChunk();
-      loadPositionUs = previousChunk.endTimeUs;
+      chunkQueue = readOnlyMediaChunks;
+      loadPositionUs = getLastMediaChunk().endTimeUs;
     }
-    chunkSource.getNextChunk(previousChunk, positionUs, loadPositionUs, nextChunkHolder);
+    chunkSource.getNextChunk(positionUs, loadPositionUs, chunkQueue, nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     Chunk loadable = nextChunkHolder.chunk;
     HlsMasterPlaylist.HlsUrl playlistToLoad = nextChunkHolder.playlist;
