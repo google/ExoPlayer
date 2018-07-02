@@ -174,7 +174,7 @@ Handler mainHandler = new Handler();
 BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 TrackSelection.Factory videoTrackSelectionFactory =
     new AdaptiveTrackSelection.Factory(bandwidthMeter);
-TrackSelector trackSelector =
+DefaultTrackSelector trackSelector =
     new DefaultTrackSelector(videoTrackSelectionFactory);
 
 // 2. Create the player
@@ -420,6 +420,35 @@ ConcatenatingMediaSource concatenatedSource =
     new ConcatenatingMediaSource(firstSource, firstSource, secondSource);
 {% endhighlight %}
 
+## Track selection ##
+
+Track selection determines which of the available media tracks are played by the
+player's `Renderer`s. Track selection is the responsibility of a
+`TrackSelector`, an instance of which must be provided whenever an `ExoPlayer`
+is built.
+
+`DefaultTrackSelector` is a flexible `TrackSelector` suitable for most use
+cases. When using a `DefaultTrackSelector`, it's possible to control which
+tracks it selects by modifying its `Parameters`. This can be done before or
+during playback. For example the following code tells the selector to restrict
+video track selections to SD, and to select a German audio track if there is
+one:
+
+{% highlight java %}
+trackSelector.setParameters(
+    trackSelector
+        .buildUponParameters()
+        .setMaxVideoSizeSd()
+        .setPreferredAudioLanguage("deu"));
+{% endhighlight %}
+
+This is an example of constraint based track selection, in which constraints are
+specified without knowledge of the tracks that are actually available. Many
+different types of constraint can be specified using `Parameters`. `Parameters`
+can also be used to select specific tracks from those that are available. See
+the [`DefaultTrackSelector`][], [`Parameters`][] and [`ParametersBuilder`][]
+documentation for more details.
+
 ## Sending messages to components ##
 
 It's possible to send messages to ExoPlayer components. These can be created
@@ -507,8 +536,11 @@ Advice on minimizing the size of the ExoPlayer library can be found on the
 [Shrinking ExoPlayer page]: {{ site.baseurl }}/shrinking.html
 [ExoPlayer library]: {{ site.releasev2 }}/library
 [main demo app]: {{ site.releasev2 }}/demos/main
-[`MediaPlayer`]: {{ site.sdkurl }}/android/media/MediaPlayer.html
-[`MediaCodec`]: {{ site.sdkurl }}/android/media/MediaCodec.html
-[`AudioTrack`]: {{ site.sdkurl }}/android/media/AudioTrack.html
-[`MediaDrm`]: {{ site.sdkurl }}/android/media/MediaDrm.html
+[`MediaPlayer`]: {{ site.android_sdk }}/android/media/MediaPlayer.html
+[`MediaCodec`]: {{ site.android_sdk }}/android/media/MediaCodec.html
+[`AudioTrack`]: {{ site.android_sdk }}/android/media/AudioTrack.html
+[`MediaDrm`]: {{ site.android_sdk }}/android/media/MediaDrm.html
+[`DefaultTrackSelector`]: {{ site.exo_sdk }}/trackselection/DefaultTrackSelector.html
+[`Parameters`]: {{ site.exo_sdk }}/trackselection/DefaultTrackSelector.Parameters.html
+[`ParametersBuilder`]: {{ site.exo_sdk }}/trackselection/DefaultTrackSelector.ParametersBuilder.html
 [extensions directory]: {{ site.releasev2 }}/extensions/

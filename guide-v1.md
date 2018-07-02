@@ -418,7 +418,7 @@ implement this interface to make network requests to your license server and obt
 keys. The `WidevineTestMediaDrmCallback` class in the ExoPlayer demo app sends requests to a
 Widevine test server.
 
-[`MediaPlayer`]: {{ site.sdkurl }}/android/media/MediaPlayer.html
-[`MediaCodec`]: {{ site.sdkurl }}/android/media/MediaCodec.html
-[`AudioTrack`]: {{ site.sdkurl }}/android/media/AudioTrack.html
-[`MediaDrm`]: {{ site.sdkurl }}/android/media/MediaDrm.html
+[`MediaPlayer`]: {{ site.android_sdk }}/android/media/MediaPlayer.html
+[`MediaCodec`]: {{ site.android_sdk }}/android/media/MediaCodec.html
+[`AudioTrack`]: {{ site.android_sdk }}/android/media/AudioTrack.html
+[`MediaDrm`]: {{ site.android_sdk }}/android/media/MediaDrm.html

@@ -211,23 +211,23 @@ physical devices rather than emulators.
 [Does ExoPlayer support emulators?]: #does-exoplayer-support-emulators
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
-[setPlaybackParameters]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-
-[FLAG_ENABLE_CONSTANT_BITRATE_SEEKING]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/extractor/mp3/Mp3Extractor.html#FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
-[setMp3ExtractorFlags]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
-[FLAG_DETECT_ACCESS_UNITS]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
-[FLAG_ALLOW_NON_IDR_KEYFRAMES]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES
-[setTsExtractorFlags]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
-[Mp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/extractor/mp4/Mp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
-[FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/extractor/mp4/FragmentedMp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
-[setMp4ExtractorFlags]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setMp4ExtractorFlags-int-
-[setFragmentedMp4ExtractorFlags]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/extractor/DefaultExtractorsFactory#setFragmentedMp4ExtractorFlags-int-
+[setPlaybackParameters]: {{ site.exo_sdk }}/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-
+[FLAG_ENABLE_CONSTANT_BITRATE_SEEKING]: {{ site.exo_sdk }}/extractor/mp3/Mp3Extractor.html#FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
+[setMp3ExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
+[FLAG_DETECT_ACCESS_UNITS]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
+[FLAG_ALLOW_NON_IDR_KEYFRAMES]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES
+[setTsExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
+[Mp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS]: {{ site.exo_sdk }}/extractor/mp4/Mp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
+[FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS]: {{ site.exo_sdk }}/extractor/mp4/FragmentedMp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
+[setMp4ExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp4ExtractorFlags-int-
+[setFragmentedMp4ExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setFragmentedMp4ExtractorFlags-int-
 [Wikipedia]: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 [wget]: https://www.gnu.org/software/wget/manual/wget.html
-[`DefaultHttpDataSourceFactory`]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html
-[Util.inferContentType]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/util/Util.html#inferContentType-android.net.Uri-
+[`DefaultHttpDataSourceFactory`]: {{ site.exo_sdk }}/upstream/DefaultHttpDataSourceFactory.html
+[Util.inferContentType]: {{ site.exo_sdk }}/util/Util.html#inferContentType-android.net.Uri-
 [issue tracker]: https://github.com/google/ExoPlayer/issues
-[isCurrentWindowDynamic]: {{ site.baseurl }}/doc/reference/com/google/android/exoplayer2/ExoPlayer.html#isCurrentWindowDynamic--
+[isCurrentWindowDynamic]: {{ site.exo_sdk }}/ExoPlayer.html#isCurrentWindowDynamic--
 [foreground service]: https://developer.android.com/guide/components/services.html#Foreground
-[WifiLock]: https://developer.android.com/reference/android/net/wifi/WifiManager.WifiLock.html
-[WakeLock]: https://developer.android.com/reference/android/os/PowerManager.WakeLock.html
-[`SDK_INT`]: https://developer.android.com/reference/android/os/Build.VERSION.html#SDK_INT
+[WifiLock]: {{ site.android_sdk }}/android/net/wifi/WifiManager.WifiLock.html
+[WakeLock]: {{ site.android_sdk }}/android/os/PowerManager.WakeLock.html
+[`SDK_INT`]: {{ site.android_sdk }}/android/os/Build.VERSION.html#SDK_INT

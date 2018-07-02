@@ -81,4 +81,4 @@ multi-key content is currently supported only when the license server is
 configured as described in Case 1 above." %}
 
 [main demo app]: {{ site.releasev2 }}/demos/main
-[`MediaDrm`]: {{ site.sdkurl }}/android/media/MediaDrm.html
+[`MediaDrm`]: {{ site.android_sdk }}/android/media/MediaDrm.html
