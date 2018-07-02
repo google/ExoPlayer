@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.source.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer2.source.chunk.InitializationChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.SingleSampleMediaChunk;
 import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
@@ -54,6 +55,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * A default {@link DashChunkSource} implementation.
@@ -502,6 +504,70 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   // Protected classes.
+
+  /** {@link MediaChunkIterator} wrapping a {@link RepresentationHolder}. */
+  protected static final class RepresentationSegmentIterator implements MediaChunkIterator {
+
+    private final RepresentationHolder representationHolder;
+    private final long firstSegmentNum;
+    private final long lastAvailableSegmentNum;
+
+    private long segmentNum;
+
+    /**
+     * Creates iterator.
+     *
+     * @param representation The {@link RepresentationHolder} to wrap.
+     * @param segmentNum The number of the segment this iterator will be pointing to initially.
+     * @param lastAvailableSegmentNum The number of the last available segment.
+     */
+    public RepresentationSegmentIterator(
+        RepresentationHolder representation, long segmentNum, long lastAvailableSegmentNum) {
+      this.representationHolder = representation;
+      this.firstSegmentNum = segmentNum;
+      this.segmentNum = segmentNum - 1;
+      this.lastAvailableSegmentNum = lastAvailableSegmentNum;
+    }
+
+    @Override
+    public boolean isEnded() {
+      return segmentNum > lastAvailableSegmentNum;
+    }
+
+    @Override
+    public boolean next() {
+      segmentNum++;
+      return segmentNum <= lastAvailableSegmentNum;
+    }
+
+    @Override
+    public @Nullable DataSpec getDataSpec() {
+      checkInBounds();
+      Representation representation = representationHolder.representation;
+      RangedUri segmentUri = representationHolder.getSegmentUrl(segmentNum);
+      Uri resolvedUri = segmentUri.resolveUri(representation.baseUrl);
+      String cacheKey = representation.getCacheKey();
+      return new DataSpec(resolvedUri, segmentUri.start, segmentUri.length, cacheKey);
+    }
+
+    @Override
+    public long getChunkStartTimeUs() {
+      checkInBounds();
+      return representationHolder.getSegmentStartTimeUs(segmentNum);
+    }
+
+    @Override
+    public long getChunkEndTimeUs() {
+      checkInBounds();
+      return representationHolder.getSegmentEndTimeUs(segmentNum);
+    }
+
+    private void checkInBounds() {
+      if (segmentNum < firstSegmentNum || segmentNum > lastAvailableSegmentNum) {
+        throw new NoSuchElementException();
+      }
+    }
+  }
 
   /** Holds information about a snapshot of a single {@link Representation}. */
   protected static final class RepresentationHolder {
