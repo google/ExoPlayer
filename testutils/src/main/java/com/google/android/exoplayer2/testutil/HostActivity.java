@@ -80,6 +80,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   }
 
   private static final String TAG = "HostActivity";
+  private static final long START_TIMEOUT_MS = 5000;
 
   private WakeLock wakeLock;
   private WifiLock wifiLock;
@@ -124,7 +125,13 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
         maybeStartHostedTest();
       }
     });
-    hostedTestStartedCondition.block();
+
+    if (!hostedTestStartedCondition.block(START_TIMEOUT_MS)) {
+      String message =
+          "Test failed to start. Display may be turned off or keyguard may be present.";
+      Log.e(TAG, message);
+      fail(message);
+    }
 
     if (hostedTest.blockUntilStopped(timeoutMs)) {
       if (!forcedStopped) {
