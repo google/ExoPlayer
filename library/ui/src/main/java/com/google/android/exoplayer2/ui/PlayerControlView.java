@@ -25,6 +25,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -946,6 +947,16 @@ public class PlayerControlView extends FrameLayout {
   }
 
   @Override
+  public final boolean dispatchTouchEvent(MotionEvent ev) {
+    if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+      removeCallbacks(hideAction);
+    } else if (ev.getAction() == MotionEvent.ACTION_UP) {
+      hideAfterTimeout();
+    }
+    return super.dispatchTouchEvent(ev);
+  }
+
+  @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
     return dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
   }
@@ -1035,7 +1046,6 @@ public class PlayerControlView extends FrameLayout {
 
     @Override
     public void onScrubStart(TimeBar timeBar, long position) {
-      removeCallbacks(hideAction);
       scrubbing = true;
     }
 
@@ -1052,7 +1062,6 @@ public class PlayerControlView extends FrameLayout {
       if (!canceled && player != null) {
         seekToTimeBarPosition(position);
       }
-      hideAfterTimeout();
     }
 
     @Override
@@ -1116,7 +1125,6 @@ public class PlayerControlView extends FrameLayout {
           controlDispatcher.dispatchSetShuffleModeEnabled(player, !player.getShuffleModeEnabled());
         }
       }
-      hideAfterTimeout();
     }
   }
 }
