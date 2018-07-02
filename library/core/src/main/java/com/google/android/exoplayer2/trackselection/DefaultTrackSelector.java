@@ -56,7 +56,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * obtain a {@link ParametersBuilder} initialized with the current {@link Parameters}. The desired
  * modifications can be made on the builder, and the resulting {@link Parameters} can then be built
  * and set on the selector. For example the following code modifies the parameters to restrict video
- * track selections to SD, and to prefer German audio tracks:
+ * track selections to SD, and to select a German audio track if there is one:
  *
  * <pre>{@code
  * // Build on the current parameters.
@@ -83,7 +83,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  *
  * Selection {@link Parameters} support many different options, some of which are described below.
  *
- * <h3>Track selection overrides</h3>
+ * <h3>Selecting specific tracks</h3>
  *
  * Track selection overrides can be used to select specific tracks. To specify an override for a
  * renderer, it's first necessary to obtain the tracks that have been mapped to it:
@@ -109,13 +109,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  *         .buildUponParameters()
  *         .setSelectionOverride(rendererIndex, rendererTrackGroups, selectionOverride));
  * }</pre>
- *
- * <h3>Disabling renderers</h3>
- *
- * Renderers can be disabled using {@link ParametersBuilder#setRendererDisabled}. Disabling a
- * renderer differs from setting a {@code null} override because the renderer is disabled
- * unconditionally, whereas a {@code null} override is applied only when the track groups available
- * to the renderer match the {@link TrackGroupArray} for which it was specified.
  *
  * <h3>Constraint based track selection</h3>
  *
@@ -144,6 +137,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  *       even if those periods contain different tracks. In contrast, a specific track override is
  *       only applied to periods whose tracks match those for which the override was set.
  * </ul>
+ *
+ * <h3>Disabling renderers</h3>
+ *
+ * Renderers can be disabled using {@link ParametersBuilder#setRendererDisabled}. Disabling a
+ * renderer differs from setting a {@code null} override because the renderer is disabled
+ * unconditionally, whereas a {@code null} override is applied only when the track groups available
+ * to the renderer match the {@link TrackGroupArray} for which it was specified.
  *
  * <h3>Tunneling</h3>
  *
