@@ -2,6 +2,8 @@
 
 ### 2.8.3 ###
 
+* DASH: Exclude text streams from duration calculations
+  ([#4029](https://github.com/google/ExoPlayer/issues/4029)).
 * DRM:
   * Allow DrmInitData to carry a license server URL
     ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
