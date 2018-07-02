@@ -95,14 +95,17 @@ public final class FakeChunkSource implements ChunkSource {
   }
 
   @Override
-  public void getNextChunk(MediaChunk previous, long playbackPositionUs, long loadPositionUs,
+  public void getNextChunk(
+      long playbackPositionUs,
+      long loadPositionUs,
+      List<? extends MediaChunk> queue,
       ChunkHolder out) {
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, C.TIME_UNSET);
     int chunkIndex =
-        previous == null
+        queue.isEmpty()
             ? dataSet.getChunkIndexByPosition(playbackPositionUs)
-            : (int) previous.getNextChunkIndex();
+            : (int) queue.get(queue.size() - 1).getNextChunkIndex();
     if (chunkIndex >= dataSet.getChunkCount()) {
       out.endOfStream = true;
     } else {

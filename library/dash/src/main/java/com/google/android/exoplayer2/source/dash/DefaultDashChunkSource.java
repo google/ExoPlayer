@@ -238,7 +238,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   @Override
-  public void getNextChunk(MediaChunk previous, long playbackPositionUs, long loadPositionUs,
+  public void getNextChunk(
+      long playbackPositionUs,
+      long loadPositionUs,
+      List<? extends MediaChunk> queue,
       ChunkHolder out) {
     if (fatalError != null) {
       return;
@@ -311,11 +314,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
     updateLiveEdgeTimeUs(representationHolder, lastAvailableSegmentNum);
 
     long segmentNum;
-    if (previous == null) {
+    if (queue.isEmpty()) {
       segmentNum = Util.constrainValue(representationHolder.getSegmentNum(loadPositionUs),
           firstAvailableSegmentNum, lastAvailableSegmentNum);
     } else {
-      segmentNum = previous.getNextChunkIndex();
+      segmentNum = queue.get(queue.size() - 1).getNextChunkIndex();
       if (segmentNum < firstAvailableSegmentNum) {
         // This is before the first chunk in the current manifest.
         fatalError = new BehindLiveWindowException();
@@ -332,7 +335,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     int maxSegmentCount =
         (int) Math.min(maxSegmentsPerLoad, lastAvailableSegmentNum - segmentNum + 1);
-    long seekTimeUs = previous == null ? loadPositionUs : C.TIME_UNSET;
+    long seekTimeUs = queue.isEmpty() ? loadPositionUs : C.TIME_UNSET;
     out.chunk =
         newMediaChunk(
             representationHolder,

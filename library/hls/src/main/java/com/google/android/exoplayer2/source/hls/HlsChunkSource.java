@@ -204,18 +204,20 @@ import java.util.List;
    * but the end of the stream has not been reached, {@link HlsChunkHolder#playlist} is set to
    * contain the {@link HlsUrl} that refers to the playlist that needs refreshing.
    *
-   * @param previous The most recently loaded media chunk.
    * @param playbackPositionUs The current playback position relative to the period start in
    *     microseconds. If playback of the period to which this chunk source belongs has not yet
    *     started, the value will be the starting position in the period minus the duration of any
    *     media in previous periods still to be played.
    * @param loadPositionUs The current load position relative to the period start in microseconds.
-   *     If {@code previous} is null, this is the starting position from which chunks should be
-   *     provided. Else it's equal to {@code previous.endTimeUs}.
+   *     If {@code queue} is empty, this is the starting position from which chunks should be
+   *     provided. Else it's equal to {@link HlsMediaChunk#endTimeUs} of the last chunk in the
+   *     {@code queue}.
+   * @param queue The queue of buffered {@link HlsMediaChunk}s.
    * @param out A holder to populate.
    */
   public void getNextChunk(
-      HlsMediaChunk previous, long playbackPositionUs, long loadPositionUs, HlsChunkHolder out) {
+      long playbackPositionUs, long loadPositionUs, List<HlsMediaChunk> queue, HlsChunkHolder out) {
+    HlsMediaChunk previous = queue.isEmpty() ? null : queue.get(queue.size() - 1);
     int oldVariantIndex = previous == null ? C.INDEX_UNSET
         : trackGroup.indexOf(previous.trackFormat);
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
