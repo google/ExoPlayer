@@ -93,7 +93,11 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         // The playlist declares closed caption renditions, we should ignore descriptors.
         esReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_OVERRIDE_CAPTION_DESCRIPTORS;
       } else {
-        muxedCaptionFormats = Collections.emptyList();
+        // The playlist does not provide any closed caption information. We preemptively declare a
+        // closed caption track on channel 0.
+        muxedCaptionFormats =
+            Collections.singletonList(
+                Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608, 0, null));
       }
       String codecs = format.codecs;
       if (!TextUtils.isEmpty(codecs)) {
