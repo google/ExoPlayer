@@ -57,6 +57,7 @@ public final class FileDataSource extends BaseDataSource {
   public long open(DataSpec dataSpec) throws FileDataSourceException {
     try {
       uri = dataSpec.uri;
+      transferInitializing(dataSpec);
       file = new RandomAccessFile(dataSpec.uri.getPath(), "r");
       file.seek(dataSpec.position);
       bytesRemaining = dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position

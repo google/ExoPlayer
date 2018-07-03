@@ -301,6 +301,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     }
     currentUrlRequest.start();
 
+    transferInitializing(dataSpec);
     try {
       boolean connectionOpened = blockUntilConnectTimeout();
       if (exception != null) {

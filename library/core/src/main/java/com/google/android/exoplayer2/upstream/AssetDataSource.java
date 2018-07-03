@@ -74,6 +74,7 @@ public final class AssetDataSource extends BaseDataSource {
       } else if (path.startsWith("/")) {
         path = path.substring(1);
       }
+      transferInitializing(dataSpec);
       inputStream = assetManager.open(path, AssetManager.ACCESS_RANDOM);
       long skipped = inputStream.skip(dataSpec.position);
       if (skipped < dataSpec.position) {

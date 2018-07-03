@@ -104,10 +104,12 @@ public class FakeDataSource extends BaseDataSource {
   public final long open(DataSpec dataSpec) throws IOException {
     Assertions.checkState(!openCalled);
     openCalled = true;
+
     // DataSpec requires a matching close call even if open fails.
     uri = dataSpec.uri;
     openedDataSpecs.add(dataSpec);
 
+    transferInitializing(dataSpec);
     fakeData = fakeDataSet.getData(uri.toString());
     if (fakeData == null) {
       throw new IOException("Data not found: " + dataSpec.uri);

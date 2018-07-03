@@ -51,6 +51,7 @@ public final class RtmpDataSource extends BaseDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws RtmpIOException {
+    transferInitializing(dataSpec);
     rtmpClient = new RtmpClient();
     rtmpClient.open(dataSpec.uri.toString(), false);
 

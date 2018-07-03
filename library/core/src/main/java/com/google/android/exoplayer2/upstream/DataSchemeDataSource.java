@@ -39,6 +39,7 @@ public final class DataSchemeDataSource extends BaseDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
+    transferInitializing(dataSpec);
     this.dataSpec = dataSpec;
     Uri uri = dataSpec.uri;
     String scheme = uri.getScheme();
