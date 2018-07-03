@@ -33,7 +33,7 @@ project.ext {
     robolectricVersion = '3.7.1'
     autoValueVersion = '1.6'
     checkerframeworkVersion = '2.5.0'
-    testRunnerVersion = '1.0.2'
+    testRunnerVersion = '1.1.0-alpha3'
     modulePrefix = ':'
     if (gradle.ext.has('exoplayerModulePrefix')) {
         modulePrefix += gradle.ext.exoplayerModulePrefix
