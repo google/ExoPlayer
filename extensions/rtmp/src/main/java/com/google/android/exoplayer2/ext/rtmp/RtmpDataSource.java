@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -26,16 +27,12 @@ import java.io.IOException;
 import net.butterflytv.rtmp_client.RtmpClient;
 import net.butterflytv.rtmp_client.RtmpClient.RtmpIOException;
 
-/**
- * A Real-Time Messaging Protocol (RTMP) {@link DataSource}.
- */
-public final class RtmpDataSource implements DataSource {
+/** A Real-Time Messaging Protocol (RTMP) {@link DataSource}. */
+public final class RtmpDataSource extends BaseDataSource {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.rtmp");
   }
-
-  @Nullable private final TransferListener<? super RtmpDataSource> listener;
 
   private RtmpClient rtmpClient;
   private Uri uri;
@@ -44,11 +41,12 @@ public final class RtmpDataSource implements DataSource {
     this(null);
   }
 
-  /**
-   * @param listener An optional listener.
-   */
-  public RtmpDataSource(@Nullable TransferListener<? super RtmpDataSource> listener) {
-    this.listener = listener;
+  /** @param listener An optional listener. */
+  public RtmpDataSource(@Nullable TransferListener<? super DataSource> listener) {
+    super(DataSource.TYPE_REMOTE);
+    if (listener != null) {
+      addTransferListener(listener);
+    }
   }
 
   @Override
@@ -57,9 +55,7 @@ public final class RtmpDataSource implements DataSource {
     rtmpClient.open(dataSpec.uri.toString(), false);
 
     this.uri = dataSpec.uri;
-    if (listener != null) {
-      listener.onTransferStart(this, dataSpec);
-    }
+    transferStarted(dataSpec);
     return C.LENGTH_UNSET;
   }
 
@@ -69,9 +65,7 @@ public final class RtmpDataSource implements DataSource {
     if (bytesRead == -1) {
       return C.RESULT_END_OF_INPUT;
     }
-    if (listener != null) {
-      listener.onBytesTransferred(this, bytesRead);
-    }
+    bytesTransferred(bytesRead);
     return bytesRead;
   }
 
@@ -79,9 +73,7 @@ public final class RtmpDataSource implements DataSource {
   public void close() {
     if (uri != null) {
       uri = null;
-      if (listener != null) {
-        listener.onTransferEnd(this);
-      }
+      transferEnded();
     }
     if (rtmpClient != null) {
       rtmpClient.close();

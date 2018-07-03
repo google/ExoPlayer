@@ -18,15 +18,14 @@ package com.google.android.exoplayer2.upstream;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * A {@link DataSource} for reading from a local asset.
- */
-public final class AssetDataSource implements DataSource {
+/** A {@link DataSource} for reading from a local asset. */
+public final class AssetDataSource extends BaseDataSource {
 
   /**
    * Thrown when an {@link IOException} is encountered reading a local asset.
@@ -40,10 +39,9 @@ public final class AssetDataSource implements DataSource {
   }
 
   private final AssetManager assetManager;
-  private final TransferListener<? super AssetDataSource> listener;
 
-  private Uri uri;
-  private InputStream inputStream;
+  private @Nullable Uri uri;
+  private @Nullable InputStream inputStream;
   private long bytesRemaining;
   private boolean opened;
 
@@ -58,9 +56,12 @@ public final class AssetDataSource implements DataSource {
    * @param context A context.
    * @param listener An optional listener.
    */
-  public AssetDataSource(Context context, TransferListener<? super AssetDataSource> listener) {
+  public AssetDataSource(Context context, @Nullable TransferListener<? super DataSource> listener) {
+    super(DataSource.TYPE_LOCAL);
     this.assetManager = context.getAssets();
-    this.listener = listener;
+    if (listener != null) {
+      addTransferListener(listener);
+    }
   }
 
   @Override
@@ -96,9 +97,7 @@ public final class AssetDataSource implements DataSource {
     }
 
     opened = true;
-    if (listener != null) {
-      listener.onTransferStart(this, dataSpec);
-    }
+    transferStarted(dataSpec);
     return bytesRemaining;
   }
 
@@ -129,14 +128,12 @@ public final class AssetDataSource implements DataSource {
     if (bytesRemaining != C.LENGTH_UNSET) {
       bytesRemaining -= bytesRead;
     }
-    if (listener != null) {
-      listener.onBytesTransferred(this, bytesRead);
-    }
+    bytesTransferred(bytesRead);
     return bytesRead;
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return uri;
   }
 
@@ -153,9 +150,7 @@ public final class AssetDataSource implements DataSource {
       inputStream = null;
       if (opened) {
         opened = false;
-        if (listener != null) {
-          listener.onTransferEnd(this);
-        }
+        transferEnded();
       }
     }
   }

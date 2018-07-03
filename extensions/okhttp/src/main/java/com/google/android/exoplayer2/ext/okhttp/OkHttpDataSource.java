@@ -20,6 +20,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.upstream.BaseDataSource;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -42,10 +44,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-/**
- * An {@link HttpDataSource} that delegates to Square's {@link Call.Factory}.
- */
-public class OkHttpDataSource implements HttpDataSource {
+/** An {@link HttpDataSource} that delegates to Square's {@link Call.Factory}. */
+public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.okhttp");
@@ -58,7 +58,6 @@ public class OkHttpDataSource implements HttpDataSource {
 
   @Nullable private final String userAgent;
   @Nullable private final Predicate<String> contentTypePredicate;
-  @Nullable private final TransferListener<? super OkHttpDataSource> listener;
   @Nullable private final CacheControl cacheControl;
   @Nullable private final RequestProperties defaultRequestProperties;
 
@@ -90,13 +89,15 @@ public class OkHttpDataSource implements HttpDataSource {
    *     by the source.
    * @param userAgent An optional User-Agent string.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link InvalidContentTypeException} is thrown from
-   *     {@link #open(DataSpec)}.
+   *     predicate then a {@link InvalidContentTypeException} is thrown from {@link
+   *     #open(DataSpec)}.
    * @param listener An optional listener.
    */
-  public OkHttpDataSource(@NonNull Call.Factory callFactory, @Nullable String userAgent,
+  public OkHttpDataSource(
+      @NonNull Call.Factory callFactory,
+      @Nullable String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super OkHttpDataSource> listener) {
+      @Nullable TransferListener<? super DataSource> listener) {
     this(callFactory, userAgent, contentTypePredicate, listener, null, null);
   }
 
@@ -105,24 +106,30 @@ public class OkHttpDataSource implements HttpDataSource {
    *     by the source.
    * @param userAgent An optional User-Agent string.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link InvalidContentTypeException} is thrown from
-   *     {@link #open(DataSpec)}.
+   *     predicate then a {@link InvalidContentTypeException} is thrown from {@link
+   *     #open(DataSpec)}.
    * @param listener An optional listener.
    * @param cacheControl An optional {@link CacheControl} for setting the Cache-Control header.
    * @param defaultRequestProperties The optional default {@link RequestProperties} to be sent to
-   *    the server as HTTP headers on every request.
+   *     the server as HTTP headers on every request.
    */
-  public OkHttpDataSource(@NonNull Call.Factory callFactory, @Nullable String userAgent,
+  public OkHttpDataSource(
+      @NonNull Call.Factory callFactory,
+      @Nullable String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super OkHttpDataSource> listener,
-      @Nullable CacheControl cacheControl, @Nullable RequestProperties defaultRequestProperties) {
+      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable CacheControl cacheControl,
+      @Nullable RequestProperties defaultRequestProperties) {
+    super(DataSource.TYPE_REMOTE);
     this.callFactory = Assertions.checkNotNull(callFactory);
     this.userAgent = userAgent;
     this.contentTypePredicate = contentTypePredicate;
-    this.listener = listener;
     this.cacheControl = cacheControl;
     this.defaultRequestProperties = defaultRequestProperties;
     this.requestProperties = new RequestProperties();
+    if (listener != null) {
+      addTransferListener(listener);
+    }
   }
 
   @Override
@@ -203,9 +210,7 @@ public class OkHttpDataSource implements HttpDataSource {
     }
 
     opened = true;
-    if (listener != null) {
-      listener.onTransferStart(this, dataSpec);
-    }
+    transferStarted(dataSpec);
 
     return bytesToRead;
   }
@@ -224,9 +229,7 @@ public class OkHttpDataSource implements HttpDataSource {
   public void close() throws HttpDataSourceException {
     if (opened) {
       opened = false;
-      if (listener != null) {
-        listener.onTransferEnd(this);
-      }
+      transferEnded();
       closeConnectionQuietly();
     }
   }
@@ -333,9 +336,7 @@ public class OkHttpDataSource implements HttpDataSource {
         throw new EOFException();
       }
       bytesSkipped += read;
-      if (listener != null) {
-        listener.onBytesTransferred(this, read);
-      }
+      bytesTransferred(read);
     }
 
     // Release the shared skip buffer.
@@ -378,9 +379,7 @@ public class OkHttpDataSource implements HttpDataSource {
     }
 
     bytesRead += read;
-    if (listener != null) {
-      listener.onBytesTransferred(this, read);
-    }
+    bytesTransferred(read);
     return read;
   }
 
