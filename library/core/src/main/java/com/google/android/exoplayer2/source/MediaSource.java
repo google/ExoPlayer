@@ -190,6 +190,11 @@ public interface MediaSource {
    */
   void removeEventListener(MediaSourceEventListener eventListener);
 
+  /** @deprecated Will be removed in the next release. */
+  @Deprecated
+  void prepareSource(
+      ExoPlayer player, boolean isTopLevelSource, SourceInfoRefreshListener listener);
+
   /**
    * Starts source preparation if not yet started, and adds a listener for timeline and/or manifest
    * updates.
