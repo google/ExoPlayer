@@ -100,7 +100,7 @@ public final class UdpDataSource extends BaseDataSource {
     uri = dataSpec.uri;
     String host = uri.getHost();
     int port = uri.getPort();
-
+    transferInitializing(dataSpec);
     try {
       address = InetAddress.getByName(host);
       socketAddress = new InetSocketAddress(address, port);

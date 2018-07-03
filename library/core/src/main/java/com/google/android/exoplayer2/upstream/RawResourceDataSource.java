@@ -105,6 +105,7 @@ public final class RawResourceDataSource extends BaseDataSource {
         throw new RawResourceDataSourceException("Resource identifier must be an integer.");
       }
 
+      transferInitializing(dataSpec);
       assetFileDescriptor = resources.openRawResourceFd(resourceId);
       inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
       inputStream.skip(assetFileDescriptor.getStartOffset());

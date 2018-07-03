@@ -20,8 +20,9 @@ import java.util.ArrayList;
 /**
  * Base {@link DataSource} implementation to keep a list of {@link TransferListener}s.
  *
- * <p>Subclasses must call {@link #transferStarted(DataSpec)}, {@link #bytesTransferred(int)}, and
- * {@link #transferEnded()} to inform listeners of data transfers.
+ * <p>Subclasses must call {@link #transferInitializing(DataSpec)}, {@link
+ * #transferStarted(DataSpec)}, {@link #bytesTransferred(int)}, and {@link #transferEnded()} to
+ * inform listeners of data transfers.
  */
 public abstract class BaseDataSource implements DataSource {
 
@@ -41,6 +42,15 @@ public abstract class BaseDataSource implements DataSource {
   @Override
   public final void addTransferListener(TransferListener<? super DataSource> transferListener) {
     listeners.add(transferListener);
+  }
+
+  /**
+   * Notifies listeners that data transfer for the specified {@link DataSpec} is being initialized.
+   *
+   * @param dataSpec {@link DataSpec} describing the data for initializing transfer.
+   */
+  protected final void transferInitializing(DataSpec dataSpec) {
+    // TODO: notify listeners.
   }
 
   /**

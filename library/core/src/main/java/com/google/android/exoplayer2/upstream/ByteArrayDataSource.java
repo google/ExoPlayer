@@ -44,6 +44,7 @@ public final class ByteArrayDataSource extends BaseDataSource {
   @Override
   public long open(DataSpec dataSpec) throws IOException {
     uri = dataSpec.uri;
+    transferInitializing(dataSpec);
     readPosition = (int) dataSpec.position;
     bytesRemaining = (int) ((dataSpec.length == C.LENGTH_UNSET)
         ? (data.length - dataSpec.position) : dataSpec.length);

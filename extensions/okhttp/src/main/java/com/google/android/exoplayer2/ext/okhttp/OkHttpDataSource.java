@@ -165,6 +165,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     this.dataSpec = dataSpec;
     this.bytesRead = 0;
     this.bytesSkipped = 0;
+    transferInitializing(dataSpec);
     Request request = makeRequest(dataSpec);
     try {
       response = callFactory.newCall(request).execute();

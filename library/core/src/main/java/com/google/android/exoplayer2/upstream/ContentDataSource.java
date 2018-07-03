@@ -73,6 +73,7 @@ public final class ContentDataSource extends BaseDataSource {
   public long open(DataSpec dataSpec) throws ContentDataSourceException {
     try {
       uri = dataSpec.uri;
+      transferInitializing(dataSpec);
       assetFileDescriptor = resolver.openAssetFileDescriptor(uri, "r");
       if (assetFileDescriptor == null) {
         throw new FileNotFoundException("Could not open file descriptor for: " + uri);
