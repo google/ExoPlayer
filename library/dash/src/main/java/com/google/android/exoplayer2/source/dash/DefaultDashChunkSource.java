@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.rawcc.RawCcExtractor;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
+import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
@@ -55,7 +56,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * A default {@link DashChunkSource} implementation.
@@ -509,13 +509,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
   // Protected classes.
 
   /** {@link MediaChunkIterator} wrapping a {@link RepresentationHolder}. */
-  protected static final class RepresentationSegmentIterator implements MediaChunkIterator {
+  protected static final class RepresentationSegmentIterator extends BaseMediaChunkIterator {
 
     private final RepresentationHolder representationHolder;
-    private final long firstSegmentNum;
-    private final long lastAvailableSegmentNum;
-
-    private long segmentNum;
 
     /**
      * Creates iterator.
@@ -526,28 +522,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
      */
     public RepresentationSegmentIterator(
         RepresentationHolder representation, long segmentNum, long lastAvailableSegmentNum) {
+      super(/* fromIndex= */ segmentNum, /* toIndex= */ lastAvailableSegmentNum);
       this.representationHolder = representation;
-      this.firstSegmentNum = segmentNum;
-      this.segmentNum = segmentNum - 1;
-      this.lastAvailableSegmentNum = lastAvailableSegmentNum;
     }
 
     @Override
-    public boolean isEnded() {
-      return segmentNum > lastAvailableSegmentNum;
-    }
-
-    @Override
-    public boolean next() {
-      segmentNum++;
-      return segmentNum <= lastAvailableSegmentNum;
-    }
-
-    @Override
-    public @Nullable DataSpec getDataSpec() {
+    public DataSpec getDataSpec() {
       checkInBounds();
       Representation representation = representationHolder.representation;
-      RangedUri segmentUri = representationHolder.getSegmentUrl(segmentNum);
+      RangedUri segmentUri = representationHolder.getSegmentUrl(getCurrentIndex());
       Uri resolvedUri = segmentUri.resolveUri(representation.baseUrl);
       String cacheKey = representation.getCacheKey();
       return new DataSpec(resolvedUri, segmentUri.start, segmentUri.length, cacheKey);
@@ -556,19 +539,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
     @Override
     public long getChunkStartTimeUs() {
       checkInBounds();
-      return representationHolder.getSegmentStartTimeUs(segmentNum);
+      return representationHolder.getSegmentStartTimeUs(getCurrentIndex());
     }
 
     @Override
     public long getChunkEndTimeUs() {
       checkInBounds();
-      return representationHolder.getSegmentEndTimeUs(segmentNum);
-    }
-
-    private void checkInBounds() {
-      if (segmentNum < firstSegmentNum || segmentNum > lastAvailableSegmentNum) {
-        throw new NoSuchElementException();
-      }
+      return representationHolder.getSegmentEndTimeUs(getCurrentIndex());
     }
   }
 
