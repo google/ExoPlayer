@@ -16,25 +16,26 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 
-/**
- * A {@link DataSource} for reading from a byte array.
- */
-public final class ByteArrayDataSource implements DataSource {
+/** A {@link DataSource} for reading from a byte array. */
+public final class ByteArrayDataSource extends BaseDataSource {
 
   private final byte[] data;
 
-  private Uri uri;
+  private @Nullable Uri uri;
   private int readPosition;
   private int bytesRemaining;
+  private boolean opened;
 
   /**
    * @param data The data to be read.
    */
   public ByteArrayDataSource(byte[] data) {
+    super(DataSource.TYPE_LOCAL);
     Assertions.checkNotNull(data);
     Assertions.checkArgument(data.length > 0);
     this.data = data;
@@ -50,6 +51,8 @@ public final class ByteArrayDataSource implements DataSource {
       throw new IOException("Unsatisfiable range: [" + readPosition + ", " + dataSpec.length
           + "], length: " + data.length);
     }
+    opened = true;
+    transferStarted(dataSpec);
     return bytesRemaining;
   }
 
@@ -65,16 +68,21 @@ public final class ByteArrayDataSource implements DataSource {
     System.arraycopy(data, readPosition, buffer, offset, readLength);
     readPosition += readLength;
     bytesRemaining -= readLength;
+    bytesTransferred(readLength);
     return readLength;
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return uri;
   }
 
   @Override
   public void close() throws IOException {
+    if (opened) {
+      opened = false;
+      transferEnded();
+    }
     uri = null;
   }
 
