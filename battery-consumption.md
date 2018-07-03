@@ -42,6 +42,18 @@ should therefore be preferred where possible. Read more about choosing between
 `SurfaceView` and `TextureView`
 [here]({{ site.baseurl }}/faqs.html#should-i-use-surfaceview-or-textureview).
 
+Below are some power consumption measurements for playing 1080p and 480p video
+on Pixel 2, measured using a [Monsoon power monitor][]. As mentioned above,
+these numbers should not be used to draw general conclusions about power
+consumption across the Android device and media content ecosystems.
+
+|                   | MediaPlayer | ExoPlayer |
+|-------------------|:-----------:|:----------|
+| SurfaceView 1080p | 202 mAh     | 214 mAh   |
+| TextureView 1080p | 219 mAh     | 221 mAh   |
+| SurfaceView 480p  | 194 mAh     | 207 mAh   |
+| TextureView 480p  | 212 mAh     | 215 mAh   |
+
 ### Audio playback ###
 
 For audio playback, our measurements show that ExoPlayer can draw significantly
@@ -60,3 +72,5 @@ requirements and the app's usage pattern into account. We hope to add public
 APIs for audio offload in a future version of Android, which will allow
 ExoPlayer and other application level media players to utilize the same audio
 offload functionality that MediaPlayer has access to today.
+
+[Monsoon power monitor]: https://www.msoon.com/battery-configuration
