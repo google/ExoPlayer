@@ -348,7 +348,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<?> mediaTransferListener) {
+      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
     notifySourceInfoRefreshed(timelineDurationUs, /* isSeekable= */ false);
   }
 
