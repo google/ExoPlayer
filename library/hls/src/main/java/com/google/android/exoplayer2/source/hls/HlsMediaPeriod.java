@@ -31,6 +31,8 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUr
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -50,6 +52,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final HlsExtractorFactory extractorFactory;
   private final HlsPlaylistTracker playlistTracker;
   private final HlsDataSourceFactory dataSourceFactory;
+  private final @Nullable TransferListener<? super DataSource> mediaTransferListener;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final Allocator allocator;
@@ -70,6 +73,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       HlsExtractorFactory extractorFactory,
       HlsPlaylistTracker playlistTracker,
       HlsDataSourceFactory dataSourceFactory,
+      @Nullable TransferListener<? super DataSource> mediaTransferListener,
       int minLoadableRetryCount,
       EventDispatcher eventDispatcher,
       Allocator allocator,
@@ -78,6 +82,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
+    this.mediaTransferListener = mediaTransferListener;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     this.allocator = allocator;
@@ -488,8 +493,15 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, HlsUrl[] variants,
       Format muxedAudioFormat, List<Format> muxedCaptionFormats, long positionUs) {
-    HlsChunkSource defaultChunkSource = new HlsChunkSource(extractorFactory, playlistTracker,
-        variants, dataSourceFactory, timestampAdjusterProvider, muxedCaptionFormats);
+    HlsChunkSource defaultChunkSource =
+        new HlsChunkSource(
+            extractorFactory,
+            playlistTracker,
+            variants,
+            dataSourceFactory,
+            mediaTransferListener,
+            timestampAdjusterProvider,
+            muxedCaptionFormats);
     return new HlsSampleStreamWrapper(trackType, this, defaultChunkSource, allocator, positionUs,
         muxedAudioFormat, minLoadableRetryCount, eventDispatcher);
   }

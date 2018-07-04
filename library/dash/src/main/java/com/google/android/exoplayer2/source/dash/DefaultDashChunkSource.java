@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -87,8 +88,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
         long elapsedRealtimeOffsetMs,
         boolean enableEventMessageTrack,
         boolean enableCea608Track,
-        @Nullable PlayerTrackEmsgHandler playerEmsgHandler) {
+        @Nullable PlayerTrackEmsgHandler playerEmsgHandler,
+        @Nullable TransferListener<? super DataSource> transferListener) {
       DataSource dataSource = dataSourceFactory.createDataSource();
+      if (transferListener != null) {
+        dataSource.addTransferListener(transferListener);
+      }
       return new DefaultDashChunkSource(
           manifestLoaderErrorThrower,
           manifest,

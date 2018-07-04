@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -52,11 +54,17 @@ public final class FakeChunkSource implements ChunkSource {
       this.dataSourceFactory = dataSourceFactory;
     }
 
-    public FakeChunkSource createChunkSource(TrackSelection trackSelection, long durationUs) {
+    public FakeChunkSource createChunkSource(
+        TrackSelection trackSelection,
+        long durationUs,
+        @Nullable TransferListener<? super DataSource> transferListener) {
       FakeAdaptiveDataSet dataSet =
           dataSetFactory.createDataSet(trackSelection.getTrackGroup(), durationUs);
       dataSourceFactory.setFakeDataSet(dataSet);
       DataSource dataSource = dataSourceFactory.createDataSource();
+      if (transferListener != null) {
+        dataSource.addTransferListener(transferListener);
+      }
       return new FakeChunkSource(trackSelection, dataSource, dataSet);
     }
 

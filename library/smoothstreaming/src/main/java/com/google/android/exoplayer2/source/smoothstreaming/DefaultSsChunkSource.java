@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.smoothstreaming;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
@@ -35,6 +36,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
@@ -53,10 +55,17 @@ public class DefaultSsChunkSource implements SsChunkSource {
     }
 
     @Override
-    public SsChunkSource createChunkSource(LoaderErrorThrower manifestLoaderErrorThrower,
-        SsManifest manifest, int elementIndex, TrackSelection trackSelection,
-        TrackEncryptionBox[] trackEncryptionBoxes) {
+    public SsChunkSource createChunkSource(
+        LoaderErrorThrower manifestLoaderErrorThrower,
+        SsManifest manifest,
+        int elementIndex,
+        TrackSelection trackSelection,
+        TrackEncryptionBox[] trackEncryptionBoxes,
+        @Nullable TransferListener<? super DataSource> transferListener) {
       DataSource dataSource = dataSourceFactory.createDataSource();
+      if (transferListener != null) {
+        dataSource.addTransferListener(transferListener);
+      }
       return new DefaultSsChunkSource(manifestLoaderErrorThrower, manifest, elementIndex,
           trackSelection, dataSource, trackEncryptionBoxes);
     }

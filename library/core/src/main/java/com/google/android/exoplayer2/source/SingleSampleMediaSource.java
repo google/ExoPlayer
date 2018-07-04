@@ -169,6 +169,8 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   private final boolean treatLoadErrorsAsEndOfStream;
   private final Timeline timeline;
 
+  private @Nullable TransferListener<? super DataSource> transferListener;
+
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSourceFactory The factory from which the {@link DataSource} to read the media will
@@ -273,6 +275,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
       ExoPlayer player,
       boolean isTopLevelSource,
       @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+    transferListener = mediaTransferListener;
     refreshSourceInfo(timeline, /* manifest= */ null);
   }
 
@@ -287,6 +290,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     return new SingleSampleMediaPeriod(
         dataSpec,
         dataSourceFactory,
+        transferListener,
         format,
         durationUs,
         minLoadableRetryCount,

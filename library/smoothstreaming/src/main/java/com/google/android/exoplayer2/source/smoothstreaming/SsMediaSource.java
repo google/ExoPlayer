@@ -285,6 +285,7 @@ public final class SsMediaSource extends BaseMediaSource
   private DataSource manifestDataSource;
   private Loader manifestLoader;
   private LoaderErrorThrower manifestLoaderErrorThrower;
+  private @Nullable TransferListener<? super DataSource> mediaTransferListener;
 
   private long manifestLoadStartTimestamp;
   private SsManifest manifest;
@@ -467,6 +468,7 @@ public final class SsMediaSource extends BaseMediaSource
       ExoPlayer player,
       boolean isTopLevelSource,
       @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+    this.mediaTransferListener = mediaTransferListener;
     if (sideloadedManifest) {
       manifestLoaderErrorThrower = new LoaderErrorThrower.Dummy();
       processManifest();
@@ -488,9 +490,16 @@ public final class SsMediaSource extends BaseMediaSource
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     Assertions.checkArgument(id.periodIndex == 0);
     EventDispatcher eventDispatcher = createEventDispatcher(id);
-    SsMediaPeriod period = new SsMediaPeriod(manifest, chunkSourceFactory,
-        compositeSequenceableLoaderFactory, minLoadableRetryCount, eventDispatcher,
-        manifestLoaderErrorThrower, allocator);
+    SsMediaPeriod period =
+        new SsMediaPeriod(
+            manifest,
+            chunkSourceFactory,
+            mediaTransferListener,
+            compositeSequenceableLoaderFactory,
+            minLoadableRetryCount,
+            eventDispatcher,
+            manifestLoaderErrorThrower,
+            allocator);
     mediaPeriods.add(period);
     return period;
   }

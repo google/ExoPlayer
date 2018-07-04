@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -114,15 +116,22 @@ import java.util.List;
    * @param variants The available variants.
    * @param dataSourceFactory An {@link HlsDataSourceFactory} to create {@link DataSource}s for the
    *     chunks.
-   * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If
-   *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
-   *     same provider.
+   * @param mediaTransferListener The transfer listener which should be informed of any media data
+   *     transfers. May be null if no listener is available.
+   * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If multiple
+   *     {@link HlsChunkSource}s are used for a single playback, they should all share the same
+   *     provider.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
    *     information is available in the master playlist.
    */
-  public HlsChunkSource(HlsExtractorFactory extractorFactory, HlsPlaylistTracker playlistTracker,
-      HlsUrl[] variants, HlsDataSourceFactory dataSourceFactory,
-      TimestampAdjusterProvider timestampAdjusterProvider, List<Format> muxedCaptionFormats) {
+  public HlsChunkSource(
+      HlsExtractorFactory extractorFactory,
+      HlsPlaylistTracker playlistTracker,
+      HlsUrl[] variants,
+      HlsDataSourceFactory dataSourceFactory,
+      @Nullable TransferListener<? super DataSource> mediaTransferListener,
+      TimestampAdjusterProvider timestampAdjusterProvider,
+      List<Format> muxedCaptionFormats) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.variants = variants;
@@ -136,6 +145,9 @@ import java.util.List;
       initialTrackSelection[i] = i;
     }
     mediaDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_MEDIA);
+    if (mediaTransferListener != null) {
+      mediaDataSource.addTransferListener(mediaTransferListener);
+    }
     encryptionDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_DRM);
     trackGroup = new TrackGroup(variantFormats);
     trackSelection = new InitializationTrackSelection(trackGroup, initialTrackSelection);

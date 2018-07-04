@@ -581,7 +581,8 @@ public final class ExoPlayerTest {
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
-              EventDispatcher eventDispatcher) {
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener<? super DataSource> transferListener) {
             FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray, eventDispatcher);
             mediaPeriod.setSeekToUsOffset(10);
             return mediaPeriod;
@@ -615,7 +616,8 @@ public final class ExoPlayerTest {
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
-              EventDispatcher eventDispatcher) {
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener<? super DataSource> transferListener) {
             FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray, eventDispatcher);
             mediaPeriod.setDiscontinuityPositionUs(10);
             return mediaPeriod;
@@ -640,7 +642,8 @@ public final class ExoPlayerTest {
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
-              EventDispatcher eventDispatcher) {
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener<? super DataSource> transferListener) {
             FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray, eventDispatcher);
             mediaPeriod.setDiscontinuityPositionUs(0);
             return mediaPeriod;
@@ -876,7 +879,8 @@ public final class ExoPlayerTest {
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
-              EventDispatcher eventDispatcher) {
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener<? super DataSource> transferListener) {
             // Defer completing preparation of the period until playback parameters have been set.
             fakeMediaPeriodHolder[0] =
                 new FakeMediaPeriod(trackGroupArray, eventDispatcher, /* deferOnPrepared= */ true);
