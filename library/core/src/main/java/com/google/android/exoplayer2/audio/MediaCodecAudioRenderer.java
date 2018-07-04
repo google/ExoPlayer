@@ -45,6 +45,8 @@ import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Decodes and renders audio using {@link MediaCodec} and an {@link AudioSink}.
@@ -262,15 +264,21 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         requiresSecureDecryption |= drmInitData.get(i).requiresSecureDecryption;
       }
     }
-    MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
-        requiresSecureDecryption);
-    if (decoderInfo == null) {
-      return requiresSecureDecryption && mediaCodecSelector.getDecoderInfo(mimeType, false) != null
-          ? FORMAT_UNSUPPORTED_DRM : FORMAT_UNSUPPORTED_SUBTYPE;
+    List<MediaCodecInfo> decoderInfos =
+        mediaCodecSelector.getDecoderInfos(format, requiresSecureDecryption);
+    if (decoderInfos.isEmpty()) {
+      return requiresSecureDecryption
+              && !mediaCodecSelector
+                  .getDecoderInfos(format, /* requiresSecureDecoder= */ false)
+                  .isEmpty()
+          ? FORMAT_UNSUPPORTED_DRM
+          : FORMAT_UNSUPPORTED_SUBTYPE;
     }
     if (!supportsFormatDrm) {
       return FORMAT_UNSUPPORTED_DRM;
     }
+    // Check capabilities for the first decoder in the list, which takes priority.
+    MediaCodecInfo decoderInfo = decoderInfos.get(0);
     // Note: We assume support for unknown sampleRate and channelCount.
     boolean decoderCapable = Util.SDK_INT < 21
         || ((format.sampleRate == Format.NO_VALUE
@@ -282,15 +290,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected MediaCodecInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
-      Format format, boolean requiresSecureDecoder) throws DecoderQueryException {
+  protected List<MediaCodecInfo> getDecoderInfos(
+      MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
+      throws DecoderQueryException {
     if (allowPassthrough(format.sampleMimeType)) {
       MediaCodecInfo passthroughDecoderInfo = mediaCodecSelector.getPassthroughDecoderInfo();
       if (passthroughDecoderInfo != null) {
-        return passthroughDecoderInfo;
+        return Collections.singletonList(passthroughDecoderInfo);
       }
     }
-    return super.getDecoderInfo(mediaCodecSelector, format, requiresSecureDecoder);
+    return super.getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder);
   }
 
   /**

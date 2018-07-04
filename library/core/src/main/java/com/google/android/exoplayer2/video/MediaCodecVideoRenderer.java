@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 /**
  * Decodes and renders video using {@link MediaCodec}.
@@ -236,15 +237,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         requiresSecureDecryption |= drmInitData.get(i).requiresSecureDecryption;
       }
     }
-    MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
-        requiresSecureDecryption);
-    if (decoderInfo == null) {
-      return requiresSecureDecryption && mediaCodecSelector.getDecoderInfo(mimeType, false) != null
-          ? FORMAT_UNSUPPORTED_DRM : FORMAT_UNSUPPORTED_SUBTYPE;
+    List<MediaCodecInfo> decoderInfos =
+        mediaCodecSelector.getDecoderInfos(format, requiresSecureDecryption);
+    if (decoderInfos.isEmpty()) {
+      return requiresSecureDecryption
+              && !mediaCodecSelector
+                  .getDecoderInfos(format, /* requiresSecureDecoder= */ false)
+                  .isEmpty()
+          ? FORMAT_UNSUPPORTED_DRM
+          : FORMAT_UNSUPPORTED_SUBTYPE;
     }
     if (!supportsFormatDrm(drmSessionManager, drmInitData)) {
       return FORMAT_UNSUPPORTED_DRM;
     }
+    // Check capabilities for the first decoder in the list, which takes priority.
+    MediaCodecInfo decoderInfo = decoderInfos.get(0);
     boolean decoderCapable = decoderInfo.isCodecSupported(format.codecs);
     if (decoderCapable && format.width > 0 && format.height > 0) {
       if (Util.SDK_INT >= 21) {

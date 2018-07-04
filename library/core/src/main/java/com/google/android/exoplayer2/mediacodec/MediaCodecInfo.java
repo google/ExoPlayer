@@ -159,6 +159,11 @@ public final class MediaCodecInfo {
     secure = forceSecure || (capabilities != null && isSecure(capabilities));
   }
 
+  @Override
+  public String toString() {
+    return name;
+  }
+
   /**
    * The profile levels supported by the decoder.
    *
