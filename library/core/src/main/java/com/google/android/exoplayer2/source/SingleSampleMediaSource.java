@@ -272,7 +272,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<?> mediaTransferListener) {
+      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
     refreshSourceInfo(timeline, /* manifest= */ null);
   }
 

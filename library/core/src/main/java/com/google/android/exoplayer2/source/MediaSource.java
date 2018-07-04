@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 
@@ -221,7 +222,7 @@ public interface MediaSource {
       ExoPlayer player,
       boolean isTopLevelSource,
       SourceInfoRefreshListener listener,
-      @Nullable TransferListener<?> mediaTransferListener);
+      @Nullable TransferListener<? super DataSource> mediaTransferListener);
 
   /**
    * Throws any pending error encountered while loading or refreshing source information.

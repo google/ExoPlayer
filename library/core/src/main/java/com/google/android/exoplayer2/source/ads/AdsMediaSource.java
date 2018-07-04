@@ -309,7 +309,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   public void prepareSourceInternal(
       final ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<?> mediaTransferListener) {
+      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
     super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
     Assertions.checkArgument(isTopLevelSource);
     final ComponentListener componentListener = new ComponentListener();

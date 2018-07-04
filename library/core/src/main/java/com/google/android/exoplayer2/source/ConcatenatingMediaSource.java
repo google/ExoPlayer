@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource.MediaSourceHolder;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -377,7 +378,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   public final synchronized void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<?> mediaTransferListener) {
+      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
     super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
     this.player = player;
     playerApplicationHandler = new Handler(player.getApplicationLooper());

@@ -466,7 +466,7 @@ public final class SsMediaSource extends BaseMediaSource
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<?> mediaTransferListener) {
+      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
     if (sideloadedManifest) {
       manifestLoaderErrorThrower = new LoaderErrorThrower.Dummy();
       processManifest();

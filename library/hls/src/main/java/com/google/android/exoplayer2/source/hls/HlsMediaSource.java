@@ -371,7 +371,7 @@ public final class HlsMediaSource extends BaseMediaSource
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<?> mediaTransferListener) {
+      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
     EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
     playlistTracker.start(manifestUri, eventDispatcher, /* listener= */ this);
   }

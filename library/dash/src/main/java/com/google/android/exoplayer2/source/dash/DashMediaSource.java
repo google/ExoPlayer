@@ -549,7 +549,7 @@ public final class DashMediaSource extends BaseMediaSource {
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<?> mediaTransferListener) {
+      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
     if (sideloadedManifest) {
       processManifest(false);
     } else {
