@@ -98,8 +98,9 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_SPLICE_INFO = 0x86;
   public static final int TS_STREAM_TYPE_DVBSUBS = 0x59;
 
-  private static final int TS_PACKET_SIZE = 188;
-  private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
+  public static final int TS_PACKET_SIZE = 188;
+  public static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
+
   private static final int TS_PAT_PID = 0;
   private static final int MAX_PID_PLUS_ONE = 0x2000;
 
@@ -110,7 +111,7 @@ public final class TsExtractor implements Extractor {
   private static final int BUFFER_SIZE = TS_PACKET_SIZE * 50;
   private static final int SNIFF_TS_PACKET_COUNT = 5;
 
-  @Mode private final int mode;
+  private final @Mode int mode;
   private final List<TimestampAdjuster> timestampAdjusters;
   private final ParsableByteArray tsPacketBuffer;
   private final SparseIntArray continuityCounters;
@@ -118,13 +119,17 @@ public final class TsExtractor implements Extractor {
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final SparseBooleanArray trackIds;
   private final SparseBooleanArray trackPids;
+  private final TsDurationReader durationReader;
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
   private int remainingPmts;
   private boolean tracksEnded;
+  private boolean hasOutputSeekMap;
+  private boolean pendingSeekToStart;
   private TsPayloadReader id3Reader;
   private int bytesSinceLastSync;
+  private int pcrPid;
 
   public TsExtractor() {
     this(0);
@@ -145,10 +150,11 @@ public final class TsExtractor implements Extractor {
    *     {@code FLAG_*} values that control the behavior of the payload readers.
    */
   public TsExtractor(@Mode int mode, @Flags int defaultTsPayloadReaderFlags) {
-    this(mode, new TimestampAdjuster(0),
+    this(
+        mode,
+        new TimestampAdjuster(0),
         new DefaultTsPayloadReaderFactory(defaultTsPayloadReaderFlags));
   }
-
 
   /**
    * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
@@ -156,7 +162,9 @@ public final class TsExtractor implements Extractor {
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
    */
-  public TsExtractor(@Mode int mode, TimestampAdjuster timestampAdjuster,
+  public TsExtractor(
+      @Mode int mode,
+      TimestampAdjuster timestampAdjuster,
       TsPayloadReader.Factory payloadReaderFactory) {
     this.payloadReaderFactory = Assertions.checkNotNull(payloadReaderFactory);
     this.mode = mode;
@@ -171,6 +179,8 @@ public final class TsExtractor implements Extractor {
     trackPids = new SparseBooleanArray();
     tsPayloadReaders = new SparseArray<>();
     continuityCounters = new SparseIntArray();
+    durationReader = new TsDurationReader();
+    pcrPid = -1;
     resetPayloadReaders();
   }
 
@@ -200,7 +210,6 @@ public final class TsExtractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }
 
   @Override
@@ -224,8 +233,25 @@ public final class TsExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
+  public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    if (tracksEnded) {
+      boolean canReadDuration = input.getLength() != C.LENGTH_UNSET && mode != MODE_HLS;
+      if (canReadDuration && !durationReader.isDurationReadFinished()) {
+        return durationReader.readDuration(input, seekPosition, pcrPid);
+      }
+      maybeOutputSeekMap();
+
+      if (pendingSeekToStart) {
+        pendingSeekToStart = false;
+        seek(/* position= */ 0, /* timeUs= */ 0);
+        if (input.getPosition() != 0) {
+          seekPosition.position = 0;
+          return RESULT_SEEK;
+        }
+      }
+    }
+
     if (!fillBufferWithAtLeastOnePacket(input)) {
       return RESULT_END_OF_INPUT;
     }
@@ -284,20 +310,25 @@ public final class TsExtractor implements Extractor {
       payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator);
       tsPacketBuffer.setLimit(limit);
     }
-
     if (mode != MODE_HLS && !wereTracksEnded && tracksEnded) {
       // We have read all tracks from all PMTs in this stream. Now seek to the beginning and read
       // again to make sure we output all media, including any contained in packets prior to those
       // containing the track information.
-      seek(/* position= */ 0, /* timeUs= */ 0);
-      seekPosition.position = 0;
-      return RESULT_SEEK;
+      pendingSeekToStart = true;
     }
+
     tsPacketBuffer.setPosition(endOfPacket);
     return RESULT_CONTINUE;
   }
 
   // Internals.
+
+  private void maybeOutputSeekMap() {
+    if (!hasOutputSeekMap) {
+      hasOutputSeekMap = true;
+      output.seekMap(new SeekMap.Unseekable(durationReader.getDurationUs()));
+    }
+  }
 
   private boolean fillBufferWithAtLeastOnePacket(ExtractorInput input)
       throws IOException, InterruptedException {
@@ -478,9 +509,16 @@ public final class TsExtractor implements Extractor {
       // section_syntax_indicator(1), '0'(1), reserved(2), section_length(12)
       sectionData.skipBytes(2);
       int programNumber = sectionData.readUnsignedShort();
+
+      // Skip 3 bytes (24 bits), including:
       // reserved (2), version_number (5), current_next_indicator (1), section_number (8),
-      // last_section_number (8), reserved (3), PCR_PID (13)
-      sectionData.skipBytes(5);
+      // last_section_number (8)
+      sectionData.skipBytes(3);
+
+      sectionData.readBytes(pmtScratch, 2);
+      // reserved (3), PCR_PID (13)
+      pmtScratch.skipBits(3);
+      pcrPid = pmtScratch.readBits(13);
 
       // Read program_info_length.
       sectionData.readBytes(pmtScratch, 2);
