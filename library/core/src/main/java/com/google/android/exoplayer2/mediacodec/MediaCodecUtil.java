@@ -114,11 +114,10 @@ public final class MediaCodecUtil {
   /**
    * Returns information about the preferred decoder for a given mime type.
    *
-   * @param mimeType The mime type.
+   * @param mimeType The MIME type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
-   * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder
-   *     exists.
+   * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder exists.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
   public static @Nullable MediaCodecInfo getDecoderInfo(String mimeType, boolean secure)
@@ -128,18 +127,18 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns all {@link MediaCodecInfo}s for the given mime type, in the order given by
-   * {@link MediaCodecList}.
+   * Returns all {@link MediaCodecInfo}s for the given mime type, in the order given by {@link
+   * MediaCodecList}.
    *
-   * @param mimeType The mime type.
+   * @param mimeType The MIME type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
-   * @return A list of all @{link MediaCodecInfo}s for the given mime type, in the order
-   *     given by {@link MediaCodecList}.
+   * @return A list of all {@link MediaCodecInfo}s for the given mime type, in the order given by
+   *     {@link MediaCodecList}.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
-  public static synchronized List<MediaCodecInfo> getDecoderInfos(String mimeType,
-      boolean secure) throws DecoderQueryException {
+  public static synchronized List<MediaCodecInfo> getDecoderInfos(String mimeType, boolean secure)
+      throws DecoderQueryException {
     CodecKey key = new CodecKey(mimeType, secure);
     List<MediaCodecInfo> cachedDecoderInfos = decoderInfosCache.get(key);
     if (cachedDecoderInfos != null) {

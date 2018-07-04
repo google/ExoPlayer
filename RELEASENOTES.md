@@ -71,6 +71,10 @@
   `AnalyticsListener` callbacks. This uri is the redirected uri if redirection
   occurred ([#2054](https://github.com/google/ExoPlayer/issues/2054)).
 * Improved compatibility with FireOS devices.
+* Allow `MediaCodecSelector`s to return multiple compatible decoders for
+  `MediaCodecRenderer`, and provide an (optional) `MediaCodecSelector` that
+  falls back to less preferred decoders like `MediaCodec.createDecoderByType`
+  ([#273](https://github.com/google/ExoPlayer/issues/273)).
 
 ### 2.8.2 ###
 
