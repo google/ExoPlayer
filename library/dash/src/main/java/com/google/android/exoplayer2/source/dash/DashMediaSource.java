@@ -315,6 +315,7 @@ public final class DashMediaSource extends BaseMediaSource {
 
   private DataSource dataSource;
   private Loader loader;
+  private @Nullable TransferListener<? super DataSource> mediaTransferListener;
 
   private IOException manifestFatalError;
   private Handler handler;
@@ -550,6 +551,7 @@ public final class DashMediaSource extends BaseMediaSource {
       ExoPlayer player,
       boolean isTopLevelSource,
       @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+    this.mediaTransferListener = mediaTransferListener;
     if (sideloadedManifest) {
       processManifest(false);
     } else {
@@ -576,6 +578,7 @@ public final class DashMediaSource extends BaseMediaSource {
             manifest,
             periodIndex,
             chunkSourceFactory,
+            mediaTransferListener,
             minLoadableRetryCount,
             periodEventDispatcher,
             elapsedRealtimeOffsetMs,

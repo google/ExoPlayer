@@ -43,7 +43,9 @@ import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -61,6 +63,7 @@ import java.util.List;
 
   /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
+  private final @Nullable TransferListener<? super DataSource> transferListener;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final long elapsedRealtimeOffset;
@@ -87,6 +90,7 @@ import java.util.List;
       DashManifest manifest,
       int periodIndex,
       DashChunkSource.Factory chunkSourceFactory,
+      @Nullable TransferListener<? super DataSource> transferListener,
       int minLoadableRetryCount,
       EventDispatcher eventDispatcher,
       long elapsedRealtimeOffset,
@@ -98,6 +102,7 @@ import java.util.List;
     this.manifest = manifest;
     this.periodIndex = periodIndex;
     this.chunkSourceFactory = chunkSourceFactory;
+    this.transferListener = transferListener;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
@@ -562,7 +567,8 @@ import java.util.List;
             elapsedRealtimeOffset,
             enableEventMessageTrack,
             enableCea608Track,
-            trackPlayerEmsgHandler);
+            trackPlayerEmsgHandler,
+            transferListener);
     ChunkSampleStream<DashChunkSource> stream =
         new ChunkSampleStream<>(
             trackGroupInfo.trackType,

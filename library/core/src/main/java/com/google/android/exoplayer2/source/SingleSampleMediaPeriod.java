@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.upstream.StatsDataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -47,6 +49,7 @@ import java.util.Arrays;
 
   private final DataSpec dataSpec;
   private final DataSource.Factory dataSourceFactory;
+  private final @Nullable TransferListener<? super DataSource> transferListener;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final TrackGroupArray tracks;
@@ -67,6 +70,7 @@ import java.util.Arrays;
   public SingleSampleMediaPeriod(
       DataSpec dataSpec,
       DataSource.Factory dataSourceFactory,
+      @Nullable TransferListener<? super DataSource> transferListener,
       Format format,
       long durationUs,
       int minLoadableRetryCount,
@@ -74,6 +78,7 @@ import java.util.Arrays;
       boolean treatLoadErrorsAsEndOfStream) {
     this.dataSpec = dataSpec;
     this.dataSourceFactory = dataSourceFactory;
+    this.transferListener = transferListener;
     this.format = format;
     this.durationUs = durationUs;
     this.minLoadableRetryCount = minLoadableRetryCount;
@@ -138,11 +143,13 @@ import java.util.Arrays;
     if (loadingFinished || loader.isLoading()) {
       return false;
     }
+    DataSource dataSource = dataSourceFactory.createDataSource();
+    if (transferListener != null) {
+      dataSource.addTransferListener(transferListener);
+    }
     long elapsedRealtimeMs =
         loader.startLoading(
-            new SourceLoadable(dataSpec, dataSourceFactory.createDataSource()),
-            this,
-            minLoadableRetryCount);
+            new SourceLoadable(dataSpec, dataSource), /* callback= */ this, minLoadableRetryCount);
     eventDispatcher.loadStarted(
         dataSpec,
         dataSpec.uri,

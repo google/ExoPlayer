@@ -61,6 +61,7 @@ public class FakeMediaSource extends BaseMediaSource {
   private boolean preparedSource;
   private boolean releasedSource;
   private Handler sourceInfoRefreshHandler;
+  private @Nullable TransferListener<? super DataSource> transferListener;
 
   /**
    * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with a
@@ -93,6 +94,7 @@ public class FakeMediaSource extends BaseMediaSource {
       boolean isTopLevelSource,
       @Nullable TransferListener<? super DataSource> mediaTransferListener) {
     assertThat(preparedSource).isFalse();
+    transferListener = mediaTransferListener;
     preparedSource = true;
     releasedSource = false;
     sourceInfoRefreshHandler = new Handler();
@@ -115,7 +117,7 @@ public class FakeMediaSource extends BaseMediaSource {
     EventDispatcher eventDispatcher =
         createEventDispatcher(period.windowIndex, id, period.getPositionInWindowMs());
     FakeMediaPeriod mediaPeriod =
-        createFakeMediaPeriod(id, trackGroupArray, allocator, eventDispatcher);
+        createFakeMediaPeriod(id, trackGroupArray, allocator, eventDispatcher, transferListener);
     activeMediaPeriods.add(mediaPeriod);
     createdMediaPeriods.add(id);
     return mediaPeriod;
@@ -195,13 +197,16 @@ public class FakeMediaSource extends BaseMediaSource {
    * @param trackGroupArray The {@link TrackGroupArray} supported by the media period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param eventDispatcher An {@link EventDispatcher} to dispatch media source events.
+   * @param transferListener The transfer listener which should be informed of any data transfers.
+   *     May be null if no listener is available.
    * @return A new {@link FakeMediaPeriod}.
    */
   protected FakeMediaPeriod createFakeMediaPeriod(
       MediaPeriodId id,
       TrackGroupArray trackGroupArray,
       Allocator allocator,
-      EventDispatcher eventDispatcher) {
+      EventDispatcher eventDispatcher,
+      @Nullable TransferListener<? super DataSource> transferListener) {
     return new FakeMediaPeriod(trackGroupArray, eventDispatcher);
   }
 

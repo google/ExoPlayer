@@ -265,6 +265,8 @@ public final class HlsMediaSource extends BaseMediaSource
   private final HlsPlaylistTracker playlistTracker;
   private final @Nullable Object tag;
 
+  private @Nullable TransferListener<? super DataSource> mediaTransferListener;
+
   /**
    * @param manifestUri The {@link Uri} of the HLS manifest.
    * @param dataSourceFactory An {@link HlsDataSourceFactory} for {@link DataSource}s for manifests,
@@ -372,6 +374,7 @@ public final class HlsMediaSource extends BaseMediaSource
       ExoPlayer player,
       boolean isTopLevelSource,
       @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+    this.mediaTransferListener = mediaTransferListener;
     EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
     playlistTracker.start(manifestUri, eventDispatcher, /* listener= */ this);
   }
@@ -389,6 +392,7 @@ public final class HlsMediaSource extends BaseMediaSource
         extractorFactory,
         playlistTracker,
         dataSourceFactory,
+        mediaTransferListener,
         minLoadableRetryCount,
         eventDispatcher,
         allocator,
