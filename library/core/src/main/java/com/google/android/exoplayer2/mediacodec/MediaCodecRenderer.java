@@ -729,7 +729,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codec.start();
       TraceUtil.endSection();
       codecInitializedTimestamp = SystemClock.elapsedRealtime();
-      getCodecBuffers();
+      getCodecBuffers(codec);
     } catch (Exception e) {
       if (codec != null) {
         resetCodecBuffers();
@@ -743,7 +743,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     onCodecInitialized(name, codecInitializedTimestamp, elapsed);
   }
 
-  private void getCodecBuffers() {
+  private void getCodecBuffers(MediaCodec codec) {
     if (Util.SDK_INT < 21) {
       inputBuffers = codec.getInputBuffers();
       outputBuffers = codec.getOutputBuffers();
