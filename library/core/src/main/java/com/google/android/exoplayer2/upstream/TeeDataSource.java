@@ -16,9 +16,12 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Tees data into a {@link DataSink} as the data is read.
@@ -38,6 +41,11 @@ public final class TeeDataSource implements DataSource {
   public TeeDataSource(DataSource upstream, DataSink dataSink) {
     this.upstream = Assertions.checkNotNull(upstream);
     this.dataSink = Assertions.checkNotNull(dataSink);
+  }
+
+  @Override
+  public void addTransferListener(TransferListener<? super DataSource> transferListener) {
+    upstream.addTransferListener(transferListener);
   }
 
   @Override
@@ -79,8 +87,13 @@ public final class TeeDataSource implements DataSource {
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return upstream.getUri();
+  }
+
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    return upstream.getResponseHeaders();
   }
 
   @Override

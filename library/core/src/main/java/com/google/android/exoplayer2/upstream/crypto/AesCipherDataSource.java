@@ -16,9 +16,11 @@
 package com.google.android.exoplayer2.upstream.crypto;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +34,16 @@ public final class AesCipherDataSource implements DataSource {
   private final DataSource upstream;
   private final byte[] secretKey;
 
-  private AesFlushingCipher cipher;
+  private @Nullable AesFlushingCipher cipher;
 
   public AesCipherDataSource(byte[] secretKey, DataSource upstream) {
     this.upstream = upstream;
     this.secretKey = secretKey;
+  }
+
+  @Override
+  public void addTransferListener(TransferListener<? super DataSource> transferListener) {
+    upstream.addTransferListener(transferListener);
   }
 
   @Override
@@ -62,7 +69,7 @@ public final class AesCipherDataSource implements DataSource {
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return upstream.getUri();
   }
 

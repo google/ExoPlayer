@@ -71,6 +71,11 @@ public final class StatsDataSource implements DataSource {
   }
 
   @Override
+  public void addTransferListener(TransferListener<? super DataSource> transferListener) {
+    dataSource.addTransferListener(transferListener);
+  }
+
+  @Override
   public long open(DataSpec dataSpec) throws IOException {
     // Reassign defaults in case dataSource.open throws an exception.
     lastOpenedUri = dataSpec.uri;

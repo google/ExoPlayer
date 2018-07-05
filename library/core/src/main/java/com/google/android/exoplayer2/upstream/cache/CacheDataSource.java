@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -119,7 +120,7 @@ public final class CacheDataSource implements DataSource {
 
   private final Cache cache;
   private final DataSource cacheReadDataSource;
-  private final DataSource cacheWriteDataSource;
+  private final @Nullable DataSource cacheWriteDataSource;
   private final DataSource upstreamDataSource;
   private final CacheKeyFactory cacheKeyFactory;
   @Nullable private final EventListener eventListener;
@@ -128,15 +129,15 @@ public final class CacheDataSource implements DataSource {
   private final boolean ignoreCacheOnError;
   private final boolean ignoreCacheForUnsetLengthRequests;
 
-  private DataSource currentDataSource;
+  private @Nullable DataSource currentDataSource;
   private boolean currentDataSpecLengthUnset;
-  private Uri uri;
-  private Uri actualUri;
+  private @Nullable Uri uri;
+  private @Nullable Uri actualUri;
   private int flags;
-  private String key;
+  private @Nullable String key;
   private long readPosition;
   private long bytesRemaining;
-  private CacheSpan currentHoleSpan;
+  private @Nullable CacheSpan currentHoleSpan;
   private boolean seenCacheError;
   private boolean currentRequestIgnoresCache;
   private long totalCachedBytesRead;
@@ -257,6 +258,12 @@ public final class CacheDataSource implements DataSource {
   }
 
   @Override
+  public void addTransferListener(TransferListener<? super DataSource> transferListener) {
+    cacheReadDataSource.addTransferListener(transferListener);
+    upstreamDataSource.addTransferListener(transferListener);
+  }
+
+  @Override
   public long open(DataSpec dataSpec) throws IOException {
     try {
       key = cacheKeyFactory.buildCacheKey(dataSpec);
@@ -330,7 +337,7 @@ public final class CacheDataSource implements DataSource {
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return actualUri;
   }
 
