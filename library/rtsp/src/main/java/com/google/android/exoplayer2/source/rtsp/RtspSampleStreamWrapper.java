@@ -645,11 +645,6 @@ public final class RtspSampleStreamWrapper implements
         }
 
         @Override
-        public boolean isLoadCanceled() {
-            return loadCanceled;
-        }
-
-        @Override
         public void load() throws IOException, InterruptedException, NullPointerException {
             buildAndOpenDataSource();
 
