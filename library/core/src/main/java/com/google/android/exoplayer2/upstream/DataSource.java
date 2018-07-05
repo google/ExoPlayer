@@ -52,8 +52,7 @@ public interface DataSource {
   }
 
   /**
-   * Adds a {@link TransferListener} to listen to data transfers. Must be called before the first
-   * call to {@link #open(DataSpec)}.
+   * Adds a {@link TransferListener} to listen to data transfers. This method is not thread-safe.
    *
    * @param transferListener A {@link TransferListener}.
    */
