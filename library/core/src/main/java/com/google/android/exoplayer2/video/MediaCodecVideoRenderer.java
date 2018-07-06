@@ -832,7 +832,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private boolean shouldUseDummySurface(MediaCodecInfo codecInfo) {
     return Util.SDK_INT >= 23
         && !tunneling
-        && !codecNeedsDummySurfaceWorkaround(codecInfo.name)
         && !codecNeedsSetOutputSurfaceWorkaround(codecInfo.name)
         && (!codecInfo.secure || DummySurface.isSecureSupported(context));
   }
@@ -1179,33 +1178,27 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return Util.SDK_INT <= 22 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER);
   }
 
-  /**
-   * Returns whether the codec is known to handle {@link DummySurface} incorrectly.
+  /*
+   * TODO:
    *
-   * <p>If true is returned then use of {@link DummySurface} is disabled.
-   *
-   * @param name The name of the codec.
-   * @return True if the device is known to handle {@link DummySurface} incorrectly.
+   * 1. Validate that Android device certification now ensures correct behavior, and add a
+   *    corresponding SDK_INT upper bound for applying the workaround (probably SDK_INT < 26).
+   * 2. On affected devices, we're currently targeting AVC decoders only. It's quite likely that
+   *    other decoders also fail to support setOutputSurface on these devices (although it may be
+   *    that this only applies to hardware accelerated decoders). Determine whether this is the
+   *    case.
+   * 3. Determine a complete list of affected devices.
+   * 4. Some of the devices in this list only fail to support setOutputSurface when switching from
+   *    a SurfaceView provided Surface to a Surface of another type (e.g. TextureView/DummySurface),
+   *    and vice versa. One hypothesis is that setOutputSurface fails when the surfaces have
+   *    different pixel formats. If we can find a way to query the Surface instances to determine
+   *    whether this case applies, then we'll be able to provide a more targeted workaround.
    */
-  protected boolean codecNeedsDummySurfaceWorkaround(String name) {
-    // Work around https://github.com/google/ExoPlayer/issues/4419,
-    // https://github.com/google/ExoPlayer/issues/4460.
-    return (("Amazon".equals(Util.MANUFACTURER) && "AFTN".equals(Util.MODEL)) // FireTV 4K
-            && "OMX.amlogic.avc.decoder.awesome".equals(name))
-        || (("asus".equals(Util.MANUFACTURER) && "ZB500KL".equals(Util.MODEL)) // Asus Zenfone Go
-            && "OMX.qcom.video.decoder.avc".equals(name));
-  }
-
   /**
    * Returns whether the codec is known to implement {@link MediaCodec#setOutputSurface(Surface)}
    * incorrectly.
    *
    * <p>If true is returned then we fall back to releasing and re-instantiating the codec instead.
-   *
-   * <p>Note: This workaround should only be used if {@link MediaCodec#setOutputSurface(Surface)}
-   * doesn't work when transitioning between two real surfaces. If an issue only occurs when
-   * transitioning to or from {@link DummySurface}, then {@link
-   * #codecNeedsDummySurfaceWorkaround(String)} should be used instead.
    *
    * @param name The name of the codec.
    * @return True if the device is known to implement {@link MediaCodec#setOutputSurface(Surface)}
@@ -1221,11 +1214,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // https://github.com/google/ExoPlayer/issues/4084,
     // https://github.com/google/ExoPlayer/issues/4104,
     // https://github.com/google/ExoPlayer/issues/4134,
-    // https://github.com/google/ExoPlayer/issues/4315.
+    // https://github.com/google/ExoPlayer/issues/4315,
+    // https://github.com/google/ExoPlayer/issues/4419,
+    // https://github.com/google/ExoPlayer/issues/4460.
     return (("deb".equals(Util.DEVICE) // Nexus 7 (2013)
                 || "flo".equals(Util.DEVICE) // Nexus 7 (2013)
                 || "mido".equals(Util.DEVICE) // Redmi Note 4
-                || "santoni".equals(Util.DEVICE)) // Redmi 4X
+                || "santoni".equals(Util.DEVICE) // Redmi 4X
+                || "ZB500KL".equals(Util.MODEL)) // Asus Zenfone Go
             && "OMX.qcom.video.decoder.avc".equals(name))
         || (("tcl_eu".equals(Util.DEVICE) // TCL Percee TV
                 || "SVP-DTV15".equals(Util.DEVICE) // Sony Bravia 4K 2015
@@ -1241,8 +1237,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         || (("ALE-L21".equals(Util.MODEL) // Huawei P8 Lite
                 || "CAM-L21".equals(Util.MODEL)) // Huawei Y6II
             && "OMX.k3.video.decoder.avc".equals(name))
-        || (("HUAWEI VNS-L21".equals(Util.MODEL)) // Huawei P9 Lite
-            && "OMX.IMG.MSVDX.Decoder.AVC".equals(name));
+        || ("HUAWEI VNS-L21".equals(Util.MODEL) // Huawei P9 Lite
+            && "OMX.IMG.MSVDX.Decoder.AVC".equals(name))
+        || ("AFTN".equals(Util.MODEL) // Amazon FireTV 4K
+            && "OMX.amlogic.avc.decoder.awesome".equals(name));
   }
 
   protected static final class CodecMaxValues {
