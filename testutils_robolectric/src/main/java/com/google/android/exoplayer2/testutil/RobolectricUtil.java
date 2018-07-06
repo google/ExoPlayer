@@ -93,8 +93,9 @@ public final class RobolectricUtil {
     }
 
     private void doLoop() {
-      try {
-        while (true) {
+      boolean wasInterrupted = false;
+      while (true) {
+        try {
           PendingMessage pendingMessage = pendingMessages.take();
           if (pendingMessage.message == null) {
             // Null message is signal to end message loop.
@@ -118,6 +119,11 @@ public final class RobolectricUtil {
             }
             if (!isRemoved) {
               try {
+                if (wasInterrupted) {
+                  wasInterrupted = false;
+                  // Restore the interrupt status flag, so long-running messages will exit early.
+                  Thread.currentThread().interrupt();
+                }
                 target.dispatchMessage(pendingMessage.message);
               } catch (Throwable t) {
                 // Interrupt the main thread to terminate the test. Robolectric's HandlerThread will
@@ -132,9 +138,9 @@ public final class RobolectricUtil {
           } else {
             callInstanceMethod(pendingMessage.message, "recycle");
           }
+        } catch (InterruptedException e) {
+          wasInterrupted = true;
         }
-      } catch (InterruptedException e) {
-        // Ignore.
       }
     }
   }
