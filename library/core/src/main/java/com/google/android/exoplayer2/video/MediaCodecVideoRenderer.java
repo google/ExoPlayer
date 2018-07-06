@@ -1188,9 +1188,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @return True if the device is known to handle {@link DummySurface} incorrectly.
    */
   protected boolean codecNeedsDummySurfaceWorkaround(String name) {
-    // Work around https://github.com/google/ExoPlayer/issues/4419.
-    return ("Amazon".equals(Util.MANUFACTURER) && "AFTN".equals(Util.MODEL)) // FireTV 4K
-        && "OMX.amlogic.avc.decoder.awesome".equals(name);
+    // Work around https://github.com/google/ExoPlayer/issues/4419,
+    // https://github.com/google/ExoPlayer/issues/4460.
+    return (("Amazon".equals(Util.MANUFACTURER) && "AFTN".equals(Util.MODEL)) // FireTV 4K
+            && "OMX.amlogic.avc.decoder.awesome".equals(name))
+        || (("asus".equals(Util.MANUFACTURER) && "ZB500KL".equals(Util.MODEL)) // Asus Zenfone Go
+            && "OMX.qcom.video.decoder.avc".equals(name));
   }
 
   /**
