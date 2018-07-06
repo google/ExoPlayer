@@ -15,6 +15,9 @@
   ([#4403](https://github.com/google/ExoPlayer/issues/4413)).
 * Add support for multiple audio and video tracks in MPEG-PS streams
   ([#4406](https://github.com/google/ExoPlayer/issues/4406)).
+* Add workaround for track index mismatches between trex and tkhd boxes in
+  fragmented MP4 files
+  ([#4477](https://github.com/google/ExoPlayer/issues/4477)).
 
 ### 2.8.2 ###
 

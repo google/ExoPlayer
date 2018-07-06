@@ -499,7 +499,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       for (int i = 0; i < trackCount; i++) {
         Track track = tracks.valueAt(i);
         TrackBundle trackBundle = new TrackBundle(extractorOutput.track(i, track.type));
-        trackBundle.init(track, defaultSampleValuesArray.get(track.id));
+        trackBundle.init(track, getDefaultSampleValues(defaultSampleValuesArray, track.id));
         trackBundles.put(track.id, trackBundle);
         durationUs = Math.max(durationUs, track.durationUs);
       }
@@ -509,9 +509,21 @@ public final class FragmentedMp4Extractor implements Extractor {
       Assertions.checkState(trackBundles.size() == trackCount);
       for (int i = 0; i < trackCount; i++) {
         Track track = tracks.valueAt(i);
-        trackBundles.get(track.id).init(track, defaultSampleValuesArray.get(track.id));
+        trackBundles
+            .get(track.id)
+            .init(track, getDefaultSampleValues(defaultSampleValuesArray, track.id));
       }
     }
+  }
+
+  private DefaultSampleValues getDefaultSampleValues(
+      SparseArray<DefaultSampleValues> defaultSampleValuesArray, int trackId) {
+    if (defaultSampleValuesArray.size() == 1) {
+      // Ignore track id if there is only one track to cope with non-matching track indices.
+      // See https://github.com/google/ExoPlayer/issues/4477.
+      return defaultSampleValuesArray.valueAt(/* index= */ 0);
+    }
+    return Assertions.checkNotNull(defaultSampleValuesArray.get(trackId));
   }
 
   private void onMoofContainerAtomRead(ContainerAtom moof) throws ParserException {
