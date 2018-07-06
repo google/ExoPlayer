@@ -97,6 +97,9 @@ import java.util.UUID;
   private byte[] sessionId;
   private byte[] offlineLicenseKeySetId;
 
+  private Object currentKeyRequest;
+  private Object currentProvisionRequest;
+
   /**
    * Instantiates a new DRM session.
    *
@@ -171,6 +174,8 @@ import java.util.UUID;
       requestHandlerThread = null;
       mediaCrypto = null;
       lastException = null;
+      currentKeyRequest = null;
+      currentProvisionRequest = null;
       if (sessionId != null) {
         mediaDrm.closeSession(sessionId);
         sessionId = null;
@@ -215,8 +220,8 @@ import java.util.UUID;
   // Provisioning implementation.
 
   public void provision() {
-    ProvisionRequest request = mediaDrm.getProvisionRequest();
-    postRequestHandler.obtainMessage(MSG_PROVISION, request, true).sendToTarget();
+    currentProvisionRequest = mediaDrm.getProvisionRequest();
+    postRequestHandler.post(MSG_PROVISION, currentProvisionRequest, /* allowRetry= */ true);
   }
 
   public void onProvisionCompleted() {
@@ -289,11 +294,12 @@ import java.util.UUID;
     return false;
   }
 
-  private void onProvisionResponse(Object response) {
-    if (state != STATE_OPENING && !isOpen()) {
+  private void onProvisionResponse(Object request, Object response) {
+    if (request != currentProvisionRequest || (state != STATE_OPENING && !isOpen())) {
       // This event is stale.
       return;
     }
+    currentProvisionRequest = null;
 
     if (response instanceof Exception) {
       provisioningManager.onProvisionError((Exception) response);
@@ -383,20 +389,21 @@ import java.util.UUID;
       licenseServerUrl = schemeData.licenseServerUrl;
     }
     try {
-      KeyRequest request =
+      KeyRequest mediaDrmKeyRequest =
           mediaDrm.getKeyRequest(scope, initData, mimeType, type, optionalKeyRequestParameters);
-      Pair<KeyRequest, String> arguments = Pair.create(request, licenseServerUrl);
-      postRequestHandler.obtainMessage(MSG_KEYS, arguments, allowRetry).sendToTarget();
+      currentKeyRequest = Pair.create(mediaDrmKeyRequest, licenseServerUrl);
+      postRequestHandler.post(MSG_KEYS, currentKeyRequest, allowRetry);
     } catch (Exception e) {
       onKeysError(e);
     }
   }
 
-  private void onKeyResponse(Object response) {
-    if (!isOpen()) {
+  private void onKeyResponse(Object request, Object response) {
+    if (request != currentKeyRequest || !isOpen()) {
       // This event is stale.
       return;
     }
+    currentKeyRequest = null;
 
     if (response instanceof Exception) {
       onKeysError((Exception) response);
@@ -461,12 +468,15 @@ import java.util.UUID;
 
     @Override
     public void handleMessage(Message msg) {
+      Pair<?, ?> requestAndResponse = (Pair<?, ?>) msg.obj;
+      Object request = requestAndResponse.first;
+      Object response = requestAndResponse.second;
       switch (msg.what) {
         case MSG_PROVISION:
-          onProvisionResponse(msg.obj);
+          onProvisionResponse(request, response);
           break;
         case MSG_KEYS:
-          onKeyResponse(msg.obj);
+          onKeyResponse(request, response);
           break;
         default:
           break;
@@ -483,23 +493,27 @@ import java.util.UUID;
       super(backgroundLooper);
     }
 
-    Message obtainMessage(int what, Object object, boolean allowRetry) {
-      return obtainMessage(what, allowRetry ? 1 : 0 /* allow retry*/, 0 /* error count */,
-          object);
+    void post(int what, Object request, boolean allowRetry) {
+      int allowRetryInt = allowRetry ? 1 : 0;
+      int errorCount = 0;
+      obtainMessage(what, allowRetryInt, errorCount, request).sendToTarget();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void handleMessage(Message msg) {
+      Object request = msg.obj;
       Object response;
       try {
         switch (msg.what) {
           case MSG_PROVISION:
-            response = callback.executeProvisionRequest(uuid, (ProvisionRequest) msg.obj);
+            response = callback.executeProvisionRequest(uuid, (ProvisionRequest) request);
             break;
           case MSG_KEYS:
-            Pair<KeyRequest, String> arguments = (Pair<KeyRequest, String>) msg.obj;
-            response = callback.executeKeyRequest(uuid, arguments.first, arguments.second);
+            Pair<KeyRequest, String> keyRequest = (Pair<KeyRequest, String>) request;
+            KeyRequest mediaDrmKeyRequest = keyRequest.first;
+            String licenseServerUrl = keyRequest.second;
+            response = callback.executeKeyRequest(uuid, mediaDrmKeyRequest, licenseServerUrl);
             break;
           default:
             throw new RuntimeException();
@@ -510,7 +524,7 @@ import java.util.UUID;
         }
         response = e;
       }
-      postResponseHandler.obtainMessage(msg.what, response).sendToTarget();
+      postResponseHandler.obtainMessage(msg.what, Pair.create(request, response)).sendToTarget();
     }
 
     private boolean maybeRetryRequest(Message originalMsg) {
