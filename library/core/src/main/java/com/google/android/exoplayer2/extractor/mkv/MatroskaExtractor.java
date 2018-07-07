@@ -616,10 +616,10 @@ public final class MatroskaExtractor implements Extractor {
         currentTrack.number = (int) value;
         break;
       case ID_FLAG_DEFAULT:
-        currentTrack.flagForced = value == 1;
+        currentTrack.flagDefault = value == 1;
         break;
       case ID_FLAG_FORCED:
-        currentTrack.flagDefault = value == 1;
+        currentTrack.flagForced = value == 1;
         break;
       case ID_TRACK_TYPE:
         currentTrack.type = (int) value;
