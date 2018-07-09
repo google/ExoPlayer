@@ -198,7 +198,7 @@ import java.util.List;
 
     ArrayList<ChunkSampleStream<DashChunkSource>> sampleStreamList = new ArrayList<>();
     ArrayList<EventSampleStream> eventSampleStreamList = new ArrayList<>();
-    for (SampleStream sampleStream : sampleStreams) {
+    for (SampleStream sampleStream : streams) {
       if (sampleStream instanceof ChunkSampleStream) {
         @SuppressWarnings("unchecked")
         ChunkSampleStream<DashChunkSource> stream =
