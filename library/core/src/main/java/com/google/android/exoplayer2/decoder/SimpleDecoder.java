@@ -143,7 +143,7 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
         releaseInputBufferInternal(queuedInputBuffers.removeFirst());
       }
       while (!queuedOutputBuffers.isEmpty()) {
-        releaseOutputBufferInternal(queuedOutputBuffers.removeFirst());
+        queuedOutputBuffers.removeFirst().release();
       }
     }
   }
@@ -241,10 +241,10 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
 
     synchronized (lock) {
       if (flushed) {
-        releaseOutputBufferInternal(outputBuffer);
+        outputBuffer.release();
       } else if (outputBuffer.isDecodeOnly()) {
         skippedOutputBufferCount++;
-        releaseOutputBufferInternal(outputBuffer);
+        outputBuffer.release();
       } else {
         outputBuffer.skippedOutputBufferCount = skippedOutputBufferCount;
         skippedOutputBufferCount = 0;

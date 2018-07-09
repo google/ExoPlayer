@@ -114,6 +114,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private final FormatHolder formatHolder;
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
+  private final boolean useSurfaceYuvOutput;
 
   private Format format;
   private VpxDecoder decoder;
@@ -177,7 +178,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
         maxDroppedFramesToNotify,
         /* drmSessionManager= */ null,
         /* playClearSamplesWithoutKeys= */ false,
-        /* disableLoopFilter= */ false);
+        /* disableLoopFilter= */ false,
+        /* useSurfaceYuvOutput= */ false);
   }
 
   /**
@@ -197,11 +199,18 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param disableLoopFilter Disable the libvpx in-loop smoothing filter.
+   * @param useSurfaceYuvOutput Directly output YUV to the Surface via ANativeWindow.
    */
-  public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
-      Handler eventHandler, VideoRendererEventListener eventListener,
-      int maxDroppedFramesToNotify, DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, boolean disableLoopFilter) {
+  public LibvpxVideoRenderer(
+      boolean scaleToFit,
+      long allowedJoiningTimeMs,
+      Handler eventHandler,
+      VideoRendererEventListener eventListener,
+      int maxDroppedFramesToNotify,
+      DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys,
+      boolean disableLoopFilter,
+      boolean useSurfaceYuvOutput) {
     super(C.TRACK_TYPE_VIDEO);
     this.scaleToFit = scaleToFit;
     this.disableLoopFilter = disableLoopFilter;
@@ -209,6 +218,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
+    this.useSurfaceYuvOutput = useSurfaceYuvOutput;
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
     formatHolder = new FormatHolder();
@@ -549,21 +559,25 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    *
    * @param outputBuffer The buffer to render.
    */
-  protected void renderOutputBuffer(VpxOutputBuffer outputBuffer) {
+  protected void renderOutputBuffer(VpxOutputBuffer outputBuffer) throws VpxDecoderException {
     int bufferMode = outputBuffer.mode;
     boolean renderRgb = bufferMode == VpxDecoder.OUTPUT_MODE_RGB && surface != null;
+    boolean renderSurface = bufferMode == VpxDecoder.OUTPUT_MODE_SURFACE_YUV && surface != null;
     boolean renderYuv = bufferMode == VpxDecoder.OUTPUT_MODE_YUV && outputBufferRenderer != null;
     lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
-    if (!renderRgb && !renderYuv) {
+    if (!renderRgb && !renderYuv && !renderSurface) {
       dropOutputBuffer(outputBuffer);
     } else {
       maybeNotifyVideoSizeChanged(outputBuffer.width, outputBuffer.height);
       if (renderRgb) {
         renderRgbFrame(outputBuffer, scaleToFit);
         outputBuffer.release();
-      } else /* renderYuv */ {
+      } else if (renderYuv) {
         outputBufferRenderer.setOutputBuffer(outputBuffer);
         // The renderer will release the buffer.
+      } else { // renderSurface
+        decoder.renderToSurface(outputBuffer, surface);
+        outputBuffer.release();
       }
       consecutiveDroppedFrameCount = 0;
       decoderCounters.renderedOutputBufferCount++;
@@ -633,8 +647,13 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       // The output has changed.
       this.surface = surface;
       this.outputBufferRenderer = outputBufferRenderer;
-      outputMode = outputBufferRenderer != null ? VpxDecoder.OUTPUT_MODE_YUV
-          : surface != null ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_NONE;
+      if (surface != null) {
+        outputMode =
+            useSurfaceYuvOutput ? VpxDecoder.OUTPUT_MODE_SURFACE_YUV : VpxDecoder.OUTPUT_MODE_RGB;
+      } else {
+        outputMode =
+            outputBufferRenderer != null ? VpxDecoder.OUTPUT_MODE_YUV : VpxDecoder.OUTPUT_MODE_NONE;
+      }
       if (outputMode != VpxDecoder.OUTPUT_MODE_NONE) {
         if (decoder != null) {
           decoder.setOutputMode(outputMode);
@@ -690,7 +709,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
               NUM_OUTPUT_BUFFERS,
               INITIAL_INPUT_BUFFER_SIZE,
               mediaCrypto,
-              disableLoopFilter);
+              disableLoopFilter,
+              useSurfaceYuvOutput);
       decoder.setOutputMode(outputMode);
       TraceUtil.endSection();
       long decoderInitializedTimestamp = SystemClock.elapsedRealtime();
@@ -817,7 +837,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs processing the output buffer.
    */
   private boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs)
-      throws ExoPlaybackException {
+      throws ExoPlaybackException, VpxDecoderException {
     if (initialPositionUs == C.TIME_UNSET) {
       initialPositionUs = positionUs;
     }

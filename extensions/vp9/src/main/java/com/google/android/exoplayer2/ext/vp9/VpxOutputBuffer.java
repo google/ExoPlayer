@@ -30,6 +30,8 @@ import java.nio.ByteBuffer;
   public static final int COLORSPACE_BT2020 = 3;
 
   private final VpxDecoder owner;
+  /** Decoder private data. */
+  public int decoderPrivate;
 
   public int mode;
   /**
