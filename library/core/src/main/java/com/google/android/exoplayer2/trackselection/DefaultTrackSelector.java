@@ -609,20 +609,20 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public final boolean exceedVideoConstraintsIfNecessary;
     /**
-     * Viewport width in pixels. Constrains video track selections for adaptive playbacks so that
-     * only tracks suitable for the viewport are selected. The default value is {@link
-     * Integer#MAX_VALUE} (i.e. no constraint).
+     * Viewport width in pixels. Constrains video track selections for adaptive content so that only
+     * tracks suitable for the viewport are selected. The default value is {@link Integer#MAX_VALUE}
+     * (i.e. no constraint).
      */
     public final int viewportWidth;
     /**
-     * Viewport height in pixels. Constrains video track selections for adaptive playbacks so that
+     * Viewport height in pixels. Constrains video track selections for adaptive content so that
      * only tracks suitable for the viewport are selected. The default value is {@link
      * Integer#MAX_VALUE} (i.e. no constraint).
      */
     public final int viewportHeight;
     /**
      * Whether the viewport orientation may change during playback. Constrains video track
-     * selections for adaptive playbacks so that only tracks suitable for the viewport are selected.
+     * selections for adaptive content so that only tracks suitable for the viewport are selected.
      * The default value is {@code true}.
      */
     public final boolean viewportOrientationMayChange;
