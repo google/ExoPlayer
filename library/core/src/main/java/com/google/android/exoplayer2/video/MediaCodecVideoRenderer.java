@@ -1183,12 +1183,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *
    * 1. Validate that Android device certification now ensures correct behavior, and add a
    *    corresponding SDK_INT upper bound for applying the workaround (probably SDK_INT < 26).
-   * 2. On affected devices, we're currently targeting AVC decoders only. It's quite likely that
-   *    other decoders also fail to support setOutputSurface on these devices (although it may be
-   *    that this only applies to hardware accelerated decoders). Determine whether this is the
-   *    case.
-   * 3. Determine a complete list of affected devices.
-   * 4. Some of the devices in this list only fail to support setOutputSurface when switching from
+   * 2. Determine a complete list of affected devices.
+   * 3. Some of the devices in this list only fail to support setOutputSurface when switching from
    *    a SurfaceView provided Surface to a Surface of another type (e.g. TextureView/DummySurface),
    *    and vice versa. One hypothesis is that setOutputSurface fails when the surfaces have
    *    different pixel formats. If we can find a way to query the Surface instances to determine
@@ -1205,7 +1201,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     incorrectly.
    */
   protected boolean codecNeedsSetOutputSurfaceWorkaround(String name) {
-    // Work around https://github.com/google/ExoPlayer/issues/3236,
+    if (name.startsWith("OMX.google")) {
+      // Google software decoders are not known to have this issue on any device.
+      return false;
+    }
+    // Work around:
+    // https://github.com/google/ExoPlayer/issues/3236,
     // https://github.com/google/ExoPlayer/issues/3355,
     // https://github.com/google/ExoPlayer/issues/3439,
     // https://github.com/google/ExoPlayer/issues/3724,
@@ -1217,30 +1218,25 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // https://github.com/google/ExoPlayer/issues/4315,
     // https://github.com/google/ExoPlayer/issues/4419,
     // https://github.com/google/ExoPlayer/issues/4460.
-    return (("deb".equals(Util.DEVICE) // Nexus 7 (2013)
-                || "flo".equals(Util.DEVICE) // Nexus 7 (2013)
-                || "mido".equals(Util.DEVICE) // Redmi Note 4
-                || "santoni".equals(Util.DEVICE) // Redmi 4X
-                || "ZB500KL".equals(Util.MODEL)) // Asus Zenfone Go
-            && "OMX.qcom.video.decoder.avc".equals(name))
-        || (("tcl_eu".equals(Util.DEVICE) // TCL Percee TV
-                || "SVP-DTV15".equals(Util.DEVICE) // Sony Bravia 4K 2015
-                || "BRAVIA_ATV2".equals(Util.DEVICE) // Sony Bravia 4K GB
-                || Util.DEVICE.startsWith("panell_") // Motorola Moto C Plus
-                || "F3311".equals(Util.DEVICE) // Sony Xperia E5
-                || "M5c".equals(Util.DEVICE) // Meizu M5C
-                || "QM16XE_U".equals(Util.DEVICE) // Philips QM163E
-                || "A7010a48".equals(Util.DEVICE) // Lenovo K4 Note
-                || "woods_f".equals(Util.MODEL) // Moto E (4)
-                || "watson".equals(Util.DEVICE)) // Moto C
-            && "OMX.MTK.VIDEO.DECODER.AVC".equals(name))
-        || (("ALE-L21".equals(Util.MODEL) // Huawei P8 Lite
-                || "CAM-L21".equals(Util.MODEL)) // Huawei Y6II
-            && "OMX.k3.video.decoder.avc".equals(name))
-        || ("HUAWEI VNS-L21".equals(Util.MODEL) // Huawei P9 Lite
-            && "OMX.IMG.MSVDX.Decoder.AVC".equals(name))
-        || ("AFTN".equals(Util.MODEL) // Amazon FireTV 4K
-            && "OMX.amlogic.avc.decoder.awesome".equals(name));
+    return "deb".equals(Util.DEVICE) // Nexus 7 (2013)
+        || "flo".equals(Util.DEVICE) // Nexus 7 (2013)
+        || "mido".equals(Util.DEVICE) // Redmi Note 4
+        || "santoni".equals(Util.DEVICE) // Redmi 4X
+        || "ZB500KL".equals(Util.MODEL) // Asus Zenfone Go
+        || "tcl_eu".equals(Util.DEVICE) // TCL Percee TV
+        || "SVP-DTV15".equals(Util.DEVICE) // Sony Bravia 4K 2015
+        || "BRAVIA_ATV2".equals(Util.DEVICE) // Sony Bravia 4K GB
+        || "F3311".equals(Util.DEVICE) // Sony Xperia E5
+        || "M5c".equals(Util.DEVICE) // Meizu M5C
+        || "QM16XE_U".equals(Util.DEVICE) // Philips QM163E
+        || "A7010a48".equals(Util.DEVICE) // Lenovo K4 Note
+        || "woods_f".equals(Util.MODEL) // Moto E (4)
+        || "watson".equals(Util.DEVICE) // Moto C
+        || "ALE-L21".equals(Util.MODEL) // Huawei P8 Lite
+        || "CAM-L21".equals(Util.MODEL) // Huawei Y6II
+        || "HUAWEI VNS-L21".equals(Util.MODEL) // Huawei P9 Lite
+        || "AFTN".equals(Util.MODEL) // Amazon FireTV 4K
+        || Util.DEVICE.startsWith("panell_"); // Motorola Moto C Plus
   }
 
   protected static final class CodecMaxValues {
