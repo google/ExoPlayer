@@ -80,6 +80,13 @@ public final class Format implements Parcelable {
   /** DRM initialization data if the stream is protected, or null otherwise. */
   public final @Nullable DrmInitData drmInitData;
 
+  /**
+   * For samples that contain subsamples, this is an offset that should be added to subsample
+   * timestamps. A value of {@link #OFFSET_SAMPLE_RELATIVE} indicates that subsample timestamps are
+   * relative to the timestamps of their parent samples.
+   */
+  public final long subsampleOffsetUs;
+
   // Video specific.
 
   /**
@@ -140,15 +147,6 @@ public final class Format implements Parcelable {
    * The number of frames to trim from the end of the decoded audio stream, or 0 if not applicable.
    */
   public final int encoderPadding;
-
-  // Text specific.
-
-  /**
-   * For samples that contain subsamples, this is an offset that should be added to subsample
-   * timestamps. A value of {@link #OFFSET_SAMPLE_RELATIVE} indicates that subsample timestamps are
-   * relative to the timestamps of their parent samples.
-   */
-  public final long subsampleOffsetUs;
 
   // Audio and text specific.
 
