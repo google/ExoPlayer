@@ -172,7 +172,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
-  public @Nullable TransferListener<?> getTransferListener() {
+  public @Nullable TransferListener<? super DataSource> getTransferListener() {
     return this;
   }
 

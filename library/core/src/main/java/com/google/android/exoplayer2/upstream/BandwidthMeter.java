@@ -47,5 +47,6 @@ public interface BandwidthMeter {
    * Returns the {@link TransferListener} that this instance uses to gather bandwidth information
    * from data transfers. May be null, if no transfer listener is used.
    */
-  @Nullable TransferListener<?> getTransferListener();
+  @Nullable
+  TransferListener<? super DataSource> getTransferListener();
 }
