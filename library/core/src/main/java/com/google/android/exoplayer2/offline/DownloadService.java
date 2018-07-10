@@ -90,6 +90,7 @@ public abstract class DownloadService extends Service {
   private DownloadManagerListener downloadManagerListener;
   private int lastStartId;
   private boolean startedInForeground;
+  private boolean taskRemoved;
 
   /**
    * Creates a DownloadService with {@link #DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL}.
@@ -221,11 +222,16 @@ public abstract class DownloadService extends Service {
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     lastStartId = startId;
+    taskRemoved = false;
     String intentAction = null;
     if (intent != null) {
       intentAction = intent.getAction();
       startedInForeground |=
           intent.getBooleanExtra(KEY_FOREGROUND, false) || ACTION_RESTART.equals(intentAction);
+    }
+    // intentAction is null if the service is restarted or no action is specified.
+    if (intentAction == null) {
+      intentAction = ACTION_INIT;
     }
     logd("onStartCommand action: " + intentAction + " startId: " + startId);
     switch (intentAction) {
@@ -264,6 +270,12 @@ public abstract class DownloadService extends Service {
       stop();
     }
     return START_STICKY;
+  }
+
+  @Override
+  public void onTaskRemoved(Intent rootIntent) {
+    logd("onTaskRemoved rootIntent: " + rootIntent);
+    taskRemoved = true;
   }
 
   @Override
@@ -363,8 +375,13 @@ public abstract class DownloadService extends Service {
     if (startedInForeground && Util.SDK_INT >= 26) {
       foregroundNotificationUpdater.showNotificationIfNotAlready();
     }
-    boolean stopSelfResult = stopSelfResult(lastStartId);
-    logd("stopSelf(" + lastStartId + ") result: " + stopSelfResult);
+    if (Util.SDK_INT < 28 && taskRemoved) { // See [Internal: b/74248644].
+      stopSelf();
+      logd("stopSelf()");
+    } else {
+      boolean stopSelfResult = stopSelfResult(lastStartId);
+      logd("stopSelf(" + lastStartId + ") result: " + stopSelfResult);
+    }
   }
 
   private void logd(String message) {
