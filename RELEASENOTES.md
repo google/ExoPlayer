@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* MPEG-PS: Support reading duration from MPEG-PS Streams
+    ([#4476](https://github.com/google/ExoPlayer/issues/4476)).
 * MediaSession extension:
   * Allow apps to set custom errors.
 * Audio:
