@@ -47,7 +47,7 @@ public final class PsExtractor implements Extractor {
 
   };
 
-  private static final int PACK_START_CODE = 0x000001BA;
+  /* package */ static final int PACK_START_CODE = 0x000001BA;
   private static final int SYSTEM_HEADER_START_CODE = 0x000001BB;
   private static final int PACKET_START_CODE_PREFIX = 0x000001;
   private static final int MPEG_PROGRAM_END_CODE = 0x000001B9;
@@ -68,6 +68,8 @@ public final class PsExtractor implements Extractor {
   private final TimestampAdjuster timestampAdjuster;
   private final SparseArray<PesReader> psPayloadReaders; // Indexed by pid
   private final ParsableByteArray psPacketBuffer;
+  private final PsDurationReader durationReader;
+
   private boolean foundAllTracks;
   private boolean foundAudioTrack;
   private boolean foundVideoTrack;
@@ -75,6 +77,7 @@ public final class PsExtractor implements Extractor {
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
+  private boolean hasOutputSeekMap;
 
   public PsExtractor() {
     this(new TimestampAdjuster(0));
@@ -84,6 +87,7 @@ public final class PsExtractor implements Extractor {
     this.timestampAdjuster = timestampAdjuster;
     psPacketBuffer = new ParsableByteArray(4096);
     psPayloadReaders = new SparseArray<>();
+    durationReader = new PsDurationReader();
   }
 
   // Extractor implementation.
@@ -130,7 +134,6 @@ public final class PsExtractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }
 
   @Override
@@ -149,6 +152,13 @@ public final class PsExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+
+    boolean canReadDuration = input.getLength() != C.LENGTH_UNSET;
+    if (canReadDuration && !durationReader.isDurationReadFinished()) {
+      return durationReader.readDuration(input, seekPosition);
+    }
+    maybeOutputSeekMap();
+
     // First peek and check what type of start code is next.
     if (!input.peekFully(psPacketBuffer.data, 0, 4, true)) {
       return RESULT_END_OF_INPUT;
@@ -249,6 +259,13 @@ public final class PsExtractor implements Extractor {
   }
 
   // Internals.
+
+  private void maybeOutputSeekMap() {
+    if (!hasOutputSeekMap) {
+      hasOutputSeekMap = true;
+      output.seekMap(new SeekMap.Unseekable(durationReader.getDurationUs()));
+    }
+  }
 
   /**
    * Parses PES packet data and extracts samples.
