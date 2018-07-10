@@ -55,10 +55,18 @@ public final class DownloadNotificationUtil {
     int downloadTaskCount = 0;
     boolean allDownloadPercentagesUnknown = true;
     boolean haveDownloadedBytes = false;
+    boolean haveDownloadTasks = false;
+    boolean haveRemoveTasks = false;
     for (TaskState taskState : taskStates) {
-      if (taskState.action.isRemoveAction || taskState.state != TaskState.STATE_STARTED) {
+      if (taskState.state != TaskState.STATE_STARTED
+          && taskState.state != TaskState.STATE_COMPLETED) {
         continue;
       }
+      if (taskState.action.isRemoveAction) {
+        haveRemoveTasks = true;
+        continue;
+      }
+      haveDownloadTasks = true;
       if (taskState.downloadPercentage != C.PERCENTAGE_UNSET) {
         allDownloadPercentagesUnknown = false;
         totalPercentage += taskState.downloadPercentage;
@@ -67,18 +75,20 @@ public final class DownloadNotificationUtil {
       downloadTaskCount++;
     }
 
-    boolean haveDownloadTasks = downloadTaskCount > 0;
     int titleStringId =
         haveDownloadTasks
             ? R.string.exo_download_downloading
-            : (taskStates.length > 0 ? R.string.exo_download_removing : NULL_STRING_ID);
+            : (haveRemoveTasks ? R.string.exo_download_removing : NULL_STRING_ID);
     NotificationCompat.Builder notificationBuilder =
         newNotificationBuilder(
             context, smallIcon, channelId, contentIntent, message, titleStringId);
 
-    int progress = haveDownloadTasks ? (int) (totalPercentage / downloadTaskCount) : 0;
-    boolean indeterminate =
-        !haveDownloadTasks || (allDownloadPercentagesUnknown && haveDownloadedBytes);
+    int progress = 0;
+    boolean indeterminate = true;
+    if (haveDownloadTasks) {
+      progress = (int) (totalPercentage / downloadTaskCount);
+      indeterminate = allDownloadPercentagesUnknown && haveDownloadedBytes;
+    }
     notificationBuilder.setProgress(/* max= */ 100, progress, indeterminate);
     notificationBuilder.setOngoing(true);
     notificationBuilder.setShowWhen(false);
