@@ -22,8 +22,8 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.SlidingPercentile;
 
 /**
- * Estimates bandwidth by listening to data transfers. The bandwidth estimate is calculated using
- * a {@link SlidingPercentile} and is updated each time a transfer ends.
+ * Estimates bandwidth by listening to data transfers. The bandwidth estimate is calculated using a
+ * {@link SlidingPercentile} and is updated each time a transfer ends.
  */
 public final class DefaultBandwidthMeter implements BandwidthMeter, TransferListener<Object> {
 
@@ -177,7 +177,15 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
-  public synchronized void onTransferStart(Object source, DataSpec dataSpec) {
+  public void onTransferInitializing(Object source, DataSpec dataSpec, boolean isNetwork) {
+    // Do nothing.
+  }
+
+  @Override
+  public synchronized void onTransferStart(Object source, DataSpec dataSpec, boolean isNetwork) {
+    if (!isNetwork) {
+      return;
+    }
     if (streamCount == 0) {
       sampleStartTimeMs = clock.elapsedRealtime();
     }
@@ -185,12 +193,19 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
-  public synchronized void onBytesTransferred(Object source, int bytes) {
+  public synchronized void onBytesTransferred(
+      Object source, DataSpec dataSpec, boolean isNetwork, int bytes) {
+    if (!isNetwork) {
+      return;
+    }
     sampleBytesTransferred += bytes;
   }
 
   @Override
-  public synchronized void onTransferEnd(Object source) {
+  public synchronized void onTransferEnd(Object source, DataSpec dataSpec, boolean isNetwork) {
+    if (!isNetwork) {
+      return;
+    }
     Assertions.checkState(streamCount > 0);
     long nowMs = clock.elapsedRealtime();
     int sampleElapsedTimeMs = (int) (nowMs - sampleStartTimeMs);

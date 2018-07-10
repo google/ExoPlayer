@@ -40,10 +40,21 @@ public class BaseDataSourceTest {
     testSource.read(/* buffer= */ null, /* offset= */ 0, /* readLength= */ 100);
     testSource.close();
 
+    assertThat(transferListener.lastTransferInitializingSource).isSameAs(testSource);
     assertThat(transferListener.lastTransferStartSource).isSameAs(testSource);
     assertThat(transferListener.lastBytesTransferredSource).isSameAs(testSource);
     assertThat(transferListener.lastTransferEndSource).isSameAs(testSource);
+
+    assertThat(transferListener.lastTransferInitializingDataSpec).isEqualTo(dataSpec);
     assertThat(transferListener.lastTransferStartDataSpec).isEqualTo(dataSpec);
+    assertThat(transferListener.lastBytesTransferredDataSpec).isEqualTo(dataSpec);
+    assertThat(transferListener.lastTransferEndDataSpec).isEqualTo(dataSpec);
+
+    assertThat(transferListener.lastTransferInitializingIsNetwork).isEqualTo(false);
+    assertThat(transferListener.lastTransferStartIsNetwork).isEqualTo(false);
+    assertThat(transferListener.lastBytesTransferredIsNetwork).isEqualTo(false);
+    assertThat(transferListener.lastTransferEndIsNetwork).isEqualTo(false);
+
     assertThat(transferListener.lastBytesTransferred).isEqualTo(100);
   }
 
@@ -58,10 +69,21 @@ public class BaseDataSourceTest {
     testSource.read(/* buffer= */ null, /* offset= */ 0, /* readLength= */ 100);
     testSource.close();
 
+    assertThat(transferListener.lastTransferInitializingSource).isSameAs(testSource);
     assertThat(transferListener.lastTransferStartSource).isSameAs(testSource);
     assertThat(transferListener.lastBytesTransferredSource).isSameAs(testSource);
     assertThat(transferListener.lastTransferEndSource).isSameAs(testSource);
+
+    assertThat(transferListener.lastTransferInitializingDataSpec).isEqualTo(dataSpec);
     assertThat(transferListener.lastTransferStartDataSpec).isEqualTo(dataSpec);
+    assertThat(transferListener.lastBytesTransferredDataSpec).isEqualTo(dataSpec);
+    assertThat(transferListener.lastTransferEndDataSpec).isEqualTo(dataSpec);
+
+    assertThat(transferListener.lastTransferInitializingIsNetwork).isEqualTo(true);
+    assertThat(transferListener.lastTransferStartIsNetwork).isEqualTo(true);
+    assertThat(transferListener.lastBytesTransferredIsNetwork).isEqualTo(true);
+    assertThat(transferListener.lastTransferEndIsNetwork).isEqualTo(true);
+
     assertThat(transferListener.lastBytesTransferred).isEqualTo(100);
   }
 
@@ -73,6 +95,7 @@ public class BaseDataSourceTest {
 
     @Override
     public long open(DataSpec dataSpec) throws IOException {
+      transferInitializing(dataSpec);
       transferStarted(dataSpec);
       return C.LENGTH_UNSET;
     }
@@ -96,27 +119,51 @@ public class BaseDataSourceTest {
 
   private static final class TestTransferListener implements TransferListener<DataSource> {
 
+    public Object lastTransferInitializingSource;
+    public DataSpec lastTransferInitializingDataSpec;
+    public boolean lastTransferInitializingIsNetwork;
+
     public Object lastTransferStartSource;
     public DataSpec lastTransferStartDataSpec;
+    public boolean lastTransferStartIsNetwork;
+
     public Object lastBytesTransferredSource;
+    public DataSpec lastBytesTransferredDataSpec;
+    public boolean lastBytesTransferredIsNetwork;
     public int lastBytesTransferred;
+
     public Object lastTransferEndSource;
+    public DataSpec lastTransferEndDataSpec;
+    public boolean lastTransferEndIsNetwork;
 
     @Override
-    public void onTransferStart(DataSource source, DataSpec dataSpec) {
-      lastTransferStartSource = source;
-      lastTransferStartDataSpec = dataSpec;
+    public void onTransferInitializing(DataSource source, DataSpec dataSpec, boolean isNetwork) {
+      lastTransferInitializingSource = source;
+      lastTransferInitializingDataSpec = dataSpec;
+      lastTransferInitializingIsNetwork = isNetwork;
     }
 
     @Override
-    public void onBytesTransferred(DataSource source, int bytesTransferred) {
+    public void onTransferStart(DataSource source, DataSpec dataSpec, boolean isNetwork) {
+      lastTransferStartSource = source;
+      lastTransferStartDataSpec = dataSpec;
+      lastTransferStartIsNetwork = isNetwork;
+    }
+
+    @Override
+    public void onBytesTransferred(
+        DataSource source, DataSpec dataSpec, boolean isNetwork, int bytesTransferred) {
       lastBytesTransferredSource = source;
+      lastBytesTransferredDataSpec = dataSpec;
+      lastBytesTransferredIsNetwork = isNetwork;
       lastBytesTransferred = bytesTransferred;
     }
 
     @Override
-    public void onTransferEnd(DataSource source) {
+    public void onTransferEnd(DataSource source, DataSpec dataSpec, boolean isNetwork) {
       lastTransferEndSource = source;
+      lastTransferEndDataSpec = dataSpec;
+      lastTransferEndIsNetwork = isNetwork;
     }
   }
 }

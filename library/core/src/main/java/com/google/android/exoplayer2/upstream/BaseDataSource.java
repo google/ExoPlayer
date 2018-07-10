@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
 
 /**
@@ -28,6 +30,8 @@ public abstract class BaseDataSource implements DataSource {
 
   private final boolean isNetwork;
   private final ArrayList<TransferListener<? super DataSource>> listeners;
+
+  private @Nullable DataSpec dataSpec;
 
   /**
    * Creates base data source.
@@ -50,7 +54,9 @@ public abstract class BaseDataSource implements DataSource {
    * @param dataSpec {@link DataSpec} describing the data for initializing transfer.
    */
   protected final void transferInitializing(DataSpec dataSpec) {
-    // TODO: notify listeners.
+    for (int i = 0; i < listeners.size(); i++) {
+      listeners.get(i).onTransferInitializing(/* source= */ this, dataSpec, isNetwork);
+    }
   }
 
   /**
@@ -59,8 +65,9 @@ public abstract class BaseDataSource implements DataSource {
    * @param dataSpec {@link DataSpec} describing the data being transferred.
    */
   protected final void transferStarted(DataSpec dataSpec) {
+    this.dataSpec = dataSpec;
     for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).onTransferStart(/* source= */ this, dataSpec);
+      listeners.get(i).onTransferStart(/* source= */ this, dataSpec, isNetwork);
     }
   }
 
@@ -71,15 +78,20 @@ public abstract class BaseDataSource implements DataSource {
    *     (or if the first call, since the transfer was started).
    */
   protected final void bytesTransferred(int bytesTransferred) {
+    DataSpec dataSpec = Assertions.checkNotNull(this.dataSpec);
     for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).onBytesTransferred(/* source= */ this, bytesTransferred);
+      listeners
+          .get(i)
+          .onBytesTransferred(/* source= */ this, dataSpec, isNetwork, bytesTransferred);
     }
   }
 
   /** Notifies listeners that a transfer ended. */
   protected final void transferEnded() {
+    DataSpec dataSpec = Assertions.checkNotNull(this.dataSpec);
     for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).onTransferEnd(/* source= */ this);
+      listeners.get(i).onTransferEnd(/* source= */ this, dataSpec, isNetwork);
     }
+    this.dataSpec = null;
   }
 }

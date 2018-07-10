@@ -213,7 +213,8 @@ public final class CronetDataSourceTest {
   public void testRequestOpen() throws HttpDataSourceException {
     mockResponseStartSuccess();
     assertThat(dataSourceUnderTest.open(testDataSpec)).isEqualTo(TEST_CONTENT_LENGTH);
-    verify(mockTransferListener).onTransferStart(dataSourceUnderTest, testDataSpec);
+    verify(mockTransferListener)
+        .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
   }
 
   @Test
@@ -225,7 +226,8 @@ public final class CronetDataSourceTest {
     mockResponseStartSuccess();
 
     assertThat(dataSourceUnderTest.open(testDataSpec)).isEqualTo(5000 /* contentLength */);
-    verify(mockTransferListener).onTransferStart(dataSourceUnderTest, testDataSpec);
+    verify(mockTransferListener)
+        .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
   }
 
   @Test
@@ -239,7 +241,8 @@ public final class CronetDataSourceTest {
       // Check for connection not automatically closed.
       assertThat(e.getCause() instanceof UnknownHostException).isFalse();
       verify(mockUrlRequest, never()).cancel();
-      verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
+      verify(mockTransferListener, never())
+          .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
     }
   }
 
@@ -256,7 +259,8 @@ public final class CronetDataSourceTest {
       // Check for connection not automatically closed.
       assertThat(e.getCause() instanceof UnknownHostException).isTrue();
       verify(mockUrlRequest, never()).cancel();
-      verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
+      verify(mockTransferListener, never())
+          .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
     }
   }
 
@@ -272,7 +276,8 @@ public final class CronetDataSourceTest {
       assertThat(e instanceof HttpDataSource.InvalidResponseCodeException).isTrue();
       // Check for connection not automatically closed.
       verify(mockUrlRequest, never()).cancel();
-      verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
+      verify(mockTransferListener, never())
+          .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
     }
   }
 
@@ -298,7 +303,8 @@ public final class CronetDataSourceTest {
 
     dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
     assertThat(dataSourceUnderTest.open(testPostDataSpec)).isEqualTo(TEST_CONTENT_LENGTH);
-    verify(mockTransferListener).onTransferStart(dataSourceUnderTest, testPostDataSpec);
+    verify(mockTransferListener)
+        .onTransferStart(dataSourceUnderTest, testPostDataSpec, /* isNetwork= */ true);
   }
 
   @Test
@@ -346,7 +352,8 @@ public final class CronetDataSourceTest {
 
     // Should have only called read on cronet once.
     verify(mockUrlRequest, times(1)).read(any(ByteBuffer.class));
-    verify(mockTransferListener, times(2)).onBytesTransferred(dataSourceUnderTest, 8);
+    verify(mockTransferListener, times(2))
+        .onBytesTransferred(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true, 8);
   }
 
   @Test
@@ -386,7 +393,8 @@ public final class CronetDataSourceTest {
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 8, 8);
     assertThat(bytesRead).isEqualTo(8);
     assertThat(returnedBuffer).isEqualTo(prefixZeros(buildTestDataArray(0, 8), 16));
-    verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 8);
+    verify(mockTransferListener)
+        .onBytesTransferred(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true, 8);
   }
 
   @Test
@@ -402,7 +410,8 @@ public final class CronetDataSourceTest {
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 16);
     assertThat(bytesRead).isEqualTo(16);
     assertThat(returnedBuffer).isEqualTo(buildTestDataArray(1000, 16));
-    verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 16);
+    verify(mockTransferListener)
+        .onBytesTransferred(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true, 16);
   }
 
   @Test
@@ -418,7 +427,8 @@ public final class CronetDataSourceTest {
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 16);
     assertThat(bytesRead).isEqualTo(16);
     assertThat(returnedBuffer).isEqualTo(buildTestDataArray(1000, 16));
-    verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 16);
+    verify(mockTransferListener)
+        .onBytesTransferred(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true, 16);
   }
 
   @Test
@@ -433,7 +443,8 @@ public final class CronetDataSourceTest {
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 8, 8);
     assertThat(returnedBuffer).isEqualTo(prefixZeros(buildTestDataArray(0, 8), 16));
     assertThat(bytesRead).isEqualTo(8);
-    verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 8);
+    verify(mockTransferListener)
+        .onBytesTransferred(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true, 8);
   }
 
   @Test
@@ -447,7 +458,8 @@ public final class CronetDataSourceTest {
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 24);
     assertThat(returnedBuffer).isEqualTo(suffixZeros(buildTestDataArray(0, 16), 24));
     assertThat(bytesRead).isEqualTo(16);
-    verify(mockTransferListener).onBytesTransferred(dataSourceUnderTest, 16);
+    verify(mockTransferListener)
+        .onBytesTransferred(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true, 16);
   }
 
   @Test
@@ -464,7 +476,8 @@ public final class CronetDataSourceTest {
     assertThat(bytesRead).isEqualTo(8);
 
     dataSourceUnderTest.close();
-    verify(mockTransferListener).onTransferEnd(dataSourceUnderTest);
+    verify(mockTransferListener)
+        .onTransferEnd(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
 
     try {
       bytesRead += dataSourceUnderTest.read(returnedBuffer, 0, 8);
@@ -505,9 +518,12 @@ public final class CronetDataSourceTest {
 
     // Should have only called read on cronet once.
     verify(mockUrlRequest, times(1)).read(any(ByteBuffer.class));
-    verify(mockTransferListener, times(1)).onBytesTransferred(dataSourceUnderTest, 8);
-    verify(mockTransferListener, times(1)).onBytesTransferred(dataSourceUnderTest, 6);
-    verify(mockTransferListener, times(1)).onBytesTransferred(dataSourceUnderTest, 2);
+    verify(mockTransferListener, times(1))
+        .onBytesTransferred(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true, 8);
+    verify(mockTransferListener, times(1))
+        .onBytesTransferred(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true, 6);
+    verify(mockTransferListener, times(1))
+        .onBytesTransferred(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true, 2);
 
     // Now we already returned the 16 bytes initially asked.
     // Try to read again even though all requested 16 bytes are already returned.
@@ -518,7 +534,8 @@ public final class CronetDataSourceTest {
     assertThat(returnedBuffer).isEqualTo(new byte[16]);
     // C.RESULT_END_OF_INPUT should not be reported though the TransferListener.
     verify(mockTransferListener, never())
-        .onBytesTransferred(dataSourceUnderTest, C.RESULT_END_OF_INPUT);
+        .onBytesTransferred(
+            dataSourceUnderTest, testDataSpec, /* isNetwork= */ true, C.RESULT_END_OF_INPUT);
     // There should still be only one call to read on cronet.
     verify(mockUrlRequest, times(1)).read(any(ByteBuffer.class));
     // Check for connection not automatically closed.
@@ -559,7 +576,8 @@ public final class CronetDataSourceTest {
     ShadowSystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS + 10);
     timedOutLatch.await();
 
-    verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
+    verify(mockTransferListener, never())
+        .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
   }
 
   @Test
@@ -597,7 +615,8 @@ public final class CronetDataSourceTest {
     thread.interrupt();
     timedOutLatch.await();
 
-    verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
+    verify(mockTransferListener, never())
+        .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
   }
 
   @Test
@@ -678,7 +697,8 @@ public final class CronetDataSourceTest {
     ShadowSystemClock.setCurrentTimeMillis(startTimeMs + newTimeoutMs + 10);
     timedOutLatch.await();
 
-    verify(mockTransferListener, never()).onTransferStart(dataSourceUnderTest, testDataSpec);
+    verify(mockTransferListener, never())
+        .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
     assertThat(openExceptions.get()).isEqualTo(1);
   }
 
@@ -797,7 +817,7 @@ public final class CronetDataSourceTest {
     // the subsequent open() call succeeds.
     doThrow(new NullPointerException())
         .when(mockTransferListener)
-        .onTransferEnd(dataSourceUnderTest);
+        .onTransferEnd(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
     dataSourceUnderTest.open(testDataSpec);
     try {
       dataSourceUnderTest.close();

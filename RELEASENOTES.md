@@ -29,6 +29,7 @@
     directly reading data should implement `BaseDataSource` to handle the
     registration correctly. Custom `DataSource`'s forwarding to other sources
     should forward all calls to `addTransferListener`.
+  * Extend `TransferListener` with additional callback parameters.
 * Error handling:
   * Allow configuration of the Loader retry delay
     ([#3370](https://github.com/google/ExoPlayer/issues/3370)).
