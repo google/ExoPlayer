@@ -241,7 +241,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       Clock clock,
       RequestProperties defaultRequestProperties,
       boolean handleSetCookieRequests) {
-    super(DataSource.TYPE_REMOTE);
+    super(/* isNetwork= */ true);
     this.urlRequestCallback = new UrlRequestCallback();
     this.cronetEngine = Assertions.checkNotNull(cronetEngine);
     this.executor = Assertions.checkNotNull(executor);

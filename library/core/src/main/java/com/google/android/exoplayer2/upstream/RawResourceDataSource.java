@@ -83,7 +83,7 @@ public final class RawResourceDataSource extends BaseDataSource {
    */
   public RawResourceDataSource(
       Context context, @Nullable TransferListener<? super DataSource> listener) {
-    super(DataSource.TYPE_LOCAL);
+    super(/* isNetwork= */ false);
     this.resources = context.getResources();
     if (listener != null) {
       addTransferListener(listener);

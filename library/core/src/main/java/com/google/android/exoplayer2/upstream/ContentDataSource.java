@@ -62,7 +62,7 @@ public final class ContentDataSource extends BaseDataSource {
    */
   public ContentDataSource(
       Context context, @Nullable TransferListener<? super DataSource> listener) {
-    super(DataSource.TYPE_LOCAL);
+    super(/* isNetwork= */ false);
     this.resolver = context.getContentResolver();
     if (listener != null) {
       addTransferListener(listener);

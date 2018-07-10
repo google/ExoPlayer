@@ -120,7 +120,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       @Nullable TransferListener<? super DataSource> listener,
       @Nullable CacheControl cacheControl,
       @Nullable RequestProperties defaultRequestProperties) {
-    super(DataSource.TYPE_REMOTE);
+    super(/* isNetwork= */ true);
     this.callFactory = Assertions.checkNotNull(callFactory);
     this.userAgent = userAgent;
     this.contentTypePredicate = contentTypePredicate;

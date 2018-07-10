@@ -16,12 +16,9 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,15 +27,6 @@ import java.util.Map;
  * A component from which streams of data can be read.
  */
 public interface DataSource {
-
-  /** Type of a data source. */
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TYPE_REMOTE, TYPE_LOCAL})
-  public @interface Type {}
-  /** Data source which loads data from a remote (network) source. */
-  int TYPE_REMOTE = 0;
-  /** Data source which loads data from a local (on-device) source. */
-  int TYPE_LOCAL = 1;
 
   /**
    * A factory for {@link DataSource} instances.

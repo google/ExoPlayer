@@ -26,16 +26,16 @@ import java.util.ArrayList;
  */
 public abstract class BaseDataSource implements DataSource {
 
-  private final @DataSource.Type int type;
+  private final boolean isNetwork;
   private final ArrayList<TransferListener<? super DataSource>> listeners;
 
   /**
-   * Creates base data source for a data source of the specified type.
+   * Creates base data source.
    *
-   * @param type The {@link DataSource.Type} of the data source.
+   * @param isNetwork Whether the data source loads data through a network.
    */
-  protected BaseDataSource(@DataSource.Type int type) {
-    this.type = type;
+  protected BaseDataSource(boolean isNetwork) {
+    this.isNetwork = isNetwork;
     this.listeners = new ArrayList<>(/* initialCapacity= */ 1);
   }
 

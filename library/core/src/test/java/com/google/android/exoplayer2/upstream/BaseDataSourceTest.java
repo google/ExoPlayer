@@ -31,7 +31,7 @@ public class BaseDataSourceTest {
 
   @Test
   public void dataTransfer_withLocalSource_isReported() throws IOException {
-    TestSource testSource = new TestSource(DataSource.TYPE_LOCAL);
+    TestSource testSource = new TestSource(/* isNetwork= */ false);
     TestTransferListener transferListener = new TestTransferListener();
     testSource.addTransferListener(transferListener);
 
@@ -49,7 +49,7 @@ public class BaseDataSourceTest {
 
   @Test
   public void dataTransfer_withRemoteSource_isReported() throws IOException {
-    TestSource testSource = new TestSource(DataSource.TYPE_REMOTE);
+    TestSource testSource = new TestSource(/* isNetwork= */ true);
     TestTransferListener transferListener = new TestTransferListener();
     testSource.addTransferListener(transferListener);
 
@@ -67,8 +67,8 @@ public class BaseDataSourceTest {
 
   private static final class TestSource extends BaseDataSource {
 
-    public TestSource(@DataSource.Type int type) {
-      super(type);
+    public TestSource(boolean isNetwork) {
+      super(isNetwork);
     }
 
     @Override
