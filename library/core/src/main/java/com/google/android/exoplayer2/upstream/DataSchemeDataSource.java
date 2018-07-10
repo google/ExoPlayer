@@ -34,7 +34,7 @@ public final class DataSchemeDataSource extends BaseDataSource {
   private @Nullable byte[] data;
 
   public DataSchemeDataSource() {
-    super(DataSource.TYPE_LOCAL);
+    super(/* isNetwork= */ false);
   }
 
   @Override

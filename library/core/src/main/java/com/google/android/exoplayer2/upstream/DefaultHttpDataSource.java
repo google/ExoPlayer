@@ -155,7 +155,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       int readTimeoutMillis,
       boolean allowCrossProtocolRedirects,
       @Nullable RequestProperties defaultRequestProperties) {
-    super(DataSource.TYPE_REMOTE);
+    super(/* isNetwork= */ true);
     this.userAgent = Assertions.checkNotEmpty(userAgent);
     this.contentTypePredicate = contentTypePredicate;
     this.requestProperties = new RequestProperties();

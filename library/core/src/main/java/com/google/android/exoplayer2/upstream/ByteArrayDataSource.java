@@ -35,7 +35,7 @@ public final class ByteArrayDataSource extends BaseDataSource {
    * @param data The data to be read.
    */
   public ByteArrayDataSource(byte[] data) {
-    super(DataSource.TYPE_LOCAL);
+    super(/* isNetwork= */ false);
     Assertions.checkNotNull(data);
     Assertions.checkArgument(data.length > 0);
     this.data = data;

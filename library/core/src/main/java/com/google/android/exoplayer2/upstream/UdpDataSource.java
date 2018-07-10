@@ -86,7 +86,7 @@ public final class UdpDataSource extends BaseDataSource {
       @Nullable TransferListener<? super DataSource> listener,
       int maxPacketSize,
       int socketTimeoutMillis) {
-    super(DataSource.TYPE_REMOTE);
+    super(/* isNetwork= */ true);
     this.socketTimeoutMillis = socketTimeoutMillis;
     packetBuffer = new byte[maxPacketSize];
     packet = new DatagramPacket(packetBuffer, 0, maxPacketSize);

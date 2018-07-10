@@ -43,7 +43,7 @@ public final class RtmpDataSource extends BaseDataSource {
 
   /** @param listener An optional listener. */
   public RtmpDataSource(@Nullable TransferListener<? super DataSource> listener) {
-    super(DataSource.TYPE_REMOTE);
+    super(/* isNetwork= */ true);
     if (listener != null) {
       addTransferListener(listener);
     }

@@ -42,11 +42,10 @@ public class FakeDataSource extends BaseDataSource {
 
     protected final TransferListener<? super DataSource> transferListener;
     protected FakeDataSet fakeDataSet;
-    protected @DataSource.Type int dataSourceType;
+    protected boolean isNetwork;
 
     public Factory(@Nullable TransferListener<? super DataSource> transferListener) {
       this.transferListener = transferListener;
-      this.dataSourceType = DataSource.TYPE_LOCAL;
     }
 
     public final Factory setFakeDataSet(FakeDataSet fakeDataSet) {
@@ -54,14 +53,14 @@ public class FakeDataSource extends BaseDataSource {
       return this;
     }
 
-    public final Factory setDataSourceType(@DataSource.Type int dataSourceType) {
-      this.dataSourceType = dataSourceType;
+    public final Factory setIsNetwork(boolean isNetwork) {
+      this.isNetwork = isNetwork;
       return this;
     }
 
     @Override
     public DataSource createDataSource() {
-      return new FakeDataSource(fakeDataSet, transferListener, dataSourceType);
+      return new FakeDataSource(fakeDataSet, transferListener, isNetwork);
     }
   }
 
@@ -80,14 +79,14 @@ public class FakeDataSource extends BaseDataSource {
   }
 
   public FakeDataSource(FakeDataSet fakeDataSet) {
-    this(fakeDataSet, null, DataSource.TYPE_LOCAL);
+    this(fakeDataSet, null, /* isNetwork= */ false);
   }
 
   public FakeDataSource(
       FakeDataSet fakeDataSet,
       @Nullable TransferListener<? super DataSource> transferListener,
-      @DataSource.Type int dataSourceType) {
-    super(dataSourceType);
+      boolean isNetwork) {
+    super(isNetwork);
     Assertions.checkNotNull(fakeDataSet);
     this.fakeDataSet = fakeDataSet;
     this.openedDataSpecs = new ArrayList<>();
