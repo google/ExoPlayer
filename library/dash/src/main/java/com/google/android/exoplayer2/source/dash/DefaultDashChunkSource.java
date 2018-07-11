@@ -438,9 +438,14 @@ public class DefaultDashChunkSource implements DashChunkSource {
     return resolveTimeToLiveEdgePossible ? liveEdgeTimeUs - playbackPositionUs : C.TIME_UNSET;
   }
 
-  protected static Chunk newInitializationChunk(RepresentationHolder representationHolder,
-      DataSource dataSource, Format trackFormat, int trackSelectionReason,
-      Object trackSelectionData, RangedUri initializationUri, RangedUri indexUri) {
+  protected Chunk newInitializationChunk(
+      RepresentationHolder representationHolder,
+      DataSource dataSource,
+      Format trackFormat,
+      int trackSelectionReason,
+      Object trackSelectionData,
+      RangedUri initializationUri,
+      RangedUri indexUri) {
     RangedUri requestUri;
     String baseUrl = representationHolder.representation.baseUrl;
     if (initializationUri != null) {
@@ -459,7 +464,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         trackSelectionReason, trackSelectionData, representationHolder.extractorWrapper);
   }
 
-  protected static Chunk newMediaChunk(
+  protected Chunk newMediaChunk(
       RepresentationHolder representationHolder,
       DataSource dataSource,
       int trackType,
