@@ -75,27 +75,29 @@ public final class Loader implements LoaderErrorThrower {
 
     /**
      * Called when a load has completed.
-     * <p>
-     * Note: There is guaranteed to be a memory barrier between {@link Loadable#load()} exiting and
-     * this callback being called.
+     *
+     * <p>Note: There is guaranteed to be a memory barrier between {@link Loadable#load()} exiting
+     * and this callback being called.
      *
      * @param loadable The loadable whose load has completed.
      * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the load ended.
-     * @param loadDurationMs The duration of the load.
+     * @param loadDurationMs The duration in milliseconds of the load since {@link #startLoading}
+     *     was called.
      */
     void onLoadCompleted(T loadable, long elapsedRealtimeMs, long loadDurationMs);
 
     /**
      * Called when a load has been canceled.
-     * <p>
-     * Note: If the {@link Loader} has not been released then there is guaranteed to be a memory
-     * barrier between {@link Loadable#load()} exiting and this callback being called. If the
-     * {@link Loader} has been released then this callback may be called before
-     * {@link Loadable#load()} exits.
+     *
+     * <p>Note: If the {@link Loader} has not been released then there is guaranteed to be a memory
+     * barrier between {@link Loadable#load()} exiting and this callback being called. If the {@link
+     * Loader} has been released then this callback may be called before {@link Loadable#load()}
+     * exits.
      *
      * @param loadable The loadable whose load has been canceled.
      * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the load was canceled.
-     * @param loadDurationMs The duration of the load up to the point at which it was canceled.
+     * @param loadDurationMs The duration in milliseconds of the load since {@link #startLoading}
+     *     was called up to the point at which it was canceled.
      * @param released True if the load was canceled because the {@link Loader} was released. False
      *     otherwise.
      */
@@ -109,7 +111,8 @@ public final class Loader implements LoaderErrorThrower {
      *
      * @param loadable The loadable whose load has encountered an error.
      * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the error occurred.
-     * @param loadDurationMs The duration of the load up to the point at which the error occurred.
+     * @param loadDurationMs The duration in milliseconds of the load since {@link #startLoading}
+     *     was called up to the point at which the error occurred.
      * @param error The load error.
      * @param errorCount The number of errors this load has encountered, including this one.
      * @return The desired error handling action. One of {@link Loader#RETRY}, {@link
