@@ -443,6 +443,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                       schemeData);
             }
           }
+        } else {
+          drmInitData = null;
         }
       } else if (line.startsWith(TAG_BYTERANGE)) {
         String byteRange = parseStringAttr(line, REGEX_BYTERANGE);
@@ -485,6 +487,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             new Segment(
                 line,
                 initializationSegment,
+                drmInitData,
                 segmentDurationUs,
                 relativeDiscontinuitySequence,
                 segmentStartTimeUs,
@@ -516,7 +519,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasIndependentSegmentsTag,
         hasEndTag,
         /* hasProgramDateTime= */ playlistStartTimeUs != 0,
-        drmInitData,
         segments);
   }
 

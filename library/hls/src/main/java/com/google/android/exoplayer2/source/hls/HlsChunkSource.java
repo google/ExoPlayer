@@ -376,7 +376,7 @@ import java.util.List;
             isTimestampMaster,
             timestampAdjuster,
             previous,
-            mediaPlaylist.drmInitData,
+            segment.drmInitData,
             encryptionKey,
             encryptionIv);
   }
