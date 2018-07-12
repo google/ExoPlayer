@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import android.os.Handler;
 import android.support.annotation.Nullable;
 
 /**
@@ -49,4 +50,19 @@ public interface BandwidthMeter {
    */
   @Nullable
   TransferListener<? super DataSource> getTransferListener();
+
+  /**
+   * Adds an {@link EventListener} to be informed of bandwidth samples.
+   *
+   * @param eventHandler A handler for events.
+   * @param eventListener A listener of events.
+   */
+  void addEventListener(Handler eventHandler, EventListener eventListener);
+
+  /**
+   * Removes an {@link EventListener}.
+   *
+   * @param eventListener The listener to be removed.
+   */
+  void removeEventListener(EventListener eventListener);
 }

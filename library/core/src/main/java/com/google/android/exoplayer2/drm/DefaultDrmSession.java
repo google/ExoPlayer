@@ -26,10 +26,10 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener.EventDispatcher;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
+import com.google.android.exoplayer2.util.EventDispatcher;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +81,7 @@ import java.util.UUID;
   private final SchemeData schemeData;
   private final @DefaultDrmSessionManager.Mode int mode;
   private final HashMap<String, String> optionalKeyRequestParameters;
-  private final EventDispatcher eventDispatcher;
+  private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final int initialDrmRequestRetryCount;
 
   /* package */ final MediaDrmCallback callback;
@@ -128,7 +128,7 @@ import java.util.UUID;
       HashMap<String, String> optionalKeyRequestParameters,
       MediaDrmCallback callback,
       Looper playbackLooper,
-      EventDispatcher eventDispatcher,
+      EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher,
       int initialDrmRequestRetryCount) {
     this.uuid = uuid;
     this.provisioningManager = provisioningManager;
@@ -333,7 +333,7 @@ import java.util.UUID;
             onError(new KeysExpiredException());
           } else {
             state = STATE_OPENED_WITH_KEYS;
-            eventDispatcher.drmKeysRestored();
+            eventDispatcher.dispatch(DefaultDrmSessionEventListener::onDrmKeysRestored);
           }
         }
         break;
@@ -414,7 +414,7 @@ import java.util.UUID;
       byte[] responseData = (byte[]) response;
       if (mode == DefaultDrmSessionManager.MODE_RELEASE) {
         mediaDrm.provideKeyResponse(offlineLicenseKeySetId, responseData);
-        eventDispatcher.drmKeysRemoved();
+        eventDispatcher.dispatch(DefaultDrmSessionEventListener::onDrmKeysRestored);
       } else {
         byte[] keySetId = mediaDrm.provideKeyResponse(sessionId, responseData);
         if ((mode == DefaultDrmSessionManager.MODE_DOWNLOAD
@@ -423,7 +423,7 @@ import java.util.UUID;
           offlineLicenseKeySetId = keySetId;
         }
         state = STATE_OPENED_WITH_KEYS;
-        eventDispatcher.drmKeysLoaded();
+        eventDispatcher.dispatch(DefaultDrmSessionEventListener::onDrmKeysLoaded);
       }
     } catch (Exception e) {
       onKeysError(e);
@@ -447,7 +447,7 @@ import java.util.UUID;
 
   private void onError(final Exception e) {
     lastException = new DrmSessionException(e);
-    eventDispatcher.drmSessionManagerError(e);
+    eventDispatcher.dispatch(listener -> listener.onDrmSessionManagerError(e));
     if (state != STATE_OPENED_WITH_KEYS) {
       state = STATE_ERROR;
     }
