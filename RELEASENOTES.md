@@ -85,6 +85,8 @@
 * Add workaround for track index mismatches between tfhd and tkhd boxes in
   fragmented MP4 files
   ([#4083](https://github.com/google/ExoPlayer/issues/4083)).
+* Ignore all MP4 edit lists if one edit list couldn't be handled
+  ([#4348](https://github.com/google/ExoPlayer/issues/4348)).
 * Fix issue when switching track selection from an embedded track to a primary
   track in DASH ([#4477](https://github.com/google/ExoPlayer/issues/4477)).
 
