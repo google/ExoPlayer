@@ -948,8 +948,12 @@ import java.util.List;
       Format sampleFormat = sampleQueues[i].getUpstreamFormat();
       if (i == primaryExtractorTrackIndex) {
         Format[] formats = new Format[chunkSourceTrackCount];
-        for (int j = 0; j < chunkSourceTrackCount; j++) {
-          formats[j] = deriveFormat(chunkSourceTrackGroup.getFormat(j), sampleFormat, true);
+        if (chunkSourceTrackCount == 1) {
+          formats[0] = sampleFormat.copyWithManifestFormatInfo(chunkSourceTrackGroup.getFormat(0));
+        } else {
+          for (int j = 0; j < chunkSourceTrackCount; j++) {
+            formats[j] = deriveFormat(chunkSourceTrackGroup.getFormat(j), sampleFormat, true);
+          }
         }
         trackGroups[i] = new TrackGroup(formats);
         primaryTrackGroupIndex = i;
@@ -997,7 +1001,8 @@ import java.util.List;
   }
 
   /**
-   * Derives a track format using master playlist and sample format information.
+   * Derives a track sample format from the corresponding format in the master playlist, and a
+   * sample format that may have been obtained from a chunk belonging to a different track.
    *
    * @param playlistFormat The format information obtained from the master playlist.
    * @param sampleFormat The format information obtained from the samples.
@@ -1019,6 +1024,7 @@ import java.util.List;
     }
     return sampleFormat.copyWithContainerInfo(
         playlistFormat.id,
+        playlistFormat.label,
         mimeType,
         codecs,
         bitrate,
