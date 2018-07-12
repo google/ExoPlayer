@@ -88,9 +88,6 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
   }
 
   private String buildLanguageString(Format format) {
-    if ( !TextUtils.isEmpty(format.label) ){
-      return format.label;
-    }
     String language = format.language;
     return TextUtils.isEmpty(language) || C.LANGUAGE_UNDETERMINED.equals(language)
         ? ""

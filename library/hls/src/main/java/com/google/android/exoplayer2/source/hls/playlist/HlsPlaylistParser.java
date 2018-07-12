@@ -274,8 +274,19 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
         line = iterator.next(); // #EXT-X-STREAM-INF's URI.
         if (variantUrls.add(line)) {
-          Format format = Format.createVideoContainerFormat(Integer.toString(variants.size()),
-              MimeTypes.APPLICATION_M3U8, null, codecs, bitrate, width, height, frameRate, null, 0);
+          Format format =
+              Format.createVideoContainerFormat(
+                  /* id= */ Integer.toString(variants.size()),
+                  /* label= */ null,
+                  /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
+                  /* sampleMimeType= */ null,
+                  codecs,
+                  bitrate,
+                  width,
+                  height,
+                  frameRate,
+                  /* initializationData= */ null,
+                  /* selectionFlags= */ 0);
           variants.add(new HlsMasterPlaylist.HlsUrl(line, format));
         }
       }
@@ -285,7 +296,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       line = mediaTags.get(i);
       @C.SelectionFlags int selectionFlags = parseSelectionFlags(line);
       String uri = parseOptionalStringAttr(line, REGEX_URI);
-      String id = parseStringAttr(line, REGEX_NAME);
+      String name = parseStringAttr(line, REGEX_NAME);
       String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
       String groupId = parseOptionalStringAttr(line, REGEX_GROUP_ID);
       Format format;
@@ -293,9 +304,19 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         case TYPE_AUDIO:
           String codecs = audioGroupIdToCodecs.get(groupId);
           String sampleMimeType = codecs != null ? MimeTypes.getMediaMimeType(codecs) : null;
-          format = Format.createAudioContainerFormat(id, MimeTypes.APPLICATION_M3U8, sampleMimeType,
-              codecs, Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, null, selectionFlags,
-              language, id);
+          format =
+              Format.createAudioContainerFormat(
+                  /* id= */ name,
+                  /* label= */ name,
+                  /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
+                  sampleMimeType,
+                  codecs,
+                  /* bitrate= */ Format.NO_VALUE,
+                  /* channelCount= */ Format.NO_VALUE,
+                  /* sampleRate= */ Format.NO_VALUE,
+                  /* initializationData= */ null,
+                  selectionFlags,
+                  language);
           if (uri == null) {
             muxedAudioFormat = format;
           } else {
@@ -303,8 +324,16 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           }
           break;
         case TYPE_SUBTITLES:
-          format = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_M3U8,
-              MimeTypes.TEXT_VTT, null, Format.NO_VALUE, selectionFlags, language, id);
+          format =
+              Format.createTextContainerFormat(
+                  /* id= */ name,
+                  /* label= */ name,
+                  /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
+                  /* sampleMimeType= */ MimeTypes.TEXT_VTT,
+                  /* codecs= */ null,
+                  /* bitrate= */ Format.NO_VALUE,
+                  selectionFlags,
+                  language);
           subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format));
           break;
         case TYPE_CLOSED_CAPTIONS:
@@ -321,8 +350,17 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           if (muxedCaptionFormats == null) {
             muxedCaptionFormats = new ArrayList<>();
           }
-          muxedCaptionFormats.add(Format.createTextContainerFormat(id, null, mimeType, null,
-              Format.NO_VALUE, selectionFlags, language, accessibilityChannel, id));
+          muxedCaptionFormats.add(
+              Format.createTextContainerFormat(
+                  /* id= */ name,
+                  /* label= */ name,
+                  /* containerMimeType= */ null,
+                  /* sampleMimeType= */ mimeType,
+                  /* codecs= */ null,
+                  /* bitrate= */ Format.NO_VALUE,
+                  selectionFlags,
+                  language,
+                  accessibilityChannel));
           break;
         default:
           // Do nothing.

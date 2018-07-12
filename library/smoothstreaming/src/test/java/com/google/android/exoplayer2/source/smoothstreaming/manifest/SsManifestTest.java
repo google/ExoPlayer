@@ -135,6 +135,13 @@ public class SsManifestTest {
 
   private static Format newFormat(String id) {
     return Format.createContainerFormat(
-        id, MimeTypes.VIDEO_MP4, MimeTypes.VIDEO_H264, null, Format.NO_VALUE, 0, null);
+        id,
+        /* label= */ null,
+        MimeTypes.VIDEO_MP4,
+        MimeTypes.VIDEO_H264,
+        /* codecs= */ null,
+        /* bitrate= */ Format.NO_VALUE,
+        /* selectionFlags= */ 0,
+        /* language= */ null);
   }
 }

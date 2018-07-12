@@ -50,8 +50,16 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      * @return An HLS url.
      */
     public static HlsUrl createMediaPlaylistHlsUrl(String url) {
-      Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null, null,
-          Format.NO_VALUE, 0, null);
+      Format format =
+          Format.createContainerFormat(
+              "0",
+              /* label= */ null,
+              MimeTypes.APPLICATION_M3U8,
+              /* sampleMimeType= */ null,
+              /* codecs= */ null,
+              /* bitrate= */ Format.NO_VALUE,
+              /* selectionFlags= */ 0,
+              /* language= */ null);
       return new HlsUrl(url, format);
     }
 
