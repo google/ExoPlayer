@@ -603,6 +603,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
     private static final String KEY_FOUR_CC = "FourCC";
     private static final String KEY_TYPE = "Type";
     private static final String KEY_LANGUAGE = "Language";
+    private static final String KEY_NAME = "Name";
     private static final String KEY_MAX_WIDTH = "MaxWidth";
     private static final String KEY_MAX_HEIGHT = "MaxHeight";
 
@@ -637,12 +638,14 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
               CodecSpecificDataUtil.buildAacLcAudioSpecificConfig(samplingRate, channels));
         }
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
+        String label = (String) getNormalizedAttribute(KEY_NAME);
         format = Format.createAudioContainerFormat(id, MimeTypes.AUDIO_MP4, sampleMimeType, null,
-            bitrate, channels, samplingRate, codecSpecificData, 0, language);
+            bitrate, channels, samplingRate, codecSpecificData, 0, language, label);
       } else if (type == C.TRACK_TYPE_TEXT) {
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
+        String label = (String) getNormalizedAttribute(KEY_NAME);
         format = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType,
-            null, bitrate, 0, language);
+            null, bitrate, 0, language, label);
       } else {
         format = Format.createContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType, null,
             bitrate, 0, null);
