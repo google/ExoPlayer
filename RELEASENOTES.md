@@ -24,7 +24,8 @@
   * Pass `BandwidthMeter` to `TrackSelection.Factory` which can be used to
     obtain bandwidth estimates in the future. Always null at the moment.
   * Add method to `BandwidthMeter` to return the `TransferListener` used to
-    gather bandwidth information.
+    gather bandwidth information. Also add methods to add and remove event
+    listeners.
   * Pass `TransferListener` to `MediaSource`s to listen to media data transfers.
     Always null at the moment.
   * Add method to `DataSource` to add `TransferListener`s. Custom `DataSource`s

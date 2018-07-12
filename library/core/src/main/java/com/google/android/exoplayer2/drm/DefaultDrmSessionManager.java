@@ -26,12 +26,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DefaultDrmSession.ProvisioningManager;
-import com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener.EventDispatcher;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -93,7 +93,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   private final ExoMediaDrm<T> mediaDrm;
   private final MediaDrmCallback callback;
   private final HashMap<String, String> optionalKeyRequestParameters;
-  private final EventDispatcher eventDispatcher;
+  private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
   private final int initialDrmRequestRetryCount;
 
@@ -354,7 +354,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     this.mediaDrm = mediaDrm;
     this.callback = callback;
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
-    this.eventDispatcher = new EventDispatcher();
+    this.eventDispatcher = new EventDispatcher<>();
     this.multiSession = multiSession;
     this.initialDrmRequestRetryCount = initialDrmRequestRetryCount;
     mode = MODE_PLAYBACK;
@@ -512,7 +512,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       schemeData = getSchemeData(drmInitData, uuid, false);
       if (schemeData == null) {
         final MissingSchemeDataException error = new MissingSchemeDataException(uuid);
-        eventDispatcher.drmSessionManagerError(error);
+        eventDispatcher.dispatch(listener -> listener.onDrmSessionManagerError(error));
         return new ErrorStateDrmSession<>(new DrmSessionException(error));
       }
     }
