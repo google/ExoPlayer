@@ -391,25 +391,21 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       }
     }
 
-    for (int i = 0; i < moov.containerChildren.size(); i++) {
-      Atom.ContainerAtom atom = moov.containerChildren.get(i);
-      if (atom.type != Atom.TYPE_trak) {
-        continue;
-      }
+    boolean ignoreEditLists = (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0;
+    ArrayList<TrackSampleTable> trackSampleTables;
+    try {
+      trackSampleTables = getTrackSampleTables(moov, gaplessInfoHolder, ignoreEditLists);
+    } catch (AtomParsers.UnhandledEditListException e) {
+      // Discard gapless info as we aren't able to handle corresponding edits.
+      gaplessInfoHolder = new GaplessInfoHolder();
+      trackSampleTables =
+          getTrackSampleTables(moov, gaplessInfoHolder, /* ignoreEditLists= */ true);
+    }
 
-      Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd),
-          C.TIME_UNSET, null, (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0, isQuickTime);
-      if (track == null) {
-        continue;
-      }
-
-      Atom.ContainerAtom stblAtom = atom.getContainerAtomOfType(Atom.TYPE_mdia)
-          .getContainerAtomOfType(Atom.TYPE_minf).getContainerAtomOfType(Atom.TYPE_stbl);
-      TrackSampleTable trackSampleTable = AtomParsers.parseStbl(track, stblAtom, gaplessInfoHolder);
-      if (trackSampleTable.sampleCount == 0) {
-        continue;
-      }
-
+    int trackCount = trackSampleTables.size();
+    for (int i = 0; i < trackCount; i++) {
+      TrackSampleTable trackSampleTable = trackSampleTables.get(i);
+      Track track = trackSampleTable.track;
       Mp4Track mp4Track = new Mp4Track(track, trackSampleTable,
           extractorOutput.track(i, track.type));
       // Each sample has up to three bytes of overhead for the start code that replaces its length.
@@ -443,6 +439,39 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
     extractorOutput.endTracks();
     extractorOutput.seekMap(this);
+  }
+
+  private ArrayList<TrackSampleTable> getTrackSampleTables(
+      ContainerAtom moov, GaplessInfoHolder gaplessInfoHolder, boolean ignoreEditLists)
+      throws ParserException {
+    ArrayList<TrackSampleTable> trackSampleTables = new ArrayList<>();
+    for (int i = 0; i < moov.containerChildren.size(); i++) {
+      Atom.ContainerAtom atom = moov.containerChildren.get(i);
+      if (atom.type != Atom.TYPE_trak) {
+        continue;
+      }
+      Track track =
+          AtomParsers.parseTrak(
+              atom,
+              moov.getLeafAtomOfType(Atom.TYPE_mvhd),
+              /* duration= */ C.TIME_UNSET,
+              /* drmInitData= */ null,
+              ignoreEditLists,
+              isQuickTime);
+      if (track == null) {
+        continue;
+      }
+      Atom.ContainerAtom stblAtom =
+          atom.getContainerAtomOfType(Atom.TYPE_mdia)
+              .getContainerAtomOfType(Atom.TYPE_minf)
+              .getContainerAtomOfType(Atom.TYPE_stbl);
+      TrackSampleTable trackSampleTable = AtomParsers.parseStbl(track, stblAtom, gaplessInfoHolder);
+      if (trackSampleTable.sampleCount == 0) {
+        continue;
+      }
+      trackSampleTables.add(trackSampleTable);
+    }
+    return trackSampleTables;
   }
 
   /**
