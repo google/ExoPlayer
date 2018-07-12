@@ -295,7 +295,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           String sampleMimeType = codecs != null ? MimeTypes.getMediaMimeType(codecs) : null;
           format = Format.createAudioContainerFormat(id, MimeTypes.APPLICATION_M3U8, sampleMimeType,
               codecs, Format.NO_VALUE, Format.NO_VALUE, Format.NO_VALUE, null, selectionFlags,
-              language);
+              language, id);
           if (uri == null) {
             muxedAudioFormat = format;
           } else {
@@ -304,7 +304,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           break;
         case TYPE_SUBTITLES:
           format = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_M3U8,
-              MimeTypes.TEXT_VTT, null, Format.NO_VALUE, selectionFlags, language);
+              MimeTypes.TEXT_VTT, null, Format.NO_VALUE, selectionFlags, language, id);
           subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format));
           break;
         case TYPE_CLOSED_CAPTIONS:
@@ -322,7 +322,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             muxedCaptionFormats = new ArrayList<>();
           }
           muxedCaptionFormats.add(Format.createTextContainerFormat(id, null, mimeType, null,
-              Format.NO_VALUE, selectionFlags, language, accessibilityChannel));
+              Format.NO_VALUE, selectionFlags, language, accessibilityChannel, id));
           break;
         default:
           // Do nothing.
