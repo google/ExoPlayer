@@ -54,18 +54,18 @@ public class HlsMediaPlaylistParserTest {
             + "\n"
             + "#EXT-X-KEY:METHOD=AES-128,"
             + "URI=\"https://priv.example.com/key.php?r=2680\",IV=0x1566B\n"
-            + "#EXTINF:7.975,\n"
+            + "#EXTINF:7.975,segment title\n"
             + "#EXT-X-BYTERANGE:51501@2147483648\n"
             + "https://priv.example.com/fileSequence2680.ts\n"
             + "\n"
             + "#EXT-X-KEY:METHOD=NONE\n"
-            + "#EXTINF:7.941,\n"
+            + "#EXTINF:7.941,segment title .,:/# with interesting chars\n"
             + "#EXT-X-BYTERANGE:51501\n" // @2147535149
             + "https://priv.example.com/fileSequence2681.ts\n"
             + "\n"
             + "#EXT-X-DISCONTINUITY\n"
             + "#EXT-X-KEY:METHOD=AES-128,URI=\"https://priv.example.com/key.php?r=2682\"\n"
-            + "#EXTINF:7.975,\n"
+            + "#EXTINF:7.975\n" // Trailing comma is omitted.
             + "#EXT-X-BYTERANGE:51740\n" // @2147586650
             + "https://priv.example.com/fileSequence2682.ts\n"
             + "\n"
@@ -91,6 +91,7 @@ public class HlsMediaPlaylistParserTest {
     assertThat(mediaPlaylist.discontinuitySequence + segment.relativeDiscontinuitySequence)
         .isEqualTo(4);
     assertThat(segment.durationUs).isEqualTo(7975000);
+    assertThat(segment.title).isEqualTo("");
     assertThat(segment.fullSegmentEncryptionKeyUri).isNull();
     assertThat(segment.encryptionIV).isNull();
     assertThat(segment.byterangeLength).isEqualTo(51370);
@@ -100,6 +101,7 @@ public class HlsMediaPlaylistParserTest {
     segment = segments.get(1);
     assertThat(segment.relativeDiscontinuitySequence).isEqualTo(0);
     assertThat(segment.durationUs).isEqualTo(7975000);
+    assertThat(segment.title).isEqualTo("segment title");
     assertThat(segment.fullSegmentEncryptionKeyUri)
         .isEqualTo("https://priv.example.com/key.php?r=2680");
     assertThat(segment.encryptionIV).isEqualTo("0x1566B");
@@ -110,6 +112,7 @@ public class HlsMediaPlaylistParserTest {
     segment = segments.get(2);
     assertThat(segment.relativeDiscontinuitySequence).isEqualTo(0);
     assertThat(segment.durationUs).isEqualTo(7941000);
+    assertThat(segment.title).isEqualTo("segment title .,:/# with interesting chars");
     assertThat(segment.fullSegmentEncryptionKeyUri).isNull();
     assertThat(segment.encryptionIV).isEqualTo(null);
     assertThat(segment.byterangeLength).isEqualTo(51501);
@@ -119,6 +122,7 @@ public class HlsMediaPlaylistParserTest {
     segment = segments.get(3);
     assertThat(segment.relativeDiscontinuitySequence).isEqualTo(1);
     assertThat(segment.durationUs).isEqualTo(7975000);
+    assertThat(segment.title).isEqualTo("");
     assertThat(segment.fullSegmentEncryptionKeyUri)
         .isEqualTo("https://priv.example.com/key.php?r=2682");
     // 0xA7A == 2682.
@@ -131,6 +135,7 @@ public class HlsMediaPlaylistParserTest {
     segment = segments.get(4);
     assertThat(segment.relativeDiscontinuitySequence).isEqualTo(1);
     assertThat(segment.durationUs).isEqualTo(7975000);
+    assertThat(segment.title).isEqualTo("");
     assertThat(segment.fullSegmentEncryptionKeyUri)
         .isEqualTo("https://priv.example.com/key.php?r=2682");
     // 0xA7B == 2683.
