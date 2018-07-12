@@ -1041,6 +1041,7 @@ public final class Format implements Parcelable {
 
   public Format copyWithContainerInfo(
       @Nullable String id,
+      @Nullable String label,
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
@@ -1084,15 +1085,21 @@ public final class Format implements Parcelable {
       // No need to copy from ourselves.
       return this;
     }
+
+    // Use manifest value only.
     String id = manifestFormat.id;
+    // Prefer manifest values, but fill in from sample format if missing.
+    String label = manifestFormat.label != null ? manifestFormat.label : this.label;
+    String language = manifestFormat.language != null ? manifestFormat.language : this.language;
+    // Prefer sample format values, but fill in from manifest if missing.
     String codecs = this.codecs == null ? manifestFormat.codecs : this.codecs;
     int bitrate = this.bitrate == NO_VALUE ? manifestFormat.bitrate : this.bitrate;
     float frameRate = this.frameRate == NO_VALUE ? manifestFormat.frameRate : this.frameRate;
-    @C.SelectionFlags int selectionFlags = this.selectionFlags |  manifestFormat.selectionFlags;
-    String language = this.language == null ? manifestFormat.language : this.language;
-    String label = this.label == null ? manifestFormat.label : this.label;
+    // Merge manifest and sample format values.
+    @C.SelectionFlags int selectionFlags = this.selectionFlags | manifestFormat.selectionFlags;
     DrmInitData drmInitData =
         DrmInitData.createSessionCreationData(manifestFormat.drmInitData, this.drmInitData);
+
     return new Format(
         id,
         label,
