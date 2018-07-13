@@ -447,8 +447,10 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
             && (masterPlaylist.muxedAudioFormat != null || masterPlaylist.audios.isEmpty())) {
           muxedTrackGroups.add(
               new TrackGroup(
-                  deriveMuxedAudioFormat(
-                      variants[0].format, masterPlaylist.muxedAudioFormat, Format.NO_VALUE)));
+                  deriveAudioFormat(
+                      variants[0].format,
+                      masterPlaylist.muxedAudioFormat,
+                      /* isPrimaryTrackInVariant= */ false)));
         }
         List<Format> ccFormats = masterPlaylist.muxedCaptionFormats;
         if (ccFormats != null) {
@@ -462,8 +464,10 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         for (int i = 0; i < audioFormats.length; i++) {
           Format variantFormat = variants[i].format;
           audioFormats[i] =
-              deriveMuxedAudioFormat(
-                  variantFormat, masterPlaylist.muxedAudioFormat, variantFormat.bitrate);
+              deriveAudioFormat(
+                  variantFormat,
+                  masterPlaylist.muxedAudioFormat,
+                  /* isPrimaryTrackInVariant= */ true);
         }
         muxedTrackGroups.add(new TrackGroup(audioFormats));
       } else {
@@ -508,45 +512,55 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   private static Format deriveVideoFormat(Format variantFormat) {
     String codecs = Util.getCodecsOfType(variantFormat.codecs, C.TRACK_TYPE_VIDEO);
-    String mimeType = MimeTypes.getMediaMimeType(codecs);
-    return Format.createVideoSampleFormat(
+    String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
+    return Format.createVideoContainerFormat(
         variantFormat.id,
-        mimeType,
+        variantFormat.label,
+        variantFormat.containerMimeType,
+        sampleMimeType,
         codecs,
         variantFormat.bitrate,
-        Format.NO_VALUE,
         variantFormat.width,
         variantFormat.height,
         variantFormat.frameRate,
-        null,
-        null);
+        /* initializationData= */ null,
+        variantFormat.selectionFlags);
   }
 
-  private static Format deriveMuxedAudioFormat(
-      Format variantFormat, Format mediaTagFormat, int bitrate) {
+  private static Format deriveAudioFormat(
+      Format variantFormat, Format mediaTagFormat, boolean isPrimaryTrackInVariant) {
     String codecs;
     int channelCount = Format.NO_VALUE;
     int selectionFlags = 0;
     String language = null;
+    String label = null;
     if (mediaTagFormat != null) {
       codecs = mediaTagFormat.codecs;
       channelCount = mediaTagFormat.channelCount;
       selectionFlags = mediaTagFormat.selectionFlags;
       language = mediaTagFormat.language;
+      label = mediaTagFormat.label;
     } else {
       codecs = Util.getCodecsOfType(variantFormat.codecs, C.TRACK_TYPE_AUDIO);
+      if (isPrimaryTrackInVariant) {
+        channelCount = variantFormat.channelCount;
+        selectionFlags = variantFormat.selectionFlags;
+        language = variantFormat.label;
+        label = variantFormat.label;
+      }
     }
-    String mimeType = MimeTypes.getMediaMimeType(codecs);
-    return Format.createAudioSampleFormat(
+    String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
+    int bitrate = isPrimaryTrackInVariant ? variantFormat.bitrate : Format.NO_VALUE;
+    return Format.createAudioContainerFormat(
         variantFormat.id,
-        mimeType,
+        label,
+        variantFormat.containerMimeType,
+        sampleMimeType,
         codecs,
         bitrate,
-        Format.NO_VALUE,
         channelCount,
-        Format.NO_VALUE,
-        null,
-        null,
+        /* sampleRate= */ Format.NO_VALUE,
+        /* initializationData= */ null,
         selectionFlags,
         language);
   }
