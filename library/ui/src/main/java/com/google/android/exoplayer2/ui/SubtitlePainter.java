@@ -84,7 +84,8 @@ import com.google.android.exoplayer2.util.Util;
   private int edgeColor;
   @CaptionStyleCompat.EdgeType
   private int edgeType;
-  private float textSizePx;
+  private float defaultTextSizePx;
+  private float cueTextSizePx;
   private float bottomPaddingFraction;
   private int parentLeft;
   private int parentTop;
@@ -124,8 +125,8 @@ import com.google.android.exoplayer2.util.Util;
 
   /**
    * Draws the provided {@link Cue} into a canvas with the specified styling.
-   * <p>
-   * A call to this method is able to use cached results of calculations made during the previous
+   *
+   * <p>A call to this method is able to use cached results of calculations made during the previous
    * call, and so an instance of this class is able to optimize repeated calls to this method in
    * which the same parameters are passed.
    *
@@ -134,7 +135,8 @@ import com.google.android.exoplayer2.util.Util;
    * @param applyEmbeddedFontSizes If {@code applyEmbeddedStyles} is true, defines whether font
    *     sizes embedded within the cue should be applied. Otherwise, it is ignored.
    * @param style The style to use when drawing the cue text.
-   * @param textSizePx The text size to use when drawing the cue text, in pixels.
+   * @param defaultTextSizePx The default text size to use when drawing the text, in pixels.
+   * @param cueTextSizePx The embedded text size of this cue, in pixels.
    * @param bottomPaddingFraction The bottom padding fraction to apply when {@link Cue#line} is
    *     {@link Cue#DIMEN_UNSET}, as a fraction of the viewport height
    * @param canvas The canvas into which to draw.
@@ -143,9 +145,19 @@ import com.google.android.exoplayer2.util.Util;
    * @param cueBoxRight The right position of the enclosing cue box.
    * @param cueBoxBottom The bottom position of the enclosing cue box.
    */
-  public void draw(Cue cue, boolean applyEmbeddedStyles, boolean applyEmbeddedFontSizes,
-      CaptionStyleCompat style, float textSizePx, float bottomPaddingFraction, Canvas canvas,
-      int cueBoxLeft, int cueBoxTop, int cueBoxRight, int cueBoxBottom) {
+  public void draw(
+      Cue cue,
+      boolean applyEmbeddedStyles,
+      boolean applyEmbeddedFontSizes,
+      CaptionStyleCompat style,
+      float defaultTextSizePx,
+      float cueTextSizePx,
+      float bottomPaddingFraction,
+      Canvas canvas,
+      int cueBoxLeft,
+      int cueBoxTop,
+      int cueBoxRight,
+      int cueBoxBottom) {
     boolean isTextCue = cue.bitmap == null;
     int windowColor = Color.BLACK;
     if (isTextCue) {
@@ -174,7 +186,8 @@ import com.google.android.exoplayer2.util.Util;
         && this.edgeType == style.edgeType
         && this.edgeColor == style.edgeColor
         && Util.areEqual(this.textPaint.getTypeface(), style.typeface)
-        && this.textSizePx == textSizePx
+        && this.defaultTextSizePx == defaultTextSizePx
+        && this.cueTextSizePx == cueTextSizePx
         && this.bottomPaddingFraction == bottomPaddingFraction
         && this.parentLeft == cueBoxLeft
         && this.parentTop == cueBoxTop
@@ -203,7 +216,8 @@ import com.google.android.exoplayer2.util.Util;
     this.edgeType = style.edgeType;
     this.edgeColor = style.edgeColor;
     this.textPaint.setTypeface(style.typeface);
-    this.textSizePx = textSizePx;
+    this.defaultTextSizePx = defaultTextSizePx;
+    this.cueTextSizePx = cueTextSizePx;
     this.bottomPaddingFraction = bottomPaddingFraction;
     this.parentLeft = cueBoxLeft;
     this.parentTop = cueBoxTop;
@@ -222,8 +236,8 @@ import com.google.android.exoplayer2.util.Util;
     int parentWidth = parentRight - parentLeft;
     int parentHeight = parentBottom - parentTop;
 
-    textPaint.setTextSize(textSizePx);
-    int textPaddingX = (int) (textSizePx * INNER_PADDING_RATIO + 0.5f);
+    textPaint.setTextSize(defaultTextSizePx);
+    int textPaddingX = (int) (defaultTextSizePx * INNER_PADDING_RATIO + 0.5f);
 
     int availableWidth = parentWidth - textPaddingX * 2;
     if (cueSize != Cue.DIMEN_UNSET) {
@@ -234,14 +248,12 @@ import com.google.android.exoplayer2.util.Util;
       return;
     }
 
+    CharSequence cueText = this.cueText;
     // Remove embedded styling or font size if requested.
-    CharSequence cueText;
-    if (applyEmbeddedFontSizes && applyEmbeddedStyles) {
-      cueText = this.cueText;
-    } else if (!applyEmbeddedStyles) {
-      cueText = this.cueText.toString(); // Equivalent to erasing all spans.
-    } else {
-      SpannableStringBuilder newCueText = new SpannableStringBuilder(this.cueText);
+    if (!applyEmbeddedStyles) {
+      cueText = cueText.toString(); // Equivalent to erasing all spans.
+    } else if (!applyEmbeddedFontSizes) {
+      SpannableStringBuilder newCueText = new SpannableStringBuilder(cueText);
       int cueLength = newCueText.length();
       AbsoluteSizeSpan[] absSpans = newCueText.getSpans(0, cueLength, AbsoluteSizeSpan.class);
       RelativeSizeSpan[] relSpans = newCueText.getSpans(0, cueLength, RelativeSizeSpan.class);
@@ -252,6 +264,19 @@ import com.google.android.exoplayer2.util.Util;
         newCueText.removeSpan(relSpan);
       }
       cueText = newCueText;
+    } else {
+      // Apply embedded styles & font size.
+      if (cueTextSizePx > 0) {
+        // Use a SpannableStringBuilder encompassing the whole cue text to apply the default
+        // cueTextSizePx.
+        SpannableStringBuilder newCueText = new SpannableStringBuilder(cueText);
+        newCueText.setSpan(
+            new AbsoluteSizeSpan((int) cueTextSizePx),
+            /* start= */ 0,
+            /* end= */ newCueText.length(),
+            Spanned.SPAN_PRIORITY);
+        cueText = newCueText;
+      }
     }
 
     if (Color.alpha(backgroundColor) > 0) {

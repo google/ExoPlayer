@@ -11,6 +11,12 @@
     map.
   * Add support for mu-law and A-law PCM with the ffmpeg extension
     ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
+* Captions:
+  * TTML: Fix an issue with TTML using font size as % of cell resolution that
+    makes `SubtitleView.setApplyEmbeddedFontSizes()` not work correctly.
+    ([#4491](https://github.com/google/ExoPlayer/issues/4491)).
+  * CEA-608: Improve handling of embedded styles
+    ([#4321](https://github.com/google/ExoPlayer/issues/4321)).
 * Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
   creating a `CacheDataSource`.
 * Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend
@@ -45,8 +51,6 @@
   * Allow DrmInitData to carry a license server URL
     ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
 * Add callback to `VideoListener` to notify of surface size changes.
-* CEA-608: Improve handling of embedded styles
-  ([#4321](https://github.com/google/ExoPlayer/issues/4321)).
 * Fix bug when reporting buffered position for multi-period windows and add
   two additional convenience methods `Player.getTotalBufferedDuration` and
   `Player.getContentBufferedDuration`
