@@ -140,6 +140,7 @@ import java.util.List;
   // Accessed only by the loading thread.
   private boolean tracksEnded;
   private long sampleOffsetUs;
+  private int chunkUid;
 
   /**
    * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
@@ -698,6 +699,7 @@ import java.util.List;
       audioSampleQueueMappingDone = false;
       videoSampleQueueMappingDone = false;
     }
+    this.chunkUid = chunkUid;
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.sourceId(chunkUid);
     }
@@ -752,6 +754,7 @@ import java.util.List;
       }
     }
     SampleQueue trackOutput = new SampleQueue(allocator);
+    trackOutput.sourceId(chunkUid);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.setUpstreamFormatChangeListener(this);
     sampleQueueTrackIds = Arrays.copyOf(sampleQueueTrackIds, trackCount + 1);
