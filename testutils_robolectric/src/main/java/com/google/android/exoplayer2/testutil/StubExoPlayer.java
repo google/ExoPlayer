@@ -160,6 +160,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public SeekParameters getSeekParameters() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public @Nullable Object getCurrentTag() {
     throw new UnsupportedOperationException();
   }

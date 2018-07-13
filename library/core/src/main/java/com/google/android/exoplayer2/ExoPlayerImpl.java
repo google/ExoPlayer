@@ -64,6 +64,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private boolean hasPendingPrepare;
   private boolean hasPendingSeek;
   private PlaybackParameters playbackParameters;
+  private SeekParameters seekParameters;
   private @Nullable ExoPlaybackException playbackError;
 
   // Playback information when there is no pending seek/set source operation.
@@ -108,6 +109,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     window = new Timeline.Window();
     period = new Timeline.Period();
     playbackParameters = PlaybackParameters.DEFAULT;
+    seekParameters = SeekParameters.DEFAULT;
     eventHandler =
         new Handler(looper) {
           @Override
@@ -339,7 +341,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (seekParameters == null) {
       seekParameters = SeekParameters.DEFAULT;
     }
-    internalPlayer.setSeekParameters(seekParameters);
+    if (!this.seekParameters.equals(seekParameters)) {
+      this.seekParameters = seekParameters;
+      internalPlayer.setSeekParameters(seekParameters);
+    }
+  }
+
+  @Override
+  public SeekParameters getSeekParameters() {
+    return seekParameters;
   }
 
   @Override

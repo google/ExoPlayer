@@ -792,6 +792,11 @@ public class SimpleExoPlayer
   }
 
   @Override
+  public SeekParameters getSeekParameters() {
+    return player.getSeekParameters();
+  }
+
+  @Override
   public @Nullable Object getCurrentTag() {
     return player.getCurrentTag();
   }

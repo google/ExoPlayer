@@ -242,4 +242,7 @@ public interface ExoPlayer extends Player {
    * @param seekParameters The seek parameters, or {@code null} to use the defaults.
    */
   void setSeekParameters(@Nullable SeekParameters seekParameters);
+
+  /** Returns the currently active {@link SeekParameters} of the player. */
+  SeekParameters getSeekParameters();
 }
