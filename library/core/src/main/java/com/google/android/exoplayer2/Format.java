@@ -1086,15 +1086,35 @@ public final class Format implements Parcelable {
       return this;
     }
 
+    int trackType = MimeTypes.getTrackType(sampleMimeType);
+
     // Use manifest value only.
     String id = manifestFormat.id;
+
     // Prefer manifest values, but fill in from sample format if missing.
     String label = manifestFormat.label != null ? manifestFormat.label : this.label;
-    String language = manifestFormat.language != null ? manifestFormat.language : this.language;
+    String language = this.language;
+    if ((trackType == C.TRACK_TYPE_TEXT || trackType == C.TRACK_TYPE_AUDIO)
+        && manifestFormat.language != null) {
+      language = manifestFormat.language;
+    }
+
     // Prefer sample format values, but fill in from manifest if missing.
-    String codecs = this.codecs == null ? manifestFormat.codecs : this.codecs;
     int bitrate = this.bitrate == NO_VALUE ? manifestFormat.bitrate : this.bitrate;
-    float frameRate = this.frameRate == NO_VALUE ? manifestFormat.frameRate : this.frameRate;
+    String codecs = this.codecs;
+    if (codecs == null) {
+      // The manifest format may be muxed, so filter only codecs of this format's type. If we still
+      // have more than one codec then we're unable to uniquely identify which codec to fill in.
+      String codecsOfType = Util.getCodecsOfType(manifestFormat.codecs, trackType);
+      if (Util.splitCodecs(codecsOfType).length == 1) {
+        codecs = codecsOfType;
+      }
+    }
+    float frameRate = this.frameRate;
+    if (frameRate == NO_VALUE && trackType == C.TRACK_TYPE_VIDEO) {
+      frameRate = manifestFormat.frameRate;
+    }
+
     // Merge manifest and sample format values.
     @C.SelectionFlags int selectionFlags = this.selectionFlags | manifestFormat.selectionFlags;
     DrmInitData drmInitData =
@@ -1273,6 +1293,8 @@ public final class Format implements Parcelable {
         + ", "
         + sampleMimeType
         + ", "
+        + codecs
+        + ", "
         + bitrate
         + ", "
         + language
@@ -1383,6 +1405,9 @@ public final class Format implements Parcelable {
     builder.append("id=").append(format.id).append(", mimeType=").append(format.sampleMimeType);
     if (format.bitrate != Format.NO_VALUE) {
       builder.append(", bitrate=").append(format.bitrate);
+    }
+    if (format.codecs != null) {
+      builder.append(", codecs=").append(format.codecs);
     }
     if (format.width != Format.NO_VALUE && format.height != Format.NO_VALUE) {
       builder.append(", res=").append(format.width).append("x").append(format.height);
