@@ -20,14 +20,12 @@ import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTest
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 
-import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -52,7 +50,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -135,16 +132,10 @@ public class DownloadServiceDashTest {
             dashDownloadManager.startDownloads();
 
             dashDownloadService =
-                new DownloadService(/*foregroundNotificationId=*/ 1) {
-
+                new DownloadService(DownloadService.FOREGROUND_NOTIFICATION_ID_NONE) {
                   @Override
                   protected DownloadManager getDownloadManager() {
                     return dashDownloadManager;
-                  }
-
-                  @Override
-                  protected Notification getForegroundNotification(TaskState[] taskStates) {
-                    return Mockito.mock(Notification.class);
                   }
 
                   @Nullable

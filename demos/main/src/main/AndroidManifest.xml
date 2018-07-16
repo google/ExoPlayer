@@ -79,7 +79,7 @@
     <service android:name="com.google.android.exoplayer2.demo.DemoDownloadService"
         android:exported="false">
       <intent-filter>
-        <action android:name="com.google.android.exoplayer.downloadService.action.INIT"/>
+        <action android:name="com.google.android.exoplayer.downloadService.action.RESTART"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
     </service>
