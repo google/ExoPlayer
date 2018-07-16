@@ -397,17 +397,17 @@ import java.util.List;
   }
 
   /**
-   * Called when the {@link HlsSampleStreamWrapper} encounters an error loading a chunk obtained
-   * from this source.
+   * Attempts to blacklist the track associated with the given chunk. Blacklisting will fail if the
+   * track is the only non-blacklisted track in the selection.
    *
-   * @param chunk The chunk whose load encountered the error.
-   * @param cancelable Whether the load can be canceled.
-   * @param error The error.
-   * @return Whether the load should be canceled.
+   * @param chunk The chunk whose load caused the blacklisting attempt.
+   * @param blacklistDurationMs The number of milliseconds for which the track selection should be
+   *     blacklisted.
+   * @return Whether the blacklisting succeeded.
    */
-  public boolean onChunkLoadError(Chunk chunk, boolean cancelable, IOException error) {
-    return cancelable && ChunkedTrackBlacklistUtil.maybeBlacklistTrack(trackSelection,
-        trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat)), error);
+  public boolean maybeBlacklistTrack(Chunk chunk, long blacklistDurationMs) {
+    return trackSelection.blacklist(
+        trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat)), blacklistDurationMs);
   }
 
   /**

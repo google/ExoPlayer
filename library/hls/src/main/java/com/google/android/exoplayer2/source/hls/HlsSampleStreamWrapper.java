@@ -21,7 +21,6 @@ import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -39,6 +38,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.util.Assertions;
@@ -97,6 +97,7 @@ import java.util.List;
   private final HlsChunkSource chunkSource;
   private final Allocator allocator;
   private final Format muxedAudioFormat;
+  private final LoadErrorHandlingPolicy<Chunk> chunkLoadErrorHandlingPolicy;
   private final int minLoadableRetryCount;
   private final Loader loader;
   private final EventDispatcher eventDispatcher;
@@ -149,18 +150,27 @@ import java.util.List;
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param positionUs The position from which to start loading media.
    * @param muxedAudioFormat Optional muxed audio {@link Format} as defined by the master playlist.
+   * @param chunkLoadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy} for chunk loads.
    * @param minLoadableRetryCount The minimum number of times that the source should retry a load
    *     before propagating an error.
    * @param eventDispatcher A dispatcher to notify of events.
    */
-  public HlsSampleStreamWrapper(int trackType, Callback callback, HlsChunkSource chunkSource,
-      Allocator allocator, long positionUs, Format muxedAudioFormat, int minLoadableRetryCount,
+  public HlsSampleStreamWrapper(
+      int trackType,
+      Callback callback,
+      HlsChunkSource chunkSource,
+      Allocator allocator,
+      long positionUs,
+      Format muxedAudioFormat,
+      LoadErrorHandlingPolicy<Chunk> chunkLoadErrorHandlingPolicy,
+      int minLoadableRetryCount,
       EventDispatcher eventDispatcher) {
     this.trackType = trackType;
     this.callback = callback;
     this.chunkSource = chunkSource;
     this.allocator = allocator;
     this.muxedAudioFormat = muxedAudioFormat;
+    this.chunkLoadErrorHandlingPolicy = chunkLoadErrorHandlingPolicy;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     loader = new Loader("Loader:HlsSampleStreamWrapper");
@@ -174,20 +184,8 @@ import java.util.List;
     mediaChunks = new ArrayList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     hlsSampleStreams = new ArrayList<>();
-    maybeFinishPrepareRunnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            maybeFinishPrepare();
-          }
-        };
-    onTracksEndedRunnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            onTracksEnded();
-          }
-        };
+    maybeFinishPrepareRunnable = this::maybeFinishPrepare;
+    onTracksEndedRunnable = this::onTracksEnded;
     handler = new Handler();
     lastSeekPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
@@ -644,9 +642,19 @@ import java.util.List;
       int errorCount) {
     long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);
-    boolean cancelable = !isMediaChunk || bytesLoaded == 0;
-    boolean canceled = false;
-    if (chunkSource.onChunkLoadError(loadable, cancelable, error)) {
+    boolean blacklistSucceeded = false;
+    LoadErrorAction loadErrorAction;
+
+    if (!isMediaChunk || bytesLoaded == 0) {
+      long blacklistDurationMs =
+          chunkLoadErrorHandlingPolicy.getBlacklistDurationMsFor(
+              loadable, loadDurationMs, error, errorCount);
+      if (blacklistDurationMs != C.TIME_UNSET) {
+        blacklistSucceeded = chunkSource.maybeBlacklistTrack(loadable, blacklistDurationMs);
+      }
+    }
+
+    if (blacklistSucceeded) {
       if (isMediaChunk) {
         HlsMediaChunk removed = mediaChunks.remove(mediaChunks.size() - 1);
         Assertions.checkState(removed == loadable);
@@ -654,8 +662,17 @@ import java.util.List;
           pendingResetPositionUs = lastSeekPositionUs;
         }
       }
-      canceled = true;
+      loadErrorAction = Loader.DONT_RETRY;
+    } else /* did not blacklist */ {
+      long retryDelayMs =
+          chunkLoadErrorHandlingPolicy.getRetryDelayMsFor(
+              loadable, loadDurationMs, error, errorCount);
+      loadErrorAction =
+          retryDelayMs != C.TIME_UNSET
+              ? Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs)
+              : Loader.DONT_RETRY_FATAL;
     }
+
     eventDispatcher.loadError(
         loadable.dataSpec,
         loadable.getUri(),
@@ -670,17 +687,16 @@ import java.util.List;
         loadDurationMs,
         loadable.bytesLoaded(),
         error,
-        canceled);
-    if (canceled) {
+        /* wasCanceled= */ !loadErrorAction.isRetry());
+
+    if (blacklistSucceeded) {
       if (!prepared) {
         continueLoading(lastSeekPositionUs);
       } else {
         callback.onContinueLoadingRequested(this);
       }
-      return Loader.DONT_RETRY;
-    } else {
-      return error instanceof ParserException ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
     }
+    return loadErrorAction;
   }
 
   // Called by the consuming thread, but only when there is no loading thread.

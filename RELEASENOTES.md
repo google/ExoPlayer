@@ -47,6 +47,8 @@
 * HLS:
   * Pass HTTP response headers to `HlsExtractorFactory.createExtractor`.
   * Add support for EXT-X-INDEPENDENT-SEGMENTS in the master playlist.
+  * Support load error handling customization
+    ([#2981](https://github.com/google/ExoPlayer/issues/2981)).
 * DRM:
   * Allow DrmInitData to carry a license server URL
     ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
