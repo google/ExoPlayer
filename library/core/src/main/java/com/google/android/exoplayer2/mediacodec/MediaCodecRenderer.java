@@ -274,7 +274,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private DrmSession<FrameworkMediaCrypto> drmSession;
   private DrmSession<FrameworkMediaCrypto> pendingDrmSession;
   private MediaCodec codec;
-  private float codecOperatingRate = 1;
+  private float codecOperatingRate = 1.0f;
   private @Nullable ArrayDeque<MediaCodecInfo> availableCodecInfos;
   private @Nullable DecoderInitializationException preferredDecoderInitializationException;
   private @Nullable MediaCodecInfo codecInfo;
@@ -386,10 +386,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param codec The {@link MediaCodec} to configure.
    * @param format The format for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
+   * @param codecOperatingRate The {@link MediaFormat#KEY_OPERATING_RATE} to use for configuration.
    * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
    */
-  protected abstract void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
-      MediaCrypto crypto) throws DecoderQueryException;
+  protected abstract void configureCodec(MediaCodecInfo codecInfo,
+                                         MediaCodec codec, Format format,
+                                         MediaCrypto crypto,
+                                         float codecOperatingRate) throws DecoderQueryException;
 
   protected final void maybeInitCodec() throws ExoPlaybackException {
     if (codec != null || format == null) {
@@ -466,8 +469,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return codecInfo;
   }
 
-  protected final float getCodecOperatingRate() { return codecOperatingRate; }
-
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
     decoderCounters = new DecoderCounters();
@@ -485,8 +486,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   protected void onOperatingRateChanged(float operatingRate) {
     codecOperatingRate = operatingRate;
-    if (codec != null && format != null) {
-      updateCodecOperatingRate(format);
+    if (format != null) {
+      updateCodecOperatingRate(codec, format, operatingRate);
     }
   }
 
@@ -734,7 +735,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codec = MediaCodec.createByCodecName(name);
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
-      configureCodec(codecInfo, codec, format, crypto);
+      configureCodec(codecInfo, codec, format, crypto, codecOperatingRate);
       TraceUtil.endSection();
       TraceUtil.beginSection("startCodec");
       codec.start();
@@ -1038,7 +1039,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
     } else {
       if (Util.SDK_INT >= 23) {
-        updateCodecOperatingRate(format);
+        updateCodecOperatingRate(codec, format, codecOperatingRate);
       }
     }
   }
@@ -1048,7 +1049,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * <p>
    * The default implementation is a no-op.
    */
-  protected void updateCodecOperatingRate(Format format) {
+  protected void updateCodecOperatingRate(MediaCodec codec, Format format, float codecOperatingRate) {
     // Do nothing.
   }
 
