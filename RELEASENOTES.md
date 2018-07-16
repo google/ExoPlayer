@@ -47,6 +47,8 @@
 * DASH: Exclude text streams from duration calculations
   ([#4029](https://github.com/google/ExoPlayer/issues/4029)).
 * HLS:
+  * Set the bitrate on primary track sample formats
+    ([#3297](https://github.com/google/ExoPlayer/issues/3297)).
   * Pass HTTP response headers to `HlsExtractorFactory.createExtractor`.
   * Add support for EXT-X-INDEPENDENT-SEGMENTS in the master playlist.
   * Support load error handling customization

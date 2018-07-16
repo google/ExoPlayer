@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.os.Handler;
-import android.support.annotation.IntDef;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -45,8 +44,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -83,15 +80,6 @@ import java.util.List;
   public static final int SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL = -2;
   public static final int SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL = -3;
 
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({PRIMARY_TYPE_NONE, PRIMARY_TYPE_TEXT, PRIMARY_TYPE_AUDIO, PRIMARY_TYPE_VIDEO})
-  private @interface PrimaryTrackType {}
-
-  private static final int PRIMARY_TYPE_NONE = 0;
-  private static final int PRIMARY_TYPE_TEXT = 1;
-  private static final int PRIMARY_TYPE_AUDIO = 2;
-  private static final int PRIMARY_TYPE_VIDEO = 3;
-
   private final int trackType;
   private final Callback callback;
   private final HlsChunkSource chunkSource;
@@ -115,9 +103,12 @@ import java.util.List;
   private int audioSampleQueueIndex;
   private boolean videoSampleQueueMappingDone;
   private int videoSampleQueueIndex;
+  private int primarySampleQueueType;
+  private int primarySampleQueueIndex;
   private boolean sampleQueuesBuilt;
   private boolean prepared;
   private int enabledTrackGroupCount;
+  private Format upstreamTrackFormat;
   private Format downstreamTrackFormat;
   private boolean released;
 
@@ -471,8 +462,23 @@ import java.util.List;
       downstreamTrackFormat = trackFormat;
     }
 
-    return sampleQueues[sampleQueueIndex].read(formatHolder, buffer, requireFormat, loadingFinished,
-        lastSeekPositionUs);
+    int result =
+        sampleQueues[sampleQueueIndex].read(
+            formatHolder, buffer, requireFormat, loadingFinished, lastSeekPositionUs);
+    if (result == C.RESULT_FORMAT_READ && sampleQueueIndex == primarySampleQueueIndex) {
+      // Fill in primary sample format with information from the track format.
+      int chunkUid = sampleQueues[sampleQueueIndex].peekSourceId();
+      int chunkIndex = 0;
+      while (chunkIndex < mediaChunks.size() && mediaChunks.get(chunkIndex).uid != chunkUid) {
+        chunkIndex++;
+      }
+      Format trackFormat =
+          chunkIndex < mediaChunks.size()
+              ? mediaChunks.get(chunkIndex).trackFormat
+              : upstreamTrackFormat;
+      formatHolder.format = formatHolder.format.copyWithManifestFormatInfo(trackFormat);
+    }
+    return result;
   }
 
   public int skipData(int sampleQueueIndex, long positionUs) {
@@ -563,6 +569,7 @@ import java.util.List;
       HlsMediaChunk mediaChunk = (HlsMediaChunk) loadable;
       mediaChunk.init(this);
       mediaChunks.add(mediaChunk);
+      upstreamTrackFormat = mediaChunk.trackFormat;
     }
     long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
     eventDispatcher.loadStarted(
@@ -770,8 +777,8 @@ import java.util.List;
       }
     }
     SampleQueue trackOutput = new SampleQueue(allocator);
-    trackOutput.sourceId(chunkUid);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
+    trackOutput.sourceId(chunkUid);
     trackOutput.setUpstreamFormatChangeListener(this);
     sampleQueueTrackIds = Arrays.copyOf(sampleQueueTrackIds, trackCount + 1);
     sampleQueueTrackIds[trackCount] = id;
@@ -787,6 +794,10 @@ import java.util.List;
     } else if (type == C.TRACK_TYPE_VIDEO) {
       videoSampleQueueMappingDone = true;
       videoSampleQueueIndex = trackCount;
+    }
+    if (getTrackTypeScore(type) > getTrackTypeScore(primarySampleQueueType)) {
+      primarySampleQueueIndex = trackCount;
+      primarySampleQueueType = type;
     }
     sampleQueuesEnabledStates = Arrays.copyOf(sampleQueuesEnabledStates, trackCount + 1);
     return trackOutput;
@@ -925,22 +936,22 @@ import java.util.List;
   private void buildTracksFromSampleStreams() {
     // Iterate through the extractor tracks to discover the "primary" track type, and the index
     // of the single track of this type.
-    @PrimaryTrackType int primaryExtractorTrackType = PRIMARY_TYPE_NONE;
+    int primaryExtractorTrackType = C.TRACK_TYPE_NONE;
     int primaryExtractorTrackIndex = C.INDEX_UNSET;
     int extractorTrackCount = sampleQueues.length;
     for (int i = 0; i < extractorTrackCount; i++) {
       String sampleMimeType = sampleQueues[i].getUpstreamFormat().sampleMimeType;
-      @PrimaryTrackType int trackType;
+      int trackType;
       if (MimeTypes.isVideo(sampleMimeType)) {
-        trackType = PRIMARY_TYPE_VIDEO;
+        trackType = C.TRACK_TYPE_VIDEO;
       } else if (MimeTypes.isAudio(sampleMimeType)) {
-        trackType = PRIMARY_TYPE_AUDIO;
+        trackType = C.TRACK_TYPE_AUDIO;
       } else if (MimeTypes.isText(sampleMimeType)) {
-        trackType = PRIMARY_TYPE_TEXT;
+        trackType = C.TRACK_TYPE_TEXT;
       } else {
-        trackType = PRIMARY_TYPE_NONE;
+        trackType = C.TRACK_TYPE_NONE;
       }
-      if (trackType > primaryExtractorTrackType) {
+      if (getTrackTypeScore(trackType) > getTrackTypeScore(primaryExtractorTrackType)) {
         primaryExtractorTrackType = trackType;
         primaryExtractorTrackIndex = i;
       } else if (trackType == primaryExtractorTrackType
@@ -977,8 +988,11 @@ import java.util.List;
         trackGroups[i] = new TrackGroup(formats);
         primaryTrackGroupIndex = i;
       } else {
-        Format trackFormat = primaryExtractorTrackType == PRIMARY_TYPE_VIDEO
-            && MimeTypes.isAudio(sampleFormat.sampleMimeType) ? muxedAudioFormat : null;
+        Format trackFormat =
+            primaryExtractorTrackType == C.TRACK_TYPE_VIDEO
+                    && MimeTypes.isAudio(sampleFormat.sampleMimeType)
+                ? muxedAudioFormat
+                : null;
         trackGroups[i] = new TrackGroup(deriveFormat(trackFormat, sampleFormat, false));
       }
     }
@@ -1017,6 +1031,26 @@ import java.util.List;
       }
     }
     return true;
+  }
+
+  /**
+   * Scores a track type. Where multiple tracks are muxed into a container, the track with the
+   * highest score is the primary track.
+   *
+   * @param trackType The track type.
+   * @return The score.
+   */
+  private static int getTrackTypeScore(int trackType) {
+    switch (trackType) {
+      case C.TRACK_TYPE_VIDEO:
+        return 3;
+      case C.TRACK_TYPE_AUDIO:
+        return 2;
+      case C.TRACK_TYPE_TEXT:
+        return 1;
+      default:
+        return 0;
+    }
   }
 
   /**
