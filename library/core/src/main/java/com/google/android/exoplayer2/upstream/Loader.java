@@ -179,6 +179,11 @@ public final class Loader implements LoaderErrorThrower {
       this.type = type;
       this.retryDelayMillis = retryDelayMillis;
     }
+
+    /** Returns whether this is a retry action. */
+    public boolean isRetry() {
+      return type == ACTION_TYPE_RETRY || type == ACTION_TYPE_RETRY_AND_RESET_ERROR_COUNT;
+    }
   }
 
   private final ExecutorService downloadExecutorService;
