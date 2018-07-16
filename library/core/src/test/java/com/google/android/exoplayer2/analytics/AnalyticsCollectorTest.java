@@ -822,7 +822,7 @@ public final class AnalyticsCollectorTest {
     @Override
     protected void onBufferRead() {
       if (!notifiedAudioSessionId) {
-        eventDispatcher.audioSessionId(/* audioSessionId= */ 0);
+        eventDispatcher.audioSessionId(/* audioSessionId= */ 1);
         notifiedAudioSessionId = true;
       }
     }

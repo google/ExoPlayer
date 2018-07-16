@@ -34,8 +34,8 @@ public interface VideoListener {
    *     square pixels this will be equal to 1.0. Different values are indicative of anamorphic
    *     content.
    */
-  void onVideoSizeChanged(
-      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio);
+  default void onVideoSizeChanged(
+      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {}
 
   /**
    * Called each time there's a change in the size of the surface onto which the video is being
@@ -54,5 +54,5 @@ public interface VideoListener {
    * Called when a frame is rendered for the first time since setting the surface, and when a frame
    * is rendered for the first time since a video track was selected.
    */
-  void onRenderedFirstFrame();
+  default void onRenderedFirstFrame() {}
 }
