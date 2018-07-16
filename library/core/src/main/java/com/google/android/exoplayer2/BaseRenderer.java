@@ -137,7 +137,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public void setOperatingRate(float operatingRate) {
+  public final void setOperatingRate(float operatingRate) {
     onOperatingRateChanged(operatingRate);
   }
 
