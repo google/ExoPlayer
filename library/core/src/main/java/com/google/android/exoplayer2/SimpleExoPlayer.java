@@ -31,6 +31,7 @@ import android.view.TextureView;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
@@ -73,6 +74,7 @@ public class SimpleExoPlayer
   private final ComponentListener componentListener;
   private final CopyOnWriteArraySet<com.google.android.exoplayer2.video.VideoListener>
       videoListeners;
+  private final CopyOnWriteArraySet<AudioListener> audioListeners;
   private final CopyOnWriteArraySet<TextOutput> textOutputs;
   private final CopyOnWriteArraySet<MetadataOutput> metadataOutputs;
   private final CopyOnWriteArraySet<VideoRendererEventListener> videoDebugListeners;
@@ -185,6 +187,7 @@ public class SimpleExoPlayer
       Looper looper) {
     componentListener = new ComponentListener();
     videoListeners = new CopyOnWriteArraySet<>();
+    audioListeners = new CopyOnWriteArraySet<>();
     textOutputs = new CopyOnWriteArraySet<>();
     metadataOutputs = new CopyOnWriteArraySet<>();
     videoDebugListeners = new CopyOnWriteArraySet<>();
@@ -213,6 +216,7 @@ public class SimpleExoPlayer
     videoDebugListeners.add(analyticsCollector);
     videoListeners.add(analyticsCollector);
     audioDebugListeners.add(analyticsCollector);
+    audioListeners.add(analyticsCollector);
     addMetadataOutput(analyticsCollector);
     if (drmSessionManager instanceof DefaultDrmSessionManager) {
       ((DefaultDrmSessionManager) drmSessionManager).addListener(eventHandler, analyticsCollector);
@@ -351,7 +355,20 @@ public class SimpleExoPlayer
   }
 
   @Override
+  public void addAudioListener(AudioListener listener) {
+    audioListeners.add(listener);
+  }
+
+  @Override
+  public void removeAudioListener(AudioListener listener) {
+    audioListeners.remove(listener);
+  }
+
+  @Override
   public void setAudioAttributes(AudioAttributes audioAttributes) {
+    if (Util.areEqual(this.audioAttributes, audioAttributes)) {
+      return;
+    }
     this.audioAttributes = audioAttributes;
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
@@ -361,6 +378,9 @@ public class SimpleExoPlayer
             .setPayload(audioAttributes)
             .send();
       }
+    }
+    for (AudioListener audioListener : audioListeners) {
+      audioListener.onAudioAttributesChanged(audioAttributes);
     }
   }
 
@@ -376,11 +396,18 @@ public class SimpleExoPlayer
 
   @Override
   public void setVolume(float audioVolume) {
+    audioVolume = Util.constrainValue(audioVolume, /* min= */ 0, /* max= */ 1);
+    if (this.audioVolume == audioVolume) {
+      return;
+    }
     this.audioVolume = audioVolume;
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
         player.createMessage(renderer).setType(C.MSG_SET_VOLUME).setPayload(audioVolume).send();
       }
+    }
+    for (AudioListener audioListener : audioListeners) {
+      audioListener.onVolumeChanged(audioVolume);
     }
   }
 
@@ -1075,8 +1102,8 @@ public class SimpleExoPlayer
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
         float pixelWidthHeightRatio) {
       for (com.google.android.exoplayer2.video.VideoListener videoListener : videoListeners) {
-        // Prevent duplicate notification if a listener is both a VideoRendererDebugListener and
-        // VideoListener as they have the same method signature.
+        // Prevent duplicate notification if a listener is both a VideoRendererEventListener and
+        // a VideoListener, as they have the same method signature.
         if (!videoDebugListeners.contains(videoListener)) {
           videoListener.onVideoSizeChanged(
               width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
@@ -1121,7 +1148,17 @@ public class SimpleExoPlayer
 
     @Override
     public void onAudioSessionId(int sessionId) {
+      if (audioSessionId == sessionId) {
+        return;
+      }
       audioSessionId = sessionId;
+      for (AudioListener audioListener : audioListeners) {
+        // Prevent duplicate notification if a listener is both a AudioRendererEventListener and
+        // a AudioListener, as they have the same method signature.
+        if (!audioDebugListeners.contains(audioListener)) {
+          audioListener.onAudioSessionId(sessionId);
+        }
+      }
       for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
         audioDebugListener.onAudioSessionId(sessionId);
       }

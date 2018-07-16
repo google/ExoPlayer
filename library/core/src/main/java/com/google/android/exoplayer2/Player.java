@@ -23,6 +23,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -54,6 +55,20 @@ public interface Player {
 
   /** The audio component of a {@link Player}. */
   interface AudioComponent {
+
+    /**
+     * Adds a listener to receive audio events.
+     *
+     * @param listener The listener to register.
+     */
+    void addAudioListener(AudioListener listener);
+
+    /**
+     * Removes a listener of audio events.
+     *
+     * @param listener The listener to unregister.
+     */
+    void removeAudioListener(AudioListener listener);
 
     /**
      * Sets the attributes for audio playback, used by the underlying audio track. If not set, the

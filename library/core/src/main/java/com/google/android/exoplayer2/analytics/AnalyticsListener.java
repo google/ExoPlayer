@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -378,6 +379,22 @@ public interface AnalyticsListener {
    * @param audioSessionId The audio session id.
    */
   default void onAudioSessionId(EventTime eventTime, int audioSessionId) {}
+
+  /**
+   * Called when the audio attributes change.
+   *
+   * @param eventTime The event time.
+   * @param audioAttributes The audio attributes.
+   */
+  default void onAudioAttributesChanged(EventTime eventTime, AudioAttributes audioAttributes) {}
+
+  /**
+   * Called when the volume changes.
+   *
+   * @param eventTime The event time.
+   * @param volume The new volume, with 0 being silence and 1 being unity gain.
+   */
+  default void onVolumeChanged(EventTime eventTime, float volume) {}
 
   /**
    * Called when an audio underrun occurred.

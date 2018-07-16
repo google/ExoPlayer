@@ -26,6 +26,8 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener;
@@ -60,7 +62,8 @@ public class AnalyticsCollector
         MediaSourceEventListener,
         BandwidthMeter.EventListener,
         DefaultDrmSessionEventListener,
-        VideoListener {
+        VideoListener,
+        AudioListener {
 
   /** Factory for an analytics collector. */
   public static class Factory {
@@ -182,14 +185,6 @@ public class AnalyticsCollector
   }
 
   @Override
-  public final void onAudioSessionId(int audioSessionId) {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
-    for (AnalyticsListener listener : listeners) {
-      listener.onAudioSessionId(eventTime, audioSessionId);
-    }
-  }
-
-  @Override
   public final void onAudioDecoderInitialized(
       String decoderName, long initializedTimestampMs, long initializationDurationMs) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
@@ -223,6 +218,32 @@ public class AnalyticsCollector
     EventTime eventTime = generateLastReportedPlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onDecoderDisabled(eventTime, C.TRACK_TYPE_AUDIO, counters);
+    }
+  }
+
+  // AudioListener implementation.
+
+  @Override
+  public final void onAudioSessionId(int audioSessionId) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onAudioSessionId(eventTime, audioSessionId);
+    }
+  }
+
+  @Override
+  public void onAudioAttributesChanged(AudioAttributes audioAttributes) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onAudioAttributesChanged(eventTime, audioAttributes);
+    }
+  }
+
+  @Override
+  public void onVolumeChanged(float audioVolume) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onVolumeChanged(eventTime, audioVolume);
     }
   }
 
@@ -264,16 +285,6 @@ public class AnalyticsCollector
   }
 
   @Override
-  public final void onVideoSizeChanged(
-      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
-    for (AnalyticsListener listener : listeners) {
-      listener.onVideoSizeChanged(
-          eventTime, width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
-    }
-  }
-
-  @Override
   public final void onVideoDisabled(DecoderCounters counters) {
     // The renderers are disabled after we changed the playing media period on the playback thread
     // but before this change is reported to the app thread.
@@ -294,8 +305,13 @@ public class AnalyticsCollector
   // VideoListener implementation.
 
   @Override
-  public final void onRenderedFirstFrame() {
-    // Do nothing. Already reported in VideoRendererEventListener.onRenderedFirstFrame.
+  public final void onVideoSizeChanged(
+      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onVideoSizeChanged(
+          eventTime, width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
+    }
   }
 
   @Override
@@ -304,6 +320,11 @@ public class AnalyticsCollector
     for (AnalyticsListener listener : listeners) {
       listener.onSurfaceSizeChanged(eventTime, width, height);
     }
+  }
+
+  @Override
+  public final void onRenderedFirstFrame() {
+    // Do nothing. Already reported in VideoRendererEventListener.onRenderedFirstFrame.
   }
 
   // MediaSourceEventListener implementation.

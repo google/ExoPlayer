@@ -2,8 +2,10 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add `AudioListener` for listening to changes in audio configuration during
+  playback ([#3994](https://github.com/google/ExoPlayer/issues/3994)).
 * MPEG-PS: Support reading duration from MPEG-PS Streams
-    ([#4476](https://github.com/google/ExoPlayer/issues/4476)).
+  ([#4476](https://github.com/google/ExoPlayer/issues/4476)).
 * MediaSession extension:
   * Allow apps to set custom errors.
 * Audio:
