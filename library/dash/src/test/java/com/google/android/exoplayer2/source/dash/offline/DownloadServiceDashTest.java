@@ -20,18 +20,23 @@ import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTest
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Scheduler;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
+import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
@@ -40,10 +45,14 @@ import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -56,16 +65,16 @@ public class DownloadServiceDashTest {
   private SimpleCache cache;
   private File tempFolder;
   private FakeDataSet fakeDataSet;
-  private RepresentationKey fakeRepresentationKey1;
-  private RepresentationKey fakeRepresentationKey2;
+  private StreamKey fakeStreamKey1;
+  private StreamKey fakeStreamKey2;
   private Context context;
   private DownloadService dashDownloadService;
   private ConditionVariable pauseDownloadCondition;
-  private TestDownloadListener testDownloadListener;
+  private TestDownloadManagerListener downloadManagerListener;
   private DummyMainThread dummyMainThread;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() throws IOException {
     dummyMainThread = new DummyMainThread();
     context = RuntimeEnvironment.application;
     tempFolder = Util.createTempDirectory(context, "ExoPlayerTest");
@@ -99,133 +108,137 @@ public class DownloadServiceDashTest {
             .setRandomData("text_segment_3", 3);
     final DataSource.Factory fakeDataSourceFactory =
         new FakeDataSource.Factory(null).setFakeDataSet(fakeDataSet);
-    fakeRepresentationKey1 = new RepresentationKey(0, 0, 0);
-    fakeRepresentationKey2 = new RepresentationKey(0, 1, 0);
+    fakeStreamKey1 = new StreamKey(0, 0, 0);
+    fakeStreamKey2 = new StreamKey(0, 1, 0);
 
-    try {
-      dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              File actionFile = null;
-              try {
-                actionFile = Util.createTempFile(context, "ExoPlayerTest");
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
-              actionFile.delete();
-              final DownloadManager dashDownloadManager =
-                  new DownloadManager(
-                      new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
-                      1,
-                      3,
-                      actionFile.getAbsolutePath(),
-                      DashDownloadAction.DESERIALIZER);
-              testDownloadListener = new TestDownloadListener(dashDownloadManager, dummyMainThread);
-              dashDownloadManager.addListener(testDownloadListener);
-              dashDownloadManager.startDownloads();
-
-              dashDownloadService =
-                  new DownloadService(101010) {
-
-                    @Override
-                    protected DownloadManager getDownloadManager() {
-                      return dashDownloadManager;
-                    }
-
-                    @Override
-                    protected String getNotificationChannelId() {
-                      return "";
-                    }
-
-                    @Override
-                    protected Scheduler getScheduler() {
-                      return null;
-                    }
-
-                    @Override
-                    protected Requirements getRequirements() {
-                      return null;
-                    }
-                  };
-              dashDownloadService.onCreate();
+    dummyMainThread.runOnMainThread(
+        new Runnable() {
+          @Override
+          public void run() {
+            File actionFile;
+            try {
+              actionFile = Util.createTempFile(context, "ExoPlayerTest");
+            } catch (IOException e) {
+              throw new RuntimeException(e);
             }
-          });
-    } catch (Throwable throwable) {
-      throw new Exception(throwable);
-    }
+            actionFile.delete();
+            final DownloadManager dashDownloadManager =
+                new DownloadManager(
+                    new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
+                    1,
+                    3,
+                    actionFile,
+                    DashDownloadAction.DESERIALIZER);
+            downloadManagerListener =
+                new TestDownloadManagerListener(dashDownloadManager, dummyMainThread);
+            dashDownloadManager.addListener(downloadManagerListener);
+            dashDownloadManager.startDownloads();
+
+            dashDownloadService =
+                new DownloadService(/*foregroundNotificationId=*/ 1) {
+
+                  @Override
+                  protected DownloadManager getDownloadManager() {
+                    return dashDownloadManager;
+                  }
+
+                  @Override
+                  protected Notification getForegroundNotification(TaskState[] taskStates) {
+                    return Mockito.mock(Notification.class);
+                  }
+
+                  @Nullable
+                  @Override
+                  protected Scheduler getScheduler() {
+                    return null;
+                  }
+                };
+            dashDownloadService.onCreate();
+          }
+        });
   }
 
   @After
-  public void tearDown() throws Exception {
-    try {
-      dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              dashDownloadService.onDestroy();
-            }
-          });
-    } catch (Throwable throwable) {
-      throw new Exception(throwable);
-    }
+  public void tearDown() {
+    dummyMainThread.runOnMainThread(
+        new Runnable() {
+          @Override
+          public void run() {
+            dashDownloadService.onDestroy();
+          }
+        });
     Util.recursiveDelete(tempFolder);
     dummyMainThread.release();
   }
 
+  @Ignore // b/78877092
   @Test
   public void testMultipleDownloadAction() throws Throwable {
-    downloadKeys(fakeRepresentationKey1);
-    downloadKeys(fakeRepresentationKey2);
+    downloadKeys(fakeStreamKey1);
+    downloadKeys(fakeStreamKey2);
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
     assertCachedData(cache, fakeDataSet);
   }
 
+  @Ignore // b/78877092
   @Test
   public void testRemoveAction() throws Throwable {
-    downloadKeys(fakeRepresentationKey1, fakeRepresentationKey2);
+    downloadKeys(fakeStreamKey1, fakeStreamKey2);
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
     removeAll();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
     assertCacheEmpty(cache);
   }
 
+  @Ignore // b/78877092
   @Test
   public void testRemoveBeforeDownloadComplete() throws Throwable {
     pauseDownloadCondition = new ConditionVariable();
-    downloadKeys(fakeRepresentationKey1, fakeRepresentationKey2);
+    downloadKeys(fakeStreamKey1, fakeStreamKey2);
 
     removeAll();
 
-    testDownloadListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
     assertCacheEmpty(cache);
   }
 
   private void removeAll() throws Throwable {
-    callDownloadServiceOnStart(new DashDownloadAction(TEST_MPD_URI, true, null));
+    callDownloadServiceOnStart(newAction(TEST_MPD_URI, true, null));
   }
 
-  private void downloadKeys(RepresentationKey... keys) throws Throwable {
-    callDownloadServiceOnStart(new DashDownloadAction(TEST_MPD_URI, false, null, keys));
+  private void downloadKeys(StreamKey... keys) {
+    callDownloadServiceOnStart(newAction(TEST_MPD_URI, false, null, keys));
   }
 
-  private void callDownloadServiceOnStart(final DashDownloadAction action) throws Throwable {
+  private void callDownloadServiceOnStart(final DownloadAction action) {
     dummyMainThread.runOnMainThread(
         new Runnable() {
           @Override
           public void run() {
             Intent startIntent =
-                DownloadService.createAddDownloadActionIntent(
-                    context, DownloadService.class, action);
+                DownloadService.buildAddActionIntent(context, DownloadService.class, action, false);
             dashDownloadService.onStartCommand(startIntent, 0, 0);
           }
         });
+  }
+
+  private static DownloadAction newAction(
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, StreamKey... keys) {
+    ArrayList<StreamKey> keysList = new ArrayList<>();
+    Collections.addAll(keysList, keys);
+    DownloadAction result;
+    if (isRemoveAction) {
+      result = DashDownloadAction.createRemoveAction(uri, data);
+    } else {
+      result = DashDownloadAction.createDownloadAction(uri, data, keysList);
+    }
+    return result;
   }
 }

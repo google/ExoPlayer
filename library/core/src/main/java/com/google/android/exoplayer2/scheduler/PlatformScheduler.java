@@ -16,8 +16,6 @@
 package com.google.android.exoplayer2.scheduler;
 
 import android.annotation.TargetApi;
-import android.app.Notification;
-import android.app.Service;
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
@@ -26,91 +24,73 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PersistableBundle;
+import android.support.annotation.RequiresPermission;
 import android.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * A {@link Scheduler} which uses {@link android.app.job.JobScheduler} to schedule a {@link Service}
- * to be started when its requirements are met. The started service must call {@link
- * Service#startForeground(int, Notification)} to make itself a foreground service upon being
- * started, as documented by {@link Service#startForegroundService(Intent)}.
- *
- * <p>To use {@link PlatformScheduler} application needs to have RECEIVE_BOOT_COMPLETED permission
- * and you need to define PlatformSchedulerService in your manifest:
+ * A {@link Scheduler} that uses {@link JobScheduler}. To use this scheduler, you must add {@link
+ * PlatformSchedulerService} to your manifest:
  *
  * <pre>{@literal
  * <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
  *
  * <service android:name="com.google.android.exoplayer2.util.scheduler.PlatformScheduler$PlatformSchedulerService"
- *          android:permission="android.permission.BIND_JOB_SERVICE"
- *          android:exported="true"/>
- * }</pre>
- *
- * The service to be scheduled must be defined in the manifest with an intent-filter:
- *
- * <pre>{@literal
- * <service android:name="MyJobService"
- *          android:exported="false">
- *  <intent-filter>
- *    <action android:name="MyJobService.action"/>
- *    <category android:name="android.intent.category.DEFAULT"/>
- *  </intent-filter>
- * </service>
+ *     android:permission="android.permission.BIND_JOB_SERVICE"
+ *     android:exported="true"/>
  * }</pre>
  */
 @TargetApi(21)
 public final class PlatformScheduler implements Scheduler {
 
   private static final String TAG = "PlatformScheduler";
-  private static final String SERVICE_ACTION = "SERVICE_ACTION";
-  private static final String SERVICE_PACKAGE = "SERVICE_PACKAGE";
-  private static final String REQUIREMENTS = "REQUIREMENTS";
+  private static final String KEY_SERVICE_ACTION = "service_action";
+  private static final String KEY_SERVICE_PACKAGE = "service_package";
+  private static final String KEY_REQUIREMENTS = "requirements";
 
   private final int jobId;
-  private final JobInfo jobInfo;
+  private final ComponentName jobServiceComponentName;
   private final JobScheduler jobScheduler;
 
   /**
-   * @param context Used to access to {@link JobScheduler} service.
-   * @param requirements The requirements to execute the job.
-   * @param jobId Unique identifier for the job. Using the same id as a previous job can cause that
-   *     job to be replaced or canceled.
-   * @param serviceAction The action which the service will be started with.
-   * @param servicePackage The package of the service which contains the logic of the job.
+   * @param context Any context.
+   * @param jobId An identifier for the jobs scheduled by this instance. If the same identifier was
+   *     used by a previous instance, anything scheduled by the previous instance will be canceled
+   *     by this instance if {@link #schedule(Requirements, String, String)} or {@link #cancel()}
+   *     are called.
    */
-  public PlatformScheduler(
-      Context context,
-      Requirements requirements,
-      int jobId,
-      String serviceAction,
-      String servicePackage) {
+  @RequiresPermission(android.Manifest.permission.RECEIVE_BOOT_COMPLETED)
+  public PlatformScheduler(Context context, int jobId) {
     this.jobId = jobId;
-    this.jobInfo = buildJobInfo(context, requirements, jobId, serviceAction, servicePackage);
-    this.jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+    jobServiceComponentName = new ComponentName(context, PlatformSchedulerService.class);
+    jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
   }
 
   @Override
-  public boolean schedule() {
+  public boolean schedule(Requirements requirements, String servicePackage, String serviceAction) {
+    JobInfo jobInfo =
+        buildJobInfo(jobId, jobServiceComponentName, requirements, serviceAction, servicePackage);
     int result = jobScheduler.schedule(jobInfo);
-    logd("Scheduling JobScheduler job: " + jobId + " result: " + result);
+    logd("Scheduling job: " + jobId + " result: " + result);
     return result == JobScheduler.RESULT_SUCCESS;
   }
 
   @Override
   public boolean cancel() {
-    logd("Canceling JobScheduler job: " + jobId);
+    logd("Canceling job: " + jobId);
     jobScheduler.cancel(jobId);
     return true;
   }
 
+  // @RequiresPermission constructor annotation should ensure the permission is present.
+  @SuppressWarnings("MissingPermission")
   private static JobInfo buildJobInfo(
-      Context context,
-      Requirements requirements,
       int jobId,
+      ComponentName jobServiceComponentName,
+      Requirements requirements,
       String serviceAction,
       String servicePackage) {
-    JobInfo.Builder builder =
-        new JobInfo.Builder(jobId, new ComponentName(context, PlatformSchedulerService.class));
+    JobInfo.Builder builder = new JobInfo.Builder(jobId, jobServiceComponentName);
 
     int networkType;
     switch (requirements.getRequiredNetworkType()) {
@@ -146,13 +126,12 @@ public final class PlatformScheduler implements Scheduler {
     builder.setRequiresCharging(requirements.isChargingRequired());
     builder.setPersisted(true);
 
-    // Extras, work duration.
     PersistableBundle extras = new PersistableBundle();
-    extras.putString(SERVICE_ACTION, serviceAction);
-    extras.putString(SERVICE_PACKAGE, servicePackage);
-    extras.putInt(REQUIREMENTS, requirements.getRequirementsData());
-
+    extras.putString(KEY_SERVICE_ACTION, serviceAction);
+    extras.putString(KEY_SERVICE_PACKAGE, servicePackage);
+    extras.putInt(KEY_REQUIREMENTS, requirements.getRequirementsData());
     builder.setExtras(extras);
+
     return builder.build();
   }
 
@@ -162,26 +141,22 @@ public final class PlatformScheduler implements Scheduler {
     }
   }
 
-  /** A {@link JobService} to start a service if the requirements are met. */
+  /** A {@link JobService} that starts the target service if the requirements are met. */
   public static final class PlatformSchedulerService extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
-      logd("PlatformSchedulerService is started");
+      logd("PlatformSchedulerService started");
       PersistableBundle extras = params.getExtras();
-      Requirements requirements = new Requirements(extras.getInt(REQUIREMENTS));
+      Requirements requirements = new Requirements(extras.getInt(KEY_REQUIREMENTS));
       if (requirements.checkRequirements(this)) {
-        logd("requirements are met");
-        String serviceAction = extras.getString(SERVICE_ACTION);
-        String servicePackage = extras.getString(SERVICE_PACKAGE);
+        logd("Requirements are met");
+        String serviceAction = extras.getString(KEY_SERVICE_ACTION);
+        String servicePackage = extras.getString(KEY_SERVICE_PACKAGE);
         Intent intent = new Intent(serviceAction).setPackage(servicePackage);
-        logd("starting service action: " + serviceAction + " package: " + servicePackage);
-        if (Util.SDK_INT >= 26) {
-          startForegroundService(intent);
-        } else {
-          startService(intent);
-        }
+        logd("Starting service action: " + serviceAction + " package: " + servicePackage);
+        Util.startForegroundService(this, intent);
       } else {
-        logd("requirements are not met");
+        logd("Requirements are not met");
         jobFinished(params, /* needsReschedule */ true);
       }
       return false;

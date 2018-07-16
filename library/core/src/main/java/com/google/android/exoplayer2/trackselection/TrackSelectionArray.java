@@ -15,27 +15,23 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.support.annotation.Nullable;
 import java.util.Arrays;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/**
- * The result of a {@link TrackSelector} operation.
- */
+/** An array of {@link TrackSelection}s. */
 public final class TrackSelectionArray {
 
-  /**
-   * The number of selections in the result. Greater than or equal to zero.
-   */
+  /** The length of this array. */
   public final int length;
 
-  private final TrackSelection[] trackSelections;
+  private final @NullableType TrackSelection[] trackSelections;
 
   // Lazily initialized hashcode.
   private int hashCode;
 
-  /**
-   * @param trackSelections The selections. Must not be null, but may contain null elements.
-   */
-  public TrackSelectionArray(TrackSelection... trackSelections) {
+  /** @param trackSelections The selections. Must not be null, but may contain null elements. */
+  public TrackSelectionArray(@NullableType TrackSelection... trackSelections) {
     this.trackSelections = trackSelections;
     this.length = trackSelections.length;
   }
@@ -46,14 +42,12 @@ public final class TrackSelectionArray {
    * @param index The index of the selection.
    * @return The selection.
    */
-  public TrackSelection get(int index) {
+  public @Nullable TrackSelection get(int index) {
     return trackSelections[index];
   }
 
-  /**
-   * Returns the selections in a newly allocated array.
-   */
-  public TrackSelection[] getAll() {
+  /** Returns the selections in a newly allocated array. */
+  public @NullableType TrackSelection[] getAll() {
     return trackSelections.clone();
   }
 
@@ -68,7 +62,7 @@ public final class TrackSelectionArray {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }

@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 
@@ -67,39 +68,6 @@ public final class ExtractorMediaSource extends BaseMediaSource
 
   }
 
-  /**
-   * The default minimum number of times to retry loading prior to failing for on-demand streams.
-   */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND = 3;
-
-  /**
-   * The default minimum number of times to retry loading prior to failing for live streams.
-   */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE = 6;
-
-  /**
-   * Value for {@code minLoadableRetryCount} that causes the loader to retry
-   * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE} times for live streams and
-   * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND} for on-demand streams.
-   */
-  public static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
-
-  /**
-   * The default number of bytes that should be loaded between each each invocation of
-   * {@link MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}.
-   */
-  public static final int DEFAULT_LOADING_CHECK_INTERVAL_BYTES = 1024 * 1024;
-
-  private final Uri uri;
-  private final DataSource.Factory dataSourceFactory;
-  private final ExtractorsFactory extractorsFactory;
-  private final int minLoadableRetryCount;
-  private final String customCacheKey;
-  private final int continueLoadingCheckIntervalBytes;
-
-  private long timelineDurationUs;
-  private boolean timelineIsSeekable;
-
   /** Factory for {@link ExtractorMediaSource}s. */
   public static final class Factory implements AdsMediaSource.MediaSourceFactory {
 
@@ -107,6 +75,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
 
     private @Nullable ExtractorsFactory extractorsFactory;
     private @Nullable String customCacheKey;
+    private @Nullable Object tag;
     private int minLoadableRetryCount;
     private int continueLoadingCheckIntervalBytes;
     private boolean isCreateCalled;
@@ -150,6 +119,21 @@ public final class ExtractorMediaSource extends BaseMediaSource
     public Factory setCustomCacheKey(String customCacheKey) {
       Assertions.checkState(!isCreateCalled);
       this.customCacheKey = customCacheKey;
+      return this;
+    }
+
+    /**
+     * Sets a tag for the media source which will be published in the {@link
+     * com.google.android.exoplayer2.Timeline} of the source as {@link
+     * com.google.android.exoplayer2.Timeline.Window#tag}.
+     *
+     * @param tag A tag for the media source.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setTag(Object tag) {
+      Assertions.checkState(!isCreateCalled);
+      this.tag = tag;
       return this;
     }
 
@@ -202,7 +186,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
           extractorsFactory,
           minLoadableRetryCount,
           customCacheKey,
-          continueLoadingCheckIntervalBytes);
+          continueLoadingCheckIntervalBytes,
+          tag);
     }
 
     /**
@@ -224,6 +209,39 @@ public final class ExtractorMediaSource extends BaseMediaSource
       return new int[] {C.TYPE_OTHER};
     }
   }
+
+  /**
+   * The default minimum number of times to retry loading prior to failing for on-demand streams.
+   */
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND = 3;
+
+  /** The default minimum number of times to retry loading prior to failing for live streams. */
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE = 6;
+
+  /**
+   * Value for {@code minLoadableRetryCount} that causes the loader to retry {@link
+   * #DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE} times for live streams and {@link
+   * #DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND} for on-demand streams.
+   */
+  public static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
+
+  /**
+   * The default number of bytes that should be loaded between each each invocation of {@link
+   * MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}.
+   */
+  public static final int DEFAULT_LOADING_CHECK_INTERVAL_BYTES = 1024 * 1024;
+
+  private final Uri uri;
+  private final DataSource.Factory dataSourceFactory;
+  private final ExtractorsFactory extractorsFactory;
+  private final int minLoadableRetryCount;
+  private final String customCacheKey;
+  private final int continueLoadingCheckIntervalBytes;
+  private final @Nullable Object tag;
+
+  private long timelineDurationUs;
+  private boolean timelineIsSeekable;
+  private @Nullable TransferListener<? super DataSource> transferListener;
 
   /**
    * @param uri The {@link Uri} of the media stream.
@@ -300,7 +318,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
         extractorsFactory,
         minLoadableRetryCount,
         customCacheKey,
-        continueLoadingCheckIntervalBytes);
+        continueLoadingCheckIntervalBytes,
+        /* tag= */ null);
     if (eventListener != null && eventHandler != null) {
       addEventListener(eventHandler, new EventListenerWrapper(eventListener));
     }
@@ -312,7 +331,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
       ExtractorsFactory extractorsFactory,
       int minLoadableRetryCount,
       @Nullable String customCacheKey,
-      int continueLoadingCheckIntervalBytes) {
+      int continueLoadingCheckIntervalBytes,
+      @Nullable Object tag) {
     this.uri = uri;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorsFactory = extractorsFactory;
@@ -320,10 +340,15 @@ public final class ExtractorMediaSource extends BaseMediaSource
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     this.timelineDurationUs = C.TIME_UNSET;
+    this.tag = tag;
   }
 
   @Override
-  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+  public void prepareSourceInternal(
+      ExoPlayer player,
+      boolean isTopLevelSource,
+      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+    transferListener = mediaTransferListener;
     notifySourceInfoRefreshed(timelineDurationUs, /* isSeekable= */ false);
   }
 
@@ -335,9 +360,13 @@ public final class ExtractorMediaSource extends BaseMediaSource
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     Assertions.checkArgument(id.periodIndex == 0);
+    DataSource dataSource = dataSourceFactory.createDataSource();
+    if (transferListener != null) {
+      dataSource.addTransferListener(transferListener);
+    }
     return new ExtractorMediaPeriod(
         uri,
-        dataSourceFactory.createDataSource(),
+        dataSource,
         extractorsFactory.createExtractors(),
         minLoadableRetryCount,
         createEventDispatcher(id),
@@ -377,7 +406,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
     timelineIsSeekable = isSeekable;
     // TODO: Make timeline dynamic until its duration is known. This is non-trivial. See b/69703223.
     refreshSourceInfo(
-        new SinglePeriodTimeline(timelineDurationUs, timelineIsSeekable, /* isDynamic= */ false),
+        new SinglePeriodTimeline(
+            timelineDurationUs, timelineIsSeekable, /* isDynamic= */ false, tag),
         /* manifest= */ null);
   }
 

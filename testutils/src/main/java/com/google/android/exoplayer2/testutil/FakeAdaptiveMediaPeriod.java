@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
@@ -24,6 +25,8 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +40,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
 
   private final Allocator allocator;
   private final FakeChunkSource.Factory chunkSourceFactory;
+  private final @Nullable TransferListener<? super DataSource> transferListener;
   private final long durationUs;
 
   private Callback callback;
@@ -48,10 +52,12 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
       EventDispatcher eventDispatcher,
       Allocator allocator,
       FakeChunkSource.Factory chunkSourceFactory,
-      long durationUs) {
+      long durationUs,
+      @Nullable TransferListener<? super DataSource> transferListener) {
     super(trackGroupArray, eventDispatcher);
     this.allocator = allocator;
     this.chunkSourceFactory = chunkSourceFactory;
+    this.transferListener = transferListener;
     this.durationUs = durationUs;
     this.sampleStreams = newSampleStreamArray(0);
   }
@@ -128,7 +134,8 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
 
   @Override
   protected SampleStream createSampleStream(TrackSelection trackSelection) {
-    FakeChunkSource chunkSource = chunkSourceFactory.createChunkSource(trackSelection, durationUs);
+    FakeChunkSource chunkSource =
+        chunkSourceFactory.createChunkSource(trackSelection, durationUs, transferListener);
     return new ChunkSampleStream<>(
         MimeTypes.getTrackType(trackSelection.getSelectedFormat().sampleMimeType),
         null,

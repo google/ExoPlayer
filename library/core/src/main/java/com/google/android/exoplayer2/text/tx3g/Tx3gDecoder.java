@@ -92,7 +92,8 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
           | ((initializationBytes[27] & 0xFF) << 16)
           | ((initializationBytes[28] & 0xFF) << 8)
           | (initializationBytes[29] & 0xFF);
-      String fontFamily = new String(initializationBytes, 43, initializationBytes.length - 43);
+      String fontFamily =
+          Util.fromUtf8Bytes(initializationBytes, 43, initializationBytes.length - 43);
       defaultFontFamily = TX3G_SERIF.equals(fontFamily) ? C.SERIF_NAME : C.SANS_SERIF_NAME;
       //font size (initializationBytes[25]) is 5% of video height
       calculatedVideoTrackHeight = 20 * initializationBytes[25];

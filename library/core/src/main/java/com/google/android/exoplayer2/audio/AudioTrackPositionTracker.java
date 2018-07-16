@@ -193,7 +193,7 @@ import java.lang.reflect.Method;
     audioTimestampPoller = new AudioTimestampPoller(audioTrack);
     outputSampleRate = audioTrack.getSampleRate();
     needsPassthroughWorkarounds = needsPassthroughWorkarounds(outputEncoding);
-    isOutputPcm = Util.isEncodingPcm(outputEncoding);
+    isOutputPcm = Util.isEncodingLinearPcm(outputEncoding);
     bufferSizeUs = isOutputPcm ? framesToDurationUs(bufferSize / outputPcmFrameSize) : C.TIME_UNSET;
     lastRawPlaybackHeadPosition = 0;
     rawPlaybackHeadWrapCount = 0;

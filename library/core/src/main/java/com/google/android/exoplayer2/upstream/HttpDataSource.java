@@ -341,10 +341,6 @@ public interface HttpDataSource extends DataSource {
    */
   void clearAllRequestProperties();
 
-  /**
-   * Returns the headers provided in the response, or {@code null} if response headers are
-   * unavailable.
-   */
+  @Override
   Map<String, List<String>> getResponseHeaders();
-
 }

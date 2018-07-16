@@ -17,18 +17,18 @@ package com.google.android.exoplayer2.testutil;
 
 import android.support.annotation.NonNull;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.util.ArrayList;
 import java.util.List;
 
 /** A fake {@link MappingTrackSelector} that returns {@link FakeTrackSelection}s. */
-public class FakeTrackSelector extends MappingTrackSelector {
+public class FakeTrackSelector extends DefaultTrackSelector {
 
-  private final List<FakeTrackSelection> selectedTrackSelections = new ArrayList<>();
+  private final List<FakeTrackSelection> trackSelections = new ArrayList<>();
   private final boolean mayReuseTrackSelection;
 
   public FakeTrackSelector() {
@@ -45,39 +45,38 @@ public class FakeTrackSelector extends MappingTrackSelector {
   }
 
   @Override
-  protected TrackSelection[] selectTracks(
-      RendererCapabilities[] rendererCapabilities,
-      TrackGroupArray[] rendererTrackGroupArrays,
-      int[][][] rendererFormatSupports)
+  protected TrackSelection[] selectAllTracks(
+      MappedTrackInfo mappedTrackInfo,
+      int[][][] rendererFormatSupports,
+      int[] rendererMixedMimeTypeAdaptationSupports,
+      Parameters params)
       throws ExoPlaybackException {
-    List<FakeTrackSelection> resultList = new ArrayList<>();
-    for (TrackGroupArray trackGroupArray : rendererTrackGroupArrays) {
-      TrackGroup trackGroup = trackGroupArray.get(0);
-      FakeTrackSelection trackSelectionForRenderer = reuseOrCreateTrackSelection(trackGroup);
-      resultList.add(trackSelectionForRenderer);
+    TrackSelection[] selections = new TrackSelection[mappedTrackInfo.length];
+    for (int i = 0; i < mappedTrackInfo.length; i++) {
+      TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(i);
+      boolean hasTracks = trackGroupArray.length > 0;
+      selections[i] = hasTracks ? reuseOrCreateTrackSelection(trackGroupArray.get(0)) : null;
     }
-    return resultList.toArray(new TrackSelection[resultList.size()]);
+    return selections;
   }
 
   @NonNull
   private FakeTrackSelection reuseOrCreateTrackSelection(TrackGroup trackGroup) {
-    FakeTrackSelection trackSelectionForRenderer = null;
     if (mayReuseTrackSelection) {
-      for (FakeTrackSelection selectedTrackSelection : selectedTrackSelections) {
-        if (selectedTrackSelection.getTrackGroup().equals(trackGroup)) {
-          trackSelectionForRenderer = selectedTrackSelection;
+      for (FakeTrackSelection trackSelection : trackSelections) {
+        if (trackSelection.getTrackGroup().equals(trackGroup)) {
+          return trackSelection;
         }
       }
     }
-    if (trackSelectionForRenderer == null) {
-      trackSelectionForRenderer = new FakeTrackSelection(trackGroup);
-      selectedTrackSelections.add(trackSelectionForRenderer);
-    }
-    return trackSelectionForRenderer;
+    FakeTrackSelection trackSelection = new FakeTrackSelection(trackGroup);
+    trackSelections.add(trackSelection);
+    return trackSelection;
   }
 
   /** Returns list of all {@link FakeTrackSelection}s that this track selector has made so far. */
-  public List<FakeTrackSelection> getSelectedTrackSelections() {
-    return selectedTrackSelections;
+  public List<FakeTrackSelection> getAllTrackSelections() {
+    return trackSelections;
   }
+
 }

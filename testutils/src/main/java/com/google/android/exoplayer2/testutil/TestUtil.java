@@ -19,6 +19,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
@@ -143,6 +146,10 @@ public class TestUtil {
     return new String(getByteArray(context, fileName));
   }
 
+  public static Bitmap readBitmapFromFile(Context context, String fileName) throws IOException {
+    return BitmapFactory.decodeStream(getInputStream(context, fileName));
+  }
+
   /**
    * Asserts that data read from a {@link DataSource} matches {@code expected}.
    *
@@ -166,4 +173,54 @@ public class TestUtil {
     }
   }
 
+  /**
+   * Asserts whether actual bitmap is very similar to the expected bitmap at some quality level.
+   *
+   * <p>This is defined as their PSNR value is greater than or equal to the threshold. The higher
+   * the threshold, the more similar they are.
+   *
+   * @param expectedBitmap The expected bitmap.
+   * @param actualBitmap The actual bitmap.
+   * @param psnrThresholdDb The PSNR threshold (in dB), at or above which bitmaps are considered
+   *     very similar.
+   */
+  public static void assertBitmapsAreSimilar(
+      Bitmap expectedBitmap, Bitmap actualBitmap, double psnrThresholdDb) {
+    assertThat(getPsnr(expectedBitmap, actualBitmap)).isAtLeast(psnrThresholdDb);
+  }
+
+  /**
+   * Calculates the Peak-Signal-to-Noise-Ratio value for 2 bitmaps.
+   *
+   * <p>This is the logarithmic decibel(dB) value of the average mean-squared-error of normalized
+   * (0.0-1.0) R/G/B values from the two bitmaps. The higher the value, the more similar they are.
+   *
+   * @param firstBitmap The first bitmap.
+   * @param secondBitmap The second bitmap.
+   * @return The PSNR value calculated from these 2 bitmaps.
+   */
+  private static double getPsnr(Bitmap firstBitmap, Bitmap secondBitmap) {
+    assertThat(firstBitmap.getWidth()).isEqualTo(secondBitmap.getWidth());
+    assertThat(firstBitmap.getHeight()).isEqualTo(secondBitmap.getHeight());
+    long mse = 0;
+    for (int i = 0; i < firstBitmap.getWidth(); i++) {
+      for (int j = 0; j < firstBitmap.getHeight(); j++) {
+        int firstColorInt = firstBitmap.getPixel(i, j);
+        int firstRed = Color.red(firstColorInt);
+        int firstGreen = Color.green(firstColorInt);
+        int firstBlue = Color.blue(firstColorInt);
+        int secondColorInt = secondBitmap.getPixel(i, j);
+        int secondRed = Color.red(secondColorInt);
+        int secondGreen = Color.green(secondColorInt);
+        int secondBlue = Color.blue(secondColorInt);
+        mse +=
+            ((firstRed - secondRed) * (firstRed - secondRed)
+                + (firstGreen - secondGreen) * (firstGreen - secondGreen)
+                + (firstBlue - secondBlue) * (firstBlue - secondBlue));
+      }
+    }
+    double normalizedMse =
+        mse / (255.0 * 255.0 * 3.0 * firstBitmap.getWidth() * firstBitmap.getHeight());
+    return 10 * Math.log10(1.0 / normalizedMse);
+  }
 }

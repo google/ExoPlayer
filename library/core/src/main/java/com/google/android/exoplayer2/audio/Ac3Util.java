@@ -95,11 +95,11 @@ public final class Ac3Util {
    * of samples extracted from the container corresponding to one syncframe must be an integer
    * multiple of this value.
    */
-  public static final int TRUEHD_RECHUNK_SAMPLE_COUNT = 8;
+  public static final int TRUEHD_RECHUNK_SAMPLE_COUNT = 16;
   /**
    * The number of bytes that must be parsed from a TrueHD syncframe to calculate the sample count.
    */
-  public static final int TRUEHD_SYNCFRAME_PREFIX_LENGTH = 12;
+  public static final int TRUEHD_SYNCFRAME_PREFIX_LENGTH = 10;
 
   /**
    * The number of new samples per (E-)AC-3 audio block.
@@ -464,6 +464,26 @@ public final class Ac3Util {
   }
 
   /**
+   * Returns the offset relative to the buffer's position of the start of a TrueHD syncframe, or
+   * {@link C#INDEX_UNSET} if no syncframe was found. The buffer's position is not modified.
+   *
+   * @param buffer The {@link ByteBuffer} within which to find a syncframe.
+   * @return The offset relative to the buffer's position of the start of a TrueHD syncframe, or
+   *     {@link C#INDEX_UNSET} if no syncframe was found.
+   */
+  public static int findTrueHdSyncframeOffset(ByteBuffer buffer) {
+    int startIndex = buffer.position();
+    int endIndex = buffer.limit() - TRUEHD_SYNCFRAME_PREFIX_LENGTH;
+    for (int i = startIndex; i <= endIndex; i++) {
+      // The syncword ends 0xBA for TrueHD or 0xBB for MLP.
+      if ((buffer.getInt(i + 4) & 0xFEFFFFFF) == 0xBA6F72F8) {
+        return i - startIndex;
+      }
+    }
+    return C.INDEX_UNSET;
+  }
+
+  /**
    * Returns the number of audio samples represented by the given TrueHD syncframe, or 0 if the
    * buffer is not the start of a syncframe.
    *
@@ -474,30 +494,29 @@ public final class Ac3Util {
    */
   public static int parseTrueHdSyncframeAudioSampleCount(byte[] syncframe) {
     // TODO: Link to specification if available.
+    // The syncword ends 0xBA for TrueHD or 0xBB for MLP.
     if (syncframe[4] != (byte) 0xF8
         || syncframe[5] != (byte) 0x72
         || syncframe[6] != (byte) 0x6F
-        || syncframe[7] != (byte) 0xBA) {
+        || (syncframe[7] & 0xFE) != 0xBA) {
       return 0;
     }
-    return 40 << (syncframe[8] & 7);
+    boolean isMlp = (syncframe[7] & 0xFF) == 0xBB;
+    return 40 << ((syncframe[isMlp ? 9 : 8] >> 4) & 0x07);
   }
 
   /**
-   * Reads the number of audio samples represented by the given TrueHD syncframe, or 0 if the buffer
-   * is not the start of a syncframe. The buffer's position is not modified.
+   * Reads the number of audio samples represented by a TrueHD syncframe. The buffer's position is
+   * not modified.
    *
-   * @param buffer The {@link ByteBuffer} from which to read the syncframe. Must have at least
-   *     {@link #TRUEHD_SYNCFRAME_PREFIX_LENGTH} bytes remaining.
-   * @return The number of audio samples represented by the syncframe, or 0 if the buffer is not the
-   *     start of a syncframe.
+   * @param buffer The {@link ByteBuffer} from which to read the syncframe.
+   * @param offset The offset of the start of the syncframe relative to the buffer's position.
+   * @return The number of audio samples represented by the syncframe.
    */
-  public static int parseTrueHdSyncframeAudioSampleCount(ByteBuffer buffer) {
+  public static int parseTrueHdSyncframeAudioSampleCount(ByteBuffer buffer, int offset) {
     // TODO: Link to specification if available.
-    if (buffer.getInt(buffer.position() + 4) != 0xBA6F72F8) {
-      return 0;
-    }
-    return 40 << (buffer.get(buffer.position() + 8) & 0x07);
+    boolean isMlp = (buffer.get(buffer.position() + offset + 7) & 0xFF) == 0xBB;
+    return 40 << ((buffer.get(buffer.position() + offset + (isMlp ? 9 : 8)) >> 4) & 0x07);
   }
 
   private static int getAc3SyncframeSize(int fscod, int frmsizecod) {

@@ -49,14 +49,17 @@ public final class DownloaderConstructorHelper {
   /**
    * @param cache Cache instance to be used to store downloaded data.
    * @param upstreamDataSourceFactory A {@link Factory} for downloading data.
-   * @param cacheReadDataSourceFactory A {@link Factory} for reading data from the cache.
-   *     If null, null is passed to {@link Downloader} constructor.
+   * @param cacheReadDataSourceFactory A {@link Factory} for reading data from the cache. If null
+   *     then standard {@link FileDataSource} instances will be used.
    * @param cacheWriteDataSinkFactory A {@link DataSink.Factory} for writing data to the cache. If
-   *     null, null is passed to {@link Downloader} constructor.
-   * @param priorityTaskManager If one is given then the download priority is set lower than
-   *     loading. If null, null is passed to {@link Downloader} constructor.
+   *     null then standard {@link CacheDataSink} instances will be used.
+   * @param priorityTaskManager A {@link PriorityTaskManager} to use when downloading. If non-null,
+   *     downloaders will register as tasks with priority {@link C#PRIORITY_DOWNLOAD} whilst
+   *     downloading.
    */
-  public DownloaderConstructorHelper(Cache cache, Factory upstreamDataSourceFactory,
+  public DownloaderConstructorHelper(
+      Cache cache,
+      Factory upstreamDataSourceFactory,
       @Nullable Factory cacheReadDataSourceFactory,
       @Nullable DataSink.Factory cacheWriteDataSinkFactory,
       @Nullable PriorityTaskManager priorityTaskManager) {
@@ -73,7 +76,7 @@ public final class DownloaderConstructorHelper {
     return cache;
   }
 
-  /** Returns a {@link PriorityTaskManager} instance.*/
+  /** Returns a {@link PriorityTaskManager} instance. */
   public PriorityTaskManager getPriorityTaskManager() {
     // Return a dummy PriorityTaskManager if none is provided. Create a new PriorityTaskManager
     // each time so clients don't affect each other over the dummy PriorityTaskManager instance.

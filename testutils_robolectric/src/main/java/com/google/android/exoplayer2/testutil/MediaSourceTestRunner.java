@@ -126,7 +126,11 @@ public class MediaSourceTestRunner {
         new Runnable() {
           @Override
           public void run() {
-            mediaSource.prepareSource(player, true, mediaSourceListener);
+            mediaSource.prepareSource(
+                player,
+                /* isTopLevelSource= */ true,
+                mediaSourceListener,
+                /* mediaTransferListener= */ null);
             try {
               // TODO: This only catches errors that are set synchronously in prepareSource. To
               // capture async errors we'll need to poll maybeThrowSourceInfoRefreshError until the
@@ -440,6 +444,11 @@ public class MediaSourceTestRunner {
 
     public EventHandlingExoPlayer(Looper looper) {
       this.handler = new Handler(looper, this);
+    }
+
+    @Override
+    public Looper getApplicationLooper() {
+      return handler.getLooper();
     }
 
     @Override

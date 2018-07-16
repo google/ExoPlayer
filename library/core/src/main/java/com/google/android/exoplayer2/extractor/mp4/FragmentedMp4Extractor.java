@@ -50,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 import java.util.UUID;
 
 /**
@@ -121,11 +120,11 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   // Workarounds.
   @Flags private final int flags;
-  private final Track sideloadedTrack;
+  private final @Nullable Track sideloadedTrack;
 
   // Sideloaded data.
   private final List<Format> closedCaptionFormats;
-  private final DrmInitData sideloadedDrmInitData;
+  private final @Nullable DrmInitData sideloadedDrmInitData;
 
   // Track-linked data bundle, accessible as a whole through trackID.
   private final SparseArray<TrackBundle> trackBundles;
@@ -136,12 +135,12 @@ public final class FragmentedMp4Extractor implements Extractor {
   private final ParsableByteArray nalBuffer;
 
   // Adjusts sample timestamps.
-  private final TimestampAdjuster timestampAdjuster;
+  private final @Nullable TimestampAdjuster timestampAdjuster;
 
   // Parser state.
   private final ParsableByteArray atomHeader;
   private final byte[] extendedTypeScratch;
-  private final Stack<ContainerAtom> containerAtoms;
+  private final ArrayDeque<ContainerAtom> containerAtoms;
   private final ArrayDeque<MetadataSampleInfo> pendingMetadataSampleInfos;
   private final @Nullable TrackOutput additionalEmsgTrackOutput;
 
@@ -185,20 +184,23 @@ public final class FragmentedMp4Extractor implements Extractor {
    * @param flags Flags that control the extractor's behavior.
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
    */
-  public FragmentedMp4Extractor(@Flags int flags, TimestampAdjuster timestampAdjuster) {
+  public FragmentedMp4Extractor(@Flags int flags, @Nullable TimestampAdjuster timestampAdjuster) {
     this(flags, timestampAdjuster, null, null);
   }
 
   /**
    * @param flags Flags that control the extractor's behavior.
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
-   * @param sideloadedTrack Sideloaded track information, in the case that the extractor
-   *     will not receive a moov box in the input data. Null if a moov box is expected.
+   * @param sideloadedTrack Sideloaded track information, in the case that the extractor will not
+   *     receive a moov box in the input data. Null if a moov box is expected.
    * @param sideloadedDrmInitData The {@link DrmInitData} to use for encrypted tracks. If null, the
    *     pssh boxes (if present) will be used.
    */
-  public FragmentedMp4Extractor(@Flags int flags, TimestampAdjuster timestampAdjuster,
-      Track sideloadedTrack, DrmInitData sideloadedDrmInitData) {
+  public FragmentedMp4Extractor(
+      @Flags int flags,
+      @Nullable TimestampAdjuster timestampAdjuster,
+      @Nullable Track sideloadedTrack,
+      @Nullable DrmInitData sideloadedDrmInitData) {
     this(flags, timestampAdjuster, sideloadedTrack, sideloadedDrmInitData,
         Collections.<Format>emptyList());
   }
@@ -206,15 +208,19 @@ public final class FragmentedMp4Extractor implements Extractor {
   /**
    * @param flags Flags that control the extractor's behavior.
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
-   * @param sideloadedTrack Sideloaded track information, in the case that the extractor
-   *     will not receive a moov box in the input data. Null if a moov box is expected.
+   * @param sideloadedTrack Sideloaded track information, in the case that the extractor will not
+   *     receive a moov box in the input data. Null if a moov box is expected.
    * @param sideloadedDrmInitData The {@link DrmInitData} to use for encrypted tracks. If null, the
    *     pssh boxes (if present) will be used.
    * @param closedCaptionFormats For tracks that contain SEI messages, the formats of the closed
    *     caption channels to expose.
    */
-  public FragmentedMp4Extractor(@Flags int flags, TimestampAdjuster timestampAdjuster,
-      Track sideloadedTrack, DrmInitData sideloadedDrmInitData, List<Format> closedCaptionFormats) {
+  public FragmentedMp4Extractor(
+      @Flags int flags,
+      @Nullable TimestampAdjuster timestampAdjuster,
+      @Nullable Track sideloadedTrack,
+      @Nullable DrmInitData sideloadedDrmInitData,
+      List<Format> closedCaptionFormats) {
     this(flags, timestampAdjuster, sideloadedTrack, sideloadedDrmInitData,
         closedCaptionFormats, null);
   }
@@ -222,8 +228,8 @@ public final class FragmentedMp4Extractor implements Extractor {
   /**
    * @param flags Flags that control the extractor's behavior.
    * @param timestampAdjuster Adjusts sample timestamps. May be null if no adjustment is needed.
-   * @param sideloadedTrack Sideloaded track information, in the case that the extractor
-   *     will not receive a moov box in the input data. Null if a moov box is expected.
+   * @param sideloadedTrack Sideloaded track information, in the case that the extractor will not
+   *     receive a moov box in the input data. Null if a moov box is expected.
    * @param sideloadedDrmInitData The {@link DrmInitData} to use for encrypted tracks. If null, the
    *     pssh boxes (if present) will be used.
    * @param closedCaptionFormats For tracks that contain SEI messages, the formats of the closed
@@ -232,8 +238,12 @@ public final class FragmentedMp4Extractor implements Extractor {
    *     targeting the player, even if {@link #FLAG_ENABLE_EMSG_TRACK} is not set. Null if special
    *     handling of emsg messages for players is not required.
    */
-  public FragmentedMp4Extractor(@Flags int flags, TimestampAdjuster timestampAdjuster,
-      Track sideloadedTrack, DrmInitData sideloadedDrmInitData, List<Format> closedCaptionFormats,
+  public FragmentedMp4Extractor(
+      @Flags int flags,
+      @Nullable TimestampAdjuster timestampAdjuster,
+      @Nullable Track sideloadedTrack,
+      @Nullable DrmInitData sideloadedDrmInitData,
+      List<Format> closedCaptionFormats,
       @Nullable TrackOutput additionalEmsgTrackOutput) {
     this.flags = flags | (sideloadedTrack != null ? FLAG_SIDELOADED : 0);
     this.timestampAdjuster = timestampAdjuster;
@@ -246,7 +256,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     nalPrefix = new ParsableByteArray(5);
     nalBuffer = new ParsableByteArray();
     extendedTypeScratch = new byte[16];
-    containerAtoms = new Stack<>();
+    containerAtoms = new ArrayDeque<>();
     pendingMetadataSampleInfos = new ArrayDeque<>();
     trackBundles = new SparseArray<>();
     durationUs = C.TIME_UNSET;
@@ -379,7 +389,7 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     if (shouldParseContainerAtom(atomType)) {
       long endPosition = input.getPosition() + atomSize - Atom.HEADER_SIZE;
-      containerAtoms.add(new ContainerAtom(atomType, endPosition));
+      containerAtoms.push(new ContainerAtom(atomType, endPosition));
       if (atomSize == atomHeaderBytesRead) {
         processAtomEnded(endPosition);
       } else {
@@ -489,7 +499,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       for (int i = 0; i < trackCount; i++) {
         Track track = tracks.valueAt(i);
         TrackBundle trackBundle = new TrackBundle(extractorOutput.track(i, track.type));
-        trackBundle.init(track, defaultSampleValuesArray.get(track.id));
+        trackBundle.init(track, getDefaultSampleValues(defaultSampleValuesArray, track.id));
         trackBundles.put(track.id, trackBundle);
         durationUs = Math.max(durationUs, track.durationUs);
       }
@@ -499,9 +509,21 @@ public final class FragmentedMp4Extractor implements Extractor {
       Assertions.checkState(trackBundles.size() == trackCount);
       for (int i = 0; i < trackCount; i++) {
         Track track = tracks.valueAt(i);
-        trackBundles.get(track.id).init(track, defaultSampleValuesArray.get(track.id));
+        trackBundles
+            .get(track.id)
+            .init(track, getDefaultSampleValues(defaultSampleValuesArray, track.id));
       }
     }
+  }
+
+  private DefaultSampleValues getDefaultSampleValues(
+      SparseArray<DefaultSampleValues> defaultSampleValuesArray, int trackId) {
+    if (defaultSampleValuesArray.size() == 1) {
+      // Ignore track id if there is only one track to cope with non-matching track indices.
+      // See https://github.com/google/ExoPlayer/issues/4477.
+      return defaultSampleValuesArray.valueAt(/* index= */ 0);
+    }
+    return Assertions.checkNotNull(defaultSampleValuesArray.get(trackId));
   }
 
   private void onMoofContainerAtomRead(ContainerAtom moof) throws ParserException {
@@ -632,7 +654,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   private static void parseTraf(ContainerAtom traf, SparseArray<TrackBundle> trackBundleArray,
       @Flags int flags, byte[] extendedTypeScratch) throws ParserException {
     LeafAtom tfhd = traf.getLeafAtomOfType(Atom.TYPE_tfhd);
-    TrackBundle trackBundle = parseTfhd(tfhd.data, trackBundleArray, flags);
+    TrackBundle trackBundle = parseTfhd(tfhd.data, trackBundleArray);
     if (trackBundle == null) {
       return;
     }
@@ -783,13 +805,13 @@ public final class FragmentedMp4Extractor implements Extractor {
    * @return The {@link TrackBundle} to which the {@link TrackFragment} belongs, or null if the tfhd
    *     does not refer to any {@link TrackBundle}.
    */
-  private static TrackBundle parseTfhd(ParsableByteArray tfhd,
-      SparseArray<TrackBundle> trackBundles, int flags) {
+  private static TrackBundle parseTfhd(
+      ParsableByteArray tfhd, SparseArray<TrackBundle> trackBundles) {
     tfhd.setPosition(Atom.HEADER_SIZE);
     int fullAtom = tfhd.readInt();
     int atomFlags = Atom.parseFullAtomFlags(fullAtom);
     int trackId = tfhd.readInt();
-    TrackBundle trackBundle = trackBundles.get((flags & FLAG_SIDELOADED) == 0 ? trackId : 0);
+    TrackBundle trackBundle = getTrackBundle(trackBundles, trackId);
     if (trackBundle == null) {
       return null;
     }
@@ -812,6 +834,17 @@ public final class FragmentedMp4Extractor implements Extractor {
     trackBundle.fragment.header = new DefaultSampleValues(defaultSampleDescriptionIndex,
         defaultSampleDuration, defaultSampleSize, defaultSampleFlags);
     return trackBundle;
+  }
+
+  private static @Nullable TrackBundle getTrackBundle(
+      SparseArray<TrackBundle> trackBundles, int trackId) {
+    if (trackBundles.size() == 1) {
+      // Ignore track id if there is only one track. This is either because we have a side-loaded
+      // track (flag FLAG_SIDELOADED) or to cope with non-matching track indices (see
+      // https://github.com/google/ExoPlayer/issues/4083).
+      return trackBundles.valueAt(/* index= */ 0);
+    }
+    return trackBundles.get(trackId);
   }
 
   /**

@@ -59,22 +59,25 @@ public interface ChunkSource {
 
   /**
    * Returns the next chunk to load.
-   * <p>
-   * If a chunk is available then {@link ChunkHolder#chunk} is set. If the end of the stream has
+   *
+   * <p>If a chunk is available then {@link ChunkHolder#chunk} is set. If the end of the stream has
    * been reached then {@link ChunkHolder#endOfStream} is set. If a chunk is not available but the
    * end of the stream has not been reached, the {@link ChunkHolder} is not modified.
    *
-   * @param previous The most recently loaded media chunk.
    * @param playbackPositionUs The current playback position in microseconds. If playback of the
    *     period to which this chunk source belongs has not yet started, the value will be the
    *     starting position in the period minus the duration of any media in previous periods still
    *     to be played.
-   * @param loadPositionUs The current load position in microseconds. If {@code previous} is null,
+   * @param loadPositionUs The current load position in microseconds. If {@code queue} is empty,
    *     this is the starting position from which chunks should be provided. Else it's equal to
-   *     {@code previous.endTimeUs}.
+   *     {@link MediaChunk#endTimeUs} of the last chunk in the {@code queue}.
+   * @param queue The queue of buffered {@link MediaChunk}s.
    * @param out A holder to populate.
    */
-  void getNextChunk(MediaChunk previous, long playbackPositionUs, long loadPositionUs,
+  void getNextChunk(
+      long playbackPositionUs,
+      long loadPositionUs,
+      List<? extends MediaChunk> queue,
       ChunkHolder out);
 
   /**

@@ -199,9 +199,16 @@ public class DefaultRenderersFactory implements RenderersFactory {
       long allowedVideoJoiningTimeMs, Handler eventHandler,
       VideoRendererEventListener eventListener, @ExtensionRendererMode int extensionRendererMode,
       ArrayList<Renderer> out) {
-    out.add(new MediaCodecVideoRenderer(context, MediaCodecSelector.DEFAULT,
-        allowedVideoJoiningTimeMs, drmSessionManager, false, eventHandler, eventListener,
-        MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
+    out.add(
+        new MediaCodecVideoRenderer(
+            context,
+            MediaCodecSelector.DEFAULT,
+            allowedVideoJoiningTimeMs,
+            drmSessionManager,
+            /* playClearSamplesWithoutKeys= */ false,
+            eventHandler,
+            eventListener,
+            MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
       return;
@@ -259,8 +266,16 @@ public class DefaultRenderersFactory implements RenderersFactory {
       AudioProcessor[] audioProcessors, Handler eventHandler,
       AudioRendererEventListener eventListener, @ExtensionRendererMode int extensionRendererMode,
       ArrayList<Renderer> out) {
-    out.add(new MediaCodecAudioRenderer(MediaCodecSelector.DEFAULT, drmSessionManager, true,
-        eventHandler, eventListener, AudioCapabilities.getCapabilities(context), audioProcessors));
+    out.add(
+        new MediaCodecAudioRenderer(
+            context,
+            MediaCodecSelector.DEFAULT,
+            drmSessionManager,
+            /* playClearSamplesWithoutKeys= */ false,
+            eventHandler,
+            eventListener,
+            AudioCapabilities.getCapabilities(context),
+            audioProcessors));
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
       return;

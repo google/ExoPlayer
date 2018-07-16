@@ -164,13 +164,21 @@ public final class FakeTimeline extends Timeline {
   }
 
   @Override
-  public Window getWindow(int windowIndex, Window window, boolean setIds,
-      long defaultPositionProjectionUs) {
+  public Window getWindow(
+      int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
     TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
-    Object id = setIds ? windowDefinition.id : null;
-    return window.set(id, C.TIME_UNSET, C.TIME_UNSET, windowDefinition.isSeekable,
-        windowDefinition.isDynamic, 0, windowDefinition.durationUs, periodOffsets[windowIndex],
-        periodOffsets[windowIndex + 1] - 1, 0);
+    Object tag = setTag ? windowDefinition.id : null;
+    return window.set(
+        tag,
+        /* presentationStartTimeMs= */ C.TIME_UNSET,
+        /* windowStartTimeMs= */ C.TIME_UNSET,
+        windowDefinition.isSeekable,
+        windowDefinition.isDynamic,
+        /* defaultPositionUs= */ 0,
+        windowDefinition.durationUs,
+        periodOffsets[windowIndex],
+        periodOffsets[windowIndex + 1] - 1,
+        /* positionInFirstPeriodUs= */ 0);
   }
 
   @Override

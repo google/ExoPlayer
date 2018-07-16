@@ -16,33 +16,38 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.util.Base64;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.net.URLDecoder;
 
-/**
- * A {@link DataSource} for reading data URLs, as defined by RFC 2397.
- */
-public final class DataSchemeDataSource implements DataSource {
+/** A {@link DataSource} for reading data URLs, as defined by RFC 2397. */
+public final class DataSchemeDataSource extends BaseDataSource {
 
   public static final String SCHEME_DATA = "data";
 
-  private DataSpec dataSpec;
+  private @Nullable DataSpec dataSpec;
   private int bytesRead;
-  private byte[] data;
+  private @Nullable byte[] data;
+
+  public DataSchemeDataSource() {
+    super(/* isNetwork= */ false);
+  }
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
+    transferInitializing(dataSpec);
     this.dataSpec = dataSpec;
     Uri uri = dataSpec.uri;
     String scheme = uri.getScheme();
     if (!SCHEME_DATA.equals(scheme)) {
       throw new ParserException("Unsupported scheme: " + scheme);
     }
-    String[] uriParts = uri.getSchemeSpecificPart().split(",");
-    if (uriParts.length > 2) {
+    String[] uriParts = Util.split(uri.getSchemeSpecificPart(), ",");
+    if (uriParts.length != 2) {
       throw new ParserException("Unexpected URI format: " + uri);
     }
     String dataString = uriParts[1];
@@ -56,6 +61,7 @@ public final class DataSchemeDataSource implements DataSource {
       // TODO: Add support for other charsets.
       data = URLDecoder.decode(dataString, C.ASCII_NAME).getBytes();
     }
+    transferStarted(dataSpec);
     return data.length;
   }
 
@@ -71,18 +77,22 @@ public final class DataSchemeDataSource implements DataSource {
     readLength = Math.min(readLength, remainingBytes);
     System.arraycopy(data, bytesRead, buffer, offset, readLength);
     bytesRead += readLength;
+    bytesTransferred(readLength);
     return readLength;
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return dataSpec != null ? dataSpec.uri : null;
   }
 
   @Override
   public void close() throws IOException {
+    if (data != null) {
+      data = null;
+      transferEnded();
+    }
     dataSpec = null;
-    data = null;
   }
 
 }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -131,7 +132,7 @@ public final class DefaultContentMetadata implements ContentMetadata {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }

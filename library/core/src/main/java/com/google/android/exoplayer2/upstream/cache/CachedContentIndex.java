@@ -15,9 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import android.util.Log;
 import android.util.SparseArray;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.AtomicFile;
@@ -27,7 +25,6 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,8 +50,6 @@ import javax.crypto.spec.SecretKeySpec;
   private static final int VERSION = 2;
 
   private static final int FLAG_ENCRYPTED_INDEX = 1;
-
-  private static final String TAG = "CachedContentIndex";
 
   private final HashMap<String, CachedContent> keyToContent;
   private final SparseArray<String> idToKey;
@@ -198,27 +193,6 @@ import javax.crypto.spec.SecretKeySpec;
   }
 
   /**
-   * Sets the content length for the given key. A new {@link CachedContent} is added if there isn't
-   * one already with the given key.
-   */
-  public void setContentLength(String key, long length) {
-    CachedContent cachedContent = getOrAdd(key);
-    if (cachedContent.getLength() != length) {
-      cachedContent.setLength(length);
-      changed = true;
-    }
-  }
-
-  /**
-   * Returns the content length for the given key if one set, or {@link
-   * com.google.android.exoplayer2.C#LENGTH_UNSET} otherwise.
-   */
-  public long getContentLength(String key) {
-    CachedContent cachedContent = get(key);
-    return cachedContent == null ? C.LENGTH_UNSET : cachedContent.getLength();
-  }
-
-  /**
    * Applies {@code mutations} to the {@link ContentMetadata} for the given key. A new {@link
    * CachedContent} is added if there isn't one already with the given key.
    */
@@ -270,13 +244,12 @@ import javax.crypto.spec.SecretKeySpec;
         add(cachedContent);
         hashCode += cachedContent.headerHashCode(version);
       }
-      if (input.readInt() != hashCode) {
+      int fileHashCode = input.readInt();
+      boolean isEOF = input.read() == -1;
+      if (fileHashCode != hashCode || !isEOF) {
         return false;
       }
-    } catch (FileNotFoundException e) {
-      return false;
     } catch (IOException e) {
-      Log.e(TAG, "Error reading cache content index file.", e);
       return false;
     } finally {
       if (input != null) {

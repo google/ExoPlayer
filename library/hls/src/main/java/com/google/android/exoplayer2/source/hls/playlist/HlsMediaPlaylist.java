@@ -17,16 +17,16 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.offline.StreamKey;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Represents an HLS media playlist.
- */
+/** Represents an HLS media playlist. */
 public final class HlsMediaPlaylist extends HlsPlaylist {
 
   /** Media segment reference. */
@@ -38,9 +38,15 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      */
     public final String url;
     /**
-     * The duration of the segment in microseconds, as defined by #EXTINF.
+     * The media initialization section for this segment, as defined by #EXT-X-MAP. May be null if
+     * the media playlist does not define a media section for this segment. The same instance is
+     * used for all segments that share an EXT-X-MAP tag.
      */
+    public final @Nullable Segment initializationSegment;
+    /** The duration of the segment in microseconds, as defined by #EXTINF. */
     public final long durationUs;
+    /** The human readable title of the segment. */
+    public final String title;
     /**
      * The number of #EXT-X-DISCONTINUITY tags in the playlist before the segment.
      */
@@ -53,12 +59,12 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * The encryption identity key uri as defined by #EXT-X-KEY, or null if the segment does not use
      * full segment encryption with identity key.
      */
-    public final String fullSegmentEncryptionKeyUri;
+    public final @Nullable String fullSegmentEncryptionKeyUri;
     /**
      * The encryption initialization vector as defined by #EXT-X-KEY, or null if the segment is not
      * encrypted.
      */
-    public final String encryptionIV;
+    public final @Nullable String encryptionIV;
     /**
      * The segment's byte range offset, as defined by #EXT-X-BYTERANGE.
      */
@@ -78,11 +84,24 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param byterangeLength See {@link #byterangeLength}.
      */
     public Segment(String uri, long byterangeOffset, long byterangeLength) {
-      this(uri, 0, -1, C.TIME_UNSET, null, null, byterangeOffset, byterangeLength, false);
+      this(
+          uri,
+          /* initializationSegment= */ null,
+          /* title= */ "",
+          /* durationUs= */ 0,
+          /* relativeDiscontinuitySequence= */ -1,
+          /* relativeStartTimeUs= */ C.TIME_UNSET,
+          /* fullSegmentEncryptionKeyUri= */ null,
+          /* encryptionIV= */ null,
+          byterangeOffset,
+          byterangeLength,
+          /* hasGapTag= */ false);
     }
 
     /**
      * @param url See {@link #url}.
+     * @param initializationSegment See {@link #initializationSegment}.
+     * @param title See {@link #title}.
      * @param durationUs See {@link #durationUs}.
      * @param relativeDiscontinuitySequence See {@link #relativeDiscontinuitySequence}.
      * @param relativeStartTimeUs See {@link #relativeStartTimeUs}.
@@ -94,15 +113,19 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      */
     public Segment(
         String url,
+        @Nullable Segment initializationSegment,
+        String title,
         long durationUs,
         int relativeDiscontinuitySequence,
         long relativeStartTimeUs,
-        String fullSegmentEncryptionKeyUri,
-        String encryptionIV,
+        @Nullable String fullSegmentEncryptionKeyUri,
+        @Nullable String encryptionIV,
         long byterangeOffset,
         long byterangeLength,
         boolean hasGapTag) {
       this.url = url;
+      this.initializationSegment = initializationSegment;
+      this.title = title;
       this.durationUs = durationUs;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
       this.relativeStartTimeUs = relativeStartTimeUs;
@@ -140,7 +163,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   public final long startOffsetUs;
   /**
-   * The start time of the playlist in playback timebase in microseconds.
+   * If {@link #hasProgramDateTime} is true, contains the datetime as microseconds since epoch.
+   * Otherwise, contains the aggregated duration of removed segments up to this snapshot of the
+   * playlist.
    */
   public final long startTimeUs;
   /**
@@ -166,10 +191,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   public final long targetDurationUs;
   /**
-   * Whether the playlist contains the #EXT-X-INDEPENDENT-SEGMENTS tag.
-   */
-  public final boolean hasIndependentSegmentsTag;
-  /**
    * Whether the playlist contains the #EXT-X-ENDLIST tag.
    */
   public final boolean hasEndTag;
@@ -182,10 +203,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * encryption.
    */
   public final DrmInitData drmInitData;
-  /**
-   * The initialization segment, as defined by #EXT-X-MAP.
-   */
-  public final Segment initializationSegment;
   /**
    * The list of segments in the playlist.
    */
@@ -206,11 +223,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * @param mediaSequence See {@link #mediaSequence}.
    * @param version See {@link #version}.
    * @param targetDurationUs See {@link #targetDurationUs}.
-   * @param hasIndependentSegmentsTag See {@link #hasIndependentSegmentsTag}.
+   * @param hasIndependentSegments See {@link #hasIndependentSegments}.
    * @param hasEndTag See {@link #hasEndTag}.
    * @param hasProgramDateTime See {@link #hasProgramDateTime}.
    * @param drmInitData See {@link #drmInitData}.
-   * @param initializationSegment See {@link #initializationSegment}.
    * @param segments See {@link #segments}.
    */
   public HlsMediaPlaylist(
@@ -224,13 +240,12 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       long mediaSequence,
       int version,
       long targetDurationUs,
-      boolean hasIndependentSegmentsTag,
+      boolean hasIndependentSegments,
       boolean hasEndTag,
       boolean hasProgramDateTime,
       DrmInitData drmInitData,
-      Segment initializationSegment,
       List<Segment> segments) {
-    super(baseUri, tags);
+    super(baseUri, tags, hasIndependentSegments);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;
     this.hasDiscontinuitySequence = hasDiscontinuitySequence;
@@ -238,11 +253,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.mediaSequence = mediaSequence;
     this.version = version;
     this.targetDurationUs = targetDurationUs;
-    this.hasIndependentSegmentsTag = hasIndependentSegmentsTag;
     this.hasEndTag = hasEndTag;
     this.hasProgramDateTime = hasProgramDateTime;
     this.drmInitData = drmInitData;
-    this.initializationSegment = initializationSegment;
     this.segments = Collections.unmodifiableList(segments);
     if (!segments.isEmpty()) {
       Segment last = segments.get(segments.size() - 1);
@@ -252,6 +265,11 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
     this.startOffsetUs = startOffsetUs == C.TIME_UNSET ? C.TIME_UNSET
         : startOffsetUs >= 0 ? startOffsetUs : durationUs + startOffsetUs;
+  }
+
+  @Override
+  public HlsMediaPlaylist copy(List<StreamKey> streamKeys) {
+    return this;
   }
 
   /**
@@ -288,27 +306,84 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    *
    * @param startTimeUs The start time for the returned playlist.
    * @param discontinuitySequence The discontinuity sequence for the returned playlist.
-   * @return The playlist.
+   * @return An identical playlist including the provided discontinuity and timing information.
    */
   public HlsMediaPlaylist copyWith(long startTimeUs, int discontinuitySequence) {
-    return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, startTimeUs, true,
-        discontinuitySequence, mediaSequence, version, targetDurationUs, hasIndependentSegmentsTag,
-        hasEndTag, hasProgramDateTime, drmInitData, initializationSegment, segments);
+    return new HlsMediaPlaylist(
+        playlistType,
+        baseUri,
+        tags,
+        startOffsetUs,
+        startTimeUs,
+        /* hasDiscontinuitySequence= */ true,
+        discontinuitySequence,
+        mediaSequence,
+        version,
+        targetDurationUs,
+        hasIndependentSegments,
+        hasEndTag,
+        hasProgramDateTime,
+        drmInitData,
+        segments);
+  }
+
+  /**
+   * Returns a playlist identical to this one, except for adding any inheritable attributes from the
+   * provided {@link HlsMasterPlaylist}.
+   *
+   * <p>The inheritable attributes are:
+   *
+   * <ul>
+   *   <li>{@link #hasIndependentSegments}.
+   * </ul>
+   *
+   * @return An identical playlist including the inheritable attributes from {@code masterPlaylist}.
+   */
+  public HlsMediaPlaylist copyWithMasterPlaylistInfo(HlsMasterPlaylist masterPlaylist) {
+    if (hasIndependentSegments || !masterPlaylist.hasIndependentSegments) {
+      return this;
+    }
+    return new HlsMediaPlaylist(
+        playlistType,
+        baseUri,
+        tags,
+        startOffsetUs,
+        startTimeUs,
+        hasDiscontinuitySequence,
+        discontinuitySequence,
+        mediaSequence,
+        version,
+        targetDurationUs,
+        hasIndependentSegments || masterPlaylist.hasIndependentSegments,
+        hasEndTag,
+        hasProgramDateTime,
+        drmInitData,
+        segments);
   }
 
   /**
    * Returns a playlist identical to this one except that an end tag is added. If an end tag is
    * already present then the playlist will return itself.
-   *
-   * @return The playlist.
    */
   public HlsMediaPlaylist copyWithEndTag() {
     if (this.hasEndTag) {
       return this;
     }
-    return new HlsMediaPlaylist(playlistType, baseUri, tags, startOffsetUs, startTimeUs,
-        hasDiscontinuitySequence, discontinuitySequence, mediaSequence, version, targetDurationUs,
-        hasIndependentSegmentsTag, true, hasProgramDateTime, drmInitData, initializationSegment,
+    return new HlsMediaPlaylist(
+        playlistType,
+        baseUri,
+        tags,
+        startOffsetUs,
+        startTimeUs,
+        hasDiscontinuitySequence,
+        discontinuitySequence,
+        mediaSequence,
+        version,
+        targetDurationUs,
+        hasIndependentSegments,
+        /* hasEndTag= */ true,
+        hasProgramDateTime,
+        drmInitData,
         segments);
   }
 

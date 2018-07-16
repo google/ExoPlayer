@@ -29,6 +29,8 @@ import java.io.InputStream;
  */
 public final class ActionFile {
 
+  /* package */ static final int VERSION = 0;
+
   private final AtomicFile atomicFile;
   private final File actionFile;
 
@@ -56,13 +58,13 @@ public final class ActionFile {
       inputStream = atomicFile.openRead();
       DataInputStream dataInputStream = new DataInputStream(inputStream);
       int version = dataInputStream.readInt();
-      if (version > DownloadAction.MASTER_VERSION) {
-        throw new IOException("Not supported action file version: " + version);
+      if (version > VERSION) {
+        throw new IOException("Unsupported action file version: " + version);
       }
       int actionCount = dataInputStream.readInt();
       DownloadAction[] actions = new DownloadAction[actionCount];
       for (int i = 0; i < actionCount; i++) {
-        actions[i] = DownloadAction.deserializeFromStream(deserializers, dataInputStream, version);
+        actions[i] = DownloadAction.deserializeFromStream(deserializers, dataInputStream);
       }
       return actions;
     } finally {
@@ -80,7 +82,7 @@ public final class ActionFile {
     DataOutputStream output = null;
     try {
       output = new DataOutputStream(atomicFile.startWrite());
-      output.writeInt(DownloadAction.MASTER_VERSION);
+      output.writeInt(VERSION);
       output.writeInt(downloadActions.length);
       for (DownloadAction action : downloadActions) {
         DownloadAction.serializeToStream(action, output);

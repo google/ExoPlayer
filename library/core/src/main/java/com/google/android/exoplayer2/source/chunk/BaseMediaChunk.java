@@ -44,7 +44,7 @@ public abstract class BaseMediaChunk extends MediaChunk {
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param seekTimeUs The media time from which output will begin, or {@link C#TIME_UNSET} if the
    *     whole chunk should be output.
-   * @param chunkIndex The index of the chunk.
+   * @param chunkIndex The index of the chunk, or {@link C#INDEX_UNSET} if it is not known.
    */
   public BaseMediaChunk(
       DataSource dataSource,

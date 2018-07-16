@@ -16,15 +16,14 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-/**
- * A {@link DataSource} for reading local files.
- */
-public final class FileDataSource implements DataSource {
+/** A {@link DataSource} for reading local files. */
+public final class FileDataSource extends BaseDataSource {
 
   /**
    * Thrown when IOException is encountered during local file read operation.
@@ -37,10 +36,8 @@ public final class FileDataSource implements DataSource {
 
   }
 
-  private final TransferListener<? super FileDataSource> listener;
-
-  private RandomAccessFile file;
-  private Uri uri;
+  private @Nullable RandomAccessFile file;
+  private @Nullable Uri uri;
   private long bytesRemaining;
   private boolean opened;
 
@@ -48,17 +45,19 @@ public final class FileDataSource implements DataSource {
     this(null);
   }
 
-  /**
-   * @param listener An optional listener.
-   */
-  public FileDataSource(TransferListener<? super FileDataSource> listener) {
-    this.listener = listener;
+  /** @param listener An optional listener. */
+  public FileDataSource(@Nullable TransferListener<? super DataSource> listener) {
+    super(/* isNetwork= */ false);
+    if (listener != null) {
+      addTransferListener(listener);
+    }
   }
 
   @Override
   public long open(DataSpec dataSpec) throws FileDataSourceException {
     try {
       uri = dataSpec.uri;
+      transferInitializing(dataSpec);
       file = new RandomAccessFile(dataSpec.uri.getPath(), "r");
       file.seek(dataSpec.position);
       bytesRemaining = dataSpec.length == C.LENGTH_UNSET ? file.length() - dataSpec.position
@@ -71,9 +70,7 @@ public final class FileDataSource implements DataSource {
     }
 
     opened = true;
-    if (listener != null) {
-      listener.onTransferStart(this, dataSpec);
-    }
+    transferStarted(dataSpec);
 
     return bytesRemaining;
   }
@@ -94,9 +91,7 @@ public final class FileDataSource implements DataSource {
 
       if (bytesRead > 0) {
         bytesRemaining -= bytesRead;
-        if (listener != null) {
-          listener.onBytesTransferred(this, bytesRead);
-        }
+        bytesTransferred(bytesRead);
       }
 
       return bytesRead;
@@ -104,7 +99,7 @@ public final class FileDataSource implements DataSource {
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return uri;
   }
 
@@ -121,9 +116,7 @@ public final class FileDataSource implements DataSource {
       file = null;
       if (opened) {
         opened = false;
-        if (listener != null) {
-          listener.onTransferEnd(this);
-        }
+        transferEnded();
       }
     }
   }

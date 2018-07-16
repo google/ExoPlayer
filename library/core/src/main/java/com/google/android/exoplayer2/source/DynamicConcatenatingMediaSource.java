@@ -19,19 +19,25 @@ package com.google.android.exoplayer2.source;
 @Deprecated
 public final class DynamicConcatenatingMediaSource extends ConcatenatingMediaSource {
 
-  /** @deprecated Use {@link ConcatenatingMediaSource#ConcatenatingMediaSource()} instead. */
+  /**
+   * @deprecated Use {@link ConcatenatingMediaSource#ConcatenatingMediaSource(MediaSource...)}
+   *     instead.
+   */
   @Deprecated
   public DynamicConcatenatingMediaSource() {}
 
-  /** @deprecated Use {@link ConcatenatingMediaSource#ConcatenatingMediaSource(boolean)} instead. */
+  /**
+   * @deprecated Use {@link ConcatenatingMediaSource#ConcatenatingMediaSource(boolean,
+   *     MediaSource...)} instead.
+   */
   @Deprecated
   public DynamicConcatenatingMediaSource(boolean isAtomic) {
     super(isAtomic);
   }
 
   /**
-   * @deprecated Use {@link ConcatenatingMediaSource#ConcatenatingMediaSource(boolean,
-   *     ShuffleOrder)} instead.
+   * @deprecated Use {@link ConcatenatingMediaSource#ConcatenatingMediaSource(boolean, ShuffleOrder,
+   *     MediaSource...)} instead.
    */
   @Deprecated
   public DynamicConcatenatingMediaSource(boolean isAtomic, ShuffleOrder shuffleOrder) {

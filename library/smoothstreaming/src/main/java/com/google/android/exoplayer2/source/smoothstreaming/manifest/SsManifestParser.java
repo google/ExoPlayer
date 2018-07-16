@@ -603,6 +603,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
     private static final String KEY_FOUR_CC = "FourCC";
     private static final String KEY_TYPE = "Type";
     private static final String KEY_LANGUAGE = "Language";
+    private static final String KEY_NAME = "Name";
     private static final String KEY_MAX_WIDTH = "MaxWidth";
     private static final String KEY_MAX_HEIGHT = "MaxHeight";
 
@@ -616,6 +617,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
     public void parseStartTag(XmlPullParser parser) throws ParserException {
       int type = (Integer) getNormalizedAttribute(KEY_TYPE);
       String id = parser.getAttributeValue(null, KEY_INDEX);
+      String name = (String) getNormalizedAttribute(KEY_NAME);
       int bitrate = parseRequiredInt(parser, KEY_BITRATE);
       String sampleMimeType = fourCCToMimeType(parseRequiredString(parser, KEY_FOUR_CC));
 
@@ -624,8 +626,19 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         int height = parseRequiredInt(parser, KEY_MAX_HEIGHT);
         List<byte[]> codecSpecificData = buildCodecSpecificData(
             parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
-        format = Format.createVideoContainerFormat(id, MimeTypes.VIDEO_MP4, sampleMimeType, null,
-            bitrate, width, height, Format.NO_VALUE, codecSpecificData, 0);
+        format =
+            Format.createVideoContainerFormat(
+                id,
+                name,
+                MimeTypes.VIDEO_MP4,
+                sampleMimeType,
+                /* codecs= */ null,
+                bitrate,
+                width,
+                height,
+                /* frameRate= */ Format.NO_VALUE,
+                codecSpecificData,
+                /* selectionFlags= */ 0);
       } else if (type == C.TRACK_TYPE_AUDIO) {
         sampleMimeType = sampleMimeType == null ? MimeTypes.AUDIO_AAC : sampleMimeType;
         int channels = parseRequiredInt(parser, KEY_CHANNELS);
@@ -637,15 +650,42 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
               CodecSpecificDataUtil.buildAacLcAudioSpecificConfig(samplingRate, channels));
         }
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
-        format = Format.createAudioContainerFormat(id, MimeTypes.AUDIO_MP4, sampleMimeType, null,
-            bitrate, channels, samplingRate, codecSpecificData, 0, language);
+        format =
+            Format.createAudioContainerFormat(
+                id,
+                name,
+                MimeTypes.AUDIO_MP4,
+                sampleMimeType,
+                /* codecs= */ null,
+                bitrate,
+                channels,
+                samplingRate,
+                codecSpecificData,
+                /* selectionFlags= */ 0,
+                language);
       } else if (type == C.TRACK_TYPE_TEXT) {
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
-        format = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType,
-            null, bitrate, 0, language);
+        format =
+            Format.createTextContainerFormat(
+                id,
+                name,
+                MimeTypes.APPLICATION_MP4,
+                sampleMimeType,
+                /* codecs= */ null,
+                bitrate,
+                /* selectionFlags= */ 0,
+                language);
       } else {
-        format = Format.createContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType, null,
-            bitrate, 0, null);
+        format =
+            Format.createContainerFormat(
+                id,
+                name,
+                MimeTypes.APPLICATION_MP4,
+                sampleMimeType,
+                /* codecs= */ null,
+                bitrate,
+                /* selectionFlags= */ 0,
+                /* language= */ null);
       }
     }
 

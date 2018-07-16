@@ -67,8 +67,6 @@ public final class SonicAudioProcessor implements AudioProcessor {
   private float speed;
   private float pitch;
   private int outputSampleRateHz;
-  private float pendingSpeed;
-  private float pendingPitch;
   private int pendingOutputSampleRateHz;
 
   private @Nullable Sonic sonic;
@@ -85,8 +83,6 @@ public final class SonicAudioProcessor implements AudioProcessor {
   public SonicAudioProcessor() {
     speed = 1f;
     pitch = 1f;
-    pendingSpeed = 1f;
-    pendingPitch = 1f;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
     outputSampleRateHz = Format.NO_VALUE;
@@ -97,25 +93,37 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   /**
-   * Sets the playback speed. The new speed will take effect after a call to {@link #flush()}.
+   * Sets the playback speed. Calling this method will discard any data buffered within the
+   * processor, and may update the value returned by {@link #isActive()}.
    *
    * @param speed The requested new playback speed.
    * @return The actual new playback speed.
    */
   public float setSpeed(float speed) {
-    pendingSpeed = Util.constrainValue(speed, MINIMUM_SPEED, MAXIMUM_SPEED);
-    return pendingSpeed;
+    speed = Util.constrainValue(speed, MINIMUM_SPEED, MAXIMUM_SPEED);
+    if (this.speed != speed) {
+      this.speed = speed;
+      sonic = null;
+    }
+    flush();
+    return speed;
   }
 
   /**
-   * Sets the playback pitch. The new pitch will take effect after a call to {@link #flush()}.
+   * Sets the playback pitch. Calling this method will discard any data buffered within the
+   * processor, and may update the value returned by {@link #isActive()}.
    *
    * @param pitch The requested new pitch.
    * @return The actual new pitch.
    */
   public float setPitch(float pitch) {
-    pendingPitch = Util.constrainValue(pitch, MINIMUM_PITCH, MAXIMUM_PITCH);
-    return pendingPitch;
+    pitch = Util.constrainValue(pitch, MINIMUM_PITCH, MAXIMUM_PITCH);
+    if (this.pitch != pitch) {
+      this.pitch = pitch;
+      sonic = null;
+    }
+    flush();
+    return pitch;
   }
 
   /**
@@ -170,8 +178,10 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public boolean isActive() {
-    return Math.abs(speed - 1f) >= CLOSE_THRESHOLD || Math.abs(pitch - 1f) >= CLOSE_THRESHOLD
-        || outputSampleRateHz != sampleRateHz;
+    return sampleRateHz != Format.NO_VALUE
+        && (Math.abs(speed - 1f) >= CLOSE_THRESHOLD
+            || Math.abs(pitch - 1f) >= CLOSE_THRESHOLD
+            || outputSampleRateHz != sampleRateHz);
   }
 
   @Override
@@ -236,11 +246,8 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void flush() {
-    boolean parametersChanged = pendingSpeed != speed || pendingPitch != pitch;
-    speed = pendingSpeed;
-    pitch = pendingPitch;
     if (isActive()) {
-      if (sonic == null || parametersChanged) {
+      if (sonic == null) {
         sonic = new Sonic(sampleRateHz, channelCount, speed, pitch, outputSampleRateHz);
       } else {
         sonic.flush();
@@ -256,8 +263,6 @@ public final class SonicAudioProcessor implements AudioProcessor {
   public void reset() {
     speed = 1f;
     pitch = 1f;
-    pendingSpeed = 1f;
-    pendingPitch = 1f;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
     outputSampleRateHz = Format.NO_VALUE;

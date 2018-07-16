@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import java.io.EOFException;
@@ -28,12 +29,12 @@ import java.io.InputStream;
 
 /**
  * A {@link DataSource} for reading a raw resource inside the APK.
- * <p>
- * URIs supported by this source are of the form {@code rawresource:///rawResourceId}, where
+ *
+ * <p>URIs supported by this source are of the form {@code rawresource:///rawResourceId}, where
  * rawResourceId is the integer identifier of a raw resource. {@link #buildRawResourceUri(int)} can
  * be used to build {@link Uri}s in this format.
  */
-public final class RawResourceDataSource implements DataSource {
+public final class RawResourceDataSource extends BaseDataSource {
 
   /**
    * Thrown when an {@link IOException} is encountered reading from a raw resource.
@@ -62,11 +63,10 @@ public final class RawResourceDataSource implements DataSource {
   public static final String RAW_RESOURCE_SCHEME = "rawresource";
 
   private final Resources resources;
-  private final TransferListener<? super RawResourceDataSource> listener;
 
-  private Uri uri;
-  private AssetFileDescriptor assetFileDescriptor;
-  private InputStream inputStream;
+  private @Nullable Uri uri;
+  private @Nullable AssetFileDescriptor assetFileDescriptor;
+  private @Nullable InputStream inputStream;
   private long bytesRemaining;
   private boolean opened;
 
@@ -81,10 +81,13 @@ public final class RawResourceDataSource implements DataSource {
    * @param context A context.
    * @param listener An optional listener.
    */
-  public RawResourceDataSource(Context context,
-      TransferListener<? super RawResourceDataSource> listener) {
+  public RawResourceDataSource(
+      Context context, @Nullable TransferListener<? super DataSource> listener) {
+    super(/* isNetwork= */ false);
     this.resources = context.getResources();
-    this.listener = listener;
+    if (listener != null) {
+      addTransferListener(listener);
+    }
   }
 
   @Override
@@ -102,6 +105,7 @@ public final class RawResourceDataSource implements DataSource {
         throw new RawResourceDataSourceException("Resource identifier must be an integer.");
       }
 
+      transferInitializing(dataSpec);
       assetFileDescriptor = resources.openRawResourceFd(resourceId);
       inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
       inputStream.skip(assetFileDescriptor.getStartOffset());
@@ -124,9 +128,7 @@ public final class RawResourceDataSource implements DataSource {
     }
 
     opened = true;
-    if (listener != null) {
-      listener.onTransferStart(this, dataSpec);
-    }
+    transferStarted(dataSpec);
 
     return bytesRemaining;
   }
@@ -158,14 +160,12 @@ public final class RawResourceDataSource implements DataSource {
     if (bytesRemaining != C.LENGTH_UNSET) {
       bytesRemaining -= bytesRead;
     }
-    if (listener != null) {
-      listener.onBytesTransferred(this, bytesRead);
-    }
+    bytesTransferred(bytesRead);
     return bytesRead;
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return uri;
   }
 
@@ -190,9 +190,7 @@ public final class RawResourceDataSource implements DataSource {
         assetFileDescriptor = null;
         if (opened) {
           opened = false;
-          if (listener != null) {
-            listener.onTransferEnd(this);
-          }
+          transferEnded();
         }
       }
     }

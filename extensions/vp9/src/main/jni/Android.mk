@@ -35,7 +35,7 @@ LOCAL_MODULE := libvpxJNI
 LOCAL_ARM_MODE := arm
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_SRC_FILES := vpx_jni.cc
-LOCAL_LDLIBS := -llog -lz -lm
+LOCAL_LDLIBS := -llog -lz -lm -landroid
 LOCAL_SHARED_LIBRARIES := libvpx
 LOCAL_STATIC_LIBRARIES := libyuv_static cpufeatures
 include $(BUILD_SHARED_LIBRARY)

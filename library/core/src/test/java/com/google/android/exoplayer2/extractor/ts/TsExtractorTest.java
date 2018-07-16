@@ -105,6 +105,9 @@ public final class TsExtractorTest {
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
       readResult = tsExtractor.read(input, seekPositionHolder);
+      if (readResult == Extractor.RESULT_SEEK) {
+        input.setPosition((int) seekPositionHolder.position);
+      }
     }
     CustomEsReader reader = factory.esReader;
     assertThat(reader.packetsRead).isEqualTo(2);
@@ -131,8 +134,11 @@ public final class TsExtractorTest {
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
       readResult = tsExtractor.read(input, seekPositionHolder);
+      if (readResult == Extractor.RESULT_SEEK) {
+        input.setPosition((int) seekPositionHolder.position);
+      }
     }
-    assertThat(factory.sdtReader.consumedSdts).isEqualTo(1);
+    assertThat(factory.sdtReader.consumedSdts).isEqualTo(2);
   }
 
   private static void writeJunkData(ByteArrayOutputStream out, int length) {

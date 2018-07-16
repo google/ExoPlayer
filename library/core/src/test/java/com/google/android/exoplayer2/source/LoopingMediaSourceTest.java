@@ -50,7 +50,7 @@ public class LoopingMediaSourceTest {
   @Test
   public void testSingleLoop() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, 1);
-    TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
+    TimelineAsserts.assertWindowTags(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1);
     for (boolean shuffled : new boolean[] {false, true}) {
       TimelineAsserts.assertPreviousWindowIndices(
@@ -69,7 +69,7 @@ public class LoopingMediaSourceTest {
   @Test
   public void testMultiLoop() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, 3);
-    TimelineAsserts.assertWindowIds(timeline, 111, 222, 333, 111, 222, 333, 111, 222, 333);
+    TimelineAsserts.assertWindowTags(timeline, 111, 222, 333, 111, 222, 333, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1, 1, 1, 1, 1, 1, 1);
     for (boolean shuffled : new boolean[] {false, true}) {
       TimelineAsserts.assertPreviousWindowIndices(
@@ -90,7 +90,7 @@ public class LoopingMediaSourceTest {
   @Test
   public void testInfiniteLoop() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, Integer.MAX_VALUE);
-    TimelineAsserts.assertWindowIds(timeline, 111, 222, 333);
+    TimelineAsserts.assertWindowTags(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1);
     for (boolean shuffled : new boolean[] {false, true}) {
       TimelineAsserts.assertPreviousWindowIndices(

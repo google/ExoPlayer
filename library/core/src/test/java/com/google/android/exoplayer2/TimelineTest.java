@@ -34,7 +34,7 @@ public class TimelineTest {
   @Test
   public void testSinglePeriodTimeline() {
     Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(1, 111));
-    TimelineAsserts.assertWindowIds(timeline, 111);
+    TimelineAsserts.assertWindowTags(timeline, 111);
     TimelineAsserts.assertPeriodCounts(timeline, 1);
     TimelineAsserts.assertPreviousWindowIndices(
         timeline, Player.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
@@ -48,7 +48,7 @@ public class TimelineTest {
   @Test
   public void testMultiPeriodTimeline() {
     Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(5, 111));
-    TimelineAsserts.assertWindowIds(timeline, 111);
+    TimelineAsserts.assertWindowTags(timeline, 111);
     TimelineAsserts.assertPeriodCounts(timeline, 5);
     TimelineAsserts.assertPreviousWindowIndices(
         timeline, Player.REPEAT_MODE_OFF, false, C.INDEX_UNSET);

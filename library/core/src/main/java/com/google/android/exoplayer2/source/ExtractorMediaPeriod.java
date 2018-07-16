@@ -38,7 +38,9 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
+import com.google.android.exoplayer2.upstream.StatsDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -90,7 +92,7 @@ import java.util.Arrays;
   private final Runnable onContinueLoadingRequestedRunnable;
   private final Handler handler;
 
-  private Callback callback;
+  private @Nullable Callback callback;
   private SeekMap seekMap;
   private SampleQueue[] sampleQueues;
   private int[] sampleQueueTrackIds;
@@ -190,6 +192,7 @@ import java.util.Arrays;
     }
     loader.release(this);
     handler.removeCallbacksAndMessages(null);
+    callback = null;
     released = true;
     eventDispatcher.mediaPeriodReleased();
   }
@@ -489,6 +492,7 @@ import java.util.Arrays;
     }
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
+        loadable.dataSource.getLastOpenedUri(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -498,7 +502,7 @@ import java.util.Arrays;
         durationUs,
         elapsedRealtimeMs,
         loadDurationMs,
-        loadable.bytesLoaded);
+        loadable.dataSource.getBytesRead());
     copyLengthFromLoader(loadable);
     loadingFinished = true;
     callback.onContinueLoadingRequested(this);
@@ -509,6 +513,7 @@ import java.util.Arrays;
       long loadDurationMs, boolean released) {
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
+        loadable.dataSource.getLastOpenedUri(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -518,7 +523,7 @@ import java.util.Arrays;
         durationUs,
         elapsedRealtimeMs,
         loadDurationMs,
-        loadable.bytesLoaded);
+        loadable.dataSource.getBytesRead());
     if (!released) {
       copyLengthFromLoader(loadable);
       for (SampleQueue sampleQueue : sampleQueues) {
@@ -531,11 +536,29 @@ import java.util.Arrays;
   }
 
   @Override
-  public @Loader.RetryAction int onLoadError(
-      ExtractingLoadable loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
-    boolean isErrorFatal = isLoadableExceptionFatal(error);
+  public LoadErrorAction onLoadError(
+      ExtractingLoadable loadable,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      IOException error,
+      int errorCount) {
+    copyLengthFromLoader(loadable);
+    LoadErrorAction retryAction;
+    if (isLoadableExceptionFatal(error)) {
+      retryAction = Loader.DONT_RETRY_FATAL;
+    } else {
+      int extractedSamplesCount = getExtractedSamplesCount();
+      boolean madeProgress = extractedSamplesCount > extractedSamplesCountAtStartOfLoad;
+      retryAction =
+          configureRetry(loadable, extractedSamplesCount)
+              ? (madeProgress ? Loader.RETRY_RESET_ERROR_COUNT : Loader.RETRY)
+              : Loader.DONT_RETRY;
+    }
+    boolean wasCanceled =
+        retryAction == Loader.DONT_RETRY || retryAction == Loader.DONT_RETRY_FATAL;
     eventDispatcher.loadError(
         loadable.dataSpec,
+        loadable.dataSource.getLastOpenedUri(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -545,18 +568,10 @@ import java.util.Arrays;
         durationUs,
         elapsedRealtimeMs,
         loadDurationMs,
-        loadable.bytesLoaded,
+        loadable.dataSource.getBytesRead(),
         error,
-        /* wasCanceled= */ isErrorFatal);
-    copyLengthFromLoader(loadable);
-    if (isErrorFatal) {
-      return Loader.DONT_RETRY_FATAL;
-    }
-    int extractedSamplesCount = getExtractedSamplesCount();
-    boolean madeProgress = extractedSamplesCount > extractedSamplesCountAtStartOfLoad;
-    return configureRetry(loadable, extractedSamplesCount)
-        ? (madeProgress ? Loader.RETRY_RESET_ERROR_COUNT : Loader.RETRY)
-        : Loader.DONT_RETRY;
+        wasCanceled);
+    return retryAction;
   }
 
   // ExtractorOutput implementation. Called by the loading thread.
@@ -657,6 +672,7 @@ import java.util.Arrays;
     long elapsedRealtimeMs = loader.startLoading(loadable, this, actualMinLoadableRetryCount);
     eventDispatcher.loadStarted(
         loadable.dataSpec,
+        loadable.dataSpec.uri,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -797,7 +813,7 @@ import java.util.Arrays;
   /* package */ final class ExtractingLoadable implements Loadable {
 
     private final Uri uri;
-    private final DataSource dataSource;
+    private final StatsDataSource dataSource;
     private final ExtractorHolder extractorHolder;
     private final ConditionVariable loadCondition;
     private final PositionHolder positionHolder;
@@ -808,17 +824,17 @@ import java.util.Arrays;
     private long seekTimeUs;
     private DataSpec dataSpec;
     private long length;
-    private long bytesLoaded;
 
     public ExtractingLoadable(Uri uri, DataSource dataSource, ExtractorHolder extractorHolder,
         ConditionVariable loadCondition) {
       this.uri = Assertions.checkNotNull(uri);
-      this.dataSource = Assertions.checkNotNull(dataSource);
+      this.dataSource = new StatsDataSource(dataSource);
       this.extractorHolder = Assertions.checkNotNull(extractorHolder);
       this.loadCondition = loadCondition;
       this.positionHolder = new PositionHolder();
       this.pendingExtractorSeek = true;
       this.length = C.LENGTH_UNSET;
+      dataSpec = new DataSpec(uri, positionHolder.position, C.LENGTH_UNSET, customCacheKey);
     }
 
     public void setLoadPosition(long position, long timeUs) {
@@ -830,11 +846,6 @@ import java.util.Arrays;
     @Override
     public void cancelLoad() {
       loadCanceled = true;
-    }
-
-    @Override
-    public boolean isLoadCanceled() {
-      return loadCanceled;
     }
 
     @Override
@@ -869,7 +880,6 @@ import java.util.Arrays;
             result = Extractor.RESULT_CONTINUE;
           } else if (input != null) {
             positionHolder.position = input.getPosition();
-            bytesLoaded = positionHolder.position - dataSpec.absoluteStreamPosition;
           }
           Util.closeQuietly(dataSource);
         }

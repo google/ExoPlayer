@@ -61,7 +61,10 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    *     readers.
    */
   public DefaultTsPayloadReaderFactory(@Flags int flags) {
-    this(flags, Collections.<Format>emptyList());
+    this(
+        flags,
+        Collections.singletonList(
+            Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608, 0, null)));
   }
 
   /**
@@ -76,10 +79,6 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    */
   public DefaultTsPayloadReaderFactory(@Flags int flags, List<Format> closedCaptionFormats) {
     this.flags = flags;
-    if (!isSet(FLAG_OVERRIDE_CAPTION_DESCRIPTORS) && closedCaptionFormats.isEmpty()) {
-      closedCaptionFormats = Collections.singletonList(Format.createTextSampleFormat(null,
-          MimeTypes.APPLICATION_CEA608, 0, null));
-    }
     this.closedCaptionFormats = closedCaptionFormats;
   }
 

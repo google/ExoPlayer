@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoderException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -32,7 +33,7 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public final class Id3DecoderTest {
 
-  private static final byte[] TAG_HEADER = new byte[] {73, 68, 51, 4, 0, 0, 0, 0, 0, 0};
+  private static final byte[] TAG_HEADER = new byte[] {'I', 'D', '3', 4, 0, 0, 0, 0, 0, 0};
   private static final int FRAME_HEADER_LENGTH = 10;
   private static final int ID3_TEXT_ENCODING_UTF_8 = 3;
 
@@ -202,33 +203,90 @@ public final class Id3DecoderTest {
     assertThat(commentFrame.text).isEmpty();
   }
 
-  private static byte[] buildSingleFrameTag(String frameId, byte[] frameData) {
-    byte[] frameIdBytes = frameId.getBytes(Charset.forName(C.UTF8_NAME));
-    Assertions.checkState(frameIdBytes.length == 4);
+  @Test
+  public void testDecodeMultiFrames() throws MetadataDecoderException {
+    byte[] rawId3 =
+        buildMultiFramesTag(
+            new FrameSpec(
+                "COMM",
+                new byte[] {
+                  3, 101, 110, 103, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 0, 116,
+                  101, 120, 116, 0
+                }),
+            new FrameSpec(
+                "APIC",
+                new byte[] {
+                  3, 105, 109, 97, 103, 101, 47, 106, 112, 101, 103, 0, 16, 72, 101, 108, 108, 111,
+                  32, 87, 111, 114, 108, 100, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
+                }));
+    Id3Decoder decoder = new Id3Decoder();
+    Metadata metadata = decoder.decode(rawId3, rawId3.length);
+    assertThat(metadata.length()).isEqualTo(2);
+    CommentFrame commentFrame = (CommentFrame) metadata.get(0);
+    ApicFrame apicFrame = (ApicFrame) metadata.get(1);
 
-    byte[] tagData = new byte[TAG_HEADER.length + FRAME_HEADER_LENGTH + frameData.length];
-    System.arraycopy(TAG_HEADER, 0, tagData, 0, TAG_HEADER.length);
+    assertThat(commentFrame.language).isEqualTo("eng");
+    assertThat(commentFrame.description).isEqualTo("description");
+    assertThat(commentFrame.text).isEqualTo("text");
+
+    assertThat(apicFrame.mimeType).isEqualTo("image/jpeg");
+    assertThat(apicFrame.pictureType).isEqualTo(16);
+    assertThat(apicFrame.description).isEqualTo("Hello World");
+    assertThat(apicFrame.pictureData).hasLength(10);
+    assertThat(apicFrame.pictureData).isEqualTo(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+  }
+
+  public static byte[] buildSingleFrameTag(String frameId, byte[] frameData) {
+    return buildMultiFramesTag(new FrameSpec(frameId, frameData));
+  }
+
+  public static byte[] buildMultiFramesTag(FrameSpec... frames) {
+    int totalLength = TAG_HEADER.length;
+    for (FrameSpec frame : frames) {
+      byte[] frameData = frame.frameData;
+      totalLength += FRAME_HEADER_LENGTH + frameData.length;
+    }
+    byte[] tagData = Arrays.copyOf(TAG_HEADER, totalLength);
     // Fill in the size part of the tag header.
     int offset = TAG_HEADER.length - 4;
-    int tagSize = frameData.length + FRAME_HEADER_LENGTH;
+    int tagSize = totalLength - TAG_HEADER.length;
     tagData[offset++] = (byte) ((tagSize >> 21) & 0x7F);
     tagData[offset++] = (byte) ((tagSize >> 14) & 0x7F);
     tagData[offset++] = (byte) ((tagSize >> 7) & 0x7F);
     tagData[offset++] = (byte) (tagSize & 0x7F);
-    // Fill in the frame header.
-    tagData[offset++] = frameIdBytes[0];
-    tagData[offset++] = frameIdBytes[1];
-    tagData[offset++] = frameIdBytes[2];
-    tagData[offset++] = frameIdBytes[3];
-    tagData[offset++] = (byte) ((frameData.length >> 24) & 0xFF);
-    tagData[offset++] = (byte) ((frameData.length >> 16) & 0xFF);
-    tagData[offset++] = (byte) ((frameData.length >> 8) & 0xFF);
-    tagData[offset++] = (byte) (frameData.length & 0xFF);
-    offset += 2; // Frame flags set to 0
-    // Fill in the frame data.
-    System.arraycopy(frameData, 0, tagData, offset, frameData.length);
 
+    for (FrameSpec frame : frames) {
+      byte[] frameData = frame.frameData;
+      String frameId = frame.frameId;
+      byte[] frameIdBytes = frameId.getBytes(Charset.forName(C.UTF8_NAME));
+      Assertions.checkState(frameIdBytes.length == 4);
+
+      // Fill in the frame header.
+      tagData[offset++] = frameIdBytes[0];
+      tagData[offset++] = frameIdBytes[1];
+      tagData[offset++] = frameIdBytes[2];
+      tagData[offset++] = frameIdBytes[3];
+      tagData[offset++] = (byte) ((frameData.length >> 24) & 0xFF);
+      tagData[offset++] = (byte) ((frameData.length >> 16) & 0xFF);
+      tagData[offset++] = (byte) ((frameData.length >> 8) & 0xFF);
+      tagData[offset++] = (byte) (frameData.length & 0xFF);
+      offset += 2; // Frame flags set to 0
+
+      // Fill in the frame data.
+      System.arraycopy(frameData, 0, tagData, offset, frameData.length);
+      offset += frameData.length;
+    }
     return tagData;
   }
 
+  /** Specify an ID3 frame. */
+  public static final class FrameSpec {
+    public final String frameId;
+    public final byte[] frameData;
+
+    public FrameSpec(String frameId, byte[] frameData) {
+      this.frameId = frameId;
+      this.frameData = frameData;
+    }
+  }
 }

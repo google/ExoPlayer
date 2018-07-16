@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Looper;
+import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
@@ -33,6 +35,11 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
+  public AudioComponent getAudioComponent() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public VideoComponent getVideoComponent() {
     throw new UnsupportedOperationException();
   }
@@ -48,6 +55,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public Looper getApplicationLooper() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void addListener(Player.EventListener listener) {
     throw new UnsupportedOperationException();
   }
@@ -59,6 +71,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
   public int getPlaybackState() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ExoPlaybackException getPlaybackError() {
     throw new UnsupportedOperationException();
   }
 
@@ -139,6 +156,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
   public void setSeekParameters(SeekParameters seekParameters) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public @Nullable Object getCurrentTag() {
     throw new UnsupportedOperationException();
   }
 
@@ -243,6 +265,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public long getTotalBufferedDuration() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public boolean isCurrentWindowDynamic() {
     throw new UnsupportedOperationException();
   }
@@ -269,6 +296,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
   public long getContentPosition() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long getContentBufferedPosition() {
     throw new UnsupportedOperationException();
   }
 }

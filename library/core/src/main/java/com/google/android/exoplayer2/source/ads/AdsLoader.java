@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.source.ads;
 import android.view.ViewGroup;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.IOException;
 
 /**
@@ -54,19 +56,12 @@ public interface AdsLoader {
     void onAdPlaybackState(AdPlaybackState adPlaybackState);
 
     /**
-     * Called when there was an error loading ads. The loader will skip the problematic ad(s).
+     * Called when there was an error loading ads.
      *
      * @param error The error.
+     * @param dataSpec The data spec associated with the load error.
      */
-    void onAdLoadError(IOException error);
-
-    /**
-     * Called when an unexpected internal error is encountered while loading ads. The loader will
-     * skip all remaining ads, as the error is not recoverable.
-     *
-     * @param error The error.
-     */
-    void onInternalAdLoadError(RuntimeException error);
+    void onAdLoadError(AdLoadException error, DataSpec dataSpec);
 
     /**
      * Called when the user clicks through an ad (for example, following a 'learn more' link).

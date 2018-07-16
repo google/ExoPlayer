@@ -16,15 +16,18 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Represents an HLS master playlist.
- */
+/** Represents an HLS master playlist. */
 public final class HlsMasterPlaylist extends HlsPlaylist {
+
+  public static final int GROUP_INDEX_VARIANT = 0;
+  public static final int GROUP_INDEX_AUDIO = 1;
+  public static final int GROUP_INDEX_SUBTITLE = 2;
 
   /**
    * Represents a url in an HLS master playlist.
@@ -47,8 +50,16 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      * @return An HLS url.
      */
     public static HlsUrl createMediaPlaylistHlsUrl(String url) {
-      Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null, null,
-          Format.NO_VALUE, 0, null);
+      Format format =
+          Format.createContainerFormat(
+              "0",
+              /* label= */ null,
+              MimeTypes.APPLICATION_M3U8,
+              /* sampleMimeType= */ null,
+              /* codecs= */ null,
+              /* bitrate= */ Format.NO_VALUE,
+              /* selectionFlags= */ 0,
+              /* language= */ null);
       return new HlsUrl(url, format);
     }
 
@@ -96,11 +107,18 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    * @param subtitles See {@link #subtitles}.
    * @param muxedAudioFormat See {@link #muxedAudioFormat}.
    * @param muxedCaptionFormats See {@link #muxedCaptionFormats}.
+   * @param hasIndependentSegments See {@link #hasIndependentSegments}.
    */
-  public HlsMasterPlaylist(String baseUri, List<String> tags, List<HlsUrl> variants,
-      List<HlsUrl> audios, List<HlsUrl> subtitles, Format muxedAudioFormat,
-      List<Format> muxedCaptionFormats) {
-    super(baseUri, tags);
+  public HlsMasterPlaylist(
+      String baseUri,
+      List<String> tags,
+      List<HlsUrl> variants,
+      List<HlsUrl> audios,
+      List<HlsUrl> subtitles,
+      Format muxedAudioFormat,
+      List<Format> muxedCaptionFormats,
+      boolean hasIndependentSegments) {
+    super(baseUri, tags, hasIndependentSegments);
     this.variants = Collections.unmodifiableList(variants);
     this.audios = Collections.unmodifiableList(audios);
     this.subtitles = Collections.unmodifiableList(subtitles);
@@ -109,18 +127,17 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
         ? Collections.unmodifiableList(muxedCaptionFormats) : null;
   }
 
-  /**
-   * Returns a copy of this playlist which includes only the renditions identified by the given
-   * urls.
-   *
-   * @param renditionUrls List of rendition urls.
-   * @return A copy of this playlist which includes only the renditions identified by the given
-   *     urls.
-   */
-  public HlsMasterPlaylist copy(List<String> renditionUrls) {
-    return new HlsMasterPlaylist(baseUri, tags, copyRenditionsList(variants, renditionUrls),
-        copyRenditionsList(audios, renditionUrls), copyRenditionsList(subtitles, renditionUrls),
-        muxedAudioFormat, muxedCaptionFormats);
+  @Override
+  public HlsMasterPlaylist copy(List<StreamKey> streamKeys) {
+    return new HlsMasterPlaylist(
+        baseUri,
+        tags,
+        copyRenditionsList(variants, GROUP_INDEX_VARIANT, streamKeys),
+        copyRenditionsList(audios, GROUP_INDEX_AUDIO, streamKeys),
+        copyRenditionsList(subtitles, GROUP_INDEX_SUBTITLE, streamKeys),
+        muxedAudioFormat,
+        muxedCaptionFormats,
+        hasIndependentSegments);
   }
 
   /**
@@ -132,16 +149,28 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   public static HlsMasterPlaylist createSingleVariantMasterPlaylist(String variantUrl) {
     List<HlsUrl> variant = Collections.singletonList(HlsUrl.createMediaPlaylistHlsUrl(variantUrl));
     List<HlsUrl> emptyList = Collections.emptyList();
-    return new HlsMasterPlaylist(null, Collections.<String>emptyList(), variant, emptyList,
-        emptyList, null, null);
+    return new HlsMasterPlaylist(
+        null,
+        Collections.<String>emptyList(),
+        variant,
+        emptyList,
+        emptyList,
+        /* muxedAudioFormat= */ null,
+        /* muxedCaptionFormats= */ null,
+        /* hasIndependentSegments= */ false);
   }
 
-  private static List<HlsUrl> copyRenditionsList(List<HlsUrl> renditions, List<String> urls) {
-    List<HlsUrl> copiedRenditions = new ArrayList<>(urls.size());
+  private static List<HlsUrl> copyRenditionsList(
+      List<HlsUrl> renditions, int groupIndex, List<StreamKey> streamKeys) {
+    List<HlsUrl> copiedRenditions = new ArrayList<>(streamKeys.size());
     for (int i = 0; i < renditions.size(); i++) {
       HlsUrl rendition = renditions.get(i);
-      if (urls.contains(rendition.url)) {
-        copiedRenditions.add(rendition);
+      for (int j = 0; j < streamKeys.size(); j++) {
+        StreamKey streamKey = streamKeys.get(j);
+        if (streamKey.groupIndex == groupIndex && streamKey.trackIndex == i) {
+          copiedRenditions.add(rendition);
+          break;
+        }
       }
     }
     return copiedRenditions;

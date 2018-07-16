@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
@@ -107,7 +108,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     this.allocator = allocator;
 
     manifestPublishTimeToExpiryTimeUs = new TreeMap<>();
-    handler = new Handler(this);
+    handler = Util.createHandler(/* callback= */ this);
     decoder = new EventMessageDecoder();
     lastLoadedChunkEndTimeUs = C.TIME_UNSET;
     lastLoadedChunkEndTimeBeforeRefreshUs = C.TIME_UNSET;
@@ -237,11 +238,10 @@ public final class PlayerEmsgHandler implements Handler.Callback {
   // Internal methods.
 
   private void handleManifestExpiredMessage(long eventTimeUs, long manifestPublishTimeMsInEmsg) {
-    if (!manifestPublishTimeToExpiryTimeUs.containsKey(manifestPublishTimeMsInEmsg)) {
+    Long previousExpiryTimeUs = manifestPublishTimeToExpiryTimeUs.get(manifestPublishTimeMsInEmsg);
+    if (previousExpiryTimeUs == null) {
       manifestPublishTimeToExpiryTimeUs.put(manifestPublishTimeMsInEmsg, eventTimeUs);
     } else {
-      long previousExpiryTimeUs =
-          manifestPublishTimeToExpiryTimeUs.get(manifestPublishTimeMsInEmsg);
       if (previousExpiryTimeUs > eventTimeUs) {
         manifestPublishTimeToExpiryTimeUs.put(manifestPublishTimeMsInEmsg, eventTimeUs);
       }
@@ -253,10 +253,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     notifySourceMediaPresentationEnded();
   }
 
-  private Map.Entry<Long, Long> ceilingExpiryEntryForPublishTime(long publishTimeMs) {
-    if (manifestPublishTimeToExpiryTimeUs.isEmpty()) {
-      return null;
-    }
+  private @Nullable Map.Entry<Long, Long> ceilingExpiryEntryForPublishTime(long publishTimeMs) {
     return manifestPublishTimeToExpiryTimeUs.ceilingEntry(publishTimeMs);
   }
 
@@ -339,7 +336,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
 
     @Override
     public void sampleMetadata(
-        long timeUs, int flags, int size, int offset, CryptoData encryptionData) {
+        long timeUs, int flags, int size, int offset, @Nullable CryptoData encryptionData) {
       sampleQueue.sampleMetadata(timeUs, flags, size, offset, encryptionData);
       parseAndDiscardSamples();
     }

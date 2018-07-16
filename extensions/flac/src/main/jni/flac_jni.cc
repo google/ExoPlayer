@@ -133,9 +133,19 @@ DECODER_FUNC(jlong, flacGetDecodePosition, jlong jContext) {
   return context->parser->getDecodePosition();
 }
 
-DECODER_FUNC(jlong, flacGetLastTimestamp, jlong jContext) {
+DECODER_FUNC(jlong, flacGetLastFrameTimestamp, jlong jContext) {
   Context *context = reinterpret_cast<Context *>(jContext);
-  return context->parser->getLastTimestamp();
+  return context->parser->getLastFrameTimestamp();
+}
+
+DECODER_FUNC(jlong, flacGetLastFrameFirstSampleIndex, jlong jContext) {
+  Context *context = reinterpret_cast<Context *>(jContext);
+  return context->parser->getLastFrameFirstSampleIndex();
+}
+
+DECODER_FUNC(jlong, flacGetNextFrameFirstSampleIndex, jlong jContext) {
+  Context *context = reinterpret_cast<Context *>(jContext);
+  return context->parser->getNextFrameFirstSampleIndex();
 }
 
 DECODER_FUNC(jlong, flacGetSeekPosition, jlong jContext, jlong timeUs) {
@@ -147,6 +157,11 @@ DECODER_FUNC(jstring, flacGetStateString, jlong jContext) {
   Context *context = reinterpret_cast<Context *>(jContext);
   const char *str = context->parser->getDecoderStateString();
   return env->NewStringUTF(str);
+}
+
+DECODER_FUNC(jboolean, flacIsDecoderAtEndOfStream, jlong jContext) {
+  Context *context = reinterpret_cast<Context *>(jContext);
+  return context->parser->isDecoderAtEndOfStream();
 }
 
 DECODER_FUNC(void, flacFlush, jlong jContext) {

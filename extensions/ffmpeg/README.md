@@ -70,7 +70,8 @@ COMMON_OPTIONS="\
     --enable-decoder=flac \
     " && \
 cd "${FFMPEG_EXT_PATH}/jni" && \
-git clone git://source.ffmpeg.org/ffmpeg ffmpeg && cd ffmpeg && \
+(git -C ffmpeg pull || git clone git://source.ffmpeg.org/ffmpeg ffmpeg) && \
+cd ffmpeg && \
 ./configure \
     --libdir=android-libs/armeabi-v7a \
     --arch=arm \

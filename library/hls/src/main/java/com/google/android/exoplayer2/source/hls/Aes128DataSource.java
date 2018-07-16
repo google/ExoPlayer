@@ -16,10 +16,12 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
@@ -27,6 +29,8 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.List;
+import java.util.Map;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
@@ -47,7 +51,7 @@ import javax.crypto.spec.SecretKeySpec;
   private final byte[] encryptionKey;
   private final byte[] encryptionIv;
 
-  private CipherInputStream cipherInputStream;
+  private @Nullable CipherInputStream cipherInputStream;
 
   /**
    * @param upstream The upstream {@link DataSource}.
@@ -58,6 +62,11 @@ import javax.crypto.spec.SecretKeySpec;
     this.upstream = upstream;
     this.encryptionKey = encryptionKey;
     this.encryptionIv = encryptionIv;
+  }
+
+  @Override
+  public void addTransferListener(TransferListener<? super DataSource> transferListener) {
+    upstream.addTransferListener(transferListener);
   }
 
   @Override
@@ -78,21 +87,16 @@ import javax.crypto.spec.SecretKeySpec;
       throw new RuntimeException(e);
     }
 
-    cipherInputStream = new CipherInputStream(
-        new DataSourceInputStream(upstream, dataSpec), cipher);
+    DataSourceInputStream inputStream = new DataSourceInputStream(upstream, dataSpec);
+    cipherInputStream = new CipherInputStream(inputStream, cipher);
+    inputStream.open();
 
     return C.LENGTH_UNSET;
   }
 
   @Override
-  public void close() throws IOException {
-    cipherInputStream = null;
-    upstream.close();
-  }
-
-  @Override
   public int read(byte[] buffer, int offset, int readLength) throws IOException {
-    Assertions.checkState(cipherInputStream != null);
+    Assertions.checkNotNull(cipherInputStream);
     int bytesRead = cipherInputStream.read(buffer, offset, readLength);
     if (bytesRead < 0) {
       return C.RESULT_END_OF_INPUT;
@@ -101,8 +105,20 @@ import javax.crypto.spec.SecretKeySpec;
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return upstream.getUri();
   }
 
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    return upstream.getResponseHeaders();
+  }
+
+  @Override
+  public void close() throws IOException {
+    if (cipherInputStream != null) {
+      cipherInputStream = null;
+      upstream.close();
+    }
+  }
 }

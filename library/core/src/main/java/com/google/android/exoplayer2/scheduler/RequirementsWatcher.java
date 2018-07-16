@@ -69,14 +69,14 @@ public final class RequirementsWatcher {
   private CapabilityValidatedCallback networkCallback;
 
   /**
-   * @param context Used to register for broadcasts.
+   * @param context Any context.
    * @param listener Notified whether the {@link Requirements} are met.
    * @param requirements The requirements to watch.
    */
   public RequirementsWatcher(Context context, Listener listener, Requirements requirements) {
     this.requirements = requirements;
     this.listener = listener;
-    this.context = context;
+    this.context = context.getApplicationContext();
     logd(this + " created");
   }
 

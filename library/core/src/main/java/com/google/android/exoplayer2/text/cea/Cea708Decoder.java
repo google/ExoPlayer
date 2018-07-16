@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -196,7 +195,10 @@ public final class Cea708Decoder extends CeaDecoder {
 
   @Override
   protected void decode(SubtitleInputBuffer inputBuffer) {
-    ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());
+    // Subtitle input buffers are non-direct and the position is zero, so calling array() is safe.
+    @SuppressWarnings("ByteBufferBackingArray")
+    byte[] inputBufferData = inputBuffer.data.array();
+    ccData.reset(inputBufferData, inputBuffer.data.limit());
     while (ccData.bytesLeft() >= 3) {
       int ccTypeAndValid = (ccData.readUnsignedByte() & 0x07);
 
@@ -879,7 +881,7 @@ public final class Cea708Decoder extends CeaDecoder {
     private int row;
 
     public CueBuilder() {
-      rolledUpCaptions = new LinkedList<>();
+      rolledUpCaptions = new ArrayList<>();
       captionStringBuilder = new SpannableStringBuilder();
       reset();
     }

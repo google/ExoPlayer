@@ -33,7 +33,7 @@ public class FlacExtractorTest extends InstrumentationTestCase {
     }
   }
 
-  public void testSample() throws Exception {
+  public void testExtractFlacSample() throws Exception {
     ExtractorAsserts.assertBehavior(
         new ExtractorFactory() {
           @Override
@@ -42,6 +42,18 @@ public class FlacExtractorTest extends InstrumentationTestCase {
           }
         },
         "bear.flac",
+        getInstrumentation().getContext());
+  }
+
+  public void testExtractFlacSampleWithId3Header() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        new ExtractorFactory() {
+          @Override
+          public Extractor create() {
+            return new FlacExtractor();
+          }
+        },
+        "bear_with_id3.flac",
         getInstrumentation().getContext());
   }
 }

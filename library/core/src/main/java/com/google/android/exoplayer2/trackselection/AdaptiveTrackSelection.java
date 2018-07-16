@@ -15,11 +15,13 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import java.util.List;
@@ -136,11 +138,15 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     }
 
     @Override
-    public AdaptiveTrackSelection createTrackSelection(TrackGroup group, int... tracks) {
+    public AdaptiveTrackSelection createTrackSelection(
+        TrackGroup group, @Nullable BandwidthMeter bandwidthMeter, int... tracks) {
+      if (this.bandwidthMeter != null) {
+        bandwidthMeter = this.bandwidthMeter;
+      }
       return new AdaptiveTrackSelection(
           group,
           tracks,
-          bandwidthMeter,
+          Assertions.checkNotNull(bandwidthMeter),
           minDurationForQualityIncreaseMs,
           maxDurationForQualityDecreaseMs,
           minDurationToRetainAfterDiscardMs,
@@ -242,9 +248,11 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     this.minTimeBetweenBufferReevaluationMs = minTimeBetweenBufferReevaluationMs;
     this.clock = clock;
     playbackSpeed = 1f;
-    selectedIndex = determineIdealSelectedIndex(Long.MIN_VALUE);
     reason = C.SELECTION_REASON_INITIAL;
     lastBufferEvaluationMs = C.TIME_UNSET;
+    @SuppressWarnings("nullness:method.invocation.invalid")
+    int selectedIndex = determineIdealSelectedIndex(Long.MIN_VALUE);
+    this.selectedIndex = selectedIndex;
   }
 
   @Override
@@ -301,7 +309,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   }
 
   @Override
-  public Object getSelectionData() {
+  public @Nullable Object getSelectionData() {
     return null;
   }
 

@@ -17,10 +17,10 @@ package com.google.android.exoplayer2.video;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
-
 import java.util.Arrays;
 
 /**
@@ -85,7 +85,7 @@ public final class ColorInfo implements Parcelable {
 
   // Parcelable implementation.
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }

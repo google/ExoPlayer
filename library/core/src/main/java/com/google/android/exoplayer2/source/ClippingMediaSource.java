@@ -21,6 +21,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -211,8 +213,11 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
-    super.prepareSourceInternal(player, isTopLevelSource);
+  public void prepareSourceInternal(
+      ExoPlayer player,
+      boolean isTopLevelSource,
+      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+    super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
     prepareChildSource(/* id= */ null, mediaSource);
   }
 
@@ -363,10 +368,10 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     }
 
     @Override
-    public Window getWindow(int windowIndex, Window window, boolean setIds,
-        long defaultPositionProjectionUs) {
+    public Window getWindow(
+        int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
       timeline.getWindow(
-          /* windowIndex= */ 0, window, setIds, /* defaultPositionProjectionUs= */ 0);
+          /* windowIndex= */ 0, window, setTag, /* defaultPositionProjectionUs= */ 0);
       window.positionInFirstPeriodUs += startUs;
       window.durationUs = durationUs;
       window.isDynamic = isDynamic;

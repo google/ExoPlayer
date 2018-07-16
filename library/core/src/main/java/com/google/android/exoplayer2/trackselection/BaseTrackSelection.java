@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.trackselection;
 
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -109,6 +110,7 @@ public abstract class BaseTrackSelection implements TrackSelection {
   }
 
   @Override
+  @SuppressWarnings("ReferenceEquality")
   public final int indexOf(Format format) {
     for (int i = 0; i < length; i++) {
       if (formats[i] == format) {
@@ -182,8 +184,10 @@ public abstract class BaseTrackSelection implements TrackSelection {
     return hashCode;
   }
 
+  // Track groups are compared by identity not value, as distinct groups may have the same value.
   @Override
-  public boolean equals(Object obj) {
+  @SuppressWarnings("ReferenceEquality")
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }

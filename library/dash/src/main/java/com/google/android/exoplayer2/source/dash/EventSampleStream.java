@@ -45,8 +45,10 @@ import java.io.IOException;
 
   EventSampleStream(EventStream eventStream, Format upstreamFormat, boolean eventStreamUpdatable) {
     this.upstreamFormat = upstreamFormat;
+    this.eventStream = eventStream;
     eventMessageEncoder = new EventMessageEncoder();
     pendingSeekPositionUs = C.TIME_UNSET;
+    eventTimesUs = eventStream.presentationTimesUs;
     updateEventStream(eventStream, eventStreamUpdatable);
   }
 

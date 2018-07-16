@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_previous_description">ਪਿਛਲਾ ਟਰੈਕ</string>
+  <string name="exo_controls_next_description">ਅਗਲਾ ਟਰੈਕ</string>
+  <string name="exo_controls_pause_description">ਰੋਕੋ</string>
+  <string name="exo_controls_play_description">ਚਲਾਓ</string>
+  <string name="exo_controls_stop_description">ਬੰਦ ਕਰੋ</string>
+  <string name="exo_controls_rewind_description">ਪਿੱਛੇ ਕਰੋ</string>
+  <string name="exo_controls_fastforward_description">ਤੇਜ਼ੀ ਨਾਲ ਅੱਗੇ ਕਰੋ</string>
+  <string name="exo_controls_repeat_off_description">ਕਿਸੇ ਨੂੰ ਨਾ ਦੁਹਰਾਓ</string>
+  <string name="exo_controls_repeat_one_description">ਇੱਕ ਵਾਰ ਦੁਹਰਾਓ</string>
+  <string name="exo_controls_repeat_all_description">ਸਾਰਿਆਂ ਨੂੰ ਦੁਹਰਾਓ</string>
+  <string name="exo_controls_shuffle_description">ਬੇਤਰਤੀਬ ਕਰੋ</string>
+  <string name="exo_controls_fullscreen_description">ਪੂਰੀ-ਸਕ੍ਰੀਨ ਮੋਡ</string>
+  <string name="exo_download_description">ਡਾਊਨਲੋਡ ਕਰੋ</string>
+  <string name="exo_download_notification_channel_name">ਡਾਊਨਲੋਡ</string>
+  <string name="exo_download_downloading">ਡਾਊਨਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ</string>
+  <string name="exo_download_completed">ਡਾਊਨਲੋਡ ਮੁਕੰਮਲ ਹੋਇਆ</string>
+  <string name="exo_download_failed">ਡਾਊਨਲੋਡ ਅਸਫਲ ਰਿਹਾ</string>
+  <string name="exo_download_removing">ਡਾਊਨਲੋਡ ਕੀਤੀ ਸਮੱਗਰੀ ਹਟਾਈ ਜਾ ਰਹੀ ਹੈ</string>
+  <string name="exo_track_selection_title_video">ਵੀਡੀਓ</string>
+  <string name="exo_track_selection_title_audio">ਆਡੀਓ</string>
+  <string name="exo_track_selection_title_text">ਲਿਖਤ</string>
+  <string name="exo_track_selection_none">ਕੋਈ ਨਹੀਂ</string>
+  <string name="exo_track_selection_auto">ਸਵੈਚਲਿਤ</string>
+  <string name="exo_track_unknown">ਅਗਿਆਤ</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">ਮੋਨੋ</string>
+  <string name="exo_track_stereo">ਸਟੀਰਿਓ</string>
+  <string name="exo_track_surround">ਸਰਾਊਂਡ ਸਾਊਂਡ</string>
+  <string name="exo_track_surround_5_point_1">5.1 ਸਰਾਊਂਡ ਸਾਊਂਡ</string>
+  <string name="exo_track_surround_7_point_1">7.1 ਸਰਾਊਂਡ ਸਾਊਂਡ</string>
+  <string name="exo_track_bitrate">%1$.2f Mbps</string>
+  <string name="exo_item_list">%1$s, %2$s</string>
+</resources>

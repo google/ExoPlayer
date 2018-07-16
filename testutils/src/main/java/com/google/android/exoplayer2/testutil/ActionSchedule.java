@@ -45,7 +45,7 @@ import com.google.android.exoplayer2.testutil.Action.WaitForPlaybackState;
 import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
 import com.google.android.exoplayer2.testutil.Action.WaitForSeekProcessed;
 import com.google.android.exoplayer2.testutil.Action.WaitForTimelineChanged;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 
@@ -90,7 +90,7 @@ public final class ActionSchedule {
    */
   /* package */ void start(
       SimpleExoPlayer player,
-      MappingTrackSelector trackSelector,
+      DefaultTrackSelector trackSelector,
       Surface surface,
       HandlerWrapper mainHandler,
       @Nullable Callback callback) {
@@ -494,7 +494,7 @@ public final class ActionSchedule {
     private ActionNode next;
 
     private SimpleExoPlayer player;
-    private MappingTrackSelector trackSelector;
+    private DefaultTrackSelector trackSelector;
     private Surface surface;
     private HandlerWrapper mainHandler;
 
@@ -538,7 +538,7 @@ public final class ActionSchedule {
      */
     public void schedule(
         SimpleExoPlayer player,
-        MappingTrackSelector trackSelector,
+        DefaultTrackSelector trackSelector,
         Surface surface,
         HandlerWrapper mainHandler) {
       this.player = player;
@@ -580,11 +580,10 @@ public final class ActionSchedule {
     }
 
     @Override
-    protected void doActionImpl(SimpleExoPlayer player, MappingTrackSelector trackSelector,
-        Surface surface) {
+    protected void doActionImpl(
+        SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
       // Do nothing.
     }
-
   }
 
   /**
@@ -605,7 +604,7 @@ public final class ActionSchedule {
     @Override
     protected void doActionAndScheduleNextImpl(
         SimpleExoPlayer player,
-        MappingTrackSelector trackSelector,
+        DefaultTrackSelector trackSelector,
         Surface surface,
         HandlerWrapper handler,
         ActionNode nextAction) {
@@ -623,10 +622,9 @@ public final class ActionSchedule {
 
     @Override
     protected void doActionImpl(
-        SimpleExoPlayer player, MappingTrackSelector trackSelector, Surface surface) {
+        SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
       // Not triggered.
     }
-
   }
 
 }

@@ -20,6 +20,7 @@ import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -27,6 +28,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
@@ -70,7 +72,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   private static final int MSG_UPDATE_OUTPUT = 0;
 
-  private final Handler outputHandler;
+  private final @Nullable Handler outputHandler;
   private final TextOutput output;
   private final SubtitleDecoderFactory decoderFactory;
   private final FormatHolder formatHolder;
@@ -87,30 +89,31 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   /**
    * @param output The output.
-   * @param outputLooper The looper associated with the thread on which the output should be
-   *     called. If the output makes use of standard Android UI components, then this should
-   *     normally be the looper associated with the application's main thread, which can be obtained
-   *     using {@link android.app.Activity#getMainLooper()}. Null may be passed if the output
-   *     should be called directly on the player's internal rendering thread.
+   * @param outputLooper The looper associated with the thread on which the output should be called.
+   *     If the output makes use of standard Android UI components, then this should normally be the
+   *     looper associated with the application's main thread, which can be obtained using {@link
+   *     android.app.Activity#getMainLooper()}. Null may be passed if the output should be called
+   *     directly on the player's internal rendering thread.
    */
-  public TextRenderer(TextOutput output, Looper outputLooper) {
+  public TextRenderer(TextOutput output, @Nullable Looper outputLooper) {
     this(output, outputLooper, SubtitleDecoderFactory.DEFAULT);
   }
 
   /**
    * @param output The output.
-   * @param outputLooper The looper associated with the thread on which the output should be
-   *     called. If the output makes use of standard Android UI components, then this should
-   *     normally be the looper associated with the application's main thread, which can be obtained
-   *     using {@link android.app.Activity#getMainLooper()}. Null may be passed if the output
-   *     should be called directly on the player's internal rendering thread.
+   * @param outputLooper The looper associated with the thread on which the output should be called.
+   *     If the output makes use of standard Android UI components, then this should normally be the
+   *     looper associated with the application's main thread, which can be obtained using {@link
+   *     android.app.Activity#getMainLooper()}. Null may be passed if the output should be called
+   *     directly on the player's internal rendering thread.
    * @param decoderFactory A factory from which to obtain {@link SubtitleDecoder} instances.
    */
-  public TextRenderer(TextOutput output, Looper outputLooper,
-      SubtitleDecoderFactory decoderFactory) {
+  public TextRenderer(
+      TextOutput output, @Nullable Looper outputLooper, SubtitleDecoderFactory decoderFactory) {
     super(C.TRACK_TYPE_TEXT);
     this.output = Assertions.checkNotNull(output);
-    this.outputHandler = outputLooper == null ? null : new Handler(outputLooper, this);
+    this.outputHandler =
+        outputLooper == null ? null : Util.createHandler(outputLooper, /* callback= */ this);
     this.decoderFactory = decoderFactory;
     formatHolder = new FormatHolder();
   }

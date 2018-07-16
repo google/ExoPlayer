@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.source.dash;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import android.util.Pair;
-import android.util.SparseArray;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -42,7 +42,9 @@ import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -60,6 +62,7 @@ import java.util.List;
 
   /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
+  private final @Nullable TransferListener<? super DataSource> transferListener;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final long elapsedRealtimeOffset;
@@ -72,7 +75,7 @@ import java.util.List;
   private final IdentityHashMap<ChunkSampleStream<DashChunkSource>, PlayerTrackEmsgHandler>
       trackEmsgHandlerBySampleStream;
 
-  private Callback callback;
+  private @Nullable Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private EventSampleStream[] eventSampleStreams;
   private SequenceableLoader compositeSequenceableLoader;
@@ -86,6 +89,7 @@ import java.util.List;
       DashManifest manifest,
       int periodIndex,
       DashChunkSource.Factory chunkSourceFactory,
+      @Nullable TransferListener<? super DataSource> transferListener,
       int minLoadableRetryCount,
       EventDispatcher eventDispatcher,
       long elapsedRealtimeOffset,
@@ -97,6 +101,7 @@ import java.util.List;
     this.manifest = manifest;
     this.periodIndex = periodIndex;
     this.chunkSourceFactory = chunkSourceFactory;
+    this.transferListener = transferListener;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
@@ -150,6 +155,7 @@ import java.util.List;
     for (ChunkSampleStream<DashChunkSource> sampleStream : sampleStreams) {
       sampleStream.release(this);
     }
+    callback = null;
     eventDispatcher.mediaPeriodReleased();
   }
 
@@ -184,124 +190,32 @@ import java.util.List;
   @Override
   public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
-    SparseArray<ChunkSampleStream<DashChunkSource>> primarySampleStreams = new SparseArray<>();
-    List<EventSampleStream> eventSampleStreamList = new ArrayList<>();
+    int[] streamIndexToTrackGroupIndex = getStreamIndexToTrackGroupIndex(selections);
+    releaseDisabledStreams(selections, mayRetainStreamFlags, streams);
+    releaseOrphanEmbeddedStreams(selections, streams, streamIndexToTrackGroupIndex);
+    selectNewStreams(
+        selections, streams, streamResetFlags, positionUs, streamIndexToTrackGroupIndex);
 
-    selectPrimarySampleStreams(selections, mayRetainStreamFlags, streams, streamResetFlags,
-        positionUs, primarySampleStreams);
-    selectEventSampleStreams(selections, mayRetainStreamFlags, streams,
-        streamResetFlags, eventSampleStreamList);
-    selectEmbeddedSampleStreams(selections, mayRetainStreamFlags, streams, streamResetFlags,
-        positionUs, primarySampleStreams);
-
-    sampleStreams = newSampleStreamArray(primarySampleStreams.size());
-    for (int i = 0; i < sampleStreams.length; i++) {
-      sampleStreams[i] = primarySampleStreams.valueAt(i);
+    ArrayList<ChunkSampleStream<DashChunkSource>> sampleStreamList = new ArrayList<>();
+    ArrayList<EventSampleStream> eventSampleStreamList = new ArrayList<>();
+    for (SampleStream sampleStream : streams) {
+      if (sampleStream instanceof ChunkSampleStream) {
+        @SuppressWarnings("unchecked")
+        ChunkSampleStream<DashChunkSource> stream =
+            (ChunkSampleStream<DashChunkSource>) sampleStream;
+        sampleStreamList.add(stream);
+      } else if (sampleStream instanceof EventSampleStream) {
+        eventSampleStreamList.add((EventSampleStream) sampleStream);
+      }
     }
+    sampleStreams = newSampleStreamArray(sampleStreamList.size());
+    sampleStreamList.toArray(sampleStreams);
     eventSampleStreams = new EventSampleStream[eventSampleStreamList.size()];
     eventSampleStreamList.toArray(eventSampleStreams);
+
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
     return positionUs;
-  }
-
-  private void selectPrimarySampleStreams(
-      TrackSelection[] selections,
-      boolean[] mayRetainStreamFlags,
-      SampleStream[] streams,
-      boolean[] streamResetFlags,
-      long positionUs,
-      SparseArray<ChunkSampleStream<DashChunkSource>> primarySampleStreams) {
-    for (int i = 0; i < selections.length; i++) {
-      if (streams[i] instanceof ChunkSampleStream) {
-        @SuppressWarnings("unchecked")
-        ChunkSampleStream<DashChunkSource> stream = (ChunkSampleStream<DashChunkSource>) streams[i];
-        if (selections[i] == null || !mayRetainStreamFlags[i]) {
-          stream.release(this);
-          streams[i] = null;
-        } else {
-          int trackGroupIndex = trackGroups.indexOf(selections[i].getTrackGroup());
-          primarySampleStreams.put(trackGroupIndex, stream);
-        }
-      }
-
-      if (streams[i] == null && selections[i] != null) {
-        int trackGroupIndex = trackGroups.indexOf(selections[i].getTrackGroup());
-        TrackGroupInfo trackGroupInfo = trackGroupInfos[trackGroupIndex];
-        if (trackGroupInfo.trackGroupCategory == TrackGroupInfo.CATEGORY_PRIMARY) {
-          ChunkSampleStream<DashChunkSource> stream = buildSampleStream(trackGroupInfo,
-              selections[i], positionUs);
-          primarySampleStreams.put(trackGroupIndex, stream);
-          streams[i] = stream;
-          streamResetFlags[i] = true;
-        }
-      }
-    }
-  }
-
-  private void selectEventSampleStreams(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags,
-      List<EventSampleStream> eventSampleStreamsList) {
-    for (int i = 0; i < selections.length; i++) {
-      if (streams[i] instanceof EventSampleStream) {
-        EventSampleStream stream = (EventSampleStream) streams[i];
-        if (selections[i] == null || !mayRetainStreamFlags[i]) {
-          streams[i] = null;
-        } else {
-          eventSampleStreamsList.add(stream);
-        }
-      }
-
-      if (streams[i] == null && selections[i] != null) {
-        int trackGroupIndex = trackGroups.indexOf(selections[i].getTrackGroup());
-        TrackGroupInfo trackGroupInfo = trackGroupInfos[trackGroupIndex];
-        if (trackGroupInfo.trackGroupCategory == TrackGroupInfo.CATEGORY_MANIFEST_EVENTS) {
-          EventStream eventStream = eventStreams.get(trackGroupInfo.eventStreamGroupIndex);
-          Format format = selections[i].getTrackGroup().getFormat(0);
-          EventSampleStream stream = new EventSampleStream(eventStream, format, manifest.dynamic);
-          streams[i] = stream;
-          streamResetFlags[i] = true;
-          eventSampleStreamsList.add(stream);
-        }
-      }
-    }
-  }
-
-  private void selectEmbeddedSampleStreams(
-      TrackSelection[] selections,
-      boolean[] mayRetainStreamFlags,
-      SampleStream[] streams,
-      boolean[] streamResetFlags,
-      long positionUs,
-      SparseArray<ChunkSampleStream<DashChunkSource>> primarySampleStreams) {
-    for (int i = 0; i < selections.length; i++) {
-      if ((streams[i] instanceof EmbeddedSampleStream || streams[i] instanceof EmptySampleStream)
-          && (selections[i] == null || !mayRetainStreamFlags[i])) {
-        // The stream is for an embedded track and is either no longer selected or needs replacing.
-        releaseIfEmbeddedSampleStream(streams[i]);
-        streams[i] = null;
-      }
-      // We need to consider replacing the stream even if it's non-null because the primary stream
-      // may have been replaced, selected or deselected.
-      if (selections[i] != null) {
-        int trackGroupIndex = trackGroups.indexOf(selections[i].getTrackGroup());
-        TrackGroupInfo trackGroupInfo = trackGroupInfos[trackGroupIndex];
-        if (trackGroupInfo.trackGroupCategory == TrackGroupInfo.CATEGORY_EMBEDDED) {
-          ChunkSampleStream<?> primaryStream = primarySampleStreams.get(
-              trackGroupInfo.primaryTrackGroupIndex);
-          SampleStream stream = streams[i];
-          boolean mayRetainStream = primaryStream == null ? stream instanceof EmptySampleStream
-              : (stream instanceof EmbeddedSampleStream
-                  && ((EmbeddedSampleStream) stream).parent == primaryStream);
-          if (!mayRetainStream) {
-            releaseIfEmbeddedSampleStream(stream);
-            streams[i] = primaryStream == null ? new EmptySampleStream()
-                : primaryStream.selectEmbeddedTrack(positionUs, trackGroupInfo.trackType);
-            streamResetFlags[i] = true;
-          }
-        }
-      }
-    }
   }
 
   @Override
@@ -369,6 +283,124 @@ import java.util.List;
   }
 
   // Internal methods.
+
+  private int[] getStreamIndexToTrackGroupIndex(TrackSelection[] selections) {
+    int[] streamIndexToTrackGroupIndex = new int[selections.length];
+    for (int i = 0; i < selections.length; i++) {
+      if (selections[i] != null) {
+        streamIndexToTrackGroupIndex[i] = trackGroups.indexOf(selections[i].getTrackGroup());
+      } else {
+        streamIndexToTrackGroupIndex[i] = C.INDEX_UNSET;
+      }
+    }
+    return streamIndexToTrackGroupIndex;
+  }
+
+  private void releaseDisabledStreams(
+      TrackSelection[] selections, boolean[] mayRetainStreamFlags, SampleStream[] streams) {
+    for (int i = 0; i < selections.length; i++) {
+      if (selections[i] == null || !mayRetainStreamFlags[i]) {
+        if (streams[i] instanceof ChunkSampleStream) {
+          @SuppressWarnings("unchecked")
+          ChunkSampleStream<DashChunkSource> stream =
+              (ChunkSampleStream<DashChunkSource>) streams[i];
+          stream.release(this);
+        } else if (streams[i] instanceof EmbeddedSampleStream) {
+          ((EmbeddedSampleStream) streams[i]).release();
+        }
+        streams[i] = null;
+      }
+    }
+  }
+
+  private void releaseOrphanEmbeddedStreams(
+      TrackSelection[] selections, SampleStream[] streams, int[] streamIndexToTrackGroupIndex) {
+    for (int i = 0; i < selections.length; i++) {
+      if (streams[i] instanceof EmptySampleStream || streams[i] instanceof EmbeddedSampleStream) {
+        // We need to release an embedded stream if the corresponding primary stream is released.
+        int primaryStreamIndex = getPrimaryStreamIndex(i, streamIndexToTrackGroupIndex);
+        boolean mayRetainStream;
+        if (primaryStreamIndex == C.INDEX_UNSET) {
+          // If the corresponding primary stream is not selected, we may retain an existing
+          // EmptySampleStream.
+          mayRetainStream = streams[i] instanceof EmptySampleStream;
+        } else {
+          // If the corresponding primary stream is selected, we may retain the embedded stream if
+          // the stream's parent still matches.
+          mayRetainStream =
+              (streams[i] instanceof EmbeddedSampleStream)
+                  && ((EmbeddedSampleStream) streams[i]).parent == streams[primaryStreamIndex];
+        }
+        if (!mayRetainStream) {
+          if (streams[i] instanceof EmbeddedSampleStream) {
+            ((EmbeddedSampleStream) streams[i]).release();
+          }
+          streams[i] = null;
+        }
+      }
+    }
+  }
+
+  private void selectNewStreams(
+      TrackSelection[] selections,
+      SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs,
+      int[] streamIndexToTrackGroupIndex) {
+    // Create newly selected primary and event streams.
+    for (int i = 0; i < selections.length; i++) {
+      if (streams[i] == null && selections[i] != null) {
+        streamResetFlags[i] = true;
+        int trackGroupIndex = streamIndexToTrackGroupIndex[i];
+        TrackGroupInfo trackGroupInfo = trackGroupInfos[trackGroupIndex];
+        if (trackGroupInfo.trackGroupCategory == TrackGroupInfo.CATEGORY_PRIMARY) {
+          streams[i] = buildSampleStream(trackGroupInfo, selections[i], positionUs);
+        } else if (trackGroupInfo.trackGroupCategory == TrackGroupInfo.CATEGORY_MANIFEST_EVENTS) {
+          EventStream eventStream = eventStreams.get(trackGroupInfo.eventStreamGroupIndex);
+          Format format = selections[i].getTrackGroup().getFormat(0);
+          streams[i] = new EventSampleStream(eventStream, format, manifest.dynamic);
+        }
+      }
+    }
+    // Create newly selected embedded streams from the corresponding primary stream. Note that this
+    // second pass is needed because the primary stream may not have been created yet in a first
+    // pass if the index of the primary stream is greater than the index of the embedded stream.
+    for (int i = 0; i < selections.length; i++) {
+      if (streams[i] == null && selections[i] != null) {
+        int trackGroupIndex = streamIndexToTrackGroupIndex[i];
+        TrackGroupInfo trackGroupInfo = trackGroupInfos[trackGroupIndex];
+        if (trackGroupInfo.trackGroupCategory == TrackGroupInfo.CATEGORY_EMBEDDED) {
+          int primaryStreamIndex = getPrimaryStreamIndex(i, streamIndexToTrackGroupIndex);
+          if (primaryStreamIndex == C.INDEX_UNSET) {
+            // If an embedded track is selected without the corresponding primary track, create an
+            // empty sample stream instead.
+            streams[i] = new EmptySampleStream();
+          } else {
+            streams[i] =
+                ((ChunkSampleStream) streams[primaryStreamIndex])
+                    .selectEmbeddedTrack(positionUs, trackGroupInfo.trackType);
+          }
+        }
+      }
+    }
+  }
+
+  private int getPrimaryStreamIndex(int embeddedStreamIndex, int[] streamIndexToTrackGroupIndex) {
+    int embeddedTrackGroupIndex = streamIndexToTrackGroupIndex[embeddedStreamIndex];
+    if (embeddedTrackGroupIndex == C.INDEX_UNSET) {
+      return C.INDEX_UNSET;
+    }
+    int primaryTrackGroupIndex = trackGroupInfos[embeddedTrackGroupIndex].primaryTrackGroupIndex;
+    for (int i = 0; i < streamIndexToTrackGroupIndex.length; i++) {
+      int trackGroupIndex = streamIndexToTrackGroupIndex[i];
+      if (trackGroupIndex == primaryTrackGroupIndex
+          && trackGroupInfos[trackGroupIndex].trackGroupCategory
+              == TrackGroupInfo.CATEGORY_PRIMARY) {
+        return i;
+      }
+    }
+    return C.INDEX_UNSET;
+  }
 
   private static Pair<TrackGroupArray, TrackGroupInfo[]> buildTrackGroups(
       List<AdaptationSet> adaptationSets, List<EventStream> eventStreams) {
@@ -560,7 +592,8 @@ import java.util.List;
             elapsedRealtimeOffset,
             enableEventMessageTrack,
             enableCea608Track,
-            trackPlayerEmsgHandler);
+            trackPlayerEmsgHandler,
+            transferListener);
     ChunkSampleStream<DashChunkSource> stream =
         new ChunkSampleStream<>(
             trackGroupInfo.trackType,
@@ -620,12 +653,6 @@ import java.util.List;
   @SuppressWarnings("unchecked")
   private static ChunkSampleStream<DashChunkSource>[] newSampleStreamArray(int length) {
     return new ChunkSampleStream[length];
-  }
-
-  private static void releaseIfEmbeddedSampleStream(SampleStream sampleStream) {
-    if (sampleStream instanceof EmbeddedSampleStream) {
-      ((EmbeddedSampleStream) sampleStream).release();
-    }
   }
 
   private static final class TrackGroupInfo {

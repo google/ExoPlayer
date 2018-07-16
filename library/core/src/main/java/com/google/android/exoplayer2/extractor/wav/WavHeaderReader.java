@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /** Reads a {@code WavHeader} from an input stream; supports resuming from input failures. */
-/*package*/ final class WavHeaderReader {
+/* package */ final class WavHeaderReader {
 
   private static final String TAG = "WavHeaderReader";
 
@@ -33,6 +33,10 @@ import java.io.IOException;
   private static final int TYPE_PCM = 0x0001;
   /** Float PCM audio data. */
   private static final int TYPE_FLOAT = 0x0003;
+  /** 8-bit ITU-T G.711 A-law audio data. */
+  private static final int TYPE_A_LAW = 0x0006;
+  /** 8-bit ITU-T G.711 mu-law audio data. */
+  private static final int TYPE_MU_LAW = 0x0007;
   /** Extended WAVE format. */
   private static final int TYPE_WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
 
@@ -98,6 +102,12 @@ import java.io.IOException;
       case TYPE_FLOAT:
         encoding = bitsPerSample == 32 ? C.ENCODING_PCM_FLOAT : C.ENCODING_INVALID;
         break;
+      case TYPE_A_LAW:
+        encoding = C.ENCODING_PCM_A_LAW;
+        break;
+      case TYPE_MU_LAW:
+        encoding = C.ENCODING_PCM_MU_LAW;
+        break;
       default:
         Log.e(TAG, "Unsupported WAV format type: " + type);
         return null;
@@ -156,6 +166,10 @@ import java.io.IOException;
     input.skipFully(ChunkHeader.SIZE_IN_BYTES);
 
     wavHeader.setDataBounds(input.getPosition(), chunkHeader.size);
+  }
+
+  private WavHeaderReader() {
+    // Prevent instantiation.
   }
 
   /** Container for a WAV chunk header. */
