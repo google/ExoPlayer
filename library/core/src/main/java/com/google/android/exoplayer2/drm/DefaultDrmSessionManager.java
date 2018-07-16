@@ -26,13 +26,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DefaultDrmSession.ProvisioningManager;
-import com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener.EventDispatcher;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -89,13 +88,12 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   public static final int INITIAL_DRM_REQUEST_RETRY_COUNT = 3;
 
   private static final String TAG = "DefaultDrmSessionMgr";
-  private static final String CENC_SCHEME_MIME_TYPE = "cenc";
 
   private final UUID uuid;
   private final ExoMediaDrm<T> mediaDrm;
   private final MediaDrmCallback callback;
   private final HashMap<String, String> optionalKeyRequestParameters;
-  private final EventDispatcher eventDispatcher;
+  private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
   private final int initialDrmRequestRetryCount;
 
@@ -121,7 +119,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       throws UnsupportedDrmException {
     DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
         newWidevineInstance(callback, optionalKeyRequestParameters);
-    drmSessionManager.addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      drmSessionManager.addListener(eventHandler, eventListener);
+    }
     return drmSessionManager;
   }
 
@@ -152,7 +152,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       throws UnsupportedDrmException {
     DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
         newPlayReadyInstance(callback, customData);
-    drmSessionManager.addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      drmSessionManager.addListener(eventHandler, eventListener);
+    }
     return drmSessionManager;
   }
 
@@ -192,7 +194,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       throws UnsupportedDrmException {
     DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
         newFrameworkInstance(uuid, callback, optionalKeyRequestParameters);
-    drmSessionManager.addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      drmSessionManager.addListener(eventHandler, eventListener);
+    }
     return drmSessionManager;
   }
 
@@ -230,7 +234,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       Handler eventHandler,
       DefaultDrmSessionEventListener eventListener) {
     this(uuid, mediaDrm, callback, optionalKeyRequestParameters);
-    addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      addListener(eventHandler, eventListener);
+    }
   }
 
   /**
@@ -268,7 +274,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       DefaultDrmSessionEventListener eventListener,
       boolean multiSession) {
     this(uuid, mediaDrm, callback, optionalKeyRequestParameters, multiSession);
-    addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      addListener(eventHandler, eventListener);
+    }
   }
 
   /**
@@ -316,7 +324,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         optionalKeyRequestParameters,
         multiSession,
         initialDrmRequestRetryCount);
-    addListener(eventHandler, eventListener);
+    if (eventHandler != null && eventListener != null) {
+      addListener(eventHandler, eventListener);
+    }
   }
 
   /**
@@ -344,7 +354,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     this.mediaDrm = mediaDrm;
     this.callback = callback;
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
-    this.eventDispatcher = new EventDispatcher();
+    this.eventDispatcher = new EventDispatcher<>();
     this.multiSession = multiSession;
     this.initialDrmRequestRetryCount = initialDrmRequestRetryCount;
     mode = MODE_PLAYBACK;
@@ -479,8 +489,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       return true;
     } else if (C.CENC_TYPE_cbc1.equals(schemeType) || C.CENC_TYPE_cbcs.equals(schemeType)
         || C.CENC_TYPE_cens.equals(schemeType)) {
-      // AES-CBC and pattern encryption are supported on API 24 onwards.
-      return Util.SDK_INT >= 24;
+      // API support for AES-CBC and pattern encryption was added in API 24. However, the
+      // implementation was not stable until API 25.
+      return Util.SDK_INT >= 25;
     }
     // Unknown schemes, assume one of them is supported.
     return true;
@@ -496,17 +507,14 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       }
     }
 
-    byte[] initData = null;
-    String mimeType = null;
+    SchemeData schemeData = null;
     if (offlineLicenseKeySetId == null) {
-      SchemeData data = getSchemeData(drmInitData, uuid, false);
-      if (data == null) {
+      schemeData = getSchemeData(drmInitData, uuid, false);
+      if (schemeData == null) {
         final MissingSchemeDataException error = new MissingSchemeDataException(uuid);
-        eventDispatcher.drmSessionManagerError(error);
+        eventDispatcher.dispatch(listener -> listener.onDrmSessionManagerError(error));
         return new ErrorStateDrmSession<>(new DrmSessionException(error));
       }
-      initData = getSchemeInitData(data, uuid);
-      mimeType = getSchemeMimeType(data, uuid);
     }
 
     DefaultDrmSession<T> session;
@@ -515,6 +523,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     } else {
       // Only use an existing session if it has matching init data.
       session = null;
+      byte[] initData = schemeData != null ? schemeData.data : null;
       for (DefaultDrmSession<T> existingSession : sessions) {
         if (existingSession.hasInitData(initData)) {
           session = existingSession;
@@ -530,8 +539,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
               uuid,
               mediaDrm,
               this,
-              initData,
-              mimeType,
+              schemeData,
               mode,
               offlineLicenseKeySetId,
               optionalKeyRequestParameters,
@@ -635,31 +643,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
     // If we don't have any special handling, prefer the first matching scheme data.
     return matchingSchemeDatas.get(0);
-  }
-
-  private static byte[] getSchemeInitData(SchemeData data, UUID uuid) {
-    byte[] schemeInitData = data.data;
-    if (Util.SDK_INT < 21) {
-      // Prior to L the Widevine CDM required data to be extracted from the PSSH atom.
-      byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(schemeInitData, uuid);
-      if (psshData == null) {
-        // Extraction failed. schemeData isn't a Widevine PSSH atom, so leave it unchanged.
-      } else {
-        schemeInitData = psshData;
-      }
-    }
-    return schemeInitData;
-  }
-
-  private static String getSchemeMimeType(SchemeData data, UUID uuid) {
-    String schemeMimeType = data.mimeType;
-    if (Util.SDK_INT < 26 && C.CLEARKEY_UUID.equals(uuid)
-        && (MimeTypes.VIDEO_MP4.equals(schemeMimeType)
-        || MimeTypes.AUDIO_MP4.equals(schemeMimeType))) {
-      // Prior to API level 26 the ClearKey CDM only accepted "cenc" as the scheme for MP4.
-      schemeMimeType = CENC_SCHEME_MIME_TYPE;
-    }
-    return schemeMimeType;
   }
 
   @SuppressLint("HandlerLeak")

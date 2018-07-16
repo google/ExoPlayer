@@ -76,15 +76,16 @@ public final class DashUtilTest {
     Format format =
         Format.createVideoContainerFormat(
             "id",
+            "label",
             MimeTypes.VIDEO_MP4,
             MimeTypes.VIDEO_H264,
-            "",
+            /* codecs= */ "",
             Format.NO_VALUE,
-            1024,
-            768,
+            /* width= */ 1024,
+            /* height= */ 768,
             Format.NO_VALUE,
-            null,
-            0);
+            /* initializationData= */ null,
+            /* selectionFlags= */ 0);
     if (drmInitData != null) {
       format = format.copyWithDrmInitData(drmInitData);
     }

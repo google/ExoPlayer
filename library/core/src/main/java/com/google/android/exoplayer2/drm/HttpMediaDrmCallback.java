@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.drm;
 
 import android.annotation.TargetApi;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
@@ -24,10 +25,12 @@ import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,6 +39,8 @@ import java.util.UUID;
  */
 @TargetApi(18)
 public final class HttpMediaDrmCallback implements MediaDrmCallback {
+
+  private static final int MAX_MANUAL_REDIRECTS = 5;
 
   private final HttpDataSource.Factory dataSourceFactory;
   private final String defaultLicenseUrl;
@@ -104,13 +109,19 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
   @Override
   public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request) throws IOException {
-    String url = request.getDefaultUrl() + "&signedRequest=" + new String(request.getData());
+    String url =
+        request.getDefaultUrl() + "&signedRequest=" + Util.fromUtf8Bytes(request.getData());
     return executePost(dataSourceFactory, url, new byte[0], null);
   }
 
   @Override
-  public byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws Exception {
+  public byte[] executeKeyRequest(
+      UUID uuid, KeyRequest request, @Nullable String mediaProvidedLicenseServerUrl)
+      throws Exception {
     String url = request.getDefaultUrl();
+    if (TextUtils.isEmpty(url)) {
+      url = mediaProvidedLicenseServerUrl;
+    }
     if (forceDefaultLicenseUrl || TextUtils.isEmpty(url)) {
       url = defaultLicenseUrl;
     }
@@ -138,14 +149,46 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
         dataSource.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
       }
     }
-    DataSpec dataSpec = new DataSpec(Uri.parse(url), data, 0, 0, C.LENGTH_UNSET, null,
-        DataSpec.FLAG_ALLOW_GZIP);
-    DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
-    try {
-      return Util.toByteArray(inputStream);
-    } finally {
-      Util.closeQuietly(inputStream);
+
+    int manualRedirectCount = 0;
+    while (true) {
+      DataSpec dataSpec =
+          new DataSpec(
+              Uri.parse(url),
+              data,
+              /* absoluteStreamPosition= */ 0,
+              /* position= */ 0,
+              /* length= */ C.LENGTH_UNSET,
+              /* key= */ null,
+              DataSpec.FLAG_ALLOW_GZIP);
+      DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
+      try {
+        return Util.toByteArray(inputStream);
+      } catch (InvalidResponseCodeException e) {
+        // For POST requests, the underlying network stack will not normally follow 307 or 308
+        // redirects automatically. Do so manually here.
+        boolean manuallyRedirect =
+            (e.responseCode == 307 || e.responseCode == 308)
+                && manualRedirectCount++ < MAX_MANUAL_REDIRECTS;
+        url = manuallyRedirect ? getRedirectUrl(e) : null;
+        if (url == null) {
+          throw e;
+        }
+      } finally {
+        Util.closeQuietly(inputStream);
+      }
     }
+  }
+
+  private static String getRedirectUrl(InvalidResponseCodeException exception) {
+    Map<String, List<String>> headerFields = exception.headerFields;
+    if (headerFields != null) {
+      List<String> locationHeaders = headerFields.get("Location");
+      if (locationHeaders != null && !locationHeaders.isEmpty()) {
+        return locationHeaders.get(0);
+      }
+    }
+    return null;
   }
 
 }

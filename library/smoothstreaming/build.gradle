@@ -18,9 +18,15 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
+        consumerProguardFiles 'proguard-rules.txt'
     }
 
     buildTypes {
@@ -34,6 +40,7 @@ android {
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     testImplementation project(modulePrefix + 'testutils-robolectric')
 }

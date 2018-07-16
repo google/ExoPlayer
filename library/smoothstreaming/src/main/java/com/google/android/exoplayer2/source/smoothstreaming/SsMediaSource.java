@@ -41,8 +41,10 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,6 +68,7 @@ public final class SsMediaSource extends BaseMediaSource
     private int minLoadableRetryCount;
     private long livePresentationDelayMs;
     private boolean isCreateCalled;
+    private @Nullable Object tag;
 
     /**
      * Creates a new factory for {@link SsMediaSource}s.
@@ -84,6 +87,20 @@ public final class SsMediaSource extends BaseMediaSource
       minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
+    }
+
+    /**
+     * Sets a tag for the media source which will be published in the {@link Timeline} of the source
+     * as {@link Timeline.Window#tag}.
+     *
+     * @param tag A tag for the media source.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setTag(Object tag) {
+      Assertions.checkState(!isCreateCalled);
+      this.tag = tag;
+      return this;
     }
 
     /**
@@ -161,13 +178,14 @@ public final class SsMediaSource extends BaseMediaSource
       isCreateCalled = true;
       return new SsMediaSource(
           manifest,
-          null,
-          null,
-          null,
+          /* manifestUri= */ null,
+          /* manifestDataSourceFactory= */ null,
+          /* manifestParser= */ null,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
-          livePresentationDelayMs);
+          livePresentationDelayMs,
+          tag);
     }
 
     /**
@@ -199,14 +217,15 @@ public final class SsMediaSource extends BaseMediaSource
         manifestParser = new SsManifestParser();
       }
       return new SsMediaSource(
-          null,
+          /* manifest= */ null,
           Assertions.checkNotNull(manifestUri),
           manifestDataSourceFactory,
           manifestParser,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
-          livePresentationDelayMs);
+          livePresentationDelayMs,
+          tag);
     }
 
     /**
@@ -261,10 +280,12 @@ public final class SsMediaSource extends BaseMediaSource
   private final EventDispatcher manifestEventDispatcher;
   private final ParsingLoadable.Parser<? extends SsManifest> manifestParser;
   private final ArrayList<SsMediaPeriod> mediaPeriods;
+  private final @Nullable Object tag;
 
   private DataSource manifestDataSource;
   private Loader manifestLoader;
   private LoaderErrorThrower manifestLoaderErrorThrower;
+  private @Nullable TransferListener<? super DataSource> mediaTransferListener;
 
   private long manifestLoadStartTimestamp;
   private SsManifest manifest;
@@ -309,13 +330,14 @@ public final class SsMediaSource extends BaseMediaSource
       MediaSourceEventListener eventListener) {
     this(
         manifest,
-        null,
-        null,
-        null,
+        /* manifestUri= */ null,
+        /* manifestDataSourceFactory= */ null,
+        /* manifestParser= */ null,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
         minLoadableRetryCount,
-        DEFAULT_LIVE_PRESENTATION_DELAY_MS);
+        DEFAULT_LIVE_PRESENTATION_DELAY_MS,
+        /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
       addEventListener(eventHandler, eventListener);
     }
@@ -400,14 +422,15 @@ public final class SsMediaSource extends BaseMediaSource
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
     this(
-        null,
+        /* manifest= */ null,
         manifestUri,
         manifestDataSourceFactory,
         manifestParser,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
         minLoadableRetryCount,
-        livePresentationDelayMs);
+        livePresentationDelayMs,
+        /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
       addEventListener(eventHandler, eventListener);
     }
@@ -421,7 +444,8 @@ public final class SsMediaSource extends BaseMediaSource
       SsChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       int minLoadableRetryCount,
-      long livePresentationDelayMs) {
+      long livePresentationDelayMs,
+      @Nullable Object tag) {
     Assertions.checkState(manifest == null || !manifest.isLive);
     this.manifest = manifest;
     this.manifestUri = manifestUri == null ? null : SsUtil.fixManifestUri(manifestUri);
@@ -432,6 +456,7 @@ public final class SsMediaSource extends BaseMediaSource
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.manifestEventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
+    this.tag = tag;
     sideloadedManifest = manifest != null;
     mediaPeriods = new ArrayList<>();
   }
@@ -439,7 +464,11 @@ public final class SsMediaSource extends BaseMediaSource
   // MediaSource implementation.
 
   @Override
-  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+  public void prepareSourceInternal(
+      ExoPlayer player,
+      boolean isTopLevelSource,
+      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+    this.mediaTransferListener = mediaTransferListener;
     if (sideloadedManifest) {
       manifestLoaderErrorThrower = new LoaderErrorThrower.Dummy();
       processManifest();
@@ -461,9 +490,16 @@ public final class SsMediaSource extends BaseMediaSource
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     Assertions.checkArgument(id.periodIndex == 0);
     EventDispatcher eventDispatcher = createEventDispatcher(id);
-    SsMediaPeriod period = new SsMediaPeriod(manifest, chunkSourceFactory,
-        compositeSequenceableLoaderFactory, minLoadableRetryCount, eventDispatcher,
-        manifestLoaderErrorThrower, allocator);
+    SsMediaPeriod period =
+        new SsMediaPeriod(
+            manifest,
+            chunkSourceFactory,
+            mediaTransferListener,
+            compositeSequenceableLoaderFactory,
+            minLoadableRetryCount,
+            eventDispatcher,
+            manifestLoaderErrorThrower,
+            allocator);
     mediaPeriods.add(period);
     return period;
   }
@@ -496,6 +532,7 @@ public final class SsMediaSource extends BaseMediaSource
       long loadDurationMs) {
     manifestEventDispatcher.loadCompleted(
         loadable.dataSpec,
+        loadable.getUri(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -511,6 +548,7 @@ public final class SsMediaSource extends BaseMediaSource
       long loadDurationMs, boolean released) {
     manifestEventDispatcher.loadCanceled(
         loadable.dataSpec,
+        loadable.getUri(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -518,14 +556,16 @@ public final class SsMediaSource extends BaseMediaSource
   }
 
   @Override
-  public @Loader.RetryAction int onLoadError(
+  public LoadErrorAction onLoadError(
       ParsingLoadable<SsManifest> loadable,
       long elapsedRealtimeMs,
       long loadDurationMs,
-      IOException error) {
+      IOException error,
+      int errorCount) {
     boolean isFatal = error instanceof ParserException;
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
+        loadable.getUri(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -555,8 +595,15 @@ public final class SsMediaSource extends BaseMediaSource
     Timeline timeline;
     if (startTimeUs == Long.MAX_VALUE) {
       long periodDurationUs = manifest.isLive ? C.TIME_UNSET : 0;
-      timeline = new SinglePeriodTimeline(periodDurationUs, 0, 0, 0, true /* isSeekable */,
-          manifest.isLive /* isDynamic */);
+      timeline =
+          new SinglePeriodTimeline(
+              periodDurationUs,
+              /* windowDurationUs= */ 0,
+              /* windowPositionInPeriodUs= */ 0,
+              /* windowDefaultStartPositionUs= */ 0,
+              /* isSeekable= */ true,
+              manifest.isLive,
+              tag);
     } else if (manifest.isLive) {
       if (manifest.dvrWindowLengthUs != C.TIME_UNSET && manifest.dvrWindowLengthUs > 0) {
         startTimeUs = Math.max(startTimeUs, endTimeUs - manifest.dvrWindowLengthUs);
@@ -569,13 +616,27 @@ public final class SsMediaSource extends BaseMediaSource
         // it to the middle of the window.
         defaultStartPositionUs = Math.min(MIN_LIVE_DEFAULT_START_POSITION_US, durationUs / 2);
       }
-      timeline = new SinglePeriodTimeline(C.TIME_UNSET, durationUs, startTimeUs,
-          defaultStartPositionUs, true /* isSeekable */, true /* isDynamic */);
+      timeline =
+          new SinglePeriodTimeline(
+              /* periodDurationUs= */ C.TIME_UNSET,
+              durationUs,
+              startTimeUs,
+              defaultStartPositionUs,
+              /* isSeekable= */ true,
+              /* isDynamic= */ true,
+              tag);
     } else {
       long durationUs = manifest.durationUs != C.TIME_UNSET ? manifest.durationUs
           : endTimeUs - startTimeUs;
-      timeline = new SinglePeriodTimeline(startTimeUs + durationUs, durationUs, startTimeUs, 0,
-          true /* isSeekable */, false /* isDynamic */);
+      timeline =
+          new SinglePeriodTimeline(
+              startTimeUs + durationUs,
+              durationUs,
+              startTimeUs,
+              /* windowDefaultStartPositionUs= */ 0,
+              /* isSeekable= */ true,
+              /* isDynamic= */ false,
+              tag);
     }
     refreshSourceInfo(timeline, manifest);
   }
@@ -598,7 +659,8 @@ public final class SsMediaSource extends BaseMediaSource
     ParsingLoadable<SsManifest> loadable = new ParsingLoadable<>(manifestDataSource,
         manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
     long elapsedRealtimeMs = manifestLoader.startLoading(loadable, this, minLoadableRetryCount);
-    manifestEventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
+    manifestEventDispatcher.loadStarted(
+        loadable.dataSpec, loadable.dataSpec.uri, loadable.type, elapsedRealtimeMs);
   }
 
 }

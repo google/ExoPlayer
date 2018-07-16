@@ -21,116 +21,118 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-/**
- * {@link DownloadAction} for {@link SegmentDownloader}s.
- *
- * @param <K> The type of the representation key object.
- */
-public abstract class SegmentDownloadAction<K> extends DownloadAction {
+/** {@link DownloadAction} for {@link SegmentDownloader}s. */
+public abstract class SegmentDownloadAction extends DownloadAction {
 
-  /**
-   * Base class for {@link SegmentDownloadAction} {@link Deserializer}s.
-   *
-   * @param <K> The type of the representation key object.
-   */
-  protected abstract static class SegmentDownloadActionDeserializer<K> implements Deserializer {
+  /** Base class for {@link SegmentDownloadAction} {@link Deserializer}s. */
+  protected abstract static class SegmentDownloadActionDeserializer extends Deserializer {
+
+    public SegmentDownloadActionDeserializer(String type, int version) {
+      super(type, version);
+    }
 
     @Override
-    public DownloadAction readFromStream(int version, DataInputStream input) throws IOException {
-      Uri manifestUri = Uri.parse(input.readUTF());
-      String data = input.readUTF();
-      boolean removeAction = input.readBoolean();
+    public final DownloadAction readFromStream(int version, DataInputStream input)
+        throws IOException {
+      Uri uri = Uri.parse(input.readUTF());
+      boolean isRemoveAction = input.readBoolean();
+      int dataLength = input.readInt();
+      byte[] data = new byte[dataLength];
+      input.readFully(data);
       int keyCount = input.readInt();
-      K[] keys = createKeyArray(keyCount);
+      List<StreamKey> keys = new ArrayList<>();
       for (int i = 0; i < keyCount; i++) {
-        keys[i] = readKey(input);
+        keys.add(readKey(version, input));
       }
-      return createDownloadAction(manifestUri, removeAction, data, keys);
+      return createDownloadAction(uri, isRemoveAction, data, keys);
     }
 
     /** Deserializes a key from the {@code input}. */
-    protected abstract K readKey(DataInputStream input) throws IOException;
-
-    /** Returns a key array. */
-    protected abstract K[] createKeyArray(int keyCount);
+    protected StreamKey readKey(int version, DataInputStream input) throws IOException {
+      int periodIndex = input.readInt();
+      int groupIndex = input.readInt();
+      int trackIndex = input.readInt();
+      return new StreamKey(periodIndex, groupIndex, trackIndex);
+    }
 
     /** Returns a {@link DownloadAction}. */
-    protected abstract DownloadAction createDownloadAction(Uri manifestUri, boolean removeAction,
-        String data, K[] keys);
-
+    protected abstract DownloadAction createDownloadAction(
+        Uri manifestUri, boolean isRemoveAction, byte[] data, List<StreamKey> keys);
   }
 
-  protected final Uri manifestUri;
-  protected final K[] keys;
-  private final boolean removeAction;
+  public final List<StreamKey> keys;
 
   /**
-   * @param manifestUri The {@link Uri} of the manifest to be downloaded.
-   * @param removeAction Whether the data will be removed. If {@code false} it will be downloaded.
-   * @param data Optional custom data for this action. If null, an empty string is used.
-   * @param keys Keys of representations to be downloaded. If empty, all representations are
-   *     downloaded. If {@code removeAction} is true, {@code keys} should be an empty array.
+   * @param type The type of the action.
+   * @param version The action version.
+   * @param uri The URI of the media being downloaded.
+   * @param isRemoveAction Whether the data will be removed. If {@code false} it will be downloaded.
+   * @param data Optional custom data for this action. If {@code null} an empty array will be used.
+   * @param keys Keys of tracks to be downloaded. If empty, all tracks will be downloaded. If {@code
+   *     removeAction} is true, {@code keys} must be empty.
    */
   protected SegmentDownloadAction(
-      Uri manifestUri, boolean removeAction, @Nullable String data, K[] keys) {
-    super(data);
-    this.manifestUri = manifestUri;
-    this.keys = Assertions.checkNotNull(keys);
-    this.removeAction = removeAction;
-    if (removeAction) {
-      Assertions.checkArgument(keys.length == 0);
+      String type,
+      int version,
+      Uri uri,
+      boolean isRemoveAction,
+      @Nullable byte[] data,
+      List<StreamKey> keys) {
+    super(type, version, uri, isRemoveAction, data);
+    if (isRemoveAction) {
+      Assertions.checkArgument(keys.isEmpty());
+      this.keys = Collections.emptyList();
+    } else {
+      ArrayList<StreamKey> mutableKeys = new ArrayList<>(keys);
+      Collections.sort(mutableKeys);
+      this.keys = Collections.unmodifiableList(mutableKeys);
     }
   }
 
   @Override
-  public final boolean isRemoveAction() {
-    return removeAction;
+  public List<StreamKey> getKeys() {
+    return keys;
   }
 
   @Override
   public final void writeToStream(DataOutputStream output) throws IOException {
-    output.writeUTF(manifestUri.toString());
-    output.writeUTF(getData());
-    output.writeBoolean(removeAction);
-    output.writeInt(keys.length);
-    for (K key : keys) {
-      writeKey(output, key);
+    output.writeUTF(uri.toString());
+    output.writeBoolean(isRemoveAction);
+    output.writeInt(data.length);
+    output.write(data);
+    output.writeInt(keys.size());
+    for (int i = 0; i < keys.size(); i++) {
+      writeKey(output, keys.get(i));
     }
   }
 
-  /** Serializes the {@code key} into the {@code output}. */
-  protected abstract void writeKey(DataOutputStream output, K key) throws IOException;
-
-
   @Override
-  public boolean isSameMedia(DownloadAction other) {
-    return other instanceof SegmentDownloadAction
-        && manifestUri.equals(((SegmentDownloadAction<?>) other).manifestUri);
-  }
-
-  @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
     if (!super.equals(o)) {
       return false;
     }
-    SegmentDownloadAction<?> that = (SegmentDownloadAction<?>) o;
-    return manifestUri.equals(that.manifestUri)
-        && removeAction == that.removeAction
-        && keys.length == that.keys.length
-        && Arrays.asList(keys).containsAll(Arrays.asList(that.keys));
+    SegmentDownloadAction that = (SegmentDownloadAction) o;
+    return keys.equals(that.keys);
   }
 
   @Override
   public int hashCode() {
     int result = super.hashCode();
-    result = 31 * result + manifestUri.hashCode();
-    result = 31 * result + Arrays.hashCode(keys);
+    result = 31 * result + keys.hashCode();
     return result;
   }
 
+  /** Serializes the {@code key} into the {@code output}. */
+  private void writeKey(DataOutputStream output, StreamKey key) throws IOException {
+    output.writeInt(key.periodIndex);
+    output.writeInt(key.groupIndex);
+    output.writeInt(key.trackIndex);
+  }
 }

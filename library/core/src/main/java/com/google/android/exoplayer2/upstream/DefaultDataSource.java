@@ -17,10 +17,14 @@ package com.google.android.exoplayer2.upstream;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link DataSource} that supports multiple URI schemes. The supported schemes are:
@@ -53,19 +57,18 @@ public final class DefaultDataSource implements DataSource {
   private static final String SCHEME_RAW = RawResourceDataSource.RAW_RESOURCE_SCHEME;
 
   private final Context context;
-  private final TransferListener<? super DataSource> listener;
-
+  private final List<TransferListener<? super DataSource>> transferListeners;
   private final DataSource baseDataSource;
 
   // Lazily initialized.
-  private DataSource fileDataSource;
-  private DataSource assetDataSource;
-  private DataSource contentDataSource;
-  private DataSource rtmpDataSource;
-  private DataSource dataSchemeDataSource;
-  private DataSource rawResourceDataSource;
+  private @Nullable DataSource fileDataSource;
+  private @Nullable DataSource assetDataSource;
+  private @Nullable DataSource contentDataSource;
+  private @Nullable DataSource rtmpDataSource;
+  private @Nullable DataSource dataSchemeDataSource;
+  private @Nullable DataSource rawResourceDataSource;
 
-  private DataSource dataSource;
+  private @Nullable DataSource dataSource;
 
   /**
    * Constructs a new instance, optionally configured to follow cross-protocol redirects.
@@ -76,8 +79,11 @@ public final class DefaultDataSource implements DataSource {
    * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
    *     to HTTPS and vice versa) are enabled when fetching remote data.
    */
-  public DefaultDataSource(Context context, TransferListener<? super DataSource> listener,
-      String userAgent, boolean allowCrossProtocolRedirects) {
+  public DefaultDataSource(
+      Context context,
+      @Nullable TransferListener<? super DataSource> listener,
+      String userAgent,
+      boolean allowCrossProtocolRedirects) {
     this(context, listener, userAgent, DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS, allowCrossProtocolRedirects);
   }
@@ -90,13 +96,17 @@ public final class DefaultDataSource implements DataSource {
    * @param userAgent The User-Agent string that should be used when requesting remote data.
    * @param connectTimeoutMillis The connection timeout that should be used when requesting remote
    *     data, in milliseconds. A timeout of zero is interpreted as an infinite timeout.
-   * @param readTimeoutMillis The read timeout that should be used when requesting remote data,
-   *     in milliseconds. A timeout of zero is interpreted as an infinite timeout.
+   * @param readTimeoutMillis The read timeout that should be used when requesting remote data, in
+   *     milliseconds. A timeout of zero is interpreted as an infinite timeout.
    * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
    *     to HTTPS and vice versa) are enabled when fetching remote data.
    */
-  public DefaultDataSource(Context context, TransferListener<? super DataSource> listener,
-      String userAgent, int connectTimeoutMillis, int readTimeoutMillis,
+  public DefaultDataSource(
+      Context context,
+      @Nullable TransferListener<? super DataSource> listener,
+      String userAgent,
+      int connectTimeoutMillis,
+      int readTimeoutMillis,
       boolean allowCrossProtocolRedirects) {
     this(context, listener,
         new DefaultHttpDataSource(userAgent, null, listener, connectTimeoutMillis,
@@ -112,11 +122,28 @@ public final class DefaultDataSource implements DataSource {
    * @param baseDataSource A {@link DataSource} to use for URI schemes other than file, asset and
    *     content. This {@link DataSource} should normally support at least http(s).
    */
-  public DefaultDataSource(Context context, TransferListener<? super DataSource> listener,
+  public DefaultDataSource(
+      Context context,
+      @Nullable TransferListener<? super DataSource> listener,
       DataSource baseDataSource) {
     this.context = context.getApplicationContext();
-    this.listener = listener;
     this.baseDataSource = Assertions.checkNotNull(baseDataSource);
+    transferListeners = new ArrayList<>();
+    if (listener != null) {
+      transferListeners.add(listener);
+    }
+  }
+
+  @Override
+  public void addTransferListener(TransferListener<? super DataSource> transferListener) {
+    baseDataSource.addTransferListener(transferListener);
+    transferListeners.add(transferListener);
+    maybeAddListenerToDataSource(fileDataSource, transferListener);
+    maybeAddListenerToDataSource(assetDataSource, transferListener);
+    maybeAddListenerToDataSource(contentDataSource, transferListener);
+    maybeAddListenerToDataSource(rtmpDataSource, transferListener);
+    maybeAddListenerToDataSource(dataSchemeDataSource, transferListener);
+    maybeAddListenerToDataSource(rawResourceDataSource, transferListener);
   }
 
   @Override
@@ -149,12 +176,19 @@ public final class DefaultDataSource implements DataSource {
 
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws IOException {
-    return dataSource.read(buffer, offset, readLength);
+    return Assertions.checkNotNull(dataSource).read(buffer, offset, readLength);
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return dataSource == null ? null : dataSource.getUri();
+  }
+
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    return dataSource == null
+        ? DataSource.super.getResponseHeaders()
+        : dataSource.getResponseHeaders();
   }
 
   @Override
@@ -170,21 +204,24 @@ public final class DefaultDataSource implements DataSource {
 
   private DataSource getFileDataSource() {
     if (fileDataSource == null) {
-      fileDataSource = new FileDataSource(listener);
+      fileDataSource = new FileDataSource();
+      addListenersToDataSource(fileDataSource);
     }
     return fileDataSource;
   }
 
   private DataSource getAssetDataSource() {
     if (assetDataSource == null) {
-      assetDataSource = new AssetDataSource(context, listener);
+      assetDataSource = new AssetDataSource(context);
+      addListenersToDataSource(assetDataSource);
     }
     return assetDataSource;
   }
 
   private DataSource getContentDataSource() {
     if (contentDataSource == null) {
-      contentDataSource = new ContentDataSource(context, listener);
+      contentDataSource = new ContentDataSource(context);
+      addListenersToDataSource(contentDataSource);
     }
     return contentDataSource;
   }
@@ -196,6 +233,7 @@ public final class DefaultDataSource implements DataSource {
         Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.rtmp.RtmpDataSource");
         rtmpDataSource = (DataSource) clazz.getConstructor().newInstance();
         // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
+        addListenersToDataSource(rtmpDataSource);
       } catch (ClassNotFoundException e) {
         // Expected if the app was built without the RTMP extension.
         Log.w(TAG, "Attempting to play RTMP stream without depending on the RTMP extension");
@@ -213,14 +251,29 @@ public final class DefaultDataSource implements DataSource {
   private DataSource getDataSchemeDataSource() {
     if (dataSchemeDataSource == null) {
       dataSchemeDataSource = new DataSchemeDataSource();
+      addListenersToDataSource(dataSchemeDataSource);
     }
     return dataSchemeDataSource;
   }
 
   private DataSource getRawResourceDataSource() {
     if (rawResourceDataSource == null) {
-      rawResourceDataSource = new RawResourceDataSource(context, listener);
+      rawResourceDataSource = new RawResourceDataSource(context);
+      addListenersToDataSource(rawResourceDataSource);
     }
     return rawResourceDataSource;
+  }
+
+  private void addListenersToDataSource(DataSource dataSource) {
+    for (int i = 0; i < transferListeners.size(); i++) {
+      dataSource.addTransferListener(transferListeners.get(i));
+    }
+  }
+
+  private void maybeAddListenerToDataSource(
+      @Nullable DataSource dataSource, TransferListener<? super DataSource> listener) {
+    if (dataSource != null) {
+      dataSource.addTransferListener(listener);
+    }
   }
 }

@@ -470,7 +470,7 @@ public final class ParsableByteArray {
     if (lastIndex < limit && data[lastIndex] == 0) {
       stringLength--;
     }
-    String result = new String(data, position, stringLength);
+    String result = Util.fromUtf8Bytes(data, position, stringLength);
     position += length;
     return result;
   }
@@ -489,7 +489,7 @@ public final class ParsableByteArray {
     while (stringLimit < limit && data[stringLimit] != 0) {
       stringLimit++;
     }
-    String string = new String(data, position, stringLimit - position);
+    String string = Util.fromUtf8Bytes(data, position, stringLimit - position);
     position = stringLimit;
     if (position < limit) {
       position++;
@@ -520,7 +520,7 @@ public final class ParsableByteArray {
       // There's a byte order mark at the start of the line. Discard it.
       position += 3;
     }
-    String line = new String(data, position, lineLimit - position);
+    String line = Util.fromUtf8Bytes(data, position, lineLimit - position);
     position = lineLimit;
     if (position == limit) {
       return line;

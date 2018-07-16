@@ -21,6 +21,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 
 /**
@@ -32,7 +34,7 @@ import java.io.IOException;
  *       provide a new timeline whenever the structure of the media changes. The MediaSource
  *       provides these timelines by calling {@link SourceInfoRefreshListener#onSourceInfoRefreshed}
  *       on the {@link SourceInfoRefreshListener}s passed to {@link #prepareSource(ExoPlayer,
- *       boolean, SourceInfoRefreshListener)}.
+ *       boolean, SourceInfoRefreshListener, TransferListener)}.
  *   <li>To provide {@link MediaPeriod} instances for the periods in its timeline. MediaPeriods are
  *       obtained by calling {@link #createPeriod(MediaPeriodId, Allocator)}, and provide a way for
  *       the player to load and read the media.
@@ -145,7 +147,7 @@ public interface MediaSource {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
       if (this == obj) {
         return true;
       }
@@ -189,6 +191,11 @@ public interface MediaSource {
    */
   void removeEventListener(MediaSourceEventListener eventListener);
 
+  /** @deprecated Will be removed in the next release. */
+  @Deprecated
+  void prepareSource(
+      ExoPlayer player, boolean isTopLevelSource, SourceInfoRefreshListener listener);
+
   /**
    * Starts source preparation if not yet started, and adds a listener for timeline and/or manifest
    * updates.
@@ -206,9 +213,16 @@ public interface MediaSource {
    *     boolean)}. If {@code false}, this source is being prepared by another source (e.g. {@link
    *     ConcatenatingMediaSource}) for composition.
    * @param listener The listener to be added.
+   * @param mediaTransferListener The transfer listener which should be informed of any media data
+   *     transfers. May be null if no listener is available. Note that this listener should be only
+   *     informed of transfers related to the media loads and not of auxiliary loads for manifests
+   *     and other data.
    */
   void prepareSource(
-      ExoPlayer player, boolean isTopLevelSource, SourceInfoRefreshListener listener);
+      ExoPlayer player,
+      boolean isTopLevelSource,
+      SourceInfoRefreshListener listener,
+      @Nullable TransferListener<? super DataSource> mediaTransferListener);
 
   /**
    * Throws any pending error encountered while loading or refreshing source information.

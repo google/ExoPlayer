@@ -18,8 +18,8 @@ package com.google.android.exoplayer2;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import android.support.annotation.Nullable;
 import android.view.Surface;
-import com.google.android.exoplayer2.Player.DefaultEventListener;
 import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
@@ -45,12 +45,15 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -229,8 +232,10 @@ public final class ExoPlayerTest {
         new FakeMediaSource(timeline, new Object(), Builder.VIDEO_FORMAT) {
           @Override
           public synchronized void prepareSourceInternal(
-              ExoPlayer player, boolean isTopLevelSource) {
-            super.prepareSourceInternal(player, isTopLevelSource);
+              ExoPlayer player,
+              boolean isTopLevelSource,
+              @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+            super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
             // We've queued a source info refresh on the playback thread's event queue. Allow the
             // test thread to prepare the player with the third source, and block this thread (the
             // playback thread) until the test thread's call to prepare() has returned.
@@ -482,7 +487,7 @@ public final class ExoPlayerTest {
             .build();
     final List<Integer> playbackStatesWhenSeekProcessed = new ArrayList<>();
     EventListener eventListener =
-        new DefaultEventListener() {
+        new EventListener() {
           private int currentPlaybackState = Player.STATE_IDLE;
 
           @Override
@@ -534,7 +539,7 @@ public final class ExoPlayerTest {
             .build();
     final boolean[] onSeekProcessedCalled = new boolean[1];
     EventListener listener =
-        new DefaultEventListener() {
+        new EventListener() {
           @Override
           public void onSeekProcessed() {
             onSeekProcessedCalled[0] = true;
@@ -576,7 +581,8 @@ public final class ExoPlayerTest {
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
-              EventDispatcher eventDispatcher) {
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener<? super DataSource> transferListener) {
             FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray, eventDispatcher);
             mediaPeriod.setSeekToUsOffset(10);
             return mediaPeriod;
@@ -610,7 +616,8 @@ public final class ExoPlayerTest {
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
-              EventDispatcher eventDispatcher) {
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener<? super DataSource> transferListener) {
             FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray, eventDispatcher);
             mediaPeriod.setDiscontinuityPositionUs(10);
             return mediaPeriod;
@@ -635,7 +642,8 @@ public final class ExoPlayerTest {
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
-              EventDispatcher eventDispatcher) {
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener<? super DataSource> transferListener) {
             FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray, eventDispatcher);
             mediaPeriod.setDiscontinuityPositionUs(0);
             return mediaPeriod;
@@ -668,7 +676,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
 
-    List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
+    List<FakeTrackSelection> createdTrackSelections = trackSelector.getAllTrackSelections();
     int numSelectionsEnabled = 0;
     // Assert that all tracks selection are disabled at the end of the playback.
     for (FakeTrackSelection trackSelection : createdTrackSelections) {
@@ -676,9 +684,7 @@ public final class ExoPlayerTest {
       numSelectionsEnabled += trackSelection.enableCount;
     }
     // There are 2 renderers, and track selections are made once (1 period).
-    // Track selections are not reused, so there are 2 track selections made.
     assertThat(createdTrackSelections).hasSize(2);
-    // There should be 2 track selections enabled in total.
     assertThat(numSelectionsEnabled).isEqualTo(2);
   }
 
@@ -699,7 +705,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
 
-    List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
+    List<FakeTrackSelection> createdTrackSelections = trackSelector.getAllTrackSelections();
     int numSelectionsEnabled = 0;
     // Assert that all tracks selection are disabled at the end of the playback.
     for (FakeTrackSelection trackSelection : createdTrackSelections) {
@@ -707,9 +713,7 @@ public final class ExoPlayerTest {
       numSelectionsEnabled += trackSelection.enableCount;
     }
     // There are 2 renderers, and track selections are made twice (2 periods).
-    // Track selections are not reused, so there are 4 track selections made.
     assertThat(createdTrackSelections).hasSize(4);
-    // There should be 4 track selections enabled in total.
     assertThat(numSelectionsEnabled).isEqualTo(4);
   }
 
@@ -726,13 +730,7 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder("testChangeTrackSelection")
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .executeRunnable(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    trackSelector.setRendererDisabled(0, true);
-                  }
-                })
+            .disableRenderer(0)
             .play()
             .build();
 
@@ -745,23 +743,21 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
 
-    List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
+    List<FakeTrackSelection> createdTrackSelections = trackSelector.getAllTrackSelections();
     int numSelectionsEnabled = 0;
     // Assert that all tracks selection are disabled at the end of the playback.
     for (FakeTrackSelection trackSelection : createdTrackSelections) {
       assertThat(trackSelection.isEnabled).isFalse();
       numSelectionsEnabled += trackSelection.enableCount;
     }
-    // There are 2 renderers, and track selections are made twice.
-    // Track selections are not reused, so there are 4 track selections made.
+    // There are 2 renderers, and track selections are made twice. The second time one renderer is
+    // disabled, so only one out of the two track selections is enabled.
     assertThat(createdTrackSelections).hasSize(4);
-    // Initially there are 2 track selections enabled.
-    // The second time one renderer is disabled, so only 1 track selection should be enabled.
     assertThat(numSelectionsEnabled).isEqualTo(3);
   }
 
   @Test
-  public void testAllActivatedTrackSelectionAreReleasedWhenTrackSelectionsAreUsed()
+  public void testAllActivatedTrackSelectionAreReleasedWhenTrackSelectionsAreReused()
       throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     MediaSource mediaSource =
@@ -773,13 +769,7 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder("testReuseTrackSelection")
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .executeRunnable(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    trackSelector.setRendererDisabled(0, true);
-                  }
-                })
+            .disableRenderer(0)
             .play()
             .build();
 
@@ -792,18 +782,17 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
 
-    List<FakeTrackSelection> createdTrackSelections = trackSelector.getSelectedTrackSelections();
+    List<FakeTrackSelection> createdTrackSelections = trackSelector.getAllTrackSelections();
     int numSelectionsEnabled = 0;
     // Assert that all tracks selection are disabled at the end of the playback.
     for (FakeTrackSelection trackSelection : createdTrackSelections) {
       assertThat(trackSelection.isEnabled).isFalse();
       numSelectionsEnabled += trackSelection.enableCount;
     }
-    // There are 2 renderers, and track selections are made twice.
-    // TrackSelections are reused, so there are only 2 track selections made for 2 renderers.
+    // There are 2 renderers, and track selections are made twice. The second time one renderer is
+    // disabled, and the selector re-uses the previous selection for the enabled renderer. So we
+    // expect two track selections, one of which will have been enabled twice.
     assertThat(createdTrackSelections).hasSize(2);
-    // Initially there are 2 track selections enabled.
-    // The second time one renderer is disabled, so only 1 track selection should be enabled.
     assertThat(numSelectionsEnabled).isEqualTo(3);
   }
 
@@ -890,7 +879,8 @@ public final class ExoPlayerTest {
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
-              EventDispatcher eventDispatcher) {
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener<? super DataSource> transferListener) {
             // Defer completing preparation of the period until playback parameters have been set.
             fakeMediaPeriodHolder[0] =
                 new FakeMediaPeriod(trackGroupArray, eventDispatcher, /* deferOnPrepared= */ true);
@@ -1411,7 +1401,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1431,7 +1421,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1453,8 +1443,8 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target50.positionMs >= 50).isTrue();
-    assertThat(target80.positionMs >= 80).isTrue();
+    assertThat(target50.positionMs).isAtLeast(50L);
+    assertThat(target80.positionMs).isAtLeast(80L);
     assertThat(target80.positionMs).isAtLeast(target50.positionMs);
   }
 
@@ -1477,8 +1467,8 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target1.positionMs >= 50).isTrue();
-    assertThat(target2.positionMs >= 50).isTrue();
+    assertThat(target1.positionMs).isAtLeast(50L);
+    assertThat(target2.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1499,7 +1489,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1563,7 +1553,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1583,7 +1573,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1649,7 +1639,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
     assertThat(target.messageCount).isEqualTo(1);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1678,7 +1668,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
     assertThat(target.messageCount).isEqualTo(2);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1712,7 +1702,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
     assertThat(target.windowIndex).isEqualTo(1);
   }
 
@@ -1734,7 +1724,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
     assertThat(target.windowIndex).isEqualTo(2);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1755,7 +1745,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
     assertThat(target.windowIndex).isEqualTo(2);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
   }
 
   @Test
@@ -1792,7 +1782,7 @@ public final class ExoPlayerTest {
         .build()
         .start()
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(target.positionMs >= 50).isTrue();
+    assertThat(target.positionMs).isAtLeast(50L);
     assertThat(target.windowIndex).isEqualTo(0);
   }
 
@@ -1829,6 +1819,88 @@ public final class ExoPlayerTest {
     assertThat(target1.windowIndex).isEqualTo(0);
     assertThat(target2.windowIndex).isEqualTo(1);
     assertThat(target3.windowIndex).isEqualTo(2);
+  }
+
+  @Test
+  public void testCancelMessageBeforeDelivery() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    final PositionGrabbingMessageTarget target = new PositionGrabbingMessageTarget();
+    final AtomicReference<PlayerMessage> message = new AtomicReference<>();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testCancelMessage")
+            .pause()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    message.set(
+                        player.createMessage(target).setPosition(/* positionMs= */ 50).send());
+                  }
+                })
+            // Play a bit to ensure message arrived in internal player.
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 30)
+            .executeRunnable(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    message.get().cancel();
+                  }
+                })
+            .play()
+            .build();
+    new Builder()
+        .setTimeline(timeline)
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+    assertThat(message.get().isCanceled()).isTrue();
+    assertThat(target.messageCount).isEqualTo(0);
+  }
+
+  @Test
+  public void testCancelRepeatedMessageAfterDelivery() throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    final PositionGrabbingMessageTarget target = new PositionGrabbingMessageTarget();
+    final AtomicReference<PlayerMessage> message = new AtomicReference<>();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testCancelMessage")
+            .pause()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    message.set(
+                        player
+                            .createMessage(target)
+                            .setPosition(/* positionMs= */ 50)
+                            .setDeleteAfterDelivery(/* deleteAfterDelivery= */ false)
+                            .send());
+                  }
+                })
+            // Play until the message has been delivered.
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 51)
+            // Seek back, cancel the message, and play past the same position again.
+            .seek(/* positionMs= */ 0)
+            .executeRunnable(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    message.get().cancel();
+                  }
+                })
+            .play()
+            .build();
+    new Builder()
+        .setTimeline(timeline)
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+    assertThat(message.get().isCanceled()).isTrue();
+    assertThat(target.messageCount).isEqualTo(1);
   }
 
   @Test
@@ -1916,6 +1988,105 @@ public final class ExoPlayerTest {
         .inOrder();
   }
 
+  @Test
+  public void testRecursivePlayerChangesReportConsistentValuesForAllListeners() throws Exception {
+    // We add two listeners to the player. The first stops the player as soon as it's ready and both
+    // record the state change events they receive.
+    final AtomicReference<Player> playerReference = new AtomicReference<>();
+    final List<Integer> eventListener1States = new ArrayList<>();
+    final List<Integer> eventListener2States = new ArrayList<>();
+    final EventListener eventListener1 =
+        new EventListener() {
+          @Override
+          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            eventListener1States.add(playbackState);
+            if (playbackState == Player.STATE_READY) {
+              playerReference.get().stop(/* reset= */ true);
+            }
+          }
+        };
+    final EventListener eventListener2 =
+        new EventListener() {
+          @Override
+          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            eventListener2States.add(playbackState);
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testRecursivePlayerChanges")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    playerReference.set(player);
+                    player.addListener(eventListener1);
+                    player.addListener(eventListener2);
+                  }
+                })
+            .build();
+    new ExoPlayerTestRunner.Builder()
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(eventListener1States)
+        .containsExactly(Player.STATE_BUFFERING, Player.STATE_READY, Player.STATE_IDLE)
+        .inOrder();
+    assertThat(eventListener2States)
+        .containsExactly(Player.STATE_BUFFERING, Player.STATE_READY, Player.STATE_IDLE)
+        .inOrder();
+  }
+
+  @Test
+  public void testRecursivePlayerChangesAreReportedInCorrectOrder() throws Exception {
+    // The listener stops the player as soon as it's ready (which should report a timeline and state
+    // change) and sets playWhenReady to false when the timeline callback is received.
+    final AtomicReference<Player> playerReference = new AtomicReference<>();
+    final List<Boolean> eventListenerPlayWhenReady = new ArrayList<>();
+    final List<Integer> eventListenerStates = new ArrayList<>();
+    final EventListener eventListener =
+        new EventListener() {
+          @Override
+          public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+            if (timeline.isEmpty()) {
+              playerReference.get().setPlayWhenReady(/* playWhenReady= */ false);
+            }
+          }
+
+          @Override
+          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            eventListenerPlayWhenReady.add(playWhenReady);
+            eventListenerStates.add(playbackState);
+            if (playbackState == Player.STATE_READY) {
+              playerReference.get().stop(/* reset= */ true);
+            }
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testRecursivePlayerChanges")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    playerReference.set(player);
+                    player.addListener(eventListener);
+                  }
+                })
+            .build();
+    new ExoPlayerTestRunner.Builder()
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(eventListenerStates)
+        .containsExactly(
+            Player.STATE_BUFFERING, Player.STATE_READY, Player.STATE_IDLE, Player.STATE_IDLE)
+        .inOrder();
+    assertThat(eventListenerPlayWhenReady).containsExactly(true, true, true, false).inOrder();
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
@@ -1953,8 +2124,10 @@ public final class ExoPlayerTest {
 
     @Override
     public void handleMessage(SimpleExoPlayer player, int messageType, Object message) {
-      windowIndex = player.getCurrentWindowIndex();
-      positionMs = player.getCurrentPosition();
+      if (player != null) {
+        windowIndex = player.getCurrentWindowIndex();
+        positionMs = player.getCurrentPosition();
+      }
       messageCount++;
     }
   }

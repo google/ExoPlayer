@@ -18,15 +18,19 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
     }
 
     lintOptions {
-        // Truth depends on JUnit, which depends on java.lang.management, which
-        // is not part of Android. Remove this when JUnit 4.13 or later is used.
-        // See: https://github.com/junit-team/junit4/pull/1187.
+        // Robolectric depends on BouncyCastle, which depends on javax.naming,
+        // which is not part of Android.
         disable 'InvalidPackage'
     }
 }

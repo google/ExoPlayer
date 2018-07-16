@@ -56,8 +56,15 @@ public final class SinglePeriodTimelineTest {
   @Test
   public void testGetPeriodPositionDynamicWindowKnownDuration() {
     long windowDurationUs = 1000;
-    SinglePeriodTimeline timeline = new SinglePeriodTimeline(windowDurationUs, windowDurationUs, 0,
-        0, false, true);
+    SinglePeriodTimeline timeline =
+        new SinglePeriodTimeline(
+            windowDurationUs,
+            windowDurationUs,
+            /* windowPositionInPeriodUs= */ 0,
+            /* windowDefaultStartPositionUs= */ 0,
+            /* isSeekable= */ false,
+            /* isDynamic= */ true,
+            /* tag= */ null);
     // Should return null with a positive position projection beyond window duration.
     Pair<Integer, Long> position = timeline.getPeriodPosition(window, period, 0, C.TIME_UNSET,
         windowDurationUs + 1);
@@ -72,4 +79,48 @@ public final class SinglePeriodTimelineTest {
     assertThat(position.second).isEqualTo(0);
   }
 
+  @Test
+  public void setNullTag_returnsNullTag_butUsesDefaultUid() {
+    SinglePeriodTimeline timeline =
+        new SinglePeriodTimeline(
+            /* durationUs= */ C.TIME_UNSET,
+            /* isSeekable= */ false,
+            /* isDynamic= */ false,
+            /* tag= */ null);
+
+    assertThat(timeline.getWindow(/* windowIndex= */ 0, window, /* setTag= */ false).tag).isNull();
+    assertThat(timeline.getWindow(/* windowIndex= */ 0, window, /* setTag= */ true).tag).isNull();
+    assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).id).isNull();
+    assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).id).isNull();
+    assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).uid).isNull();
+    assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid)
+        .isNotNull();
+  }
+
+  @Test
+  public void setTag_isUsedForWindowTag() {
+    Object tag = new Object();
+    SinglePeriodTimeline timeline =
+        new SinglePeriodTimeline(
+            /* durationUs= */ C.TIME_UNSET, /* isSeekable= */ false, /* isDynamic= */ false, tag);
+
+    assertThat(timeline.getWindow(/* windowIndex= */ 0, window, /* setTag= */ false).tag).isNull();
+    assertThat(timeline.getWindow(/* windowIndex= */ 0, window, /* setTag= */ true).tag)
+        .isEqualTo(tag);
+  }
+
+  @Test
+  public void getIndexOfPeriod_returnsPeriod() {
+    SinglePeriodTimeline timeline =
+        new SinglePeriodTimeline(
+            /* durationUs= */ C.TIME_UNSET,
+            /* isSeekable= */ false,
+            /* isDynamic= */ false,
+            /* tag= */ null);
+    Object uid = timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid;
+
+    assertThat(timeline.getIndexOfPeriod(uid)).isEqualTo(0);
+    assertThat(timeline.getIndexOfPeriod(/* uid= */ null)).isEqualTo(C.INDEX_UNSET);
+    assertThat(timeline.getIndexOfPeriod(/* uid= */ new Object())).isEqualTo(C.INDEX_UNSET);
+  }
 }

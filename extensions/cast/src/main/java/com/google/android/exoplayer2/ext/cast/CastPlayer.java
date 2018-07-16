@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -283,6 +284,11 @@ public final class CastPlayer implements Player {
   // Player implementation.
 
   @Override
+  public AudioComponent getAudioComponent() {
+    return null;
+  }
+
+  @Override
   public VideoComponent getVideoComponent() {
     return null;
   }
@@ -305,6 +311,11 @@ public final class CastPlayer implements Player {
   @Override
   public int getPlaybackState() {
     return playbackState;
+  }
+
+  @Override
+  public ExoPlaybackException getPlaybackError() {
+    return null;
   }
 
   @Override
@@ -481,6 +492,14 @@ public final class CastPlayer implements Player {
         : currentTimeline.getPreviousWindowIndex(getCurrentWindowIndex(), repeatMode, false);
   }
 
+  @Override
+  public @Nullable Object getCurrentTag() {
+    int windowIndex = getCurrentWindowIndex();
+    return windowIndex > currentTimeline.getWindowCount()
+        ? null
+        : currentTimeline.getWindow(windowIndex, window, /* setTag= */ true).tag;
+  }
+
   // TODO: Fill the cast timeline information with ProgressListener's duration updates.
   // See [Internal: b/65152553].
   @Override
@@ -510,6 +529,15 @@ public final class CastPlayer implements Player {
     return position == C.TIME_UNSET || duration == C.TIME_UNSET
         ? 0
         : duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100);
+  }
+
+  @Override
+  public long getTotalBufferedDuration() {
+    long bufferedPosition = getBufferedPosition();
+    long currentPosition = getCurrentPosition();
+    return bufferedPosition == C.TIME_UNSET || currentPosition == C.TIME_UNSET
+        ? 0
+        : bufferedPosition - currentPosition;
   }
 
   @Override
@@ -547,6 +575,11 @@ public final class CastPlayer implements Player {
   @Override
   public long getContentPosition() {
     return getCurrentPosition();
+  }
+
+  @Override
+  public long getContentBufferedPosition() {
+    return getBufferedPosition();
   }
 
   // Internal methods.

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import android.annotation.TargetApi;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 
 /**
@@ -119,7 +120,7 @@ public final class AudioAttributes {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }

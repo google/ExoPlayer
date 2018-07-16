@@ -38,6 +38,19 @@ public interface VideoListener {
       int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio);
 
   /**
+   * Called each time there's a change in the size of the surface onto which the video is being
+   * rendered.
+   *
+   * @param width The surface width in pixels. May be {@link
+   *     com.google.android.exoplayer2.C#LENGTH_UNSET} if unknown, or 0 if the video is not rendered
+   *     onto a surface.
+   * @param height The surface height in pixels. May be {@link
+   *     com.google.android.exoplayer2.C#LENGTH_UNSET} if unknown, or 0 if the video is not rendered
+   *     onto a surface.
+   */
+  default void onSurfaceSizeChanged(int width, int height) {}
+
+  /**
    * Called when a frame is rendered for the first time since setting the surface, and when a frame
    * is rendered for the first time since a video track was selected.
    */

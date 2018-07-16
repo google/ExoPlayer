@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
@@ -32,6 +33,7 @@ import java.net.HttpURLConnection;
 import java.net.NoRouteToHostException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -40,13 +42,13 @@ import java.util.regex.Pattern;
 
 /**
  * An {@link HttpDataSource} that uses Android's {@link HttpURLConnection}.
- * <p>
- * By default this implementation will not follow cross-protocol redirects (i.e. redirects from
- * HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by using the
- * {@link #DefaultHttpDataSource(String, Predicate, TransferListener, int, int, boolean,
+ *
+ * <p>By default this implementation will not follow cross-protocol redirects (i.e. redirects from
+ * HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by using the {@link
+ * #DefaultHttpDataSource(String, Predicate, TransferListener, int, int, boolean,
  * RequestProperties)} constructor and passing {@code true} as the second last argument.
  */
-public class DefaultHttpDataSource implements HttpDataSource {
+public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSource {
 
   /**
    * The default connection timeout, in milliseconds.
@@ -68,14 +70,13 @@ public class DefaultHttpDataSource implements HttpDataSource {
   private final int connectTimeoutMillis;
   private final int readTimeoutMillis;
   private final String userAgent;
-  private final Predicate<String> contentTypePredicate;
-  private final RequestProperties defaultRequestProperties;
+  private final @Nullable Predicate<String> contentTypePredicate;
+  private final @Nullable RequestProperties defaultRequestProperties;
   private final RequestProperties requestProperties;
-  private final TransferListener<? super DefaultHttpDataSource> listener;
 
-  private DataSpec dataSpec;
-  private HttpURLConnection connection;
-  private InputStream inputStream;
+  private @Nullable DataSpec dataSpec;
+  private @Nullable HttpURLConnection connection;
+  private @Nullable InputStream inputStream;
   private boolean opened;
 
   private long bytesToSkip;
@@ -87,22 +88,24 @@ public class DefaultHttpDataSource implements HttpDataSource {
   /**
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from
-   *     {@link #open(DataSpec)}.
+   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
+   *     #open(DataSpec)}.
    */
-  public DefaultHttpDataSource(String userAgent, Predicate<String> contentTypePredicate) {
+  public DefaultHttpDataSource(String userAgent, @Nullable Predicate<String> contentTypePredicate) {
     this(userAgent, contentTypePredicate, null);
   }
 
   /**
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from
-   *     {@link #open(DataSpec)}.
+   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
+   *     #open(DataSpec)}.
    * @param listener An optional listener.
    */
-  public DefaultHttpDataSource(String userAgent, Predicate<String> contentTypePredicate,
-      TransferListener<? super DefaultHttpDataSource> listener) {
+  public DefaultHttpDataSource(
+      String userAgent,
+      @Nullable Predicate<String> contentTypePredicate,
+      @Nullable TransferListener<? super DataSource> listener) {
     this(userAgent, contentTypePredicate, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DEFAULT_READ_TIMEOUT_MILLIS);
   }
@@ -110,16 +113,19 @@ public class DefaultHttpDataSource implements HttpDataSource {
   /**
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from
-   *     {@link #open(DataSpec)}.
+   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
+   *     #open(DataSpec)}.
    * @param listener An optional listener.
    * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
    *     interpreted as an infinite timeout.
-   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted
-   *     as an infinite timeout.
+   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
+   *     an infinite timeout.
    */
-  public DefaultHttpDataSource(String userAgent, Predicate<String> contentTypePredicate,
-      TransferListener<? super DefaultHttpDataSource> listener, int connectTimeoutMillis,
+  public DefaultHttpDataSource(
+      String userAgent,
+      @Nullable Predicate<String> contentTypePredicate,
+      @Nullable TransferListener<? super DataSource> listener,
+      int connectTimeoutMillis,
       int readTimeoutMillis) {
     this(userAgent, contentTypePredicate, listener, connectTimeoutMillis, readTimeoutMillis, false,
         null);
@@ -128,41 +134,48 @@ public class DefaultHttpDataSource implements HttpDataSource {
   /**
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from
-   *     {@link #open(DataSpec)}.
+   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
+   *     #open(DataSpec)}.
    * @param listener An optional listener.
    * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
-   *     interpreted as an infinite timeout. Pass {@link #DEFAULT_CONNECT_TIMEOUT_MILLIS} to use
-   *     the default value.
-   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted
-   *     as an infinite timeout. Pass {@link #DEFAULT_READ_TIMEOUT_MILLIS} to use the default value.
+   *     interpreted as an infinite timeout. Pass {@link #DEFAULT_CONNECT_TIMEOUT_MILLIS} to use the
+   *     default value.
+   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
+   *     an infinite timeout. Pass {@link #DEFAULT_READ_TIMEOUT_MILLIS} to use the default value.
    * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
    *     to HTTPS and vice versa) are enabled.
-   * @param defaultRequestProperties The default request properties to be sent to the server as
-   *     HTTP headers or {@code null} if not required.
+   * @param defaultRequestProperties The default request properties to be sent to the server as HTTP
+   *     headers or {@code null} if not required.
    */
-  public DefaultHttpDataSource(String userAgent, Predicate<String> contentTypePredicate,
-      TransferListener<? super DefaultHttpDataSource> listener, int connectTimeoutMillis,
-      int readTimeoutMillis, boolean allowCrossProtocolRedirects,
-      RequestProperties defaultRequestProperties) {
+  public DefaultHttpDataSource(
+      String userAgent,
+      @Nullable Predicate<String> contentTypePredicate,
+      @Nullable TransferListener<? super DataSource> listener,
+      int connectTimeoutMillis,
+      int readTimeoutMillis,
+      boolean allowCrossProtocolRedirects,
+      @Nullable RequestProperties defaultRequestProperties) {
+    super(/* isNetwork= */ true);
     this.userAgent = Assertions.checkNotEmpty(userAgent);
     this.contentTypePredicate = contentTypePredicate;
-    this.listener = listener;
     this.requestProperties = new RequestProperties();
     this.connectTimeoutMillis = connectTimeoutMillis;
     this.readTimeoutMillis = readTimeoutMillis;
     this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
     this.defaultRequestProperties = defaultRequestProperties;
+    if (listener != null) {
+      addTransferListener(listener);
+    }
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return connection == null ? null : Uri.parse(connection.getURL().toString());
   }
 
   @Override
   public Map<String, List<String>> getResponseHeaders() {
-    return connection == null ? null : connection.getHeaderFields();
+    return connection == null ? Collections.emptyMap() : connection.getHeaderFields();
   }
 
   @Override
@@ -188,6 +201,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     this.dataSpec = dataSpec;
     this.bytesRead = 0;
     this.bytesSkipped = 0;
+    transferInitializing(dataSpec);
     try {
       connection = makeConnection(dataSpec);
     } catch (IOException e) {
@@ -253,9 +267,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     }
 
     opened = true;
-    if (listener != null) {
-      listener.onTransferStart(this, dataSpec);
-    }
+    transferStarted(dataSpec);
 
     return bytesToRead;
   }
@@ -286,9 +298,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
       closeConnectionQuietly();
       if (opened) {
         opened = false;
-        if (listener != null) {
-          listener.onTransferEnd(this);
-        }
+        transferEnded();
       }
     }
   }
@@ -526,16 +536,14 @@ public class DefaultHttpDataSource implements HttpDataSource {
     while (bytesSkipped != bytesToSkip) {
       int readLength = (int) Math.min(bytesToSkip - bytesSkipped, skipBuffer.length);
       int read = inputStream.read(skipBuffer, 0, readLength);
-      if (Thread.interrupted()) {
+      if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
       }
       if (read == -1) {
         throw new EOFException();
       }
       bytesSkipped += read;
-      if (listener != null) {
-        listener.onBytesTransferred(this, read);
-      }
+      bytesTransferred(read);
     }
 
     // Release the shared skip buffer.
@@ -578,9 +586,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     }
 
     bytesRead += read;
-    if (listener != null) {
-      listener.onBytesTransferred(this, read);
-    }
+    bytesTransferred(read);
     return read;
   }
 

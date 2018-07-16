@@ -23,8 +23,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Player.DefaultEventListener;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -51,11 +51,9 @@ import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
 
-/**
- * Manages players and an internal media queue for the ExoPlayer/Cast demo app.
- */
-/* package */ final class PlayerManager extends DefaultEventListener
-    implements CastPlayer.SessionAvailabilityListener {
+/** Manages players and an internal media queue for the ExoPlayer/Cast demo app. */
+/* package */ final class PlayerManager
+    implements EventListener, CastPlayer.SessionAvailabilityListener {
 
   /**
    * Listener for changes in the media queue playback position.

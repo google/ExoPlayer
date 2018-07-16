@@ -46,11 +46,10 @@ public class DefaultLoadControl implements LoadControl {
   public static final int DEFAULT_BUFFER_FOR_PLAYBACK_MS = 2500;
 
   /**
-   * The default duration of media that must be buffered for playback to resume after a rebuffer,
-   * in milliseconds. A rebuffer is defined to be caused by buffer depletion rather than a user
-   * action.
+   * The default duration of media that must be buffered for playback to resume after a rebuffer, in
+   * milliseconds. A rebuffer is defined to be caused by buffer depletion rather than a user action.
    */
-  public static final int DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS  = 5000;
+  public static final int DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS = 5000;
 
   /**
    * The default target buffer size in bytes. When set to {@link C#LENGTH_UNSET}, the load control
@@ -301,6 +300,14 @@ public class DefaultLoadControl implements LoadControl {
   public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
     boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
     boolean wasBuffering = isBuffering;
+    long minBufferUs = this.minBufferUs;
+    if (playbackSpeed > 1) {
+      // The playback speed is faster than real time, so scale up the minimum required media
+      // duration to keep enough media buffered for a playout duration of minBufferUs.
+      long mediaDurationMinBufferUs =
+          Util.getMediaDurationForPlayoutDuration(minBufferUs, playbackSpeed);
+      minBufferUs = Math.min(mediaDurationMinBufferUs, maxBufferUs);
+    }
     if (bufferedDurationUs < minBufferUs) {
       isBuffering = prioritizeTimeOverSizeThresholds || !targetBufferSizeReached;
     } else if (bufferedDurationUs > maxBufferUs || targetBufferSizeReached) {

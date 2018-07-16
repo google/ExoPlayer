@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -25,7 +26,10 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
+import com.google.android.exoplayer2.upstream.StatsDataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -45,6 +49,7 @@ import java.util.Arrays;
 
   private final DataSpec dataSpec;
   private final DataSource.Factory dataSourceFactory;
+  private final @Nullable TransferListener<? super DataSource> transferListener;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final TrackGroupArray tracks;
@@ -61,11 +66,11 @@ import java.util.Arrays;
   /* package */ boolean loadingSucceeded;
   /* package */ byte[] sampleData;
   /* package */ int sampleSize;
-  private int errorCount;
 
   public SingleSampleMediaPeriod(
       DataSpec dataSpec,
       DataSource.Factory dataSourceFactory,
+      @Nullable TransferListener<? super DataSource> transferListener,
       Format format,
       long durationUs,
       int minLoadableRetryCount,
@@ -73,6 +78,7 @@ import java.util.Arrays;
       boolean treatLoadErrorsAsEndOfStream) {
     this.dataSpec = dataSpec;
     this.dataSourceFactory = dataSourceFactory;
+    this.transferListener = transferListener;
     this.format = format;
     this.durationUs = durationUs;
     this.minLoadableRetryCount = minLoadableRetryCount;
@@ -137,13 +143,16 @@ import java.util.Arrays;
     if (loadingFinished || loader.isLoading()) {
       return false;
     }
+    DataSource dataSource = dataSourceFactory.createDataSource();
+    if (transferListener != null) {
+      dataSource.addTransferListener(transferListener);
+    }
     long elapsedRealtimeMs =
         loader.startLoading(
-            new SourceLoadable(dataSpec, dataSourceFactory.createDataSource()),
-            this,
-            minLoadableRetryCount);
+            new SourceLoadable(dataSpec, dataSource), /* callback= */ this, minLoadableRetryCount);
     eventDispatcher.loadStarted(
         dataSpec,
+        dataSpec.uri,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         format,
@@ -192,8 +201,13 @@ import java.util.Arrays;
   @Override
   public void onLoadCompleted(SourceLoadable loadable, long elapsedRealtimeMs,
       long loadDurationMs) {
+    sampleSize = (int) loadable.dataSource.getBytesRead();
+    sampleData = loadable.sampleData;
+    loadingFinished = true;
+    loadingSucceeded = true;
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
+        loadable.dataSource.getLastOpenedUri(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         format,
@@ -203,11 +217,7 @@ import java.util.Arrays;
         durationUs,
         elapsedRealtimeMs,
         loadDurationMs,
-        loadable.sampleSize);
-    sampleSize = loadable.sampleSize;
-    sampleData = loadable.sampleData;
-    loadingFinished = true;
-    loadingSucceeded = true;
+        sampleSize);
   }
 
   @Override
@@ -215,6 +225,7 @@ import java.util.Arrays;
       boolean released) {
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
+        loadable.dataSource.getLastOpenedUri(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -224,16 +235,20 @@ import java.util.Arrays;
         durationUs,
         elapsedRealtimeMs,
         loadDurationMs,
-        loadable.sampleSize);
+        loadable.dataSource.getBytesRead());
   }
 
   @Override
-  public @Loader.RetryAction int onLoadError(
-      SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error) {
-    errorCount++;
+  public LoadErrorAction onLoadError(
+      SourceLoadable loadable,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      IOException error,
+      int errorCount) {
     boolean cancel = treatLoadErrorsAsEndOfStream && errorCount >= minLoadableRetryCount;
     eventDispatcher.loadError(
         loadable.dataSpec,
+        loadable.dataSource.getLastOpenedUri(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         format,
@@ -243,7 +258,7 @@ import java.util.Arrays;
         durationUs,
         elapsedRealtimeMs,
         loadDurationMs,
-        loadable.sampleSize,
+        loadable.dataSource.getBytesRead(),
         error,
         /* wasCanceled= */ cancel);
     if (cancel) {
@@ -333,14 +348,13 @@ import java.util.Arrays;
 
     public final DataSpec dataSpec;
 
-    private final DataSource dataSource;
+    private final StatsDataSource dataSource;
 
-    private int sampleSize;
     private byte[] sampleData;
 
     public SourceLoadable(DataSpec dataSpec, DataSource dataSource) {
       this.dataSpec = dataSpec;
-      this.dataSource = dataSource;
+      this.dataSource = new StatsDataSource(dataSource);
     }
 
     @Override
@@ -349,21 +363,16 @@ import java.util.Arrays;
     }
 
     @Override
-    public boolean isLoadCanceled() {
-      return false;
-    }
-
-    @Override
     public void load() throws IOException, InterruptedException {
-      // We always load from the beginning, so reset the sampleSize to 0.
-      sampleSize = 0;
+      // We always load from the beginning, so reset bytesRead to 0.
+      dataSource.resetBytesRead();
       try {
         // Create and open the input.
         dataSource.open(dataSpec);
         // Load the sample data.
         int result = 0;
         while (result != C.RESULT_END_OF_INPUT) {
-          sampleSize += result;
+          int sampleSize = (int) dataSource.getBytesRead();
           if (sampleData == null) {
             sampleData = new byte[INITIAL_SAMPLE_SIZE];
           } else if (sampleSize == sampleData.length) {

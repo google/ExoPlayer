@@ -21,10 +21,10 @@ import android.text.Layout.Alignment;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
@@ -55,15 +55,13 @@ public final class Cea608Decoder extends CeaDecoder {
 
   private static final int[] ROW_INDICES = new int[] {11, 1, 3, 12, 14, 5, 7, 9};
   private static final int[] COLUMN_INDICES = new int[] {0, 4, 8, 12, 16, 20, 24, 28};
-  private static final int[] COLORS = new int[] {
-      Color.WHITE,
-      Color.GREEN,
-      Color.BLUE,
-      Color.CYAN,
-      Color.RED,
-      Color.YELLOW,
-      Color.MAGENTA,
-  };
+
+  private static final int[] STYLE_COLORS =
+      new int[] {
+        Color.WHITE, Color.GREEN, Color.BLUE, Color.CYAN, Color.RED, Color.YELLOW, Color.MAGENTA
+      };
+  private static final int STYLE_ITALICS = 0x07;
+  private static final int STYLE_UNCHANGED = 0x08;
 
   // The default number of rows to display in roll-up captions mode.
   private static final int DEFAULT_CAPTIONS_ROW_COUNT = 4;
@@ -374,18 +372,13 @@ public final class Cea608Decoder extends CeaDecoder {
   private void handleMidrowCtrl(byte cc2) {
     // TODO: support the extended styles (i.e. backgrounds and transparencies)
 
-    // cc2 - 0|0|1|0|ATRBT|U
-    // ATRBT is the 3-byte encoded attribute, and U is the underline toggle
-    boolean isUnderlined = (cc2 & 0x01) == 0x01;
-    currentCueBuilder.setUnderline(isUnderlined);
+    // A midrow control code advances the cursor.
+    currentCueBuilder.append(' ');
 
-    int attribute = (cc2 >> 1) & 0x0F;
-    if (attribute == 0x07) {
-      currentCueBuilder.setMidrowStyle(new StyleSpan(Typeface.ITALIC), 2);
-      currentCueBuilder.setMidrowStyle(new ForegroundColorSpan(Color.WHITE), 1);
-    } else {
-      currentCueBuilder.setMidrowStyle(new ForegroundColorSpan(COLORS[attribute]), 1);
-    }
+    // cc2 - 0|0|1|0|STYLE|U
+    boolean underline = (cc2 & 0x01) == 0x01;
+    int style = (cc2 >> 1) & 0x07;
+    currentCueBuilder.setStyle(style, underline);
   }
 
   private void handlePreambleAddressCode(byte cc1, byte cc2) {
@@ -411,22 +404,18 @@ public final class Cea608Decoder extends CeaDecoder {
       currentCueBuilder.setRow(row);
     }
 
-    if ((cc2 & 0x01) == 0x01) {
-      currentCueBuilder.setPreambleStyle(new UnderlineSpan());
-    }
-
     // cc2 - 0|1|N|0|STYLE|U
     // cc2 - 0|1|N|1|CURSR|U
-    int attribute = cc2 >> 1 & 0x0F;
-    if (attribute <= 0x07) {
-      if (attribute == 0x07) {
-        currentCueBuilder.setPreambleStyle(new StyleSpan(Typeface.ITALIC));
-        currentCueBuilder.setPreambleStyle(new ForegroundColorSpan(Color.WHITE));
-      } else {
-        currentCueBuilder.setPreambleStyle(new ForegroundColorSpan(COLORS[attribute]));
-      }
-    } else {
-      currentCueBuilder.setIndent(COLUMN_INDICES[attribute & 0x07]);
+    boolean isCursor = (cc2 & 0x10) == 0x10;
+    boolean underline = (cc2 & 0x01) == 0x01;
+    int cursorOrStyle = (cc2 >> 1) & 0x07;
+
+    // We need to call setStyle even for the isCursor case, to update the underline bit.
+    // STYLE_UNCHANGED is used for this case.
+    currentCueBuilder.setStyle(isCursor ? STYLE_UNCHANGED : cursorOrStyle, underline);
+
+    if (isCursor) {
+      currentCueBuilder.setIndent(COLUMN_INDICES[cursorOrStyle]);
     }
   }
 
@@ -582,44 +571,37 @@ public final class Cea608Decoder extends CeaDecoder {
 
   private static class CueBuilder {
 
-    private static final int POSITION_UNSET = -1;
-
     // 608 captions define a 15 row by 32 column screen grid. These constants convert from 608
     // positions to normalized screen position.
     private static final int SCREEN_CHARWIDTH = 32;
     private static final int BASE_ROW = 15;
 
-    private final List<CharacterStyle> preambleStyles;
-    private final List<CueStyle> midrowStyles;
+    private final List<CueStyle> cueStyles;
     private final List<SpannableString> rolledUpCaptions;
-    private final SpannableStringBuilder captionStringBuilder;
+    private final StringBuilder captionStringBuilder;
 
     private int row;
     private int indent;
     private int tabOffset;
     private int captionMode;
     private int captionRowCount;
-    private int underlineStartPosition;
 
     public CueBuilder(int captionMode, int captionRowCount) {
-      preambleStyles = new ArrayList<>();
-      midrowStyles = new ArrayList<>();
+      cueStyles = new ArrayList<>();
       rolledUpCaptions = new ArrayList<>();
-      captionStringBuilder = new SpannableStringBuilder();
+      captionStringBuilder = new StringBuilder();
       reset(captionMode);
       setCaptionRowCount(captionRowCount);
     }
 
     public void reset(int captionMode) {
       this.captionMode = captionMode;
-      preambleStyles.clear();
-      midrowStyles.clear();
+      cueStyles.clear();
       rolledUpCaptions.clear();
-      captionStringBuilder.clear();
+      captionStringBuilder.setLength(0);
       row = BASE_ROW;
       indent = 0;
       tabOffset = 0;
-      underlineStartPosition = POSITION_UNSET;
     }
 
     public void setCaptionRowCount(int captionRowCount) {
@@ -627,7 +609,8 @@ public final class Cea608Decoder extends CeaDecoder {
     }
 
     public boolean isEmpty() {
-      return preambleStyles.isEmpty() && midrowStyles.isEmpty() && rolledUpCaptions.isEmpty()
+      return cueStyles.isEmpty()
+          && rolledUpCaptions.isEmpty()
           && captionStringBuilder.length() == 0;
     }
 
@@ -635,6 +618,16 @@ public final class Cea608Decoder extends CeaDecoder {
       int length = captionStringBuilder.length();
       if (length > 0) {
         captionStringBuilder.delete(length - 1, length);
+        // Decrement style start positions if necessary.
+        for (int i = cueStyles.size() - 1; i >= 0; i--) {
+          CueStyle style = cueStyles.get(i);
+          if (style.start == length) {
+            style.start--;
+          } else {
+            // All earlier cues must have style.start < length.
+            break;
+          }
+        }
       }
     }
 
@@ -648,11 +641,8 @@ public final class Cea608Decoder extends CeaDecoder {
 
     public void rollUp() {
       rolledUpCaptions.add(buildSpannableString());
-      captionStringBuilder.clear();
-      preambleStyles.clear();
-      midrowStyles.clear();
-      underlineStartPosition = POSITION_UNSET;
-
+      captionStringBuilder.setLength(0);
+      cueStyles.clear();
       int numRows = Math.min(captionRowCount, row);
       while (rolledUpCaptions.size() >= numRows) {
         rolledUpCaptions.remove(0);
@@ -667,23 +657,8 @@ public final class Cea608Decoder extends CeaDecoder {
       tabOffset = tabs;
     }
 
-    public void setPreambleStyle(CharacterStyle style) {
-      preambleStyles.add(style);
-    }
-
-    public void setMidrowStyle(CharacterStyle style, int nextStyleIncrement) {
-      midrowStyles.add(new CueStyle(style, captionStringBuilder.length(), nextStyleIncrement));
-    }
-
-    public void setUnderline(boolean enabled) {
-      if (enabled) {
-        underlineStartPosition = captionStringBuilder.length();
-      } else if (underlineStartPosition != POSITION_UNSET) {
-        // underline spans won't overlap, so it's safe to modify the builder directly with them
-        captionStringBuilder.setSpan(new UnderlineSpan(), underlineStartPosition,
-            captionStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        underlineStartPosition = POSITION_UNSET;
-      }
+    public void setStyle(int style, boolean underline) {
+      cueStyles.add(new CueStyle(style, underline, captionStringBuilder.length()));
     }
 
     public void append(char text) {
@@ -691,31 +666,69 @@ public final class Cea608Decoder extends CeaDecoder {
     }
 
     public SpannableString buildSpannableString() {
-      int length = captionStringBuilder.length();
+      SpannableStringBuilder builder = new SpannableStringBuilder(captionStringBuilder);
+      int length = builder.length();
 
-      // preamble styles apply to the entire cue
-      for (int i = 0; i < preambleStyles.size(); i++) {
-        captionStringBuilder.setSpan(preambleStyles.get(i), 0, length,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      int underlineStartPosition = C.INDEX_UNSET;
+      int italicStartPosition = C.INDEX_UNSET;
+      int colorStartPosition = 0;
+      int color = Color.WHITE;
+
+      boolean nextItalic = false;
+      int nextColor = Color.WHITE;
+
+      for (int i = 0; i < cueStyles.size(); i++) {
+        CueStyle cueStyle = cueStyles.get(i);
+        boolean underline = cueStyle.underline;
+        int style = cueStyle.style;
+        if (style != STYLE_UNCHANGED) {
+          // If the style is a color then italic is cleared.
+          nextItalic = style == STYLE_ITALICS;
+          // If the style is italic then the color is left unchanged.
+          nextColor = style == STYLE_ITALICS ? nextColor : STYLE_COLORS[style];
+        }
+
+        int position = cueStyle.start;
+        int nextPosition = (i + 1) < cueStyles.size() ? cueStyles.get(i + 1).start : length;
+        if (position == nextPosition) {
+          // There are more cueStyles to process at the current position.
+          continue;
+        }
+
+        // Process changes to underline up to the current position.
+        if (underlineStartPosition != C.INDEX_UNSET && !underline) {
+          setUnderlineSpan(builder, underlineStartPosition, position);
+          underlineStartPosition = C.INDEX_UNSET;
+        } else if (underlineStartPosition == C.INDEX_UNSET && underline) {
+          underlineStartPosition = position;
+        }
+        // Process changes to italic up to the current position.
+        if (italicStartPosition != C.INDEX_UNSET && !nextItalic) {
+          setItalicSpan(builder, italicStartPosition, position);
+          italicStartPosition = C.INDEX_UNSET;
+        } else if (italicStartPosition == C.INDEX_UNSET && nextItalic) {
+          italicStartPosition = position;
+        }
+        // Process changes to color up to the current position.
+        if (nextColor != color) {
+          setColorSpan(builder, colorStartPosition, position, color);
+          color = nextColor;
+          colorStartPosition = position;
+        }
       }
 
-      // midrow styles only apply to part of the cue, and after preamble styles
-      for (int i = 0; i < midrowStyles.size(); i++) {
-        CueStyle cueStyle = midrowStyles.get(i);
-        int end = (i < midrowStyles.size() - cueStyle.nextStyleIncrement)
-            ? midrowStyles.get(i + cueStyle.nextStyleIncrement).start
-            : length;
-        captionStringBuilder.setSpan(cueStyle.style, cueStyle.start, end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      // Add any final spans.
+      if (underlineStartPosition != C.INDEX_UNSET && underlineStartPosition != length) {
+        setUnderlineSpan(builder, underlineStartPosition, length);
+      }
+      if (italicStartPosition != C.INDEX_UNSET && italicStartPosition != length) {
+        setItalicSpan(builder, italicStartPosition, length);
+      }
+      if (colorStartPosition != length) {
+        setColorSpan(builder, colorStartPosition, length, color);
       }
 
-      // special case for midrow underlines that went to the end of the cue
-      if (underlineStartPosition != POSITION_UNSET) {
-        captionStringBuilder.setSpan(new UnderlineSpan(), underlineStartPosition, length,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-
-      return new SpannableString(captionStringBuilder);
+      return new SpannableString(builder);
     }
 
     public Cue build() {
@@ -785,16 +798,34 @@ public final class Cea608Decoder extends CeaDecoder {
       return captionStringBuilder.toString();
     }
 
+    private static void setUnderlineSpan(SpannableStringBuilder builder, int start, int end) {
+      builder.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
+    private static void setItalicSpan(SpannableStringBuilder builder, int start, int end) {
+      builder.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
+    private static void setColorSpan(
+        SpannableStringBuilder builder, int start, int end, int color) {
+      if (color == Color.WHITE) {
+        // White is treated as the default color (i.e. no span is attached).
+        return;
+      }
+      builder.setSpan(new ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
     private static class CueStyle {
 
-      public final CharacterStyle style;
-      public final int start;
-      public final int nextStyleIncrement;
+      public final int style;
+      public final boolean underline;
 
-      public CueStyle(CharacterStyle style, int start, int nextStyleIncrement) {
+      public int start;
+
+      public CueStyle(int style, boolean underline, int start) {
         this.style = style;
+        this.underline = underline;
         this.start = start;
-        this.nextStyleIncrement = nextStyleIncrement;
       }
 
     }

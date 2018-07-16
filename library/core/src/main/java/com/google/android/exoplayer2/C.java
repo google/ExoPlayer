@@ -64,6 +64,9 @@ public final class C {
    */
   public static final int LENGTH_UNSET = -1;
 
+  /** Represents an unset or unknown percentage. */
+  public static final int PERCENTAGE_UNSET = -1;
+
   /**
    * The number of microseconds in one second.
    */
@@ -73,6 +76,9 @@ public final class C {
    * The number of nanoseconds in one second.
    */
   public static final long NANOS_PER_SECOND = 1000000000L;
+
+  /** The number of bits per byte. */
+  public static final int BITS_PER_BYTE = 8;
 
   /**
    * The name of the ASCII charset.
@@ -133,6 +139,8 @@ public final class C {
     ENCODING_PCM_24BIT,
     ENCODING_PCM_32BIT,
     ENCODING_PCM_FLOAT,
+    ENCODING_PCM_MU_LAW,
+    ENCODING_PCM_A_LAW,
     ENCODING_AC3,
     ENCODING_E_AC3,
     ENCODING_DTS,
@@ -141,12 +149,19 @@ public final class C {
   })
   public @interface Encoding {}
 
-  /**
-   * Represents a PCM audio encoding, or an invalid or unset value.
-   */
+  /** Represents a PCM audio encoding, or an invalid or unset value. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
-      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_PCM_FLOAT})
+  @IntDef({
+    Format.NO_VALUE,
+    ENCODING_INVALID,
+    ENCODING_PCM_8BIT,
+    ENCODING_PCM_16BIT,
+    ENCODING_PCM_24BIT,
+    ENCODING_PCM_32BIT,
+    ENCODING_PCM_FLOAT,
+    ENCODING_PCM_MU_LAW,
+    ENCODING_PCM_A_LAW
+  })
   public @interface PcmEncoding {}
   /** @see AudioFormat#ENCODING_INVALID */
   public static final int ENCODING_INVALID = AudioFormat.ENCODING_INVALID;
@@ -160,6 +175,10 @@ public final class C {
   public static final int ENCODING_PCM_32BIT = 0x40000000;
   /** @see AudioFormat#ENCODING_PCM_FLOAT */
   public static final int ENCODING_PCM_FLOAT = AudioFormat.ENCODING_PCM_FLOAT;
+  /** Audio encoding for mu-law. */
+  public static final int ENCODING_PCM_MU_LAW = 0x10000000;
+  /** Audio encoding for A-law. */
+  public static final int ENCODING_PCM_A_LAW = 0x20000000;
   /** @see AudioFormat#ENCODING_AC3 */
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
   /** @see AudioFormat#ENCODING_E_AC3 */
@@ -490,6 +509,8 @@ public final class C {
    * A data type constant for time synchronization data.
    */
   public static final int DATA_TYPE_TIME_SYNCHRONIZATION = 5;
+  /** A data type constant for ads loader data. */
+  public static final int DATA_TYPE_AD = 6;
   /**
    * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or
    * equal to this value.
@@ -791,6 +812,45 @@ public final class C {
    * <p>Larger values indicate higher priorities.
    */
   public static final int PRIORITY_DOWNLOAD = PRIORITY_PLAYBACK - 1000;
+
+  /** Network connection type. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    NETWORK_TYPE_UNKNOWN,
+    NETWORK_TYPE_OFFLINE,
+    NETWORK_TYPE_WIFI,
+    NETWORK_TYPE_2G,
+    NETWORK_TYPE_3G,
+    NETWORK_TYPE_4G,
+    NETWORK_TYPE_CELLULAR_UNKNOWN,
+    NETWORK_TYPE_ETHERNET,
+    NETWORK_TYPE_OTHER
+  })
+  public @interface NetworkType {}
+  /** Unknown network type. */
+  public static final int NETWORK_TYPE_UNKNOWN = 0;
+  /** No network connection. */
+  public static final int NETWORK_TYPE_OFFLINE = 1;
+  /** Network type for a Wifi connection. */
+  public static final int NETWORK_TYPE_WIFI = 2;
+  /** Network type for a 2G cellular connection. */
+  public static final int NETWORK_TYPE_2G = 3;
+  /** Network type for a 3G cellular connection. */
+  public static final int NETWORK_TYPE_3G = 4;
+  /** Network type for a 4G cellular connection. */
+  public static final int NETWORK_TYPE_4G = 5;
+  /**
+   * Network type for cellular connections which cannot be mapped to one of {@link
+   * #NETWORK_TYPE_2G}, {@link #NETWORK_TYPE_3G}, or {@link #NETWORK_TYPE_4G}.
+   */
+  public static final int NETWORK_TYPE_CELLULAR_UNKNOWN = 6;
+  /** Network type for an Ethernet connection. */
+  public static final int NETWORK_TYPE_ETHERNET = 7;
+  /**
+   * Network type for other connections which are not Wifi or cellular (e.g. Ethernet, VPN,
+   * Bluetooth).
+   */
+  public static final int NETWORK_TYPE_OTHER = 8;
 
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving

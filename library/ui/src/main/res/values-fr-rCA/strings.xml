@@ -1,35 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--  Copyright (C) 2016 The Android Open Source Project
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-
-          http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
- -->
-
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="exo_controls_previous_description" msgid="4729846277375475426">"Chanson précédente"</string>
-    <string name="exo_controls_next_description" msgid="7044845014191647105">"Chanson suivante"</string>
-    <string name="exo_controls_pause_description" msgid="7924816224515798262">"Pause"</string>
-    <string name="exo_controls_play_description" msgid="2326300949114396072">"Lire"</string>
-    <string name="exo_controls_stop_description" msgid="121453720915069922">"Arrêter"</string>
-    <string name="exo_controls_rewind_description" msgid="5799450167394904608">"Retour arrière"</string>
-    <string name="exo_controls_fastforward_description" msgid="2382411136909255532">"Avance rapide"</string>
-    <string name="exo_controls_repeat_off_description" msgid="2273550552389469729">"Ne rien lire en boucle"</string>
-    <string name="exo_controls_repeat_one_description" msgid="475266640141093764">"Lire une chanson en boucle"</string>
-    <string name="exo_controls_repeat_all_description" msgid="8909385102773547833">"Tout lire en boucle"</string>
-    <string name="exo_controls_shuffle_description" msgid="1374364424026734323">"Lecture aléatoire"</string>
-    <string name="exo_controls_fullscreen_description" msgid="2643117270009811804">"Mode Plein écran"</string>
-    <string name="exo_download_queued" msgid="5094895434694614073">"File d\'attente de télécharg."</string>
-    <string name="exo_downloading" msgid="3111729133695800638">"Téléchargement en cours…"</string>
-    <string name="exo_download_completed" msgid="73698315802218437">"Téléchargement terminé"</string>
-    <string name="exo_download_failed" msgid="6266121732877856285">"Échec du téléchargement"</string>
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_previous_description">Chanson précédente</string>
+  <string name="exo_controls_next_description">Chanson suivante</string>
+  <string name="exo_controls_pause_description">Pause</string>
+  <string name="exo_controls_play_description">Lire</string>
+  <string name="exo_controls_stop_description">Arrêter</string>
+  <string name="exo_controls_rewind_description">Retour arrière</string>
+  <string name="exo_controls_fastforward_description">Avance rapide</string>
+  <string name="exo_controls_repeat_off_description">Ne rien lire en boucle</string>
+  <string name="exo_controls_repeat_one_description">Lire une chanson en boucle</string>
+  <string name="exo_controls_repeat_all_description">Tout lire en boucle</string>
+  <string name="exo_controls_shuffle_description">Lecture aléatoire</string>
+  <string name="exo_controls_fullscreen_description">Mode Plein écran</string>
+  <string name="exo_download_description">Télécharger</string>
+  <string name="exo_download_notification_channel_name">Téléchargements</string>
+  <string name="exo_download_downloading">Téléchargement en cours…</string>
+  <string name="exo_download_completed">Téléchargement terminé</string>
+  <string name="exo_download_failed">Échec du téléchargement</string>
+  <string name="exo_download_removing">Suppression des téléchargements en cours…</string>
+  <string name="exo_track_selection_title_video">Vidéo</string>
+  <string name="exo_track_selection_title_audio">Audio</string>
+  <string name="exo_track_selection_title_text">Texte</string>
+  <string name="exo_track_selection_none">Aucun</string>
+  <string name="exo_track_selection_auto">Auto</string>
+  <string name="exo_track_unknown">Inconnu</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">Mono</string>
+  <string name="exo_track_stereo">Stéréo</string>
+  <string name="exo_track_surround">Son ambiophonique</string>
+  <string name="exo_track_surround_5_point_1">Son ambiophonique 5.1</string>
+  <string name="exo_track_surround_7_point_1">Son ambiophonique 7.1</string>
+  <string name="exo_track_bitrate">%1$.2f Mb/s</string>
+  <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

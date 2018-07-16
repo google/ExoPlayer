@@ -132,6 +132,22 @@ public final class CacheUtilTest {
   }
 
   @Test
+  public void testDefaultCacheKeyFactory_buildCacheKey() throws Exception {
+    Uri testUri = Uri.parse("test");
+    String key = "key";
+    // If DataSpec.key is present, returns it
+    assertThat(
+            CacheUtil.DEFAULT_CACHE_KEY_FACTORY.buildCacheKey(
+                new DataSpec(testUri, 0, LENGTH_UNSET, key)))
+        .isEqualTo(key);
+    // If not generates a new one using DataSpec.uri
+    assertThat(
+            CacheUtil.DEFAULT_CACHE_KEY_FACTORY.buildCacheKey(
+                new DataSpec(testUri, 0, LENGTH_UNSET, null)))
+        .isEqualTo(generateKey(testUri));
+  }
+
+  @Test
   public void testGetCachedNoData() throws Exception {
     CachingCounters counters = new CachingCounters();
     CacheUtil.getCached(new DataSpec(Uri.parse("test")), mockCache, counters);
@@ -174,7 +190,8 @@ public final class CacheUtilTest {
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(new DataSpec(Uri.parse("test_data")), cache, dataSource, counters);
+    CacheUtil.cache(
+        new DataSpec(Uri.parse("test_data")), cache, dataSource, counters, /* isCanceled= */ null);
 
     assertCounters(counters, 0, 100, 100);
     assertCachedData(cache, fakeDataSet);
@@ -188,11 +205,11 @@ public final class CacheUtilTest {
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, 10, 20, null);
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(dataSpec, cache, dataSource, counters);
+    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
 
     assertCounters(counters, 0, 20, 20);
 
-    CacheUtil.cache(new DataSpec(testUri), cache, dataSource, counters);
+    CacheUtil.cache(new DataSpec(testUri), cache, dataSource, counters, /* isCanceled= */ null);
 
     assertCounters(counters, 20, 80, 100);
     assertCachedData(cache, fakeDataSet);
@@ -207,7 +224,7 @@ public final class CacheUtilTest {
 
     DataSpec dataSpec = new DataSpec(Uri.parse("test_data"));
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(dataSpec, cache, dataSource, counters);
+    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
 
     assertCounters(counters, 0, 100, 100);
     assertCachedData(cache, fakeDataSet);
@@ -223,11 +240,11 @@ public final class CacheUtilTest {
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, 10, 20, null);
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(dataSpec, cache, dataSource, counters);
+    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
 
     assertCounters(counters, 0, 20, 20);
 
-    CacheUtil.cache(new DataSpec(testUri), cache, dataSource, counters);
+    CacheUtil.cache(new DataSpec(testUri), cache, dataSource, counters, /* isCanceled= */ null);
 
     assertCounters(counters, 20, 80, 100);
     assertCachedData(cache, fakeDataSet);
@@ -241,7 +258,7 @@ public final class CacheUtilTest {
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, 0, 1000, null);
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(dataSpec, cache, dataSource, counters);
+    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
 
     assertCounters(counters, 0, 100, 1000);
     assertCachedData(cache, fakeDataSet);
@@ -256,9 +273,16 @@ public final class CacheUtilTest {
     DataSpec dataSpec = new DataSpec(testUri, 0, 1000, null);
 
     try {
-      CacheUtil.cache(dataSpec, cache, new CacheDataSource(cache, dataSource),
-          new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES], null, 0, null,
-          /*enableEOFException*/ true);
+      CacheUtil.cache(
+          dataSpec,
+          cache,
+          new CacheDataSource(cache, dataSource),
+          new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES],
+          /* priorityTaskManager= */ null,
+          /* priority= */ 0,
+          /* counters= */ null,
+          /* isCanceled= */ null,
+          /* enableEOFException= */ true);
       fail();
     } catch (EOFException e) {
       // Do nothing.
@@ -286,7 +310,8 @@ public final class CacheUtilTest {
         .appendReadData(TestUtil.buildTestData(100)).endData();
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
-    CacheUtil.cache(new DataSpec(Uri.parse("test_data")), cache, dataSource, counters);
+    CacheUtil.cache(
+        new DataSpec(Uri.parse("test_data")), cache, dataSource, counters, /* isCanceled= */ null);
 
     assertCounters(counters, 0, 300, 300);
     assertCachedData(cache, fakeDataSet);
@@ -298,10 +323,17 @@ public final class CacheUtilTest {
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     Uri uri = Uri.parse("test_data");
-    CacheUtil.cache(new DataSpec(uri), cache,
+    CacheUtil.cache(
+        new DataSpec(uri),
+        cache,
         // set maxCacheFileSize to 10 to make sure there are multiple spans
         new CacheDataSource(cache, dataSource, 0, 10),
-        new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES], null, 0, null, true);
+        new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES],
+        /* priorityTaskManager= */ null,
+        /* priority= */ 0,
+        /* counters= */ null,
+        /* isCanceled= */ null,
+        true);
     CacheUtil.remove(cache, CacheUtil.generateKey(uri));
 
     assertCacheEmpty(cache);

@@ -49,11 +49,12 @@ import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
-/**
- * A {@link HostedTest} for {@link ExoPlayer} playback tests.
- */
-public abstract class ExoHostedTest extends Player.DefaultEventListener implements HostedTest,
-    AudioRendererEventListener, VideoRendererEventListener {
+/** A {@link HostedTest} for {@link ExoPlayer} playback tests. */
+public abstract class ExoHostedTest
+    implements Player.EventListener,
+        HostedTest,
+        AudioRendererEventListener,
+        VideoRendererEventListener {
 
   static {
     // DefaultAudioSink is able to work around spurious timestamps reported by the platform (by
@@ -76,7 +77,7 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
 
   private ActionSchedule pendingSchedule;
   private HandlerWrapper actionHandler;
-  private MappingTrackSelector trackSelector;
+  private DefaultTrackSelector trackSelector;
   private SimpleExoPlayer player;
   private Surface surface;
   private ExoPlaybackException playerError;
@@ -359,8 +360,8 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
   }
 
   @SuppressWarnings("unused")
-  protected MappingTrackSelector buildTrackSelector(HostActivity host,
-      BandwidthMeter bandwidthMeter) {
+  protected DefaultTrackSelector buildTrackSelector(
+      HostActivity host, BandwidthMeter bandwidthMeter) {
     return new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
   }
 

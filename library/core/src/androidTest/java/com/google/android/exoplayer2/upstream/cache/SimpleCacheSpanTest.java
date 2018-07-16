@@ -18,7 +18,8 @@ package com.google.android.exoplayer2.upstream.cache;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.test.InstrumentationTestCase;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,11 +27,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-/**
- * Unit tests for {@link SimpleCacheSpan}.
- */
-public class SimpleCacheSpanTest extends InstrumentationTestCase {
+/** Unit tests for {@link SimpleCacheSpan}. */
+@RunWith(AndroidJUnit4.class)
+public class SimpleCacheSpanTest {
 
   private CachedContentIndex index;
   private File cacheDir;
@@ -49,19 +53,19 @@ public class SimpleCacheSpanTest extends InstrumentationTestCase {
     return SimpleCacheSpan.createCacheEntry(cacheFile, index);
   }
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    cacheDir = Util.createTempDirectory(getInstrumentation().getContext(), "ExoPlayerTest");
+  @Before
+  public void setUp() throws Exception {
+    cacheDir =
+        Util.createTempDirectory(InstrumentationRegistry.getTargetContext(), "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     Util.recursiveDelete(cacheDir);
-    super.tearDown();
   }
 
+  @Test
   public void testCacheFile() throws Exception {
     assertCacheSpan("key1", 0, 0);
     assertCacheSpan("key2", 1, 2);
@@ -80,6 +84,7 @@ public class SimpleCacheSpanTest extends InstrumentationTestCase {
             + "A paragraph-separator character \u2029", 1, 2);
   }
 
+  @Test
   public void testUpgradeFileName() throws Exception {
     String key = "asd\u00aa";
     int id = index.assignIdForKey(key);

@@ -16,6 +16,10 @@
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -52,6 +56,23 @@ public final class AdaptiveTrackSelectionTest {
   public void setUp() {
     initMocks(this);
     fakeClock = new FakeClock(0);
+  }
+
+  @Test
+  public void testFactoryUsesInitiallyProvidedBandwidthMeter() {
+    BandwidthMeter initialBandwidthMeter = mock(BandwidthMeter.class);
+    BandwidthMeter injectedBandwidthMeter = mock(BandwidthMeter.class);
+    Format format = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
+    AdaptiveTrackSelection adaptiveTrackSelection =
+        new AdaptiveTrackSelection.Factory(initialBandwidthMeter)
+            .createTrackSelection(new TrackGroup(format), injectedBandwidthMeter, /* tracks= */ 0);
+    adaptiveTrackSelection.updateSelectedTrack(
+        /* playbackPositionUs= */ 0,
+        /* bufferedDurationUs= */ 0,
+        /* availableDurationUs= */ C.TIME_UNSET);
+
+    verify(initialBandwidthMeter, atLeastOnce()).getBitrateEstimate();
+    verifyZeroInteractions(injectedBandwidthMeter);
   }
 
   @Test
@@ -392,11 +413,6 @@ public final class AdaptiveTrackSelectionTest {
     }
 
     @Override
-    public boolean isLoadCanceled() {
-      return false;
-    }
-
-    @Override
     public void load() throws IOException, InterruptedException {
       // Do nothing.
     }
@@ -404,11 +420,6 @@ public final class AdaptiveTrackSelectionTest {
     @Override
     public boolean isLoadCompleted() {
       return true;
-    }
-
-    @Override
-    public long bytesLoaded() {
-      return 0;
     }
   }
 }

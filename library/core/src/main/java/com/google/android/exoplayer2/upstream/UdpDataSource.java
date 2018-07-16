@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -25,10 +26,8 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
 
-/**
- * A UDP {@link DataSource}.
- */
-public final class UdpDataSource implements DataSource {
+/** A UDP {@link DataSource}. */
+public final class UdpDataSource extends BaseDataSource {
 
   /**
    * Thrown when an error is encountered when trying to read from a {@link UdpDataSource}.
@@ -51,24 +50,21 @@ public final class UdpDataSource implements DataSource {
    */
   public static final int DEAFULT_SOCKET_TIMEOUT_MILLIS = 8 * 1000;
 
-  private final TransferListener<? super UdpDataSource> listener;
   private final int socketTimeoutMillis;
   private final byte[] packetBuffer;
   private final DatagramPacket packet;
 
-  private Uri uri;
-  private DatagramSocket socket;
-  private MulticastSocket multicastSocket;
-  private InetAddress address;
-  private InetSocketAddress socketAddress;
+  private @Nullable Uri uri;
+  private @Nullable DatagramSocket socket;
+  private @Nullable MulticastSocket multicastSocket;
+  private @Nullable InetAddress address;
+  private @Nullable InetSocketAddress socketAddress;
   private boolean opened;
 
   private int packetRemaining;
 
-  /**
-   * @param listener An optional listener.
-   */
-  public UdpDataSource(TransferListener<? super UdpDataSource> listener) {
+  /** @param listener An optional listener. */
+  public UdpDataSource(@Nullable TransferListener<? super DataSource> listener) {
     this(listener, DEFAULT_MAX_PACKET_SIZE);
   }
 
@@ -76,7 +72,7 @@ public final class UdpDataSource implements DataSource {
    * @param listener An optional listener.
    * @param maxPacketSize The maximum datagram packet size, in bytes.
    */
-  public UdpDataSource(TransferListener<? super UdpDataSource> listener, int maxPacketSize) {
+  public UdpDataSource(@Nullable TransferListener<? super DataSource> listener, int maxPacketSize) {
     this(listener, maxPacketSize, DEAFULT_SOCKET_TIMEOUT_MILLIS);
   }
 
@@ -86,12 +82,17 @@ public final class UdpDataSource implements DataSource {
    * @param socketTimeoutMillis The socket timeout in milliseconds. A timeout of zero is interpreted
    *     as an infinite timeout.
    */
-  public UdpDataSource(TransferListener<? super UdpDataSource> listener, int maxPacketSize,
+  public UdpDataSource(
+      @Nullable TransferListener<? super DataSource> listener,
+      int maxPacketSize,
       int socketTimeoutMillis) {
-    this.listener = listener;
+    super(/* isNetwork= */ true);
     this.socketTimeoutMillis = socketTimeoutMillis;
     packetBuffer = new byte[maxPacketSize];
     packet = new DatagramPacket(packetBuffer, 0, maxPacketSize);
+    if (listener != null) {
+      addTransferListener(listener);
+    }
   }
 
   @Override
@@ -99,7 +100,7 @@ public final class UdpDataSource implements DataSource {
     uri = dataSpec.uri;
     String host = uri.getHost();
     int port = uri.getPort();
-
+    transferInitializing(dataSpec);
     try {
       address = InetAddress.getByName(host);
       socketAddress = new InetSocketAddress(address, port);
@@ -121,9 +122,7 @@ public final class UdpDataSource implements DataSource {
     }
 
     opened = true;
-    if (listener != null) {
-      listener.onTransferStart(this, dataSpec);
-    }
+    transferStarted(dataSpec);
     return C.LENGTH_UNSET;
   }
 
@@ -141,9 +140,7 @@ public final class UdpDataSource implements DataSource {
         throw new UdpDataSourceException(e);
       }
       packetRemaining = packet.getLength();
-      if (listener != null) {
-        listener.onBytesTransferred(this, packetRemaining);
-      }
+      bytesTransferred(packetRemaining);
     }
 
     int packetOffset = packet.getLength() - packetRemaining;
@@ -154,7 +151,7 @@ public final class UdpDataSource implements DataSource {
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return uri;
   }
 
@@ -178,9 +175,7 @@ public final class UdpDataSource implements DataSource {
     packetRemaining = 0;
     if (opened) {
       opened = false;
-      if (listener != null) {
-        listener.onTransferEnd(this);
-      }
+      transferEnded();
     }
   }
 

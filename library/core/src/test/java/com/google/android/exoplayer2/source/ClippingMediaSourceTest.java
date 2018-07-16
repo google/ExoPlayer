@@ -37,6 +37,8 @@ import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
@@ -183,7 +185,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, /* durationUs= */ TEST_CLIP_AMOUNT_US);
     assertThat(clippedTimeline.getWindow(0, window).getDurationUs()).isEqualTo(TEST_CLIP_AMOUNT_US);
@@ -203,7 +206,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 3 * TEST_PERIOD_DURATION_US,
@@ -211,7 +215,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ 2 * TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
@@ -248,7 +253,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 4 * TEST_PERIOD_DURATION_US,
@@ -256,7 +262,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ 3 * TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
@@ -293,7 +300,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 3 * TEST_PERIOD_DURATION_US,
@@ -301,7 +309,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ 2 * TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
@@ -339,7 +348,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 4 * TEST_PERIOD_DURATION_US,
@@ -347,7 +357,8 @@ public final class ClippingMediaSourceTest {
             /* windowPositionInPeriodUs= */ 3 * TEST_PERIOD_DURATION_US,
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
-            /* isDynamic= */ true);
+            /* isDynamic= */ true,
+            /* tag= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
@@ -382,7 +393,7 @@ public final class ClippingMediaSourceTest {
     Timeline clippedTimeline =
         getClippedTimeline(
             timeline, TEST_CLIP_AMOUNT_US, TEST_PERIOD_DURATION_US - TEST_CLIP_AMOUNT_US);
-    TimelineAsserts.assertWindowIds(clippedTimeline, 111);
+    TimelineAsserts.assertWindowTags(clippedTimeline, 111);
     TimelineAsserts.assertPeriodCounts(clippedTimeline, 1);
     TimelineAsserts.assertPreviousWindowIndices(
         clippedTimeline, Player.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
@@ -469,7 +480,8 @@ public final class ClippingMediaSourceTest {
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
-              EventDispatcher eventDispatcher) {
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener<? super DataSource> transferListener) {
             eventDispatcher.downstreamFormatChanged(
                 new MediaLoadData(
                     C.DATA_TYPE_MEDIA,
@@ -479,7 +491,8 @@ public final class ClippingMediaSourceTest {
                     /* trackSelectionData= */ null,
                     C.usToMs(eventStartUs),
                     C.usToMs(eventEndUs)));
-            return super.createFakeMediaPeriod(id, trackGroupArray, allocator, eventDispatcher);
+            return super.createFakeMediaPeriod(
+                id, trackGroupArray, allocator, eventDispatcher, transferListener);
           }
         };
     final ClippingMediaSource clippingMediaSource =

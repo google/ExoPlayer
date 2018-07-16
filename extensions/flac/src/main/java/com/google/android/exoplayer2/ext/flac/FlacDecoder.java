@@ -92,18 +92,14 @@ import java.util.List;
     }
     decoderJni.setData(inputBuffer.data);
     ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, maxOutputBufferSize);
-    int result;
     try {
-      result = decoderJni.decodeSample(outputData);
+      decoderJni.decodeSample(outputData);
+    } catch (FlacDecoderJni.FlacFrameDecodeException e) {
+      return new FlacDecoderException("Frame decoding failed", e);
     } catch (IOException | InterruptedException e) {
       // Never happens.
       throw new IllegalStateException(e);
     }
-    if (result < 0) {
-      return new FlacDecoderException("Frame decoding failed");
-    }
-    outputData.position(0);
-    outputData.limit(result);
     return null;
   }
 

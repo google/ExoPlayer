@@ -19,6 +19,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.EOFException;
 import java.io.FileInputStream;
@@ -26,10 +27,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-/**
- * A {@link DataSource} for reading from a content URI.
- */
-public final class ContentDataSource implements DataSource {
+/** A {@link DataSource} for reading from a content URI. */
+public final class ContentDataSource extends BaseDataSource {
 
   /**
    * Thrown when an {@link IOException} is encountered reading from a content URI.
@@ -43,11 +42,10 @@ public final class ContentDataSource implements DataSource {
   }
 
   private final ContentResolver resolver;
-  private final TransferListener<? super ContentDataSource> listener;
 
-  private Uri uri;
-  private AssetFileDescriptor assetFileDescriptor;
-  private FileInputStream inputStream;
+  private @Nullable Uri uri;
+  private @Nullable AssetFileDescriptor assetFileDescriptor;
+  private @Nullable FileInputStream inputStream;
   private long bytesRemaining;
   private boolean opened;
 
@@ -62,15 +60,20 @@ public final class ContentDataSource implements DataSource {
    * @param context A context.
    * @param listener An optional listener.
    */
-  public ContentDataSource(Context context, TransferListener<? super ContentDataSource> listener) {
+  public ContentDataSource(
+      Context context, @Nullable TransferListener<? super DataSource> listener) {
+    super(/* isNetwork= */ false);
     this.resolver = context.getContentResolver();
-    this.listener = listener;
+    if (listener != null) {
+      addTransferListener(listener);
+    }
   }
 
   @Override
   public long open(DataSpec dataSpec) throws ContentDataSourceException {
     try {
       uri = dataSpec.uri;
+      transferInitializing(dataSpec);
       assetFileDescriptor = resolver.openAssetFileDescriptor(uri, "r");
       if (assetFileDescriptor == null) {
         throw new FileNotFoundException("Could not open file descriptor for: " + uri);
@@ -102,9 +105,7 @@ public final class ContentDataSource implements DataSource {
     }
 
     opened = true;
-    if (listener != null) {
-      listener.onTransferStart(this, dataSpec);
-    }
+    transferStarted(dataSpec);
 
     return bytesRemaining;
   }
@@ -136,14 +137,12 @@ public final class ContentDataSource implements DataSource {
     if (bytesRemaining != C.LENGTH_UNSET) {
       bytesRemaining -= bytesRead;
     }
-    if (listener != null) {
-      listener.onBytesTransferred(this, bytesRead);
-    }
+    bytesTransferred(bytesRead);
     return bytesRead;
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return uri;
   }
 
@@ -168,9 +167,7 @@ public final class ContentDataSource implements DataSource {
         assetFileDescriptor = null;
         if (opened) {
           opened = false;
-          if (listener != null) {
-            listener.onTransferEnd(this);
-          }
+          transferEnded();
         }
       }
     }

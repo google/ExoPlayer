@@ -27,7 +27,7 @@ import java.util.Locale;
  * A helper class for periodically updating a {@link TextView} with debug information obtained from
  * a {@link SimpleExoPlayer}.
  */
-public class DebugTextViewHelper extends Player.DefaultEventListener implements Runnable {
+public class DebugTextViewHelper implements Player.EventListener, Runnable {
 
   private static final int REFRESH_INTERVAL_MS = 1000;
 
