@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -87,6 +88,7 @@ import java.util.Collections;
   private final TrackSelector trackSelector;
   private final TrackSelectorResult emptyTrackSelectorResult;
   private final LoadControl loadControl;
+  private final BandwidthMeter bandwidthMeter;
   private final HandlerWrapper handler;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
@@ -123,6 +125,7 @@ import java.util.Collections;
       TrackSelector trackSelector,
       TrackSelectorResult emptyTrackSelectorResult,
       LoadControl loadControl,
+      BandwidthMeter bandwidthMeter,
       boolean playWhenReady,
       @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled,
@@ -133,6 +136,7 @@ import java.util.Collections;
     this.trackSelector = trackSelector;
     this.emptyTrackSelectorResult = emptyTrackSelectorResult;
     this.loadControl = loadControl;
+    this.bandwidthMeter = bandwidthMeter;
     this.playWhenReady = playWhenReady;
     this.repeatMode = repeatMode;
     this.shuffleModeEnabled = shuffleModeEnabled;
@@ -162,7 +166,7 @@ import java.util.Collections;
     enabledRenderers = new Renderer[0];
     window = new Timeline.Window();
     period = new Timeline.Period();
-    trackSelector.init(/* listener= */ this, /* bandwidthMeter= */ null);
+    trackSelector.init(/* listener= */ this, bandwidthMeter);
 
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
@@ -397,7 +401,7 @@ import java.util.Collections;
         player,
         /* isTopLevelSource= */ true,
         /* listener= */ this,
-        /* mediaTransferListener= */ null);
+        bandwidthMeter.getTransferListener());
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 

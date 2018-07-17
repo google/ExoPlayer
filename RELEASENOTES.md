@@ -28,14 +28,18 @@
 * Add support for lazy preparation of playlist media sources in
   `ConcatenatingMediaSource`
   ([#3972](https://github.com/google/ExoPlayer/issues/3972)).
-* `BandwidthMeter` management (work in progress):
+* `BandwidthMeter` management:
+  * Pass `BandwidthMeter` directly to `ExoPlayerFactory` instead of
+    `TrackSelection.Factory` and `DataSource.Factory`. May also be omitted to
+    use the default bandwidth meter automatically. This change only works
+    correctly if the following changes are adopted for custom `BandwidthMeter`s,
+    `TrackSelection`s, `MediaSource`s and `DataSource`s.
   * Pass `BandwidthMeter` to `TrackSelection.Factory` which can be used to
-    obtain bandwidth estimates in the future. Always null at the moment.
+    obtain bandwidth estimates.
   * Add method to `BandwidthMeter` to return the `TransferListener` used to
     gather bandwidth information. Also add methods to add and remove event
     listeners.
   * Pass `TransferListener` to `MediaSource`s to listen to media data transfers.
-    Always null at the moment.
   * Add method to `DataSource` to add `TransferListener`s. Custom `DataSource`s
     directly reading data should implement `BaseDataSource` to handle the
     registration correctly. Custom `DataSource`'s forwarding to other sources

@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -660,6 +661,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
           trackSelector,
           loadControl,
           /* drmSessionManager= */ null,
+          new DefaultBandwidthMeter.Builder().build(),
           new AnalyticsCollector.Factory(),
           clock,
           Looper.myLooper());
