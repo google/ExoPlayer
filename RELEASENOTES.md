@@ -34,7 +34,7 @@
     use the default bandwidth meter automatically. This change only works
     correctly if the following changes are adopted for custom `BandwidthMeter`s,
     `TrackSelection`s, `MediaSource`s and `DataSource`s.
-  * Pass `BandwidthMeter` to `TrackSelection.Factory` which can be used to
+  * Pass `BandwidthMeter` to `TrackSelection.Factory` which should be used to
     obtain bandwidth estimates.
   * Add method to `BandwidthMeter` to return the `TransferListener` used to
     gather bandwidth information. Also add methods to add and remove event
