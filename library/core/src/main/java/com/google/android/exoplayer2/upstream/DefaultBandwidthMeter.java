@@ -226,13 +226,14 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
         bitrateEstimate = (long) slidingPercentile.getPercentile(0.5f);
       }
     }
-    eventDispatcher.dispatch(
-        listener ->
-            listener.onBandwidthSample(
-                sampleElapsedTimeMs, sampleBytesTransferred, bitrateEstimate));
+    notifyBandwidthSample(sampleElapsedTimeMs, sampleBytesTransferred, bitrateEstimate);
     if (--streamCount > 0) {
       sampleStartTimeMs = nowMs;
     }
     sampleBytesTransferred = 0;
+  }
+
+  private void notifyBandwidthSample(int elapsedMs, long bytes, long bitrate) {
+    eventDispatcher.dispatch(listener -> listener.onBandwidthSample(elapsedMs, bytes, bitrate));
   }
 }
