@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
+import com.google.android.exoplayer2.upstream.Loader.Callback;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import java.io.IOException;
 
@@ -32,12 +33,16 @@ import java.io.IOException;
  * blacklisted. Blacklisting will succeed if any of the alternatives is not in the black list.
  *
  * <p>When blacklisting does not take place, {@link #getRetryDelayMsFor(T, long, IOException, int)}
- * defines whether the load is retried. Loader clients define when to propagate retry attempt
- * errors. Errors that are not retried are propagated.
+ * defines whether the load is retried. Errors whose load is not retried are propagated. Load errors
+ * whose load is retried are propagated according to {@link
+ * #getMinimumLoadableRetryCount(Loadable)}.
  *
  * @param <T> The type of the object being loaded.
  */
 public interface LoadErrorHandlingPolicy<T extends Loadable> {
+
+  /** The default minimum number of times to retry loading data prior to propagating the error. */
+  int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
   /** Default implementation of {@link LoadErrorHandlingPolicy}. */
   LoadErrorHandlingPolicy<Loadable> DEFAULT =
@@ -71,6 +76,12 @@ public interface LoadErrorHandlingPolicy<T extends Loadable> {
           return exception instanceof ParserException
               ? C.TIME_UNSET
               : Math.min((errorCount - 1) * 1000, 5000);
+        }
+
+        /** Returns {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT}. */
+        @Override
+        public int getMinimumLoadableRetryCount(Loadable loadable) {
+          return DEFAULT_MIN_LOADABLE_RETRY_COUNT;
         }
       };
 
@@ -113,4 +124,15 @@ public interface LoadErrorHandlingPolicy<T extends Loadable> {
    *     C#TIME_UNSET} if the error is fatal and should not be retried.
    */
   long getRetryDelayMsFor(T loadable, long loadDurationMs, IOException exception, int errorCount);
+
+  /**
+   * Returns the minimum number of times to retry a load in the case of a load error, before
+   * propagating the error.
+   *
+   * @param loadable The loadable to load.
+   * @return The minimum number of times to retry a load in the case of a load error, before
+   *     propagating the error.
+   * @see Loader#startLoading(Loadable, Callback, int)
+   */
+  int getMinimumLoadableRetryCount(T loadable);
 }
