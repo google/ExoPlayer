@@ -99,11 +99,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    * requiring multiple output buffers to be dequeued at a time for it to make progress.
    */
   private static final int NUM_OUTPUT_BUFFERS = 8;
-  /**
-   * The initial input buffer size. Input buffers are reallocated dynamically if this value is
-   * insufficient.
-   */
-  private static final int INITIAL_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
+  /** The default input buffer size. */
+  private static final int DEFAULT_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
 
   private final boolean scaleToFit;
   private final boolean disableLoopFilter;
@@ -703,11 +700,13 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     try {
       long decoderInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createVpxDecoder");
+      int initialInputBufferSize =
+          format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
       decoder =
           new VpxDecoder(
               NUM_INPUT_BUFFERS,
               NUM_OUTPUT_BUFFERS,
-              INITIAL_INPUT_BUFFER_SIZE,
+              initialInputBufferSize,
               mediaCrypto,
               disableLoopFilter,
               useSurfaceYuvOutput);

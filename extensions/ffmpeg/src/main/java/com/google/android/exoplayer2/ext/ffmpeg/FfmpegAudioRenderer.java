@@ -37,15 +37,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
 
-  /**
-   * The number of input and output buffers.
-   */
+  /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
-  /**
-   * The initial input buffer size. Input buffers are reallocated dynamically if this value is
-   * insufficient.
-   */
-  private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;
+  /** The default input buffer size. */
+  private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
 
   private final boolean enableFloatOutput;
 
@@ -120,13 +115,11 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   protected FfmpegDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
       throws FfmpegDecoderException {
+    int initialInputBufferSize =
+        format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
     decoder =
         new FfmpegDecoder(
-            NUM_BUFFERS,
-            NUM_BUFFERS,
-            INITIAL_INPUT_BUFFER_SIZE,
-            format,
-            shouldUseFloatOutput(format));
+            NUM_BUFFERS, NUM_BUFFERS, initialInputBufferSize, format, shouldUseFloatOutput(format));
     return decoder;
   }
 
