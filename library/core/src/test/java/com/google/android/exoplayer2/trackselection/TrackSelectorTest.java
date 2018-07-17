@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -49,8 +50,13 @@ public class TrackSelectorTest {
   }
 
   @Test
-  public void getBandwidthMeter_beforeInitialization_returnsNull() {
-    assertThat(trackSelector.getBandwidthMeter()).isNull();
+  public void getBandwidthMeter_beforeInitialization_throwsException() {
+    try {
+      trackSelector.getBandwidthMeter();
+      fail();
+    } catch (Exception e) {
+      // Expected.
+    }
   }
 
   @Test

@@ -38,28 +38,16 @@ public interface TrackSelection {
   interface Factory {
 
     /**
-     * @deprecated Use and implement {@link
-     *     #createTrackSelection(TrackGroup, BandwidthMeter, int...)} instead.
-     */
-    @Deprecated
-    default TrackSelection createTrackSelection(TrackGroup group, int... tracks) {
-      return createTrackSelection(group, /* bandwidthMeter= */ null, tracks);
-    }
-
-    /**
      * Creates a new selection.
      *
      * @param group The {@link TrackGroup}. Must not be null.
-     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks, or null if
-     *     no such bandwidth meter is available.
+     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
      * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
      *     null or empty. May be in any order.
      * @return The created selection.
      */
-    default TrackSelection createTrackSelection(
-        TrackGroup group, @Nullable BandwidthMeter bandwidthMeter, int... tracks) {
-      return createTrackSelection(group, tracks);
-    }
+    TrackSelection createTrackSelection(
+        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks);
   }
 
   /**

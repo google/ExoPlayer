@@ -1056,23 +1056,19 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private static final int[] NO_TRACKS = new int[0];
   private static final int WITHIN_RENDERER_CAPABILITIES_BONUS = 1000;
 
-  private final @Nullable TrackSelection.Factory adaptiveTrackSelectionFactory;
+  private final TrackSelection.Factory adaptiveTrackSelectionFactory;
   private final AtomicReference<Parameters> parametersReference;
 
-  /**
-   * Constructs an instance that does not support adaptive track selection.
-   */
+  /** Constructs an instance that uses a default factory to create adaptive track selections. */
   public DefaultTrackSelector() {
-    this((TrackSelection.Factory) null);
+    this(new AdaptiveTrackSelection.Factory());
   }
 
   /**
-   * Constructs an instance that supports adaptive track selection. Adaptive track selections use
-   * the provided {@link BandwidthMeter} to determine which individual track should be used during
-   * playback.
-   *
-   * @param bandwidthMeter The {@link BandwidthMeter}.
+   * @deprecated Use {@link #DefaultTrackSelector()} instead. Custom bandwidth meter should be
+   *     directly passed to the player in ExoPlayerFactory.
    */
+  @Deprecated
   public DefaultTrackSelector(BandwidthMeter bandwidthMeter) {
     this(new AdaptiveTrackSelection.Factory(bandwidthMeter));
   }
@@ -1080,10 +1076,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   /**
    * Constructs an instance that uses a factory to create adaptive track selections.
    *
-   * @param adaptiveTrackSelectionFactory A factory for adaptive {@link TrackSelection}s, or null if
-   *     the selector should not support adaptive tracks.
+   * @param adaptiveTrackSelectionFactory A factory for adaptive {@link TrackSelection}s.
    */
-  public DefaultTrackSelector(@Nullable TrackSelection.Factory adaptiveTrackSelectionFactory) {
+  public DefaultTrackSelector(TrackSelection.Factory adaptiveTrackSelectionFactory) {
     this.adaptiveTrackSelectionFactory = adaptiveTrackSelectionFactory;
     parametersReference = new AtomicReference<>(Parameters.DEFAULT);
   }
@@ -1381,7 +1376,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int mixedMimeTypeAdaptationSupports,
       Parameters params,
       TrackSelection.Factory adaptiveTrackSelectionFactory,
-      @Nullable BandwidthMeter bandwidthMeter)
+      BandwidthMeter bandwidthMeter)
       throws ExoPlaybackException {
     int requiredAdaptiveSupport = params.allowNonSeamlessAdaptiveness
         ? (RendererCapabilities.ADAPTIVE_NOT_SEAMLESS | RendererCapabilities.ADAPTIVE_SEAMLESS)
