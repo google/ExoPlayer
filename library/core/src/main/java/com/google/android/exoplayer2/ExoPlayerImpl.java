@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
@@ -81,6 +82,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
    * @param clock The {@link Clock} that will be used by the instance.
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
    *     used to call listeners on.
@@ -90,6 +92,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       Renderer[] renderers,
       TrackSelector trackSelector,
       LoadControl loadControl,
+      BandwidthMeter bandwidthMeter,
       Clock clock,
       Looper looper) {
     Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
@@ -130,6 +133,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
             trackSelector,
             emptyTrackSelectorResult,
             loadControl,
+            bandwidthMeter,
             playWhenReady,
             repeatMode,
             shuffleModeEnabled,

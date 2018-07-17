@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -100,22 +101,10 @@ public class SimpleExoPlayer
   private List<Cue> currentCues;
 
   /**
-   * @deprecated Use {@link #SimpleExoPlayer(RenderersFactory, TrackSelector, LoadControl,
-   *     DrmSessionManager, Looper)}.
-   */
-  @Deprecated
-  protected SimpleExoPlayer(
-      RenderersFactory renderersFactory,
-      TrackSelector trackSelector,
-      LoadControl loadControl,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    this(renderersFactory, trackSelector, loadControl, drmSessionManager, Util.getLooper());
-  }
-
-  /**
    * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
@@ -125,6 +114,7 @@ public class SimpleExoPlayer
       RenderersFactory renderersFactory,
       TrackSelector trackSelector,
       LoadControl loadControl,
+      BandwidthMeter bandwidthMeter,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       Looper looper) {
     this(
@@ -132,6 +122,7 @@ public class SimpleExoPlayer
         trackSelector,
         loadControl,
         drmSessionManager,
+        bandwidthMeter,
         new AnalyticsCollector.Factory(),
         looper);
   }
@@ -142,6 +133,7 @@ public class SimpleExoPlayer
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
+   * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
    * @param analyticsCollectorFactory A factory for creating the {@link AnalyticsCollector} that
    *     will collect and forward all player events.
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
@@ -152,6 +144,7 @@ public class SimpleExoPlayer
       TrackSelector trackSelector,
       LoadControl loadControl,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      BandwidthMeter bandwidthMeter,
       AnalyticsCollector.Factory analyticsCollectorFactory,
       Looper looper) {
     this(
@@ -159,6 +152,7 @@ public class SimpleExoPlayer
         trackSelector,
         loadControl,
         drmSessionManager,
+        bandwidthMeter,
         analyticsCollectorFactory,
         Clock.DEFAULT,
         looper);
@@ -170,6 +164,7 @@ public class SimpleExoPlayer
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
+   * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
    * @param analyticsCollectorFactory A factory for creating the {@link AnalyticsCollector} that
    *     will collect and forward all player events.
    * @param clock The {@link Clock} that will be used by the instance. Should always be {@link
@@ -182,6 +177,7 @@ public class SimpleExoPlayer
       TrackSelector trackSelector,
       LoadControl loadControl,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      BandwidthMeter bandwidthMeter,
       AnalyticsCollector.Factory analyticsCollectorFactory,
       Clock clock,
       Looper looper) {
@@ -210,7 +206,8 @@ public class SimpleExoPlayer
     currentCues = Collections.emptyList();
 
     // Build the player and associated objects.
-    player = createExoPlayerImpl(renderers, trackSelector, loadControl, clock, looper);
+    player =
+        createExoPlayerImpl(renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
     analyticsCollector = analyticsCollectorFactory.createAnalyticsCollector(player, clock);
     addListener(analyticsCollector);
     videoDebugListeners.add(analyticsCollector);
@@ -993,6 +990,7 @@ public class SimpleExoPlayer
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
    * @param clock The {@link Clock} that will be used by this instance.
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
    *     used to call listeners on.
@@ -1002,9 +1000,10 @@ public class SimpleExoPlayer
       Renderer[] renderers,
       TrackSelector trackSelector,
       LoadControl loadControl,
+      BandwidthMeter bandwidthMeter,
       Clock clock,
       Looper looper) {
-    return new ExoPlayerImpl(renderers, trackSelector, loadControl, clock, looper);
+    return new ExoPlayerImpl(renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
   }
 
   private void removeSurfaceCallbacks() {
