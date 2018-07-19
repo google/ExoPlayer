@@ -154,13 +154,13 @@ public final class DashMediaSource extends BaseMediaSource {
      * Sets the duration in milliseconds by which the default start position should precede the end
      * of the live window for live playbacks if the value is not present in the manifest. 
      * The default value is {@link #DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS}. This value is only 
-     * used when {@link setLivePresentationDelayMs) has not overwritten the presentation delay to a
+     * used when {@link setLivePresentationDelayMs} has not overwritten the presentation delay to a
      * value other than #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS
      *
      * @param defaultLivePresentationDelayMs For live playbacks, the duration in milliseconds by 
      *     which the default start position should precede the end of the live window if the
      *     duration is not specifed in the manifest or overwritten using
-     *     {@link setLivePresentationDelayMs).
+     *     {@link setLivePresentationDelayMs}.
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
