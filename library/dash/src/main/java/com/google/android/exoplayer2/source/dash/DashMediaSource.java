@@ -153,11 +153,12 @@ public final class DashMediaSource extends BaseMediaSource {
     /**
      * Sets the duration in milliseconds by which the default start position should precede the end
      * of the live window for live playbacks if the value is not present in the manifest. The default value is {@link
-     * #DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS}.
+     * #DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS}. This value is only used when {@link setLivePresentationDelayMs) has not 
+     * overwritten the presentation delay to a value other than #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS
      *
      * @param defaultLivePresentationDelayMs For live playbacks, the duration in milliseconds by which the
      *     default start position should precede the end of the live window if the duration is not specifed in the manifest
-     *     or overwritten using @{link setLivePresentationDelayMs).
+     *     or overwritten using {@link setLivePresentationDelayMs).
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
@@ -220,6 +221,7 @@ public final class DashMediaSource extends BaseMediaSource {
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
           livePresentationDelayMs,
+          defaultLivePresentationDelayMs,
           tag);
     }
 
@@ -260,6 +262,7 @@ public final class DashMediaSource extends BaseMediaSource {
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
           livePresentationDelayMs,
+          defaultLivePresentationDelayMs,
           tag);
     }
 
@@ -321,6 +324,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final int minLoadableRetryCount;
   private final long livePresentationDelayMs;
+  private final long defaultLivePresentationDelayMs;
   private final EventDispatcher manifestEventDispatcher;
   private final ParsingLoadable.Parser<? extends DashManifest> manifestParser;
   private final ManifestCallback manifestCallback;
@@ -398,6 +402,7 @@ public final class DashMediaSource extends BaseMediaSource {
         new DefaultCompositeSequenceableLoaderFactory(),
         minLoadableRetryCount,
         DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS,
+        DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS,
         /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
       addEventListener(eventHandler, eventListener);
@@ -495,6 +500,7 @@ public final class DashMediaSource extends BaseMediaSource {
         new DefaultCompositeSequenceableLoaderFactory(),
         minLoadableRetryCount,
         livePresentationDelayMs,
+        DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS,
         /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
       addEventListener(eventHandler, eventListener);
@@ -510,6 +516,7 @@ public final class DashMediaSource extends BaseMediaSource {
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       int minLoadableRetryCount,
       long livePresentationDelayMs,
+      long defaultLivePresentationDelayMs,
       @Nullable Object tag) {
     this.initialManifestUri = manifestUri;
     this.manifest = manifest;
@@ -519,6 +526,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.livePresentationDelayMs = livePresentationDelayMs;
+    this.defaultLivePresentationDelayMs = defaultLivePresentationDelayMs;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.tag = tag;
     sideloadedManifest = manifest != null;
