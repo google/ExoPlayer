@@ -79,6 +79,7 @@ public final class DashMediaSource extends BaseMediaSource {
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private int minLoadableRetryCount;
     private long livePresentationDelayMs;
+    private long defaultLivePresentationDelayMs;
     private boolean isCreateCalled;
     private @Nullable Object tag;
 
@@ -98,6 +99,7 @@ public final class DashMediaSource extends BaseMediaSource {
       this.manifestDataSourceFactory = manifestDataSourceFactory;
       minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS;
+      defaultLivePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
     }
 
@@ -146,6 +148,23 @@ public final class DashMediaSource extends BaseMediaSource {
       Assertions.checkState(!isCreateCalled);
       this.livePresentationDelayMs = livePresentationDelayMs;
       return this;
+    }
+     
+    /**
+     * Sets the duration in milliseconds by which the default start position should precede the end
+     * of the live window for live playbacks if the value is not present in the manifest. The default value is {@link
+     * #DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS}.
+     *
+     * @param defaultLivePresentationDelayMs For live playbacks, the duration in milliseconds by which the
+     *     default start position should precede the end of the live window if the duration is not specifed in the manifest
+     *     or overwritten using @{link setLivePresentationDelayMs).
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setDefaultLivePresentationDelayMs(long defaultLivePresentationDelayMs) {
+        Assertions.checkState(!isCreateCalled);
+        this.defaultLivePresentationDelayMs = defaultLivePresentationDelayMs;
+        return this
     }
 
     /**
@@ -885,7 +904,7 @@ public final class DashMediaSource extends BaseMediaSource {
       long presentationDelayForManifestMs = livePresentationDelayMs;
       if (presentationDelayForManifestMs == DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS) {
         presentationDelayForManifestMs = manifest.suggestedPresentationDelayMs != C.TIME_UNSET
-            ? manifest.suggestedPresentationDelayMs : DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS;
+            ? manifest.suggestedPresentationDelayMs : defaultLivePresentationDelayMs;
       }
       // Snap the default position to the start of the segment containing it.
       windowDefaultStartPositionUs = windowDurationUs - C.msToUs(presentationDelayForManifestMs);
