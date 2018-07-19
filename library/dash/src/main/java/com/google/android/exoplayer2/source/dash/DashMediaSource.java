@@ -162,9 +162,9 @@ public final class DashMediaSource extends BaseMediaSource {
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
     public Factory setDefaultLivePresentationDelayMs(long defaultLivePresentationDelayMs) {
-        Assertions.checkState(!isCreateCalled);
-        this.defaultLivePresentationDelayMs = defaultLivePresentationDelayMs;
-        return this
+      Assertions.checkState(!isCreateCalled);
+      this.defaultLivePresentationDelayMs = defaultLivePresentationDelayMs;
+      return this;
     }
 
     /**
