@@ -689,13 +689,16 @@ public final class MediaSessionConnector {
 
     @Override
     public MediaMetadataCompat getMetadata(Player player) {
+      if (player.getCurrentTimeline().isEmpty()) {
+        return null;
+      }
       MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
-      if (player != null && player.isPlayingAd()) {
+      if (player.isPlayingAd()) {
         builder.putLong(MediaMetadataCompat.METADATA_KEY_ADVERTISEMENT, 1);
       }
       builder.putLong(
           MediaMetadataCompat.METADATA_KEY_DURATION,
-          player == null ? 0 : player.getDuration() == C.TIME_UNSET ? -1 : player.getDuration());
+          player.getDuration() == C.TIME_UNSET ? -1 : player.getDuration());
       long activeQueueItemId = mediaController.getPlaybackState().getActiveQueueItemId();
       if (activeQueueItemId != MediaSessionCompat.QueueItem.UNKNOWN_ID) {
         List<MediaSessionCompat.QueueItem> queue = mediaController.getQueue();
