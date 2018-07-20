@@ -316,10 +316,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
     } else {
       long windowPositionUs = positionMs == C.TIME_UNSET
           ? timeline.getWindow(windowIndex, window).getDefaultPositionUs() : C.msToUs(positionMs);
-      Pair<Integer, Long> periodIndexAndPositon =
+      Pair<Integer, Long> periodIndexAndPosition =
           timeline.getPeriodPosition(window, period, windowIndex, windowPositionUs);
       maskingWindowPositionMs = C.usToMs(windowPositionUs);
-      maskingPeriodIndex = periodIndexAndPositon.first;
+      maskingPeriodIndex = periodIndexAndPosition.first;
     }
     internalPlayer.seekTo(timeline, windowIndex, C.msToUs(positionMs));
     for (Player.EventListener listener : listeners) {
