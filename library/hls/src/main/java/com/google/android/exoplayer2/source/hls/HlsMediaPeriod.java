@@ -368,7 +368,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
               C.TRACK_TYPE_AUDIO,
               new HlsUrl[] {audioRendition},
               null,
-              Collections.<Format>emptyList(),
+              Collections.emptyList(),
               positionUs);
       sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
       Format renditionFormat = audioRendition.format;
@@ -385,11 +385,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       HlsUrl url = subtitleRenditions.get(i);
       HlsSampleStreamWrapper sampleStreamWrapper =
           buildSampleStreamWrapper(
-              C.TRACK_TYPE_TEXT,
-              new HlsUrl[] {url},
-              null,
-              Collections.<Format>emptyList(),
-              positionUs);
+              C.TRACK_TYPE_TEXT, new HlsUrl[] {url}, null, Collections.emptyList(), positionUs);
       sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
           new TrackGroupArray(new TrackGroup(url.format)), 0, TrackGroupArray.EMPTY);

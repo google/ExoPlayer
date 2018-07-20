@@ -129,7 +129,7 @@ public class SsManifestTest {
         768,
         null,
         formats,
-        Collections.<Long>emptyList(),
+        Collections.emptyList(),
         0);
   }
 

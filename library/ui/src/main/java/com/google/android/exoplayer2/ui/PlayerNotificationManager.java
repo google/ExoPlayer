@@ -391,7 +391,7 @@ public class PlayerNotificationManager {
     customActions =
         customActionReceiver != null
             ? customActionReceiver.createCustomActions(context)
-            : Collections.<String, NotificationCompat.Action>emptyMap();
+            : Collections.emptyMap();
     for (String action : customActions.keySet()) {
       intentFilter.addAction(action);
     }

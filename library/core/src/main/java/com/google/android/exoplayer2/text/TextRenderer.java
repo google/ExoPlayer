@@ -308,7 +308,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   private void clearOutput() {
-    updateOutput(Collections.<Cue>emptyList());
+    updateOutput(Collections.emptyList());
   }
 
   @SuppressWarnings("unchecked")

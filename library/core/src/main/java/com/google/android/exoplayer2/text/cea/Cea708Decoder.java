@@ -743,7 +743,7 @@ public final class Cea708Decoder extends CeaDecoder {
       }
     }
     Collections.sort(displayCues);
-    return Collections.<Cue>unmodifiableList(displayCues);
+    return Collections.unmodifiableList(displayCues);
   }
 
   private void resetCueBuilders() {

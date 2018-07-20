@@ -55,7 +55,7 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void testDecodeNoSubtitle() throws IOException, SubtitleDecoderException {
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.<byte[]>emptyList());
+    Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, NO_SUBTITLE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     assertThat(subtitle.getCues(0)).isEmpty();
@@ -63,7 +63,7 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void testDecodeJustText() throws IOException, SubtitleDecoderException {
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.<byte[]>emptyList());
+    Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_JUST_TEXT);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
@@ -74,7 +74,7 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void testDecodeWithStyl() throws IOException, SubtitleDecoderException {
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.<byte[]>emptyList());
+    Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_WITH_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
@@ -90,7 +90,7 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void testDecodeWithStylAllDefaults() throws IOException, SubtitleDecoderException {
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.<byte[]>emptyList());
+    Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes =
         TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_WITH_STYL_ALL_DEFAULTS);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -102,7 +102,7 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void testDecodeUtf16BeNoStyl() throws IOException, SubtitleDecoderException {
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.<byte[]>emptyList());
+    Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_UTF16_BE_NO_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
@@ -113,7 +113,7 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void testDecodeUtf16LeNoStyl() throws IOException, SubtitleDecoderException {
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.<byte[]>emptyList());
+    Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_UTF16_LE_NO_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
@@ -124,7 +124,7 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void testDecodeWithMultipleStyl() throws IOException, SubtitleDecoderException {
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.<byte[]>emptyList());
+    Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_WITH_MULTIPLE_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
@@ -142,7 +142,7 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void testDecodeWithOtherExtension() throws IOException, SubtitleDecoderException {
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.<byte[]>emptyList());
+    Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes =
         TestUtil.getByteArray(RuntimeEnvironment.application, SAMPLE_WITH_OTHER_EXTENSION);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);

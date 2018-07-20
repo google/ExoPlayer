@@ -38,7 +38,7 @@ public interface MediaCodecSelector {
           List<MediaCodecInfo> decoderInfos =
               MediaCodecUtil.getDecoderInfos(format.sampleMimeType, requiresSecureDecoder);
           return decoderInfos.isEmpty()
-              ? Collections.<MediaCodecInfo>emptyList()
+              ? Collections.emptyList()
               : Collections.singletonList(decoderInfos.get(0));
         }
 
