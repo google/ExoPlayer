@@ -23,6 +23,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.CallSuper;
@@ -445,11 +446,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
-      MediaCrypto crypto) throws DecoderQueryException {
+  protected void configureCodec(MediaCodecInfo codecInfo,
+                                MediaCodec codec,
+                                Format format,
+                                MediaCrypto crypto,
+                                float codecOperatingRate) throws DecoderQueryException {
     codecMaxValues = getCodecMaxValues(codecInfo, format, getStreamFormats());
     MediaFormat mediaFormat = getMediaFormat(format, codecMaxValues, deviceNeedsAutoFrcWorkaround,
-        tunnelingAudioSessionId);
+        tunnelingAudioSessionId, codecOperatingRate);
     if (surface == null) {
       Assertions.checkState(shouldUseDummySurface(codecInfo));
       if (dummySurface == null) {
@@ -499,6 +503,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected void flushCodec() throws ExoPlaybackException {
     super.flushCodec();
     buffersInCodecCount = 0;
+  }
+
+  @TargetApi(23)
+  @Override
+  protected void updateCodecOperatingRate(MediaCodec codec, Format format, float codecOperatingRate) {
+    if (format.frameRate == Format.NO_VALUE) {
+      return;
+    }
+    Bundle codecParameters = new Bundle();
+    codecParameters.putFloat(MediaFormat.KEY_OPERATING_RATE, format.frameRate * codecOperatingRate);
+    codec.setParameters(codecParameters);
   }
 
   @Override
@@ -940,6 +955,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     logic that negatively impacts ExoPlayer.
    * @param tunnelingAudioSessionId The audio session id to use for tunneling, or {@link
    *     C#AUDIO_SESSION_ID_UNSET} if tunneling should not be enabled.
+   * @param codecOperatingRate
    * @return The framework {@link MediaFormat} that should be used to configure the decoder.
    */
   @SuppressLint("InlinedApi")
@@ -947,7 +963,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       Format format,
       CodecMaxValues codecMaxValues,
       boolean deviceNeedsAutoFrcWorkaround,
-      int tunnelingAudioSessionId) {
+      int tunnelingAudioSessionId,
+      float codecOperatingRate) {
     MediaFormat mediaFormat = new MediaFormat();
     // Set format parameters that should always be set.
     mediaFormat.setString(MediaFormat.KEY_MIME, format.sampleMimeType);
@@ -966,6 +983,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // Set codec configuration values.
     if (Util.SDK_INT >= 23) {
       mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, 0 /* realtime priority */);
+      if (format.frameRate != Format.NO_VALUE) {
+        mediaFormat.setFloat(MediaFormat.KEY_OPERATING_RATE, codecOperatingRate * format.frameRate);
+      }
     }
     if (deviceNeedsAutoFrcWorkaround) {
       mediaFormat.setInteger("auto-frc", 0);

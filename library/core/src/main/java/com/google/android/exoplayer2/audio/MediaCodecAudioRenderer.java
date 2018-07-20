@@ -317,12 +317,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
-      MediaCrypto crypto) {
+                                MediaCrypto crypto, float codecOperatingRate) {
     codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     passthroughEnabled = codecInfo.passthrough;
     String codecMimeType = codecInfo.mimeType == null ? MimeTypes.AUDIO_RAW : codecInfo.mimeType;
-    MediaFormat mediaFormat = getMediaFormat(format, codecMimeType, codecMaxInputSize);
+    MediaFormat mediaFormat = getMediaFormat(format, codecMimeType, codecMaxInputSize, codecOperatingRate);
     codec.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
     if (passthroughEnabled) {
       // Store the input MIME type if we're using the passthrough codec.
@@ -633,10 +633,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param format The format of the media.
    * @param codecMimeType The MIME type handled by the codec.
    * @param codecMaxInputSize The maximum input size supported by the codec.
+   * @param codecOperatingRate
    * @return The framework media format.
    */
   @SuppressLint("InlinedApi")
-  protected MediaFormat getMediaFormat(Format format, String codecMimeType, int codecMaxInputSize) {
+  protected MediaFormat getMediaFormat(Format format, String codecMimeType, int codecMaxInputSize,
+                                       float codecOperatingRate) {
     MediaFormat mediaFormat = new MediaFormat();
     // Set format parameters that should always be set.
     mediaFormat.setString(MediaFormat.KEY_MIME, codecMimeType);
@@ -648,6 +650,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     // Set codec configuration values.
     if (Util.SDK_INT >= 23) {
       mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, 0 /* realtime priority */);
+      if (format.sampleRate != Format.NO_VALUE) {
+        mediaFormat.setFloat(
+            MediaFormat.KEY_OPERATING_RATE, codecOperatingRate * format.sampleRate);
+      }
     }
     return mediaFormat;
   }

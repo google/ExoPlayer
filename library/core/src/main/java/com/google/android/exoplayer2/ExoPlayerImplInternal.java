@@ -277,6 +277,7 @@ import java.util.Collections;
   public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
     eventHandler.obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED, playbackParameters).sendToTarget();
     updateTrackSelectionPlaybackSpeed(playbackParameters.speed);
+    updateRendererOperatingRate(playbackParameters.speed);
   }
 
   // Handler.Callback implementation.
@@ -1096,6 +1097,14 @@ import java.util.Collections;
         }
       }
       periodHolder = periodHolder.next;
+    }
+  }
+
+  private void updateRendererOperatingRate(float operatingRate) {
+    for (Renderer renderer : renderers) {
+      if (renderer != null) {
+        renderer.setOperatingRate(operatingRate);
+      }
     }
   }
 
