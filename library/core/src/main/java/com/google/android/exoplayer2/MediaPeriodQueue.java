@@ -228,11 +228,13 @@ import com.google.android.exoplayer2.util.Assertions;
         reading = playing.next;
       }
       playing.release();
-      playing = playing.next;
       length--;
       if (length == 0) {
         loading = null;
+        oldFrontPeriodUid = playing.uid;
+        oldFrontPeriodWindowSequenceNumber = playing.info.id.windowSequenceNumber;
       }
+      playing = playing.next;
     } else {
       playing = loading;
       reading = loading;
