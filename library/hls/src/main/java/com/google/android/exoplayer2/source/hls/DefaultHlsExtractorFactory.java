@@ -83,8 +83,13 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)
         || lastPathSegment.startsWith(M4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)
         || lastPathSegment.startsWith(MP4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)) {
-      extractor = new FragmentedMp4Extractor(0, timestampAdjuster, null, drmInitData,
-          muxedCaptionFormats != null ? muxedCaptionFormats : Collections.<Format>emptyList());
+      extractor =
+          new FragmentedMp4Extractor(
+              0,
+              timestampAdjuster,
+              null,
+              drmInitData,
+              muxedCaptionFormats != null ? muxedCaptionFormats : Collections.emptyList());
     } else {
       // For any other file extension, we assume TS format.
       @DefaultTsPayloadReaderFactory.Flags

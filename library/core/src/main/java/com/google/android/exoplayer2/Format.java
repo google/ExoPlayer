@@ -935,8 +935,8 @@ public final class Format implements Parcelable {
     this.language = language;
     this.accessibilityChannel = accessibilityChannel;
     this.subsampleOffsetUs = subsampleOffsetUs;
-    this.initializationData = initializationData == null ? Collections.<byte[]>emptyList()
-        : initializationData;
+    this.initializationData =
+        initializationData == null ? Collections.emptyList() : initializationData;
     this.drmInitData = drmInitData;
     this.metadata = metadata;
   }

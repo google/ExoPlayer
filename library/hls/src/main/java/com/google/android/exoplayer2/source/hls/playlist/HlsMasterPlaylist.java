@@ -151,7 +151,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     List<HlsUrl> emptyList = Collections.emptyList();
     return new HlsMasterPlaylist(
         null,
-        Collections.<String>emptyList(),
+        Collections.emptyList(),
         variant,
         emptyList,
         emptyList,

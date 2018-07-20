@@ -193,8 +193,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       @Nullable TimestampAdjuster timestampAdjuster,
       @Nullable Track sideloadedTrack,
       @Nullable DrmInitData sideloadedDrmInitData) {
-    this(flags, timestampAdjuster, sideloadedTrack, sideloadedDrmInitData,
-        Collections.<Format>emptyList());
+    this(flags, timestampAdjuster, sideloadedTrack, sideloadedDrmInitData, Collections.emptyList());
   }
 
   /**

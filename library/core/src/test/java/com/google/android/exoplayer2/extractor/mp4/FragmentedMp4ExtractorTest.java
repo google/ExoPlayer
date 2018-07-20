@@ -33,13 +33,13 @@ public final class FragmentedMp4ExtractorTest {
   @Test
   public void testSample() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(Collections.<Format>emptyList()), "mp4/sample_fragmented.mp4");
+        getExtractorFactory(Collections.emptyList()), "mp4/sample_fragmented.mp4");
   }
 
   @Test
   public void testSampleSeekable() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(Collections.<Format>emptyList()), "mp4/sample_fragmented_seekable.mp4");
+        getExtractorFactory(Collections.emptyList()), "mp4/sample_fragmented_seekable.mp4");
   }
 
   @Test

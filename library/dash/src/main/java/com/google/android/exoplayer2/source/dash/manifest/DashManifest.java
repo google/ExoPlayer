@@ -102,7 +102,7 @@ public class DashManifest implements FilterableManifest<DashManifest> {
     this.publishTimeMs = publishTimeMs;
     this.utcTiming = utcTiming;
     this.location = location;
-    this.periods = periods == null ? Collections.<Period>emptyList() : periods;
+    this.periods = periods == null ? Collections.emptyList() : periods;
   }
 
   public final int getPeriodCount() {

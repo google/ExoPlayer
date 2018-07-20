@@ -531,7 +531,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     listenerNotificationScheduled = false;
     List<Runnable> actionsOnCompletion =
         pendingOnCompletionActions.isEmpty()
-            ? Collections.<Runnable>emptyList()
+            ? Collections.emptyList()
             : new ArrayList<>(pendingOnCompletionActions);
     pendingOnCompletionActions.clear();
     refreshSourceInfo(

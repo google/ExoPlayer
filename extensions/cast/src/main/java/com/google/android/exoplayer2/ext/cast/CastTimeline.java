@@ -32,8 +32,7 @@ import java.util.Map;
 /* package */ final class CastTimeline extends Timeline {
 
   public static final CastTimeline EMPTY_CAST_TIMELINE =
-      new CastTimeline(
-          Collections.<MediaQueueItem>emptyList(), Collections.<String, Long>emptyMap());
+      new CastTimeline(Collections.emptyList(), Collections.emptyMap());
 
   private final SparseIntArray idsToIndex;
   private final int[] ids;

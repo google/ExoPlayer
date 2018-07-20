@@ -85,8 +85,7 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
       if (boxType == TYPE_sttg) {
         WebvttCueParser.parseCueSettingsList(boxPayload, builder);
       } else if (boxType == TYPE_payl) {
-        WebvttCueParser.parseCueText(null, boxPayload.trim(), builder,
-            Collections.<WebvttCssStyle>emptyList());
+        WebvttCueParser.parseCueText(null, boxPayload.trim(), builder, Collections.emptyList());
       } else {
         // Other VTTCueBox children are still not supported and are ignored.
       }
