@@ -46,17 +46,8 @@ import java.util.Arrays;
  */
 public final class FlacExtractor implements Extractor {
 
-  /**
-   * Factory that returns one extractor which is a {@link FlacExtractor}.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new FlacExtractor()};
-    }
-
-  };
+  /** Factory that returns one extractor which is a {@link FlacExtractor}. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new FlacExtractor()};
 
   /** Flags controlling the behavior of the extractor. */
   @Retention(RetentionPolicy.SOURCE)

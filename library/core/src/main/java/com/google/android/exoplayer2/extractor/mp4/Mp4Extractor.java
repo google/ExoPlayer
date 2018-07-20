@@ -46,17 +46,8 @@ import java.util.List;
  */
 public final class Mp4Extractor implements Extractor, SeekMap {
 
-  /**
-   * Factory for {@link Mp4Extractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new Mp4Extractor()};
-    }
-
-  };
+  /** Factory for {@link Mp4Extractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new Mp4Extractor()};
 
   /**
    * Flags controlling the behavior of the extractor.
