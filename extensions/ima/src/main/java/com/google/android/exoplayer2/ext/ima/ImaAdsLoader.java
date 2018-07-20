@@ -38,6 +38,7 @@ import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
+import com.google.ads.interactivemedia.v3.api.CompanionAdSlot;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
@@ -63,6 +64,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -412,6 +414,17 @@ public final class ImaAdsLoader
    */
   public com.google.ads.interactivemedia.v3.api.AdsLoader getAdsLoader() {
     return adsLoader;
+  }
+
+  /**
+   * Sets the slots for displaying companion ads. Individual slots can be created using {@link
+   * ImaSdkFactory#createCompanionAdSlot()}.
+   *
+   * @param companionSlots Slots for displaying companion ads.
+   * @see AdDisplayContainer#setCompanionSlots(Collection)
+   */
+  public void setCompanionSlots(Collection<CompanionAdSlot> companionSlots) {
+    adDisplayContainer.setCompanionSlots(companionSlots);
   }
 
   /**
