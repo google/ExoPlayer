@@ -23,7 +23,6 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.CallSuper;
@@ -206,7 +205,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener, int maxDroppedFramesToNotify) {
-    super(C.TRACK_TYPE_VIDEO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
+    super(
+        C.TRACK_TYPE_VIDEO,
+        mediaCodecSelector,
+        drmSessionManager,
+        playClearSamplesWithoutKeys,
+        /* assumedMinimumCodecOperatingRate= */ 30);
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.context = context.getApplicationContext();
@@ -446,14 +450,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void configureCodec(MediaCodecInfo codecInfo,
-                                MediaCodec codec,
-                                Format format,
-                                MediaCrypto crypto,
-                                float codecOperatingRate) throws DecoderQueryException {
+  protected void configureCodec(
+      MediaCodecInfo codecInfo,
+      MediaCodec codec,
+      Format format,
+      MediaCrypto crypto,
+      float codecOperatingRate)
+      throws DecoderQueryException {
     codecMaxValues = getCodecMaxValues(codecInfo, format, getStreamFormats());
-    MediaFormat mediaFormat = getMediaFormat(format, codecMaxValues, deviceNeedsAutoFrcWorkaround,
-        tunnelingAudioSessionId, codecOperatingRate);
+    MediaFormat mediaFormat =
+        getMediaFormat(
+            format,
+            codecMaxValues,
+            codecOperatingRate,
+            deviceNeedsAutoFrcWorkaround,
+            tunnelingAudioSessionId);
     if (surface == null) {
       Assertions.checkState(shouldUseDummySurface(codecInfo));
       if (dummySurface == null) {
@@ -505,15 +516,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     buffersInCodecCount = 0;
   }
 
-  @TargetApi(23)
   @Override
-  protected void updateCodecOperatingRate(MediaCodec codec, Format format, float codecOperatingRate) {
-    if (format.frameRate == Format.NO_VALUE) {
-      return;
+  protected float getCodecOperatingRate(
+      float operatingRate, Format format, Format[] streamFormats) {
+    // Use the highest known stream frame-rate up front, to avoid having to reconfigure the codec
+    // should an adaptive switch to that stream occur.
+    float maxFrameRate = -1;
+    for (Format streamFormat : streamFormats) {
+      float streamFrameRate = streamFormat.frameRate;
+      if (streamFrameRate != Format.NO_VALUE) {
+        maxFrameRate = Math.max(maxFrameRate, streamFrameRate);
+      }
     }
-    Bundle codecParameters = new Bundle();
-    codecParameters.putFloat(MediaFormat.KEY_OPERATING_RATE, format.frameRate * codecOperatingRate);
-    codec.setParameters(codecParameters);
+    return maxFrameRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxFrameRate * operatingRate);
   }
 
   @Override
@@ -951,20 +966,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *
    * @param format The format of media.
    * @param codecMaxValues Codec max values that should be used when configuring the decoder.
+   * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
+   *     no codec operating rate should be set.
    * @param deviceNeedsAutoFrcWorkaround Whether the device is known to enable frame-rate conversion
    *     logic that negatively impacts ExoPlayer.
    * @param tunnelingAudioSessionId The audio session id to use for tunneling, or {@link
    *     C#AUDIO_SESSION_ID_UNSET} if tunneling should not be enabled.
-   * @param codecOperatingRate
    * @return The framework {@link MediaFormat} that should be used to configure the decoder.
    */
   @SuppressLint("InlinedApi")
   protected MediaFormat getMediaFormat(
       Format format,
       CodecMaxValues codecMaxValues,
+      float codecOperatingRate,
       boolean deviceNeedsAutoFrcWorkaround,
-      int tunnelingAudioSessionId,
-      float codecOperatingRate) {
+      int tunnelingAudioSessionId) {
     MediaFormat mediaFormat = new MediaFormat();
     // Set format parameters that should always be set.
     mediaFormat.setString(MediaFormat.KEY_MIME, format.sampleMimeType);
@@ -983,8 +999,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // Set codec configuration values.
     if (Util.SDK_INT >= 23) {
       mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, 0 /* realtime priority */);
-      if (format.frameRate != Format.NO_VALUE) {
-        mediaFormat.setFloat(MediaFormat.KEY_OPERATING_RATE, codecOperatingRate * format.frameRate);
+      if (codecOperatingRate != CODEC_OPERATING_RATE_UNSET) {
+        mediaFormat.setFloat(MediaFormat.KEY_OPERATING_RATE, codecOperatingRate);
       }
     }
     if (deviceNeedsAutoFrcWorkaround) {

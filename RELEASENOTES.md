@@ -70,6 +70,9 @@
     ([#3497](https://github.com/google/ExoPlayer/issues/3497)).
 * Add `PlayerView.isControllerVisible`
   ([#4385](https://github.com/google/ExoPlayer/issues/4385)).
+* Improved performance when playing high frame-rate content, and when playing
+  at greater than 1x speed
+  ([#2777](https://github.com/google/ExoPlayer/issues/2777)).
 * Expose all internal ID3 data stored in MP4 udta boxes, and switch from using
   CommentFrame to InternalFrame for frames with gapless metadata in MP4.
 * Allow setting the `Looper`, which is used to access the player, in

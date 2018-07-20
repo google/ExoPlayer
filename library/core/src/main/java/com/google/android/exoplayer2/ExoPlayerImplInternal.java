@@ -78,6 +78,7 @@ import java.util.Collections;
   private static final int MSG_SET_SHUFFLE_ENABLED = 13;
   private static final int MSG_SEND_MESSAGE = 14;
   private static final int MSG_SEND_MESSAGE_TO_TARGET_THREAD = 15;
+  private static final int MSG_PLAYBACK_PARAMETERS_CHANGED_INTERNAL = 16;
 
   private static final int PREPARING_SOURCE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
@@ -275,9 +276,9 @@ import java.util.Collections;
 
   @Override
   public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    eventHandler.obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED, playbackParameters).sendToTarget();
-    updateTrackSelectionPlaybackSpeed(playbackParameters.speed);
-    updateRendererOperatingRate(playbackParameters.speed);
+    handler
+        .obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED_INTERNAL, playbackParameters)
+        .sendToTarget();
   }
 
   // Handler.Callback implementation.
@@ -328,6 +329,9 @@ import java.util.Collections;
           break;
         case MSG_TRACK_SELECTION_INVALIDATED:
           reselectTracksInternal();
+          break;
+        case MSG_PLAYBACK_PARAMETERS_CHANGED_INTERNAL:
+          handlePlaybackParameters((PlaybackParameters) msg.obj);
           break;
         case MSG_SEND_MESSAGE:
           sendMessageInternal((PlayerMessage) msg.obj);
@@ -1100,14 +1104,6 @@ import java.util.Collections;
     }
   }
 
-  private void updateRendererOperatingRate(float operatingRate) {
-    for (Renderer renderer : renderers) {
-      if (renderer != null) {
-        renderer.setOperatingRate(operatingRate);
-      }
-    }
-  }
-
   private boolean shouldTransitionToReadyState(boolean renderersReadyOrEnded) {
     if (enabledRenderers.length == 0) {
       // If there are no enabled renderers, determine whether we're ready based on the timeline.
@@ -1555,6 +1551,17 @@ import java.util.Collections;
     }
     queue.reevaluateBuffer(rendererPositionUs);
     maybeContinueLoading();
+  }
+
+  private void handlePlaybackParameters(PlaybackParameters playbackParameters)
+      throws ExoPlaybackException {
+    eventHandler.obtainMessage(MSG_PLAYBACK_PARAMETERS_CHANGED, playbackParameters).sendToTarget();
+    updateTrackSelectionPlaybackSpeed(playbackParameters.speed);
+    for (Renderer renderer : renderers) {
+      if (renderer != null) {
+        renderer.setOperatingRate(playbackParameters.speed);
+      }
+    }
   }
 
   private void maybeContinueLoading() {
