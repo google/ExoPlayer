@@ -43,17 +43,8 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class Mp3Extractor implements Extractor {
 
-  /**
-   * Factory for {@link Mp3Extractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new Mp3Extractor()};
-    }
-
-  };
+  /** Factory for {@link Mp3Extractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new Mp3Extractor()};
 
   /**
    * Flags controlling the behavior of the extractor.

@@ -50,17 +50,8 @@ import java.util.List;
  */
 public final class TsExtractor implements Extractor {
 
-  /**
-   * Factory for {@link TsExtractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new TsExtractor()};
-    }
-
-  };
+  /** Factory for {@link TsExtractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new TsExtractor()};
 
   /**
    * Modes for the extractor.

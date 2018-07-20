@@ -57,17 +57,9 @@ import java.util.UUID;
  */
 public final class FragmentedMp4Extractor implements Extractor {
 
-  /**
-   * Factory for {@link FragmentedMp4Extractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new FragmentedMp4Extractor()};
-    }
-
-  };
+  /** Factory for {@link FragmentedMp4Extractor} instances. */
+  public static final ExtractorsFactory FACTORY =
+      () -> new Extractor[] {new FragmentedMp4Extractor()};
 
   /**
    * Flags controlling the behavior of the extractor.
