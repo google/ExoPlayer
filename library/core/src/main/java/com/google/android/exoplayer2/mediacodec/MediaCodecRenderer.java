@@ -21,6 +21,7 @@ import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.os.Bundle;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.CheckResult;
@@ -161,6 +162,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   }
 
+  /** Indicates no codec operating rate should be set. */
+  protected static final float CODEC_OPERATING_RATE_UNSET = -1;
+
   private static final String TAG = "MediaCodecRenderer";
 
   /**
@@ -264,6 +268,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Nullable
   private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
+  private final float assumedMinimumCodecOperatingRate;
   private final DecoderInputBuffer buffer;
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final FormatHolder formatHolder;
@@ -274,7 +279,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private DrmSession<FrameworkMediaCrypto> drmSession;
   private DrmSession<FrameworkMediaCrypto> pendingDrmSession;
   private MediaCodec codec;
-  private float codecOperatingRate = 1.0f;
+  private float rendererOperatingRate;
+  private float codecOperatingRate;
+  private boolean codecConfiguredWithOperatingRate;
   private @Nullable ArrayDeque<MediaCodecInfo> availableCodecInfos;
   private @Nullable DecoderInitializationException preferredDecoderInitializationException;
   private @Nullable MediaCodecInfo codecInfo;
@@ -318,15 +325,22 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @param assumedMinimumCodecOperatingRate A codec operating rate that all codecs instantiated by
+   *     this renderer are assumed to meet implicitly (i.e. without the operating rate being set
+   *     explicitly using {@link MediaFormat#KEY_OPERATING_RATE}).
    */
-  public MediaCodecRenderer(int trackType, MediaCodecSelector mediaCodecSelector,
+  public MediaCodecRenderer(
+      int trackType,
+      MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys) {
+      boolean playClearSamplesWithoutKeys,
+      float assumedMinimumCodecOperatingRate) {
     super(trackType);
     Assertions.checkState(Util.SDK_INT >= 16);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
+    this.assumedMinimumCodecOperatingRate = assumedMinimumCodecOperatingRate;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     formatHolder = new FormatHolder();
@@ -334,6 +348,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     outputBufferInfo = new MediaCodec.BufferInfo();
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     codecReinitializationState = REINITIALIZATION_STATE_NONE;
+    codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
+    rendererOperatingRate = 1f;
   }
 
   @Override
@@ -386,13 +402,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param codec The {@link MediaCodec} to configure.
    * @param format The format for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
-   * @param codecOperatingRate The {@link MediaFormat#KEY_OPERATING_RATE} to use for configuration.
+   * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
+   *     no codec operating rate should be set.
    * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
    */
-  protected abstract void configureCodec(MediaCodecInfo codecInfo,
-                                         MediaCodec codec, Format format,
-                                         MediaCrypto crypto,
-                                         float codecOperatingRate) throws DecoderQueryException;
+  protected abstract void configureCodec(
+      MediaCodecInfo codecInfo,
+      MediaCodec codec,
+      Format format,
+      MediaCrypto crypto,
+      float codecOperatingRate)
+      throws DecoderQueryException;
 
   protected final void maybeInitCodec() throws ExoPlaybackException {
     if (codec != null || format == null) {
@@ -484,11 +504,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onOperatingRateChanged(float operatingRate) {
-    codecOperatingRate = operatingRate;
-    if (format != null) {
-      updateCodecOperatingRate(codec, format, operatingRate);
-    }
+  public final void setOperatingRate(float operatingRate) throws ExoPlaybackException {
+    rendererOperatingRate = operatingRate;
+    updateCodecOperatingRate();
   }
 
   @Override
@@ -537,6 +555,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecReceivedEos = false;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     codecReinitializationState = REINITIALIZATION_STATE_NONE;
+    codecConfiguredWithOperatingRate = false;
     if (codec != null) {
       decoderCounters.decoderReleaseCount++;
       try {
@@ -729,13 +748,21 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     long codecInitializedTimestamp;
     MediaCodec codec = null;
     String name = codecInfo.name;
+    updateCodecOperatingRate();
+    boolean configureWithOperatingRate = codecOperatingRate > assumedMinimumCodecOperatingRate;
     try {
       codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createCodec:" + name);
       codec = MediaCodec.createByCodecName(name);
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
-      configureCodec(codecInfo, codec, format, crypto, codecOperatingRate);
+      configureCodec(
+          codecInfo,
+          codec,
+          format,
+          crypto,
+          configureWithOperatingRate ? codecOperatingRate : CODEC_OPERATING_RATE_UNSET);
+      codecConfiguredWithOperatingRate = configureWithOperatingRate;
       TraceUtil.endSection();
       TraceUtil.beginSection("startCodec");
       codec.start();
@@ -1028,29 +1055,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     if (!keepingCodec) {
-      availableCodecInfos = null;
-      if (codecReceivedBuffers) {
-        // Signal end of stream and wait for any final output buffers before re-initialization.
-        codecReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
-      } else {
-        // There aren't any final output buffers, so perform re-initialization immediately.
-        releaseCodec();
-        maybeInitCodec();
-      }
+      reinitializeCodec();
     } else {
-      if (Util.SDK_INT >= 23) {
-        updateCodecOperatingRate(codec, format, codecOperatingRate);
-      }
+      updateCodecOperatingRate();
     }
-  }
-
-  /**
-   * Updates the {@link MediaCodec} operating rate.
-   * <p>
-   * The default implementation is a no-op.
-   */
-  protected void updateCodecOperatingRate(MediaCodec codec, Format format, float codecOperatingRate) {
-    // Do nothing.
   }
 
   /**
@@ -1128,6 +1136,77 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   protected long getDequeueOutputBufferTimeoutUs() {
     return 0;
+  }
+
+  /**
+   * Returns the {@link MediaFormat#KEY_OPERATING_RATE} value for a given renderer operating rate,
+   * current format and set of possible stream formats.
+   *
+   * <p>The default implementation returns {@link #CODEC_OPERATING_RATE_UNSET}.
+   *
+   * @param operatingRate The renderer operating rate.
+   * @param format The format for which the codec is being configured.
+   * @param streamFormats The possible stream formats.
+   * @return The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if no codec operating
+   *     rate should be set.
+   */
+  protected float getCodecOperatingRate(
+      float operatingRate, Format format, Format[] streamFormats) {
+    return CODEC_OPERATING_RATE_UNSET;
+  }
+
+  /**
+   * Updates the codec operating rate, and the codec itself if necessary.
+   *
+   * @throws ExoPlaybackException If an error occurs releasing or initializing a codec.
+   */
+  private void updateCodecOperatingRate() throws ExoPlaybackException {
+    if (format == null || Util.SDK_INT < 23) {
+      return;
+    }
+
+    float codecOperatingRate =
+        getCodecOperatingRate(rendererOperatingRate, format, getStreamFormats());
+    if (this.codecOperatingRate == codecOperatingRate) {
+      return;
+    }
+
+    this.codecOperatingRate = codecOperatingRate;
+    if (codec == null || codecReinitializationState != REINITIALIZATION_STATE_NONE) {
+      // Either no codec, or it's about to be reinitialized anyway.
+    } else if (codecOperatingRate == CODEC_OPERATING_RATE_UNSET
+        && codecConfiguredWithOperatingRate) {
+      // We need to clear the operating rate. The only way to do so is to instantiate a new codec
+      // instance. See [Internal ref: b/71987865].
+      reinitializeCodec();
+    } else if (codecOperatingRate != CODEC_OPERATING_RATE_UNSET
+        && (codecConfiguredWithOperatingRate
+            || codecOperatingRate > assumedMinimumCodecOperatingRate)) {
+      // We need to set the operating rate, either because we've set it previously or because it's
+      // above the assumed minimum rate.
+      Bundle codecParameters = new Bundle();
+      codecParameters.putFloat(MediaFormat.KEY_OPERATING_RATE, codecOperatingRate);
+      codec.setParameters(codecParameters);
+      codecConfiguredWithOperatingRate = true;
+    }
+  }
+
+  /**
+   * Starts the process of releasing the existing codec and initializing a new one. This may occur
+   * immediately, or be deferred until any final output buffers have been dequeued.
+   *
+   * @throws ExoPlaybackException If an error occurs releasing or initializing a codec.
+   */
+  private void reinitializeCodec() throws ExoPlaybackException {
+    availableCodecInfos = null;
+    if (codecReceivedBuffers) {
+      // Signal end of stream and wait for any final output buffers before re-initialization.
+      codecReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
+    } else {
+      // There aren't any final output buffers, so perform re-initialization immediately.
+      releaseCodec();
+      maybeInitCodec();
+    }
   }
 
   /**
