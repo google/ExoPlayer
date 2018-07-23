@@ -128,7 +128,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
           try {
             int index = (pendingMetadataIndex + pendingMetadataCount) % MAX_PENDING_METADATA_COUNT;
             pendingMetadata[index] = decoder.decode(buffer);
-            pendingMetadataTimestamps[index] = buffer.timeUs;
+            pendingMetadataTimestamps[index] = buffer.timeUs + buffer.subsampleOffsetUs;
             pendingMetadataCount++;
           } catch (MetadataDecoderException e) {
             throw ExoPlaybackException.createForRenderer(e, getIndex());
