@@ -27,9 +27,7 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -123,13 +121,9 @@ import com.google.android.exoplayer2.util.Util;
     @ContentType int type = Util.inferContentType(uri);
     switch (type) {
       case C.TYPE_DASH:
-        return new DashMediaSource.Factory(
-                new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)
-            .createMediaSource(uri);
+        return new DashMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       case C.TYPE_SS:
-        return new SsMediaSource.Factory(
-                new DefaultSsChunkSource.Factory(dataSourceFactory), dataSourceFactory)
-            .createMediaSource(uri);
+        return new SsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       case C.TYPE_HLS:
         return new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       case C.TYPE_OTHER:
