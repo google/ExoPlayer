@@ -43,7 +43,6 @@ import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
@@ -68,9 +67,8 @@ import java.util.ArrayList;
   }
 
   private static final String USER_AGENT = "ExoCastDemoPlayer";
-  private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
   private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
-      new DefaultHttpDataSourceFactory(USER_AGENT, BANDWIDTH_METER);
+      new DefaultHttpDataSourceFactory(USER_AGENT);
 
   private final PlayerView localPlayerView;
   private final PlayerControlView castControlView;
@@ -117,7 +115,7 @@ import java.util.ArrayList;
     currentItemIndex = C.INDEX_UNSET;
     concatenatingMediaSource = new ConcatenatingMediaSource();
 
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector(BANDWIDTH_METER);
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
     RenderersFactory renderersFactory = new DefaultRenderersFactory(context);
     exoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
     exoPlayer.addListener(this);

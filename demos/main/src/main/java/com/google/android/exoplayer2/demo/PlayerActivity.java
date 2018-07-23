@@ -76,7 +76,6 @@ import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.TrackSelectionView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
@@ -121,7 +120,6 @@ public class PlayerActivity extends Activity
   private static final String KEY_POSITION = "position";
   private static final String KEY_AUTO_PLAY = "auto_play";
 
-  private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
   static {
     DEFAULT_COOKIE_MANAGER = new CookieManager();
@@ -132,7 +130,7 @@ public class PlayerActivity extends Activity
   private LinearLayout debugRootView;
   private TextView debugTextView;
 
-  private DataSource.Factory mediaDataSourceFactory;
+  private DataSource.Factory dataSourceFactory;
   private SimpleExoPlayer player;
   private FrameworkMediaDrm mediaDrm;
   private MediaSource mediaSource;
@@ -156,7 +154,7 @@ public class PlayerActivity extends Activity
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mediaDataSourceFactory = buildDataSourceFactory(true);
+    dataSourceFactory = buildDataSourceFactory();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
       CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
     }
@@ -367,7 +365,7 @@ public class PlayerActivity extends Activity
       TrackSelection.Factory trackSelectionFactory;
       String abrAlgorithm = intent.getStringExtra(ABR_ALGORITHM_EXTRA);
       if (abrAlgorithm == null || ABR_ALGORITHM_DEFAULT.equals(abrAlgorithm)) {
-        trackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
+        trackSelectionFactory = new AdaptiveTrackSelection.Factory();
       } else if (ABR_ALGORITHM_RANDOM.equals(abrAlgorithm)) {
         trackSelectionFactory = new RandomTrackSelection.Factory();
       } else {
@@ -441,25 +439,23 @@ public class PlayerActivity extends Activity
     switch (type) {
       case C.TYPE_DASH:
         return new DashMediaSource.Factory(
-                new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
-                buildDataSourceFactory(false))
+                new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory)
             .setManifestParser(
                 new FilteringManifestParser<>(new DashManifestParser(), getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_SS:
         return new SsMediaSource.Factory(
-                new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
-                buildDataSourceFactory(false))
+                new DefaultSsChunkSource.Factory(dataSourceFactory), dataSourceFactory)
             .setManifestParser(
                 new FilteringManifestParser<>(new SsManifestParser(), getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_HLS:
-        return new HlsMediaSource.Factory(mediaDataSourceFactory)
+        return new HlsMediaSource.Factory(dataSourceFactory)
             .setPlaylistParser(
                 new FilteringManifestParser<>(new HlsPlaylistParser(), getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_OTHER:
-        return new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
+        return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       default: {
         throw new IllegalStateException("Unsupported type: " + type);
       }
@@ -474,7 +470,7 @@ public class PlayerActivity extends Activity
       UUID uuid, String licenseUrl, String[] keyRequestPropertiesArray, boolean multiSession)
       throws UnsupportedDrmException {
     HttpDataSource.Factory licenseDataSourceFactory =
-        ((DemoApplication) getApplication()).buildHttpDataSourceFactory(/* listener= */ null);
+        ((DemoApplication) getApplication()).buildHttpDataSourceFactory();
     HttpMediaDrmCallback drmCallback =
         new HttpMediaDrmCallback(licenseUrl, licenseDataSourceFactory);
     if (keyRequestPropertiesArray != null) {
@@ -538,16 +534,9 @@ public class PlayerActivity extends Activity
     startPosition = C.TIME_UNSET;
   }
 
-  /**
-   * Returns a new DataSource factory.
-   *
-   * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
-   *     DataSource factory.
-   * @return A new DataSource factory.
-   */
-  private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
-    return ((DemoApplication) getApplication())
-        .buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
+  /** Returns a new DataSource factory. */
+  private DataSource.Factory buildDataSourceFactory() {
+    return ((DemoApplication) getApplication()).buildDataSourceFactory();
   }
 
   /** Returns an ads media source, reusing the ads loader if one exists. */
