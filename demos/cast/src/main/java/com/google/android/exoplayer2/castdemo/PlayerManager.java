@@ -36,9 +36,7 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerControlView;
@@ -392,13 +390,9 @@ import java.util.ArrayList;
     Uri uri = Uri.parse(sample.uri);
     switch (sample.mimeType) {
       case DemoUtil.MIME_TYPE_SS:
-        return new SsMediaSource.Factory(
-                new DefaultSsChunkSource.Factory(DATA_SOURCE_FACTORY), DATA_SOURCE_FACTORY)
-            .createMediaSource(uri);
+        return new SsMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_DASH:
-        return new DashMediaSource.Factory(
-                new DefaultDashChunkSource.Factory(DATA_SOURCE_FACTORY), DATA_SOURCE_FACTORY)
-            .createMediaSource(uri);
+        return new DashMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_HLS:
         return new HlsMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_VIDEO_MP4:

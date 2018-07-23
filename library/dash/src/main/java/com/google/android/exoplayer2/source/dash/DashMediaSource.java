@@ -86,6 +86,16 @@ public final class DashMediaSource extends BaseMediaSource {
     /**
      * Creates a new factory for {@link DashMediaSource}s.
      *
+     * @param dataSourceFactory A factory for {@link DataSource} instances that will be used to load
+     *     manifest and media data.
+     */
+    public Factory(DataSource.Factory dataSourceFactory) {
+      this(new DefaultDashChunkSource.Factory(dataSourceFactory), dataSourceFactory);
+    }
+
+    /**
+     * Creates a new factory for {@link DashMediaSource}s.
+     *
      * @param chunkSourceFactory A factory for {@link DashChunkSource} instances.
      * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
      *     to load (and refresh) the manifest. May be {@code null} if the factory will only ever be
