@@ -681,7 +681,7 @@ import java.util.List;
     parent.setPosition(position + Atom.HEADER_SIZE + StsdData.STSD_HEADER_SIZE);
 
     // Default values.
-    List<byte[]> initializationData = null;
+    List<byte[]> initializationData = Collections.emptyList();
     long subsampleOffsetUs = Format.OFFSET_SAMPLE_RELATIVE;
 
     String mimeType;
@@ -707,8 +707,18 @@ import java.util.List;
       throw new IllegalStateException();
     }
 
-    out.format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
-        Format.NO_VALUE, 0, language, Format.NO_VALUE, null, subsampleOffsetUs, initializationData);
+    out.format =
+        Format.createTextSampleFormat(
+            Integer.toString(trackId),
+            mimeType,
+            /* codecs= */ null,
+            /* bitrate= */ Format.NO_VALUE,
+            /* selectionFlags= */ 0,
+            language,
+            /* accessibilityChannel= */ Format.NO_VALUE,
+            /* drmInitData= */ null,
+            subsampleOffsetUs,
+            initializationData);
   }
 
   private static void parseVideoSampleEntry(ParsableByteArray parent, int atomType, int position,

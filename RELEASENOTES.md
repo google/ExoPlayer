@@ -4,6 +4,8 @@
 
 * Add `AudioListener` for listening to changes in audio configuration during
   playback ([#3994](https://github.com/google/ExoPlayer/issues/3994)).
+* MPEG-TS: Support CEA-608/708 in H262
+  ([#2565](https://github.com/google/ExoPlayer/issues/2565)).
 * MPEG-PS: Support reading duration from MPEG-PS Streams
   ([#4476](https://github.com/google/ExoPlayer/issues/4476)).
 * MediaSession extension:
