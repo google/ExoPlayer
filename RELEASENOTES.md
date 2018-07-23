@@ -2,6 +2,10 @@
 
 ### 2.8.3 ###
 
+* IMA:
+  * Fix behavior when creating/releasing the player then releasing
+    `ImaAdsLoader` ([#3879](https://github.com/google/ExoPlayer/issues/3879)).
+  * Add support for setting slots for companion ads.
 * Captions:
   * TTML: Fix an issue with TTML using font size as % of cell resolution that
     makes `SubtitleView.setApplyEmbeddedFontSizes()` not work correctly.
@@ -10,13 +14,12 @@
     ([#4321](https://github.com/google/ExoPlayer/issues/4321)).
 * DASH: Exclude text streams from duration calculations
   ([#4029](https://github.com/google/ExoPlayer/issues/4029)).
-* DRM:
-  * Allow DrmInitData to carry a license server URL
-    ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
-* IMA:
-  * Fix behavior when creating/releasing the player then releasing
-    `ImaAdsLoader` ([#3879](https://github.com/google/ExoPlayer/issues/3879)).
-  * Add support for setting slots for companion ads.
+* DRM: Allow DrmInitData to carry a license server URL
+  ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
+* Expose all internal ID3 data stored in MP4 udta boxes, and switch from using
+  CommentFrame to InternalFrame for frames with gapless metadata in MP4.
+* Add `PlayerView.isControllerVisible`
+  ([#4385](https://github.com/google/ExoPlayer/issues/4385)).
 * Fix issue playing DRM protected streams on Asus Zenfone 2
   ([#4403](https://github.com/google/ExoPlayer/issues/4413)).
 * Add support for multiple audio and video tracks in MPEG-PS streams
@@ -31,10 +34,7 @@
   ([#4348](https://github.com/google/ExoPlayer/issues/4348)).
 * Fix issue when switching track selection from an embedded track to a primary
   track in DASH ([#4477](https://github.com/google/ExoPlayer/issues/4477)).
-* Add `PlayerView.isControllerVisible`
-  ([#4385](https://github.com/google/ExoPlayer/issues/4385)).
-* Expose all internal ID3 data stored in MP4 udta boxes, and switch from using
-  CommentFrame to InternalFrame for frames with gapless metadata in MP4.
+* Improved compatibility with FireOS devices.
 
 ### 2.8.2 ###
 
