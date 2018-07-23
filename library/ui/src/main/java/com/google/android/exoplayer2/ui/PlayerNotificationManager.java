@@ -745,7 +745,6 @@ public class PlayerNotificationManager {
    * @return The {@link Notification} which has been built.
    */
   protected Notification createNotification(Player player, @Nullable Bitmap largeIcon) {
-    boolean isPlayingAd = player.isPlayingAd();
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
     List<String> actionNames = getActions(player);
     for (int i = 0; i < actionNames.size(); i++) {
@@ -760,18 +759,18 @@ public class PlayerNotificationManager {
     }
     // Create a media style notification.
     MediaStyle mediaStyle = new MediaStyle();
-    builder.setStyle(mediaStyle);
     if (mediaSessionToken != null) {
       mediaStyle.setMediaSession(mediaSessionToken);
     }
-    mediaStyle.setShowActionsInCompactView(getActionIndicesForCompactView(player));
+    mediaStyle.setShowActionsInCompactView(getActionIndicesForCompactView(actionNames, player));
     // Configure stop action (eg. when user dismisses the notification when !isOngoing).
-    boolean useStopAction = stopAction != null && !isPlayingAd;
+    boolean useStopAction = stopAction != null;
     mediaStyle.setShowCancelButton(useStopAction);
     if (useStopAction && stopPendingIntent != null) {
       builder.setDeleteIntent(stopPendingIntent);
       mediaStyle.setCancelButtonIntent(stopPendingIntent);
     }
+    builder.setStyle(mediaStyle);
     // Set notification properties from getters.
     builder
         .setBadgeIconType(badgeIconType)
@@ -783,6 +782,7 @@ public class PlayerNotificationManager {
         .setPriority(priority)
         .setDefaults(defaults);
     if (useChronometer
+        && !player.isPlayingAd()
         && !player.isCurrentWindowDynamic()
         && player.getPlayWhenReady()
         && player.getPlaybackState() == Player.STATE_READY) {
@@ -831,33 +831,36 @@ public class PlayerNotificationManager {
    * name is ignored.
    */
   protected List<String> getActions(Player player) {
+    boolean isPlayingAd = player.isPlayingAd();
     List<String> stringActions = new ArrayList<>();
-    if (!player.isPlayingAd()) {
+    if (!isPlayingAd) {
       if (useNavigationActions) {
         stringActions.add(ACTION_PREVIOUS);
       }
       if (rewindMs > 0) {
         stringActions.add(ACTION_REWIND);
       }
-      if (usePlayPauseActions) {
-        if (player.getPlayWhenReady()) {
-          stringActions.add(ACTION_PAUSE);
-        } else {
-          stringActions.add(ACTION_PLAY);
-        }
+    }
+    if (usePlayPauseActions) {
+      if (player.getPlayWhenReady()) {
+        stringActions.add(ACTION_PAUSE);
+      } else {
+        stringActions.add(ACTION_PLAY);
       }
+    }
+    if (!isPlayingAd) {
       if (fastForwardMs > 0) {
         stringActions.add(ACTION_FAST_FORWARD);
       }
       if (useNavigationActions && player.getNextWindowIndex() != C.INDEX_UNSET) {
         stringActions.add(ACTION_NEXT);
       }
-      if (customActionReceiver != null) {
-        stringActions.addAll(customActionReceiver.getCustomActions(player));
-      }
-      if (ACTION_STOP.equals(stopAction)) {
-        stringActions.add(stopAction);
-      }
+    }
+    if (customActionReceiver != null) {
+      stringActions.addAll(customActionReceiver.getCustomActions(player));
+    }
+    if (ACTION_STOP.equals(stopAction)) {
+      stringActions.add(stopAction);
     }
     return stringActions;
   }
@@ -865,18 +868,18 @@ public class PlayerNotificationManager {
   /**
    * Gets an array with the indices of the buttons to be shown in compact mode.
    *
-   * <p>This method can be overridden. The indices must refer to the list of actions returned by
-   * {@link #getActions(Player)}.
+   * <p>This method can be overridden. The indices must refer to the list of actions passed as the
+   * first parameter.
    *
+   * @param actionNames The names of the actions included in the notification.
    * @param player The player for which state to build a notification.
    */
-  protected int[] getActionIndicesForCompactView(Player player) {
-    if (!usePlayPauseActions) {
-      return new int[0];
-    }
-    int actionIndex = useNavigationActions ? 1 : 0;
-    actionIndex += fastForwardMs > 0 ? 1 : 0;
-    return new int[] {actionIndex};
+  protected int[] getActionIndicesForCompactView(List<String> actionNames, Player player) {
+    int pauseActionIndex = actionNames.indexOf(ACTION_PAUSE);
+    int playActionIndex = actionNames.indexOf(ACTION_PLAY);
+    return pauseActionIndex != -1
+        ? new int[] {pauseActionIndex}
+        : (playActionIndex != -1 ? new int[] {playActionIndex} : new int[0]);
   }
 
   private static Map<String, NotificationCompat.Action> createPlaybackActions(Context context) {
