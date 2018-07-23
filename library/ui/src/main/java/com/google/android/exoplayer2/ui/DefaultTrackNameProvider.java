@@ -49,7 +49,7 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
     } else {
       trackName = buildLabelString(format);
     }
-    return trackName.length() == 0 ? resources.getString(R.string.exo_track_unknown) : trackName;
+    return trackName.length() == 0 ? resources.getString(R.string.exo_track_unknown) : trackName  + " - " + format.id;
   }
 
   private String buildResolutionString(Format format) {
