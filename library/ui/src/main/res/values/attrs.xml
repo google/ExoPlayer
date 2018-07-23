@@ -29,6 +29,7 @@
     <enum name="none" value="0"/>
     <enum name="surface_view" value="1"/>
     <enum name="texture_view" value="2"/>
+    <enum name="spherical_view" value="3"/>
   </attr>
   <attr name="show_timeout" format="integer"/>
   <attr name="rewind_increment" format="integer"/>

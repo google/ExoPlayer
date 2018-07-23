@@ -80,6 +80,9 @@ public final class C {
   /** The number of bits per byte. */
   public static final int BITS_PER_BYTE = 8;
 
+  /** The number of bytes per float. */
+  public static final int BYTES_PER_FLOAT = 4;
+
   /**
    * The name of the ASCII charset.
    */
