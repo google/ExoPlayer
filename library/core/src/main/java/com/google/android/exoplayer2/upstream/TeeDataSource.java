@@ -56,14 +56,7 @@ public final class TeeDataSource implements DataSource {
     }
     if (dataSpec.length == C.LENGTH_UNSET && bytesRemaining != C.LENGTH_UNSET) {
       // Reconstruct dataSpec in order to provide the resolved length to the sink.
-      dataSpec =
-          new DataSpec(
-              dataSpec.uri,
-              dataSpec.absoluteStreamPosition,
-              dataSpec.position,
-              bytesRemaining,
-              dataSpec.key,
-              dataSpec.flags);
+      dataSpec = dataSpec.subrange(0, bytesRemaining);
     }
     dataSinkNeedsClosing = true;
     dataSink.open(dataSpec);

@@ -622,15 +622,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         request.followRedirect();
       } else {
         currentUrlRequest.cancel();
-        DataSpec redirectUrlDataSpec =
-            new DataSpec(
-                Uri.parse(newLocationUrl),
-                currentDataSpec.postBody,
-                currentDataSpec.absoluteStreamPosition,
-                currentDataSpec.position,
-                currentDataSpec.length,
-                currentDataSpec.key,
-                currentDataSpec.flags);
+        DataSpec redirectUrlDataSpec = currentDataSpec.withUri(Uri.parse(newLocationUrl));
         UrlRequest.Builder requestBuilder;
         try {
           requestBuilder = buildRequestBuilder(redirectUrlDataSpec);
