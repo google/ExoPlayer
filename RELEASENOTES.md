@@ -65,6 +65,7 @@
 * Allow setting the `Looper`, which is used to access the player, in
   `ExoPlayerFactory` ([#4278](https://github.com/google/ExoPlayer/issues/4278)).
 * Use default Deserializers if non given to DownloadManager.
+* Add monoscopic 360 surface type to PlayerView.
 * Deprecate `Player.DefaultEventListener` as selective listener overrides can
   be directly made with the `Player.EventListener` interface.
 * Deprecate `DefaultAnalyticsListener` as selective listener overrides can be

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ui;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -30,6 +31,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
@@ -44,6 +46,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.Player.VideoComponent;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -52,6 +55,7 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
+import com.google.android.exoplayer2.ui.spherical.SphericalSurfaceView;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
@@ -118,11 +122,11 @@ import java.util.List;
  *         <li>Default: {@code fit}
  *       </ul>
  *   <li><b>{@code surface_type}</b> - The type of surface view used for video playbacks. Valid
- *       values are {@code surface_view}, {@code texture_view} and {@code none}. Using {@code none}
- *       is recommended for audio only applications, since creating the surface can be expensive.
- *       Using {@code surface_view} is recommended for video applications. Note, TextureView can
- *       only be used in a hardware accelerated window. When rendered in software, TextureView will
- *       draw nothing.
+ *       values are {@code surface_view}, {@code texture_view}, {@code spherical_view} and {@code
+ *       none}. Using {@code none} is recommended for audio only applications, since creating the
+ *       surface can be expensive. Using {@code surface_view} is recommended for video applications.
+ *       Note, TextureView can only be used in a hardware accelerated window. When rendered in
+ *       software, TextureView will draw nothing.
  *       <ul>
  *         <li>Corresponding method: None
  *         <li>Default: {@code surface_view}
@@ -231,6 +235,7 @@ public class PlayerView extends FrameLayout {
   private static final int SURFACE_TYPE_NONE = 0;
   private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
   private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
+  private static final int SURFACE_TYPE_MONO360_VIEW = 3;
 
   private final AspectRatioFrameLayout contentFrame;
   private final View shutterView;
@@ -351,10 +356,20 @@ public class PlayerView extends FrameLayout {
       ViewGroup.LayoutParams params =
           new ViewGroup.LayoutParams(
               ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-      surfaceView =
-          surfaceType == SURFACE_TYPE_TEXTURE_VIEW
-              ? new TextureView(context)
-              : new SurfaceView(context);
+      switch (surfaceType) {
+        case SURFACE_TYPE_TEXTURE_VIEW:
+          surfaceView = new TextureView(context);
+          break;
+        case SURFACE_TYPE_MONO360_VIEW:
+          Assertions.checkState(Util.SDK_INT >= 15);
+          SphericalSurfaceView sphericalSurfaceView = new SphericalSurfaceView(context);
+          sphericalSurfaceView.setSurfaceListener(componentListener);
+          surfaceView = sphericalSurfaceView;
+          break;
+        default:
+          surfaceView = new SurfaceView(context);
+          break;
+      }
       surfaceView.setLayoutParams(params);
       contentFrame.addView(surfaceView, 0);
     } else {
@@ -469,6 +484,8 @@ public class PlayerView extends FrameLayout {
         oldVideoComponent.removeVideoListener(componentListener);
         if (surfaceView instanceof TextureView) {
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
+        } else if (surfaceView instanceof SphericalSurfaceView) {
+          oldVideoComponent.clearVideoSurface(((SphericalSurfaceView) surfaceView).getSurface());
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -493,6 +510,8 @@ public class PlayerView extends FrameLayout {
       if (newVideoComponent != null) {
         if (surfaceView instanceof TextureView) {
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
+        } else if (surfaceView instanceof SphericalSurfaceView) {
+          newVideoComponent.setVideoSurface(((SphericalSurfaceView) surfaceView).getSurface());
         } else if (surfaceView instanceof SurfaceView) {
           newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -636,7 +655,7 @@ public class PlayerView extends FrameLayout {
    * Sets whether a buffering spinner is displayed when the player is in the buffering state. The
    * buffering spinner is not displayed by default.
    *
-   * @param showBuffering Whether the buffering icon is displayer
+   * @param showBuffering Whether the buffering icon is displayed
    */
   public void setShowBuffering(boolean showBuffering) {
     if (this.showBuffering != showBuffering) {
@@ -913,10 +932,12 @@ public class PlayerView extends FrameLayout {
    *   <li>{@link SurfaceView} by default, or if the {@code surface_type} attribute is set to {@code
    *       surface_view}.
    *   <li>{@link TextureView} if {@code surface_type} is {@code texture_view}.
+   *   <li>{@link SphericalSurfaceView} if {@code surface_type} is {@code spherical_view}.
    *   <li>{@code null} if {@code surface_type} is {@code none}.
    * </ul>
    *
-   * @return The {@link SurfaceView}, {@link TextureView} or {@code null}.
+   * @return The {@link SurfaceView}, {@link TextureView}, {@link SphericalSurfaceView} or {@code
+   *     null}.
    */
   public View getVideoSurfaceView() {
     return surfaceView;
@@ -963,6 +984,32 @@ public class PlayerView extends FrameLayout {
     }
     maybeShowController(true);
     return true;
+  }
+
+  /**
+   * Should be called when the player is visible to the user and if {@code surface_type} is {@code
+   * spherical_view}. It is the counterpart to {@link #onPause()}.
+   *
+   * <p>This method should typically be called in {@link Activity#onStart()} (or {@link
+   * Activity#onResume()} for API version <= 23).
+   */
+  public void onResume() {
+    if (surfaceView instanceof SphericalSurfaceView) {
+      ((SphericalSurfaceView) surfaceView).onResume();
+    }
+  }
+
+  /**
+   * Should be called when the player is no longer visible to the user and if {@code surface_type}
+   * is {@code spherical_view}. It is the counterpart to {@link #onResume()}.
+   *
+   * <p>This method should typically be called in {@link Activity#onStop()} (or {@link
+   * Activity#onPause()} for API version <= 23).
+   */
+  public void onPause() {
+    if (surfaceView instanceof SphericalSurfaceView) {
+      ((SphericalSurfaceView) surfaceView).onPause();
+    }
   }
 
   /** Shows the playback controls, but only if forced or shown indefinitely. */
@@ -1180,7 +1227,11 @@ public class PlayerView extends FrameLayout {
   }
 
   private final class ComponentListener
-      implements Player.EventListener, TextOutput, VideoListener, OnLayoutChangeListener {
+      implements Player.EventListener,
+          TextOutput,
+          VideoListener,
+          OnLayoutChangeListener,
+          SphericalSurfaceView.SurfaceListener {
 
     // TextOutput implementation
 
@@ -1219,6 +1270,8 @@ public class PlayerView extends FrameLayout {
           surfaceView.addOnLayoutChangeListener(this);
         }
         applyTextureViewRotation((TextureView) surfaceView, textureViewRotation);
+      } else if (surfaceView instanceof SphericalSurfaceView) {
+        videoAspectRatio = 0;
       }
 
       contentFrame.setAspectRatio(videoAspectRatio);
@@ -1270,6 +1323,18 @@ public class PlayerView extends FrameLayout {
         int oldRight,
         int oldBottom) {
       applyTextureViewRotation((TextureView) view, textureViewRotation);
+    }
+
+    // SphericalSurfaceView.SurfaceTextureListener implementation
+
+    @Override
+    public void surfaceChanged(@Nullable Surface surface) {
+      if (player != null) {
+        VideoComponent videoComponent = player.getVideoComponent();
+        if (videoComponent != null) {
+          videoComponent.setVideoSurface(surface);
+        }
+      }
     }
   }
 }
