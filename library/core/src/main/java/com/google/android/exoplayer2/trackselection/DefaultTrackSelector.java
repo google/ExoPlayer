@@ -661,7 +661,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     private Parameters() {
       this(
-          /* selectionOverrides= */ new SparseArray<>(),
+          /* selectionOverrides= */ new SparseArray<Map<TrackGroupArray,SelectionOverride>>(),
           /* rendererDisabledFlags= */ new SparseBooleanArray(),
           /* preferredAudioLanguage= */ null,
           /* preferredTextLanguage= */ null,
