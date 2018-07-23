@@ -15,12 +15,6 @@
     map.
   * Add support for mu-law and A-law PCM with the ffmpeg extension
     ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
-* Captions:
-  * TTML: Fix an issue with TTML using font size as % of cell resolution that
-    makes `SubtitleView.setApplyEmbeddedFontSizes()` not work correctly.
-    ([#4491](https://github.com/google/ExoPlayer/issues/4491)).
-  * CEA-608: Improve handling of embedded styles
-    ([#4321](https://github.com/google/ExoPlayer/issues/4321)).
 * Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
   creating a `CacheDataSource`.
 * Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend
@@ -50,8 +44,6 @@
 * Error handling:
   * Allow configuration of the Loader retry delay
     ([#3370](https://github.com/google/ExoPlayer/issues/3370)).
-* DASH: Exclude text streams from duration calculations
-  ([#4029](https://github.com/google/ExoPlayer/issues/4029)).
 * HLS:
   * Set the bitrate on primary track sample formats
     ([#3297](https://github.com/google/ExoPlayer/issues/3297)).
@@ -59,9 +51,6 @@
   * Add support for EXT-X-INDEPENDENT-SEGMENTS in the master playlist.
   * Support load error handling customization
     ([#2981](https://github.com/google/ExoPlayer/issues/2981)).
-* DRM:
-  * Allow DrmInitData to carry a license server URL
-    ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
 * Add callback to `VideoListener` to notify of surface size changes.
 * Fix bug when reporting buffered position for multi-period windows and add
   two additional convenience methods `Player.getTotalBufferedDuration` and
@@ -70,13 +59,9 @@
 * MediaSession extension:
   * Allow apps to set custom metadata with a MediaMetadataProvider
     ([#3497](https://github.com/google/ExoPlayer/issues/3497)).
-* Add `PlayerView.isControllerVisible`
-  ([#4385](https://github.com/google/ExoPlayer/issues/4385)).
 * Improved performance when playing high frame-rate content, and when playing
   at greater than 1x speed
   ([#2777](https://github.com/google/ExoPlayer/issues/2777)).
-* Expose all internal ID3 data stored in MP4 udta boxes, and switch from using
-  CommentFrame to InternalFrame for frames with gapless metadata in MP4.
 * Allow setting the `Looper`, which is used to access the player, in
   `ExoPlayerFactory` ([#4278](https://github.com/google/ExoPlayer/issues/4278)).
 * Use default Deserializers if non given to DownloadManager.
@@ -84,22 +69,38 @@
   be directly made with the `Player.EventListener` interface.
 * Deprecate `DefaultAnalyticsListener` as selective listener overrides can be
   directly made with the `AnalyticsListener` interface.
-* IMA:
-  * Fix behavior when creating/releasing the player then releasing
-    `ImaAdsLoader` ([#3879](https://github.com/google/ExoPlayer/issues/3879)).
-  * Add support for setting slots for companion ads.
-* Fix issue playing DRM protected streams on Asus Zenfone 2
-  ([#4403](https://github.com/google/ExoPlayer/issues/4413)).
-* Add support for multiple audio and video tracks in MPEG-PS streams
-  ([#4406](https://github.com/google/ExoPlayer/issues/4406)).
 * Add uri field to `LoadEventInfo` in `MediaSourceEventListener` or
   `AnalyticsListener` callbacks. This uri is the redirected uri if redirection
   occurred ([#2054](https://github.com/google/ExoPlayer/issues/2054)).
-* Improved compatibility with FireOS devices.
 * Allow `MediaCodecSelector`s to return multiple compatible decoders for
   `MediaCodecRenderer`, and provide an (optional) `MediaCodecSelector` that
   falls back to less preferred decoders like `MediaCodec.createDecoderByType`
   ([#273](https://github.com/google/ExoPlayer/issues/273)).
+
+### 2.8.3 ###
+
+* IMA:
+  * Fix behavior when creating/releasing the player then releasing
+    `ImaAdsLoader` ([#3879](https://github.com/google/ExoPlayer/issues/3879)).
+  * Add support for setting slots for companion ads.
+* Captions:
+  * TTML: Fix an issue with TTML using font size as % of cell resolution that
+    makes `SubtitleView.setApplyEmbeddedFontSizes()` not work correctly.
+    ([#4491](https://github.com/google/ExoPlayer/issues/4491)).
+  * CEA-608: Improve handling of embedded styles
+    ([#4321](https://github.com/google/ExoPlayer/issues/4321)).
+* DASH: Exclude text streams from duration calculations
+  ([#4029](https://github.com/google/ExoPlayer/issues/4029)).
+* DRM: Allow DrmInitData to carry a license server URL
+  ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
+* Expose all internal ID3 data stored in MP4 udta boxes, and switch from using
+  CommentFrame to InternalFrame for frames with gapless metadata in MP4.
+* Add `PlayerView.isControllerVisible`
+  ([#4385](https://github.com/google/ExoPlayer/issues/4385)).
+* Fix issue playing DRM protected streams on Asus Zenfone 2
+  ([#4403](https://github.com/google/ExoPlayer/issues/4413)).
+* Add support for multiple audio and video tracks in MPEG-PS streams
+  ([#4406](https://github.com/google/ExoPlayer/issues/4406)).
 * Add workaround for track index mismatches between trex and tkhd boxes in
   fragmented MP4 files
   ([#4477](https://github.com/google/ExoPlayer/issues/4477)).
@@ -110,6 +111,7 @@
   ([#4348](https://github.com/google/ExoPlayer/issues/4348)).
 * Fix issue when switching track selection from an embedded track to a primary
   track in DASH ([#4477](https://github.com/google/ExoPlayer/issues/4477)).
+* Improved compatibility with FireOS devices.
 
 ### 2.8.2 ###
 
