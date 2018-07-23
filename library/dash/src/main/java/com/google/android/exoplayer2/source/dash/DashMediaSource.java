@@ -79,7 +79,7 @@ public final class DashMediaSource extends BaseMediaSource {
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private int minLoadableRetryCount;
     private long livePresentationDelayMs;
-    private long defaultLivePresentationDelayMs;
+    private boolean livePresentationDelayOverridesManifest;
     private boolean isCreateCalled;
     private @Nullable Object tag;
 
@@ -98,8 +98,7 @@ public final class DashMediaSource extends BaseMediaSource {
       this.chunkSourceFactory = Assertions.checkNotNull(chunkSourceFactory);
       this.manifestDataSourceFactory = manifestDataSourceFactory;
       minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
-      livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS;
-      defaultLivePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS;
+      livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
     }
 
@@ -132,41 +131,36 @@ public final class DashMediaSource extends BaseMediaSource {
       return this;
     }
 
+    /** @deprecated Use {@link #setLivePresentationDelayMs(long, boolean)}. */
+    @Deprecated
+    @SuppressWarnings("deprecation")
+    public Factory setLivePresentationDelayMs(long livePresentationDelayMs) {
+      if (livePresentationDelayMs == DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS) {
+        return setLivePresentationDelayMs(DEFAULT_LIVE_PRESENTATION_DELAY_MS, false);
+      } else {
+        return setLivePresentationDelayMs(livePresentationDelayMs, true);
+      }
+    }
+
     /**
      * Sets the duration in milliseconds by which the default start position should precede the end
-     * of the live window for live playbacks. The default value is {@link
-     * #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS}.
+     * of the live window for live playbacks. The {@code overridesManifest} parameter specifies
+     * whether the value is used in preference to one in the manifest, if present. The default value
+     * is {@link #DEFAULT_LIVE_PRESENTATION_DELAY_MS}, and by default {@code overridesManifest} is
+     * false.
      *
      * @param livePresentationDelayMs For live playbacks, the duration in milliseconds by which the
-     *     default start position should precede the end of the live window. Use {@link
-     *     #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS} to use the value specified by the
-     *     manifest, if present.
+     *     default start position should precede the end of the live window.
+     * @param overridesManifest Whether the value is used in preference to one in the manifest, if
+     *     present.
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Factory setLivePresentationDelayMs(long livePresentationDelayMs) {
+    public Factory setLivePresentationDelayMs(
+        long livePresentationDelayMs, boolean overridesManifest) {
       Assertions.checkState(!isCreateCalled);
       this.livePresentationDelayMs = livePresentationDelayMs;
-      return this;
-    }
-     
-    /**
-     * Sets the duration in milliseconds by which the default start position should precede the end
-     * of the live window for live playbacks if the value is not present in the manifest. 
-     * The default value is {@link #DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS}. This value is only 
-     * used when {@link setLivePresentationDelayMs} has not overwritten the presentation delay to a
-     * value other than #DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS
-     *
-     * @param defaultLivePresentationDelayMs For live playbacks, the duration in milliseconds by 
-     *     which the default start position should precede the end of the live window if the
-     *     duration is not specifed in the manifest or overwritten using
-     *     {@link setLivePresentationDelayMs}.
-     * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
-     */
-    public Factory setDefaultLivePresentationDelayMs(long defaultLivePresentationDelayMs) {
-      Assertions.checkState(!isCreateCalled);
-      this.defaultLivePresentationDelayMs = defaultLivePresentationDelayMs;
+      this.livePresentationDelayOverridesManifest = overridesManifest;
       return this;
     }
 
@@ -223,7 +217,7 @@ public final class DashMediaSource extends BaseMediaSource {
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
           livePresentationDelayMs,
-          defaultLivePresentationDelayMs,
+          livePresentationDelayOverridesManifest,
           tag);
     }
 
@@ -264,7 +258,7 @@ public final class DashMediaSource extends BaseMediaSource {
           compositeSequenceableLoaderFactory,
           minLoadableRetryCount,
           livePresentationDelayMs,
-          defaultLivePresentationDelayMs,
+          livePresentationDelayOverridesManifest,
           tag);
     }
 
@@ -294,18 +288,18 @@ public final class DashMediaSource extends BaseMediaSource {
    * The default minimum number of times to retry loading data prior to failing.
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
+
   /**
-   * A constant indicating that the presentation delay for live streams should be set to
-   * {@link DashManifest#suggestedPresentationDelayMs} if specified by the manifest, or
-   * {@link #DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS} otherwise. The presentation delay is the
-   * duration by which the default start position precedes the end of the live window.
+   * The default presentation delay for live streams. The presentation delay is the duration by
+   * which the default start position precedes the end of the live window.
    */
-  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS = -1;
-  /**
-   * A fixed default presentation delay for live streams. The presentation delay is the duration
-   * by which the default start position precedes the end of the live window.
-   */
-  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS = 30000;
+  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_MS = 30000;
+  /** @deprecated Use {@link #DEFAULT_LIVE_PRESENTATION_DELAY_MS}. */
+  @Deprecated
+  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS =
+      DEFAULT_LIVE_PRESENTATION_DELAY_MS;
+  /** @deprecated Use of this parameter is no longer necessary. */
+  @Deprecated public static final long DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS = -1;
 
   /**
    * The interval in milliseconds between invocations of {@link
@@ -326,7 +320,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final int minLoadableRetryCount;
   private final long livePresentationDelayMs;
-  private final long defaultLivePresentationDelayMs;
+  private final boolean livePresentationDelayOverridesManifest;
   private final EventDispatcher manifestEventDispatcher;
   private final ParsingLoadable.Parser<? extends DashManifest> manifestParser;
   private final ManifestCallback manifestCallback;
@@ -369,6 +363,7 @@ public final class DashMediaSource extends BaseMediaSource {
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DashMediaSource(
       DashManifest manifest,
       DashChunkSource.Factory chunkSourceFactory,
@@ -403,8 +398,8 @@ public final class DashMediaSource extends BaseMediaSource {
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
         minLoadableRetryCount,
-        DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS,
-        DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS,
+        DEFAULT_LIVE_PRESENTATION_DELAY_MS,
+        /* livePresentationDelayOverridesManifest= */ false,
         /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
       addEventListener(eventHandler, eventListener);
@@ -424,6 +419,7 @@ public final class DashMediaSource extends BaseMediaSource {
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DashMediaSource(
       Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
@@ -453,6 +449,7 @@ public final class DashMediaSource extends BaseMediaSource {
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DashMediaSource(
       Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
@@ -461,8 +458,15 @@ public final class DashMediaSource extends BaseMediaSource {
       long livePresentationDelayMs,
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
-    this(manifestUri, manifestDataSourceFactory, new DashManifestParser(), chunkSourceFactory,
-        minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
+    this(
+        manifestUri,
+        manifestDataSourceFactory,
+        new DashManifestParser(),
+        chunkSourceFactory,
+        minLoadableRetryCount,
+        livePresentationDelayMs,
+        eventHandler,
+        eventListener);
   }
 
   /**
@@ -484,6 +488,7 @@ public final class DashMediaSource extends BaseMediaSource {
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DashMediaSource(
       Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
@@ -501,8 +506,10 @@ public final class DashMediaSource extends BaseMediaSource {
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
         minLoadableRetryCount,
-        livePresentationDelayMs,
-        DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS,
+        livePresentationDelayMs == DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS
+            ? DEFAULT_LIVE_PRESENTATION_DELAY_MS
+            : livePresentationDelayMs,
+        livePresentationDelayMs != DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS,
         /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
       addEventListener(eventHandler, eventListener);
@@ -518,7 +525,7 @@ public final class DashMediaSource extends BaseMediaSource {
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       int minLoadableRetryCount,
       long livePresentationDelayMs,
-      long defaultLivePresentationDelayMs,
+      boolean livePresentationDelayOverridesManifest,
       @Nullable Object tag) {
     this.initialManifestUri = manifestUri;
     this.manifest = manifest;
@@ -528,7 +535,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.chunkSourceFactory = chunkSourceFactory;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.livePresentationDelayMs = livePresentationDelayMs;
-    this.defaultLivePresentationDelayMs = defaultLivePresentationDelayMs;
+    this.livePresentationDelayOverridesManifest = livePresentationDelayOverridesManifest;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.tag = tag;
     sideloadedManifest = manifest != null;
@@ -912,9 +919,9 @@ public final class DashMediaSource extends BaseMediaSource {
     long windowDefaultStartPositionUs = 0;
     if (manifest.dynamic) {
       long presentationDelayForManifestMs = livePresentationDelayMs;
-      if (presentationDelayForManifestMs == DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS) {
-        presentationDelayForManifestMs = manifest.suggestedPresentationDelayMs != C.TIME_UNSET
-            ? manifest.suggestedPresentationDelayMs : defaultLivePresentationDelayMs;
+      if (!livePresentationDelayOverridesManifest
+          && manifest.suggestedPresentationDelayMs != C.TIME_UNSET) {
+        presentationDelayForManifestMs = manifest.suggestedPresentationDelayMs;
       }
       // Snap the default position to the start of the segment containing it.
       windowDefaultStartPositionUs = windowDurationUs - C.msToUs(presentationDelayForManifestMs);
