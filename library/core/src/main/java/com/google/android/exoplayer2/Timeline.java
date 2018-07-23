@@ -520,6 +520,11 @@ public abstract class Timeline {
         public int getIndexOfPeriod(Object uid) {
           return C.INDEX_UNSET;
         }
+
+        @Override
+        public Object getUidOfPeriod(int periodIndex) {
+          throw new IndexOutOfBoundsException();
+        }
       };
 
   /**
@@ -738,6 +743,17 @@ public abstract class Timeline {
   }
 
   /**
+   * Populates a {@link Period} with data for the period with the specified unique identifier.
+   *
+   * @param periodUid The unique identifier of the period.
+   * @param period The {@link Period} to populate. Must not be null.
+   * @return The populated {@link Period}, for convenience.
+   */
+  public Period getPeriodByUid(Object periodUid, Period period) {
+    return getPeriod(getIndexOfPeriod(periodUid), period, /* setIds= */ true);
+  }
+
+  /**
    * Populates a {@link Period} with data for the period at the specified index. Does not populate
    * {@link Period#id} and {@link Period#uid}.
    *
@@ -770,4 +786,11 @@ public abstract class Timeline {
    */
   public abstract int getIndexOfPeriod(Object uid);
 
+  /**
+   * Returns the unique id of the period identified by its index in the timeline.
+   *
+   * @param periodIndex The index of the period.
+   * @return The unique id of the period.
+   */
+  public abstract Object getUidOfPeriod(int periodIndex);
 }

@@ -66,7 +66,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private final boolean isAtomic;
   private final boolean useLazyPreparation;
   private final Timeline.Window window;
-  private final Timeline.Period period;
 
   private @Nullable ExoPlayer player;
   private @Nullable Handler playerApplicationHandler;
@@ -133,7 +132,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     this.isAtomic = isAtomic;
     this.useLazyPreparation = useLazyPreparation;
     window = new Timeline.Window();
-    period = new Timeline.Period();
     addMediaSources(Arrays.asList(mediaSources));
   }
 
@@ -594,7 +592,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
           windowOffsetUpdate,
           periodOffsetUpdate);
     }
-    mediaSourceHolder.timeline = deferredTimeline.cloneWithNewTimeline(timeline, period);
+    mediaSourceHolder.timeline = deferredTimeline.cloneWithNewTimeline(timeline);
     if (!mediaSourceHolder.isPrepared && !timeline.isEmpty()) {
       timeline.getWindow(/* windowIndex= */ 0, window);
       long defaultPeriodPositionUs =
@@ -823,11 +821,11 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       this.replacedId = replacedId;
     }
 
-    public DeferredTimeline cloneWithNewTimeline(Timeline timeline, Period period) {
+    public DeferredTimeline cloneWithNewTimeline(Timeline timeline) {
       return new DeferredTimeline(
           timeline,
           replacedId == DUMMY_ID && timeline.getPeriodCount() > 0
-              ? timeline.getPeriod(0, period, true).uid
+              ? timeline.getUidOfPeriod(0)
               : replacedId);
     }
 
@@ -847,6 +845,12 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     @Override
     public int getIndexOfPeriod(Object uid) {
       return timeline.getIndexOfPeriod(DUMMY_ID.equals(uid) ? replacedId : uid);
+    }
+
+    @Override
+    public Object getUidOfPeriod(int periodIndex) {
+      Object uid = timeline.getUidOfPeriod(periodIndex);
+      return Util.areEqual(uid, replacedId) ? DUMMY_ID : uid;
     }
   }
 
@@ -893,6 +897,11 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     @Override
     public int getIndexOfPeriod(Object uid) {
       return uid == DeferredTimeline.DUMMY_ID ? 0 : C.INDEX_UNSET;
+    }
+
+    @Override
+    public Object getUidOfPeriod(int periodIndex) {
+      return DeferredTimeline.DUMMY_ID;
     }
   }
 }

@@ -904,7 +904,7 @@ import java.util.Collections;
       pendingMessageInfo.setResolvedPosition(
           periodPosition.first,
           periodPosition.second,
-          playbackInfo.timeline.getPeriod(periodPosition.first, period, true).uid);
+          playbackInfo.timeline.getUidOfPeriod(periodPosition.first));
     } else {
       // Position has been resolved for a previous timeline. Try to find the updated period index.
       int index = playbackInfo.timeline.getIndexOfPeriod(pendingMessageInfo.resolvedPeriodUid);
@@ -1203,8 +1203,8 @@ import java.util.Collections;
       return;
     }
     MediaPeriodHolder periodHolder = queue.getFrontPeriod();
-    Object playingPeriodUid = periodHolder == null
-        ? oldTimeline.getPeriod(playingPeriodIndex, period, true).uid : periodHolder.uid;
+    Object playingPeriodUid =
+        periodHolder == null ? oldTimeline.getUidOfPeriod(playingPeriodIndex) : periodHolder.uid;
     int periodIndex = timeline.getIndexOfPeriod(playingPeriodUid);
     if (periodIndex == C.INDEX_UNSET) {
       // We didn't find the current period in the new timeline. Attempt to resolve a subsequent
@@ -1221,11 +1221,10 @@ import java.util.Collections;
       newPeriodIndex = defaultPosition.first;
       contentPositionUs = defaultPosition.second;
       MediaPeriodId periodId = queue.resolveMediaPeriodIdForAds(newPeriodIndex, contentPositionUs);
-      timeline.getPeriod(newPeriodIndex, period, true);
       if (periodHolder != null) {
         // Clear the index of each holder that doesn't contain the default position. If a holder
         // contains the default position then update its index so it can be re-used when seeking.
-        Object newPeriodUid = period.uid;
+        Object newPeriodUid = timeline.getUidOfPeriod(newPeriodIndex);
         periodHolder.info = periodHolder.info.copyWithPeriodIndex(C.INDEX_UNSET);
         while (periodHolder.next != null) {
           periodHolder = periodHolder.next;
@@ -1293,8 +1292,7 @@ import java.util.Collections;
         // We've reached the end of the old timeline.
         break;
       }
-      newPeriodIndex = newTimeline.getIndexOfPeriod(
-          oldTimeline.getPeriod(oldPeriodIndex, period, true).uid);
+      newPeriodIndex = newTimeline.getIndexOfPeriod(oldTimeline.getUidOfPeriod(oldPeriodIndex));
     }
     return newPeriodIndex;
   }
@@ -1338,8 +1336,7 @@ import java.util.Collections;
       return periodPosition;
     }
     // Attempt to find the mapped period in the internal timeline.
-    int periodIndex = timeline.getIndexOfPeriod(
-        seekTimeline.getPeriod(periodPosition.first, period, true).uid);
+    int periodIndex = timeline.getIndexOfPeriod(seekTimeline.getUidOfPeriod(periodPosition.first));
     if (periodIndex != C.INDEX_UNSET) {
       // We successfully located the period in the internal timeline.
       return Pair.create(periodIndex, periodPosition.second);
@@ -1497,7 +1494,7 @@ import java.util.Collections;
       if (info == null) {
         mediaSource.maybeThrowSourceInfoRefreshError();
       } else {
-        Object uid = playbackInfo.timeline.getPeriod(info.id.periodIndex, period, true).uid;
+        Object uid = playbackInfo.timeline.getUidOfPeriod(info.id.periodIndex);
         MediaPeriod mediaPeriod =
             queue.enqueueNextMediaPeriod(
                 rendererCapabilities,

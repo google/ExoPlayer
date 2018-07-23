@@ -784,8 +784,7 @@ public class AnalyticsCollector
       if (newTimeline.isEmpty() || timeline.isEmpty()) {
         return mediaPeriod;
       }
-      Object uid =
-          timeline.getPeriod(mediaPeriod.mediaPeriodId.periodIndex, period, /* setIds= */ true).uid;
+      Object uid = timeline.getUidOfPeriod(mediaPeriod.mediaPeriodId.periodIndex);
       int newPeriodIndex = newTimeline.getIndexOfPeriod(uid);
       if (newPeriodIndex == C.INDEX_UNSET) {
         return mediaPeriod;

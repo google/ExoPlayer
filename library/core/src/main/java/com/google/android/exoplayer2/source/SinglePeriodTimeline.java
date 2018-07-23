@@ -193,4 +193,9 @@ public final class SinglePeriodTimeline extends Timeline {
     return UID.equals(uid) ? 0 : C.INDEX_UNSET;
   }
 
+  @Override
+  public Object getUidOfPeriod(int periodIndex) {
+    Assertions.checkIndex(periodIndex, 0, 1);
+    return UID;
+  }
 }

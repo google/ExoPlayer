@@ -314,7 +314,7 @@ import com.google.android.exoplayer2.util.Assertions;
       } else {
         // Check this period holder still follows the previous one, based on the new timeline.
         if (periodIndex == C.INDEX_UNSET
-            || !periodHolder.uid.equals(timeline.getPeriod(periodIndex, period, true).uid)) {
+            || !periodHolder.uid.equals(timeline.getUidOfPeriod(periodIndex))) {
           // The holder uid is inconsistent with the new timeline.
           return !removeAfter(previousPeriodHolder);
         }

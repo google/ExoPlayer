@@ -23,7 +23,6 @@ import android.os.ConditionVariable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
@@ -876,21 +875,20 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testReleaseAndReprepareSource() throws IOException {
-    Period period = new Period();
     FakeMediaSource[] fakeMediaSources = createMediaSources(/* count= */ 2);
     mediaSource.addMediaSource(fakeMediaSources[0]); // Child source with 1 period.
     mediaSource.addMediaSource(fakeMediaSources[1]); // Child source with 2 periods.
     Timeline timeline = testRunner.prepareSource();
-    Object periodId0 = timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid;
-    Object periodId1 = timeline.getPeriod(/* periodIndex= */ 1, period, /* setIds= */ true).uid;
-    Object periodId2 = timeline.getPeriod(/* periodIndex= */ 2, period, /* setIds= */ true).uid;
+    Object periodId0 = timeline.getUidOfPeriod(/* periodIndex= */ 0);
+    Object periodId1 = timeline.getUidOfPeriod(/* periodIndex= */ 1);
+    Object periodId2 = timeline.getUidOfPeriod(/* periodIndex= */ 2);
     testRunner.releaseSource();
 
     mediaSource.moveMediaSource(/* currentIndex= */ 1, /* newIndex= */ 0);
     timeline = testRunner.prepareSource();
-    Object newPeriodId0 = timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid;
-    Object newPeriodId1 = timeline.getPeriod(/* periodIndex= */ 1, period, /* setIds= */ true).uid;
-    Object newPeriodId2 = timeline.getPeriod(/* periodIndex= */ 2, period, /* setIds= */ true).uid;
+    Object newPeriodId0 = timeline.getUidOfPeriod(/* periodIndex= */ 0);
+    Object newPeriodId1 = timeline.getUidOfPeriod(/* periodIndex= */ 1);
+    Object newPeriodId2 = timeline.getUidOfPeriod(/* periodIndex= */ 2);
     assertThat(newPeriodId0).isEqualTo(periodId1);
     assertThat(newPeriodId1).isEqualTo(periodId2);
     assertThat(newPeriodId2).isEqualTo(periodId0);
