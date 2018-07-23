@@ -676,7 +676,7 @@ import java.util.Collections;
     MediaPeriodHolder oldPlayingPeriodHolder = queue.getPlayingPeriod();
     MediaPeriodHolder newPlayingPeriodHolder = oldPlayingPeriodHolder;
     while (newPlayingPeriodHolder != null) {
-      if (shouldKeepPeriodHolder(periodId, periodPositionUs, newPlayingPeriodHolder)) {
+      if (periodId.equals(newPlayingPeriodHolder.info.id) && newPlayingPeriodHolder.prepared) {
         queue.removeAfter(newPlayingPeriodHolder);
         break;
       }
@@ -710,19 +710,6 @@ import java.util.Collections;
     updateLoadingMediaPeriodId();
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     return periodPositionUs;
-  }
-
-  private boolean shouldKeepPeriodHolder(
-      MediaPeriodId seekPeriodId, long positionUs, MediaPeriodHolder holder) {
-    if (seekPeriodId.equals(holder.info.id) && holder.prepared) {
-      playbackInfo.timeline.getPeriod(holder.info.id.periodIndex, period);
-      int nextAdGroupIndex = period.getAdGroupIndexAfterPositionUs(positionUs);
-      if (nextAdGroupIndex == C.INDEX_UNSET
-          || period.getAdGroupTimeUs(nextAdGroupIndex) == holder.info.endPositionUs) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private void resetRendererPosition(long periodPositionUs) throws ExoPlaybackException {

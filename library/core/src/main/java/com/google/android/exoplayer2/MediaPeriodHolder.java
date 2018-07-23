@@ -82,13 +82,13 @@ import com.google.android.exoplayer2.util.Assertions;
     sampleStreams = new SampleStream[rendererCapabilities.length];
     mayRetainStreamFlags = new boolean[rendererCapabilities.length];
     MediaPeriod mediaPeriod = mediaSource.createPeriod(info.id, allocator);
-    if (info.endPositionUs != C.TIME_END_OF_SOURCE) {
+    if (info.id.endPositionUs != C.TIME_END_OF_SOURCE) {
       mediaPeriod =
           new ClippingMediaPeriod(
               mediaPeriod,
               /* enableInitialDiscontinuity= */ true,
               /* startUs= */ 0,
-              info.endPositionUs);
+              info.id.endPositionUs);
     }
     this.mediaPeriod = mediaPeriod;
   }
@@ -219,7 +219,7 @@ import com.google.android.exoplayer2.util.Assertions;
   public void release() {
     updatePeriodTrackSelectorResult(null);
     try {
-      if (info.endPositionUs != C.TIME_END_OF_SOURCE) {
+      if (info.id.endPositionUs != C.TIME_END_OF_SOURCE) {
         mediaSource.releasePeriod(((ClippingMediaPeriod) mediaPeriod).mediaPeriod);
       } else {
         mediaSource.releasePeriod(mediaPeriod);

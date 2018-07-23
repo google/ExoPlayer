@@ -26,17 +26,12 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
   /** The start position of the media to play within the media period, in microseconds. */
   public final long startPositionUs;
   /**
-   * The end position of the media to play within the media period, in microseconds, or {@link
-   * C#TIME_END_OF_SOURCE} if the end position is the end of the media period.
-   */
-  public final long endPositionUs;
-  /**
    * If this is an ad, the position to play in the next content media period. {@link C#TIME_UNSET}
    * otherwise.
    */
   public final long contentPositionUs;
   /**
-   * The duration of the media period, like {@link #endPositionUs} but with {@link
+   * The duration of the media period, like {@link MediaPeriodId#endPositionUs} but with {@link
    * C#TIME_END_OF_SOURCE} resolved to the timeline period duration. May be {@link C#TIME_UNSET} if
    * the end position is not known.
    */
@@ -55,14 +50,12 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
   MediaPeriodInfo(
       MediaPeriodId id,
       long startPositionUs,
-      long endPositionUs,
       long contentPositionUs,
       long durationUs,
       boolean isLastInTimelinePeriod,
       boolean isFinal) {
     this.id = id;
     this.startPositionUs = startPositionUs;
-    this.endPositionUs = endPositionUs;
     this.contentPositionUs = contentPositionUs;
     this.durationUs = durationUs;
     this.isLastInTimelinePeriod = isLastInTimelinePeriod;
@@ -77,7 +70,6 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
     return new MediaPeriodInfo(
         id.copyWithPeriodIndex(periodIndex),
         startPositionUs,
-        endPositionUs,
         contentPositionUs,
         durationUs,
         isLastInTimelinePeriod,
@@ -89,7 +81,6 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
     return new MediaPeriodInfo(
         id,
         startPositionUs,
-        endPositionUs,
         contentPositionUs,
         durationUs,
         isLastInTimelinePeriod,
