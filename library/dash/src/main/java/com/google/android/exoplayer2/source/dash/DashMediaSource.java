@@ -1204,6 +1204,11 @@ public final class DashMediaSource extends BaseMediaSource {
           - defaultStartPositionInPeriodUs;
     }
 
+    @Override
+    public Object getUidOfPeriod(int periodIndex) {
+      Assertions.checkIndex(periodIndex, 0, getPeriodCount());
+      return firstPeriodId + periodIndex;
+    }
   }
 
   private final class DefaultPlayerEmsgCallback implements PlayerEmsgCallback {
