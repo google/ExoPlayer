@@ -64,7 +64,6 @@ import java.util.List;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final @Nullable TransferListener<? super DataSource> transferListener;
   private final int minLoadableRetryCount;
-  private final EventDispatcher eventDispatcher;
   private final long elapsedRealtimeOffset;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final Allocator allocator;
@@ -75,6 +74,7 @@ import java.util.List;
   private final IdentityHashMap<ChunkSampleStream<DashChunkSource>, PlayerTrackEmsgHandler>
       trackEmsgHandlerBySampleStream;
 
+  private EventDispatcher eventDispatcher;
   private @Nullable Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private EventSampleStream[] eventSampleStreams;
@@ -131,6 +131,13 @@ import java.util.List;
    */
   public void updateManifest(DashManifest manifest, int periodIndex) {
     this.manifest = manifest;
+    if (this.periodIndex != periodIndex) {
+      eventDispatcher =
+          eventDispatcher.withParameters(
+              /* windowIndex= */ 0,
+              eventDispatcher.mediaPeriodId.copyWithPeriodIndex(periodIndex),
+              manifest.getPeriod(periodIndex).startMs);
+    }
     this.periodIndex = periodIndex;
     playerEmsgHandler.updateManifest(manifest);
     if (sampleStreams != null) {
