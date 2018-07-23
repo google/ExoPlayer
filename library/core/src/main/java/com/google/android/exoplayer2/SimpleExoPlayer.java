@@ -80,6 +80,7 @@ public class SimpleExoPlayer
   private final CopyOnWriteArraySet<MetadataOutput> metadataOutputs;
   private final CopyOnWriteArraySet<VideoRendererEventListener> videoDebugListeners;
   private final CopyOnWriteArraySet<AudioRendererEventListener> audioDebugListeners;
+  private final BandwidthMeter bandwidthMeter;
   private final AnalyticsCollector analyticsCollector;
 
   private Format videoFormat;
@@ -181,6 +182,7 @@ public class SimpleExoPlayer
       AnalyticsCollector.Factory analyticsCollectorFactory,
       Clock clock,
       Looper looper) {
+    this.bandwidthMeter = bandwidthMeter;
     componentListener = new ComponentListener();
     videoListeners = new CopyOnWriteArraySet<>();
     audioListeners = new CopyOnWriteArraySet<>();
@@ -215,6 +217,7 @@ public class SimpleExoPlayer
     audioDebugListeners.add(analyticsCollector);
     audioListeners.add(analyticsCollector);
     addMetadataOutput(analyticsCollector);
+    bandwidthMeter.addEventListener(eventHandler, analyticsCollector);
     if (drmSessionManager instanceof DefaultDrmSessionManager) {
       ((DefaultDrmSessionManager) drmSessionManager).addListener(eventHandler, analyticsCollector);
     }
@@ -854,6 +857,7 @@ public class SimpleExoPlayer
     if (mediaSource != null) {
       mediaSource.removeEventListener(analyticsCollector);
     }
+    bandwidthMeter.removeEventListener(analyticsCollector);
     currentCues = Collections.emptyList();
   }
 

@@ -49,9 +49,13 @@ public final class H262Reader implements ElementaryStreamReader {
   private boolean hasOutputFormat;
   private long frameDurationUs;
 
+  private final UserDataReader userDataReader;
+  private final ParsableByteArray userDataParsable;
+
   // State that should be reset on seek.
   private final boolean[] prefixFlags;
   private final CsdBuffer csdBuffer;
+  private final NalUnitTargetBuffer userData;
   private long totalBytesWritten;
   private boolean startedFirstSample;
 
@@ -63,13 +67,11 @@ public final class H262Reader implements ElementaryStreamReader {
   private long sampleTimeUs;
   private boolean sampleIsKeyframe;
   private boolean sampleHasPicture;
-  private NalUnitTargetBuffer userData = null;
-  private UserDataReader userDataReader = null;
-  // Scratch variables to avoid allocations.
-  private ParsableByteArray userDataParsable = null;
+
   public H262Reader() {
     this(null);
   }
+
   public H262Reader(UserDataReader userDataReader) {
     this.userDataReader = userDataReader;
     prefixFlags = new boolean[4];
@@ -77,6 +79,9 @@ public final class H262Reader implements ElementaryStreamReader {
     if (userDataReader != null) {
       userData = new NalUnitTargetBuffer(START_USER_DATA, 128);
       userDataParsable = new ParsableByteArray();
+    } else {
+      userData = null;
+      userDataParsable = null;
     }
   }
 
@@ -84,7 +89,7 @@ public final class H262Reader implements ElementaryStreamReader {
   public void seek() {
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     csdBuffer.reset();
-    if (userData != null) {
+    if (userDataReader != null) {
       userData.reset();
     }
     totalBytesWritten = 0;
@@ -124,7 +129,7 @@ public final class H262Reader implements ElementaryStreamReader {
         if (!hasOutputFormat) {
           csdBuffer.onData(dataArray, offset, limit);
         }
-        if (userData != null) {
+        if (userDataReader != null) {
           userData.appendToNalUnit(dataArray, offset, limit);
         }
         return;
@@ -132,11 +137,11 @@ public final class H262Reader implements ElementaryStreamReader {
 
       // We've found a start code with the following value.
       int startCodeValue = data.data[startCodeOffset + 3] & 0xFF;
+      // This is the number of bytes from the current offset to the start of the next start
+      // code. It may be negative if the start code started in the previously consumed data.
+      int lengthToStartCode = startCodeOffset - offset;
 
       if (!hasOutputFormat) {
-        // This is the number of bytes from the current offset to the start of the next start
-        // code. It may be negative if the start code started in the previously consumed data.
-        int lengthToStartCode = startCodeOffset - offset;
         if (lengthToStartCode > 0) {
           csdBuffer.onData(dataArray, offset, startCodeOffset);
         }
@@ -151,8 +156,7 @@ public final class H262Reader implements ElementaryStreamReader {
           hasOutputFormat = true;
         }
       }
-      if (userDataReader != null && userData != null) {
-        int lengthToStartCode = startCodeOffset - offset;
+      if (userDataReader != null) {
         int bytesAlreadyPassed = 0;
         if (lengthToStartCode > 0) {
           userData.appendToNalUnit(dataArray, offset, startCodeOffset);
