@@ -29,7 +29,7 @@ import java.util.ArrayList;
 public abstract class BaseDataSource implements DataSource {
 
   private final boolean isNetwork;
-  private final ArrayList<TransferListener<? super DataSource>> listeners;
+  private final ArrayList<TransferListener> listeners;
 
   private @Nullable DataSpec dataSpec;
 
@@ -44,7 +44,7 @@ public abstract class BaseDataSource implements DataSource {
   }
 
   @Override
-  public final void addTransferListener(TransferListener<? super DataSource> transferListener) {
+  public final void addTransferListener(TransferListener transferListener) {
     listeners.add(transferListener);
   }
 

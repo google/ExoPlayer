@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -97,7 +96,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       @NonNull Call.Factory callFactory,
       @Nullable String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> listener) {
+      @Nullable TransferListener listener) {
     this(callFactory, userAgent, contentTypePredicate, listener, null, null);
   }
 
@@ -117,7 +116,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       @NonNull Call.Factory callFactory,
       @Nullable String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable TransferListener listener,
       @Nullable CacheControl cacheControl,
       @Nullable RequestProperties defaultRequestProperties) {
     super(/* isNetwork= */ true);

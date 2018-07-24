@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.util.SlidingPercentile;
  * Estimates bandwidth by listening to data transfers. The bandwidth estimate is calculated using a
  * {@link SlidingPercentile} and is updated each time a transfer ends.
  */
-public final class DefaultBandwidthMeter implements BandwidthMeter, TransferListener<Object> {
+public final class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
 
   /** Default initial bitrate estimate in bits per second. */
   public static final long DEFAULT_INITIAL_BITRATE_ESTIMATE = 1_000_000;
@@ -169,7 +169,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
-  public @Nullable TransferListener<? super DataSource> getTransferListener() {
+  public @Nullable TransferListener getTransferListener() {
     return this;
   }
 
@@ -184,12 +184,13 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
-  public void onTransferInitializing(Object source, DataSpec dataSpec, boolean isNetwork) {
+  public void onTransferInitializing(DataSource source, DataSpec dataSpec, boolean isNetwork) {
     // Do nothing.
   }
 
   @Override
-  public synchronized void onTransferStart(Object source, DataSpec dataSpec, boolean isNetwork) {
+  public synchronized void onTransferStart(
+      DataSource source, DataSpec dataSpec, boolean isNetwork) {
     if (!isNetwork) {
       return;
     }
@@ -201,7 +202,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
   @Override
   public synchronized void onBytesTransferred(
-      Object source, DataSpec dataSpec, boolean isNetwork, int bytes) {
+      DataSource source, DataSpec dataSpec, boolean isNetwork, int bytes) {
     if (!isNetwork) {
       return;
     }
@@ -209,7 +210,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
-  public synchronized void onTransferEnd(Object source, DataSpec dataSpec, boolean isNetwork) {
+  public synchronized void onTransferEnd(DataSource source, DataSpec dataSpec, boolean isNetwork) {
     if (!isNetwork) {
       return;
     }

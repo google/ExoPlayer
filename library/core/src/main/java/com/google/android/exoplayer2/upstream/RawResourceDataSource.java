@@ -81,8 +81,7 @@ public final class RawResourceDataSource extends BaseDataSource {
    * @param context A context.
    * @param listener An optional listener.
    */
-  public RawResourceDataSource(
-      Context context, @Nullable TransferListener<? super DataSource> listener) {
+  public RawResourceDataSource(Context context, @Nullable TransferListener listener) {
     super(/* isNetwork= */ false);
     this.resources = context.getResources();
     if (listener != null) {

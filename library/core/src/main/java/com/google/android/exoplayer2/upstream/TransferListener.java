@@ -22,20 +22,20 @@ package com.google.android.exoplayer2.upstream;
  *
  * <ol>
  *   <li>Initializing the underlying resource (e.g. opening a HTTP connection). {@link
- *       #onTransferInitializing(Object, DataSpec, boolean)} is called before the initialization
+ *       #onTransferInitializing(DataSource, DataSpec, boolean)} is called before the initialization
  *       starts.
  *   <li>Starting the transfer after successfully initializing the resource. {@link
- *       #onTransferStart(Object, DataSpec, boolean)} is called. Note that this only happens if the
- *       initialization was successful.
- *   <li>Transferring data. {@link #onBytesTransferred(Object, DataSpec, boolean, int)} is called
- *       frequently during the transfer to indicate progress.
- *   <li>Closing the transfer and the underlying resource. {@link #onTransferEnd(Object, DataSpec,
- *       boolean)} is called. Note that each {@link #onTransferStart(Object, DataSpec, boolean)}
- *       will have exactly one corresponding call to {@link #onTransferEnd(Object, DataSpec,
- *       boolean)}.
+ *       #onTransferStart(DataSource, DataSpec, boolean)} is called. Note that this only happens if
+ *       the initialization was successful.
+ *   <li>Transferring data. {@link #onBytesTransferred(DataSource, DataSpec, boolean, int)} is
+ *       called frequently during the transfer to indicate progress.
+ *   <li>Closing the transfer and the underlying resource. {@link #onTransferEnd(DataSource,
+ *       DataSpec, boolean)} is called. Note that each {@link #onTransferStart(DataSource, DataSpec,
+ *       boolean)} will have exactly one corresponding call to {@link #onTransferEnd(DataSource,
+ *       DataSpec, boolean)}.
  * </ol>
  */
-public interface TransferListener<S> {
+public interface TransferListener {
 
   /**
    * Called when a transfer is being initialized.
@@ -44,7 +44,7 @@ public interface TransferListener<S> {
    * @param dataSpec Describes the data for which the transfer is initialized.
    * @param isNetwork Whether the data is transferred through a network.
    */
-  void onTransferInitializing(S source, DataSpec dataSpec, boolean isNetwork);
+  void onTransferInitializing(DataSource source, DataSpec dataSpec, boolean isNetwork);
 
   /**
    * Called when a transfer starts.
@@ -53,7 +53,7 @@ public interface TransferListener<S> {
    * @param dataSpec Describes the data being transferred.
    * @param isNetwork Whether the data is transferred through a network.
    */
-  void onTransferStart(S source, DataSpec dataSpec, boolean isNetwork);
+  void onTransferStart(DataSource source, DataSpec dataSpec, boolean isNetwork);
 
   /**
    * Called incrementally during a transfer.
@@ -63,7 +63,8 @@ public interface TransferListener<S> {
    * @param isNetwork Whether the data is transferred through a network.
    * @param bytesTransferred The number of bytes transferred since the previous call to this method
    */
-  void onBytesTransferred(S source, DataSpec dataSpec, boolean isNetwork, int bytesTransferred);
+  void onBytesTransferred(
+      DataSource source, DataSpec dataSpec, boolean isNetwork, int bytesTransferred);
 
   /**
    * Called when a transfer ends.
@@ -72,5 +73,5 @@ public interface TransferListener<S> {
    * @param dataSpec Describes the data being transferred.
    * @param isNetwork Whether the data is transferred through a network.
    */
-  void onTransferEnd(S source, DataSpec dataSpec, boolean isNetwork);
+  void onTransferEnd(DataSource source, DataSpec dataSpec, boolean isNetwork);
 }

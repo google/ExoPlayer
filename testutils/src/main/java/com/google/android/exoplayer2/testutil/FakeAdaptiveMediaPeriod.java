@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
 
   private final Allocator allocator;
   private final FakeChunkSource.Factory chunkSourceFactory;
-  private final @Nullable TransferListener<? super DataSource> transferListener;
+  private final @Nullable TransferListener transferListener;
   private final long durationUs;
 
   private Callback callback;
@@ -53,7 +52,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
       Allocator allocator,
       FakeChunkSource.Factory chunkSourceFactory,
       long durationUs,
-      @Nullable TransferListener<? super DataSource> transferListener) {
+      @Nullable TransferListener transferListener) {
     super(trackGroupArray, eventDispatcher);
     this.allocator = allocator;
     this.chunkSourceFactory = chunkSourceFactory;

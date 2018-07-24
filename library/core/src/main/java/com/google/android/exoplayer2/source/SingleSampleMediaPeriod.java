@@ -49,7 +49,7 @@ import java.util.Arrays;
 
   private final DataSpec dataSpec;
   private final DataSource.Factory dataSourceFactory;
-  private final @Nullable TransferListener<? super DataSource> transferListener;
+  private final @Nullable TransferListener transferListener;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
   private final TrackGroupArray tracks;
@@ -70,7 +70,7 @@ import java.util.Arrays;
   public SingleSampleMediaPeriod(
       DataSpec dataSpec,
       DataSource.Factory dataSourceFactory,
-      @Nullable TransferListener<? super DataSource> transferListener,
+      @Nullable TransferListener transferListener,
       Format format,
       long durationUs,
       int minLoadableRetryCount,

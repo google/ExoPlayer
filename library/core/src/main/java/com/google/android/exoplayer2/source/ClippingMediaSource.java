@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -216,7 +215,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+      @Nullable TransferListener mediaTransferListener) {
     super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
     prepareChildSource(/* id= */ null, mediaSource);
   }

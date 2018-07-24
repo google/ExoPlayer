@@ -22,13 +22,13 @@ import android.support.annotation.Nullable;
  */
 public final class FileDataSourceFactory implements DataSource.Factory {
 
-  private final @Nullable TransferListener<? super DataSource> listener;
+  private final @Nullable TransferListener listener;
 
   public FileDataSourceFactory() {
     this(null);
   }
 
-  public FileDataSourceFactory(@Nullable TransferListener<? super DataSource> listener) {
+  public FileDataSourceFactory(@Nullable TransferListener listener) {
     this.listener = listener;
   }
 

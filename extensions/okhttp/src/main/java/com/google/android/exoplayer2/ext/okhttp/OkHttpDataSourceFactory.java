@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.ext.okhttp;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
@@ -32,7 +31,7 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
 
   @NonNull private final Call.Factory callFactory;
   @Nullable private final String userAgent;
-  @Nullable private final TransferListener<? super DataSource> listener;
+  @Nullable private final TransferListener listener;
   @Nullable private final CacheControl cacheControl;
 
   /**
@@ -63,8 +62,10 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
    * @param userAgent An optional User-Agent string.
    * @param listener An optional listener.
    */
-  public OkHttpDataSourceFactory(@NonNull Call.Factory callFactory, @Nullable String userAgent,
-      @Nullable TransferListener<? super DataSource> listener) {
+  public OkHttpDataSourceFactory(
+      @NonNull Call.Factory callFactory,
+      @Nullable String userAgent,
+      @Nullable TransferListener listener) {
     this(callFactory, userAgent, listener, /* cacheControl= */ null);
   }
 
@@ -75,8 +76,10 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
    * @param listener An optional listener.
    * @param cacheControl An optional {@link CacheControl} for setting the Cache-Control header.
    */
-  public OkHttpDataSourceFactory(@NonNull Call.Factory callFactory, @Nullable String userAgent,
-      @Nullable TransferListener<? super DataSource> listener,
+  public OkHttpDataSourceFactory(
+      @NonNull Call.Factory callFactory,
+      @Nullable String userAgent,
+      @Nullable TransferListener listener,
       @Nullable CacheControl cacheControl) {
     this.callFactory = callFactory;
     this.userAgent = userAgent;

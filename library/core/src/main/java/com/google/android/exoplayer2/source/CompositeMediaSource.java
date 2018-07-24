@@ -20,7 +20,6 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -38,7 +37,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
 
   private @Nullable ExoPlayer player;
   private @Nullable Handler eventHandler;
-  private @Nullable TransferListener<? super DataSource> mediaTransferListener;
+  private @Nullable TransferListener mediaTransferListener;
 
   /** Create composite media source without child sources. */
   protected CompositeMediaSource() {
@@ -50,7 +49,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+      @Nullable TransferListener mediaTransferListener) {
     this.player = player;
     this.mediaTransferListener = mediaTransferListener;
     eventHandler = new Handler();

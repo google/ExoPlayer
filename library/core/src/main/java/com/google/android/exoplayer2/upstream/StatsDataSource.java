@@ -71,7 +71,7 @@ public final class StatsDataSource implements DataSource {
   }
 
   @Override
-  public void addTransferListener(TransferListener<? super DataSource> transferListener) {
+  public void addTransferListener(TransferListener transferListener) {
     dataSource.addTransferListener(transferListener);
   }
 

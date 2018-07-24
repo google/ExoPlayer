@@ -295,7 +295,7 @@ public final class SsMediaSource extends BaseMediaSource
   private DataSource manifestDataSource;
   private Loader manifestLoader;
   private LoaderErrorThrower manifestLoaderErrorThrower;
-  private @Nullable TransferListener<? super DataSource> mediaTransferListener;
+  private @Nullable TransferListener mediaTransferListener;
 
   private long manifestLoadStartTimestamp;
   private SsManifest manifest;
@@ -477,7 +477,7 @@ public final class SsMediaSource extends BaseMediaSource
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+      @Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
     if (sideloadedManifest) {
       manifestLoaderErrorThrower = new LoaderErrorThrower.Dummy();

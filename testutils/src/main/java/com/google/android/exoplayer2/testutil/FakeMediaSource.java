@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadDa
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -61,7 +60,7 @@ public class FakeMediaSource extends BaseMediaSource {
   private boolean preparedSource;
   private boolean releasedSource;
   private Handler sourceInfoRefreshHandler;
-  private @Nullable TransferListener<? super DataSource> transferListener;
+  private @Nullable TransferListener transferListener;
 
   /**
    * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with a
@@ -92,7 +91,7 @@ public class FakeMediaSource extends BaseMediaSource {
   public synchronized void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+      @Nullable TransferListener mediaTransferListener) {
     assertThat(preparedSource).isFalse();
     transferListener = mediaTransferListener;
     preparedSource = true;
@@ -206,7 +205,7 @@ public class FakeMediaSource extends BaseMediaSource {
       TrackGroupArray trackGroupArray,
       Allocator allocator,
       EventDispatcher eventDispatcher,
-      @Nullable TransferListener<? super DataSource> transferListener) {
+      @Nullable TransferListener transferListener) {
     return new FakeMediaPeriod(trackGroupArray, eventDispatcher);
   }
 

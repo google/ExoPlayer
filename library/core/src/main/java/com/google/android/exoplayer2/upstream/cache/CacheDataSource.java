@@ -258,7 +258,7 @@ public final class CacheDataSource implements DataSource {
   }
 
   @Override
-  public void addTransferListener(TransferListener<? super DataSource> transferListener) {
+  public void addTransferListener(TransferListener transferListener) {
     cacheReadDataSource.addTransferListener(transferListener);
     upstreamDataSource.addTransferListener(transferListener);
   }

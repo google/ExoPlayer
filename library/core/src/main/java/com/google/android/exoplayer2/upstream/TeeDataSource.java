@@ -44,7 +44,7 @@ public final class TeeDataSource implements DataSource {
   }
 
   @Override
-  public void addTransferListener(TransferListener<? super DataSource> transferListener) {
+  public void addTransferListener(TransferListener transferListener) {
     upstream.addTransferListener(transferListener);
   }
 

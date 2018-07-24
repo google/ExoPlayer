@@ -117,7 +117,7 @@ public class BaseDataSourceTest {
     }
   }
 
-  private static final class TestTransferListener implements TransferListener<DataSource> {
+  private static final class TestTransferListener implements TransferListener {
 
     public Object lastTransferInitializingSource;
     public DataSpec lastTransferInitializingDataSpec;

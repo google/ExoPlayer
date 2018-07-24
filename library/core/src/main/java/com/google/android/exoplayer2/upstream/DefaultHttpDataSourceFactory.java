@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 public final class DefaultHttpDataSourceFactory extends BaseFactory {
 
   private final String userAgent;
-  private final @Nullable TransferListener<? super DataSource> listener;
+  private final @Nullable TransferListener listener;
   private final int connectTimeoutMillis;
   private final int readTimeoutMillis;
   private final boolean allowCrossProtocolRedirects;
@@ -50,8 +50,7 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
    * @param listener An optional listener.
    * @see #DefaultHttpDataSourceFactory(String, TransferListener, int, int, boolean)
    */
-  public DefaultHttpDataSourceFactory(
-      String userAgent, @Nullable TransferListener<? super DataSource> listener) {
+  public DefaultHttpDataSourceFactory(String userAgent, @Nullable TransferListener listener) {
     this(userAgent, listener, DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS, false);
   }
@@ -90,7 +89,7 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
    */
   public DefaultHttpDataSourceFactory(
       String userAgent,
-      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable TransferListener listener,
       int connectTimeoutMillis,
       int readTimeoutMillis,
       boolean allowCrossProtocolRedirects) {

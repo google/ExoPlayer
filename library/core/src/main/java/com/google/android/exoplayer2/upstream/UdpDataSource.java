@@ -64,7 +64,7 @@ public final class UdpDataSource extends BaseDataSource {
   private int packetRemaining;
 
   /** @param listener An optional listener. */
-  public UdpDataSource(@Nullable TransferListener<? super DataSource> listener) {
+  public UdpDataSource(@Nullable TransferListener listener) {
     this(listener, DEFAULT_MAX_PACKET_SIZE);
   }
 
@@ -72,7 +72,7 @@ public final class UdpDataSource extends BaseDataSource {
    * @param listener An optional listener.
    * @param maxPacketSize The maximum datagram packet size, in bytes.
    */
-  public UdpDataSource(@Nullable TransferListener<? super DataSource> listener, int maxPacketSize) {
+  public UdpDataSource(@Nullable TransferListener listener, int maxPacketSize) {
     this(listener, maxPacketSize, DEAFULT_SOCKET_TIMEOUT_MILLIS);
   }
 
@@ -83,9 +83,7 @@ public final class UdpDataSource extends BaseDataSource {
    *     as an infinite timeout.
    */
   public UdpDataSource(
-      @Nullable TransferListener<? super DataSource> listener,
-      int maxPacketSize,
-      int socketTimeoutMillis) {
+      @Nullable TransferListener listener, int maxPacketSize, int socketTimeoutMillis) {
     super(/* isNetwork= */ true);
     this.socketTimeoutMillis = socketTimeoutMillis;
     packetBuffer = new byte[maxPacketSize];

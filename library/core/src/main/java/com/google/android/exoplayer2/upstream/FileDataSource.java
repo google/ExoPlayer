@@ -46,7 +46,7 @@ public final class FileDataSource extends BaseDataSource {
   }
 
   /** @param listener An optional listener. */
-  public FileDataSource(@Nullable TransferListener<? super DataSource> listener) {
+  public FileDataSource(@Nullable TransferListener listener) {
     super(/* isNetwork= */ false);
     if (listener != null) {
       addTransferListener(listener);

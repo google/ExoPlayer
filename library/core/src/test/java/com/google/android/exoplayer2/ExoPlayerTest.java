@@ -45,7 +45,6 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -234,7 +233,7 @@ public final class ExoPlayerTest {
           public synchronized void prepareSourceInternal(
               ExoPlayer player,
               boolean isTopLevelSource,
-              @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+              @Nullable TransferListener mediaTransferListener) {
             super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
             // We've queued a source info refresh on the playback thread's event queue. Allow the
             // test thread to prepare the player with the third source, and block this thread (the
@@ -582,7 +581,7 @@ public final class ExoPlayerTest {
               TrackGroupArray trackGroupArray,
               Allocator allocator,
               EventDispatcher eventDispatcher,
-              @Nullable TransferListener<? super DataSource> transferListener) {
+              @Nullable TransferListener transferListener) {
             FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray, eventDispatcher);
             mediaPeriod.setSeekToUsOffset(10);
             return mediaPeriod;
@@ -617,7 +616,7 @@ public final class ExoPlayerTest {
               TrackGroupArray trackGroupArray,
               Allocator allocator,
               EventDispatcher eventDispatcher,
-              @Nullable TransferListener<? super DataSource> transferListener) {
+              @Nullable TransferListener transferListener) {
             FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray, eventDispatcher);
             mediaPeriod.setDiscontinuityPositionUs(10);
             return mediaPeriod;
@@ -643,7 +642,7 @@ public final class ExoPlayerTest {
               TrackGroupArray trackGroupArray,
               Allocator allocator,
               EventDispatcher eventDispatcher,
-              @Nullable TransferListener<? super DataSource> transferListener) {
+              @Nullable TransferListener transferListener) {
             FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray, eventDispatcher);
             mediaPeriod.setDiscontinuityPositionUs(0);
             return mediaPeriod;
@@ -880,7 +879,7 @@ public final class ExoPlayerTest {
               TrackGroupArray trackGroupArray,
               Allocator allocator,
               EventDispatcher eventDispatcher,
-              @Nullable TransferListener<? super DataSource> transferListener) {
+              @Nullable TransferListener transferListener) {
             // Defer completing preparation of the period until playback parameters have been set.
             fakeMediaPeriodHolder[0] =
                 new FakeMediaPeriod(trackGroupArray, eventDispatcher, /* deferOnPrepared= */ true);
