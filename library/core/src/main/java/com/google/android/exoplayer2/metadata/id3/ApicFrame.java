@@ -29,11 +29,12 @@ public final class ApicFrame extends Id3Frame {
   public static final String ID = "APIC";
 
   public final String mimeType;
-  public final String description;
+  public final @Nullable String description;
   public final int pictureType;
   public final byte[] pictureData;
 
-  public ApicFrame(String mimeType, String description, int pictureType, byte[] pictureData) {
+  public ApicFrame(
+      String mimeType, @Nullable String description, int pictureType, byte[] pictureData) {
     super(ID);
     this.mimeType = mimeType;
     this.description = description;

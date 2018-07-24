@@ -15,8 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
+import static org.checkerframework.checker.nullness.NullnessUtil.castNonNull;
+
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
@@ -24,7 +25,6 @@ import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Predicate;
 import java.io.EOFException;
@@ -34,7 +34,6 @@ import java.io.InterruptedIOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -42,6 +41,7 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /** An {@link HttpDataSource} that delegates to Square's {@link Call.Factory}. */
 public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
@@ -50,19 +50,19 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     ExoPlayerLibraryInfo.registerModule("goog.exo.okhttp");
   }
 
-  private static final AtomicReference<byte[]> skipBufferReference = new AtomicReference<>();
+  private static final byte[] SKIP_BUFFER = new byte[4096];
 
-  @NonNull private final Call.Factory callFactory;
-  @NonNull private final RequestProperties requestProperties;
+  private final Call.Factory callFactory;
+  private final RequestProperties requestProperties;
 
-  @Nullable private final String userAgent;
-  @Nullable private final Predicate<String> contentTypePredicate;
-  @Nullable private final CacheControl cacheControl;
-  @Nullable private final RequestProperties defaultRequestProperties;
+  private final @Nullable String userAgent;
+  private final @Nullable Predicate<String> contentTypePredicate;
+  private final @Nullable CacheControl cacheControl;
+  private final @Nullable RequestProperties defaultRequestProperties;
 
-  private DataSpec dataSpec;
-  private Response response;
-  private InputStream responseByteStream;
+  private @Nullable DataSpec dataSpec;
+  private @Nullable Response response;
+  private @Nullable InputStream responseByteStream;
   private boolean opened;
 
   private long bytesToSkip;
@@ -76,28 +76,19 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
    *     by the source.
    * @param userAgent An optional User-Agent string.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
-   */
-  public OkHttpDataSource(@NonNull Call.Factory callFactory, @Nullable String userAgent,
-      @Nullable Predicate<String> contentTypePredicate) {
-    this(callFactory, userAgent, contentTypePredicate, null);
-  }
-
-  /**
-   * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
-   *     by the source.
-   * @param userAgent An optional User-Agent string.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link InvalidContentTypeException} is thrown from {@link
    *     #open(DataSpec)}.
-   * @param listener An optional listener.
    */
   public OkHttpDataSource(
-      @NonNull Call.Factory callFactory,
+      Call.Factory callFactory,
       @Nullable String userAgent,
-      @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener listener) {
-    this(callFactory, userAgent, contentTypePredicate, listener, null, null);
+      @Nullable Predicate<String> contentTypePredicate) {
+    this(
+        callFactory,
+        userAgent,
+        contentTypePredicate,
+        /* cacheControl= */ null,
+        /* defaultRequestProperties= */ null);
   }
 
   /**
@@ -107,16 +98,14 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link InvalidContentTypeException} is thrown from {@link
    *     #open(DataSpec)}.
-   * @param listener An optional listener.
    * @param cacheControl An optional {@link CacheControl} for setting the Cache-Control header.
    * @param defaultRequestProperties The optional default {@link RequestProperties} to be sent to
    *     the server as HTTP headers on every request.
    */
   public OkHttpDataSource(
-      @NonNull Call.Factory callFactory,
+      Call.Factory callFactory,
       @Nullable String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener listener,
       @Nullable CacheControl cacheControl,
       @Nullable RequestProperties defaultRequestProperties) {
     super(/* isNetwork= */ true);
@@ -126,13 +115,10 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     this.cacheControl = cacheControl;
     this.defaultRequestProperties = defaultRequestProperties;
     this.requestProperties = new RequestProperties();
-    if (listener != null) {
-      addTransferListener(listener);
-    }
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return response == null ? null : Uri.parse(response.request().url().toString());
   }
 
@@ -165,10 +151,15 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     this.bytesRead = 0;
     this.bytesSkipped = 0;
     transferInitializing(dataSpec);
+
     Request request = makeRequest(dataSpec);
+    Response response;
+    ResponseBody responseBody;
     try {
-      response = callFactory.newCall(request).execute();
-      responseByteStream = response.body().byteStream();
+      this.response = callFactory.newCall(request).execute();
+      response = this.response;
+      responseBody = Assertions.checkNotNull(response.body());
+      responseByteStream = responseBody.byteStream();
     } catch (IOException e) {
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
           dataSpec, HttpDataSourceException.TYPE_OPEN);
@@ -189,8 +180,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     }
 
     // Check for a valid content type.
-    MediaType mediaType = response.body().contentType();
-    String contentType = mediaType != null ? mediaType.toString() : null;
+    MediaType mediaType = responseBody.contentType();
+    String contentType = mediaType != null ? mediaType.toString() : "";
     if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
       closeConnectionQuietly();
       throw new InvalidContentTypeException(contentType, dataSpec);
@@ -205,7 +196,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     if (dataSpec.length != C.LENGTH_UNSET) {
       bytesToRead = dataSpec.length;
     } else {
-      long contentLength = response.body().contentLength();
+      long contentLength = responseBody.contentLength();
       bytesToRead = contentLength != -1 ? (contentLength - bytesToSkip) : C.LENGTH_UNSET;
     }
 
@@ -221,7 +212,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       skipInternal();
       return readInternal(buffer, offset, readLength);
     } catch (IOException e) {
-      throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_READ);
+      throw new HttpDataSourceException(
+          e, Assertions.checkNotNull(dataSpec), HttpDataSourceException.TYPE_READ);
     }
   }
 
@@ -266,15 +258,18 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     return bytesToRead == C.LENGTH_UNSET ? bytesToRead : bytesToRead - bytesRead;
   }
 
-  /**
-   * Establishes a connection.
-   */
-  private Request makeRequest(DataSpec dataSpec) {
+  /** Establishes a connection. */
+  private Request makeRequest(DataSpec dataSpec) throws HttpDataSourceException {
     long position = dataSpec.position;
     long length = dataSpec.length;
     boolean allowGzip = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP);
 
     HttpUrl url = HttpUrl.parse(dataSpec.uri.toString());
+    if (url == null) {
+      throw new HttpDataSourceException(
+          "Malformed URL", dataSpec, HttpDataSourceException.TYPE_OPEN);
+    }
+
     Request.Builder builder = new Request.Builder().url(url);
     if (cacheControl != null) {
       builder.cacheControl(cacheControl);
@@ -320,15 +315,9 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       return;
     }
 
-    // Acquire the shared skip buffer.
-    byte[] skipBuffer = skipBufferReference.getAndSet(null);
-    if (skipBuffer == null) {
-      skipBuffer = new byte[4096];
-    }
-
     while (bytesSkipped != bytesToSkip) {
-      int readLength = (int) Math.min(bytesToSkip - bytesSkipped, skipBuffer.length);
-      int read = responseByteStream.read(skipBuffer, 0, readLength);
+      int readLength = (int) Math.min(bytesToSkip - bytesSkipped, SKIP_BUFFER.length);
+      int read = castNonNull(responseByteStream).read(SKIP_BUFFER, 0, readLength);
       if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
       }
@@ -338,9 +327,6 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       bytesSkipped += read;
       bytesTransferred(read);
     }
-
-    // Release the shared skip buffer.
-    skipBufferReference.set(skipBuffer);
   }
 
   /**
@@ -369,7 +355,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       readLength = (int) Math.min(readLength, bytesRemaining);
     }
 
-    int read = responseByteStream.read(buffer, offset, readLength);
+    int read = castNonNull(responseByteStream).read(buffer, offset, readLength);
     if (read == -1) {
       if (bytesToRead != C.LENGTH_UNSET) {
         // End of stream reached having not read sufficient data.
@@ -387,8 +373,10 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
    * Closes the current connection quietly, if there is one.
    */
   private void closeConnectionQuietly() {
-    response.body().close();
-    response = null;
+    if (response != null) {
+      Assertions.checkNotNull(response.body()).close();
+      response = null;
+    }
     responseByteStream = null;
   }
 

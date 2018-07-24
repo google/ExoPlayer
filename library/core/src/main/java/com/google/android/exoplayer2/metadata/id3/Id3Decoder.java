@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -88,7 +89,7 @@ public final class Id3Decoder implements MetadataDecoder {
   private static final int ID3_TEXT_ENCODING_UTF_16BE = 2;
   private static final int ID3_TEXT_ENCODING_UTF_8 = 3;
 
-  private final FramePredicate framePredicate;
+  private final @Nullable FramePredicate framePredicate;
 
   public Id3Decoder() {
     this(null);
@@ -97,7 +98,7 @@ public final class Id3Decoder implements MetadataDecoder {
   /**
    * @param framePredicate Determines which frames are decoded. May be null to decode all frames.
    */
-  public Id3Decoder(FramePredicate framePredicate) {
+  public Id3Decoder(@Nullable FramePredicate framePredicate) {
     this.framePredicate = framePredicate;
   }
 
@@ -270,8 +271,12 @@ public final class Id3Decoder implements MetadataDecoder {
     }
   }
 
-  private static Id3Frame decodeFrame(int majorVersion, ParsableByteArray id3Data,
-      boolean unsignedIntFrameSizeHack, int frameHeaderSize, FramePredicate framePredicate) {
+  private static Id3Frame decodeFrame(
+      int majorVersion,
+      ParsableByteArray id3Data,
+      boolean unsignedIntFrameSizeHack,
+      int frameHeaderSize,
+      @Nullable FramePredicate framePredicate) {
     int frameId0 = id3Data.readUnsignedByte();
     int frameId1 = id3Data.readUnsignedByte();
     int frameId2 = id3Data.readUnsignedByte();
@@ -579,9 +584,14 @@ public final class Id3Decoder implements MetadataDecoder {
     return new CommentFrame(language, description, text);
   }
 
-  private static ChapterFrame decodeChapterFrame(ParsableByteArray id3Data, int frameSize,
-      int majorVersion, boolean unsignedIntFrameSizeHack, int frameHeaderSize,
-      FramePredicate framePredicate) throws UnsupportedEncodingException {
+  private static ChapterFrame decodeChapterFrame(
+      ParsableByteArray id3Data,
+      int frameSize,
+      int majorVersion,
+      boolean unsignedIntFrameSizeHack,
+      int frameHeaderSize,
+      @Nullable FramePredicate framePredicate)
+      throws UnsupportedEncodingException {
     int framePosition = id3Data.getPosition();
     int chapterIdEndIndex = indexOfZeroByte(id3Data.data, framePosition);
     String chapterId = new String(id3Data.data, framePosition, chapterIdEndIndex - framePosition,
@@ -614,9 +624,14 @@ public final class Id3Decoder implements MetadataDecoder {
     return new ChapterFrame(chapterId, startTime, endTime, startOffset, endOffset, subFrameArray);
   }
 
-  private static ChapterTocFrame decodeChapterTOCFrame(ParsableByteArray id3Data, int frameSize,
-      int majorVersion, boolean unsignedIntFrameSizeHack, int frameHeaderSize,
-      FramePredicate framePredicate) throws UnsupportedEncodingException {
+  private static ChapterTocFrame decodeChapterTOCFrame(
+      ParsableByteArray id3Data,
+      int frameSize,
+      int majorVersion,
+      boolean unsignedIntFrameSizeHack,
+      int frameHeaderSize,
+      @Nullable FramePredicate framePredicate)
+      throws UnsupportedEncodingException {
     int framePosition = id3Data.getPosition();
     int elementIdEndIndex = indexOfZeroByte(id3Data.data, framePosition);
     String elementId = new String(id3Data.data, framePosition, elementIdEndIndex - framePosition,
