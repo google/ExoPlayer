@@ -50,6 +50,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private static final int MSG_ADD = 0;
   private static final int MSG_ADD_MULTIPLE = 1;
   private static final int MSG_REMOVE = 2;
+  private static final int MSG_REMOVE_RANGE = 200;
   private static final int MSG_MOVE = 3;
   private static final int MSG_CLEAR = 4;
   private static final int MSG_NOTIFY_LISTENER = 5;
@@ -265,6 +266,9 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * <p>Note: If you want to move the instance, it's preferable to use {@link #moveMediaSource(int,
    * int)} instead.
    *
+   * <p>Note: If you want to remove a set of contiguous sources, it's preferable to use
+   * {@link #removeMediaSourceRange(int, int)} instead.
+   *
    * @param index The index at which the media source will be removed. This index must be in the
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
    */
@@ -277,6 +281,9 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *
    * <p>Note: If you want to move the instance, it's preferable to use {@link #moveMediaSource(int,
    * int)} instead.
+   *
+   * <p>Note: If you want to remove a set of contiguous sources, it's preferable to use
+   * {@link #removeMediaSourceRange(int, int)} instead.
    *
    * @param index The index at which the media source will be removed. This index must be in the
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
@@ -292,6 +299,79 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
           .setType(MSG_REMOVE)
           .setPayload(new MessageData<Void>(index, null, actionOnCompletion))
           .send();
+    } else if (actionOnCompletion != null) {
+      actionOnCompletion.run();
+    }
+  }
+
+  /**
+   * Removes a range of {@link MediaSource}s from the playlist, by specifying an initial index
+   * (included) and a final index (excluded).
+   *
+   * <p>Note: when specified range is empty, no actual media source is removed and no exception
+   * is thrown.
+   *
+   * @param fromIndex The initial range index, pointing to the first media source that will be
+   *     removed. This index must be in the range of 0 &lt;= index &lt; {@link #getSize()}.
+   * @param toIndex The final range index, pointing to the first media source that will be left
+   *     untouched. The last media source to be removed is at index {@code toIndex} - 1.
+   *     This index must be in the range of 0 &lt;= index &lt; {@link #getSize()}.
+   *
+   * @throws IndexOutOfBoundsException when either index is out of playlist bounds, i.e. {@code
+   *      fromIndex} &lt; 0 or &gt;= {@link #getSize()}, {@code toIndex} &lt; 0 or &gt; {@link
+   *      #getSize()}
+   * @throws IndexOutOfBoundsException when range is malformed, i.e. {@code fromIndex} &gt;
+   *      {@code toIndex}
+   */
+  public final synchronized void removeMediaSourceRange(int fromIndex, int toIndex) {
+    removeMediaSourceRange(fromIndex, toIndex, null);
+  }
+
+  /**
+   * Removes a range of {@link MediaSource}s from the playlist, by specifying an initial index
+   * (included) and a final index (excluded), and executes a custom action on completion..
+   *
+   * <p>Note: when specified range is empty, no actual media source is removed and no exception
+   * is thrown.
+   *
+   * @param fromIndex The initial range index, pointing to the first media source that will be
+   *     removed. This index must be in the range of 0 &lt;= index &lt; {@link #getSize()}.
+   * @param toIndex The final range index, pointing to the first media source that will be left
+   *     untouched. The last media source to be removed is at index {@code toIndex} - 1.
+   *     This index must be in the range of 0 &lt;= index &lt; {@link #getSize()}.
+   *
+   * @throws IndexOutOfBoundsException when either index is out of playlist bounds, i.e. {@code
+   *      fromIndex} &lt; 0 or &gt;= {@link #getSize()}, {@code toIndex} &lt; 0 or &gt; {@link
+   *      #getSize()}
+   * @throws IndexOutOfBoundsException when range is malformed, i.e. {@code fromIndex} &gt;
+   *      {@code toIndex}
+   * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
+   *     source has been removed from the playlist.
+   */
+  public final synchronized void removeMediaSourceRange(
+          int fromIndex, int toIndex, @Nullable Runnable actionOnCompletion) {
+    if (fromIndex < 0 || fromIndex >= mediaSourcesPublic.size()) {
+      throw new IndexOutOfBoundsException(String.format("Cannot remove source range: initial index (%d) out of bounds", fromIndex));
+    }
+    if (toIndex < 0 || toIndex > mediaSourcesPublic.size()) {
+      throw new IndexOutOfBoundsException(String.format("Cannot remove source range: final index (%d) out of bounds", toIndex));
+    }
+    if (fromIndex > toIndex) {
+      throw new IndexOutOfBoundsException(String.format("Cannot remove source range: range malformed (%d, %d)", fromIndex, toIndex));
+    }
+    if (fromIndex == toIndex) {
+      if (actionOnCompletion != null) {
+        actionOnCompletion.run();
+      }
+      return;
+    }
+    mediaSourcesPublic.subList(fromIndex, toIndex).clear();
+    if (player != null) {
+      player
+              .createMessage(this)
+              .setType(MSG_REMOVE_RANGE)
+              .setPayload(new MessageData<>(fromIndex, toIndex, actionOnCompletion))
+              .send();
     } else if (actionOnCompletion != null) {
       actionOnCompletion.run();
     }
@@ -488,6 +568,18 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         shuffleOrder = shuffleOrder.cloneAndRemove(removeMessage.index);
         removeMediaSourceInternal(removeMessage.index);
         scheduleListenerNotification(removeMessage.actionOnCompletion);
+        break;
+      case MSG_REMOVE_RANGE:
+        MessageData<Integer> removeRangeMessage = (MessageData<Integer>) message;
+        int fromIndex = removeRangeMessage.index;
+        int toIndex = removeRangeMessage.customData;
+        for (int index = toIndex - 1; index >= fromIndex; index--) {
+          shuffleOrder = shuffleOrder.cloneAndRemove(index);
+        }
+        for (int index = toIndex - 1; index >= fromIndex; index--) {
+          removeMediaSourceInternal(index);
+        }
+        scheduleListenerNotification(removeRangeMessage.actionOnCompletion);
         break;
       case MSG_MOVE:
         MessageData<Integer> moveMessage = (MessageData<Integer>) message;
