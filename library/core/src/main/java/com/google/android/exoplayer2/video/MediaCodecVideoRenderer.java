@@ -1349,6 +1349,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           case "Pixi4-7_3G":
           case "Pixi5-10_4G":
           case "PLE":
+          case "PRO7S":
           case "Q350":
           case "Q4260":
           case "Q427":
