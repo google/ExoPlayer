@@ -57,7 +57,7 @@ public final class DefaultDataSource implements DataSource {
   private static final String SCHEME_RAW = RawResourceDataSource.RAW_RESOURCE_SCHEME;
 
   private final Context context;
-  private final List<TransferListener<? super DataSource>> transferListeners;
+  private final List<TransferListener> transferListeners;
   private final DataSource baseDataSource;
 
   // Lazily initialized.
@@ -81,7 +81,7 @@ public final class DefaultDataSource implements DataSource {
    */
   public DefaultDataSource(
       Context context,
-      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable TransferListener listener,
       String userAgent,
       boolean allowCrossProtocolRedirects) {
     this(context, listener, userAgent, DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
@@ -103,7 +103,7 @@ public final class DefaultDataSource implements DataSource {
    */
   public DefaultDataSource(
       Context context,
-      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable TransferListener listener,
       String userAgent,
       int connectTimeoutMillis,
       int readTimeoutMillis,
@@ -123,9 +123,7 @@ public final class DefaultDataSource implements DataSource {
    *     content. This {@link DataSource} should normally support at least http(s).
    */
   public DefaultDataSource(
-      Context context,
-      @Nullable TransferListener<? super DataSource> listener,
-      DataSource baseDataSource) {
+      Context context, @Nullable TransferListener listener, DataSource baseDataSource) {
     this.context = context.getApplicationContext();
     this.baseDataSource = Assertions.checkNotNull(baseDataSource);
     transferListeners = new ArrayList<>();
@@ -135,7 +133,7 @@ public final class DefaultDataSource implements DataSource {
   }
 
   @Override
-  public void addTransferListener(TransferListener<? super DataSource> transferListener) {
+  public void addTransferListener(TransferListener transferListener) {
     baseDataSource.addTransferListener(transferListener);
     transferListeners.add(transferListener);
     maybeAddListenerToDataSource(fileDataSource, transferListener);
@@ -271,7 +269,7 @@ public final class DefaultDataSource implements DataSource {
   }
 
   private void maybeAddListenerToDataSource(
-      @Nullable DataSource dataSource, TransferListener<? super DataSource> listener) {
+      @Nullable DataSource dataSource, TransferListener listener) {
     if (dataSource != null) {
       dataSource.addTransferListener(listener);
     }

@@ -56,7 +56,7 @@ public final class AssetDataSource extends BaseDataSource {
    * @param context A context.
    * @param listener An optional listener.
    */
-  public AssetDataSource(Context context, @Nullable TransferListener<? super DataSource> listener) {
+  public AssetDataSource(Context context, @Nullable TransferListener listener) {
     super(/* isNetwork= */ false);
     this.assetManager = context.getAssets();
     if (listener != null) {

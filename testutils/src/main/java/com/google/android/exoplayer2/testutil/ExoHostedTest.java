@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
@@ -377,8 +376,8 @@ public abstract class ExoHostedTest
   }
 
   @SuppressWarnings("unused")
-  protected abstract MediaSource buildSource(HostActivity host, String userAgent,
-      TransferListener<? super DataSource> mediaTransferListener);
+  protected abstract MediaSource buildSource(
+      HostActivity host, String userAgent, TransferListener mediaTransferListener);
 
   @SuppressWarnings("unused")
   protected void onPlayerErrorInternal(ExoPlaybackException error) {

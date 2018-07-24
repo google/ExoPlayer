@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
@@ -59,9 +58,7 @@ public abstract class BaseMediaSource implements MediaSource {
    *     manifests and other data.
    */
   protected abstract void prepareSourceInternal(
-      ExoPlayer player,
-      boolean isTopLevelSource,
-      @Nullable TransferListener<? super DataSource> mediaTransferListener);
+      ExoPlayer player, boolean isTopLevelSource, @Nullable TransferListener mediaTransferListener);
 
   /**
    * Releases the source. This method is called exactly once after each call to {@link
@@ -147,7 +144,7 @@ public abstract class BaseMediaSource implements MediaSource {
       ExoPlayer player,
       boolean isTopLevelSource,
       SourceInfoRefreshListener listener,
-      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+      @Nullable TransferListener mediaTransferListener) {
     Assertions.checkArgument(this.player == null || this.player == player);
     sourceInfoListeners.add(listener);
     if (this.player == null) {

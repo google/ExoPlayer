@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
@@ -47,7 +46,7 @@ import java.util.ArrayList;
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
   private final SsChunkSource.Factory chunkSourceFactory;
-  private final @Nullable TransferListener<? super DataSource> transferListener;
+  private final @Nullable TransferListener transferListener;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
@@ -65,7 +64,7 @@ import java.util.ArrayList;
   public SsMediaPeriod(
       SsManifest manifest,
       SsChunkSource.Factory chunkSourceFactory,
-      @Nullable TransferListener<? super DataSource> transferListener,
+      @Nullable TransferListener transferListener,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       int minLoadableRetryCount,
       EventDispatcher eventDispatcher,

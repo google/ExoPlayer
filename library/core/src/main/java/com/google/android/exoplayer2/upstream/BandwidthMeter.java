@@ -49,7 +49,7 @@ public interface BandwidthMeter {
    * from data transfers. May be null, if no transfer listener is used.
    */
   @Nullable
-  TransferListener<? super DataSource> getTransferListener();
+  TransferListener getTransferListener();
 
   /**
    * Adds an {@link EventListener} to be informed of bandwidth samples.

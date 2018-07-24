@@ -129,7 +129,7 @@ import java.util.List;
       HlsPlaylistTracker playlistTracker,
       HlsUrl[] variants,
       HlsDataSourceFactory dataSourceFactory,
-      @Nullable TransferListener<? super DataSource> mediaTransferListener,
+      @Nullable TransferListener mediaTransferListener,
       TimestampAdjusterProvider timestampAdjusterProvider,
       List<Format> muxedCaptionFormats) {
     this.extractorFactory = extractorFactory;

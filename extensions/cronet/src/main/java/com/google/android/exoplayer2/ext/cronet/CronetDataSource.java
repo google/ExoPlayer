@@ -22,7 +22,6 @@ import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -163,7 +162,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       CronetEngine cronetEngine,
       Executor executor,
       Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> listener) {
+      @Nullable TransferListener listener) {
     this(cronetEngine, executor, contentTypePredicate, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DEFAULT_READ_TIMEOUT_MILLIS, false, null, false);
   }
@@ -188,7 +187,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       CronetEngine cronetEngine,
       Executor executor,
       Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable TransferListener listener,
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
@@ -219,7 +218,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       CronetEngine cronetEngine,
       Executor executor,
       Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable TransferListener listener,
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
@@ -234,7 +233,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       CronetEngine cronetEngine,
       Executor executor,
       Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable TransferListener listener,
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,

@@ -55,7 +55,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final HlsExtractorFactory extractorFactory;
   private final HlsPlaylistTracker playlistTracker;
   private final HlsDataSourceFactory dataSourceFactory;
-  private final @Nullable TransferListener<? super DataSource> mediaTransferListener;
+  private final @Nullable TransferListener mediaTransferListener;
   private final LoadErrorHandlingPolicy<Chunk> chunkLoadErrorHandlingPolicy;
   private final int minLoadableRetryCount;
   private final EventDispatcher eventDispatcher;
@@ -94,7 +94,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       HlsExtractorFactory extractorFactory,
       HlsPlaylistTracker playlistTracker,
       HlsDataSourceFactory dataSourceFactory,
-      @Nullable TransferListener<? super DataSource> mediaTransferListener,
+      @Nullable TransferListener mediaTransferListener,
       LoadErrorHandlingPolicy<Chunk> chunkLoadErrorHandlingPolicy,
       int minLoadableRetryCount,
       EventDispatcher eventDispatcher,

@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.ext.cronet;
 
 import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
@@ -47,7 +46,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
   private final CronetEngineWrapper cronetEngineWrapper;
   private final Executor executor;
   private final Predicate<String> contentTypePredicate;
-  private final @Nullable TransferListener<? super DataSource> transferListener;
+  private final @Nullable TransferListener transferListener;
   private final int connectTimeoutMs;
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
@@ -224,7 +223,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
       Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> transferListener,
+      @Nullable TransferListener transferListener,
       HttpDataSource.Factory fallbackFactory) {
     this(cronetEngineWrapper, executor, contentTypePredicate, transferListener,
         DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS, false, fallbackFactory);
@@ -252,7 +251,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
       Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> transferListener,
+      @Nullable TransferListener transferListener,
       String userAgent) {
     this(cronetEngineWrapper, executor, contentTypePredicate, transferListener,
         DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS, false,
@@ -281,7 +280,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
       Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> transferListener,
+      @Nullable TransferListener transferListener,
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
@@ -314,7 +313,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
       Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> transferListener,
+      @Nullable TransferListener transferListener,
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,

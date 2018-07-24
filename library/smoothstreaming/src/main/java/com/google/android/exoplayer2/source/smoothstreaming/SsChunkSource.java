@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 
@@ -50,7 +49,7 @@ public interface SsChunkSource extends ChunkSource {
         int streamElementIndex,
         TrackSelection trackSelection,
         TrackEncryptionBox[] trackEncryptionBoxes,
-        @Nullable TransferListener<? super DataSource> transferListener);
+        @Nullable TransferListener transferListener);
   }
 
   /**

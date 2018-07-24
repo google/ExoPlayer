@@ -57,7 +57,7 @@ public final class FakeChunkSource implements ChunkSource {
     public FakeChunkSource createChunkSource(
         TrackSelection trackSelection,
         long durationUs,
-        @Nullable TransferListener<? super DataSource> transferListener) {
+        @Nullable TransferListener transferListener) {
       FakeAdaptiveDataSet dataSet =
           dataSetFactory.createDataSet(trackSelection.getTrackGroup(), durationUs);
       dataSourceFactory.setFakeDataSet(dataSet);

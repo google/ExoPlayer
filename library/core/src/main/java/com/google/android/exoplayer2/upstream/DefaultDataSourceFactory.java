@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.upstream.DataSource.Factory;
 public final class DefaultDataSourceFactory implements Factory {
 
   private final Context context;
-  private final @Nullable TransferListener<? super DataSource> listener;
+  private final @Nullable TransferListener listener;
   private final DataSource.Factory baseDataSourceFactory;
 
   /**
@@ -43,7 +43,7 @@ public final class DefaultDataSourceFactory implements Factory {
    * @param listener An optional listener.
    */
   public DefaultDataSourceFactory(
-      Context context, String userAgent, @Nullable TransferListener<? super DataSource> listener) {
+      Context context, String userAgent, @Nullable TransferListener listener) {
     this(context, listener, new DefaultHttpDataSourceFactory(userAgent, listener));
   }
 
@@ -66,7 +66,7 @@ public final class DefaultDataSourceFactory implements Factory {
    */
   public DefaultDataSourceFactory(
       Context context,
-      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable TransferListener listener,
       DataSource.Factory baseDataSourceFactory) {
     this.context = context.getApplicationContext();
     this.listener = listener;

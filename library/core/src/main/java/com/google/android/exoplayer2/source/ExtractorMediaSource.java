@@ -241,7 +241,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
 
   private long timelineDurationUs;
   private boolean timelineIsSeekable;
-  private @Nullable TransferListener<? super DataSource> transferListener;
+  private @Nullable TransferListener transferListener;
 
   /**
    * @param uri The {@link Uri} of the media stream.
@@ -347,7 +347,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+      @Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
     notifySourceInfoRefreshed(timelineDurationUs, /* isSeekable= */ false);
   }

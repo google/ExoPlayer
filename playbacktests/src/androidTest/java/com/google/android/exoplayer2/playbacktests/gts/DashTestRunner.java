@@ -307,8 +307,8 @@ public final class DashTestRunner {
     }
 
     @Override
-    protected MediaSource buildSource(HostActivity host, String userAgent,
-        TransferListener<? super DataSource> mediaTransferListener) {
+    protected MediaSource buildSource(
+        HostActivity host, String userAgent, TransferListener mediaTransferListener) {
       DataSource.Factory manifestDataSourceFactory = dataSourceFactory != null
           ? dataSourceFactory : new DefaultDataSourceFactory(host, userAgent);
       DataSource.Factory mediaDataSourceFactory = dataSourceFactory != null

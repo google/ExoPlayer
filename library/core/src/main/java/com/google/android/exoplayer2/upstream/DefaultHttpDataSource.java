@@ -105,7 +105,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   public DefaultHttpDataSource(
       String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> listener) {
+      @Nullable TransferListener listener) {
     this(userAgent, contentTypePredicate, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DEFAULT_READ_TIMEOUT_MILLIS);
   }
@@ -124,7 +124,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   public DefaultHttpDataSource(
       String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable TransferListener listener,
       int connectTimeoutMillis,
       int readTimeoutMillis) {
     this(userAgent, contentTypePredicate, listener, connectTimeoutMillis, readTimeoutMillis, false,
@@ -150,7 +150,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   public DefaultHttpDataSource(
       String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
-      @Nullable TransferListener<? super DataSource> listener,
+      @Nullable TransferListener listener,
       int connectTimeoutMillis,
       int readTimeoutMillis,
       boolean allowCrossProtocolRedirects,

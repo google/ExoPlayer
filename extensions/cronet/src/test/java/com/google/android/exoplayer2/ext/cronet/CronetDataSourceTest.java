@@ -32,7 +32,6 @@ import android.net.Uri;
 import android.os.ConditionVariable;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException;
@@ -87,7 +86,7 @@ public final class CronetDataSourceTest {
   @Mock private UrlRequest.Builder mockUrlRequestBuilder;
   @Mock private UrlRequest mockUrlRequest;
   @Mock private Predicate<String> mockContentTypePredicate;
-  @Mock private TransferListener<DataSource> mockTransferListener;
+  @Mock private TransferListener mockTransferListener;
   @Mock private Executor mockExecutor;
   @Mock private NetworkException mockNetworkException;
   @Mock private CronetEngine mockCronetEngine;

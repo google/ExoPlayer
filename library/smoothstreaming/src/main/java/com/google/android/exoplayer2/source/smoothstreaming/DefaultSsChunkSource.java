@@ -61,7 +61,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
         int elementIndex,
         TrackSelection trackSelection,
         TrackEncryptionBox[] trackEncryptionBoxes,
-        @Nullable TransferListener<? super DataSource> transferListener) {
+        @Nullable TransferListener transferListener) {
       DataSource dataSource = dataSourceFactory.createDataSource();
       if (transferListener != null) {
         dataSource.addTransferListener(transferListener);

@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 
@@ -61,7 +60,7 @@ public interface DashChunkSource extends ChunkSource {
         boolean enableEventMessageTrack,
         boolean enableCea608Track,
         @Nullable PlayerTrackEmsgHandler playerEmsgHandler,
-        @Nullable TransferListener<? super DataSource> transferListener);
+        @Nullable TransferListener transferListener);
   }
 
   /**

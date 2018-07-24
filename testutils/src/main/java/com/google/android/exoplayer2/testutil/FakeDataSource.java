@@ -40,11 +40,11 @@ public class FakeDataSource extends BaseDataSource {
    */
   public static class Factory implements DataSource.Factory {
 
-    protected final TransferListener<? super DataSource> transferListener;
+    protected final TransferListener transferListener;
     protected FakeDataSet fakeDataSet;
     protected boolean isNetwork;
 
-    public Factory(@Nullable TransferListener<? super DataSource> transferListener) {
+    public Factory(@Nullable TransferListener transferListener) {
       this.transferListener = transferListener;
     }
 
@@ -83,9 +83,7 @@ public class FakeDataSource extends BaseDataSource {
   }
 
   public FakeDataSource(
-      FakeDataSet fakeDataSet,
-      @Nullable TransferListener<? super DataSource> transferListener,
-      boolean isNetwork) {
+      FakeDataSet fakeDataSet, @Nullable TransferListener transferListener, boolean isNetwork) {
     super(isNetwork);
     Assertions.checkNotNull(fakeDataSet);
     this.fakeDataSet = fakeDataSet;

@@ -37,7 +37,6 @@ import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import org.junit.Before;
@@ -481,7 +480,7 @@ public final class ClippingMediaSourceTest {
               TrackGroupArray trackGroupArray,
               Allocator allocator,
               EventDispatcher eventDispatcher,
-              @Nullable TransferListener<? super DataSource> transferListener) {
+              @Nullable TransferListener transferListener) {
             eventDispatcher.downstreamFormatChanged(
                 new MediaLoadData(
                     C.DATA_TYPE_MEDIA,

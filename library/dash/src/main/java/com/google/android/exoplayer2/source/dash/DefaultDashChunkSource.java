@@ -89,7 +89,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         boolean enableEventMessageTrack,
         boolean enableCea608Track,
         @Nullable PlayerTrackEmsgHandler playerEmsgHandler,
-        @Nullable TransferListener<? super DataSource> transferListener) {
+        @Nullable TransferListener transferListener) {
       DataSource dataSource = dataSourceFactory.createDataSource();
       if (transferListener != null) {
         dataSource.addTransferListener(transferListener);

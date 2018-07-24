@@ -80,7 +80,7 @@ public final class ImaAdsMediaSource extends BaseMediaSource implements SourceIn
   public void prepareSourceInternal(
       final ExoPlayer player,
       boolean isTopLevelSource,
-      @Nullable TransferListener<? super DataSource> mediaTransferListener) {
+      @Nullable TransferListener mediaTransferListener) {
     adsMediaSource.prepareSource(
         player, isTopLevelSource, /* listener= */ this, mediaTransferListener);
   }
