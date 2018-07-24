@@ -52,6 +52,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -551,6 +552,7 @@ public final class ExoPlayerTest {
       fail();
     } catch (ExoPlaybackException e) {
       // Expected exception.
+      assertThat(e.getUnexpectedException()).isInstanceOf(IllegalSeekPositionException.class);
     }
     assertThat(onSeekProcessedCalled[0]).isTrue();
   }
@@ -1280,9 +1282,94 @@ public final class ExoPlayerTest {
       fail();
     } catch (ExoPlaybackException e) {
       // Expected exception.
+      assertThat(e.getUnexpectedException()).isInstanceOf(IllegalSeekPositionException.class);
     }
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
+  }
+
+  @Test
+  public void testPlaybackErrorDuringSourceInfoRefreshWithShuffleModeEnabledUsesCorrectFirstPeriod()
+      throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    FakeMediaSource mediaSource = new FakeMediaSource(/* timeline= */ null, /* manifest= */ null);
+    ConcatenatingMediaSource concatenatingMediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false, new FakeShuffleOrder(0), mediaSource, mediaSource);
+    AtomicInteger windowIndexAfterReprepare = new AtomicInteger();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testPlaybackErrorDuringSourceInfoRefreshUsesCorrectFirstPeriod")
+            .setShuffleModeEnabled(true)
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            // Cause an internal exception by seeking to an invalid position while the media source
+            // is still being prepared. The error will be thrown while the player handles the new
+            // source info.
+            .seek(/* windowIndex= */ 100, /* positionMs= */ 0)
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline, /* newManifest= */ null))
+            .waitForPlaybackState(Player.STATE_IDLE)
+            // Re-prepare to play the source in its default shuffled order.
+            .prepareSource(
+                concatenatingMediaSource, /* resetPosition= */ false, /* resetState= */ false)
+            .waitForTimelineChanged(null)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    windowIndexAfterReprepare.set(player.getCurrentWindowIndex());
+                  }
+                })
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder()
+            .setMediaSource(concatenatingMediaSource)
+            .setActionSchedule(actionSchedule)
+            .build();
+    try {
+      testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
+      fail();
+    } catch (ExoPlaybackException e) {
+      // Expected exception.
+      assertThat(e.getUnexpectedException()).isInstanceOf(IllegalSeekPositionException.class);
+    }
+    assertThat(windowIndexAfterReprepare.get()).isEqualTo(1);
+  }
+
+  @Test
+  public void testRestartAfterEmptyTimelineWithShuffleModeEnabledUsesCorrectFirstPeriod()
+      throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    FakeMediaSource mediaSource = new FakeMediaSource(timeline, /* manifest= */ null);
+    ConcatenatingMediaSource concatenatingMediaSource =
+        new ConcatenatingMediaSource(/* isAtomic= */ false, new FakeShuffleOrder(0));
+    AtomicInteger windowIndexAfterAddingSources = new AtomicInteger();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testRestartAfterEmptyTimelineUsesCorrectFirstPeriod")
+            .setShuffleModeEnabled(true)
+            // Preparing with an empty media source will transition to ended state.
+            .waitForPlaybackState(Player.STATE_ENDED)
+            // Add two sources at once such that the default start position in the shuffled order
+            // will be the second source.
+            .executeRunnable(
+                () ->
+                    concatenatingMediaSource.addMediaSources(
+                        Arrays.asList(mediaSource, mediaSource)))
+            .waitForTimelineChanged(null)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    windowIndexAfterAddingSources.set(player.getCurrentWindowIndex());
+                  }
+                })
+            .build();
+    new ExoPlayerTestRunner.Builder()
+        .setMediaSource(concatenatingMediaSource)
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+    assertThat(windowIndexAfterAddingSources.get()).isEqualTo(1);
   }
 
   @Test

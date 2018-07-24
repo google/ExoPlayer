@@ -47,17 +47,18 @@ import com.google.android.exoplayer2.util.Assertions;
   private Timeline timeline;
   private @RepeatMode int repeatMode;
   private boolean shuffleModeEnabled;
-  private MediaPeriodHolder playing;
-  private MediaPeriodHolder reading;
-  private MediaPeriodHolder loading;
+  private @Nullable MediaPeriodHolder playing;
+  private @Nullable MediaPeriodHolder reading;
+  private @Nullable MediaPeriodHolder loading;
   private int length;
-  private Object oldFrontPeriodUid;
+  private @Nullable Object oldFrontPeriodUid;
   private long oldFrontPeriodWindowSequenceNumber;
 
   /** Creates a new media period queue. */
   public MediaPeriodQueue() {
     period = new Timeline.Period();
     window = new Timeline.Window();
+    timeline = Timeline.EMPTY;
   }
 
   /**

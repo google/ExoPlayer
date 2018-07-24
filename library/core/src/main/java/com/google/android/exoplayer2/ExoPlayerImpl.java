@@ -120,12 +120,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
             ExoPlayerImpl.this.handleEvent(msg);
           }
         };
-    playbackInfo =
-        new PlaybackInfo(
-            Timeline.EMPTY,
-            /* startPositionUs= */ 0,
-            TrackGroupArray.EMPTY,
-            emptyTrackSelectorResult);
+    playbackInfo = PlaybackInfo.createDummy(/* startPositionUs= */ 0, emptyTrackSelectorResult);
     pendingPlaybackInfoUpdates = new ArrayDeque<>();
     internalPlayer =
         new ExoPlayerImplInternal(
