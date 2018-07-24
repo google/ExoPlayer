@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+import android.support.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
@@ -221,8 +222,8 @@ public final class CodecSpecificDataUtil {
 
   /**
    * Splits an array of NAL units.
-   * <p>
-   * If the input consists of NAL start code delimited units, then the returned array consists of
+   *
+   * <p>If the input consists of NAL start code delimited units, then the returned array consists of
    * the split NAL units, each of which is still prefixed with the NAL start code. For any other
    * input, null is returned.
    *
@@ -230,7 +231,7 @@ public final class CodecSpecificDataUtil {
    * @return The individual NAL units, or null if the input did not consist of NAL start code
    *     delimited units.
    */
-  public static byte[][] splitNalUnits(byte[] data) {
+  public static @Nullable byte[][] splitNalUnits(byte[] data) {
     if (!isNalStartCode(data, 0)) {
       // data does not consist of NAL start code delimited units.
       return null;

@@ -33,6 +33,7 @@ android {
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     api 'com.squareup.okhttp3:okhttp:3.10.0'
 }
 

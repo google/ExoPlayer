@@ -182,7 +182,7 @@ public final class Format implements Parcelable {
       int width,
       int height,
       float frameRate,
-      List<byte[]> initializationData,
+      @Nullable List<byte[]> initializationData,
       @C.SelectionFlags int selectionFlags) {
     return createVideoContainerFormat(
         id,
@@ -208,7 +208,7 @@ public final class Format implements Parcelable {
       int width,
       int height,
       float frameRate,
-      List<byte[]> initializationData,
+      @Nullable List<byte[]> initializationData,
       @C.SelectionFlags int selectionFlags) {
     return new Format(
         id,
@@ -249,7 +249,7 @@ public final class Format implements Parcelable {
       int width,
       int height,
       float frameRate,
-      List<byte[]> initializationData,
+      @Nullable List<byte[]> initializationData,
       @Nullable DrmInitData drmInitData) {
     return createVideoSampleFormat(
         id,
@@ -275,7 +275,7 @@ public final class Format implements Parcelable {
       int width,
       int height,
       float frameRate,
-      List<byte[]> initializationData,
+      @Nullable List<byte[]> initializationData,
       int rotationDegrees,
       float pixelWidthHeightRatio,
       @Nullable DrmInitData drmInitData) {
@@ -306,7 +306,7 @@ public final class Format implements Parcelable {
       int width,
       int height,
       float frameRate,
-      List<byte[]> initializationData,
+      @Nullable List<byte[]> initializationData,
       int rotationDegrees,
       float pixelWidthHeightRatio,
       byte[] projectionData,
@@ -354,7 +354,7 @@ public final class Format implements Parcelable {
       int bitrate,
       int channelCount,
       int sampleRate,
-      List<byte[]> initializationData,
+      @Nullable List<byte[]> initializationData,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language) {
     return createAudioContainerFormat(
@@ -380,7 +380,7 @@ public final class Format implements Parcelable {
       int bitrate,
       int channelCount,
       int sampleRate,
-      List<byte[]> initializationData,
+      @Nullable List<byte[]> initializationData,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language) {
     return new Format(
@@ -421,7 +421,7 @@ public final class Format implements Parcelable {
       int maxInputSize,
       int channelCount,
       int sampleRate,
-      List<byte[]> initializationData,
+      @Nullable List<byte[]> initializationData,
       @Nullable DrmInitData drmInitData,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language) {
@@ -449,7 +449,7 @@ public final class Format implements Parcelable {
       int channelCount,
       int sampleRate,
       @C.PcmEncoding int pcmEncoding,
-      List<byte[]> initializationData,
+      @Nullable List<byte[]> initializationData,
       @Nullable DrmInitData drmInitData,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language) {
@@ -482,7 +482,7 @@ public final class Format implements Parcelable {
       @C.PcmEncoding int pcmEncoding,
       int encoderDelay,
       int encoderPadding,
-      List<byte[]> initializationData,
+      @Nullable List<byte[]> initializationData,
       @Nullable DrmInitData drmInitData,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
@@ -720,7 +720,7 @@ public final class Format implements Parcelable {
       @Nullable String codecs,
       int bitrate,
       @C.SelectionFlags int selectionFlags,
-      List<byte[]> initializationData,
+      @Nullable List<byte[]> initializationData,
       @Nullable String language,
       @Nullable DrmInitData drmInitData) {
     return new Format(

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
@@ -29,17 +28,17 @@ import okhttp3.Call;
  */
 public final class OkHttpDataSourceFactory extends BaseFactory {
 
-  @NonNull private final Call.Factory callFactory;
-  @Nullable private final String userAgent;
-  @Nullable private final TransferListener listener;
-  @Nullable private final CacheControl cacheControl;
+  private final Call.Factory callFactory;
+  private final @Nullable String userAgent;
+  private final @Nullable TransferListener listener;
+  private final @Nullable CacheControl cacheControl;
 
   /**
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the sources created by the factory.
    * @param userAgent An optional User-Agent string.
    */
-  public OkHttpDataSourceFactory(@NonNull Call.Factory callFactory, @Nullable String userAgent) {
+  public OkHttpDataSourceFactory(Call.Factory callFactory, @Nullable String userAgent) {
     this(callFactory, userAgent, /* listener= */ null, /* cacheControl= */ null);
   }
 
@@ -50,9 +49,7 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
    * @param cacheControl An optional {@link CacheControl} for setting the Cache-Control header.
    */
   public OkHttpDataSourceFactory(
-      @NonNull Call.Factory callFactory,
-      @Nullable String userAgent,
-      @Nullable CacheControl cacheControl) {
+      Call.Factory callFactory, @Nullable String userAgent, @Nullable CacheControl cacheControl) {
     this(callFactory, userAgent, /* listener= */ null, cacheControl);
   }
 
@@ -63,9 +60,7 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
    * @param listener An optional listener.
    */
   public OkHttpDataSourceFactory(
-      @NonNull Call.Factory callFactory,
-      @Nullable String userAgent,
-      @Nullable TransferListener listener) {
+      Call.Factory callFactory, @Nullable String userAgent, @Nullable TransferListener listener) {
     this(callFactory, userAgent, listener, /* cacheControl= */ null);
   }
 
@@ -77,7 +72,7 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
    * @param cacheControl An optional {@link CacheControl} for setting the Cache-Control header.
    */
   public OkHttpDataSourceFactory(
-      @NonNull Call.Factory callFactory,
+      Call.Factory callFactory,
       @Nullable String userAgent,
       @Nullable TransferListener listener,
       @Nullable CacheControl cacheControl) {
@@ -90,7 +85,16 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
   @Override
   protected OkHttpDataSource createDataSourceInternal(
       HttpDataSource.RequestProperties defaultRequestProperties) {
-    return new OkHttpDataSource(callFactory, userAgent, null, listener, cacheControl,
-        defaultRequestProperties);
+    OkHttpDataSource dataSource =
+        new OkHttpDataSource(
+            callFactory,
+            userAgent,
+            /* contentTypePredicate= */ null,
+            cacheControl,
+            defaultRequestProperties);
+    if (listener != null) {
+      dataSource.addTransferListener(listener);
+    }
+    return dataSource;
   }
 }

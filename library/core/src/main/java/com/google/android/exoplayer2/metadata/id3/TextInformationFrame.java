@@ -25,10 +25,10 @@ import com.google.android.exoplayer2.util.Util;
  */
 public final class TextInformationFrame extends Id3Frame {
 
-  public final String description;
+  public final @Nullable String description;
   public final String value;
 
-  public TextInformationFrame(String id, String description, String value) {
+  public TextInformationFrame(String id, @Nullable String description, String value) {
     super(id);
     this.description = description;
     this.value = value;

@@ -50,10 +50,8 @@ public final class ColorInfo implements Parcelable {
   @C.ColorTransfer
   public final int colorTransfer;
 
-  /**
-   * HdrStaticInfo as defined in CTA-861.3.
-   */
-  public final byte[] hdrStaticInfo;
+  /** HdrStaticInfo as defined in CTA-861.3, or null if none specified. */
+  public final @Nullable byte[] hdrStaticInfo;
 
   // Lazily initialized hashcode.
   private int hashCode;
@@ -64,10 +62,13 @@ public final class ColorInfo implements Parcelable {
    * @param colorSpace The color space of the video.
    * @param colorRange The color range of the video.
    * @param colorTransfer The color transfer characteristics of the video.
-   * @param hdrStaticInfo HdrStaticInfo as defined in CTA-861.3.
+   * @param hdrStaticInfo HdrStaticInfo as defined in CTA-861.3, or null if none specified.
    */
-  public ColorInfo(@C.ColorSpace int colorSpace, @C.ColorRange int colorRange,
-      @C.ColorTransfer int colorTransfer, byte[] hdrStaticInfo) {
+  public ColorInfo(
+      @C.ColorSpace int colorSpace,
+      @C.ColorRange int colorRange,
+      @C.ColorTransfer int colorTransfer,
+      @Nullable byte[] hdrStaticInfo) {
     this.colorSpace = colorSpace;
     this.colorRange = colorRange;
     this.colorTransfer = colorTransfer;

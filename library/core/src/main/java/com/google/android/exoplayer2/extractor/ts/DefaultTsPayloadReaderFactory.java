@@ -195,13 +195,11 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
           // Skip reserved (8).
           scratchDescriptorData.skipBytes(1);
 
-          List<byte[]> initializationData;
+          List<byte[]> initializationData = null;
           // The wide_aspect_ratio flag only has meaning for CEA-708.
           if (isDigital) {
             boolean isWideAspectRatio = (flags & 0x40) != 0;
             initializationData = Cea708InitializationData.buildData(isWideAspectRatio);
-          } else {
-            initializationData = Collections.emptyList();
           }
 
           closedCaptionFormats.add(
