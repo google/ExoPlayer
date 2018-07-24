@@ -22,10 +22,15 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -368,7 +373,7 @@ public class PlayerView extends FrameLayout {
     artworkView = findViewById(R.id.exo_artwork);
     this.useArtwork = useArtwork && artworkView != null;
     if (defaultArtworkId != 0) {
-      defaultArtwork = BitmapFactory.decodeResource(context.getResources(), defaultArtworkId);
+      defaultArtwork = loadFromResource(defaultArtworkId);
     }
 
     // Subtitle view.
@@ -414,6 +419,21 @@ public class PlayerView extends FrameLayout {
     this.controllerHideDuringAds = controllerHideDuringAds;
     this.useController = useController && controller != null;
     hideController();
+  }
+
+  private Bitmap loadFromResource(int defaultArtworkId) {
+    Drawable drawable = ContextCompat.getDrawable(getContext(), defaultArtworkId);
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+      drawable = (DrawableCompat.wrap(drawable)).mutate();
+    }
+
+    Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+            drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+    Canvas canvas = new Canvas(bitmap);
+    drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+    drawable.draw(canvas);
+
+    return bitmap;
   }
 
   /**
