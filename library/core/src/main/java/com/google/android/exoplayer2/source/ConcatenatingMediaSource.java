@@ -280,10 +280,10 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * Removes a {@link MediaSource} from the playlist and executes a custom action on completion.
    *
    * <p>Note: If you want to move the instance, it's preferable to use {@link #moveMediaSource(int,
-   * int)} instead.
+   * int, Runnable)} instead.
    *
    * <p>Note: If you want to remove a set of contiguous sources, it's preferable to use
-   * {@link #removeMediaSourceRange(int, int)} instead.
+   * {@link #removeMediaSourceRange(int, int, Runnable)} instead.
    *
    * @param index The index at which the media source will be removed. This index must be in the
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
@@ -346,7 +346,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @throws IndexOutOfBoundsException when range is malformed, i.e. {@code fromIndex} &gt;
    *      {@code toIndex}
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
-   *     source has been removed from the playlist.
+   *     source range has been removed from the playlist.
    */
   public final synchronized void removeMediaSourceRange(
           int fromIndex, int toIndex, @Nullable Runnable actionOnCompletion) {
