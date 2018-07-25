@@ -128,14 +128,10 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
         } else {
           buffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
           buffer.flip();
-          try {
-            int index = (pendingMetadataIndex + pendingMetadataCount) % MAX_PENDING_METADATA_COUNT;
-            pendingMetadata[index] = decoder.decode(buffer);
-            pendingMetadataTimestamps[index] = buffer.timeUs;
-            pendingMetadataCount++;
-          } catch (MetadataDecoderException e) {
-            throw ExoPlaybackException.createForRenderer(e, getIndex());
-          }
+          int index = (pendingMetadataIndex + pendingMetadataCount) % MAX_PENDING_METADATA_COUNT;
+          pendingMetadata[index] = decoder.decode(buffer);
+          pendingMetadataTimestamps[index] = buffer.timeUs;
+          pendingMetadataCount++;
         }
       }
     }

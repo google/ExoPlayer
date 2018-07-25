@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import static org.checkerframework.checker.nullness.NullnessUtil.castNonNull;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -35,9 +37,9 @@ public final class TextInformationFrame extends Id3Frame {
   }
 
   /* package */ TextInformationFrame(Parcel in) {
-    super(in.readString());
+    super(castNonNull(in.readString()));
     description = in.readString();
-    value = in.readString();
+    value = castNonNull(in.readString());
   }
 
   @Override
