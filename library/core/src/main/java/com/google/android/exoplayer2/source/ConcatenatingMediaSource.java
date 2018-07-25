@@ -50,11 +50,11 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private static final int MSG_ADD = 0;
   private static final int MSG_ADD_MULTIPLE = 1;
   private static final int MSG_REMOVE = 2;
-  private static final int MSG_REMOVE_RANGE = 200;
-  private static final int MSG_MOVE = 3;
-  private static final int MSG_CLEAR = 4;
-  private static final int MSG_NOTIFY_LISTENER = 5;
-  private static final int MSG_ON_COMPLETION = 6;
+  private static final int MSG_REMOVE_RANGE = 3;
+  private static final int MSG_MOVE = 4;
+  private static final int MSG_CLEAR = 5;
+  private static final int MSG_NOTIFY_LISTENER = 6;
+  private static final int MSG_ON_COMPLETION = 7;
 
   // Accessed on the app thread.
   private final List<MediaSourceHolder> mediaSourcesPublic;
@@ -324,7 +324,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
   /**
    * Removes a range of {@link MediaSource}s from the playlist, by specifying an initial index
-   * (included) and a final index (excluded), and executes a custom action on completion..
+   * (included) and a final index (excluded), and executes a custom action on completion.
    *
    * <p>Note: when specified range is empty, no actual media source is removed and no exception
    * is thrown.
@@ -349,10 +349,10 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     }
     if (player != null) {
       player
-              .createMessage(this)
-              .setType(MSG_REMOVE_RANGE)
-              .setPayload(new MessageData<>(fromIndex, toIndex, actionOnCompletion))
-              .send();
+          .createMessage(this)
+          .setType(MSG_REMOVE_RANGE)
+          .setPayload(new MessageData<>(fromIndex, toIndex, actionOnCompletion))
+          .send();
     } else if (actionOnCompletion != null) {
       actionOnCompletion.run();
     }
