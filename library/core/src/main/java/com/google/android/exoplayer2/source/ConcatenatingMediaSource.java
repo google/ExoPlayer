@@ -312,16 +312,11 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * is thrown.
    *
    * @param fromIndex The initial range index, pointing to the first media source that will be
-   *     removed. This index must be in the range of 0 &lt;= index &lt; {@link #getSize()}.
+   *     removed. This index must be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @param toIndex The final range index, pointing to the first media source that will be left
-   *     untouched. The last media source to be removed is at index {@code toIndex} - 1.
-   *     This index must be in the range of 0 &lt;= index &lt; {@link #getSize()}.
-   *
-   * @throws IndexOutOfBoundsException when either index is out of playlist bounds, i.e. {@code
-   *      fromIndex} &lt; 0 or &gt;= {@link #getSize()}, {@code toIndex} &lt; 0 or &gt; {@link
-   *      #getSize()}
-   * @throws IndexOutOfBoundsException when range is malformed, i.e. {@code fromIndex} &gt;
-   *      {@code toIndex}
+   *     untouched. This index must be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
+   * @throws IndexOutOfBoundsException When the range is malformed, i.e. {@code fromIndex} &lt;
+   *       0, {@code toIndex} &gt; {@link #getSize()}, {@code fromIndex} &gt; {@code toIndex}
    */
   public final synchronized void removeMediaSourceRange(int fromIndex, int toIndex) {
     removeMediaSourceRange(fromIndex, toIndex, null);
@@ -335,37 +330,23 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * is thrown.
    *
    * @param fromIndex The initial range index, pointing to the first media source that will be
-   *     removed. This index must be in the range of 0 &lt;= index &lt; {@link #getSize()}.
+   *     removed. This index must be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @param toIndex The final range index, pointing to the first media source that will be left
-   *     untouched. The last media source to be removed is at index {@code toIndex} - 1.
-   *     This index must be in the range of 0 &lt;= index &lt; {@link #getSize()}.
-   *
-   * @throws IndexOutOfBoundsException when either index is out of playlist bounds, i.e. {@code
-   *      fromIndex} &lt; 0 or &gt;= {@link #getSize()}, {@code toIndex} &lt; 0 or &gt; {@link
-   *      #getSize()}
-   * @throws IndexOutOfBoundsException when range is malformed, i.e. {@code fromIndex} &gt;
-   *      {@code toIndex}
+   *     untouched. This index must be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
    *     source range has been removed from the playlist.
+   * @throws IndexOutOfBoundsException When the range is malformed, i.e. {@code fromIndex} &lt;
+   *       0, {@code toIndex} &gt; {@link #getSize()}, {@code fromIndex} &gt; {@code toIndex}
    */
   public final synchronized void removeMediaSourceRange(
           int fromIndex, int toIndex, @Nullable Runnable actionOnCompletion) {
-    if (fromIndex < 0 || fromIndex >= mediaSourcesPublic.size()) {
-      throw new IndexOutOfBoundsException(String.format("Cannot remove source range: initial index (%d) out of bounds", fromIndex));
-    }
-    if (toIndex < 0 || toIndex > mediaSourcesPublic.size()) {
-      throw new IndexOutOfBoundsException(String.format("Cannot remove source range: final index (%d) out of bounds", toIndex));
-    }
-    if (fromIndex > toIndex) {
-      throw new IndexOutOfBoundsException(String.format("Cannot remove source range: range malformed (%d, %d)", fromIndex, toIndex));
-    }
+    Util.removeRange(mediaSourcesPublic, fromIndex, toIndex);
     if (fromIndex == toIndex) {
       if (actionOnCompletion != null) {
         actionOnCompletion.run();
       }
       return;
     }
-    mediaSourcesPublic.subList(fromIndex, toIndex).clear();
     if (player != null) {
       player
               .createMessage(this)
