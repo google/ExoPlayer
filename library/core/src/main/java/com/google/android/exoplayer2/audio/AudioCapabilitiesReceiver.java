@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
@@ -45,9 +46,9 @@ public final class AudioCapabilitiesReceiver {
 
   private final Context context;
   private final Listener listener;
-  private final BroadcastReceiver receiver;
+  private final @Nullable BroadcastReceiver receiver;
 
-  /* package */ AudioCapabilities audioCapabilities;
+  /* package */ @Nullable AudioCapabilities audioCapabilities;
 
   /**
    * @param context A context for registering the receiver.
