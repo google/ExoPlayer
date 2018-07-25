@@ -50,7 +50,7 @@ public final class AudioCapabilities {
   }
 
   @SuppressLint("InlinedApi")
-  /* package */ static AudioCapabilities getCapabilities(Intent intent) {
+  /* package */ static AudioCapabilities getCapabilities(@Nullable Intent intent) {
     if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
       return DEFAULT_AUDIO_CAPABILITIES;
     }
