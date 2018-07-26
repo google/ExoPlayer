@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import java.util.Collections;
@@ -43,7 +44,7 @@ public interface MediaCodecSelector {
         }
 
         @Override
-        public MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
+        public @Nullable MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
           return MediaCodecUtil.getPassthroughDecoderInfo();
         }
       };
@@ -65,7 +66,7 @@ public interface MediaCodecSelector {
         }
 
         @Override
-        public MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
+        public @Nullable MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
           return MediaCodecUtil.getPassthroughDecoderInfo();
         }
       };
@@ -87,6 +88,6 @@ public interface MediaCodecSelector {
    * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder exists.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
+  @Nullable
   MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException;
-
 }
