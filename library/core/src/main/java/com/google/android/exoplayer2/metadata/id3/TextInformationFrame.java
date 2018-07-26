@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
-import static org.checkerframework.checker.nullness.NullnessUtil.castNonNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.os.Parcel;
 import android.os.Parcelable;

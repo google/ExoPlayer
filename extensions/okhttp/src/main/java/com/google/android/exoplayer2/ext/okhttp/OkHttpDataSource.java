@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
-import static org.checkerframework.checker.nullness.NullnessUtil.castNonNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
