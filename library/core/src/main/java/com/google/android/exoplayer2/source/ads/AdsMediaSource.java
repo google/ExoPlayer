@@ -170,6 +170,10 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   }
 
+  // Used to identify the content "child" source for CompositeMediaSource.
+  private static final MediaPeriodId DUMMY_CONTENT_MEDIA_PERIOD_ID =
+      new MediaPeriodId(/* periodIndex= */ 0);
+
   private final MediaSource contentMediaSource;
   private final MediaSourceFactory adMediaSourceFactory;
   private final AdsLoader adsLoader;
@@ -314,7 +318,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     Assertions.checkArgument(isTopLevelSource);
     final ComponentListener componentListener = new ComponentListener();
     this.componentListener = componentListener;
-    prepareChildSource(new MediaPeriodId(/* periodIndex= */ 0), contentMediaSource);
+    prepareChildSource(DUMMY_CONTENT_MEDIA_PERIOD_ID, contentMediaSource);
     mainHandler.post(new Runnable() {
       @Override
       public void run() {
@@ -344,16 +348,14 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
         prepareChildSource(id, adMediaSource);
       }
       MediaSource mediaSource = adGroupMediaSources[adGroupIndex][adIndexInAdGroup];
-      DeferredMediaPeriod deferredMediaPeriod =
-          new DeferredMediaPeriod(
-              mediaSource,
-              new MediaPeriodId(/* periodIndex= */ 0, id.windowSequenceNumber),
-              allocator);
+      DeferredMediaPeriod deferredMediaPeriod = new DeferredMediaPeriod(mediaSource, id, allocator);
       deferredMediaPeriod.setPrepareErrorListener(
           new AdPrepareErrorListener(adUri, adGroupIndex, adIndexInAdGroup));
       List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.get(mediaSource);
       if (mediaPeriods == null) {
-        deferredMediaPeriod.createPeriod();
+        MediaPeriodId adSourceMediaPeriodId =
+            new MediaPeriodId(/* periodIndex= */ 0, id.windowSequenceNumber);
+        deferredMediaPeriod.createPeriod(adSourceMediaPeriodId);
       } else {
         // Keep track of the deferred media period so it can be populated with the real media period
         // when the source's info becomes available.
@@ -362,7 +364,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       return deferredMediaPeriod;
     } else {
       DeferredMediaPeriod mediaPeriod = new DeferredMediaPeriod(contentMediaSource, id, allocator);
-      mediaPeriod.createPeriod();
+      mediaPeriod.createPeriod(id);
       return mediaPeriod;
     }
   }
@@ -415,8 +417,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   @Override
   protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       MediaPeriodId childId, MediaPeriodId mediaPeriodId) {
-    // The child id for the content period is just a dummy without window sequence number. That's
-    // why we need to forward the reported mediaPeriodId in this case.
+    // The child id for the content period is just DUMMY_CONTENT_MEDIA_PERIOD_ID. That's why we need
+    // to forward the reported mediaPeriodId in this case.
     return childId.isAd() ? childId : mediaPeriodId;
   }
 
@@ -443,12 +445,14 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       int adIndexInAdGroup, Timeline timeline) {
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
     adDurationsUs[adGroupIndex][adIndexInAdGroup] = timeline.getPeriod(0, period).getDurationUs();
-    if (deferredMediaPeriodByAdMediaSource.containsKey(mediaSource)) {
-      List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.get(mediaSource);
+    List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.remove(mediaSource);
+    if (mediaPeriods != null) {
       for (int i = 0; i < mediaPeriods.size(); i++) {
-        mediaPeriods.get(i).createPeriod();
+        DeferredMediaPeriod mediaPeriod = mediaPeriods.get(i);
+        MediaPeriodId adSourceMediaPeriodId =
+            new MediaPeriodId(/* periodIndex= */ 0, mediaPeriod.id.windowSequenceNumber);
+        mediaPeriod.createPeriod(adSourceMediaPeriodId);
       }
-      deferredMediaPeriodByAdMediaSource.remove(mediaSource);
     }
     maybeUpdateSourceInfo();
   }
