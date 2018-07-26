@@ -22,16 +22,13 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -568,7 +565,9 @@ public class PlayerView extends FrameLayout {
    * present in the media.
    *
    * @param defaultArtwork the default artwork to display.
+   * @deprecated use (@link {@link #setDefaultArtwork(Drawable)} instead.
    */
+  @Deprecated
   public void setDefaultArtwork(Bitmap defaultArtwork) {
     setDefaultArtwork(new BitmapDrawable(getResources(), defaultArtwork));
   }
@@ -1071,35 +1070,17 @@ public class PlayerView extends FrameLayout {
       if (metadataEntry instanceof ApicFrame) {
         byte[] bitmapData = ((ApicFrame) metadataEntry).pictureData;
         Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
-        return setArtworkFromBitmap(new BitmapDrawable(getResources(), bitmap));
+        return setDrawableArtwork(new BitmapDrawable(getResources(), bitmap));
       }
     }
     return false;
   }
 
   private boolean setDrawableArtwork(Drawable drawable) {
-    if(drawable instanceof BitmapDrawable) {
-      return setArtworkFromBitmap(((BitmapDrawable) drawable));
-    } else {
+    if(drawable != null) {
       artworkView.setImageDrawable(drawable);
     }
     return true;
-  }
-
-  private boolean setArtworkFromBitmap(BitmapDrawable bitmapDrawable) {
-    if (bitmapDrawable != null) {
-      int bitmapWidth = bitmapDrawable.getBitmap().getWidth();
-      int bitmapHeight = bitmapDrawable.getBitmap().getHeight();
-      if (bitmapWidth > 0 && bitmapHeight > 0) {
-        if (contentFrame != null) {
-          contentFrame.setAspectRatio((float) bitmapWidth / bitmapHeight);
-        }
-        artworkView.setImageBitmap(bitmapDrawable.getBitmap());
-        artworkView.setVisibility(VISIBLE);
-        return true;
-      }
-    }
-    return false;
   }
 
   private void hideArtwork() {
