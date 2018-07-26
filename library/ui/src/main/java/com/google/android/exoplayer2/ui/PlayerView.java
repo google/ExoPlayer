@@ -25,6 +25,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -251,7 +252,7 @@ public class PlayerView extends FrameLayout {
   private Player player;
   private boolean useController;
   private boolean useArtwork;
-  private Bitmap defaultArtwork;
+  private Drawable defaultArtwork;
   private boolean showBuffering;
   private boolean keepContentOnPlayerReset;
   private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
@@ -373,7 +374,7 @@ public class PlayerView extends FrameLayout {
     artworkView = findViewById(R.id.exo_artwork);
     this.useArtwork = useArtwork && artworkView != null;
     if (defaultArtworkId != 0) {
-      defaultArtwork = loadFromResource(defaultArtworkId);
+      defaultArtwork = ContextCompat.getDrawable(getContext(), defaultArtworkId);
     }
 
     // Subtitle view.
@@ -419,21 +420,6 @@ public class PlayerView extends FrameLayout {
     this.controllerHideDuringAds = controllerHideDuringAds;
     this.useController = useController && controller != null;
     hideController();
-  }
-
-  private Bitmap loadFromResource(int defaultArtworkId) {
-    Drawable drawable = ContextCompat.getDrawable(getContext(), defaultArtworkId);
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-      drawable = (DrawableCompat.wrap(drawable)).mutate();
-    }
-
-    Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-            drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-    Canvas canvas = new Canvas(bitmap);
-    drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-    drawable.draw(canvas);
-
-    return bitmap;
   }
 
   /**
@@ -573,7 +559,7 @@ public class PlayerView extends FrameLayout {
   }
 
   /** Returns the default artwork to display. */
-  public Bitmap getDefaultArtwork() {
+  public Drawable getDefaultArtwork() {
     return defaultArtwork;
   }
 
@@ -584,6 +570,16 @@ public class PlayerView extends FrameLayout {
    * @param defaultArtwork the default artwork to display.
    */
   public void setDefaultArtwork(Bitmap defaultArtwork) {
+    setDefaultArtwork(new BitmapDrawable(getResources(), defaultArtwork));
+  }
+
+  /**
+   * Sets the default artwork to display if {@code useArtwork} is {@code true} and no artwork is
+   * present in the media.
+   *
+   * @param defaultArtwork the default artwork to display
+   */
+  public void setDefaultArtwork(Drawable defaultArtwork) {
     if (this.defaultArtwork != defaultArtwork) {
       this.defaultArtwork = defaultArtwork;
       updateForCurrentTrackSelections(/* isNewPlayer= */ false);
@@ -1061,7 +1057,7 @@ public class PlayerView extends FrameLayout {
           }
         }
       }
-      if (setArtworkFromBitmap(defaultArtwork)) {
+      if (setDrawableArtwork(defaultArtwork)) {
         return;
       }
     }
@@ -1075,21 +1071,30 @@ public class PlayerView extends FrameLayout {
       if (metadataEntry instanceof ApicFrame) {
         byte[] bitmapData = ((ApicFrame) metadataEntry).pictureData;
         Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
-        return setArtworkFromBitmap(bitmap);
+        return setArtworkFromBitmap(new BitmapDrawable(getResources(), bitmap));
       }
     }
     return false;
   }
 
-  private boolean setArtworkFromBitmap(Bitmap bitmap) {
-    if (bitmap != null) {
-      int bitmapWidth = bitmap.getWidth();
-      int bitmapHeight = bitmap.getHeight();
+  private boolean setDrawableArtwork(Drawable drawable) {
+    if(drawable instanceof BitmapDrawable) {
+      return setArtworkFromBitmap(((BitmapDrawable) drawable));
+    } else {
+      artworkView.setImageDrawable(drawable);
+    }
+    return true;
+  }
+
+  private boolean setArtworkFromBitmap(BitmapDrawable bitmapDrawable) {
+    if (bitmapDrawable != null) {
+      int bitmapWidth = bitmapDrawable.getBitmap().getWidth();
+      int bitmapHeight = bitmapDrawable.getBitmap().getHeight();
       if (bitmapWidth > 0 && bitmapHeight > 0) {
         if (contentFrame != null) {
           contentFrame.setAspectRatio((float) bitmapWidth / bitmapHeight);
         }
-        artworkView.setImageBitmap(bitmap);
+        artworkView.setImageBitmap(bitmapDrawable.getBitmap());
         artworkView.setVisibility(VISIBLE);
         return true;
       }
