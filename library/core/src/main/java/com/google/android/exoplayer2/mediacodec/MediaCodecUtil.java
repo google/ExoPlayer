@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,11 +58,9 @@ public final class MediaCodecUtil {
   }
 
   private static final String TAG = "MediaCodecUtil";
-  private static final String GOOGLE_RAW_DECODER_NAME = "OMX.google.raw.decoder";
-  private static final String MTK_RAW_DECODER_NAME = "OMX.MTK.AUDIO.DECODER.RAW";
-  private static final MediaCodecInfo PASSTHROUGH_DECODER_INFO =
-      MediaCodecInfo.newPassthroughInstance(GOOGLE_RAW_DECODER_NAME);
   private static final Pattern PROFILE_PATTERN = Pattern.compile("^\\D?(\\d+)$");
+  private static final RawAudioCodecComparator RAW_AUDIO_CODEC_COMPARATOR =
+      new RawAudioCodecComparator();
 
   private static final HashMap<CodecKey, List<MediaCodecInfo>> decoderInfosCache = new HashMap<>();
 
@@ -103,12 +102,12 @@ public final class MediaCodecUtil {
   /**
    * Returns information about a decoder suitable for audio passthrough.
    *
-   * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder
-   *     exists.
+   * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder exists.
+   * @throws DecoderQueryException If there was an error querying the available decoders.
    */
-  public static MediaCodecInfo getPassthroughDecoderInfo() {
-    // TODO: Return null if the raw decoder doesn't exist.
-    return PASSTHROUGH_DECODER_INFO;
+  public static @Nullable MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
+    MediaCodecInfo decoderInfo = getDecoderInfo(MimeTypes.AUDIO_RAW, /* secure= */ false);
+    return decoderInfo == null ? null : MediaCodecInfo.newPassthroughInstance(decoderInfo.name);
   }
 
   /**
@@ -164,7 +163,7 @@ public final class MediaCodecUtil {
           getDecoderInfosInternal(eac3Key, mediaCodecList, mimeType);
       decoderInfos.addAll(eac3DecoderInfos);
     }
-    applyWorkarounds(decoderInfos);
+    applyWorkarounds(mimeType, decoderInfos);
     List<MediaCodecInfo> unmodifiableDecoderInfos = Collections.unmodifiableList(decoderInfos);
     decoderInfosCache.put(key, unmodifiableDecoderInfos);
     return unmodifiableDecoderInfos;
@@ -394,20 +393,12 @@ public final class MediaCodecUtil {
    * Modifies a list of {@link MediaCodecInfo}s to apply workarounds where we know better than the
    * platform.
    *
+   * @param mimeType The MIME type of input media.
    * @param decoderInfos The list to modify.
    */
-  private static void applyWorkarounds(List<MediaCodecInfo> decoderInfos) {
-    if (Util.SDK_INT < 26 && decoderInfos.size() > 1
-        && MTK_RAW_DECODER_NAME.equals(decoderInfos.get(0).name)) {
-      // Prefer the Google raw decoder over the MediaTek one [Internal: b/62337687].
-      for (int i = 1; i < decoderInfos.size(); i++) {
-        MediaCodecInfo decoderInfo = decoderInfos.get(i);
-        if (GOOGLE_RAW_DECODER_NAME.equals(decoderInfo.name)) {
-          decoderInfos.remove(i);
-          decoderInfos.add(0, decoderInfo);
-          break;
-        }
-      }
+  private static void applyWorkarounds(String mimeType, List<MediaCodecInfo> decoderInfos) {
+    if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
+      Collections.sort(decoderInfos, RAW_AUDIO_CODEC_COMPARATOR);
     }
   }
 
@@ -649,6 +640,32 @@ public final class MediaCodecUtil {
       return TextUtils.equals(mimeType, other.mimeType) && secure == other.secure;
     }
 
+  }
+
+  /**
+   * Comparator for ordering media codecs that handle {@link MimeTypes#AUDIO_RAW} to work around
+   * possible inconsistent behavior across different devices. A list sorted with this comparator has
+   * more preferred codecs first.
+   */
+  private static final class RawAudioCodecComparator implements Comparator<MediaCodecInfo> {
+    @Override
+    public int compare(MediaCodecInfo a, MediaCodecInfo b) {
+      return scoreMediaCodecInfo(a) - scoreMediaCodecInfo(b);
+    }
+
+    private static int scoreMediaCodecInfo(MediaCodecInfo mediaCodecInfo) {
+      String name = mediaCodecInfo.name;
+      if (name.startsWith("OMX.google") || name.startsWith("c2.android")) {
+        // Prefer generic decoders over ones provided by the device.
+        return -1;
+      }
+      if (Util.SDK_INT < 26 && name.equals("OMX.MTK.AUDIO.DECODER.RAW")) {
+        // This decoder may modify the audio, so any other compatible decoders take precedence. See
+        // [Internal: b/62337687].
+        return 1;
+      }
+      return 0;
+    }
   }
 
   static {
