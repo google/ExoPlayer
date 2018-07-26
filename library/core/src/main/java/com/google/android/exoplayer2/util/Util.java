@@ -69,6 +69,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
 /**
@@ -230,6 +231,17 @@ public final class Util {
    */
   public static <T> void removeRange(List<T> list, int fromIndex, int toIndex) {
     list.subList(fromIndex, toIndex).clear();
+  }
+
+  /**
+   * Casts a nullable variable to a non-null variable without runtime null check.
+   *
+   * <p>Use {@link Assertions#checkNotNull(Object)} to throw if the value is null.
+   */
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @EnsuresNonNull("#1")
+  public static <T> T castNonNull(@Nullable T value) {
+    return value;
   }
 
   /**
@@ -627,10 +639,10 @@ public final class Util {
   /**
    * Returns the index of the largest element in {@code list} that is less than (or optionally equal
    * to) a specified {@code value}.
-   * <p>
-   * The search is performed using a binary search algorithm, so the list must be sorted. If the
-   * list contains multiple elements equal to {@code value} and {@code inclusive} is true, the
-   * index of the first one will be returned.
+   *
+   * <p>The search is performed using a binary search algorithm, so the list must be sorted. If the
+   * list contains multiple elements equal to {@code value} and {@code inclusive} is true, the index
+   * of the first one will be returned.
    *
    * @param <T> The type of values being searched.
    * @param list The list to search.
@@ -643,8 +655,11 @@ public final class Util {
    * @return The index of the largest element in {@code list} that is less than (or optionally equal
    *     to) {@code value}.
    */
-  public static <T> int binarySearchFloor(List<? extends Comparable<? super T>> list, T value,
-      boolean inclusive, boolean stayInBounds) {
+  public static <T extends Comparable<? super T>> int binarySearchFloor(
+      List<? extends Comparable<? super T>> list,
+      T value,
+      boolean inclusive,
+      boolean stayInBounds) {
     int index = Collections.binarySearch(list, value);
     if (index < 0) {
       index = -(index + 2);
@@ -693,10 +708,10 @@ public final class Util {
   /**
    * Returns the index of the smallest element in {@code list} that is greater than (or optionally
    * equal to) a specified value.
-   * <p>
-   * The search is performed using a binary search algorithm, so the list must be sorted. If the
-   * list contains multiple elements equal to {@code value} and {@code inclusive} is true, the
-   * index of the last one will be returned.
+   *
+   * <p>The search is performed using a binary search algorithm, so the list must be sorted. If the
+   * list contains multiple elements equal to {@code value} and {@code inclusive} is true, the index
+   * of the last one will be returned.
    *
    * @param <T> The type of values being searched.
    * @param list The list to search.
@@ -705,13 +720,16 @@ public final class Util {
    *     index. If false then the returned index corresponds to the smallest element strictly
    *     greater than the value.
    * @param stayInBounds If true, then {@code (list.size() - 1)} will be returned in the case that
-   *     the value is greater than the largest element in the list. If false then
-   *     {@code list.size()} will be returned.
+   *     the value is greater than the largest element in the list. If false then {@code
+   *     list.size()} will be returned.
    * @return The index of the smallest element in {@code list} that is greater than (or optionally
    *     equal to) {@code value}.
    */
-  public static <T> int binarySearchCeil(List<? extends Comparable<? super T>> list, T value,
-      boolean inclusive, boolean stayInBounds) {
+  public static <T extends Comparable<? super T>> int binarySearchCeil(
+      List<? extends Comparable<? super T>> list,
+      T value,
+      boolean inclusive,
+      boolean stayInBounds) {
     int index = Collections.binarySearch(list, value);
     if (index < 0) {
       index = ~index;
@@ -970,7 +988,7 @@ public final class Util {
    * @param list A list of integers.
    * @return The list in array form, or null if the input list was null.
    */
-  public static int[] toArray(List<Integer> list) {
+  public static int @PolyNull [] toArray(@PolyNull List<Integer> list) {
     if (list == null) {
       return null;
     }
@@ -1053,15 +1071,15 @@ public final class Util {
   }
 
   /**
-   * Returns a copy of {@code codecs} without the codecs whose track type doesn't match
-   * {@code trackType}.
+   * Returns a copy of {@code codecs} without the codecs whose track type doesn't match {@code
+   * trackType}.
    *
    * @param codecs A codec sequence string, as defined in RFC 6381.
    * @param trackType One of {@link C}{@code .TRACK_TYPE_*}.
-   * @return A copy of {@code codecs} without the codecs whose track type doesn't match
-   *     {@code trackType}.
+   * @return A copy of {@code codecs} without the codecs whose track type doesn't match {@code
+   *     trackType}.
    */
-  public static String getCodecsOfType(String codecs, int trackType) {
+  public static @Nullable String getCodecsOfType(String codecs, int trackType) {
     String[] codecArray = splitCodecs(codecs);
     if (codecArray.length == 0) {
       return null;
@@ -1251,7 +1269,7 @@ public final class Util {
    *     "clearkey"}.
    * @return The derived {@link UUID}, or {@code null} if one could not be derived.
    */
-  public static UUID getDrmUuid(String drmScheme) {
+  public static @Nullable UUID getDrmUuid(String drmScheme) {
     switch (Util.toLowerInvariant(drmScheme)) {
       case "widevine":
         return C.WIDEVINE_UUID;
@@ -1427,7 +1445,7 @@ public final class Util {
    * @return The original value of the file name before it was escaped, or null if the escaped
    *     fileName seems invalid.
    */
-  public static String unescapeFileName(String fileName) {
+  public static @Nullable String unescapeFileName(String fileName) {
     int length = fileName.length();
     int percentCharacterCount = 0;
     for (int i = 0; i < length; i++) {
@@ -1473,8 +1491,9 @@ public final class Util {
 
   /** Recursively deletes a directory and its content. */
   public static void recursiveDelete(File fileOrDirectory) {
-    if (fileOrDirectory.isDirectory()) {
-      for (File child : fileOrDirectory.listFiles()) {
+    File[] directoryFiles = fileOrDirectory.listFiles();
+    if (directoryFiles != null) {
+      for (File child : directoryFiles) {
         recursiveDelete(child);
       }
     }

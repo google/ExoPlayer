@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import static org.checkerframework.checker.nullness.NullnessUtil.castNonNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.media.AudioTimestamp;
 import android.media.AudioTrack;
