@@ -392,17 +392,16 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   public final MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     int mediaSourceHolderIndex = findMediaSourceHolderByPeriodIndex(id.periodIndex);
     MediaSourceHolder holder = mediaSourceHolders.get(mediaSourceHolderIndex);
-    MediaPeriodId idInSource =
-        id.copyWithPeriodIndex(id.periodIndex - holder.firstPeriodIndexInChild);
-    DeferredMediaPeriod mediaPeriod =
-        new DeferredMediaPeriod(holder.mediaSource, idInSource, allocator);
+    DeferredMediaPeriod mediaPeriod = new DeferredMediaPeriod(holder.mediaSource, id, allocator);
     mediaSourceByMediaPeriod.put(mediaPeriod, holder);
     holder.activeMediaPeriods.add(mediaPeriod);
     if (!holder.hasStartedPreparing) {
       holder.hasStartedPreparing = true;
       prepareChildSource(holder, holder.mediaSource);
     } else if (holder.isPrepared) {
-      mediaPeriod.createPeriod();
+      MediaPeriodId idInSource =
+          id.copyWithPeriodIndex(id.periodIndex - holder.firstPeriodIndexInChild);
+      mediaPeriod.createPeriod(idInSource);
     }
     return mediaPeriod;
   }
@@ -599,7 +598,10 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       for (int i = 0; i < mediaSourceHolder.activeMediaPeriods.size(); i++) {
         DeferredMediaPeriod deferredMediaPeriod = mediaSourceHolder.activeMediaPeriods.get(i);
         deferredMediaPeriod.setDefaultPreparePositionUs(defaultPeriodPositionUs);
-        deferredMediaPeriod.createPeriod();
+        MediaPeriodId idInSource =
+            deferredMediaPeriod.id.copyWithPeriodIndex(
+                deferredMediaPeriod.id.periodIndex - mediaSourceHolder.firstPeriodIndexInChild);
+        deferredMediaPeriod.createPeriod(idInSource);
       }
       mediaSourceHolder.isPrepared = true;
     }
