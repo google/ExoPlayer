@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-/** Unit tests for {@link LoadErrorHandlingPolicy#DEFAULT}. */
+/** Unit tests for {@link DefaultLoadErrorHandlingPolicy}. */
 @RunWith(RobolectricTestRunner.class)
 public final class DefaultLoadErrorHandlingPolicyTest {
 
@@ -90,12 +90,13 @@ public final class DefaultLoadErrorHandlingPolicyTest {
   }
 
   private static long getDefaultPolicyBlacklistOutputFor(IOException exception) {
-    return LoadErrorHandlingPolicy.DEFAULT.getBlacklistDurationMsFor(
-        DUMMY_LOADABLE, /* loadDurationMs= */ 1000, exception, /* errorCount= */ 1);
+    return new DefaultLoadErrorHandlingPolicy()
+        .getBlacklistDurationMsFor(
+            C.DATA_TYPE_MEDIA, /* loadDurationMs= */ 1000, exception, /* errorCount= */ 1);
   }
 
   private static long getDefaultPolicyRetryDelayOutputFor(IOException exception, int errorCount) {
-    return LoadErrorHandlingPolicy.DEFAULT.getRetryDelayMsFor(
-        DUMMY_LOADABLE, /* loadDurationMs= */ 1000, exception, errorCount);
+    return new DefaultLoadErrorHandlingPolicy()
+        .getRetryDelayMsFor(C.DATA_TYPE_MEDIA, /* loadDurationMs= */ 1000, exception, errorCount);
   }
 }
