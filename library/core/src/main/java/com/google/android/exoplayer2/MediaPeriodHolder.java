@@ -39,7 +39,6 @@ import com.google.android.exoplayer2.util.Assertions;
   public final SampleStream[] sampleStreams;
   public final boolean[] mayRetainStreamFlags;
 
-  public long rendererPositionOffsetUs;
   public boolean prepared;
   public boolean hasEnabledTracks;
   public MediaPeriodInfo info;
@@ -51,6 +50,7 @@ import com.google.android.exoplayer2.util.Assertions;
   private final TrackSelector trackSelector;
   private final MediaSource mediaSource;
 
+  private long rendererPositionOffsetUs;
   private TrackSelectorResult periodTrackSelectorResult;
 
   /**
@@ -103,6 +103,10 @@ import com.google.android.exoplayer2.util.Assertions;
 
   public long getRendererOffset() {
     return rendererPositionOffsetUs;
+  }
+
+  public long getStartPositionRendererTime() {
+    return info.startPositionUs + rendererPositionOffsetUs;
   }
 
   public boolean isFullyBuffered() {

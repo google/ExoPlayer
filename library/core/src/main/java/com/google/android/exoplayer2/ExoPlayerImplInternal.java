@@ -1403,8 +1403,9 @@ import java.util.Collections;
     MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
     MediaPeriodHolder readingPeriodHolder = queue.getReadingPeriod();
     boolean advancedPlayingPeriod = false;
-    while (playWhenReady && playingPeriodHolder != readingPeriodHolder
-        && rendererPositionUs >= playingPeriodHolder.next.rendererPositionOffsetUs) {
+    while (playWhenReady
+        && playingPeriodHolder != readingPeriodHolder
+        && rendererPositionUs >= playingPeriodHolder.next.getStartPositionRendererTime()) {
       // All enabled renderers' streams have been read to the end, and the playback position reached
       // the end of the playing period, so advance playback to the next period.
       if (advancedPlayingPeriod) {
