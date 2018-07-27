@@ -49,9 +49,7 @@ public final class DefaultHlsPlaylistTracker
 
   private final HlsDataSourceFactory dataSourceFactory;
   private final ParsingLoadable.Parser<HlsPlaylist> playlistParser;
-  private final LoadErrorHandlingPolicy<ParsingLoadable<HlsPlaylist>>
-      playlistLoadErrorHandlingPolicy;
-  private final int minRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final IdentityHashMap<HlsUrl, MediaPlaylistBundle> playlistBundles;
   private final List<PlaylistEventListener> listeners;
 
@@ -67,21 +65,16 @@ public final class DefaultHlsPlaylistTracker
 
   /**
    * @param dataSourceFactory A factory for {@link DataSource} instances.
-   * @param playlistLoadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy} for playlist loads.
-   * @param minRetryCount The minimum number of times loads must be retried before {@link
-   *     #maybeThrowPlaylistRefreshError(HlsUrl)} and {@link
-   *     #maybeThrowPrimaryPlaylistRefreshError()} propagate any loading errors.
+   * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
    * @param playlistParser A {@link ParsingLoadable.Parser} for HLS playlists.
    */
   public DefaultHlsPlaylistTracker(
       HlsDataSourceFactory dataSourceFactory,
-      LoadErrorHandlingPolicy<ParsingLoadable<HlsPlaylist>> playlistLoadErrorHandlingPolicy,
-      int minRetryCount,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
     this.dataSourceFactory = dataSourceFactory;
-    this.minRetryCount = minRetryCount;
     this.playlistParser = playlistParser;
-    this.playlistLoadErrorHandlingPolicy = playlistLoadErrorHandlingPolicy;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     listeners = new ArrayList<>();
     playlistBundles = new IdentityHashMap<>();
     initialStartTimeUs = C.TIME_UNSET;
@@ -106,7 +99,10 @@ public final class DefaultHlsPlaylistTracker
     Assertions.checkState(initialPlaylistLoader == null);
     initialPlaylistLoader = new Loader("DefaultHlsPlaylistTracker:MasterPlaylist");
     long elapsedRealtime =
-        initialPlaylistLoader.startLoading(masterPlaylistLoadable, this, minRetryCount);
+        initialPlaylistLoader.startLoading(
+            masterPlaylistLoadable,
+            this,
+            loadErrorHandlingPolicy.getMinimumLoadableRetryCount(masterPlaylistLoadable.type));
     eventDispatcher.loadStarted(
         masterPlaylistLoadable.dataSpec,
         masterPlaylistLoadable.dataSpec.uri,
@@ -248,8 +244,8 @@ public final class DefaultHlsPlaylistTracker
       IOException error,
       int errorCount) {
     long retryDelayMs =
-        playlistLoadErrorHandlingPolicy.getRetryDelayMsFor(
-            loadable, loadDurationMs, error, errorCount);
+        loadErrorHandlingPolicy.getRetryDelayMsFor(
+            loadable.type, loadDurationMs, error, errorCount);
     boolean isFatal = retryDelayMs == C.TIME_UNSET;
     eventDispatcher.loadError(
         loadable.dataSpec,
@@ -515,8 +511,8 @@ public final class DefaultHlsPlaylistTracker
       LoadErrorAction loadErrorAction;
 
       long blacklistDurationMs =
-          playlistLoadErrorHandlingPolicy.getBlacklistDurationMsFor(
-              loadable, loadDurationMs, error, errorCount);
+          loadErrorHandlingPolicy.getBlacklistDurationMsFor(
+              loadable.type, loadDurationMs, error, errorCount);
       boolean shouldBlacklist = blacklistDurationMs != C.TIME_UNSET;
 
       boolean blacklistingFailed =
@@ -527,8 +523,8 @@ public final class DefaultHlsPlaylistTracker
 
       if (blacklistingFailed) {
         long retryDelay =
-            playlistLoadErrorHandlingPolicy.getRetryDelayMsFor(
-                loadable, loadDurationMs, error, errorCount);
+            loadErrorHandlingPolicy.getRetryDelayMsFor(
+                loadable.type, loadDurationMs, error, errorCount);
         loadErrorAction =
             retryDelay != C.TIME_UNSET
                 ? Loader.createRetryAction(false, retryDelay)
@@ -562,7 +558,10 @@ public final class DefaultHlsPlaylistTracker
 
     private void loadPlaylistImmediately() {
       long elapsedRealtime =
-          mediaPlaylistLoader.startLoading(mediaPlaylistLoadable, this, minRetryCount);
+          mediaPlaylistLoader.startLoading(
+              mediaPlaylistLoadable,
+              this,
+              loadErrorHandlingPolicy.getMinimumLoadableRetryCount(mediaPlaylistLoadable.type));
       eventDispatcher.loadStarted(
           mediaPlaylistLoadable.dataSpec,
           mediaPlaylistLoadable.dataSpec.uri,

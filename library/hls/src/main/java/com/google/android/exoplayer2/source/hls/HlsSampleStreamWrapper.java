@@ -85,8 +85,7 @@ import java.util.List;
   private final HlsChunkSource chunkSource;
   private final Allocator allocator;
   private final Format muxedAudioFormat;
-  private final LoadErrorHandlingPolicy<Chunk> chunkLoadErrorHandlingPolicy;
-  private final int minLoadableRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final Loader loader;
   private final EventDispatcher eventDispatcher;
   private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
@@ -141,9 +140,7 @@ import java.util.List;
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param positionUs The position from which to start loading media.
    * @param muxedAudioFormat Optional muxed audio {@link Format} as defined by the master playlist.
-   * @param chunkLoadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy} for chunk loads.
-   * @param minLoadableRetryCount The minimum number of times that the source should retry a load
-   *     before propagating an error.
+   * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
    * @param eventDispatcher A dispatcher to notify of events.
    */
   public HlsSampleStreamWrapper(
@@ -153,16 +150,14 @@ import java.util.List;
       Allocator allocator,
       long positionUs,
       Format muxedAudioFormat,
-      LoadErrorHandlingPolicy<Chunk> chunkLoadErrorHandlingPolicy,
-      int minLoadableRetryCount,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher) {
     this.trackType = trackType;
     this.callback = callback;
     this.chunkSource = chunkSource;
     this.allocator = allocator;
     this.muxedAudioFormat = muxedAudioFormat;
-    this.chunkLoadErrorHandlingPolicy = chunkLoadErrorHandlingPolicy;
-    this.minLoadableRetryCount = minLoadableRetryCount;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
     loader = new Loader("Loader:HlsSampleStreamWrapper");
     nextChunkHolder = new HlsChunkSource.HlsChunkHolder();
@@ -571,7 +566,9 @@ import java.util.List;
       mediaChunks.add(mediaChunk);
       upstreamTrackFormat = mediaChunk.trackFormat;
     }
-    long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
+    long elapsedRealtimeMs =
+        loader.startLoading(
+            loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));
     eventDispatcher.loadStarted(
         loadable.dataSpec,
         loadable.dataSpec.uri,
@@ -654,8 +651,8 @@ import java.util.List;
 
     if (!isMediaChunk || bytesLoaded == 0) {
       long blacklistDurationMs =
-          chunkLoadErrorHandlingPolicy.getBlacklistDurationMsFor(
-              loadable, loadDurationMs, error, errorCount);
+          loadErrorHandlingPolicy.getBlacklistDurationMsFor(
+              loadable.type, loadDurationMs, error, errorCount);
       if (blacklistDurationMs != C.TIME_UNSET) {
         blacklistSucceeded = chunkSource.maybeBlacklistTrack(loadable, blacklistDurationMs);
       }
@@ -672,8 +669,8 @@ import java.util.List;
       loadErrorAction = Loader.DONT_RETRY;
     } else /* did not blacklist */ {
       long retryDelayMs =
-          chunkLoadErrorHandlingPolicy.getRetryDelayMsFor(
-              loadable, loadDurationMs, error, errorCount);
+          loadErrorHandlingPolicy.getRetryDelayMsFor(
+              loadable.type, loadDurationMs, error, errorCount);
       loadErrorAction =
           retryDelayMs != C.TIME_UNSET
               ? Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs)
