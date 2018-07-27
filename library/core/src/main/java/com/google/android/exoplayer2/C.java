@@ -194,13 +194,6 @@ public final class C {
   public static final int ENCODING_DOLBY_TRUEHD = AudioFormat.ENCODING_DOLBY_TRUEHD;
 
   /**
-   * @see AudioFormat#CHANNEL_OUT_7POINT1_SURROUND
-   */
-  @SuppressWarnings("deprecation")
-  public static final int CHANNEL_OUT_7POINT1_SURROUND = Util.SDK_INT < 23
-      ? AudioFormat.CHANNEL_OUT_7POINT1 : AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
-
-  /**
    * Stream types for an {@link android.media.AudioTrack}.
    */
   @Retention(RetentionPolicy.SOURCE)
