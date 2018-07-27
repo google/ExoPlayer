@@ -44,9 +44,7 @@ public interface DataSource {
    *
    * @param transferListener A {@link TransferListener}.
    */
-  default void addTransferListener(TransferListener transferListener) {
-    // TODO: Make non-default once all DataSources implement this method.
-  }
+  void addTransferListener(TransferListener transferListener);
 
   /**
    * Opens the source to read the specified data.

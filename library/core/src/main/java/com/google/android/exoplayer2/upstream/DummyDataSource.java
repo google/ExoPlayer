@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import java.io.IOException;
 
 /**
@@ -36,6 +37,11 @@ public final class DummyDataSource implements DataSource {
   private DummyDataSource() {}
 
   @Override
+  public void addTransferListener(TransferListener transferListener) {
+    // Do nothing.
+  }
+
+  @Override
   public long open(DataSpec dataSpec) throws IOException {
     throw new IOException("Dummy source");
   }
@@ -46,7 +52,7 @@ public final class DummyDataSource implements DataSource {
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return null;
   }
 
@@ -54,5 +60,4 @@ public final class DummyDataSource implements DataSource {
   public void close() throws IOException {
     // do nothing.
   }
-
 }

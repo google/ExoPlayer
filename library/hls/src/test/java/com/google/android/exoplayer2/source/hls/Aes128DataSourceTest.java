@@ -21,6 +21,7 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,6 +76,9 @@ public class Aes128DataSourceTest {
 
     public boolean opened;
     public boolean closedCalled;
+
+    @Override
+    public void addTransferListener(TransferListener transferListener) {}
 
     @Override
     public long open(DataSpec dataSpec) throws IOException {
