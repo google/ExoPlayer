@@ -416,6 +416,16 @@ public final class DefaultAudioSink implements AudioSink {
     @C.Encoding int encoding = inputEncoding;
     boolean processingEnabled = isInputPcm && inputEncoding != C.ENCODING_PCM_FLOAT;
     canApplyPlaybackParameters = processingEnabled && !shouldConvertHighResIntPcmToFloat;
+
+    if (Util.SDK_INT < 21 && channelCount == 8 && outputChannels == null) {
+      // AudioTrack doesn't support 8 channel output before Android L. Discard the last two (side)
+      // channels to give a 6 channel stream that is supported.
+      outputChannels = new int[6];
+      for (int i = 0; i < outputChannels.length; i++) {
+        outputChannels[i] = i;
+      }
+    }
+
     if (processingEnabled) {
       trimmingAudioProcessor.setTrimFrameCount(trimStartFrames, trimEndFrames);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
@@ -433,55 +443,9 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
 
-    int channelConfig;
-    switch (channelCount) {
-      case 1:
-        channelConfig = AudioFormat.CHANNEL_OUT_MONO;
-        break;
-      case 2:
-        channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
-        break;
-      case 3:
-        channelConfig = AudioFormat.CHANNEL_OUT_STEREO | AudioFormat.CHANNEL_OUT_FRONT_CENTER;
-        break;
-      case 4:
-        channelConfig = AudioFormat.CHANNEL_OUT_QUAD;
-        break;
-      case 5:
-        channelConfig = AudioFormat.CHANNEL_OUT_QUAD | AudioFormat.CHANNEL_OUT_FRONT_CENTER;
-        break;
-      case 6:
-        channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
-        break;
-      case 7:
-        channelConfig = AudioFormat.CHANNEL_OUT_5POINT1 | AudioFormat.CHANNEL_OUT_BACK_CENTER;
-        break;
-      case 8:
-        channelConfig = C.CHANNEL_OUT_7POINT1_SURROUND;
-        break;
-      default:
-        throw new ConfigurationException("Unsupported channel count: " + channelCount);
-    }
-
-    // Workaround for overly strict channel configuration checks on nVidia Shield.
-    if (Util.SDK_INT <= 23 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER)) {
-      switch (channelCount) {
-        case 7:
-          channelConfig = C.CHANNEL_OUT_7POINT1_SURROUND;
-          break;
-        case 3:
-        case 5:
-          channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
-          break;
-        default:
-          break;
-      }
-    }
-
-    // Workaround for Nexus Player not reporting support for mono passthrough.
-    // (See [Internal: b/34268671].)
-    if (Util.SDK_INT <= 25 && "fugu".equals(Util.DEVICE) && !isInputPcm && channelCount == 1) {
-      channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
+    int channelConfig = getChannelConfig(channelCount, isInputPcm);
+    if (channelConfig == AudioFormat.CHANNEL_INVALID) {
+      throw new ConfigurationException("Unsupported channel count: " + channelCount);
     }
 
     if (!flush
@@ -1168,6 +1132,25 @@ public final class DefaultAudioSink implements AudioSink {
     return shouldConvertHighResIntPcmToFloat
         ? toFloatPcmAvailableAudioProcessors
         : toIntPcmAvailableAudioProcessors;
+  }
+
+  private static int getChannelConfig(int channelCount, boolean isInputPcm) {
+    // Workaround for overly strict channel configuration checks on nVidia Shield.
+    if (Util.SDK_INT <= 23 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER)) {
+      if (channelCount == 7) {
+        channelCount = 8;
+      } else if (channelCount == 3 || channelCount == 5) {
+        channelCount = 6;
+      }
+    }
+
+    // Workaround for Nexus Player not reporting support for mono passthrough.
+    // (See [Internal: b/34268671].)
+    if (Util.SDK_INT <= 25 && "fugu".equals(Util.DEVICE) && !isInputPcm && channelCount == 1) {
+      channelCount = 2;
+    }
+
+    return Util.getAudioTrackChannelConfig(channelCount);
   }
 
   private static int getFramesPerEncodedSample(@C.Encoding int encoding, ByteBuffer buffer) {
