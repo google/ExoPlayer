@@ -267,10 +267,9 @@ public interface MediaSource {
 
   /**
    * Returns a new {@link MediaPeriod} identified by {@code periodId}. This method may be called
-   * multiple times with the same period identifier without an intervening call to
-   * {@link #releasePeriod(MediaPeriod)}.
-   * <p>
-   * Should not be called directly from application code.
+   * multiple times without an intervening call to {@link #releasePeriod(MediaPeriod)}.
+   *
+   * <p>Should not be called directly from application code.
    *
    * @param id The identifier of the period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.

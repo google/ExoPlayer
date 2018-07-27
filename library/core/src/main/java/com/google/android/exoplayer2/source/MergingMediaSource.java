@@ -163,6 +163,12 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     }
   }
 
+  @Override
+  protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
+      Integer id, MediaPeriodId mediaPeriodId) {
+    return id == 0 ? mediaPeriodId : null;
+  }
+
   private IllegalMergeException checkTimelineMerges(Timeline timeline) {
     if (periodCount == PERIOD_COUNT_UNSET) {
       periodCount = timeline.getPeriodCount();
