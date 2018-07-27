@@ -1079,6 +1079,9 @@ public class PlayerView extends FrameLayout {
   private boolean setDrawableArtwork(Drawable drawable) {
     if(drawable != null) {
       artworkView.setImageDrawable(drawable);
+      if(contentFrame != null) {
+        contentFrame.setAspectRatio(0);
+      }
     }
     return true;
   }
