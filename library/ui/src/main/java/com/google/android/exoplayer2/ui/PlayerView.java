@@ -666,13 +666,13 @@ public class PlayerView extends FrameLayout {
    * Sets whether a buffering spinner is displayed when the player is in the buffering state. The
    * buffering spinner is not displayed by default.
    *
-   * Deprecated, use {@link #setShowBuffering(int)}
+   * @deprecated Use {@link #setShowBuffering(int)}
    *
    * @param showBuffering Whether the buffering icon is displayed
    */
   @Deprecated
   public void setShowBuffering(boolean showBuffering) {
-    setShowBuffering(showBuffering ? SHOW_BUFFERING_ALWAYS : SHOW_BUFFERING_NEVER);
+    setShowBuffering(showBuffering ? SHOW_BUFFERING_WHEN_PLAYING : SHOW_BUFFERING_NEVER);
   }
 
   /**
@@ -683,7 +683,7 @@ public class PlayerView extends FrameLayout {
    * <li>{@link #SHOW_BUFFERING_ALWAYS} displayed always when buffering
    * <li>{@link #SHOW_BUFFERING_NEVER} not displayed at all
    * <li>{@link #SHOW_BUFFERING_WHEN_PLAYING} displayed only when playing and buffering
-   * </p></ul>
+   * </ul></p>
    *
    * @param showBuffering Buffering strategy that defines when the buffering icon is displayed
    */
