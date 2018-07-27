@@ -34,9 +34,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.view.Display;
-import android.view.MotionEvent;
 import android.view.Surface;
-import android.view.View;
 import android.view.WindowManager;
 import com.google.android.exoplayer2.ui.spherical.Mesh.EyeType;
 import com.google.android.exoplayer2.util.Assertions;
@@ -87,14 +85,10 @@ public final class SphericalSurfaceView extends GLSurfaceView {
   private static final float Z_NEAR = .1f;
   private static final float Z_FAR = 100;
 
-  // Arbitrary touch speed number. This should be tweaked so the scene smoothly follows the
-  // finger or derived from DisplayMetrics.
+  // TODO Calculate this depending on surface size and field of view.
   private static final float PX_PER_DEGREES = 25;
-  // Touch input won't change the pitch beyond +/- 45 degrees. This reduces awkward situations
-  // where the touch-based pitch and gyro-based pitch interact badly near the poles.
-  private static final float MAX_PITCH_DEGREES = 45;
 
-  private static final float UPRIGHT_ROLL = (float) Math.PI;
+  /*package*/ static final float UPRIGHT_ROLL = (float) Math.PI;
 
   private final SensorManager sensorManager;
   private final @Nullable Sensor orientationSensor;
@@ -126,7 +120,7 @@ public final class SphericalSurfaceView extends GLSurfaceView {
 
     renderer = new Renderer();
 
-    TouchTracker touchTracker = new TouchTracker(renderer);
+    TouchTracker touchTracker = new TouchTracker(renderer, PX_PER_DEGREES);
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     Display display = Assertions.checkNotNull(windowManager).getDefaultDisplay();
     phoneOrientationListener = new PhoneOrientationListener(display, touchTracker, renderer);
@@ -292,96 +286,11 @@ public final class SphericalSurfaceView extends GLSurfaceView {
   }
 
   /**
-   * Basic touch input system.
-   *
-   * <p>Mixing touch input and gyro input results in a complicated UI so this should be used
-   * carefully. This touch system implements a basic (X, Y) -> (yaw, pitch) transform. This works
-   * for basic UI but fails in edge cases where the user tries to drag scene up or down. There is no
-   * good UX solution for this. The least bad solution is to disable pitch manipulation and only let
-   * the user adjust yaw. This example tries to limit the awkwardness by restricting pitch
-   * manipulation to +/- 45 degrees.
-   *
-   * <p>It is also important to get the order of operations correct. To match what users expect,
-   * touch interaction manipulates the scene by rotating the world by the yaw offset and tilting the
-   * camera by the pitch offset. If the order of operations is incorrect, the sensors & touch
-   * rotations will have strange interactions. The roll of the phone is also tracked so that the x &
-   * y are correctly mapped to yaw & pitch no matter how the user holds their phone.
-   *
-   * <p>This class doesn't handle any scrolling inertia but Android's
-   * com.google.vr.sdk.widgets.common.TouchTracker.FlingGestureListener can be used with this code
-   * for a nicer UI. An even more advanced UI would reproject the user's touch point into 3D and
-   * drag the Mesh as the user moves their finger. However, that requires quaternion interpolation
-   * and is beyond the scope of this sample.
-   */
-  // @VisibleForTesting
-  /*package*/ static class TouchTracker implements OnTouchListener {
-    // With every touch event, update the accumulated degrees offset by the new pixel amount.
-    private final PointF previousTouchPointPx = new PointF();
-    private final PointF accumulatedTouchOffsetDegrees = new PointF();
-    // The conversion from touch to yaw & pitch requires compensating for device roll. This is set
-    // on the sensor thread and read on the UI thread.
-    private volatile float roll;
-
-    private final Renderer renderer;
-
-    public TouchTracker(Renderer renderer) {
-      this.renderer = renderer;
-      roll = UPRIGHT_ROLL;
-    }
-
-    /**
-     * Converts ACTION_MOVE events to pitch & yaw events while compensating for device roll.
-     *
-     * @return true if we handled the event
-     */
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-      switch (event.getAction()) {
-        case MotionEvent.ACTION_DOWN:
-          // Initialize drag gesture.
-          previousTouchPointPx.set(event.getX(), event.getY());
-          return true;
-        case MotionEvent.ACTION_MOVE:
-          // Calculate the touch delta in screen space.
-          float touchX = (event.getX() - previousTouchPointPx.x) / PX_PER_DEGREES;
-          float touchY = (event.getY() - previousTouchPointPx.y) / PX_PER_DEGREES;
-          previousTouchPointPx.set(event.getX(), event.getY());
-
-          float r = roll; // Copy volatile state.
-          float cr = (float) Math.cos(r);
-          float sr = (float) Math.sin(r);
-          // To convert from screen space to the 3D space, we need to adjust the drag vector based
-          // on the roll of the phone. This is standard rotationMatrix(roll) * vector math but has
-          // an inverted y-axis due to the screen-space coordinates vs GL coordinates.
-          // Handle yaw.
-          accumulatedTouchOffsetDegrees.x -= cr * touchX - sr * touchY;
-          // Handle pitch and limit it to 45 degrees.
-          accumulatedTouchOffsetDegrees.y += sr * touchX + cr * touchY;
-          accumulatedTouchOffsetDegrees.y =
-              Math.max(
-                  -MAX_PITCH_DEGREES, Math.min(MAX_PITCH_DEGREES, accumulatedTouchOffsetDegrees.y));
-
-          renderer.setPitchOffset(accumulatedTouchOffsetDegrees.y);
-          renderer.setYawOffset(accumulatedTouchOffsetDegrees.x);
-          return true;
-        default:
-          return false;
-      }
-    }
-
-    @BinderThread
-    public void setRoll(float roll) {
-      // We compensate for roll by rotating in the opposite direction.
-      this.roll = -roll;
-    }
-  }
-
-  /**
    * Standard GL Renderer implementation. The notable code is the matrix multiplication in
    * onDrawFrame and updatePitchMatrix.
    */
   // @VisibleForTesting
-  /*package*/ class Renderer implements GLSurfaceView.Renderer {
+  /*package*/ class Renderer implements GLSurfaceView.Renderer, TouchTracker.Listener {
     private final SceneRenderer scene;
     private final float[] projectionMatrix = new float[16];
 
@@ -464,17 +373,12 @@ public final class SphericalSurfaceView extends GLSurfaceView {
           0);
     }
 
-    /** Set the pitch offset matrix. */
+    @Override
     @UiThread
-    public synchronized void setPitchOffset(float pitchDegrees) {
-      touchPitch = pitchDegrees;
+    public synchronized void onScrollChange(PointF scrollOffsetDegrees) {
+      touchPitch = scrollOffsetDegrees.y;
       updatePitchMatrix();
-    }
-
-    /** Set the yaw offset matrix. */
-    @UiThread
-    public synchronized void setYawOffset(float yawDegrees) {
-      Matrix.setRotateM(touchYawMatrix, 0, -yawDegrees, 0, 1, 0);
+      Matrix.setRotateM(touchYawMatrix, 0, -scrollOffsetDegrees.x, 0, 1, 0);
     }
 
     private float calculateFieldOfViewInYDirection(float aspect) {
