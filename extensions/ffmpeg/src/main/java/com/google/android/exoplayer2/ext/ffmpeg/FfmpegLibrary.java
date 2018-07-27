@@ -87,6 +87,7 @@ public final class FfmpegLibrary {
       case MimeTypes.AUDIO_AC3:
         return "ac3";
       case MimeTypes.AUDIO_E_AC3:
+      case MimeTypes.AUDIO_E_AC3_JOC:
         return "eac3";
       case MimeTypes.AUDIO_TRUEHD:
         return "truehd";
