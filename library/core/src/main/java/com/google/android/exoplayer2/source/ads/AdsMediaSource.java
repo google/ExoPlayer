@@ -47,7 +47,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** A {@link MediaSource} that inserts ads linearly with a provided content media source. */
+/**
+ * A {@link MediaSource} that inserts ads linearly with a provided content media source. This source
+ * cannot be used as a child source in a composition. It must be the top-level source used to
+ * prepare the player.
+ */
 public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   /** Factory for creating {@link MediaSource}s to play ad media. */
@@ -315,7 +319,9 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       boolean isTopLevelSource,
       @Nullable TransferListener mediaTransferListener) {
     super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
-    Assertions.checkArgument(isTopLevelSource);
+    Assertions.checkArgument(
+        isTopLevelSource,
+        "AdsMediaSource must be the top-level source used to prepare the player.");
     final ComponentListener componentListener = new ComponentListener();
     this.componentListener = componentListener;
     prepareChildSource(DUMMY_CONTENT_MEDIA_PERIOD_ID, contentMediaSource);
