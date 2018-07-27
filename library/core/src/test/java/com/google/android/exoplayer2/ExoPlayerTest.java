@@ -20,8 +20,10 @@ import static org.junit.Assert.fail;
 
 import android.support.annotation.Nullable;
 import android.view.Surface;
+import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Timeline.Window;
+import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -32,6 +34,7 @@ import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
+import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner.Builder;
 import com.google.android.exoplayer2.testutil.FakeMediaClockRenderer;
@@ -46,6 +49,7 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Clock;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2209,6 +2213,69 @@ public final class ExoPlayerTest {
             Player.STATE_BUFFERING, Player.STATE_READY, Player.STATE_IDLE, Player.STATE_IDLE)
         .inOrder();
     assertThat(eventListenerPlayWhenReady).containsExactly(true, true, true, false).inOrder();
+  }
+
+  @Test
+  public void testClippedLoopedPeriodsArePlayedFully() throws Exception {
+    long startPositionUs = 300_000;
+    long expectedDurationUs = 700_000;
+    MediaSource mediaSource =
+        new ClippingMediaSource(
+            new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), /* manifest= */ null),
+            startPositionUs,
+            startPositionUs + expectedDurationUs);
+    Clock clock = new AutoAdvancingFakeClock();
+    AtomicReference<Player> playerReference = new AtomicReference<>();
+    AtomicReference<Long> positionAtDiscontinuityMs = new AtomicReference<>();
+    AtomicReference<Long> clockAtStartMs = new AtomicReference<>();
+    AtomicReference<Long> clockAtDiscontinuityMs = new AtomicReference<>();
+    EventListener eventListener =
+        new EventListener() {
+          @Override
+          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            if (playbackState == Player.STATE_READY && clockAtStartMs.get() == null) {
+              clockAtStartMs.set(clock.elapsedRealtime());
+            }
+          }
+
+          @Override
+          public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
+            if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+              positionAtDiscontinuityMs.set(playerReference.get().getCurrentPosition());
+              clockAtDiscontinuityMs.set(clock.elapsedRealtime());
+            }
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testClippedLoopedPeriodsArePlayedFully")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    playerReference.set(player);
+                    player.addListener(eventListener);
+                  }
+                })
+            .pause()
+            .setRepeatMode(Player.REPEAT_MODE_ALL)
+            .waitForPlaybackState(Player.STATE_READY)
+            // Play until the media repeats once.
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 1)
+            .playUntilStartOfWindow(/* windowIndex= */ 0)
+            .setRepeatMode(Player.REPEAT_MODE_OFF)
+            .play()
+            .build();
+    new ExoPlayerTestRunner.Builder()
+        .setClock(clock)
+        .setMediaSource(mediaSource)
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(positionAtDiscontinuityMs.get()).isAtLeast(0L);
+    assertThat(clockAtDiscontinuityMs.get() - clockAtStartMs.get())
+        .isAtLeast(C.usToMs(expectedDurationUs));
   }
 
   // Internal methods.

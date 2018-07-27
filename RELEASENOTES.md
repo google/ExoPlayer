@@ -77,6 +77,8 @@
   `MediaCodecRenderer`, and provide an (optional) `MediaCodecSelector` that
   falls back to less preferred decoders like `MediaCodec.createDecoderByType`
   ([#273](https://github.com/google/ExoPlayer/issues/273)).
+* Fix where transitions to clipped media sources happened too early
+  ([#4583](https://github.com/google/ExoPlayer/issues/4583)).
 
 ### 2.8.3 ###
 
