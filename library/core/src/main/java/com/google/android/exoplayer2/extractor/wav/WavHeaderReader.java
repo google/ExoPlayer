@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.wav;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.WavUtil;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -28,17 +29,6 @@ import java.io.IOException;
 /* package */ final class WavHeaderReader {
 
   private static final String TAG = "WavHeaderReader";
-
-  /** Integer PCM audio data. */
-  private static final int TYPE_PCM = 0x0001;
-  /** Float PCM audio data. */
-  private static final int TYPE_FLOAT = 0x0003;
-  /** 8-bit ITU-T G.711 A-law audio data. */
-  private static final int TYPE_A_LAW = 0x0006;
-  /** 8-bit ITU-T G.711 mu-law audio data. */
-  private static final int TYPE_MU_LAW = 0x0007;
-  /** Extended WAVE format. */
-  private static final int TYPE_WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
 
   /**
    * Peeks and returns a {@code WavHeader}.
@@ -58,21 +48,21 @@ import java.io.IOException;
 
     // Attempt to read the RIFF chunk.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
-    if (chunkHeader.id != Util.getIntegerCodeForString("RIFF")) {
+    if (chunkHeader.id != WavUtil.RIFF_FOURCC) {
       return null;
     }
 
     input.peekFully(scratch.data, 0, 4);
     scratch.setPosition(0);
     int riffFormat = scratch.readInt();
-    if (riffFormat != Util.getIntegerCodeForString("WAVE")) {
+    if (riffFormat != WavUtil.WAVE_FOURCC) {
       Log.e(TAG, "Unsupported RIFF format: " + riffFormat);
       return null;
     }
 
     // Skip chunks until we find the format chunk.
     chunkHeader = ChunkHeader.peek(input, scratch);
-    while (chunkHeader.id != Util.getIntegerCodeForString("fmt ")) {
+    while (chunkHeader.id != WavUtil.FMT_FOURCC) {
       input.advancePeekPosition((int) chunkHeader.size);
       chunkHeader = ChunkHeader.peek(input, scratch);
     }
@@ -93,28 +83,9 @@ import java.io.IOException;
           + blockAlignment);
     }
 
-    @C.PcmEncoding int encoding;
-    switch (type) {
-      case TYPE_PCM:
-      case TYPE_WAVE_FORMAT_EXTENSIBLE:
-        encoding = Util.getPcmEncoding(bitsPerSample);
-        break;
-      case TYPE_FLOAT:
-        encoding = bitsPerSample == 32 ? C.ENCODING_PCM_FLOAT : C.ENCODING_INVALID;
-        break;
-      case TYPE_A_LAW:
-        encoding = C.ENCODING_PCM_A_LAW;
-        break;
-      case TYPE_MU_LAW:
-        encoding = C.ENCODING_PCM_MU_LAW;
-        break;
-      default:
-        Log.e(TAG, "Unsupported WAV format type: " + type);
-        return null;
-    }
-
+    @C.PcmEncoding int encoding = WavUtil.getEncodingForType(type, bitsPerSample);
     if (encoding == C.ENCODING_INVALID) {
-      Log.e(TAG, "Unsupported WAV bit depth " + bitsPerSample + " for type " + type);
+      Log.e(TAG, "Unsupported WAV format: " + bitsPerSample + " bit/sample, type " + type);
       return null;
     }
 
