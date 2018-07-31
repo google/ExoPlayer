@@ -1146,7 +1146,7 @@ public final class DefaultAudioSink implements AudioSink {
 
     // Workaround for Nexus Player not reporting support for mono passthrough.
     // (See [Internal: b/34268671].)
-    if (Util.SDK_INT <= 25 && "fugu".equals(Util.DEVICE) && !isInputPcm && channelCount == 1) {
+    if (Util.SDK_INT <= 26 && "fugu".equals(Util.DEVICE) && !isInputPcm && channelCount == 1) {
       channelCount = 2;
     }
 
