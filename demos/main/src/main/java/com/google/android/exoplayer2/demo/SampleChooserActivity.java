@@ -249,6 +249,7 @@ public class SampleChooserActivity extends Activity
       ArrayList<UriSample> playlistSamples = null;
       String adTagUri = null;
       String abrAlgorithm = null;
+      String sphericalStereoMode = null;
 
       reader.beginObject();
       while (reader.hasNext()) {
@@ -309,6 +310,11 @@ public class SampleChooserActivity extends Activity
                 !insidePlaylist, "Invalid attribute on nested item: abr_algorithm");
             abrAlgorithm = reader.nextString();
             break;
+          case "spherical_stereo_mode":
+            Assertions.checkState(
+                !insidePlaylist, "Invalid attribute on nested item: spherical_stereo_mode");
+            sphericalStereoMode = reader.nextString();
+            break;
           default:
             throw new ParserException("Unsupported attribute name: " + name);
         }
@@ -325,7 +331,14 @@ public class SampleChooserActivity extends Activity
             sampleName, preferExtensionDecoders, abrAlgorithm, drmInfo, playlistSamplesArray);
       } else {
         return new UriSample(
-            sampleName, preferExtensionDecoders, abrAlgorithm, drmInfo, uri, extension, adTagUri);
+            sampleName,
+            preferExtensionDecoders,
+            abrAlgorithm,
+            drmInfo,
+            uri,
+            extension,
+            adTagUri,
+            sphericalStereoMode);
       }
     }
 
@@ -512,6 +525,7 @@ public class SampleChooserActivity extends Activity
     public final Uri uri;
     public final String extension;
     public final String adTagUri;
+    public final String sphericalStereoMode;
 
     public UriSample(
         String name,
@@ -520,11 +534,13 @@ public class SampleChooserActivity extends Activity
         DrmInfo drmInfo,
         Uri uri,
         String extension,
-        String adTagUri) {
+        String adTagUri,
+        String sphericalStereoMode) {
       super(name, preferExtensionDecoders, abrAlgorithm, drmInfo);
       this.uri = uri;
       this.extension = extension;
       this.adTagUri = adTagUri;
+      this.sphericalStereoMode = sphericalStereoMode;
     }
 
     @Override
@@ -533,6 +549,7 @@ public class SampleChooserActivity extends Activity
           .setData(uri)
           .putExtra(PlayerActivity.EXTENSION_EXTRA, extension)
           .putExtra(PlayerActivity.AD_TAG_URI_EXTRA, adTagUri)
+          .putExtra(PlayerActivity.SPHERICAL_STEREO_MODE_EXTRA, sphericalStereoMode)
           .setAction(PlayerActivity.ACTION_VIEW);
     }
 

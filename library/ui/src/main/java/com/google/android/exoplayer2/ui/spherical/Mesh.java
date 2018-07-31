@@ -32,7 +32,7 @@ import java.nio.FloatBuffer;
 /*package*/ final class Mesh {
 
   /** Defines the constants identifying the current eye type. */
-  public interface EyeType {
+  /*package*/ interface EyeType {
     /** Single eye in monocular rendering. */
     int MONOCULAR = 0;
 
@@ -42,19 +42,6 @@ import java.nio.FloatBuffer;
     /** The right eye in stereo rendering. */
     int RIGHT = 2;
   }
-
-  /** Standard media where a single camera frame takes up the entire media frame. */
-  public static final int MEDIA_MONOSCOPIC = 0;
-  /**
-   * Stereo media where the left & right halves of the frame are rendered for the left & right eyes,
-   * respectively. If the stereo media is rendered in a non-VR display, only the left half is used.
-   */
-  public static final int MEDIA_STEREO_LEFT_RIGHT = 1;
-  /**
-   * Stereo media where the top & bottom halves of the frame are rendered for the left & right eyes,
-   * respectively. If the stereo media is rendered in a non-VR display, only the top half is used.
-   */
-  public static final int MEDIA_STEREO_TOP_BOTTOM = 2;
 
   // Basic vertex & fragment shaders to render a mesh with 3D position & 2D texture data.
   private static final String[] VERTEX_SHADER_CODE =
@@ -121,7 +108,7 @@ import java.nio.FloatBuffer;
    *     (0, 180].
    * @param horizontalFovDegrees Total longitudinal degrees that are covered by the sphere.Must be
    *     in (0, 360].
-   * @param mediaFormat A MEDIA_* value.
+   * @param stereoMode A {@link C.StereoMode} value.
    * @return Unintialized Mesh.
    */
   public static Mesh createUvSphere(
@@ -130,10 +117,10 @@ import java.nio.FloatBuffer;
       int longitudes,
       float verticalFovDegrees,
       float horizontalFovDegrees,
-      int mediaFormat) {
+      @C.StereoMode int stereoMode) {
     return new Mesh(
         createUvSphereVertexData(
-            radius, latitudes, longitudes, verticalFovDegrees, horizontalFovDegrees, mediaFormat));
+            radius, latitudes, longitudes, verticalFovDegrees, horizontalFovDegrees, stereoMode));
   }
 
   /** Used by static constructors. */
@@ -219,7 +206,7 @@ import java.nio.FloatBuffer;
       int longitudes,
       float verticalFovDegrees,
       float horizontalFovDegrees,
-      int mediaFormat) {
+      @C.StereoMode int stereoMode) {
     if (radius <= 0
         || latitudes < 1
         || longitudes < 1
@@ -258,12 +245,12 @@ import java.nio.FloatBuffer;
           float theta = quadWidthRads * i + (float) Math.PI - horizontalFovRads / 2;
 
           // Set vertex position data as Cartesian coordinates.
-          vertexData[offset + 0] = -(float) (radius * Math.sin(theta) * Math.cos(phi));
+          vertexData[offset] = -(float) (radius * Math.sin(theta) * Math.cos(phi));
           vertexData[offset + 1] = (float) (radius * Math.sin(phi));
           vertexData[offset + 2] = (float) (radius * Math.cos(theta) * Math.cos(phi));
 
           // Set vertex texture.x data.
-          if (mediaFormat == MEDIA_STEREO_LEFT_RIGHT) {
+          if (stereoMode == C.STEREO_MODE_LEFT_RIGHT) {
             // For left-right media, each eye's x coordinate points to the left or right half of the
             // texture.
             vertexData[offset + 3] = (i * quadWidthRads / horizontalFovRads) / 2;
@@ -275,7 +262,7 @@ import java.nio.FloatBuffer;
           }
 
           // Set vertex texture.y data. The "1 - ..." is due to Canvas vs GL coords.
-          if (mediaFormat == MEDIA_STEREO_TOP_BOTTOM) {
+          if (stereoMode == C.STEREO_MODE_TOP_BOTTOM) {
             // For top-bottom media, each eye's y coordinate points to the top or bottom half of the
             // texture.
             vertexData[offset + 4] = 1 - (((j + k) * quadHeightRads / verticalFovRads) / 2 + .5f);

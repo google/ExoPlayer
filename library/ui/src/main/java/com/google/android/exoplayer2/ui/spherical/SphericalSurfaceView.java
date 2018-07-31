@@ -36,6 +36,7 @@ import android.util.AttributeSet;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ui.spherical.Mesh.EyeType;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -129,6 +130,20 @@ public final class SphericalSurfaceView extends GLSurfaceView {
     setRenderer(renderer);
     setOnTouchListener(touchTracker);
 
+    setStereoMode(C.STEREO_MODE_MONO);
+  }
+
+  /**
+   * Sets stereo mode of the media to be played.
+   *
+   * @param stereoMode One of {@link C#STEREO_MODE_MONO}, {@link C#STEREO_MODE_TOP_BOTTOM}, {@link
+   *     C#STEREO_MODE_LEFT_RIGHT}.
+   */
+  public void setStereoMode(@C.StereoMode int stereoMode) {
+    Assertions.checkState(
+        stereoMode == C.STEREO_MODE_MONO
+            || stereoMode == C.STEREO_MODE_TOP_BOTTOM
+            || stereoMode == C.STEREO_MODE_LEFT_RIGHT);
     Mesh mesh =
         Mesh.createUvSphere(
             SPHERE_RADIUS_METERS,
@@ -136,7 +151,7 @@ public final class SphericalSurfaceView extends GLSurfaceView {
             DEFAULT_SPHERE_COLUMNS,
             DEFAULT_SPHERE_VERTICAL_DEGREES,
             DEFAULT_SPHERE_HORIZONTAL_DEGREES,
-            Mesh.MEDIA_MONOSCOPIC);
+            stereoMode);
     queueEvent(() -> renderer.scene.setMesh(mesh));
   }
 

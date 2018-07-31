@@ -23,6 +23,8 @@
 
   <string name="error_unrecognized_abr_algorithm">Unrecognized ABR algorithm</string>
 
+  <string name="error_unrecognized_stereo_mode">Unrecognized stereo mode</string>
+
   <string name="error_drm_not_supported">Protected content not supported on API levels below 18</string>
 
   <string name="error_drm_unsupported_scheme">This device does not support the required DRM scheme</string>

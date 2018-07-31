@@ -73,6 +73,7 @@ import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.TrackSelectionView;
+import com.google.android.exoplayer2.ui.spherical.SphericalSurfaceView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
@@ -108,6 +109,11 @@ public class PlayerActivity extends Activity
   public static final String ABR_ALGORITHM_EXTRA = "abr_algorithm";
   private static final String ABR_ALGORITHM_DEFAULT = "default";
   private static final String ABR_ALGORITHM_RANDOM = "random";
+
+  public static final String SPHERICAL_STEREO_MODE_EXTRA = "spherical_stereo_mode";
+  public static final String SPHERICAL_STEREO_MODE_MONO = "mono";
+  public static final String SPHERICAL_STEREO_MODE_TOP_BOTTOM = "top_bottom";
+  public static final String SPHERICAL_STEREO_MODE_LEFT_RIGHT = "left_right";
 
   // For backwards compatibility only.
   private static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
@@ -151,6 +157,10 @@ public class PlayerActivity extends Activity
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
+    String sphericalStereoMode = getIntent().getStringExtra(SPHERICAL_STEREO_MODE_EXTRA);
+    if (sphericalStereoMode != null) {
+      setTheme(R.style.PlayerTheme_Spherical);
+    }
     super.onCreate(savedInstanceState);
     dataSourceFactory = buildDataSourceFactory();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
@@ -167,6 +177,21 @@ public class PlayerActivity extends Activity
     playerView.setControllerVisibilityListener(this);
     playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
     playerView.requestFocus();
+    if (sphericalStereoMode != null) {
+      int stereoMode;
+      if (SPHERICAL_STEREO_MODE_MONO.equals(sphericalStereoMode)) {
+        stereoMode = C.STEREO_MODE_MONO;
+      } else if (SPHERICAL_STEREO_MODE_TOP_BOTTOM.equals(sphericalStereoMode)) {
+        stereoMode = C.STEREO_MODE_TOP_BOTTOM;
+      } else if (SPHERICAL_STEREO_MODE_LEFT_RIGHT.equals(sphericalStereoMode)) {
+        stereoMode = C.STEREO_MODE_LEFT_RIGHT;
+      } else {
+        showToast(R.string.error_unrecognized_stereo_mode);
+        finish();
+        return;
+      }
+      ((SphericalSurfaceView) playerView.getVideoSurfaceView()).setStereoMode(stereoMode);
+    }
 
     if (savedInstanceState != null) {
       trackSelectorParameters = savedInstanceState.getParcelable(KEY_TRACK_SELECTOR_PARAMETERS);
