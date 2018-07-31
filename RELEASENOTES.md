@@ -16,6 +16,8 @@
   ([#4029](https://github.com/google/ExoPlayer/issues/4029)).
 * DRM: Allow DrmInitData to carry a license server URL
   ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
+* MPEG-TS: Fix bug preventing SCTE-35 cues from being output
+  ([#4573](https://github.com/google/ExoPlayer/issues/4573)).
 * Expose all internal ID3 data stored in MP4 udta boxes, and switch from using
   CommentFrame to InternalFrame for frames with gapless metadata in MP4.
 * Add `PlayerView.isControllerVisible`
