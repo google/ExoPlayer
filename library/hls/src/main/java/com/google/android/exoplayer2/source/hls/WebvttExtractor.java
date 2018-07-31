@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
  * of the first cue header. Empty WebVTT files are not passed through, since it's not possible to
  * derive a sample timestamp in this case.
  */
-/* package */ final class WebvttExtractor implements Extractor {
+public final class WebvttExtractor implements Extractor {
 
   private static final Pattern LOCAL_TIMESTAMP = Pattern.compile("LOCAL:([^,]+)");
   private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:(\\d+)");
