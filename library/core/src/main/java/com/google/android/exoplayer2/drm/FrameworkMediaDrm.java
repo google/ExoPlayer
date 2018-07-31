@@ -94,20 +94,26 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     if (Util.SDK_INT < 23) {
       throw new UnsupportedOperationException();
     }
-    
-    mediaDrm.setOnKeyStatusChangeListener(listener == null ? null
-        : new MediaDrm.OnKeyStatusChangeListener() {
-          @Override
-          public void onKeyStatusChange(@NonNull MediaDrm md, @NonNull byte[] sessionId,
-              @NonNull List<MediaDrm.KeyStatus> keyInfo, boolean hasNewUsableKey) {
-            List<KeyStatus> exoKeyInfo = new ArrayList<>();
-            for (MediaDrm.KeyStatus keyStatus : keyInfo) {
-              exoKeyInfo.add(new DefaultKeyStatus(keyStatus.getStatusCode(), keyStatus.getKeyId()));
-            }
-            listener.onKeyStatusChange(FrameworkMediaDrm.this, sessionId, exoKeyInfo,
-                hasNewUsableKey);
-          }
-        }, null);
+
+    mediaDrm.setOnKeyStatusChangeListener(
+        listener == null
+            ? null
+            : new MediaDrm.OnKeyStatusChangeListener() {
+              @Override
+              public void onKeyStatusChange(
+                  @NonNull MediaDrm md,
+                  @NonNull byte[] sessionId,
+                  @NonNull List<MediaDrm.KeyStatus> keyInfo,
+                  boolean hasNewUsableKey) {
+                List<KeyStatus> exoKeyInfo = new ArrayList<>();
+                for (MediaDrm.KeyStatus keyStatus : keyInfo) {
+                  exoKeyInfo.add(new KeyStatus(keyStatus.getStatusCode(), keyStatus.getKeyId()));
+                }
+                listener.onKeyStatusChange(
+                    FrameworkMediaDrm.this, sessionId, exoKeyInfo, hasNewUsableKey);
+              }
+            },
+        null);
   }
 
   @Override
@@ -121,8 +127,13 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
-  public KeyRequest getKeyRequest(byte[] scope, byte[] init, String mimeType, int keyType,
-      HashMap<String, String> optionalParameters) throws NotProvisionedException {
+  public KeyRequest getKeyRequest(
+      byte[] scope,
+      byte[] init,
+      String mimeType,
+      int keyType,
+      HashMap<String, String> optionalParameters)
+      throws NotProvisionedException {
 
     // Prior to L the Widevine CDM required data to be extracted from the PSSH atom. Some Amazon
     // devices also required data to be extracted from the PSSH atom for PlayReady.
@@ -155,7 +166,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
       requestData = ClearKeyUtil.adjustRequestData(requestData);
     }
 
-    return new DefaultKeyRequest(requestData, request.getDefaultUrl());
+    return new KeyRequest(requestData, request.getDefaultUrl());
   }
 
   @Override
@@ -172,7 +183,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   @Override
   public ProvisionRequest getProvisionRequest() {
     final MediaDrm.ProvisionRequest request = mediaDrm.getProvisionRequest();
-    return new DefaultProvisionRequest(request.getData(), request.getDefaultUrl());
+    return new ProvisionRequest(request.getData(), request.getDefaultUrl());
   }
 
   @Override
