@@ -18,6 +18,9 @@
     map.
   * Add support for mu-law and A-law PCM with the ffmpeg extension
     ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
+  * Increase `AudioTrack` buffer sizes to the theoretical maximum required for
+    each encoding for passthrough playbacks
+    ([#3803](https://github.com/google/ExoPlayer/issues/3803)).
 * Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
   creating a `CacheDataSource`.
 * Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend
