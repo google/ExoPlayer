@@ -64,6 +64,10 @@ import java.io.IOException;
     return isDurationRead;
   }
 
+  public TimestampAdjuster getScrTimestampAdjuster() {
+    return scrTimestampAdjuster;
+  }
+
   /**
    * Reads a PS duration from the input.
    *
@@ -105,6 +109,25 @@ import java.io.IOException;
     return durationUs;
   }
 
+  /**
+   * Returns the SCR value read from the next pack in the stream, given the buffer at the pack
+   * header start position (just behind the pack start code).
+   */
+  public static long readScrValueFromPack(ParsableByteArray packetBuffer) {
+    int originalPosition = packetBuffer.getPosition();
+    if (packetBuffer.bytesLeft() < 9) {
+      // We require at 9 bytes for pack header to read scr value
+      return C.TIME_UNSET;
+    }
+    byte[] scrBytes = new byte[9];
+    packetBuffer.readBytes(scrBytes, /* offset= */ 0, scrBytes.length);
+    packetBuffer.setPosition(originalPosition);
+    if (!checkMarkerBits(scrBytes)) {
+      return C.TIME_UNSET;
+    }
+    return readScrValueFromPackHeader(scrBytes);
+  }
+
   private int finishReadDuration(ExtractorInput input) {
     isDurationRead = true;
     input.resetPeekPosition();
@@ -135,9 +158,10 @@ import java.io.IOException;
     for (int searchPosition = searchStartPosition;
         searchPosition < searchEndPosition - 3;
         searchPosition++) {
-      int nextStartCode = peakIntAtPosition(packetBuffer.data, searchPosition);
+      int nextStartCode = peekIntAtPosition(packetBuffer.data, searchPosition);
       if (nextStartCode == PsExtractor.PACK_START_CODE) {
-        long scrValue = readScrValueFromPack(packetBuffer, searchPosition + 4);
+        packetBuffer.setPosition(searchPosition + 4);
+        long scrValue = readScrValueFromPack(packetBuffer);
         if (scrValue != C.TIME_UNSET) {
           return scrValue;
         }
@@ -171,9 +195,10 @@ import java.io.IOException;
     for (int searchPosition = searchEndPosition - 4;
         searchPosition >= searchStartPosition;
         searchPosition--) {
-      int nextStartCode = peakIntAtPosition(packetBuffer.data, searchPosition);
+      int nextStartCode = peekIntAtPosition(packetBuffer.data, searchPosition);
       if (nextStartCode == PsExtractor.PACK_START_CODE) {
-        long scrValue = readScrValueFromPack(packetBuffer, searchPosition + 4);
+        packetBuffer.setPosition(searchPosition + 4);
+        long scrValue = readScrValueFromPack(packetBuffer);
         if (scrValue != C.TIME_UNSET) {
           return scrValue;
         }
@@ -182,28 +207,14 @@ import java.io.IOException;
     return C.TIME_UNSET;
   }
 
-  private int peakIntAtPosition(byte[] data, int position) {
+  private int peekIntAtPosition(byte[] data, int position) {
     return (data[position] & 0xFF) << 24
         | (data[position + 1] & 0xFF) << 16
         | (data[position + 2] & 0xFF) << 8
         | (data[position + 3] & 0xFF);
   }
 
-  private long readScrValueFromPack(ParsableByteArray packetBuffer, int packHeaderStartPosition) {
-    packetBuffer.setPosition(packHeaderStartPosition);
-    if (packetBuffer.bytesLeft() < 9) {
-      // We require at 9 bytes for pack header to read scr value
-      return C.TIME_UNSET;
-    }
-    byte[] scrBytes = new byte[9];
-    packetBuffer.readBytes(scrBytes, /* offset= */ 0, scrBytes.length);
-    if (!checkMarkerBits(scrBytes)) {
-      return C.TIME_UNSET;
-    }
-    return readScrValueFromPackHeader(scrBytes);
-  }
-
-  private boolean checkMarkerBits(byte[] scrBytes) {
+  private static boolean checkMarkerBits(byte[] scrBytes) {
     // Verify the 01xxx1xx marker on the 0th byte
     if ((scrBytes[0] & 0xC4) != 0x44) {
       return false;
