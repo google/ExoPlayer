@@ -1551,7 +1551,7 @@ public final class MatroskaExtractor implements Extractor {
       if (!foundSyncframe) {
         input.peekFully(syncframePrefix, 0, Ac3Util.TRUEHD_SYNCFRAME_PREFIX_LENGTH);
         input.resetPeekPosition();
-        if ((Ac3Util.parseTrueHdSyncframeAudioSampleCount(syncframePrefix) == 0)) {
+        if (Ac3Util.parseTrueHdSyncframeAudioSampleCount(syncframePrefix) == 0) {
           return;
         }
         foundSyncframe = true;
