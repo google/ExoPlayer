@@ -26,6 +26,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -465,29 +466,22 @@ public final class DefaultAudioSink implements AudioSink {
     outputEncoding = encoding;
     outputPcmFrameSize =
         isInputPcm ? Util.getPcmFrameSize(outputEncoding, channelCount) : C.LENGTH_UNSET;
-    if (specifiedBufferSize != 0) {
-      bufferSize = specifiedBufferSize;
-    } else if (isInputPcm) {
-      int minBufferSize = AudioTrack.getMinBufferSize(sampleRate, channelConfig, outputEncoding);
+    bufferSize = specifiedBufferSize != 0 ? specifiedBufferSize : getDefaultBufferSize();
+  }
+
+  private int getDefaultBufferSize() {
+    if (isInputPcm) {
+      int minBufferSize =
+          AudioTrack.getMinBufferSize(outputSampleRate, outputChannelConfig, outputEncoding);
       Assertions.checkState(minBufferSize != ERROR_BAD_VALUE);
       int multipliedBufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR;
       int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * outputPcmFrameSize;
       int maxAppBufferSize = (int) Math.max(minBufferSize,
           durationUsToFrames(MAX_BUFFER_DURATION_US) * outputPcmFrameSize);
-      bufferSize = Util.constrainValue(multipliedBufferSize, minAppBufferSize, maxAppBufferSize);
+      return Util.constrainValue(multipliedBufferSize, minAppBufferSize, maxAppBufferSize);
     } else {
-      // TODO: Set the minimum buffer size using getMinBufferSize when it takes the encoding into
-      // account. [Internal: b/25181305]
-      if (outputEncoding == C.ENCODING_AC3 || outputEncoding == C.ENCODING_E_AC3) {
-        // AC-3 allows bitrates up to 640 kbit/s.
-        bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 80 * 1024 / C.MICROS_PER_SECOND);
-      } else if (outputEncoding == C.ENCODING_DTS) {
-        // DTS allows an 'open' bitrate, but we assume the maximum listed value: 1536 kbit/s.
-        bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 192 * 1024 / C.MICROS_PER_SECOND);
-      } else /* outputEncoding == C.ENCODING_DTS_HD || outputEncoding == C.ENCODING_DOLBY_TRUEHD*/ {
-        // HD passthrough requires a larger buffer to avoid underrun.
-        bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 192 * 6 * 1024 / C.MICROS_PER_SECOND);
-      }
+      int rate = getMaximumEncodedRateBytesPerSecond(outputEncoding);
+      return (int) (PASSTHROUGH_BUFFER_DURATION_US * rate / C.MICROS_PER_SECOND);
     }
   }
 
@@ -1151,6 +1145,33 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     return Util.getAudioTrackChannelConfig(channelCount);
+  }
+
+  private static int getMaximumEncodedRateBytesPerSecond(@C.Encoding int encoding) {
+    switch (encoding) {
+      case C.ENCODING_AC3:
+        return 640 * 1000 / 8;
+      case C.ENCODING_E_AC3:
+        return 6144 * 1000 / 8;
+      case C.ENCODING_DTS:
+        // DTS allows an 'open' bitrate, but we assume the maximum listed value: 1536 kbit/s.
+        return 1536 * 1000 / 8;
+      case C.ENCODING_DTS_HD:
+        return 18000 * 1000 / 8;
+      case C.ENCODING_DOLBY_TRUEHD:
+        return 24500 * 1000 / 8;
+      case C.ENCODING_INVALID:
+      case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_PCM_24BIT:
+      case C.ENCODING_PCM_32BIT:
+      case C.ENCODING_PCM_8BIT:
+      case C.ENCODING_PCM_A_LAW:
+      case C.ENCODING_PCM_FLOAT:
+      case C.ENCODING_PCM_MU_LAW:
+      case Format.NO_VALUE:
+      default:
+        throw new IllegalArgumentException();
+    }
   }
 
   private static int getFramesPerEncodedSample(@C.Encoding int encoding, ByteBuffer buffer) {
