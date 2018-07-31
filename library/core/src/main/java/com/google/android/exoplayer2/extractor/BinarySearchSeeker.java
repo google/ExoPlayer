@@ -72,14 +72,6 @@ public abstract class BinarySearchSeeker {
     TimestampSearchResult searchForTimestamp(
         ExtractorInput input, long targetTimestamp, OutputFrameHolder outputFrameHolder)
         throws IOException, InterruptedException;
-
-    /**
-     * The range of bytes from the current input position from which to search for the target
-     * timestamp. Uses {@link C#LENGTH_UNSET} to signal that there is no limit for the search range.
-     *
-     * @see #searchForTimestamp(ExtractorInput, long, OutputFrameHolder)
-     */
-    int getTimestampSearchBytesRange();
   }
 
   /**
@@ -95,6 +87,18 @@ public abstract class BinarySearchSeeker {
     public OutputFrameHolder(ByteBuffer outputByteBuffer) {
       this.timeUs = 0;
       this.byteBuffer = outputByteBuffer;
+    }
+  }
+
+  /**
+   * A {@link SeekTimestampConverter} implementation that returns the seek time itself as the
+   * timestamp for a seek time position.
+   */
+  public static final class DefaultSeekTimestampConverter implements SeekTimestampConverter {
+
+    @Override
+    public long timeUsToTargetTime(long timeUs) {
+      return timeUs;
     }
   }
 
@@ -564,18 +568,6 @@ public abstract class BinarySearchSeeker {
     /** @see SeekTimestampConverter#timeUsToTargetTime(long) */
     public long timeUsToTargetTime(long timeUs) {
       return seekTimestampConverter.timeUsToTargetTime(timeUs);
-    }
-  }
-
-  /**
-   * A {@link SeekTimestampConverter} implementation that returns the seek time itself as the
-   * timestamp for a seek time position.
-   */
-  private static final class DefaultSeekTimestampConverter implements SeekTimestampConverter {
-
-    @Override
-    public long timeUsToTargetTime(long timeUs) {
-      return timeUs;
     }
   }
 }

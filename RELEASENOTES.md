@@ -9,7 +9,7 @@
     ([#2565](https://github.com/google/ExoPlayer/issues/2565)).
   * Fix bug preventing SCTE-35 cues from being output
     ([#4573](https://github.com/google/ExoPlayer/issues/4573)).
-* MPEG-PS: Support reading duration from MPEG-PS Streams
+* MPEG-PS: Support reading duration and seeking for MPEG-PS Streams
   ([#4476](https://github.com/google/ExoPlayer/issues/4476)).
 * MediaSession extension:
   * Allow apps to set custom errors.
