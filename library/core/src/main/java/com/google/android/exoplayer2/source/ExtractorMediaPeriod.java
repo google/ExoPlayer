@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
@@ -79,7 +80,7 @@ import java.util.Arrays;
 
   private final Uri uri;
   private final DataSource dataSource;
-  private final int minLoadableRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
   private final Listener listener;
   private final Allocator allocator;
@@ -98,7 +99,7 @@ import java.util.Arrays;
   private int[] sampleQueueTrackIds;
   private boolean sampleQueuesBuilt;
   private boolean prepared;
-  private int actualMinLoadableRetryCount;
+  private int dataType;
 
   private boolean seenFirstTrackSelection;
   private boolean notifyDiscontinuity;
@@ -124,7 +125,7 @@ import java.util.Arrays;
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource The data source to read the media.
    * @param extractors The extractors to use to read the data source.
-   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
+   * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
    * @param eventDispatcher A dispatcher to notify of events.
    * @param listener A listener to notify when information about the period changes.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
@@ -137,7 +138,7 @@ import java.util.Arrays;
       Uri uri,
       DataSource dataSource,
       Extractor[] extractors,
-      int minLoadableRetryCount,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       Listener listener,
       Allocator allocator,
@@ -145,7 +146,7 @@ import java.util.Arrays;
       int continueLoadingCheckIntervalBytes) {
     this.uri = uri;
     this.dataSource = dataSource;
-    this.minLoadableRetryCount = minLoadableRetryCount;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
     this.listener = listener;
     this.allocator = allocator;
@@ -154,31 +155,16 @@ import java.util.Arrays;
     loader = new Loader("Loader:ExtractorMediaPeriod");
     extractorHolder = new ExtractorHolder(extractors, this);
     loadCondition = new ConditionVariable();
-    maybeFinishPrepareRunnable = new Runnable() {
-      @Override
-      public void run() {
-        maybeFinishPrepare();
-      }
-    };
-    onContinueLoadingRequestedRunnable = new Runnable() {
-      @Override
-      public void run() {
-        if (!released) {
-          callback.onContinueLoadingRequested(ExtractorMediaPeriod.this);
-        }
-      }
-    };
+    maybeFinishPrepareRunnable = this::maybeFinishPrepare;
+    onContinueLoadingRequestedRunnable =
+        () -> callback.onContinueLoadingRequested(ExtractorMediaPeriod.this);
     handler = new Handler();
     sampleQueueTrackIds = new int[0];
     sampleQueues = new SampleQueue[0];
     pendingResetPositionUs = C.TIME_UNSET;
     length = C.LENGTH_UNSET;
     durationUs = C.TIME_UNSET;
-    // Assume on-demand for MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA, until prepared.
-    actualMinLoadableRetryCount =
-        minLoadableRetryCount == ExtractorMediaSource.MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
-        ? ExtractorMediaSource.DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND
-        : minLoadableRetryCount;
+    dataType = C.DATA_TYPE_MEDIA;
     eventDispatcher.mediaPeriodCreated();
   }
 
@@ -404,7 +390,7 @@ import java.util.Arrays;
   }
 
   /* package */ void maybeThrowError() throws IOException {
-    loader.maybeThrowError(actualMinLoadableRetryCount);
+    loader.maybeThrowError(loadErrorHandlingPolicy.getMinimumLoadableRetryCount(dataType));
   }
 
   /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer,
@@ -543,19 +529,20 @@ import java.util.Arrays;
       IOException error,
       int errorCount) {
     copyLengthFromLoader(loadable);
-    LoadErrorAction retryAction;
-    if (isLoadableExceptionFatal(error)) {
-      retryAction = Loader.DONT_RETRY_FATAL;
-    } else {
+    LoadErrorAction loadErrorAction;
+    long retryDelayMs =
+        loadErrorHandlingPolicy.getRetryDelayMsFor(dataType, durationUs, error, errorCount);
+    if (retryDelayMs == C.TIME_UNSET) {
+      loadErrorAction = Loader.DONT_RETRY_FATAL;
+    } else /* the load should be retried */ {
       int extractedSamplesCount = getExtractedSamplesCount();
       boolean madeProgress = extractedSamplesCount > extractedSamplesCountAtStartOfLoad;
-      retryAction =
+      loadErrorAction =
           configureRetry(loadable, extractedSamplesCount)
-              ? (madeProgress ? Loader.RETRY_RESET_ERROR_COUNT : Loader.RETRY)
+              ? Loader.createRetryAction(/* resetErrorCount= */ madeProgress, retryDelayMs)
               : Loader.DONT_RETRY;
     }
-    boolean wasCanceled =
-        retryAction == Loader.DONT_RETRY || retryAction == Loader.DONT_RETRY_FATAL;
+
     eventDispatcher.loadError(
         loadable.dataSpec,
         loadable.dataSource.getLastOpenedUri(),
@@ -570,8 +557,8 @@ import java.util.Arrays;
         loadDurationMs,
         loadable.dataSource.getBytesRead(),
         error,
-        wasCanceled);
-    return retryAction;
+        !loadErrorAction.isRetry());
+    return loadErrorAction;
   }
 
   // ExtractorOutput implementation. Called by the loading thread.
@@ -639,10 +626,10 @@ import java.util.Arrays;
       haveAudioVideoTracks |= isAudioVideo;
     }
     tracks = new TrackGroupArray(trackArray);
-    if (minLoadableRetryCount == ExtractorMediaSource.MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA
-        && length == C.LENGTH_UNSET && seekMap.getDurationUs() == C.TIME_UNSET) {
-      actualMinLoadableRetryCount = ExtractorMediaSource.DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE;
-    }
+    dataType =
+        length == C.LENGTH_UNSET && seekMap.getDurationUs() == C.TIME_UNSET
+            ? C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE
+            : C.DATA_TYPE_MEDIA;
     prepared = true;
     listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable());
     callback.onPrepared(this);
@@ -655,8 +642,8 @@ import java.util.Arrays;
   }
 
   private void startLoading() {
-    ExtractingLoadable loadable = new ExtractingLoadable(uri, dataSource, extractorHolder,
-        loadCondition);
+    ExtractingLoadable loadable =
+        new ExtractingLoadable(uri, dataSource, extractorHolder, loadCondition);
     if (prepared) {
       Assertions.checkState(isPendingReset());
       if (durationUs != C.TIME_UNSET && pendingResetPositionUs >= durationUs) {
@@ -669,7 +656,9 @@ import java.util.Arrays;
       pendingResetPositionUs = C.TIME_UNSET;
     }
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();
-    long elapsedRealtimeMs = loader.startLoading(loadable, this, actualMinLoadableRetryCount);
+    long elapsedRealtimeMs =
+        loader.startLoading(
+            loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(dataType));
     eventDispatcher.loadStarted(
         loadable.dataSpec,
         loadable.dataSpec.uri,
@@ -772,10 +761,6 @@ import java.util.Arrays;
     return pendingResetPositionUs != C.TIME_UNSET;
   }
 
-  private static boolean isLoadableExceptionFatal(IOException e) {
-    return e instanceof UnrecognizedInputFormatException;
-  }
-
   private final class SampleStreamImpl implements SampleStream {
 
     private final int track;
@@ -807,9 +792,7 @@ import java.util.Arrays;
 
   }
 
-  /**
-   * Loads the media stream and extracts sample data from it.
-   */
+  /** Loads the media stream and extracts sample data from it. */
   /* package */ final class ExtractingLoadable implements Loadable {
 
     private final Uri uri;
@@ -825,7 +808,10 @@ import java.util.Arrays;
     private DataSpec dataSpec;
     private long length;
 
-    public ExtractingLoadable(Uri uri, DataSource dataSource, ExtractorHolder extractorHolder,
+    public ExtractingLoadable(
+        Uri uri,
+        DataSource dataSource,
+        ExtractorHolder extractorHolder,
         ConditionVariable loadCondition) {
       this.uri = Assertions.checkNotNull(uri);
       this.dataSource = new StatsDataSource(dataSource);
@@ -837,11 +823,7 @@ import java.util.Arrays;
       dataSpec = new DataSpec(uri, positionHolder.position, C.LENGTH_UNSET, customCacheKey);
     }
 
-    public void setLoadPosition(long position, long timeUs) {
-      positionHolder.position = position;
-      seekTimeUs = timeUs;
-      pendingExtractorSeek = true;
-    }
+    // Loadable implementation.
 
     @Override
     public void cancelLoad() {
@@ -886,6 +868,13 @@ import java.util.Arrays;
       }
     }
 
+    // Internal methods.
+
+    private void setLoadPosition(long position, long timeUs) {
+      positionHolder.position = position;
+      seekTimeUs = timeUs;
+      pendingExtractorSeek = true;
+    }
   }
 
   /**
@@ -950,7 +939,5 @@ import java.util.Arrays;
         extractor = null;
       }
     }
-
   }
-
 }

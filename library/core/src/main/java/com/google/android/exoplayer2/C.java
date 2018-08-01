@@ -496,9 +496,9 @@ public final class C {
   /** A data type constant for ads loader data. */
   public static final int DATA_TYPE_AD = 6;
   /**
-   * A data type constant for progressive media live streams, typically containing media samples.
+   * A data type constant for live progressive media streams, typically containing media samples.
    */
-  public static final int DATA_TYPE_MEDIA_LIVE_STREAM = 7;
+  public static final int DATA_TYPE_MEDIA_PROGRESSIVE_LIVE = 7;
   /**
    * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or
    * equal to this value.
