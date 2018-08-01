@@ -22,6 +22,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.IOException;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -30,6 +32,7 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class Aes128DataSourceTest {
 
+  @Ignore
   @Test
   public void test_OpenCallsUpstreamOpen_CloseCallsUpstreamClose() throws IOException {
     UpstreamDataSource upstream = new UpstreamDataSource();
@@ -44,6 +47,7 @@ public class Aes128DataSourceTest {
     assertThat(upstream.opened).isFalse();
   }
 
+  @Ignore
   @Test
   public void test_OpenCallsUpstreamThrowingOpen_CloseCallsUpstreamClose() throws IOException {
     UpstreamDataSource upstream =
