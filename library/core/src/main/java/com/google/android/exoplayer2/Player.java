@@ -248,7 +248,7 @@ public interface Player {
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      */
     default void onTimelineChanged(
-        Timeline timeline, Object manifest, @TimelineChangeReason int reason) {}
+        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
 
     /**
      * Called when the available or selected tracks change.
@@ -340,15 +340,15 @@ public interface Player {
   abstract class DefaultEventListener implements EventListener {
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest,
-        @TimelineChangeReason int reason) {
+    public void onTimelineChanged(
+        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
       // Call deprecated version. Otherwise, do nothing.
       onTimelineChanged(timeline, manifest);
     }
 
     /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, Object, int)} instead. */
     @Deprecated
-    public void onTimelineChanged(Timeline timeline, Object manifest) {
+    public void onTimelineChanged(Timeline timeline, @Nullable Object manifest) {
       // Do nothing.
     }
   }

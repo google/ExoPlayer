@@ -1090,7 +1090,7 @@ public class PlayerControlView extends FrameLayout {
 
     @Override
     public void onTimelineChanged(
-        Timeline timeline, Object manifest, @Player.TimelineChangeReason int reason) {
+        Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
       updateNavigation();
       updateTimeBarMode();
       updateProgress();

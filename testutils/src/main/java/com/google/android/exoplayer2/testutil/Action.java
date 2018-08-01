@@ -575,7 +575,9 @@ public abstract class Action {
           new Player.EventListener() {
             @Override
             public void onTimelineChanged(
-                Timeline timeline, Object manifest, @Player.TimelineChangeReason int reason) {
+                Timeline timeline,
+                @Nullable Object manifest,
+                @Player.TimelineChangeReason int reason) {
               if (expectedTimeline == null || timeline.equals(expectedTimeline)) {
                 player.removeListener(this);
                 nextAction.schedule(player, trackSelector, surface, handler);
