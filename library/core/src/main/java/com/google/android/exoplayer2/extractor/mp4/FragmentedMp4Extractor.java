@@ -731,7 +731,7 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   private static void parseSaiz(TrackEncryptionBox encryptionBox, ParsableByteArray saiz,
       TrackFragment out) throws ParserException {
-    int vectorSize = encryptionBox.initializationVectorSize;
+    int vectorSize = encryptionBox.perSampleIvSize;
     saiz.setPosition(Atom.HEADER_SIZE);
     int fullAtom = saiz.readInt();
     int flags = Atom.parseFullAtomFlags(fullAtom);
@@ -1266,11 +1266,9 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     // Encryption data.
     TrackOutput.CryptoData cryptoData = null;
-    if (fragment.definesEncryptionData) {
+    TrackEncryptionBox encryptionBox = currentTrackBundle.getEncryptionBoxIfEncrypted();
+    if (encryptionBox != null) {
       sampleFlags |= C.BUFFER_FLAG_ENCRYPTED;
-      TrackEncryptionBox encryptionBox = fragment.trackEncryptionBox != null
-          ? fragment.trackEncryptionBox
-          : track.getSampleDescriptionEncryptionBox(fragment.header.sampleDescriptionIndex);
       cryptoData = encryptionBox.cryptoData;
     }
 
@@ -1467,16 +1465,16 @@ public final class FragmentedMp4Extractor implements Extractor {
      * @return The number of written bytes.
      */
     public int outputSampleEncryptionData() {
-      if (!fragment.definesEncryptionData) {
+      TrackEncryptionBox encryptionBox = getEncryptionBoxIfEncrypted();
+      if (encryptionBox == null) {
         return 0;
       }
 
-      TrackEncryptionBox encryptionBox = getEncryptionBox();
       ParsableByteArray initializationVectorData;
       int vectorSize;
-      if (encryptionBox.initializationVectorSize != 0) {
+      if (encryptionBox.perSampleIvSize != 0) {
         initializationVectorData = fragment.sampleEncryptionData;
-        vectorSize = encryptionBox.initializationVectorSize;
+        vectorSize = encryptionBox.perSampleIvSize;
       } else {
         // The default initialization vector should be used.
         byte[] initVectorData = encryptionBox.defaultInitializationVector;
@@ -1485,7 +1483,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         vectorSize = initVectorData.length;
       }
 
-      boolean subsampleEncryption = fragment.sampleHasSubsampleEncryptionTable[currentSampleIndex];
+      boolean subsampleEncryption = fragment.sampleHasSubsampleEncryptionTable(currentSampleIndex);
 
       // Write the signal byte, containing the vector size and the subsample encryption flag.
       encryptionSignalByte.data[0] = (byte) (vectorSize | (subsampleEncryption ? 0x80 : 0));
@@ -1508,25 +1506,27 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     /** Skips the encryption data for the current sample. */
     private void skipSampleEncryptionData() {
-      if (!fragment.definesEncryptionData) {
+      TrackEncryptionBox encryptionBox = getEncryptionBoxIfEncrypted();
+      if (encryptionBox == null) {
         return;
       }
 
       ParsableByteArray sampleEncryptionData = fragment.sampleEncryptionData;
-      TrackEncryptionBox encryptionBox = getEncryptionBox();
-      if (encryptionBox.initializationVectorSize != 0) {
-        sampleEncryptionData.skipBytes(encryptionBox.initializationVectorSize);
+      if (encryptionBox.perSampleIvSize != 0) {
+        sampleEncryptionData.skipBytes(encryptionBox.perSampleIvSize);
       }
-      if (fragment.sampleHasSubsampleEncryptionTable[currentSampleIndex]) {
+      if (fragment.sampleHasSubsampleEncryptionTable(currentSampleIndex)) {
         sampleEncryptionData.skipBytes(6 * sampleEncryptionData.readUnsignedShort());
       }
     }
 
-    private TrackEncryptionBox getEncryptionBox() {
+    private TrackEncryptionBox getEncryptionBoxIfEncrypted() {
       int sampleDescriptionIndex = fragment.header.sampleDescriptionIndex;
-      return fragment.trackEncryptionBox != null
-          ? fragment.trackEncryptionBox
-          : track.getSampleDescriptionEncryptionBox(sampleDescriptionIndex);
+      TrackEncryptionBox encryptionBox =
+          fragment.trackEncryptionBox != null
+              ? fragment.trackEncryptionBox
+              : track.getSampleDescriptionEncryptionBox(sampleDescriptionIndex);
+      return encryptionBox != null && encryptionBox.isEncrypted ? encryptionBox : null;
     }
 
   }
