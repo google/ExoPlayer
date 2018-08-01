@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import android.support.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.Player.DefaultEventListener;
 import com.google.android.exoplayer2.Player.EventListener;
