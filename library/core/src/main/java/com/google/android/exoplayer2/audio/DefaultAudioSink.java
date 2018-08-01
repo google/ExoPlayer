@@ -1129,11 +1129,14 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   private static int getChannelConfig(int channelCount, boolean isInputPcm) {
-    // Workaround for overly strict channel configuration checks on nVidia Shield.
-    if (Util.SDK_INT <= 23 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER)) {
+    if (Util.SDK_INT <= 28 && !isInputPcm) {
+      // In passthrough mode the channel count used to configure the audio track doesn't affect how
+      // the stream is handled, except that some devices do overly-strict channel configuration
+      // checks. Therefore we override the channel count so that a known-working channel
+      // configuration is chosen in all cases. See [Internal: b/29116190].
       if (channelCount == 7) {
         channelCount = 8;
-      } else if (channelCount == 3 || channelCount == 5) {
+      } else if (channelCount == 3 || channelCount == 4 || channelCount == 5) {
         channelCount = 6;
       }
     }
