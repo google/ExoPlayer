@@ -608,8 +608,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   // Player.EventListener
 
   @Override
-  public void onTimelineChanged(Timeline timeline, Object manifest,
-      @Player.TimelineChangeReason int reason) {
+  public void onTimelineChanged(
+      Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
     timelines.add(timeline);
     manifests.add(manifest);
     timelineChangeReasons.add(reason);
