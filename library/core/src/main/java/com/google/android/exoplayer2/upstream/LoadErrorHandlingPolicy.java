@@ -33,6 +33,8 @@ import java.io.IOException;
  * int)} defines whether the load is retried. Errors whose load is not retried are propagated. Load
  * errors whose load is retried are propagated according to {@link
  * #getMinimumLoadableRetryCount(int)}.
+ *
+ * <p>Methods are invoked on the playback thread.
  */
 public interface LoadErrorHandlingPolicy {
 
