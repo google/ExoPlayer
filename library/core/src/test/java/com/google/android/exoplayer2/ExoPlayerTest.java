@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
@@ -48,6 +49,8 @@ import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinit
 import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
@@ -2286,6 +2289,59 @@ public final class ExoPlayerTest {
     assertThat(positionAtDiscontinuityMs.get()).isAtLeast(0L);
     assertThat(clockAtDiscontinuityMs.get() - clockAtStartMs.get())
         .isAtLeast(C.usToMs(expectedDurationUs));
+  }
+
+  @Test
+  public void testUpdateTrackSelectorThenSeekToUnpreparedPeriod_returnsEmptyTrackGroups()
+      throws Exception {
+    Timeline fakeTimeline = new FakeTimeline(/* windowCount= */ 1);
+    MediaSource[] fakeMediaSources = {
+      new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
+      new FakeMediaSource(fakeTimeline, null, Builder.AUDIO_FORMAT)
+    };
+    MediaSource mediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false,
+            /* useLazyPreparation= */ true,
+            new ShuffleOrder.DefaultShuffleOrder(0),
+            fakeMediaSources);
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testSendMessages")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
+            .play()
+            .build();
+    List<TrackGroupArray> trackGroupsList = new ArrayList<>();
+    List<TrackSelectionArray> trackSelectionsList = new ArrayList<>();
+    new Builder()
+        .setMediaSource(mediaSource)
+        .setTrackSelector(trackSelector)
+        .setRenderers(renderer)
+        .setActionSchedule(actionSchedule)
+        .setEventListener(
+            new EventListener() {
+              @Override
+              public void onTracksChanged(
+                  TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+                trackGroupsList.add(trackGroups);
+                trackSelectionsList.add(trackSelections);
+              }
+            })
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+    assertThat(trackGroupsList).hasSize(3);
+    // First track groups of the 1st period are reported.
+    // Then the seek to an unprepared period will result in empty track groups and selections being
+    // returned.
+    // Then the track groups of the 2nd period are reported.
+    assertThat(trackGroupsList.get(0).get(0).getFormat(0)).isEqualTo(Builder.VIDEO_FORMAT);
+    assertThat(trackGroupsList.get(1)).isEqualTo(TrackGroupArray.EMPTY);
+    assertThat(trackSelectionsList.get(1).get(0)).isNull();
+    assertThat(trackGroupsList.get(2).get(0).getFormat(0)).isEqualTo(Builder.AUDIO_FORMAT);
   }
 
   // Internal methods.
