@@ -1340,7 +1340,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             deviceNeedsSetOutputSurfaceWorkaround = true;
             break;
           default:
-            // Workaround not required.
+            // Do nothing.
+            break;
+        }
+        switch (Util.MODEL) {
+          case "AFTA":
+          case "AFTN":
+            deviceNeedsSetOutputSurfaceWorkaround = true;
+            break;
+          default:
+            // Do nothing.
             break;
         }
         evaluatedDeviceNeedsSetOutputSurfaceWorkaround = true;
