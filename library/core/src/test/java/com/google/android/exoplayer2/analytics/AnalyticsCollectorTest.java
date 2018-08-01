@@ -711,7 +711,7 @@ public final class AnalyticsCollectorTest {
           .setRenderersFactory(renderersFactory)
           .setAnalyticsListener(listener)
           .setActionSchedule(actionSchedule)
-          .build()
+          .build(RuntimeEnvironment.application)
           .start()
           .blockUntilActionScheduleFinished(TIMEOUT_MS)
           .blockUntilEnded(TIMEOUT_MS);

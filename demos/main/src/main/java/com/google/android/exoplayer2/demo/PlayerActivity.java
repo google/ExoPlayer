@@ -424,7 +424,8 @@ public class PlayerActivity extends Activity
       lastSeenTrackGroupArray = null;
 
       player =
-          ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, drmSessionManager);
+          ExoPlayerFactory.newSimpleInstance(
+              /* context= */ this, renderersFactory, trackSelector, drmSessionManager);
       player.addListener(new PlayerEventListener());
       player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));
