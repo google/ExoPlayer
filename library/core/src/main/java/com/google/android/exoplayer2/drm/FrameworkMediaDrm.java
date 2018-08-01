@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
 import android.media.MediaCrypto;
@@ -64,6 +65,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     }
   }
 
+  @SuppressLint("WrongConstant")
   private FrameworkMediaDrm(UUID uuid) throws UnsupportedSchemeException {
     Assertions.checkNotNull(uuid);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
