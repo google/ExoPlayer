@@ -301,7 +301,7 @@ public final class DashTestRunner {
         DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
       SimpleExoPlayer player =
           ExoPlayerFactory.newSimpleInstance(
-              new DebugRenderersFactory(host), trackSelector, drmSessionManager);
+              host, new DebugRenderersFactory(host), trackSelector, drmSessionManager);
       player.setVideoSurface(surface);
       return player;
     }

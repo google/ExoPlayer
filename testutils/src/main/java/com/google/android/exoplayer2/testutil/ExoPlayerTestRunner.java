@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.Context;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.annotation.Nullable;
@@ -291,9 +292,10 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     /**
      * Builds an {@link ExoPlayerTestRunner} using the provided values or their defaults.
      *
+     * @param context The context.
      * @return The built {@link ExoPlayerTestRunner}.
      */
-    public ExoPlayerTestRunner build() {
+    public ExoPlayerTestRunner build(Context context) {
       if (supportedFormats == null) {
         supportedFormats = new Format[] {VIDEO_FORMAT};
       }
@@ -334,6 +336,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
         expectedPlayerEndedCount = 1;
       }
       return new ExoPlayerTestRunner(
+          context,
           clock,
           mediaSource,
           renderersFactory,
@@ -348,6 +351,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
   }
 
+  private final Context context;
   private final Clock clock;
   private final MediaSource mediaSource;
   private final RenderersFactory renderersFactory;
@@ -375,6 +379,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   private boolean playerWasPrepared;
 
   private ExoPlayerTestRunner(
+      Context context,
       Clock clock,
       MediaSource mediaSource,
       RenderersFactory renderersFactory,
@@ -386,6 +391,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
       @Nullable AudioRendererEventListener audioRendererEventListener,
       @Nullable AnalyticsListener analyticsListener,
       int expectedPlayerEndedCount) {
+    this.context = context;
     this.clock = clock;
     this.mediaSource = mediaSource;
     this.renderersFactory = renderersFactory;
@@ -423,7 +429,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
           @Override
           public void run() {
             try {
-              player = new TestSimpleExoPlayer(renderersFactory, trackSelector, loadControl, clock);
+              player =
+                  new TestSimpleExoPlayer(
+                      context, renderersFactory, trackSelector, loadControl, clock);
               player.addListener(ExoPlayerTestRunner.this);
               if (eventListener != null) {
                 player.addListener(eventListener);
@@ -652,11 +660,13 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   private static final class TestSimpleExoPlayer extends SimpleExoPlayer {
 
     public TestSimpleExoPlayer(
+        Context context,
         RenderersFactory renderersFactory,
         TrackSelector trackSelector,
         LoadControl loadControl,
         Clock clock) {
       super(
+          context,
           renderersFactory,
           trackSelector,
           loadControl,

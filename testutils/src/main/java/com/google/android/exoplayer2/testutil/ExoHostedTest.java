@@ -370,7 +370,8 @@ public abstract class ExoHostedTest
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
     RenderersFactory renderersFactory = new DefaultRenderersFactory(host, drmSessionManager,
         DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF, 0);
-    SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
+    SimpleExoPlayer player =
+        ExoPlayerFactory.newSimpleInstance(host, renderersFactory, trackSelector);
     player.setVideoSurface(surface);
     return player;
   }

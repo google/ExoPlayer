@@ -115,7 +115,7 @@ import java.util.ArrayList;
 
     DefaultTrackSelector trackSelector = new DefaultTrackSelector();
     RenderersFactory renderersFactory = new DefaultRenderersFactory(context);
-    exoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
+    exoPlayer = ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector);
     exoPlayer.addListener(this);
     localPlayerView.setPlayer(exoPlayer);
 
