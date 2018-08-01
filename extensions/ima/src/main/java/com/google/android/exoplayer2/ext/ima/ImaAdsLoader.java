@@ -795,8 +795,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   // Player.EventListener implementation.
 
   @Override
-  public void onTimelineChanged(Timeline timeline, Object manifest,
-      @Player.TimelineChangeReason int reason) {
+  public void onTimelineChanged(
+      Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
     if (reason == Player.TIMELINE_CHANGE_REASON_RESET) {
       // The player is being reset and this source will be released.
       return;
