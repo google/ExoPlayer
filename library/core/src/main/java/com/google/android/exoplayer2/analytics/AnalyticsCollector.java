@@ -420,7 +420,7 @@ public class AnalyticsCollector
 
   @Override
   public final void onTimelineChanged(
-      Timeline timeline, Object manifest, @Player.TimelineChangeReason int reason) {
+      Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
     mediaPeriodQueueTracker.onTimelineChanged(timeline);
     EventTime eventTime = generatePlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {

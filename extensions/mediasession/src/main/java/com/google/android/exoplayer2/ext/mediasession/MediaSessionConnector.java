@@ -674,8 +674,8 @@ public final class MediaSessionConnector {
     private int currentWindowCount;
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest,
-        @Player.TimelineChangeReason int reason) {
+    public void onTimelineChanged(
+        Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
       int windowCount = player.getCurrentTimeline().getWindowCount();
       int windowIndex = player.getCurrentWindowIndex();
       if (queueNavigator != null) {

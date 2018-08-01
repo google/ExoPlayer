@@ -2078,7 +2078,7 @@ public final class ExoPlayerTest {
     final EventListener eventListener =
         new DefaultEventListener() {
           @Override
-          public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+          public void onTimelineChanged(Timeline timeline, @Nullable Object manifest, int reason) {
             if (timeline.isEmpty()) {
               playerReference.get().setPlayWhenReady(/* playWhenReady= */ false);
             }

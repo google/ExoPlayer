@@ -281,8 +281,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter {
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest,
-        @TimelineChangeReason int reason) {
+    public void onTimelineChanged(
+        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
       Callback callback = getCallback();
       callback.onDurationChanged(LeanbackPlayerAdapter.this);
       callback.onCurrentPositionChanged(LeanbackPlayerAdapter.this);
