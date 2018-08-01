@@ -700,6 +700,9 @@ import java.util.Collections;
       maybeContinueLoading();
     } else {
       queue.clear(/* keepFrontPeriodUid= */ true);
+      // New period has not been prepared.
+      playbackInfo =
+          playbackInfo.copyWithTrackInfo(TrackGroupArray.EMPTY, emptyTrackSelectorResult);
       resetRendererPosition(periodPositionUs);
     }
 
