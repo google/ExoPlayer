@@ -93,7 +93,7 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  *       #getApplicationLooper()}. This Looper can be specified when creating the player, or this is
  *       the Looper of the thread the player is created on, or the Looper of the application's main
  *       thread if the player is created on a thread without Looper.
- *   <li>Registered listeners are called on the thread thread associated with {@link
+ *   <li>Registered listeners are called on the thread associated with {@link
  *       #getApplicationLooper()}. Note that this means registered listeners are called on the same
  *       thread which must be used to access the player.
  *   <li>An internal playback thread is responsible for playback. Injected player components such as
