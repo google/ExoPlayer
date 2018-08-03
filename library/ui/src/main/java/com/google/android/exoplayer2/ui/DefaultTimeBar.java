@@ -174,6 +174,12 @@ public class DefaultTimeBar extends View implements TimeBar {
   private static final long STOP_SCRUBBING_TIMEOUT_MS = 1000;
   private static final int DEFAULT_INCREMENT_COUNT = 20;
 
+  /**
+   * The name of the Android SDK view that most closely resembles this custom view. Used as the
+   * class name for accessibility.
+   */
+  private static final String ACCESSIBILITY_CLASS_NAME = "android.widget.SeekBar";
+
   private final Rect seekBounds;
   private final Rect progressBar;
   private final Rect bufferedBar;
@@ -184,7 +190,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   private final Paint adMarkerPaint;
   private final Paint playedAdMarkerPaint;
   private final Paint scrubberPaint;
-  private final Drawable scrubberDrawable;
+  private final @Nullable Drawable scrubberDrawable;
   private final int barHeight;
   private final int touchTargetHeight;
   private final int adMarkerWidth;
@@ -197,12 +203,12 @@ public class DefaultTimeBar extends View implements TimeBar {
   private final Formatter formatter;
   private final Runnable stopScrubbingRunnable;
   private final CopyOnWriteArraySet<OnScrubListener> listeners;
+  private final int[] locationOnScreen;
+  private final Point touchPosition;
 
   private int keyCountIncrement;
   private long keyTimeIncrement;
   private int lastCoarseScrubXPosition;
-  private int[] locationOnScreen;
-  private Point touchPosition;
 
   private boolean scrubbing;
   private long scrubPosition;
@@ -210,12 +216,12 @@ public class DefaultTimeBar extends View implements TimeBar {
   private long position;
   private long bufferedPosition;
   private int adGroupCount;
-  private long[] adGroupTimesMs;
-  private boolean[] playedAdGroups;
+  private @Nullable long[] adGroupTimesMs;
+  private @Nullable boolean[] playedAdGroups;
 
-  /**
-   * Creates a new time bar.
-   */
+  /** Creates a new time bar. */
+  // Suppress warnings due to usage of View methods in the constructor.
+  @SuppressWarnings("nullness:method.invocation.invalid")
   public DefaultTimeBar(Context context, AttributeSet attrs) {
     super(context, attrs);
     seekBounds = new Rect();
@@ -230,6 +236,8 @@ public class DefaultTimeBar extends View implements TimeBar {
     scrubberPaint = new Paint();
     scrubberPaint.setAntiAlias(true);
     listeners = new CopyOnWriteArraySet<>();
+    locationOnScreen = new int[2];
+    touchPosition = new Point();
 
     // Calculate the dimensions and paints for drawn elements.
     Resources res = context.getResources();
@@ -299,12 +307,7 @@ public class DefaultTimeBar extends View implements TimeBar {
     }
     formatBuilder = new StringBuilder();
     formatter = new Formatter(formatBuilder, Locale.getDefault());
-    stopScrubbingRunnable = new Runnable() {
-      @Override
-      public void run() {
-        stopScrubbing(false);
-      }
-    };
+    stopScrubbingRunnable = () -> stopScrubbing(/* canceled= */ false);
     if (scrubberDrawable != null) {
       scrubberPadding = (scrubberDrawable.getMinimumWidth() + 1) / 2;
     } else {
@@ -593,14 +596,14 @@ public class DefaultTimeBar extends View implements TimeBar {
     if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SELECTED) {
       event.getText().add(getProgressText());
     }
-    event.setClassName(DefaultTimeBar.class.getName());
+    event.setClassName(ACCESSIBILITY_CLASS_NAME);
   }
 
   @TargetApi(21)
   @Override
   public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
     super.onInitializeAccessibilityNodeInfo(info);
-    info.setClassName(DefaultTimeBar.class.getCanonicalName());
+    info.setClassName(ACCESSIBILITY_CLASS_NAME);
     info.setContentDescription(getProgressText());
     if (duration <= 0) {
       return;
@@ -616,7 +619,7 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   @TargetApi(16)
   @Override
-  public boolean performAccessibilityAction(int action, Bundle args) {
+  public boolean performAccessibilityAction(int action, @Nullable Bundle args) {
     if (super.performAccessibilityAction(action, args)) {
       return true;
     }
@@ -693,10 +696,6 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   private Point resolveRelativeTouchPosition(MotionEvent motionEvent) {
-    if (locationOnScreen == null) {
-      locationOnScreen = new int[2];
-      touchPosition = new Point();
-    }
     getLocationOnScreen(locationOnScreen);
     touchPosition.set(
         ((int) motionEvent.getRawX()) - locationOnScreen[0],
@@ -736,6 +735,11 @@ public class DefaultTimeBar extends View implements TimeBar {
     if (scrubberBar.width() > 0) {
       canvas.drawRect(scrubberBar.left, barTop, scrubberBar.right, barBottom, playedPaint);
     }
+    if (adGroupCount == 0) {
+      return;
+    }
+    long[] adGroupTimesMs = Assertions.checkNotNull(this.adGroupTimesMs);
+    boolean[] playedAdGroups = Assertions.checkNotNull(this.playedAdGroups);
     int adMarkerOffset = adMarkerWidth / 2;
     for (int i = 0; i < adGroupCount; i++) {
       long adGroupTimeMs = Util.constrainValue(adGroupTimesMs[i], 0, duration);
