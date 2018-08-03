@@ -252,7 +252,7 @@ public final class MimeTypes {
 
   /**
    * Derives a mimeType from MP4 object type identifier, as defined in RFC 6381 and
-   * http://www.mp4ra.org/object.html.
+   * https://mp4ra.org/#/object_types.
    *
    * @param objectType The objectType identifier to derive.
    * @return The mimeType, or null if it could not be derived.
