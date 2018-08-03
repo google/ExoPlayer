@@ -685,6 +685,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
+   * Returns the offset that should be subtracted from {@code bufferPresentationTimeUs} in {@link
+   * #processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean)} to get the
+   * playback position with respect to the media.
+   */
+  protected long getOutputStreamOffsetUs() {
+    return outputStreamOffsetUs;
+  }
+
+  /**
    * Called when an output buffer is successfully processed.
    *
    * @param presentationTimeUs The timestamp associated with the output buffer.
