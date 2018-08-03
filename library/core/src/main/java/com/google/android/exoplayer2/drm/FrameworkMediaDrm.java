@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
 import android.media.MediaCrypto;
@@ -71,8 +72,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     uuid = Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid;
     this.uuid = uuid;
     this.mediaDrm = new MediaDrm(uuid);
-    if (C.WIDEVINE_UUID.equals(uuid) && needsForceL3Workaround()) {
-      mediaDrm.setPropertyString("securityLevel", "L3");
+    if (C.WIDEVINE_UUID.equals(uuid) && needsForceWidevineL3Workaround()) {
+      forceWidevineL3(mediaDrm);
     }
   }
 
@@ -236,12 +237,17 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         forceAllowInsecureDecoderComponents);
   }
 
+  @SuppressLint("WrongConstant") // Suppress spurious lint error [Internal ref: b/32137960]
+  private static final void forceWidevineL3(MediaDrm mediaDrm) {
+    mediaDrm.setPropertyString("securityLevel", "L3");
+  }
+
   /**
    * Returns whether the device codec is known to fail if security level L1 is used.
    *
    * <p>See <a href="https://github.com/google/ExoPlayer/issues/4413">GitHub issue #4413</a>.
    */
-  private static boolean needsForceL3Workaround() {
+  private static boolean needsForceWidevineL3Workaround() {
     return "ASUS_Z00AD".equals(Util.MODEL);
   }
 }
