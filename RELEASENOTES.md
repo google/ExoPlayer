@@ -82,6 +82,8 @@
   ([#273](https://github.com/google/ExoPlayer/issues/273)).
 * Fix where transitions to clipped media sources happened too early
   ([#4583](https://github.com/google/ExoPlayer/issues/4583)).
+* Fix accessibility class name for `DefaultTimeBar`
+  ([#4611](https://github.com/google/ExoPlayer/issues/4611)).
 
 ### 2.8.3 ###
 
