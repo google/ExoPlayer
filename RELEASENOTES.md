@@ -39,6 +39,8 @@
   ([#4348](https://github.com/google/ExoPlayer/issues/4348)).
 * Fix issue when switching track selection from an embedded track to a primary
   track in DASH ([#4477](https://github.com/google/ExoPlayer/issues/4477)).
+* Fix accessibility class name for `DefaultTimeBar`
+  ([#4611](https://github.com/google/ExoPlayer/issues/4611)).
 * Improved compatibility with FireOS devices.
 
 ### 2.8.2 ###
