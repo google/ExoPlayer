@@ -11,8 +11,7 @@
     ([#2565](https://github.com/google/ExoPlayer/issues/2565)).
 * MPEG-PS: Support reading duration and seeking for MPEG-PS Streams
   ([#4476](https://github.com/google/ExoPlayer/issues/4476)).
-* MediaSession extension:
-  * Allow apps to set custom errors.
+* MediaSession extension: Allow apps to set custom errors.
 * Audio:
   * Support seeking for the AMR container format using constant bitrate seek
     map.
@@ -87,8 +86,6 @@
   ([#273](https://github.com/google/ExoPlayer/issues/273)).
 * Fix where transitions to clipped media sources happened too early
   ([#4583](https://github.com/google/ExoPlayer/issues/4583)).
-* Fix accessibility class name for `DefaultTimeBar`
-  ([#4611](https://github.com/google/ExoPlayer/issues/4611)).
 
 ### 2.8.3 ###
 
@@ -129,6 +126,8 @@
   ([#4348](https://github.com/google/ExoPlayer/issues/4348)).
 * Fix issue when switching track selection from an embedded track to a primary
   track in DASH ([#4477](https://github.com/google/ExoPlayer/issues/4477)).
+* Fix accessibility class name for `DefaultTimeBar`
+  ([#4611](https://github.com/google/ExoPlayer/issues/4611)).
 * Improved compatibility with FireOS devices.
 
 ### 2.8.2 ###
