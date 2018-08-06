@@ -4,19 +4,22 @@
 
 * Add `AudioListener` for listening to changes in audio configuration during
   playback ([#3994](https://github.com/google/ExoPlayer/issues/3994)).
-* MPEG-TS:
-  * Support seeking for MPEG-TS Streams
+* Improved seeking support:
+  * Support seeking in MPEG-TS
     ([#966](https://github.com/google/ExoPlayer/issues/966)).
-  * Support CEA-608/708 in H262
-    ([#2565](https://github.com/google/ExoPlayer/issues/2565)).
-* MPEG-PS: Support reading duration and seeking for MPEG-PS Streams
-  ([#4476](https://github.com/google/ExoPlayer/issues/4476)).
+  * Support seeking in MPEG-PS
+    ([#4476](https://github.com/google/ExoPlayer/issues/4476)).
+  * Support approximate seeking in ADTS using a constant bitrate assumption
+    ([#4548](https://github.com/google/ExoPlayer/issues/4548)). Note that the
+    `FLAG_ENABLE_CONSTANT_BITRATE_SEEKING` flag must be set on the extractor to
+    enable this functionality.
+  * Support approximate seeking in AMR using a constant bitrate assumption.
+    Note that the `FLAG_ENABLE_CONSTANT_BITRATE_SEEKING` flag must be set on the
+    extractor to enable this functionality.
+* MPEG-TS: Support CEA-608/708 in H262
+  ([#2565](https://github.com/google/ExoPlayer/issues/2565)).
 * MediaSession extension: Allow apps to set custom errors.
 * Audio:
-  * Support seeking for the AMR container format using constant bitrate seek
-    map.
-  * Support seeking for the ADTS container format using constant bitrate seek
-    map ([#4548](https://github.com/google/ExoPlayer/issues/4548)).
   * Add support for mu-law and A-law PCM with the ffmpeg extension
     ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
   * Increase `AudioTrack` buffer sizes to the theoretical maximum required for
