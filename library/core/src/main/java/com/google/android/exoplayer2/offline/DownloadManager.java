@@ -730,6 +730,11 @@ public final class DownloadManager {
           return "CANCELING";
         case STATE_STARTED_STOPPING:
           return "STOPPING";
+        case STATE_QUEUED:
+        case STATE_STARTED:
+        case STATE_COMPLETED:
+        case STATE_CANCELED:
+        case STATE_FAILED:
         default:
           return TaskState.getStateString(currentState);
       }
@@ -742,6 +747,11 @@ public final class DownloadManager {
         case STATE_STARTED_CANCELING:
         case STATE_STARTED_STOPPING:
           return STATE_STARTED;
+        case STATE_QUEUED:
+        case STATE_STARTED:
+        case STATE_COMPLETED:
+        case STATE_CANCELED:
+        case STATE_FAILED:
         default:
           return currentState;
       }
