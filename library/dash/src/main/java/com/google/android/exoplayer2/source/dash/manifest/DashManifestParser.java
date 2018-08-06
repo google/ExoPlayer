@@ -365,7 +365,7 @@ public class DashManifestParser extends DefaultHandler
       switch (Util.toLowerInvariant(schemeIdUri)) {
         case "urn:mpeg:dash:mp4protection:2011":
           schemeType = xpp.getAttributeValue(null, "value");
-          String defaultKid = xpp.getAttributeValue(null, "cenc:default_KID");
+          String defaultKid = XmlPullParserUtil.getAttributeValueIgnorePrefix(xpp, "default_KID");
           if (!TextUtils.isEmpty(defaultKid)
               && !"00000000-0000-0000-0000-000000000000".equals(defaultKid)) {
             String[] defaultKidStrings = defaultKid.split("\\s+");
@@ -396,7 +396,8 @@ public class DashManifestParser extends DefaultHandler
         String robustnessLevel = xpp.getAttributeValue(null, "robustness_level");
         requiresSecureDecoder = robustnessLevel != null && robustnessLevel.startsWith("HW");
       } else if (data == null) {
-        if (XmlPullParserUtil.isStartTag(xpp, "cenc:pssh") && xpp.next() == XmlPullParser.TEXT) {
+        if (XmlPullParserUtil.isStartTagIgnorePrefix(xpp, "pssh")
+            && xpp.next() == XmlPullParser.TEXT) {
           // The cenc:pssh element is defined in 23001-7:2015.
           data = Base64.decode(xpp.getText(), Base64.DEFAULT);
           uuid = PsshAtomUtil.parseUuid(data);
