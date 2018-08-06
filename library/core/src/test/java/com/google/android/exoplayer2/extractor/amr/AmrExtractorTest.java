@@ -179,12 +179,26 @@ public final class AmrExtractorTest {
 
   @Test
   public void testExtractingNarrowBandSamples() throws Exception {
-    ExtractorAsserts.assertBehavior(createAmrExtractorFactory(), "amr/sample_nb.amr");
+    ExtractorAsserts.assertBehavior(
+        createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_nb.amr");
   }
 
   @Test
   public void testExtractingWideBandSamples() throws Exception {
-    ExtractorAsserts.assertBehavior(createAmrExtractorFactory(), "amr/sample_wb.amr");
+    ExtractorAsserts.assertBehavior(
+        createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_wb.amr");
+  }
+
+  @Test
+  public void testExtractingNarrowBandSamples_withSeeking() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        createAmrExtractorFactory(/* withSeeking= */ true), "amr/sample_nb_cbr.amr");
+  }
+
+  @Test
+  public void testExtractingWideBandSamples_withSeeking() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        createAmrExtractorFactory(/* withSeeking= */ true), "amr/sample_wb_cbr.amr");
   }
 
   private byte[] newWideBandAmrFrameWithType(int frameType) {
@@ -235,11 +249,15 @@ public final class AmrExtractorTest {
   }
 
   @NonNull
-  private static ExtractorAsserts.ExtractorFactory createAmrExtractorFactory() {
+  private static ExtractorAsserts.ExtractorFactory createAmrExtractorFactory(boolean withSeeking) {
     return new ExtractorAsserts.ExtractorFactory() {
       @Override
       public Extractor create() {
-        return new AmrExtractor();
+        if (!withSeeking) {
+          return new AmrExtractor();
+        } else {
+          return new AmrExtractor(AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
+        }
       }
     };
   }

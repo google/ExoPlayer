@@ -13,6 +13,8 @@
 * Audio:
   * Support seeking for the AMR container format using constant bitrate seek
     map.
+  * Support seeking for the ADTS container format using constant bitrate seek
+    map ([#4548](https://github.com/google/ExoPlayer/issues/4548)).
   * Add support for mu-law and A-law PCM with the ffmpeg extension
     ([#4360](https://github.com/google/ExoPlayer/issues/4360)).
   * Increase `AudioTrack` buffer sizes to the theoretical maximum required for

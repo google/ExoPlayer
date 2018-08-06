@@ -22,8 +22,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -222,5 +227,151 @@ public class TestUtil {
     double normalizedMse =
         mse / (255.0 * 255.0 * 3.0 * firstBitmap.getWidth() * firstBitmap.getHeight());
     return 10 * Math.log10(1.0 / normalizedMse);
+  }
+
+  /** Returns the {@link Uri} for the given asset path. */
+  public static Uri buildAssetUri(String assetPath) {
+    return Uri.parse("asset:///" + assetPath);
+  }
+
+  /**
+   * Reads from the given input using the given {@link Extractor}, until it can produce the {@link
+   * SeekMap} and all of the tracks have been identified, or until the extractor encounters EOF.
+   *
+   * @param extractor The {@link Extractor} to extractor from input.
+   * @param output The {@link FakeTrackOutput} to store the extracted {@link SeekMap} and track.
+   * @param dataSource The {@link DataSource} that will be used to read from the input.
+   * @param uri The Uri of the input.
+   * @return The extracted {@link SeekMap}.
+   * @throws IOException If an error occurred reading from the input, or if the extractor finishes
+   *     reading from input without extracting any {@link SeekMap}.
+   * @throws InterruptedException If the thread was interrupted.
+   */
+  public static SeekMap extractSeekMap(
+      Extractor extractor, FakeExtractorOutput output, DataSource dataSource, Uri uri)
+      throws IOException, InterruptedException {
+    ExtractorInput input = getExtractorInputFromPosition(dataSource, /* position= */ 0, uri);
+    extractor.init(output);
+    PositionHolder positionHolder = new PositionHolder();
+    int readResult = Extractor.RESULT_CONTINUE;
+    while (true) {
+      try {
+        // Keep reading until we can get the seek map
+        while (readResult == Extractor.RESULT_CONTINUE
+            && (output.seekMap == null || !output.tracksEnded)) {
+          readResult = extractor.read(input, positionHolder);
+        }
+      } finally {
+        Util.closeQuietly(dataSource);
+      }
+
+      if (readResult == Extractor.RESULT_SEEK) {
+        input = getExtractorInputFromPosition(dataSource, positionHolder.position, uri);
+        readResult = Extractor.RESULT_CONTINUE;
+      } else if (readResult == Extractor.RESULT_END_OF_INPUT) {
+        throw new IOException("EOF encountered without seekmap");
+      }
+      if (output.seekMap != null) {
+        return output.seekMap;
+      }
+    }
+  }
+
+  /**
+   * Extracts all samples from the given file into a {@link FakeTrackOutput}.
+   *
+   * @param extractor The {@link Extractor} to extractor from input.
+   * @param context A {@link Context}.
+   * @param fileName The name of the input file.
+   * @return The {@link FakeTrackOutput} containing the extracted samples.
+   * @throws IOException If an error occurred reading from the input, or if the extractor finishes
+   *     reading from input without extracting any {@link SeekMap}.
+   * @throws InterruptedException If the thread was interrupted.
+   */
+  public static FakeExtractorOutput extractAllSamplesFromFile(
+      Extractor extractor, Context context, String fileName)
+      throws IOException, InterruptedException {
+    byte[] data = TestUtil.getByteArray(context, fileName);
+    FakeExtractorOutput expectedOutput = new FakeExtractorOutput();
+    extractor.init(expectedOutput);
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
+
+    PositionHolder positionHolder = new PositionHolder();
+    int readResult = Extractor.RESULT_CONTINUE;
+    while (readResult != Extractor.RESULT_END_OF_INPUT) {
+      while (readResult == Extractor.RESULT_CONTINUE) {
+        readResult = extractor.read(input, positionHolder);
+      }
+      if (readResult == Extractor.RESULT_SEEK) {
+        input.setPosition((int) positionHolder.position);
+        readResult = Extractor.RESULT_CONTINUE;
+      }
+    }
+    return expectedOutput;
+  }
+
+  /**
+   * Seeks to the given seek time of the stream from the given input, and keeps reading from the
+   * input until we can extract at least one sample following the seek position, or until
+   * end-of-input is reached.
+   *
+   * @param extractor The {@link Extractor} to extractor from input.
+   * @param seekMap The {@link SeekMap} of the stream from the given input.
+   * @param seekTimeUs The seek time, in micro-seconds.
+   * @param trackOutput The {@link FakeTrackOutput} to store the extracted samples.
+   * @param dataSource The {@link DataSource} that will be used to read from the input.
+   * @param uri The Uri of the input.
+   * @return The index of the first extracted sample written to the given {@code trackOutput} after
+   *     the seek is completed, or -1 if the seek is completed without any extracted sample.
+   */
+  public static int seekToTimeUs(
+      Extractor extractor,
+      SeekMap seekMap,
+      long seekTimeUs,
+      DataSource dataSource,
+      FakeTrackOutput trackOutput,
+      Uri uri)
+      throws IOException, InterruptedException {
+    int numSampleBeforeSeek = trackOutput.getSampleCount();
+    SeekMap.SeekPoints seekPoints = seekMap.getSeekPoints(seekTimeUs);
+
+    long initialSeekLoadPosition = seekPoints.first.position;
+    extractor.seek(initialSeekLoadPosition, seekTimeUs);
+
+    PositionHolder positionHolder = new PositionHolder();
+    positionHolder.position = C.POSITION_UNSET;
+    ExtractorInput extractorInput =
+        TestUtil.getExtractorInputFromPosition(dataSource, initialSeekLoadPosition, uri);
+    int extractorReadResult = Extractor.RESULT_CONTINUE;
+    while (true) {
+      try {
+        // Keep reading until we can read at least one sample after seek
+        while (extractorReadResult == Extractor.RESULT_CONTINUE
+            && trackOutput.getSampleCount() == numSampleBeforeSeek) {
+          extractorReadResult = extractor.read(extractorInput, positionHolder);
+        }
+      } finally {
+        Util.closeQuietly(dataSource);
+      }
+
+      if (extractorReadResult == Extractor.RESULT_SEEK) {
+        extractorInput =
+            TestUtil.getExtractorInputFromPosition(dataSource, positionHolder.position, uri);
+        extractorReadResult = Extractor.RESULT_CONTINUE;
+      } else if (extractorReadResult == Extractor.RESULT_END_OF_INPUT) {
+        return -1;
+      } else if (trackOutput.getSampleCount() > numSampleBeforeSeek) {
+        // First index after seek = num sample before seek.
+        return numSampleBeforeSeek;
+      }
+    }
+  }
+
+  /** Returns an {@link ExtractorInput} to read from the given input at given position. */
+  private static ExtractorInput getExtractorInputFromPosition(
+      DataSource dataSource, long position, Uri uri) throws IOException {
+    DataSpec dataSpec = new DataSpec(uri, position, C.LENGTH_UNSET, /* key= */ null);
+    long inputLength = dataSource.open(dataSpec);
+    return new DefaultExtractorInput(dataSource, position, inputLength);
   }
 }
