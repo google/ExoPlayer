@@ -90,7 +90,7 @@ public final class AdtsExtractorSeekTest {
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
     FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
 
-    long targetSeekTimeUs = 3330033; // 980_000;
+    long targetSeekTimeUs = 980_000;
     int extractedSampleIndex =
         TestUtil.seekToTimeUs(
             extractor, seekMap, targetSeekTimeUs, dataSource, trackOutput, fileUri);

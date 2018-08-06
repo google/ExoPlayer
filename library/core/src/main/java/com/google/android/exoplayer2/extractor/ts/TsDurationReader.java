@@ -108,6 +108,14 @@ import java.io.IOException;
     return durationUs;
   }
 
+  /**
+   * Returns the {@link TimestampAdjuster} that this class uses to adjust timestamps read from the
+   * input TS stream.
+   */
+  public TimestampAdjuster getPcrTimestampAdjuster() {
+    return pcrTimestampAdjuster;
+  }
+
   private int finishReadDuration(ExtractorInput input) {
     isDurationRead = true;
     input.resetPeekPosition();
@@ -141,7 +149,7 @@ import java.io.IOException;
       if (packetBuffer.data[searchPosition] != TsExtractor.TS_SYNC_BYTE) {
         continue;
       }
-      long pcrValue = readPcrFromPacket(packetBuffer, searchPosition, pcrPid);
+      long pcrValue = TsUtil.readPcrFromPacket(packetBuffer, searchPosition, pcrPid);
       if (pcrValue != C.TIME_UNSET) {
         return pcrValue;
       }
@@ -177,7 +185,7 @@ import java.io.IOException;
       if (packetBuffer.data[searchPosition] != TsExtractor.TS_SYNC_BYTE) {
         continue;
       }
-      long pcrValue = readPcrFromPacket(packetBuffer, searchPosition, pcrPid);
+      long pcrValue = TsUtil.readPcrFromPacket(packetBuffer, searchPosition, pcrPid);
       if (pcrValue != C.TIME_UNSET) {
         return pcrValue;
       }
@@ -185,51 +193,4 @@ import java.io.IOException;
     return C.TIME_UNSET;
   }
 
-  private static long readPcrFromPacket(
-      ParsableByteArray packetBuffer, int startOfPacket, int pcrPid) {
-    packetBuffer.setPosition(startOfPacket);
-    if (packetBuffer.bytesLeft() < 5) {
-      // Header = 4 bytes, adaptationFieldLength = 1 byte.
-      return C.TIME_UNSET;
-    }
-    // Note: See ISO/IEC 13818-1, section 2.4.3.2 for details of the header format.
-    int tsPacketHeader = packetBuffer.readInt();
-    if ((tsPacketHeader & 0x800000) != 0) {
-      // transport_error_indicator != 0 means there are uncorrectable errors in this packet.
-      return C.TIME_UNSET;
-    }
-    int pid = (tsPacketHeader & 0x1FFF00) >> 8;
-    if (pid != pcrPid) {
-      return C.TIME_UNSET;
-    }
-    boolean adaptationFieldExists = (tsPacketHeader & 0x20) != 0;
-    if (!adaptationFieldExists) {
-      return C.TIME_UNSET;
-    }
-
-    int adaptationFieldLength = packetBuffer.readUnsignedByte();
-    if (adaptationFieldLength >= 7 && packetBuffer.bytesLeft() >= 7) {
-      int flags = packetBuffer.readUnsignedByte();
-      boolean pcrFlagSet = (flags & 0x10) == 0x10;
-      if (pcrFlagSet) {
-        byte[] pcrBytes = new byte[6];
-        packetBuffer.readBytes(pcrBytes, /* offset= */ 0, pcrBytes.length);
-        return readPcrValueFromPcrBytes(pcrBytes);
-      }
-    }
-    return C.TIME_UNSET;
-  }
-
-  /**
-   * Returns the value of PCR base - first 33 bits in big endian order from the PCR bytes.
-   *
-   * <p>We ignore PCR Ext, because it's too small to have any significance.
-   */
-  private static long readPcrValueFromPcrBytes(byte[] pcrBytes) {
-    return (pcrBytes[0] & 0xFFL) << 25
-        | (pcrBytes[1] & 0xFFL) << 17
-        | (pcrBytes[2] & 0xFFL) << 9
-        | (pcrBytes[3] & 0xFFL) << 1
-        | (pcrBytes[4] & 0xFFL) >> 7;
-  }
 }

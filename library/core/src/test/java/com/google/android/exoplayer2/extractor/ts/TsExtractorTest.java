@@ -61,15 +61,21 @@ public final class TsExtractorTest {
   }
 
   @Test
-  public void testIncompleteSample() throws Exception {
+  public void testStreamWithJunkData() throws Exception {
     Random random = new Random(0);
     byte[] fileData = TestUtil.getByteArray(RuntimeEnvironment.application, "ts/sample.ts");
     ByteArrayOutputStream out = new ByteArrayOutputStream(fileData.length * 2);
+    int bytesLeft = fileData.length;
+
     writeJunkData(out, random.nextInt(TS_PACKET_SIZE - 1) + 1);
     out.write(fileData, 0, TS_PACKET_SIZE * 5);
-    for (int i = TS_PACKET_SIZE * 5; i < fileData.length; i += TS_PACKET_SIZE) {
+    bytesLeft -= TS_PACKET_SIZE * 5;
+
+    for (int i = TS_PACKET_SIZE * 5; i < fileData.length; i += 5 * TS_PACKET_SIZE) {
       writeJunkData(out, random.nextInt(TS_PACKET_SIZE));
-      out.write(fileData, i, TS_PACKET_SIZE);
+      int length = Math.min(5 * TS_PACKET_SIZE, bytesLeft);
+      out.write(fileData, i, length);
+      bytesLeft -= length;
     }
     out.write(TS_SYNC_BYTE);
     writeJunkData(out, random.nextInt(TS_PACKET_SIZE - 1) + 1);
