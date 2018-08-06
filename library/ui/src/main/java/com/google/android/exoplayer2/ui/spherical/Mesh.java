@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.ui.spherical;
 
-import static com.google.android.exoplayer2.ui.spherical.Utils.checkGlError;
+import static com.google.android.exoplayer2.ui.spherical.GlUtil.checkGlError;
 
 import android.annotation.TargetApi;
 import android.opengl.GLES11Ext;
@@ -126,12 +126,12 @@ import java.nio.FloatBuffer;
   /** Used by static constructors. */
   private Mesh(float[] vertexData) {
     vertixCount = vertexData.length / COORDS_PER_VERTEX;
-    vertexBuffer = Utils.createBuffer(vertexData);
+    vertexBuffer = GlUtil.createBuffer(vertexData);
   }
 
   /** Initializes of the GL components. */
   /* package */ void init() {
-    program = Utils.compileProgram(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
+    program = GlUtil.compileProgram(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
     mvpMatrixHandle = GLES20.glGetUniformLocation(program, "uMvpMatrix");
     positionHandle = GLES20.glGetAttribLocation(program, "aPosition");
     texCoordsHandle = GLES20.glGetAttribLocation(program, "aTexCoords");
