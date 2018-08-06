@@ -30,11 +30,11 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 /** GL utility methods. */
-/*package*/ final class Utils {
+/*package*/ final class GlUtil {
   private static final String TAG = "Spherical.Utils";
 
   /** Class only contains static methods. */
-  private Utils() {}
+  private GlUtil() {}
 
   /**
    * If there is an OpenGl error, logs the error and if {@link

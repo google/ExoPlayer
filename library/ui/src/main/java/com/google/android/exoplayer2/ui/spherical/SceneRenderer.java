@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.ui.spherical;
 
-import static com.google.android.exoplayer2.ui.spherical.Utils.checkGlError;
+import static com.google.android.exoplayer2.ui.spherical.GlUtil.checkGlError;
 
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
@@ -49,7 +49,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     checkGlError();
 
-    textureId = Utils.createExternalTexture();
+    textureId = GlUtil.createExternalTexture();
     surfaceTexture = new SurfaceTexture(textureId);
     surfaceTexture.setOnFrameAvailableListener(surfaceTexture -> frameAvailable.set(true));
     return surfaceTexture;
