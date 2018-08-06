@@ -149,7 +149,10 @@ import java.util.List;
     for (EventSampleStream eventSampleStream : eventSampleStreams) {
       for (EventStream eventStream : eventStreams) {
         if (eventStream.id().equals(eventSampleStream.eventStreamId())) {
-          eventSampleStream.updateEventStream(eventStream, manifest.dynamic);
+          int lastPeriodIndex = manifest.getPeriodCount() - 1;
+          eventSampleStream.updateEventStream(
+              eventStream,
+              /* eventStreamAppendable= */ manifest.dynamic && periodIndex == lastPeriodIndex);
           break;
         }
       }

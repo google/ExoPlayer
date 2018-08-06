@@ -99,8 +99,11 @@
     ([#4491](https://github.com/google/ExoPlayer/issues/4491)).
   * CEA-608: Improve handling of embedded styles
     ([#4321](https://github.com/google/ExoPlayer/issues/4321)).
-* DASH: Exclude text streams from duration calculations
-  ([#4029](https://github.com/google/ExoPlayer/issues/4029)).
+* DASH:
+  * Exclude text streams from duration calculations
+    ([#4029](https://github.com/google/ExoPlayer/issues/4029)).
+  * Fix freezing when playing multi-period manifests with `EventStream`s
+    ([#4492](https://github.com/google/ExoPlayer/issues/4492)).
 * DRM: Allow DrmInitData to carry a license server URL
   ([#3393](https://github.com/google/ExoPlayer/issues/3393)).
 * MPEG-TS: Fix bug preventing SCTE-35 cues from being output
