@@ -24,6 +24,8 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -56,7 +58,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
     private final DataSource.Factory dataSourceFactory;
 
-    private int minLoadableRetryCount;
+    private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean treatLoadErrorsAsEndOfStream;
     private boolean isCreateCalled;
     private @Nullable Object tag;
@@ -69,7 +71,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      */
     public Factory(DataSource.Factory dataSourceFactory) {
       this.dataSourceFactory = Assertions.checkNotNull(dataSourceFactory);
-      this.minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
+      loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
     }
 
     /**
@@ -87,16 +89,36 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     }
 
     /**
-     * Sets the minimum number of times to retry if a loading error occurs. The default value is
-     * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT}.
+     * Sets the minimum number of times to retry if a loading error occurs. See {@link
+     * #setLoadErrorHandlingPolicy} for the default value.
+     *
+     * <p>Calling this method is equivalent to calling {@link #setLoadErrorHandlingPolicy} with
+     * {@link DefaultLoadErrorHandlingPolicy (int)
+     * DefaultLoadErrorHandlingPolicy(minLoadableRetryCount)}
      *
      * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     * @deprecated Use {@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)} instead.
      */
+    @Deprecated
     public Factory setMinLoadableRetryCount(int minLoadableRetryCount) {
+      return setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount));
+    }
+
+    /**
+     * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
+     * DefaultLoadErrorHandlingPolicy()}.
+     *
+     * <p>Calling this method overrides any calls to {@link #setMinLoadableRetryCount(int)}.
+     *
+     * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       Assertions.checkState(!isCreateCalled);
-      this.minLoadableRetryCount = minLoadableRetryCount;
+      this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
       return this;
     }
 
@@ -131,7 +153,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
           dataSourceFactory,
           format,
           durationUs,
-          minLoadableRetryCount,
+          loadErrorHandlingPolicy,
           treatLoadErrorsAsEndOfStream,
           tag);
     }
@@ -165,7 +187,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   private final DataSource.Factory dataSourceFactory;
   private final Format format;
   private final long durationUs;
-  private final int minLoadableRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final boolean treatLoadErrorsAsEndOfStream;
   private final Timeline timeline;
 
@@ -206,7 +228,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
         dataSourceFactory,
         format,
         durationUs,
-        minLoadableRetryCount,
+        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
         /* treatLoadErrorsAsEndOfStream= */ false,
         /* tag= */ null);
   }
@@ -242,7 +264,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
         dataSourceFactory,
         format,
         durationUs,
-        minLoadableRetryCount,
+        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
         treatLoadErrorsAsEndOfStream,
         /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
@@ -255,13 +277,13 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
       DataSource.Factory dataSourceFactory,
       Format format,
       long durationUs,
-      int minLoadableRetryCount,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       boolean treatLoadErrorsAsEndOfStream,
       @Nullable Object tag) {
     this.dataSourceFactory = dataSourceFactory;
     this.format = format;
     this.durationUs = durationUs;
-    this.minLoadableRetryCount = minLoadableRetryCount;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
     dataSpec = new DataSpec(uri);
     timeline =
@@ -293,7 +315,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
         transferListener,
         format,
         durationUs,
-        minLoadableRetryCount,
+        loadErrorHandlingPolicy,
         createEventDispatcher(id),
         treatLoadErrorsAsEndOfStream);
   }

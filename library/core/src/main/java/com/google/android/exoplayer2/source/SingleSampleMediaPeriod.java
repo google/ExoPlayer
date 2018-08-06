@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispat
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
@@ -50,7 +51,7 @@ import java.util.Arrays;
   private final DataSpec dataSpec;
   private final DataSource.Factory dataSourceFactory;
   private final @Nullable TransferListener transferListener;
-  private final int minLoadableRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
   private final TrackGroupArray tracks;
   private final ArrayList<SampleStreamImpl> sampleStreams;
@@ -73,7 +74,7 @@ import java.util.Arrays;
       @Nullable TransferListener transferListener,
       Format format,
       long durationUs,
-      int minLoadableRetryCount,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       boolean treatLoadErrorsAsEndOfStream) {
     this.dataSpec = dataSpec;
@@ -81,7 +82,7 @@ import java.util.Arrays;
     this.transferListener = transferListener;
     this.format = format;
     this.durationUs = durationUs;
-    this.minLoadableRetryCount = minLoadableRetryCount;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
     tracks = new TrackGroupArray(new TrackGroup(format));
@@ -149,7 +150,9 @@ import java.util.Arrays;
     }
     long elapsedRealtimeMs =
         loader.startLoading(
-            new SourceLoadable(dataSpec, dataSource), /* callback= */ this, minLoadableRetryCount);
+            new SourceLoadable(dataSpec, dataSource),
+            /* callback= */ this,
+            loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_MEDIA));
     eventDispatcher.loadStarted(
         dataSpec,
         dataSpec.uri,
@@ -245,7 +248,24 @@ import java.util.Arrays;
       long loadDurationMs,
       IOException error,
       int errorCount) {
-    boolean cancel = treatLoadErrorsAsEndOfStream && errorCount >= minLoadableRetryCount;
+    long retryDelay =
+        loadErrorHandlingPolicy.getRetryDelayMsFor(
+            C.DATA_TYPE_MEDIA, durationUs, error, errorCount);
+    boolean errorCanBePropagated =
+        retryDelay == C.TIME_UNSET
+            || errorCount
+                >= loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_MEDIA);
+
+    LoadErrorAction action;
+    if (treatLoadErrorsAsEndOfStream && errorCanBePropagated) {
+      loadingFinished = true;
+      action = Loader.DONT_RETRY;
+    } else {
+      action =
+          retryDelay != C.TIME_UNSET
+              ? Loader.createRetryAction(/* resetErrorCount= */ false, retryDelay)
+              : Loader.DONT_RETRY_FATAL;
+    }
     eventDispatcher.loadError(
         loadable.dataSpec,
         loadable.dataSource.getLastOpenedUri(),
@@ -260,12 +280,8 @@ import java.util.Arrays;
         loadDurationMs,
         loadable.dataSource.getBytesRead(),
         error,
-        /* wasCanceled= */ cancel);
-    if (cancel) {
-      loadingFinished = true;
-      return Loader.DONT_RETRY;
-    }
-    return Loader.RETRY;
+        /* wasCanceled= */ !action.isRetry());
+    return action;
   }
 
   private final class SampleStreamImpl implements SampleStream {
