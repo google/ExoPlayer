@@ -37,4 +37,18 @@ public final class AdtsExtractorTest {
         },
         "ts/sample.adts");
   }
+
+  @Test
+  public void testSample_withSeeking() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        new ExtractorFactory() {
+          @Override
+          public Extractor create() {
+            return new AdtsExtractor(
+                /* firstStreamSampleTimestampUs= */ 0,
+                /* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
+          }
+        },
+        "ts/sample_cbs.adts");
+  }
 }
