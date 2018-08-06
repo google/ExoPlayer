@@ -22,7 +22,6 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdError;
@@ -227,14 +226,6 @@ public final class ImaAdsLoader
   /** The maximum duration before an ad break that IMA may start preloading the next ad. */
   private static final long MAXIMUM_PRELOAD_DURATION_MS = 8000;
 
-  /**
-   * The "Skip ad" button rendered in the IMA WebView does not gain focus by default and cannot be
-   * clicked via a keypress event. Workaround this issue by calling focus() on the HTML element in
-   * the WebView directly when an ad starts. See [Internal: b/62371030].
-   */
-  private static final String FOCUS_SKIP_BUTTON_WORKAROUND_JS = "javascript:"
-      + "try{ document.getElementsByClassName(\"videoAdUiSkipButton\")[0].focus(); } catch (e) {}";
-
   private static final int TIMEOUT_UNSET = -1;
 
   /** The state of ad playback. */
@@ -269,7 +260,6 @@ public final class ImaAdsLoader
   private List<String> supportedMimeTypes;
   private EventListener eventListener;
   private Player player;
-  private ViewGroup adUiViewGroup;
   private VideoProgressUpdate lastContentProgress;
   private VideoProgressUpdate lastAdProgress;
   private int lastVolumePercentage;
@@ -487,7 +477,6 @@ public final class ImaAdsLoader
   public void attachPlayer(ExoPlayer player, EventListener eventListener, ViewGroup adUiViewGroup) {
     this.player = player;
     this.eventListener = eventListener;
-    this.adUiViewGroup = adUiViewGroup;
     lastVolumePercentage = 0;
     lastAdProgress = null;
     lastContentProgress = null;
@@ -523,7 +512,6 @@ public final class ImaAdsLoader
     player.removeListener(this);
     player = null;
     eventListener = null;
-    adUiViewGroup = null;
   }
 
   @Override
@@ -680,7 +668,7 @@ public final class ImaAdsLoader
     }
   }
 
-  // TODO: Add @Override when the next IMA release is available.
+  @Override
   public int getVolume() {
     if (player == null) {
       return lastVolumePercentage;
@@ -1016,11 +1004,6 @@ public final class ImaAdsLoader
         imaPausedContent = true;
         pauseContentInternal();
         break;
-      case STARTED:
-        if (ad.isSkippable()) {
-          focusSkipButton();
-        }
-        break;
       case TAPPED:
         if (eventListener != null) {
           eventListener.onAdTapped();
@@ -1043,6 +1026,7 @@ public final class ImaAdsLoader
           handleAdGroupLoadError(new IOException(message));
         }
         break;
+      case STARTED:
       case ALL_ADS_COMPLETED:
       default:
         break;
@@ -1191,15 +1175,6 @@ public final class ImaAdsLoader
     // Ignore updates while detached. When a player is attached it will receive the latest state.
     if (eventListener != null) {
       eventListener.onAdPlaybackState(adPlaybackState);
-    }
-  }
-
-  private void focusSkipButton() {
-    if (playingAd && adUiViewGroup != null && adUiViewGroup.getChildCount() > 0
-        && adUiViewGroup.getChildAt(0) instanceof WebView) {
-      WebView webView = (WebView) (adUiViewGroup.getChildAt(0));
-      webView.requestFocus();
-      webView.loadUrl(FOCUS_SKIP_BUTTON_WORKAROUND_JS);
     }
   }
 
