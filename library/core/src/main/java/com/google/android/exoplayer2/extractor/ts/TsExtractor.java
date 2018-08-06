@@ -113,6 +113,7 @@ public final class TsExtractor implements Extractor {
   private final TsDurationReader durationReader;
 
   // Accessed only by the loading thread.
+  private TsBinarySearchSeeker tsBinarySearchSeeker;
   private ExtractorOutput output;
   private int remainingPmts;
   private boolean tracksEnded;
@@ -208,7 +209,23 @@ public final class TsExtractor implements Extractor {
     Assertions.checkState(mode != MODE_HLS);
     int timestampAdjustersCount = timestampAdjusters.size();
     for (int i = 0; i < timestampAdjustersCount; i++) {
-      timestampAdjusters.get(i).reset();
+      TimestampAdjuster timestampAdjuster = timestampAdjusters.get(i);
+      boolean hasNotEncounteredFirstTimestamp =
+          timestampAdjuster.getTimestampOffsetUs() == C.TIME_UNSET;
+      if (hasNotEncounteredFirstTimestamp
+          || (timestampAdjuster.getTimestampOffsetUs() != 0
+              && timestampAdjuster.getFirstSampleTimestampUs() != timeUs)) {
+        // - If a track in the TS stream has not encountered any sample, it's going to treat the
+        // first sample encountered as timestamp 0, which is incorrect. So we have to set the first
+        // sample timestamp for that track manually.
+        // - If the timestamp adjuster has its timestamp set manually before, and now we seek to a
+        // different position, we need to set the first sample timestamp manually again.
+        timestampAdjuster.reset();
+        timestampAdjuster.setFirstSampleTimestampUs(timeUs);
+      }
+    }
+    if (timeUs != 0 && tsBinarySearchSeeker != null) {
+      tsBinarySearchSeeker.setSeekTargetUs(timeUs);
     }
     tsPacketBuffer.reset();
     continuityCounters.clear();
@@ -227,11 +244,12 @@ public final class TsExtractor implements Extractor {
   public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     if (tracksEnded) {
-      boolean canReadDuration = input.getLength() != C.LENGTH_UNSET && mode != MODE_HLS;
+      long inputLength = input.getLength();
+      boolean canReadDuration = inputLength != C.LENGTH_UNSET && mode != MODE_HLS;
       if (canReadDuration && !durationReader.isDurationReadFinished()) {
         return durationReader.readDuration(input, seekPosition, pcrPid);
       }
-      maybeOutputSeekMap();
+      maybeOutputSeekMap(inputLength);
 
       if (pendingSeekToStart) {
         pendingSeekToStart = false;
@@ -240,6 +258,11 @@ public final class TsExtractor implements Extractor {
           seekPosition.position = 0;
           return RESULT_SEEK;
         }
+      }
+
+      if (tsBinarySearchSeeker != null && tsBinarySearchSeeker.isSeeking()) {
+        return tsBinarySearchSeeker.handlePendingSeek(
+            input, seekPosition, /* outputFrameHolder= */ null);
       }
     }
 
@@ -314,10 +337,20 @@ public final class TsExtractor implements Extractor {
 
   // Internals.
 
-  private void maybeOutputSeekMap() {
+  private void maybeOutputSeekMap(long inputLength) {
     if (!hasOutputSeekMap) {
       hasOutputSeekMap = true;
-      output.seekMap(new SeekMap.Unseekable(durationReader.getDurationUs()));
+      if (durationReader.getDurationUs() != C.TIME_UNSET) {
+        tsBinarySearchSeeker =
+            new TsBinarySearchSeeker(
+                durationReader.getPcrTimestampAdjuster(),
+                durationReader.getDurationUs(),
+                inputLength,
+                pcrPid);
+        output.seekMap(tsBinarySearchSeeker.getSeekMap());
+      } else {
+        output.seekMap(new SeekMap.Unseekable(durationReader.getDurationUs()));
+      }
     }
   }
 
@@ -353,7 +386,7 @@ public final class TsExtractor implements Extractor {
   private int findEndOfFirstTsPacketInBuffer() throws ParserException {
     int searchStart = tsPacketBuffer.getPosition();
     int limit = tsPacketBuffer.limit();
-    int syncBytePosition = findSyncBytePosition(tsPacketBuffer.data, searchStart, limit);
+    int syncBytePosition = TsUtil.findSyncBytePosition(tsPacketBuffer.data, searchStart, limit);
     // Discard all bytes before the sync byte.
     // If sync byte is not found, this means discard the whole buffer.
     tsPacketBuffer.setPosition(syncBytePosition);
@@ -368,18 +401,6 @@ public final class TsExtractor implements Extractor {
       bytesSinceLastSync = 0;
     }
     return endOfPacket;
-  }
-
-  /**
-   * Returns the position of the first TS_SYNC_BYTE within the range [startPosition, limitPosition)
-   * from the provided data array, or returns limitPosition if sync byte could not be found.
-   */
-  private static int findSyncBytePosition(byte[] data, int startPosition, int limitPosition) {
-    int position = startPosition;
-    while (position < limitPosition && data[position] != TS_SYNC_BYTE) {
-      position++;
-    }
-    return position;
   }
 
   private boolean shouldConsumePacketPayload(int packetPid) {
