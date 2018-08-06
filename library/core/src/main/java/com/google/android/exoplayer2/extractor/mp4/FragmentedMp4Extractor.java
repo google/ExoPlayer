@@ -77,24 +77,20 @@ public final class FragmentedMp4Extractor implements Extractor {
    * This flag does nothing if the stream is not a video stream.
    */
   public static final int FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME = 1;
-  /**
-   * Flag to ignore any tfdt boxes in the stream.
-   */
-  public static final int FLAG_WORKAROUND_IGNORE_TFDT_BOX = 2;
+  /** Flag to ignore any tfdt boxes in the stream. */
+  public static final int FLAG_WORKAROUND_IGNORE_TFDT_BOX = 1 << 1; // 2
   /**
    * Flag to indicate that the extractor should output an event message metadata track. Any event
    * messages in the stream will be delivered as samples to this track.
    */
-  public static final int FLAG_ENABLE_EMSG_TRACK = 4;
+  public static final int FLAG_ENABLE_EMSG_TRACK = 1 << 2; // 4
   /**
    * Flag to indicate that the {@link Track} was sideloaded, instead of being declared by the MP4
    * container.
    */
-  private static final int FLAG_SIDELOADED = 8;
-  /**
-   * Flag to ignore any edit lists in the stream.
-   */
-  public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 16;
+  private static final int FLAG_SIDELOADED = 1 << 3; // 8
+  /** Flag to ignore any edit lists in the stream. */
+  public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 1 << 4; // 16
 
   private static final String TAG = "FragmentedMp4Extractor";
   private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");

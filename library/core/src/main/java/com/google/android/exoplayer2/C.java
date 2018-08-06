@@ -380,14 +380,10 @@ public final class C {
    * Flag for empty buffers that signal that the end of the stream was reached.
    */
   public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
-  /**
-   * Indicates that a buffer is (at least partially) encrypted.
-   */
-  public static final int BUFFER_FLAG_ENCRYPTED = 0x40000000;
-  /**
-   * Indicates that a buffer should be decoded but not rendered.
-   */
-  public static final int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
+  /** Indicates that a buffer is (at least partially) encrypted. */
+  public static final int BUFFER_FLAG_ENCRYPTED = 1 << 30; // 0x40000000
+  /** Indicates that a buffer should be decoded but not rendered. */
+  public static final int BUFFER_FLAG_DECODE_ONLY = 1 << 31; // 0x80000000
 
   /**
    * Video scaling modes for {@link MediaCodec}-based {@link Renderer}s.
@@ -421,15 +417,13 @@ public final class C {
    * Indicates that the track should be selected if user preferences do not state otherwise.
    */
   public static final int SELECTION_FLAG_DEFAULT = 1;
-  /**
-   * Indicates that the track must be displayed. Only applies to text tracks.
-   */
-  public static final int SELECTION_FLAG_FORCED = 2;
+  /** Indicates that the track must be displayed. Only applies to text tracks. */
+  public static final int SELECTION_FLAG_FORCED = 1 << 1; // 2
   /**
    * Indicates that the player may choose to play the track in absence of an explicit user
    * preference.
    */
-  public static final int SELECTION_FLAG_AUTOSELECT = 4;
+  public static final int SELECTION_FLAG_AUTOSELECT = 1 << 2; // 4
 
   /**
    * Represents an undetermined language as an ISO 639 alpha-3 language code.

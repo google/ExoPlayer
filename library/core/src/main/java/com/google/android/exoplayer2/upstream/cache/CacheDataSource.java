@@ -65,20 +65,20 @@ public final class CacheDataSource implements DataSource {
    * A flag indicating whether we will block reads if the cache key is locked. If unset then data is
    * read from upstream if the cache key is locked, regardless of whether the data is cached.
    */
-  public static final int FLAG_BLOCK_ON_CACHE = 1 << 0;
+  public static final int FLAG_BLOCK_ON_CACHE = 1;
 
   /**
    * A flag indicating whether the cache is bypassed following any cache related error. If set
    * then cache related exceptions may be thrown for one cycle of open, read and close calls.
    * Subsequent cycles of these calls will then bypass the cache.
    */
-  public static final int FLAG_IGNORE_CACHE_ON_ERROR = 1 << 1;
+  public static final int FLAG_IGNORE_CACHE_ON_ERROR = 1 << 1; // 2
 
   /**
    * A flag indicating that the cache should be bypassed for requests whose lengths are unset. This
    * flag is provided for legacy reasons only.
    */
-  public static final int FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS = 1 << 2;
+  public static final int FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS = 1 << 2; // 4
 
   /** Reasons the cache may be ignored. */
   @Retention(RetentionPolicy.SOURCE)
