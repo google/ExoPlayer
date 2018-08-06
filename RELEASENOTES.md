@@ -16,6 +16,9 @@
   * Support approximate seeking in AMR using a constant bitrate assumption.
     Note that the `FLAG_ENABLE_CONSTANT_BITRATE_SEEKING` flag must be set on the
     extractor to enable this functionality.
+  * Add `DefaultExtractorsFactory.setConstantBitrateSeekingEnabled` to enable
+    approximate seeking using a constant bitrate assumption for all extractors
+    that support it.
 * MPEG-TS: Support CEA-608/708 in H262
   ([#2565](https://github.com/google/ExoPlayer/issues/2565)).
 * MediaSession extension: Allow apps to set custom errors.
