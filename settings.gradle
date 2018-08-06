@@ -25,7 +25,6 @@ include modulePrefix + 'playbacktests'
 project(modulePrefix + 'demo').projectDir = new File(rootDir, 'demos/main')
 project(modulePrefix + 'demo-cast').projectDir = new File(rootDir, 'demos/cast')
 project(modulePrefix + 'demo-ima').projectDir = new File(rootDir, 'demos/ima')
-project(modulePrefix + 'demo-retriever').projectDir = new File(rootDir, 'demos/retriever')
 project(modulePrefix + 'playbacktests').projectDir = new File(rootDir, 'playbacktests')
 
 apply from: 'core_settings.gradle'
