@@ -170,25 +170,25 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustSampleTimestamp-long-">adjustSampleTimestamp</a></span>(long&nbsp;timeUs)</code>
-<div class="block">Offsets a sample timestamp in microseconds.</div>
+<div class="block">Offsets a timestamp in microseconds.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustTsTimestamp-long-">adjustTsTimestamp</a></span>(long&nbsp;pts)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustTsTimestamp-long-">adjustTsTimestamp</a></span>(long&nbsp;pts90Khz)</code>
 <div class="block">Scales and offsets an MPEG-2 TS presentation timestamp considering wraparound.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#getFirstSampleTimestampUs--">getFirstSampleTimestampUs</a></span>()</code>
-<div class="block">Returns the first adjusted sample timestamp in microseconds.</div>
+<div class="block">Returns the last value passed to <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#setFirstSampleTimestampUs-long-"><code>setFirstSampleTimestampUs(long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#getLastAdjustedTimestampUs--">getLastAdjustedTimestampUs</a></span>()</code>
-<div class="block">Returns the last adjusted timestamp.</div>
+<div class="block">Returns the last value obtained from <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustSampleTimestamp-long-"><code>adjustSampleTimestamp(long)</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -200,7 +200,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#ptsToUs-long-">ptsToUs</a></span>(long&nbsp;pts)</code>
-<div class="block">Converts a value in MPEG-2 timestamp units to the corresponding value in microseconds.</div>
+<div class="block">Converts a 90 kHz clock timestamp to a timestamp in microseconds.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -218,7 +218,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>static long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#usToPts-long-">usToPts</a></span>(long&nbsp;us)</code>
-<div class="block">Converts a value in microseconds to the corresponding values in MPEG-2 timestamp units.</div>
+<div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
@@ -316,11 +316,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>getFirstSampleTimestampUs</h4>
 <pre>public&nbsp;long&nbsp;getFirstSampleTimestampUs()</pre>
-<div class="block">Returns the first adjusted sample timestamp in microseconds.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The first adjusted sample timestamp in microseconds.</dd>
-</dl>
+<div class="block">Returns the last value passed to <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#setFirstSampleTimestampUs-long-"><code>setFirstSampleTimestampUs(long)</code></a>.</div>
 </li>
 </ul>
 <a name="getLastAdjustedTimestampUs--">
@@ -330,15 +326,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>getLastAdjustedTimestampUs</h4>
 <pre>public&nbsp;long&nbsp;getLastAdjustedTimestampUs()</pre>
-<div class="block">Returns the last adjusted timestamp. If no timestamp has been adjusted, returns
- <code>firstSampleTimestampUs</code> as provided to the constructor. If this value is
- <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a>, returns <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The last adjusted timestamp. If not present, <code>firstSampleTimestampUs</code> is
-     returned unless equal to <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a>, in which case <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> is
-     returned.</dd>
-</dl>
+<div class="block">Returns the last value obtained from <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustSampleTimestamp-long-"><code>adjustSampleTimestamp(long)</code></a>. If <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#adjustSampleTimestamp-long-"><code>adjustSampleTimestamp(long)</code></a> has not been called, returns the result of calling <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#getFirstSampleTimestampUs--"><code>getFirstSampleTimestampUs()</code></a>. If this value is <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#DO_NOT_OFFSET"><code>DO_NOT_OFFSET</code></a>, returns <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.</div>
 </li>
 </ul>
 <a name="getTimestampOffsetUs--">
@@ -375,11 +363,11 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>adjustTsTimestamp</h4>
-<pre>public&nbsp;long&nbsp;adjustTsTimestamp(long&nbsp;pts)</pre>
+<pre>public&nbsp;long&nbsp;adjustTsTimestamp(long&nbsp;pts90Khz)</pre>
 <div class="block">Scales and offsets an MPEG-2 TS presentation timestamp considering wraparound.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>pts</code> - The MPEG-2 TS presentation timestamp.</dd>
+<dd><code>pts90Khz</code> - A 90 kHz clock MPEG-2 TS presentation timestamp.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The adjusted timestamp in microseconds.</dd>
 </dl>
@@ -392,10 +380,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>adjustSampleTimestamp</h4>
 <pre>public&nbsp;long&nbsp;adjustSampleTimestamp(long&nbsp;timeUs)</pre>
-<div class="block">Offsets a sample timestamp in microseconds.</div>
+<div class="block">Offsets a timestamp in microseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>timeUs</code> - The timestamp of a sample to adjust.</dd>
+<dd><code>timeUs</code> - The timestamp to adjust in microseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The adjusted timestamp in microseconds.</dd>
 </dl>
@@ -423,10 +411,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>ptsToUs</h4>
 <pre>public static&nbsp;long&nbsp;ptsToUs(long&nbsp;pts)</pre>
-<div class="block">Converts a value in MPEG-2 timestamp units to the corresponding value in microseconds.</div>
+<div class="block">Converts a 90 kHz clock timestamp to a timestamp in microseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>pts</code> - A value in MPEG-2 timestamp units.</dd>
+<dd><code>pts</code> - A 90 kHz clock timestamp.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The corresponding value in microseconds.</dd>
 </dl>
@@ -439,12 +427,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>usToPts</h4>
 <pre>public static&nbsp;long&nbsp;usToPts(long&nbsp;us)</pre>
-<div class="block">Converts a value in microseconds to the corresponding values in MPEG-2 timestamp units.</div>
+<div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>us</code> - A value in microseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The corresponding value in MPEG-2 timestamp units.</dd>
+<dd>The corresponding value as a 90 kHz clock timestamp.</dd>
 </dl>
 </li>
 </ul>

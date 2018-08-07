@@ -802,6 +802,18 @@ public final&nbsp;<a href="../../../../com/google/android/exoplayer2/drm/DrmInit
 <div class="block">DRM initialization data if the stream is protected, or null otherwise.</div>
 </li>
 </ul>
+<a name="subsampleOffsetUs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subsampleOffsetUs</h4>
+<pre>public final&nbsp;long subsampleOffsetUs</pre>
+<div class="block">For samples that contain subsamples, this is an offset that should be added to subsample
+ timestamps. A value of <a href="../../../../com/google/android/exoplayer2/Format.html#OFFSET_SAMPLE_RELATIVE"><code>OFFSET_SAMPLE_RELATIVE</code></a> indicates that subsample timestamps are
+ relative to the timestamps of their parent samples.</div>
+</li>
+</ul>
 <a name="width">
 <!--   -->
 </a>
@@ -938,18 +950,6 @@ public final&nbsp;<a href="../../../../com/google/android/exoplayer2/video/Color
 <h4>encoderPadding</h4>
 <pre>public final&nbsp;int encoderPadding</pre>
 <div class="block">The number of frames to trim from the end of the decoded audio stream, or 0 if not applicable.</div>
-</li>
-</ul>
-<a name="subsampleOffsetUs">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>subsampleOffsetUs</h4>
-<pre>public final&nbsp;long subsampleOffsetUs</pre>
-<div class="block">For samples that contain subsamples, this is an offset that should be added to subsample
- timestamps. A value of <a href="../../../../com/google/android/exoplayer2/Format.html#OFFSET_SAMPLE_RELATIVE"><code>OFFSET_SAMPLE_RELATIVE</code></a> indicates that subsample timestamps are
- relative to the timestamps of their parent samples.</div>
 </li>
 </ul>
 <a name="selectionFlags">

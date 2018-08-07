@@ -112,7 +112,8 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public static final class <span class="typeNameLabel">DefaultTrackSelector.ParametersBuilder</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></pre>
-<div class="block">A builder for <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>.</div>
+<div class="block">A builder for <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a>. See the <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> documentation for explanations of
+ the parameters that can be configured using this builder.</div>
 </li>
 </ul>
 </div>
@@ -132,7 +133,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#ParametersBuilder--">ParametersBuilder</a></span>()</code>
-<div class="block">Creates a builder obtaining the initial values from <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#DEFAULT"><code>DefaultTrackSelector.Parameters.DEFAULT</code></a>.</div>
+<div class="block">Creates a builder with default initial values.</div>
 </td>
 </tr>
 </table>
@@ -279,7 +280,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.ParametersBuilder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setTunnelingAudioSessionId-int-">setTunnelingAudioSessionId</a></span>(int&nbsp;tunnelingAudioSessionId)</code>
-<div class="block">Enables or disables tunneling.</div>
+<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#tunnelingAudioSessionId"><code>DefaultTrackSelector.Parameters.tunnelingAudioSessionId</code></a>.</div>
 </td>
 </tr>
 <tr id="i21" class="rowColor">
@@ -287,16 +288,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setViewportSize-int-int-boolean-">setViewportSize</a></span>(int&nbsp;viewportWidth,
                int&nbsp;viewportHeight,
                boolean&nbsp;viewportOrientationMayChange)</code>
-<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportWidth"><code>DefaultTrackSelector.Parameters.viewportWidth</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoHeight"><code>DefaultTrackSelector.Parameters.maxVideoHeight</code></a> and
- <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportOrientationMayChange"><code>DefaultTrackSelector.Parameters.viewportOrientationMayChange</code></a>.</div>
+<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportWidth"><code>DefaultTrackSelector.Parameters.viewportWidth</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoHeight"><code>DefaultTrackSelector.Parameters.maxVideoHeight</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportOrientationMayChange"><code>DefaultTrackSelector.Parameters.viewportOrientationMayChange</code></a>.</div>
 </td>
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.ParametersBuilder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setViewportSizeToPhysicalDisplaySize-android.content.Context-boolean-">setViewportSizeToPhysicalDisplaySize</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                                     boolean&nbsp;viewportOrientationMayChange)</code>
-<div class="block">Equivalent to invoking <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setViewportSize-int-int-boolean-"><code>setViewportSize(int, int, boolean)</code></a> with the viewport size obtained from
- <a href="../../../../../com/google/android/exoplayer2/util/Util.html#getPhysicalDisplaySize-android.content.Context-"><code>Util.getPhysicalDisplaySize(Context)</code></a>.</div>
+<div class="block">Equivalent to calling <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setViewportSize-int-int-boolean-"><code>setViewportSize(int, int, boolean)</code></a> with the viewport size
+ obtained from <a href="../../../../../com/google/android/exoplayer2/util/Util.html#getPhysicalDisplaySize-android.content.Context-"><code>Util.getPhysicalDisplaySize(Context)</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -328,7 +328,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>ParametersBuilder</h4>
 <pre>public&nbsp;ParametersBuilder()</pre>
-<div class="block">Creates a builder obtaining the initial values from <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#DEFAULT"><code>DefaultTrackSelector.Parameters.DEFAULT</code></a>.</div>
+<div class="block">Creates a builder with default initial values.</div>
 </li>
 </ul>
 </li>
@@ -530,12 +530,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>setViewportSizeToPhysicalDisplaySize</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.ParametersBuilder</a>&nbsp;setViewportSizeToPhysicalDisplaySize(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                                                                                    boolean&nbsp;viewportOrientationMayChange)</pre>
-<div class="block">Equivalent to invoking <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setViewportSize-int-int-boolean-"><code>setViewportSize(int, int, boolean)</code></a> with the viewport size obtained from
- <a href="../../../../../com/google/android/exoplayer2/util/Util.html#getPhysicalDisplaySize-android.content.Context-"><code>Util.getPhysicalDisplaySize(Context)</code></a>.</div>
+<div class="block">Equivalent to calling <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setViewportSize-int-int-boolean-"><code>setViewportSize(int, int, boolean)</code></a> with the viewport size
+ obtained from <a href="../../../../../com/google/android/exoplayer2/util/Util.html#getPhysicalDisplaySize-android.content.Context-"><code>Util.getPhysicalDisplaySize(Context)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The context to obtain the viewport size from.</dd>
-<dd><code>viewportOrientationMayChange</code> - See <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#viewportOrientationMayChange"><code>viewportOrientationMayChange</code></a>.</dd>
+<dd><code>context</code> - Any context.</dd>
+<dd><code>viewportOrientationMayChange</code> - See <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportOrientationMayChange"><code>DefaultTrackSelector.Parameters.viewportOrientationMayChange</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -565,9 +565,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.ParametersBuilder</a>&nbsp;setViewportSize(int&nbsp;viewportWidth,
                                                               int&nbsp;viewportHeight,
                                                               boolean&nbsp;viewportOrientationMayChange)</pre>
-<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportWidth"><code>DefaultTrackSelector.Parameters.viewportWidth</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoHeight"><code>DefaultTrackSelector.Parameters.maxVideoHeight</code></a> and
- <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportOrientationMayChange"><code>DefaultTrackSelector.Parameters.viewportOrientationMayChange</code></a>.</div>
+<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportWidth"><code>DefaultTrackSelector.Parameters.viewportWidth</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoHeight"><code>DefaultTrackSelector.Parameters.maxVideoHeight</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportOrientationMayChange"><code>DefaultTrackSelector.Parameters.viewportOrientationMayChange</code></a>.</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>viewportWidth</code> - See <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportWidth"><code>DefaultTrackSelector.Parameters.viewportWidth</code></a>.</dd>
+<dd><code>viewportHeight</code> - See <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportHeight"><code>DefaultTrackSelector.Parameters.viewportHeight</code></a>.</dd>
+<dd><code>viewportOrientationMayChange</code> - See <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportOrientationMayChange"><code>DefaultTrackSelector.Parameters.viewportOrientationMayChange</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -667,8 +670,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>setTunnelingAudioSessionId</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.ParametersBuilder</a>&nbsp;setTunnelingAudioSessionId(int&nbsp;tunnelingAudioSessionId)</pre>
-<div class="block">Enables or disables tunneling. To enable tunneling, pass an audio session id to use when in
- tunneling mode. Session ids can be generated using <a href="../../../../../com/google/android/exoplayer2/C.html#generateAudioSessionIdV21-android.content.Context-"><code>C.generateAudioSessionIdV21(Context)</code></a>. To disable tunneling pass <a href="../../../../../com/google/android/exoplayer2/C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a>. Tunneling will only be activated if it's both enabled and
+<div class="block">See <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#tunnelingAudioSessionId"><code>DefaultTrackSelector.Parameters.tunnelingAudioSessionId</code></a>.
+
+ <p>Enables or disables tunneling. To enable tunneling, pass an audio session id to use when
+ in tunneling mode. Session ids can be generated using <a href="../../../../../com/google/android/exoplayer2/C.html#generateAudioSessionIdV21-android.content.Context-"><code>C.generateAudioSessionIdV21(Context)</code></a>. To disable tunneling pass <a href="../../../../../com/google/android/exoplayer2/C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a>. Tunneling will only be activated if it's both enabled and
  supported by the audio and video renderers for the selected tracks.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

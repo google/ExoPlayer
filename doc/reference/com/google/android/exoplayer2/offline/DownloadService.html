@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":6,"i2":6,"i3":10,"i4":6,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":9,"i11":9,"i12":9};
+var methods = {"i0":9,"i1":6,"i2":6,"i3":10,"i4":6,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":9,"i12":9,"i13":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -299,26 +299,30 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
               int&nbsp;startId)</code>&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#onTaskRemoved-android.content.Intent-">onTaskRemoved</a></span>(<a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a>&nbsp;rootIntent)</code>&nbsp;</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#onTaskStateChanged-com.google.android.exoplayer2.offline.DownloadManager.TaskState-">onTaskStateChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline">DownloadManager.TaskState</a>&nbsp;taskState)</code>
 <div class="block">Called when the state of a task changes.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#start-android.content.Context-java.lang.Class-">start</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz)</code>
 <div class="block">Starts the service without adding a new action.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#startForeground-android.content.Context-java.lang.Class-">startForeground</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz)</code>
 <div class="block">Starts the service in the foreground without adding a new action.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#startWithAction-android.content.Context-java.lang.Class-com.google.android.exoplayer2.offline.DownloadAction-boolean-">startWithAction</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Class.html" target="_top" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a>&gt;&nbsp;clazz,
@@ -333,7 +337,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;android.app.<a href="https://developer.android.com/reference/android/app/Service.html" target="_top" title="class or interface in android.app">Service</a></h3>
-<code><a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#dump-java.io.FileDescriptor-java.io.PrintWriter-java.lang.String:A-" title="class or interface in android.app">dump</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#getApplication--" title="class or interface in android.app">getApplication</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onConfigurationChanged-android.content.res.Configuration-" title="class or interface in android.app">onConfigurationChanged</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onLowMemory--" title="class or interface in android.app">onLowMemory</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onRebind-android.content.Intent-" title="class or interface in android.app">onRebind</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onStart-android.content.Intent-int-" title="class or interface in android.app">onStart</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onTaskRemoved-android.content.Intent-" title="class or interface in android.app">onTaskRemoved</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onTrimMemory-int-" title="class or interface in android.app">onTrimMemory</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onUnbind-android.content.Intent-" title="class or interface in android.app">onUnbind</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#startForeground-int-android.app.Notification-" title="class or interface in android.app">startForeground</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#stopForeground-boolean-" title="class or interface in android.app">stopForeground</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#stopForeground-int-" title="class or interface in android.app">stopForeground</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#stopSelf--" title="class or interface in android.app">stopSelf</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#stopSelf-int-" title="class or interface in android.app">stopSelf</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#stopSelfResult-int-" title="class or interface in android.app">stopSelfResult</a></code></li>
+<code><a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#dump-java.io.FileDescriptor-java.io.PrintWriter-java.lang.String:A-" title="class or interface in android.app">dump</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#getApplication--" title="class or interface in android.app">getApplication</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onConfigurationChanged-android.content.res.Configuration-" title="class or interface in android.app">onConfigurationChanged</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onLowMemory--" title="class or interface in android.app">onLowMemory</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onRebind-android.content.Intent-" title="class or interface in android.app">onRebind</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onStart-android.content.Intent-int-" title="class or interface in android.app">onStart</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onTrimMemory-int-" title="class or interface in android.app">onTrimMemory</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onUnbind-android.content.Intent-" title="class or interface in android.app">onUnbind</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#startForeground-int-android.app.Notification-" title="class or interface in android.app">startForeground</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#stopForeground-boolean-" title="class or interface in android.app">stopForeground</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#stopForeground-int-" title="class or interface in android.app">stopForeground</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#stopSelf--" title="class or interface in android.app">stopSelf</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#stopSelf-int-" title="class or interface in android.app">stopSelf</a>, <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#stopSelfResult-int-" title="class or interface in android.app">stopSelfResult</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.android.content.ContextWrapper">
@@ -623,6 +627,19 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onStartCommand-android.content.Intent-int-int-" title="class or interface in android.app">onStartCommand</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/app/Service.html" target="_top" title="class or interface in android.app">Service</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="onTaskRemoved-android.content.Intent-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onTaskRemoved</h4>
+<pre>public&nbsp;void&nbsp;onTaskRemoved(<a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a>&nbsp;rootIntent)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#onTaskRemoved-android.content.Intent-" title="class or interface in android.app">onTaskRemoved</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/app/Service.html" target="_top" title="class or interface in android.app">Service</a></code></dd>
 </dl>
 </li>
 </ul>

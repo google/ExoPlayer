@@ -170,10 +170,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#DEFAULT">DEFAULT</a></span></code>
-<div class="block">An instance with default values:
-
- 
-   No preferred audio language.</div>
+<div class="block">An instance with default values.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -191,7 +188,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#exceedVideoConstraintsIfNecessary">exceedVideoConstraintsIfNecessary</a></span></code>
-<div class="block">Whether to exceed video constraints when no selection can be made otherwise.</div>
+<div class="block">Whether to exceed the <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoWidth"><code>maxVideoWidth</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoHeight"><code>maxVideoHeight</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoBitrate"><code>maxVideoBitrate</code></a> constraints when no selection can be made otherwise.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -222,7 +219,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredAudioLanguage">preferredAudioLanguage</a></span></code>
-<div class="block">The preferred language for audio, as well as for forced text tracks, as an ISO 639-2/T tag.</div>
+<div class="block">The preferred language for audio and forced text tracks, as an ISO 639-2/T tag.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -234,15 +231,14 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#selectUndeterminedTextLanguage">selectUndeterminedTextLanguage</a></span></code>
-<div class="block">Whether a text track with undetermined language should be selected if no track with
- <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is available, or if <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is unset.</div>
+<div class="block">Whether a text track with undetermined language should be selected if no track with <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is available, or if <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is unset.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#tunnelingAudioSessionId">tunnelingAudioSessionId</a></span></code>
 <div class="block">The audio session id to use when tunneling, or <a href="../../../../../com/google/android/exoplayer2/C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if tunneling
- is not to be enabled.</div>
+ is disabled.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -357,22 +353,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>DEFAULT</h4>
 <pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a> DEFAULT</pre>
-<div class="block">An instance with default values:
-
- <ul>
-   <li>No preferred audio language.
-   <li>No preferred text language.
-   <li>Text tracks with undetermined language are not selected if no track with <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is available.
-   <li>All selection flags are considered for text track selections.
-   <li>Lowest bitrate track selections are not forced.
-   <li>Adaptation between different mime types is not allowed.
-   <li>Non seamless adaptation is allowed.
-   <li>No max limit for video width/height.
-   <li>No max video bitrate.
-   <li>Video constraints are exceeded if no supported selection can be made otherwise.
-   <li>Renderer capabilities are exceeded if no supported selection can be made.
-   <li>No viewport constraints.
- </ul></div>
+<div class="block">An instance with default values.</div>
 </li>
 </ul>
 <a name="preferredAudioLanguage">
@@ -383,8 +364,9 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <h4>preferredAudioLanguage</h4>
 <pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
 public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> preferredAudioLanguage</pre>
-<div class="block">The preferred language for audio, as well as for forced text tracks, as an ISO 639-2/T tag.
- <code>null</code> selects the default track, or the first track if there's no default.</div>
+<div class="block">The preferred language for audio and forced text tracks, as an ISO 639-2/T tag. <code>null</code>
+ selects the default track, or the first track if there's no default. The default value is
+ <code>null</code>.</div>
 </li>
 </ul>
 <a name="preferredTextLanguage">
@@ -396,7 +378,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
 public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> preferredTextLanguage</pre>
 <div class="block">The preferred language for text tracks as an ISO 639-2/T tag. <code>null</code> selects the
- default track if there is one, or no track otherwise.</div>
+ default track if there is one, or no track otherwise. The default value is <code>null</code>.</div>
 </li>
 </ul>
 <a name="selectUndeterminedTextLanguage">
@@ -406,8 +388,8 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>selectUndeterminedTextLanguage</h4>
 <pre>public final&nbsp;boolean selectUndeterminedTextLanguage</pre>
-<div class="block">Whether a text track with undetermined language should be selected if no track with
- <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is available, or if <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is unset.</div>
+<div class="block">Whether a text track with undetermined language should be selected if no track with <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is available, or if <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#preferredTextLanguage"><code>preferredTextLanguage</code></a> is unset. The
+ default value is <code>false</code>.</div>
 </li>
 </ul>
 <a name="disabledTextTrackSelectionFlags">
@@ -417,7 +399,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>disabledTextTrackSelectionFlags</h4>
 <pre>public final&nbsp;int disabledTextTrackSelectionFlags</pre>
-<div class="block">Bitmask of selection flags that are disabled for text track selections. See <code>C.SelectionFlags</code>.</div>
+<div class="block">Bitmask of selection flags that are disabled for text track selections. See <code>C.SelectionFlags</code>. The default value is <code>0</code> (i.e. no flags).</div>
 </li>
 </ul>
 <a name="maxVideoWidth">
@@ -427,7 +409,11 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>maxVideoWidth</h4>
 <pre>public final&nbsp;int maxVideoWidth</pre>
-<div class="block">Maximum allowed video width.</div>
+<div class="block">Maximum allowed video width. The default value is <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true#MAX_VALUE" title="class or interface in java.lang"><code>Integer.MAX_VALUE</code></a> (i.e. no
+ constraint).
+
+ <p>To constrain adaptive video track selections to be suitable for a given viewport (the
+ region of the display within which video will be played), use (<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportWidth"><code>viewportWidth</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportHeight"><code>viewportHeight</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportOrientationMayChange"><code>viewportOrientationMayChange</code></a>) instead.</div>
 </li>
 </ul>
 <a name="maxVideoHeight">
@@ -437,7 +423,11 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>maxVideoHeight</h4>
 <pre>public final&nbsp;int maxVideoHeight</pre>
-<div class="block">Maximum allowed video height.</div>
+<div class="block">Maximum allowed video height. The default value is <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true#MAX_VALUE" title="class or interface in java.lang"><code>Integer.MAX_VALUE</code></a> (i.e. no
+ constraint).
+
+ <p>To constrain adaptive video track selections to be suitable for a given viewport (the
+ region of the display within which video will be played), use (<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportWidth"><code>viewportWidth</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportHeight"><code>viewportHeight</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportOrientationMayChange"><code>viewportOrientationMayChange</code></a>) instead.</div>
 </li>
 </ul>
 <a name="maxVideoBitrate">
@@ -447,7 +437,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>maxVideoBitrate</h4>
 <pre>public final&nbsp;int maxVideoBitrate</pre>
-<div class="block">Maximum video bitrate.</div>
+<div class="block">Maximum video bitrate. The default value is <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true#MAX_VALUE" title="class or interface in java.lang"><code>Integer.MAX_VALUE</code></a> (i.e. no constraint).</div>
 </li>
 </ul>
 <a name="exceedVideoConstraintsIfNecessary">
@@ -457,7 +447,8 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>exceedVideoConstraintsIfNecessary</h4>
 <pre>public final&nbsp;boolean exceedVideoConstraintsIfNecessary</pre>
-<div class="block">Whether to exceed video constraints when no selection can be made otherwise.</div>
+<div class="block">Whether to exceed the <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoWidth"><code>maxVideoWidth</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoHeight"><code>maxVideoHeight</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoBitrate"><code>maxVideoBitrate</code></a> constraints when no selection can be made otherwise. The default value is
+ <code>true</code>.</div>
 </li>
 </ul>
 <a name="viewportWidth">
@@ -467,8 +458,9 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>viewportWidth</h4>
 <pre>public final&nbsp;int viewportWidth</pre>
-<div class="block">Viewport width in pixels. Constrains video tracks selections for adaptive playbacks so that
- only tracks suitable for the viewport are selected.</div>
+<div class="block">Viewport width in pixels. Constrains video track selections for adaptive content so that only
+ tracks suitable for the viewport are selected. The default value is <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true#MAX_VALUE" title="class or interface in java.lang"><code>Integer.MAX_VALUE</code></a>
+ (i.e. no constraint).</div>
 </li>
 </ul>
 <a name="viewportHeight">
@@ -478,8 +470,8 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>viewportHeight</h4>
 <pre>public final&nbsp;int viewportHeight</pre>
-<div class="block">Viewport height in pixels. Constrains video tracks selections for adaptive playbacks so that
- only tracks suitable for the viewport are selected.</div>
+<div class="block">Viewport height in pixels. Constrains video track selections for adaptive content so that
+ only tracks suitable for the viewport are selected. The default value is <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true#MAX_VALUE" title="class or interface in java.lang"><code>Integer.MAX_VALUE</code></a> (i.e. no constraint).</div>
 </li>
 </ul>
 <a name="viewportOrientationMayChange">
@@ -489,8 +481,9 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>viewportOrientationMayChange</h4>
 <pre>public final&nbsp;boolean viewportOrientationMayChange</pre>
-<div class="block">Whether the viewport orientation may change during playback. Constrains video tracks
- selections for adaptive playbacks so that only tracks suitable for the viewport are selected.</div>
+<div class="block">Whether the viewport orientation may change during playback. Constrains video track
+ selections for adaptive content so that only tracks suitable for the viewport are selected.
+ The default value is <code>true</code>.</div>
 </li>
 </ul>
 <a name="forceLowestBitrate">
@@ -501,7 +494,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <h4>forceLowestBitrate</h4>
 <pre>public final&nbsp;boolean forceLowestBitrate</pre>
 <div class="block">Whether to force selection of the single lowest bitrate audio and video tracks that comply
- with all other constraints.</div>
+ with all other constraints. The default value is <code>false</code>.</div>
 </li>
 </ul>
 <a name="allowMixedMimeAdaptiveness">
@@ -511,7 +504,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>allowMixedMimeAdaptiveness</h4>
 <pre>public final&nbsp;boolean allowMixedMimeAdaptiveness</pre>
-<div class="block">Whether to allow adaptive selections containing mixed mime types.</div>
+<div class="block">Whether to allow adaptive selections containing mixed mime types. The default value is <code>false</code>.</div>
 </li>
 </ul>
 <a name="allowNonSeamlessAdaptiveness">
@@ -521,7 +514,8 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>allowNonSeamlessAdaptiveness</h4>
 <pre>public final&nbsp;boolean allowNonSeamlessAdaptiveness</pre>
-<div class="block">Whether to allow adaptive selections where adaptation may not be completely seamless.</div>
+<div class="block">Whether to allow adaptive selections where adaptation may not be completely seamless. The
+ default value is <code>true</code>.</div>
 </li>
 </ul>
 <a name="exceedRendererCapabilitiesIfNecessary">
@@ -531,7 +525,13 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>exceedRendererCapabilitiesIfNecessary</h4>
 <pre>public final&nbsp;boolean exceedRendererCapabilitiesIfNecessary</pre>
-<div class="block">Whether to exceed renderer capabilities when no selection can be made otherwise.</div>
+<div class="block">Whether to exceed renderer capabilities when no selection can be made otherwise.
+
+ <p>This parameter applies when all of the tracks available for a renderer exceed the
+ renderer's reported capabilities. If the parameter is <code>true</code> then the lowest quality
+ track will still be selected. Playback may succeed if the renderer has under-reported its
+ true capabilities. If <code>false</code> then no track will be selected. The default value is
+ <code>true</code>.</div>
 </li>
 </ul>
 <a name="tunnelingAudioSessionId">
@@ -542,7 +542,8 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <h4>tunnelingAudioSessionId</h4>
 <pre>public final&nbsp;int tunnelingAudioSessionId</pre>
 <div class="block">The audio session id to use when tunneling, or <a href="../../../../../com/google/android/exoplayer2/C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if tunneling
- is not to be enabled.</div>
+ is disabled. The default value is <a href="../../../../../com/google/android/exoplayer2/C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> (i.e. tunneling is
+ disabled).</div>
 </li>
 </ul>
 <a name="CREATOR">

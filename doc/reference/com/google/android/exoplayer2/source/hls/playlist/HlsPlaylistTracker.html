@@ -229,22 +229,22 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#release--">release</a></span>()</code>
-<div class="block">Releases all acquired resources.</div>
-</td>
-</tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#removeListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">removeListener</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</code>
 <div class="block">Unregisters a listener.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#start-android.net.Uri-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener-">start</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;initialPlaylistUri,
      <a href="../../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
      <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;listener)</code>
 <div class="block">Starts the playlist tracker.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#stop--">stop</a></span>()</code>
+<div class="block">Stops the playlist tracker and releases any acquired resources.</div>
 </td>
 </tr>
 </table>
@@ -273,7 +273,8 @@ var activeTableTab = "activeTableTab";
            <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;listener)</pre>
 <div class="block">Starts the playlist tracker.
 
- <p>Must be called from the playback thread. A tracker may be restarted after a <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#release--"><code>release()</code></a> call.</div>
+ <p>Must be called from the playback thread. A tracker may be restarted after a <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#stop--"><code>stop()</code></a>
+ call.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>initialPlaylistUri</code> - Uri of the HLS stream. Can point to a media playlist or a master
@@ -283,14 +284,16 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
-<a name="release--">
+<a name="stop--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>release</h4>
-<pre>void&nbsp;release()</pre>
-<div class="block">Releases all acquired resources. Must be called once per <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#start-android.net.Uri-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener-"><code>start(android.net.Uri, com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher, com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)</code></a> call.</div>
+<h4>stop</h4>
+<pre>void&nbsp;stop()</pre>
+<div class="block">Stops the playlist tracker and releases any acquired resources.
+
+ <p>Must be called once per <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#start-android.net.Uri-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener-"><code>start(android.net.Uri, com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher, com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)</code></a> call.</div>
 </li>
 </ul>
 <a name="addListener-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener-">
