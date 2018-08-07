@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.castdemo;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.view.View;
 import com.google.android.exoplayer2.C;
@@ -282,7 +283,7 @@ import java.util.ArrayList;
 
   @Override
   public void onTimelineChanged(
-      Timeline timeline, Object manifest, @TimelineChangeReason int reason) {
+      Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
     updateCurrentItemIndex();
     if (timeline.isEmpty()) {
       castMediaQueueCreationPending = true;

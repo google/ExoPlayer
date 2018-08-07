@@ -38,6 +38,7 @@ import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
+import com.google.ads.interactivemedia.v3.api.CompanionAdSlot;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
@@ -62,6 +63,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -267,13 +269,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
   /** The expected ad group index that IMA should load next. */
   private int expectedAdGroupIndex;
-  /**
-   * The index of the current ad group that IMA is loading.
-   */
+  /** The index of the current ad group that IMA is loading. */
   private int adGroupIndex;
-  /**
-   * Whether IMA has sent an ad event to pause content since the last resume content event.
-   */
+  /** Whether IMA has sent an ad event to pause content since the last resume content event. */
   private boolean imaPausedContent;
   /** The current ad playback state. */
   private @ImaAdState int imaAdState;
@@ -285,9 +283,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
 
   // Fields tracking the player/loader state.
 
-  /**
-   * Whether the player is playing an ad.
-   */
+  /** Whether the player is playing an ad. */
   private boolean playingAd;
   /**
    * If the player is playing an ad, stores the ad index in its ad group. {@link C#INDEX_UNSET}
@@ -310,13 +306,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
    * content progress should increase. {@link C#TIME_UNSET} otherwise.
    */
   private long fakeContentProgressOffsetMs;
-  /**
-   * Stores the pending content position when a seek operation was intercepted to play an ad.
-   */
+  /** Stores the pending content position when a seek operation was intercepted to play an ad. */
   private long pendingContentPositionMs;
-  /**
-   * Whether {@link #getContentProgress()} has sent {@link #pendingContentPositionMs} to IMA.
-   */
+  /** Whether {@link #getContentProgress()} has sent {@link #pendingContentPositionMs} to IMA. */
   private boolean sentPendingContentPositionMs;
 
   /**
@@ -403,6 +395,17 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
    */
   public com.google.ads.interactivemedia.v3.api.AdsLoader getAdsLoader() {
     return adsLoader;
+  }
+
+  /**
+   * Sets the slots for displaying companion ads. Individual slots can be created using {@link
+   * ImaSdkFactory#createCompanionAdSlot()}.
+   *
+   * @param companionSlots Slots for displaying companion ads.
+   * @see AdDisplayContainer#setCompanionSlots(Collection)
+   */
+  public void setCompanionSlots(Collection<CompanionAdSlot> companionSlots) {
+    adDisplayContainer.setCompanionSlots(companionSlots);
   }
 
   /**
@@ -509,6 +512,11 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       adsManager.destroy();
       adsManager = null;
     }
+    imaPausedContent = false;
+    imaAdState = IMA_AD_STATE_NONE;
+    pendingAdLoadError = null;
+    adPlaybackState = AdPlaybackState.NONE;
+    updateAdPlaybackState();
   }
 
   @Override
@@ -558,7 +566,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       Log.d(TAG, "onAdEvent: " + adEventType);
     }
     if (adsManager == null) {
-      Log.w(TAG, "Dropping ad event after release: " + adEvent);
+      Log.w(TAG, "Ignoring AdEvent after release: " + adEvent);
       return;
     }
     try {
@@ -654,6 +662,13 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   @Override
   public void loadAd(String adUriString) {
     try {
+      if (DEBUG) {
+        Log.d(TAG, "loadAd in ad group " + adGroupIndex);
+      }
+      if (adsManager == null) {
+        Log.w(TAG, "Ignoring loadAd after release");
+        return;
+      }
       if (adGroupIndex == C.INDEX_UNSET) {
         Log.w(
             TAG,
@@ -661,9 +676,6 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
                 + expectedAdGroupIndex);
         adGroupIndex = expectedAdGroupIndex;
         adsManager.start();
-      }
-      if (DEBUG) {
-        Log.d(TAG, "loadAd in ad group " + adGroupIndex);
       }
       int adIndexInAdGroup = getAdIndexInAdGroupToLoad(adGroupIndex);
       if (adIndexInAdGroup == C.INDEX_UNSET) {
@@ -692,6 +704,10 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   public void playAd() {
     if (DEBUG) {
       Log.d(TAG, "playAd");
+    }
+    if (adsManager == null) {
+      Log.w(TAG, "Ignoring playAd after release");
+      return;
     }
     switch (imaAdState) {
       case IMA_AD_STATE_PLAYING:
@@ -736,6 +752,10 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     if (DEBUG) {
       Log.d(TAG, "stopAd");
     }
+    if (adsManager == null) {
+      Log.w(TAG, "Ignoring stopAd after release");
+      return;
+    }
     if (player == null) {
       // Sometimes messages from IMA arrive after detaching the player. See [Internal: b/63801642].
       Log.w(TAG, "Unexpected stopAd while detached");
@@ -775,8 +795,8 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
   // Player.EventListener implementation.
 
   @Override
-  public void onTimelineChanged(Timeline timeline, Object manifest,
-      @Player.TimelineChangeReason int reason) {
+  public void onTimelineChanged(
+      Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
     if (reason == Player.TIMELINE_CHANGE_REASON_RESET) {
       // The player is being reset and this source will be released.
       return;
@@ -1083,6 +1103,10 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
       Log.d(
           TAG, "Prepare error for ad " + adIndexInAdGroup + " in group " + adGroupIndex, exception);
     }
+    if (adsManager == null) {
+      Log.w(TAG, "Ignoring ad prepare error after release");
+      return;
+    }
     if (imaAdState == IMA_AD_STATE_NONE) {
       // Send IMA a content position at the ad group so that it will try to play it, at which point
       // we can notify that it failed to load.
@@ -1165,7 +1189,7 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     Log.e(TAG, message, cause);
     // We can't recover from an unexpected error in general, so skip all remaining ads.
     if (adPlaybackState == null) {
-      adPlaybackState = new AdPlaybackState();
+      adPlaybackState = AdPlaybackState.NONE;
     } else {
       for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
         adPlaybackState = adPlaybackState.withSkippedAdGroup(i);

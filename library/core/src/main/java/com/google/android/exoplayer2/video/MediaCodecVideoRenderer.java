@@ -84,6 +84,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   // pending output streams that have fewer frames than the codec latency.
   private static final int MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT = 10;
 
+  private static boolean evaluatedDeviceNeedsSetOutputSurfaceWorkaround;
+  private static boolean deviceNeedsSetOutputSurfaceWorkaround;
+
   private final Context context;
   private final VideoFrameReleaseTimeHelper frameReleaseTimeHelper;
   private final EventDispatcher eventDispatcher;
@@ -459,7 +462,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (areAdaptationCompatible(codecInfo.adaptive, oldFormat, newFormat)
         && newFormat.width <= codecMaxValues.width
         && newFormat.height <= codecMaxValues.height
-        && getMaxInputSize(newFormat) <= codecMaxValues.inputSize) {
+        && getMaxInputSize(codecInfo, newFormat) <= codecMaxValues.inputSize) {
       return oldFormat.initializationDataEquals(newFormat)
           ? KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
           : KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION;
@@ -981,7 +984,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       throws DecoderQueryException {
     int maxWidth = format.width;
     int maxHeight = format.height;
-    int maxInputSize = getMaxInputSize(format);
+    int maxInputSize = getMaxInputSize(codecInfo, format);
     if (streamFormats.length == 1) {
       // The single entry in streamFormats must correspond to the format for which the codec is
       // being configured.
@@ -994,7 +997,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             (streamFormat.width == Format.NO_VALUE || streamFormat.height == Format.NO_VALUE);
         maxWidth = Math.max(maxWidth, streamFormat.width);
         maxHeight = Math.max(maxHeight, streamFormat.height);
-        maxInputSize = Math.max(maxInputSize, getMaxInputSize(streamFormat));
+        maxInputSize = Math.max(maxInputSize, getMaxInputSize(codecInfo, streamFormat));
       }
     }
     if (haveUnknownDimensions) {
@@ -1004,7 +1007,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         maxWidth = Math.max(maxWidth, codecMaxSize.x);
         maxHeight = Math.max(maxHeight, codecMaxSize.y);
         maxInputSize =
-            Math.max(maxInputSize, getMaxInputSize(format.sampleMimeType, maxWidth, maxHeight));
+            Math.max(
+                maxInputSize,
+                getMaxInputSize(codecInfo, format.sampleMimeType, maxWidth, maxHeight));
         Log.w(TAG, "Codec max resolution adjusted to: " + maxWidth + "x" + maxHeight);
       }
     }
@@ -1053,13 +1058,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns a maximum input buffer size for a given format.
+   * Returns a maximum input buffer size for a given codec and format.
    *
+   * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param format The format.
    * @return A maximum input buffer size in bytes, or {@link Format#NO_VALUE} if a maximum could not
    *     be determined.
    */
-  private static int getMaxInputSize(Format format) {
+  private static int getMaxInputSize(MediaCodecInfo codecInfo, Format format) {
     if (format.maxInputSize != Format.NO_VALUE) {
       // The format defines an explicit maximum input size. Add the total size of initialization
       // data buffers, as they may need to be queued in the same input buffer as the largest sample.
@@ -1072,20 +1078,22 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     } else {
       // Calculated maximum input sizes are overestimates, so it's not necessary to add the size of
       // initialization data.
-      return getMaxInputSize(format.sampleMimeType, format.width, format.height);
+      return getMaxInputSize(codecInfo, format.sampleMimeType, format.width, format.height);
     }
   }
 
   /**
-   * Returns a maximum input size for a given mime type, width and height.
+   * Returns a maximum input size for a given codec, mime type, width and height.
    *
+   * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param sampleMimeType The format mime type.
    * @param width The width in pixels.
    * @param height The height in pixels.
    * @return A maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
    *     determined.
    */
-  private static int getMaxInputSize(String sampleMimeType, int width, int height) {
+  private static int getMaxInputSize(
+      MediaCodecInfo codecInfo, String sampleMimeType, int width, int height) {
     if (width == Format.NO_VALUE || height == Format.NO_VALUE) {
       // We can't infer a maximum input size without video dimensions.
       return Format.NO_VALUE;
@@ -1101,9 +1109,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         minCompressionRatio = 2;
         break;
       case MimeTypes.VIDEO_H264:
-        if ("BRAVIA 4K 2015".equals(Util.MODEL)) {
-          // The Sony BRAVIA 4k TV has input buffers that are too small for the calculated 4k video
-          // maximum input size, so use the default value.
+        if ("BRAVIA 4K 2015".equals(Util.MODEL) // Sony Bravia 4K
+            || ("Amazon".equals(Util.MANUFACTURER)
+                && ("KFSOWI".equals(Util.MODEL) // Kindle Soho
+                    || ("AFTS".equals(Util.MODEL) && codecInfo.secure)))) { // Fire TV Gen 2
+          // Use the default value for cases where platform limitations may prevent buffers of the
+          // calculated maximum input size from being allocated.
           return Format.NO_VALUE;
         }
         // Round up width/height to an integer number of macroblocks.
@@ -1163,14 +1174,36 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return Util.SDK_INT <= 22 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER);
   }
 
-  /**
-   * Returns whether the device is known to implement {@link MediaCodec#setOutputSurface(Surface)}
-   * incorrectly.
-   * <p>
-   * If true is returned then we fall back to releasing and re-instantiating the codec instead.
+  /*
+   * TODO:
+   *
+   * 1. Validate that Android device certification now ensures correct behavior, and add a
+   *    corresponding SDK_INT upper bound for applying the workaround (probably SDK_INT < 26).
+   * 2. Determine a complete list of affected devices.
+   * 3. Some of the devices in this list only fail to support setOutputSurface when switching from
+   *    a SurfaceView provided Surface to a Surface of another type (e.g. TextureView/DummySurface),
+   *    and vice versa. One hypothesis is that setOutputSurface fails when the surfaces have
+   *    different pixel formats. If we can find a way to query the Surface instances to determine
+   *    whether this case applies, then we'll be able to provide a more targeted workaround.
    */
-  private static boolean codecNeedsSetOutputSurfaceWorkaround(String name) {
-    // Work around https://github.com/google/ExoPlayer/issues/3236,
+  /**
+   * Returns whether the codec is known to implement {@link MediaCodec#setOutputSurface(Surface)}
+   * incorrectly.
+   *
+   * <p>If true is returned then we fall back to releasing and re-instantiating the codec instead.
+   *
+   * @param name The name of the codec.
+   * @return True if the device is known to implement {@link MediaCodec#setOutputSurface(Surface)}
+   *     incorrectly.
+   */
+  protected boolean codecNeedsSetOutputSurfaceWorkaround(String name) {
+    if (Util.SDK_INT >= 27 || name.startsWith("OMX.google")) {
+      // Devices running API level 27 or later should also be unaffected. Google OMX decoders are
+      // not known to have this issue on any API level.
+      return false;
+    }
+    // Work around:
+    // https://github.com/google/ExoPlayer/issues/3236,
     // https://github.com/google/ExoPlayer/issues/3355,
     // https://github.com/google/ExoPlayer/issues/3439,
     // https://github.com/google/ExoPlayer/issues/3724,
@@ -1179,28 +1212,150 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // https://github.com/google/ExoPlayer/issues/4084,
     // https://github.com/google/ExoPlayer/issues/4104,
     // https://github.com/google/ExoPlayer/issues/4134,
-    // https://github.com/google/ExoPlayer/issues/4315.
-    return (("deb".equals(Util.DEVICE) // Nexus 7 (2013)
-                || "flo".equals(Util.DEVICE) // Nexus 7 (2013)
-                || "mido".equals(Util.DEVICE) // Redmi Note 4
-                || "santoni".equals(Util.DEVICE)) // Redmi 4X
-            && "OMX.qcom.video.decoder.avc".equals(name))
-        || (("tcl_eu".equals(Util.DEVICE) // TCL Percee TV
-                || "SVP-DTV15".equals(Util.DEVICE) // Sony Bravia 4K 2015
-                || "BRAVIA_ATV2".equals(Util.DEVICE) // Sony Bravia 4K GB
-                || Util.DEVICE.startsWith("panell_") // Motorola Moto C Plus
-                || "F3311".equals(Util.DEVICE) // Sony Xperia E5
-                || "M5c".equals(Util.DEVICE) // Meizu M5C
-                || "QM16XE_U".equals(Util.DEVICE) // Philips QM163E
-                || "A7010a48".equals(Util.DEVICE) // Lenovo K4 Note
-                || "woods_f".equals(Util.MODEL) // Moto E (4)
-                || "watson".equals(Util.DEVICE)) // Moto C
-            && "OMX.MTK.VIDEO.DECODER.AVC".equals(name))
-        || (("ALE-L21".equals(Util.MODEL) // Huawei P8 Lite
-                || "CAM-L21".equals(Util.MODEL)) // Huawei Y6II
-            && "OMX.k3.video.decoder.avc".equals(name))
-        || (("HUAWEI VNS-L21".equals(Util.MODEL)) // Huawei P9 Lite
-            && "OMX.IMG.MSVDX.Decoder.AVC".equals(name));
+    // https://github.com/google/ExoPlayer/issues/4315,
+    // https://github.com/google/ExoPlayer/issues/4419,
+    // https://github.com/google/ExoPlayer/issues/4460,
+    // https://github.com/google/ExoPlayer/issues/4468.
+    synchronized (MediaCodecVideoRenderer.class) {
+      if (!evaluatedDeviceNeedsSetOutputSurfaceWorkaround) {
+        switch (Util.DEVICE) {
+          case "1601":
+          case "1713":
+          case "1714":
+          case "A10-70F":
+          case "A1601":
+          case "A2016a40":
+          case "A7000-a":
+          case "A7000plus":
+          case "A7010a48":
+          case "A7020a48":
+          case "AquaPowerM":
+          case "Aura_Note_2":
+          case "BLACK-1X":
+          case "BRAVIA_ATV2":
+          case "C1":
+          case "ComioS1":
+          case "CP8676_I02":
+          case "CPH1609":
+          case "CPY83_I00":
+          case "cv1":
+          case "cv3":
+          case "deb":
+          case "E5643":
+          case "ELUGA_A3_Pro":
+          case "ELUGA_Note":
+          case "ELUGA_Prim":
+          case "ELUGA_Ray_X":
+          case "EverStar_S":
+          case "F3111":
+          case "F3113":
+          case "F3116":
+          case "F3211":
+          case "F3213":
+          case "F3215":
+          case "F3311":
+          case "flo":
+          case "GiONEE_CBL7513":
+          case "GiONEE_GBL7319":
+          case "GIONEE_GBL7360":
+          case "GIONEE_SWW1609":
+          case "GIONEE_SWW1627":
+          case "GIONEE_SWW1631":
+          case "GIONEE_WBL5708":
+          case "GIONEE_WBL7365":
+          case "GIONEE_WBL7519":
+          case "griffin":
+          case "htc_e56ml_dtul":
+          case "hwALE-H":
+          case "HWBLN-H":
+          case "HWCAM-H":
+          case "HWVNS-H":
+          case "iball8735_9806":
+          case "Infinix-X572":
+          case "iris60":
+          case "itel_S41":
+          case "j2xlteins":
+          case "JGZ":
+          case "K50a40":
+          case "le_x6":
+          case "LS-5017":
+          case "M5c":
+          case "manning":
+          case "marino_f":
+          case "MEIZU_M5":
+          case "mh":
+          case "mido":
+          case "MX6":
+          case "namath":
+          case "nicklaus_f":
+          case "NX541J":
+          case "NX573J":
+          case "OnePlus5T":
+          case "p212":
+          case "P681":
+          case "P85":
+          case "panell_d":
+          case "panell_dl":
+          case "panell_ds":
+          case "panell_dt":
+          case "PB2-670M":
+          case "PGN528":
+          case "PGN610":
+          case "PGN611":
+          case "Phantom6":
+          case "Pixi4-7_3G":
+          case "Pixi5-10_4G":
+          case "PLE":
+          case "PRO7S":
+          case "Q350":
+          case "Q4260":
+          case "Q427":
+          case "Q4310":
+          case "Q5":
+          case "QM16XE_U":
+          case "QX1":
+          case "santoni":
+          case "Slate_Pro":
+          case "SVP-DTV15":
+          case "s905x018":
+          case "taido_row":
+          case "TB3-730F":
+          case "TB3-730X":
+          case "TB3-850F":
+          case "TB3-850M":
+          case "tcl_eu":
+          case "V1":
+          case "V23GB":
+          case "V5":
+          case "vernee_M5":
+          case "watson":
+          case "whyred":
+          case "woods_f":
+          case "woods_fn":
+          case "X3_HK":
+          case "XE2X":
+          case "XT1663":
+          case "Z12_PRO":
+          case "Z80":
+            deviceNeedsSetOutputSurfaceWorkaround = true;
+            break;
+          default:
+            // Do nothing.
+            break;
+        }
+        switch (Util.MODEL) {
+          case "AFTA":
+          case "AFTN":
+            deviceNeedsSetOutputSurfaceWorkaround = true;
+            break;
+          default:
+            // Do nothing.
+            break;
+        }
+        evaluatedDeviceNeedsSetOutputSurfaceWorkaround = true;
+      }
+    }
+    return deviceNeedsSetOutputSurfaceWorkaround;
   }
 
   protected static final class CodecMaxValues {

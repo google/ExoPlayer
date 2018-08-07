@@ -949,7 +949,7 @@ public class PlayerNotificationManager {
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+    public void onTimelineChanged(Timeline timeline, @Nullable Object manifest, int reason) {
       if (player == null || player.getPlaybackState() == Player.STATE_IDLE) {
         return;
       }

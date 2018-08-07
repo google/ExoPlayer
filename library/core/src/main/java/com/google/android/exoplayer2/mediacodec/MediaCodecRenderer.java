@@ -369,6 +369,15 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         wrappedMediaCrypto = mediaCrypto.getWrappedMediaCrypto();
         drmSessionRequiresSecureDecoder = mediaCrypto.requiresSecureDecoderComponent(mimeType);
       }
+      if (deviceNeedsDrmKeysToConfigureCodecWorkaround()) {
+        @DrmSession.State int drmSessionState = drmSession.getState();
+        if (drmSessionState == DrmSession.STATE_ERROR) {
+          throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+        } else if (drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS) {
+          // Wait for keys.
+          return;
+        }
+      }
     }
 
     if (codecInfo == null) {
@@ -405,7 +414,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecAdaptationWorkaroundMode = codecAdaptationWorkaroundMode(codecName);
     codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
-    codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(codecName);
+    codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(codecInfo);
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
     codecNeedsEosOutputExceptionWorkaround = codecNeedsEosOutputExceptionWorkaround(codecName);
     codecNeedsMonoChannelCountWorkaround = codecNeedsMonoChannelCountWorkaround(codecName, format);
@@ -1210,6 +1219,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
+   * Returns whether the device needs keys to have been loaded into the {@link DrmSession} before
+   * codec configuration.
+   */
+  private boolean deviceNeedsDrmKeysToConfigureCodecWorkaround() {
+    return "Amazon".equals(Util.MANUFACTURER)
+        && ("AFTM".equals(Util.MODEL) // Fire TV Stick Gen 1
+            || "AFTB".equals(Util.MODEL)); // Fire TV Gen 1
+  }
+
+  /**
    * Returns whether the decoder is known to fail when flushed.
    * <p>
    * If true is returned, the renderer will work around the issue by releasing the decoder and
@@ -1272,20 +1291,23 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Returns whether the decoder is known to handle the propagation of the
-   * {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag incorrectly on the host device.
-   * <p>
-   * If true is returned, the renderer will work around the issue by approximating end of stream
+   * Returns whether the decoder is known to handle the propagation of the {@link
+   * MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag incorrectly on the host device.
+   *
+   * <p>If true is returned, the renderer will work around the issue by approximating end of stream
    * behavior without relying on the flag being propagated through to an output buffer by the
    * underlying decoder.
    *
-   * @param name The name of the decoder.
+   * @param codecInfo Information about the {@link MediaCodec}.
    * @return True if the decoder is known to handle {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM}
    *     propagation incorrectly on the host device. False otherwise.
    */
-  private static boolean codecNeedsEosPropagationWorkaround(String name) {
-    return Util.SDK_INT <= 17 && ("OMX.rk.video_decoder.avc".equals(name)
-        || "OMX.allwinner.video.decoder.avc".equals(name));
+  private static boolean codecNeedsEosPropagationWorkaround(MediaCodecInfo codecInfo) {
+    String name = codecInfo.name;
+    return (Util.SDK_INT <= 17
+            && ("OMX.rk.video_decoder.avc".equals(name)
+                || "OMX.allwinner.video.decoder.avc".equals(name)))
+        || ("Amazon".equals(Util.MANUFACTURER) && "AFTS".equals(Util.MODEL) && codecInfo.secure);
   }
 
   /**

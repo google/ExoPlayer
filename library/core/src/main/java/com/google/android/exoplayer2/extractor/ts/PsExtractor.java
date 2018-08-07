@@ -52,7 +52,12 @@ public final class PsExtractor implements Extractor {
   private static final int PACKET_START_CODE_PREFIX = 0x000001;
   private static final int MPEG_PROGRAM_END_CODE = 0x000001B9;
   private static final int MAX_STREAM_ID_PLUS_ONE = 0x100;
+
+  // Max search length for first audio and video track in input data.
   private static final long MAX_SEARCH_LENGTH = 1024 * 1024;
+  // Max search length for additional audio and video tracks in input data after at least one audio
+  // and video track has been found.
+  private static final long MAX_SEARCH_LENGTH_AFTER_AUDIO_AND_VIDEO_FOUND = 8 * 1024;
 
   public static final int PRIVATE_STREAM_1 = 0xBD;
   public static final int AUDIO_STREAM = 0xC0;
@@ -66,6 +71,7 @@ public final class PsExtractor implements Extractor {
   private boolean foundAllTracks;
   private boolean foundAudioTrack;
   private boolean foundVideoTrack;
+  private long lastTrackPosition;
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
@@ -188,18 +194,21 @@ public final class PsExtractor implements Extractor {
     if (!foundAllTracks) {
       if (payloadReader == null) {
         ElementaryStreamReader elementaryStreamReader = null;
-        if (!foundAudioTrack && streamId == PRIVATE_STREAM_1) {
+        if (streamId == PRIVATE_STREAM_1) {
           // Private stream, used for AC3 audio.
           // NOTE: This may need further parsing to determine if its DTS, but that's likely only
           // valid for DVDs.
           elementaryStreamReader = new Ac3Reader();
           foundAudioTrack = true;
-        } else if (!foundAudioTrack && (streamId & AUDIO_STREAM_MASK) == AUDIO_STREAM) {
+          lastTrackPosition = input.getPosition();
+        } else if ((streamId & AUDIO_STREAM_MASK) == AUDIO_STREAM) {
           elementaryStreamReader = new MpegAudioReader();
           foundAudioTrack = true;
-        } else if (!foundVideoTrack && (streamId & VIDEO_STREAM_MASK) == VIDEO_STREAM) {
+          lastTrackPosition = input.getPosition();
+        } else if ((streamId & VIDEO_STREAM_MASK) == VIDEO_STREAM) {
           elementaryStreamReader = new H262Reader();
           foundVideoTrack = true;
+          lastTrackPosition = input.getPosition();
         }
         if (elementaryStreamReader != null) {
           TrackIdGenerator idGenerator = new TrackIdGenerator(streamId, MAX_STREAM_ID_PLUS_ONE);
@@ -208,7 +217,11 @@ public final class PsExtractor implements Extractor {
           psPayloadReaders.put(streamId, payloadReader);
         }
       }
-      if ((foundAudioTrack && foundVideoTrack) || input.getPosition() > MAX_SEARCH_LENGTH) {
+      long maxSearchPosition =
+          foundAudioTrack && foundVideoTrack
+              ? lastTrackPosition + MAX_SEARCH_LENGTH_AFTER_AUDIO_AND_VIDEO_FOUND
+              : MAX_SEARCH_LENGTH;
+      if (input.getPosition() > maxSearchPosition) {
         foundAllTracks = true;
         output.endTracks();
       }
