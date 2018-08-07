@@ -264,10 +264,16 @@ public final class CacheUtil {
         throwExceptionIfInterruptedOrCancelled(isCanceled);
         // Create a new dataSpec setting length to C.LENGTH_UNSET to prevent getting an error in
         // case the given length exceeds the end of input.
-        dataSpec = new DataSpec(dataSpec.uri, dataSpec.postBody, absoluteStreamPosition,
-            dataSpec.position + absoluteStreamPosition - dataSpec.absoluteStreamPosition,
-            C.LENGTH_UNSET, dataSpec.key,
-            dataSpec.flags | DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
+        dataSpec =
+            new DataSpec(
+                dataSpec.uri,
+                dataSpec.httpMethod,
+                dataSpec.httpBody,
+                absoluteStreamPosition,
+                dataSpec.position + absoluteStreamPosition - dataSpec.absoluteStreamPosition,
+                C.LENGTH_UNSET,
+                dataSpec.key,
+                dataSpec.flags | DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
         long resolvedLength = dataSource.open(dataSpec);
         if (counters.contentLength == C.LENGTH_UNSET && resolvedLength != C.LENGTH_UNSET) {
           counters.contentLength = dataSpec.absoluteStreamPosition + resolvedLength;

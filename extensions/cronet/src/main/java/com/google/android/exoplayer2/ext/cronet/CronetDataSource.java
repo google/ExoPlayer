@@ -473,8 +473,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       isContentTypeHeaderSet = isContentTypeHeaderSet || CONTENT_TYPE.equals(key);
       requestBuilder.addHeader(key, headerEntry.getValue());
     }
-    if (dataSpec.postBody != null && dataSpec.postBody.length != 0 && !isContentTypeHeaderSet) {
-      throw new IOException("POST request with non-empty body must set Content-Type");
+    if (dataSpec.httpBody != null && !isContentTypeHeaderSet) {
+      throw new IOException("HTTP request with non-empty body must set Content-Type");
     }
     // Set the Range header.
     if (dataSpec.position != 0 || dataSpec.length != C.LENGTH_UNSET) {
@@ -494,12 +494,10 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     //   requestBuilder.addHeader("Accept-Encoding", "identity");
     // }
     // Set the method and (if non-empty) the body.
-    if (dataSpec.postBody != null) {
-      requestBuilder.setHttpMethod("POST");
-      if (dataSpec.postBody.length != 0) {
-        requestBuilder.setUploadDataProvider(new ByteArrayUploadDataProvider(dataSpec.postBody),
-            executor);
-      }
+    requestBuilder.setHttpMethod(dataSpec.getHttpMethodString());
+    if (dataSpec.httpBody != null) {
+      requestBuilder.setUploadDataProvider(
+          new ByteArrayUploadDataProvider(dataSpec.httpBody), executor);
     }
     return requestBuilder;
   }

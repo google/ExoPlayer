@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -133,6 +134,7 @@ public final class CacheDataSource implements DataSource {
   private boolean currentDataSpecLengthUnset;
   private @Nullable Uri uri;
   private @Nullable Uri actualUri;
+  private @HttpMethod int httpMethod;
   private int flags;
   private @Nullable String key;
   private long readPosition;
@@ -269,6 +271,7 @@ public final class CacheDataSource implements DataSource {
       key = cacheKeyFactory.buildCacheKey(dataSpec);
       uri = dataSpec.uri;
       actualUri = getRedirectedUriOrDefault(cache, key, /* defaultUri= */ uri);
+      httpMethod = dataSpec.httpMethod;
       flags = dataSpec.flags;
       readPosition = dataSpec.position;
 
@@ -353,6 +356,7 @@ public final class CacheDataSource implements DataSource {
   public void close() throws IOException {
     uri = null;
     actualUri = null;
+    httpMethod = DataSpec.HTTP_METHOD_GET;
     notifyBytesRead();
     try {
       closeCurrentSource();
@@ -397,7 +401,9 @@ public final class CacheDataSource implements DataSource {
       // The data is locked in the cache, or we're ignoring the cache. Bypass the cache and read
       // from upstream.
       nextDataSource = upstreamDataSource;
-      nextDataSpec = new DataSpec(uri, readPosition, bytesRemaining, key, flags);
+      nextDataSpec =
+          new DataSpec(
+              uri, httpMethod, null, readPosition, readPosition, bytesRemaining, key, flags);
     } else if (nextSpan.isCached) {
       // Data is cached, read from cache.
       Uri fileUri = Uri.fromFile(nextSpan.file);
@@ -419,7 +425,8 @@ public final class CacheDataSource implements DataSource {
           length = Math.min(length, bytesRemaining);
         }
       }
-      nextDataSpec = new DataSpec(uri, readPosition, length, key, flags);
+      nextDataSpec =
+          new DataSpec(uri, httpMethod, null, readPosition, readPosition, length, key, flags);
       if (cacheWriteDataSource != null) {
         nextDataSource = cacheWriteDataSource;
       } else {
