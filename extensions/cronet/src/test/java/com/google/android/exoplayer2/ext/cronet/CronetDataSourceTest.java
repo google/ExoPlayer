@@ -80,6 +80,7 @@ public final class CronetDataSourceTest {
 
   private DataSpec testDataSpec;
   private DataSpec testPostDataSpec;
+  private DataSpec testHeadDataSpec;
   private Map<String, String> testResponseHeader;
   private UrlResponseInfo testUrlResponseInfo;
 
@@ -120,6 +121,9 @@ public final class CronetDataSourceTest {
     testDataSpec = new DataSpec(Uri.parse(TEST_URL), 0, C.LENGTH_UNSET, null);
     testPostDataSpec =
         new DataSpec(Uri.parse(TEST_URL), TEST_POST_BODY, 0, 0, C.LENGTH_UNSET, null, 0);
+    testHeadDataSpec =
+        new DataSpec(
+            Uri.parse(TEST_URL), DataSpec.HTTP_METHOD_HEAD, null, 0, 0, C.LENGTH_UNSET, null, 0);
     testResponseHeader = new HashMap<>();
     testResponseHeader.put("Content-Type", TEST_CONTENT_TYPE);
     // This value can be anything since the DataSpec is unset.
@@ -330,6 +334,15 @@ public final class CronetDataSourceTest {
     } catch (HttpDataSourceException e) {
       verify(mockUrlRequest, never()).followRedirect();
     }
+  }
+
+  @Test
+  public void testHeadRequestOpen() throws HttpDataSourceException {
+    mockResponseStartSuccess();
+    dataSourceUnderTest.open(testHeadDataSpec);
+    verify(mockTransferListener)
+        .onTransferStart(dataSourceUnderTest, testHeadDataSpec, /* isNetwork= */ true);
+    dataSourceUnderTest.close();
   }
 
   @Test

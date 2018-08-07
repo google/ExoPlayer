@@ -92,6 +92,8 @@
   ([#273](https://github.com/google/ExoPlayer/issues/273)).
 * Fix where transitions to clipped media sources happened too early
   ([#4583](https://github.com/google/ExoPlayer/issues/4583)).
+* Add `DataSpec.httpMethod` and update `HttpDataSource` implemenations to support
+  http HEAD method. Previously, only GET and POST were supported.
 
 ### 2.8.3 ###
 

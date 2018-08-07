@@ -296,9 +296,14 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     if (!allowGzip) {
       builder.addHeader("Accept-Encoding", "identity");
     }
-    if (dataSpec.postBody != null) {
-      builder.post(RequestBody.create(null, dataSpec.postBody));
+    RequestBody requestBody = null;
+    if (dataSpec.httpBody != null) {
+      requestBody = RequestBody.create(null, dataSpec.httpBody);
+    } else if (dataSpec.httpMethod == DataSpec.HTTP_METHOD_POST) {
+      // OkHttp requires a non-null body for POST requests.
+      requestBody = RequestBody.create(null, new byte[0]);
     }
+    builder.method(dataSpec.getHttpMethodString(), requestBody);
     return builder.build();
   }
 

@@ -20,6 +20,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
@@ -61,6 +62,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
   private static final String TAG = "DefaultHttpDataSource";
   private static final int MAX_REDIRECTS = 20; // Same limit as okhttp.
+  private static final int HTTP_STATUS_TEMPORARY_REDIRECT = 307;
+  private static final int HTTP_STATUS_PERMANENT_REDIRECT = 308;
   private static final long MAX_BYTES_TO_DRAIN = 2048;
   private static final Pattern CONTENT_RANGE_HEADER =
       Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
@@ -417,7 +420,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    */
   private HttpURLConnection makeConnection(DataSpec dataSpec) throws IOException {
     URL url = new URL(dataSpec.uri.toString());
-    byte[] postBody = dataSpec.postBody;
+    @HttpMethod int httpMethod = dataSpec.httpMethod;
+    byte[] httpBody = dataSpec.httpBody;
     long position = dataSpec.position;
     long length = dataSpec.length;
     boolean allowGzip = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP);
@@ -425,27 +429,36 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     if (!allowCrossProtocolRedirects) {
       // HttpURLConnection disallows cross-protocol redirects, but otherwise performs redirection
       // automatically. This is the behavior we want, so use it.
-      return makeConnection(url, postBody, position, length, allowGzip, true /* followRedirects */);
+      return makeConnection(
+          url, httpMethod, httpBody, position, length, allowGzip, true /* followRedirects */);
     }
 
     // We need to handle redirects ourselves to allow cross-protocol redirects.
     int redirectCount = 0;
     while (redirectCount++ <= MAX_REDIRECTS) {
-      HttpURLConnection connection = makeConnection(
-          url, postBody, position, length, allowGzip, false /* followRedirects */);
+      HttpURLConnection connection =
+          makeConnection(
+              url, httpMethod, httpBody, position, length, allowGzip, false /* followRedirects */);
       int responseCode = connection.getResponseCode();
-      if (responseCode == HttpURLConnection.HTTP_MULT_CHOICE
-          || responseCode == HttpURLConnection.HTTP_MOVED_PERM
-          || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
-          || responseCode == HttpURLConnection.HTTP_SEE_OTHER
-          || (postBody == null
-              && (responseCode == 307 /* HTTP_TEMP_REDIRECT */
-                  || responseCode == 308 /* HTTP_PERM_REDIRECT */))) {
-        // For 300, 301, 302, and 303 POST requests follow the redirect and are transformed into
-        // GET requests. For 307 and 308 POST requests are not redirected.
-        postBody = null;
-        String location = connection.getHeaderField("Location");
+      String location = connection.getHeaderField("Location");
+      if ((httpMethod == DataSpec.HTTP_METHOD_GET || httpMethod == DataSpec.HTTP_METHOD_HEAD)
+          && (responseCode == HttpURLConnection.HTTP_MULT_CHOICE
+              || responseCode == HttpURLConnection.HTTP_MOVED_PERM
+              || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
+              || responseCode == HttpURLConnection.HTTP_SEE_OTHER
+              || responseCode == HTTP_STATUS_TEMPORARY_REDIRECT
+              || responseCode == HTTP_STATUS_PERMANENT_REDIRECT)) {
         connection.disconnect();
+        url = handleRedirect(url, location);
+      } else if (httpMethod == DataSpec.HTTP_METHOD_POST
+          && (responseCode == HttpURLConnection.HTTP_MULT_CHOICE
+              || responseCode == HttpURLConnection.HTTP_MOVED_PERM
+              || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
+              || responseCode == HttpURLConnection.HTTP_SEE_OTHER)) {
+        // POST request follows the redirect and is transformed into a GET request.
+        connection.disconnect();
+        httpMethod = DataSpec.HTTP_METHOD_GET;
+        httpBody = null;
         url = handleRedirect(url, location);
       } else {
         return connection;
@@ -460,14 +473,22 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * Configures a connection and opens it.
    *
    * @param url The url to connect to.
-   * @param postBody The body data for a POST request.
+   * @param httpMethod The http method.
+   * @param httpBody The body data.
    * @param position The byte offset of the requested data.
    * @param length The length of the requested data, or {@link C#LENGTH_UNSET}.
    * @param allowGzip Whether to allow the use of gzip.
    * @param followRedirects Whether to follow redirects.
    */
-  private HttpURLConnection makeConnection(URL url, byte[] postBody, long position,
-      long length, boolean allowGzip, boolean followRedirects) throws IOException {
+  private HttpURLConnection makeConnection(
+      URL url,
+      @HttpMethod int httpMethod,
+      byte[] httpBody,
+      long position,
+      long length,
+      boolean allowGzip,
+      boolean followRedirects)
+      throws IOException {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setConnectTimeout(connectTimeoutMillis);
     connection.setReadTimeout(readTimeoutMillis);
@@ -491,18 +512,14 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       connection.setRequestProperty("Accept-Encoding", "identity");
     }
     connection.setInstanceFollowRedirects(followRedirects);
-    connection.setDoOutput(postBody != null);
-    if (postBody != null) {
-      connection.setRequestMethod("POST");
-      if (postBody.length == 0) {
-        connection.connect();
-      } else  {
-        connection.setFixedLengthStreamingMode(postBody.length);
-        connection.connect();
-        OutputStream os = connection.getOutputStream();
-        os.write(postBody);
-        os.close();
-      }
+    connection.setDoOutput(httpBody != null);
+    connection.setRequestMethod(DataSpec.getStringForHttpMethod(httpMethod));
+    if (httpBody != null) {
+      connection.setFixedLengthStreamingMode(httpBody.length);
+      connection.connect();
+      OutputStream os = connection.getOutputStream();
+      os.write(httpBody);
+      os.close();
     } else {
       connection.connect();
     }
