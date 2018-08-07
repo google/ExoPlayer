@@ -60,7 +60,11 @@ public class FakeDataSource extends BaseDataSource {
 
     @Override
     public DataSource createDataSource() {
-      return new FakeDataSource(fakeDataSet, transferListener, isNetwork);
+      FakeDataSource dataSource = new FakeDataSource(fakeDataSet, isNetwork);
+      if (transferListener != null) {
+        dataSource.addTransferListener(transferListener);
+      }
+      return dataSource;
     }
   }
 
@@ -79,18 +83,14 @@ public class FakeDataSource extends BaseDataSource {
   }
 
   public FakeDataSource(FakeDataSet fakeDataSet) {
-    this(fakeDataSet, null, /* isNetwork= */ false);
+    this(fakeDataSet, /* isNetwork= */ false);
   }
 
-  public FakeDataSource(
-      FakeDataSet fakeDataSet, @Nullable TransferListener transferListener, boolean isNetwork) {
+  public FakeDataSource(FakeDataSet fakeDataSet, boolean isNetwork) {
     super(isNetwork);
     Assertions.checkNotNull(fakeDataSet);
     this.fakeDataSet = fakeDataSet;
     this.openedDataSpecs = new ArrayList<>();
-    if (transferListener != null) {
-      addTransferListener(transferListener);
-    }
   }
 
   public final FakeDataSet getDataSet() {
