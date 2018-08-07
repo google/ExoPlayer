@@ -401,7 +401,7 @@ public final class HlsMediaSource extends BaseMediaSource
   @Override
   public void releaseSourceInternal() {
     if (playlistTracker != null) {
-      playlistTracker.release();
+      playlistTracker.stop();
     }
   }
 
