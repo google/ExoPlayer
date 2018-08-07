@@ -38,12 +38,16 @@ public final class RtmpDataSource extends BaseDataSource {
   private Uri uri;
 
   public RtmpDataSource() {
-    this(null);
+    super(/* isNetwork= */ true);
   }
 
-  /** @param listener An optional listener. */
+  /**
+   * @param listener An optional listener.
+   * @deprecated Use {@link #RtmpDataSource()} and {@link #addTransferListener(TransferListener)}.
+   */
+  @Deprecated
   public RtmpDataSource(@Nullable TransferListener listener) {
-    super(/* isNetwork= */ true);
+    this();
     if (listener != null) {
       addTransferListener(listener);
     }

@@ -335,8 +335,19 @@ public final class CronetDataSourceFactory extends BaseFactory {
     if (cronetEngine == null) {
       return fallbackFactory.createDataSource();
     }
-    return new CronetDataSource(cronetEngine, executor, contentTypePredicate, transferListener,
-        connectTimeoutMs, readTimeoutMs, resetTimeoutOnRedirects, defaultRequestProperties);
+    CronetDataSource dataSource =
+        new CronetDataSource(
+            cronetEngine,
+            executor,
+            contentTypePredicate,
+            connectTimeoutMs,
+            readTimeoutMs,
+            resetTimeoutOnRedirects,
+            defaultRequestProperties);
+    if (transferListener != null) {
+      dataSource.addTransferListener(transferListener);
+    }
+    return dataSource;
   }
 
 }
