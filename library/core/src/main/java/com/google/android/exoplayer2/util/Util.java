@@ -69,6 +69,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.PolyNull;
@@ -1637,6 +1639,53 @@ public final class Util {
       }
     }
     return toUpperInvariant(Locale.getDefault().getCountry());
+  }
+
+  /**
+   * Uncompresses the data in {@code input}.
+   *
+   * @param input Wraps the compressed input data.
+   * @param output Wraps an output buffer to be used to store the uncompressed data. If {@code
+   *     output.data} is null or it isn't big enough to hold the uncompressed data, a new array is
+   *     created. If {@code true} is returned then the output's position will be set to 0 and its
+   *     length will be set to the length of the uncompressed data.
+   * @param inflater If not null, used to uncompressed the input. Otherwise a new {@link Inflater}
+   *     is created.
+   * @return Whether the input is uncompressed successfully.
+   */
+  public static boolean inflate(
+      ParsableByteArray input, ParsableByteArray output, @Nullable Inflater inflater) {
+    if (input.bytesLeft() <= 0) {
+      return false;
+    }
+    byte[] outputData = output.data;
+    if (outputData == null) {
+      outputData = new byte[input.bytesLeft()];
+    }
+    if (inflater == null) {
+      inflater = new Inflater();
+    }
+    inflater.setInput(input.data, input.getPosition(), input.bytesLeft());
+    try {
+      int outputSize = 0;
+      while (true) {
+        outputSize += inflater.inflate(outputData, outputSize, outputData.length - outputSize);
+        if (inflater.finished()) {
+          output.reset(outputData, outputSize);
+          return true;
+        }
+        if (inflater.needsDictionary() || inflater.needsInput()) {
+          return false;
+        }
+        if (outputSize == outputData.length) {
+          outputData = Arrays.copyOf(outputData, outputData.length * 2);
+        }
+      }
+    } catch (DataFormatException e) {
+      return false;
+    } finally {
+      inflater.reset();
+    }
   }
 
   /**
