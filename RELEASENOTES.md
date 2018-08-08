@@ -2,6 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
+* Distribute Cronet extension via jCenter.
 * Add `AudioListener` for listening to changes in audio configuration during
   playback ([#3994](https://github.com/google/ExoPlayer/issues/3994)).
 * Improved seeking support:
