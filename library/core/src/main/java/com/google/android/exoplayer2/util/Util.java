@@ -1648,7 +1648,7 @@ public final class Util {
    * @param output Wraps an output buffer to be used to store the uncompressed data. If {@code
    *     output.data} is null or it isn't big enough to hold the uncompressed data, a new array is
    *     created. If {@code true} is returned then the output's position will be set to 0 and its
-   *     length will be set to the length of the uncompressed data.
+   *     limit will be set to the length of the uncompressed data.
    * @param inflater If not null, used to uncompressed the input. Otherwise a new {@link Inflater}
    *     is created.
    * @return Whether the input is uncompressed successfully.
