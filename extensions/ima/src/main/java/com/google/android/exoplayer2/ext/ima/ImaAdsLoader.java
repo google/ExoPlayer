@@ -381,6 +381,9 @@ public final class ImaAdsLoader
     this.imaFactory = imaFactory;
     if (imaSdkSettings == null) {
       imaSdkSettings = imaFactory.createImaSdkSettings();
+      if (DEBUG) {
+        imaSdkSettings.setDebugMode(true);
+      }
     }
     imaSdkSettings.setPlayerType(IMA_SDK_SETTINGS_PLAYER_TYPE);
     imaSdkSettings.setPlayerVersion(IMA_SDK_SETTINGS_PLAYER_VERSION);
