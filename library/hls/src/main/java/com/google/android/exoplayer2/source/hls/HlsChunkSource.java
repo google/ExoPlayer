@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
@@ -414,10 +413,11 @@ import java.util.List;
    * Called when a playlist load encounters an error.
    *
    * @param url The url of the playlist whose load encountered an error.
-   * @param shouldBlacklist Whether the playlist should be blacklisted.
+   * @param blacklistDurationMs The duration for which the playlist should be blacklisted. Or {@link
+   *     C#TIME_UNSET} if the playlist should not be blacklisted.
    * @return True if blacklisting did not encounter errors. False otherwise.
    */
-  public boolean onPlaylistError(HlsUrl url, boolean shouldBlacklist) {
+  public boolean onPlaylistError(HlsUrl url, long blacklistDurationMs) {
     int trackGroupIndex = trackGroup.indexOf(url.format);
     if (trackGroupIndex == C.INDEX_UNSET) {
       return true;
@@ -427,9 +427,8 @@ import java.util.List;
       return true;
     }
     seenExpectedPlaylistError |= expectedPlaylistUrl == url;
-    return !shouldBlacklist
-        || trackSelection.blacklist(
-            trackSelectionIndex, DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
+    return blacklistDurationMs == C.TIME_UNSET
+        || trackSelection.blacklist(trackSelectionIndex, blacklistDurationMs);
   }
 
   // Private methods.
