@@ -376,6 +376,9 @@ public final class ImaAdsLoader extends Player.DefaultEventListener implements A
     adDisplayContainer.setPlayer(this);
     if (imaSdkSettings == null) {
       imaSdkSettings = imaSdkFactory.createImaSdkSettings();
+      if (DEBUG) {
+        imaSdkSettings.setDebugMode(true);
+      }
     }
     imaSdkSettings.setPlayerType(IMA_SDK_SETTINGS_PLAYER_TYPE);
     imaSdkSettings.setPlayerVersion(IMA_SDK_SETTINGS_PLAYER_VERSION);
