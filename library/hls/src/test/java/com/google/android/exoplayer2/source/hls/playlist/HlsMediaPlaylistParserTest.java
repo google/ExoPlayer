@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
@@ -72,8 +71,7 @@ public class HlsMediaPlaylistParserTest {
             + "#EXTINF:7.975,\n"
             + "https://priv.example.com/fileSequence2683.ts\n"
             + "#EXT-X-ENDLIST";
-    InputStream inputStream =
-        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
     HlsPlaylist playlist = new HlsPlaylistParser().parse(playlistUri, inputStream);
 
     HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
@@ -83,6 +81,7 @@ public class HlsMediaPlaylistParserTest {
     assertThat(mediaPlaylist.mediaSequence).isEqualTo(2679);
     assertThat(mediaPlaylist.version).isEqualTo(3);
     assertThat(mediaPlaylist.hasEndTag).isTrue();
+    assertThat(mediaPlaylist.protectionSchemes).isNull();
     List<Segment> segments = mediaPlaylist.segments;
     assertThat(segments).isNotNull();
     assertThat(segments).hasSize(5);
@@ -162,12 +161,17 @@ public class HlsMediaPlaylistParserTest {
             + "#EXTINF:8,\n"
             + "https://priv.example.com/2.ts\n"
             + "#EXT-X-ENDLIST\n";
-    InputStream inputStream =
-        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
-    assertThat(playlist.drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cbcs);
-    assertThat(playlist.drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.protectionSchemes.schemeType).isEqualTo(C.CENC_TYPE_cbcs);
+    assertThat(playlist.protectionSchemes.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.protectionSchemes.get(0).hasData()).isFalse();
+
+    assertThat(playlist.segments.get(0).drmInitData).isNull();
+
+    assertThat(playlist.segments.get(1).drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.segments.get(1).drmInitData.get(0).hasData()).isTrue();
   }
 
   @Test
@@ -186,12 +190,12 @@ public class HlsMediaPlaylistParserTest {
             + "#EXTINF:8,\n"
             + "https://priv.example.com/2.ts\n"
             + "#EXT-X-ENDLIST\n";
-    InputStream inputStream =
-        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
-    assertThat(playlist.drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cenc);
-    assertThat(playlist.drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.protectionSchemes.schemeType).isEqualTo(C.CENC_TYPE_cenc);
+    assertThat(playlist.protectionSchemes.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.protectionSchemes.get(0).hasData()).isFalse();
   }
 
   @Test
@@ -210,12 +214,89 @@ public class HlsMediaPlaylistParserTest {
             + "#EXTINF:8,\n"
             + "https://priv.example.com/2.ts\n"
             + "#EXT-X-ENDLIST\n";
-    InputStream inputStream =
-        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
-    assertThat(playlist.drmInitData.schemeType).isEqualTo(C.CENC_TYPE_cenc);
-    assertThat(playlist.drmInitData.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.protectionSchemes.schemeType).isEqualTo(C.CENC_TYPE_cenc);
+    assertThat(playlist.protectionSchemes.get(0).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.protectionSchemes.get(0).hasData()).isFalse();
+  }
+
+  @Test
+  public void testMultipleExtXKeysForSingleSegment() throws Exception {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-TARGETDURATION:6\n"
+            + "#EXT-X-MAP:URI=\"map.mp4\"\n"
+            + "#EXTINF:5.005,\n"
+            + "s000000.mp4\n"
+            + "#EXT-X-KEY:METHOD=SAMPLE-AES,"
+            + "KEYFORMAT=\"urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed\","
+            + "KEYFORMATVERSIONS=\"1\","
+            + "URI=\"data:text/plain;base64,Tm90aGluZyB0byBzZWUgaGVyZQ==\"\n"
+            + "#EXT-X-KEY:METHOD=SAMPLE-AES,KEYFORMAT=\"com.microsoft.playready\","
+            + "KEYFORMATVERSIONS=\"1\","
+            + "URI=\"data:text/plain;charset=UTF-16;base64,VGhpcyBpcyBhbiBlYXN0ZXIgZWdn\"\n"
+            + "#EXT-X-KEY:METHOD=SAMPLE-AES,KEYFORMAT=\"com.apple.streamingkeydelivery\","
+            + "KEYFORMATVERSIONS=\"1\",URI=\"skd://QW5vdGhlciBlYXN0ZXIgZWdn\"\n"
+            + "#EXT-X-MAP:URI=\"map.mp4\"\n"
+            + "#EXTINF:5.005,\n"
+            + "s000000.mp4\n"
+            + "#EXTINF:5.005,\n"
+            + "s000001.mp4\n"
+            + "#EXT-X-KEY:METHOD=SAMPLE-AES,"
+            + "KEYFORMAT=\"urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed\","
+            + "KEYFORMATVERSIONS=\"1\","
+            + "URI=\"data:text/plain;base64,RG9uJ3QgeW91IGdldCB0aXJlZCBvZiBkb2luZyB0aGlzPw==\""
+            + "\n"
+            + "#EXT-X-KEY:METHOD=SAMPLE-AES,KEYFORMAT=\"com.microsoft.playready\","
+            + "KEYFORMATVERSIONS=\"1\","
+            + "URI=\"data:text/plain;charset=UTF-16;base64,T2ssIGl0J3Mgbm90IGZ1biBhbnltb3Jl\"\n"
+            + "#EXT-X-KEY:METHOD=SAMPLE-AES,KEYFORMAT=\"com.apple.streamingkeydelivery\","
+            + "KEYFORMATVERSIONS=\"1\","
+            + "URI=\"skd://V2FpdCB1bnRpbCB5b3Ugc2VlIHRoZSBuZXh0IG9uZSE=\"\n"
+            + "#EXTINF:5.005,\n"
+            + "s000024.mp4\n"
+            + "#EXTINF:5.005,\n"
+            + "s000025.mp4\n"
+            + "#EXT-X-KEY:METHOD=NONE\n"
+            + "#EXTINF:5.005,\n"
+            + "s000026.mp4\n"
+            + "#EXTINF:5.005,\n"
+            + "s000026.mp4\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+    assertThat(playlist.protectionSchemes.schemeType).isEqualTo(C.CENC_TYPE_cbcs);
+    // Unsupported protection schemes like com.apple.streamingkeydelivery are ignored.
+    assertThat(playlist.protectionSchemes.schemeDataCount).isEqualTo(2);
+    assertThat(playlist.protectionSchemes.get(0).matches(C.PLAYREADY_UUID)).isTrue();
+    assertThat(playlist.protectionSchemes.get(0).hasData()).isFalse();
+    assertThat(playlist.protectionSchemes.get(1).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.protectionSchemes.get(1).hasData()).isFalse();
+
+    assertThat(playlist.segments.get(0).drmInitData).isNull();
+
+    assertThat(playlist.segments.get(1).drmInitData.get(0).matches(C.PLAYREADY_UUID)).isTrue();
+    assertThat(playlist.segments.get(1).drmInitData.get(0).hasData()).isTrue();
+    assertThat(playlist.segments.get(1).drmInitData.get(1).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.segments.get(1).drmInitData.get(1).hasData()).isTrue();
+
+    assertThat(playlist.segments.get(1).drmInitData)
+        .isEqualTo(playlist.segments.get(2).drmInitData);
+    assertThat(playlist.segments.get(2).drmInitData)
+        .isNotEqualTo(playlist.segments.get(3).drmInitData);
+    assertThat(playlist.segments.get(3).drmInitData.get(0).matches(C.PLAYREADY_UUID)).isTrue();
+    assertThat(playlist.segments.get(3).drmInitData.get(0).hasData()).isTrue();
+    assertThat(playlist.segments.get(3).drmInitData.get(1).matches(C.WIDEVINE_UUID)).isTrue();
+    assertThat(playlist.segments.get(3).drmInitData.get(1).hasData()).isTrue();
+
+    assertThat(playlist.segments.get(3).drmInitData)
+        .isEqualTo(playlist.segments.get(4).drmInitData);
+    assertThat(playlist.segments.get(5).drmInitData).isNull();
+    assertThat(playlist.segments.get(6).drmInitData).isNull();
   }
 
   @Test
@@ -243,8 +324,7 @@ public class HlsMediaPlaylistParserTest {
             + "02/00/42.ts\n"
             + "#EXTINF:5.005,\n"
             + "02/00/47.ts\n";
-    InputStream inputStream =
-        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
 
@@ -272,8 +352,7 @@ public class HlsMediaPlaylistParserTest {
             + "#EXT-X-MAP:URI=\"init2.ts\""
             + "#EXTINF:5.005,\n"
             + "02/00/47.ts\n";
-    InputStream inputStream =
-        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
 
@@ -303,8 +382,7 @@ public class HlsMediaPlaylistParserTest {
             + "#EXT-X-MAP:URI=\"init2.ts\""
             + "#EXTINF:5.005,\n"
             + "02/00/47.ts\n";
-    InputStream inputStream =
-        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
     assertThat(playlist.hasIndependentSegments).isFalse();

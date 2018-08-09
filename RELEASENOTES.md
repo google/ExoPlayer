@@ -61,6 +61,8 @@
   * Allow configuration of the Loader retry delay
     ([#3370](https://github.com/google/ExoPlayer/issues/3370)).
 * HLS:
+  * Add support for PlayReady.
+  * Add support for alternative EXT-X-KEY tags.
   * Set the bitrate on primary track sample formats
     ([#3297](https://github.com/google/ExoPlayer/issues/3297)).
   * Pass HTTP response headers to `HlsExtractorFactory.createExtractor`.

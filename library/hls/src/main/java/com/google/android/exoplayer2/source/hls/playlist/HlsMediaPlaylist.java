@@ -56,6 +56,11 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      */
     public final long relativeStartTimeUs;
     /**
+     * DRM initialization data for sample decryption, or null if the segment does not use CDM-DRM
+     * protection.
+     */
+    public final @Nullable DrmInitData drmInitData;
+    /**
      * The encryption identity key uri as defined by #EXT-X-KEY, or null if the segment does not use
      * full segment encryption with identity key.
      */
@@ -91,6 +96,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
           /* durationUs= */ 0,
           /* relativeDiscontinuitySequence= */ -1,
           /* relativeStartTimeUs= */ C.TIME_UNSET,
+          /* drmInitData= */ null,
           /* fullSegmentEncryptionKeyUri= */ null,
           /* encryptionIV= */ null,
           byterangeOffset,
@@ -105,6 +111,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param durationUs See {@link #durationUs}.
      * @param relativeDiscontinuitySequence See {@link #relativeDiscontinuitySequence}.
      * @param relativeStartTimeUs See {@link #relativeStartTimeUs}.
+     * @param drmInitData See {@link #drmInitData}.
      * @param fullSegmentEncryptionKeyUri See {@link #fullSegmentEncryptionKeyUri}.
      * @param encryptionIV See {@link #encryptionIV}.
      * @param byterangeOffset See {@link #byterangeOffset}.
@@ -118,6 +125,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         long durationUs,
         int relativeDiscontinuitySequence,
         long relativeStartTimeUs,
+        @Nullable DrmInitData drmInitData,
         @Nullable String fullSegmentEncryptionKeyUri,
         @Nullable String encryptionIV,
         long byterangeOffset,
@@ -129,6 +137,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       this.durationUs = durationUs;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
       this.relativeStartTimeUs = relativeStartTimeUs;
+      this.drmInitData = drmInitData;
       this.fullSegmentEncryptionKeyUri = fullSegmentEncryptionKeyUri;
       this.encryptionIV = encryptionIV;
       this.byterangeOffset = byterangeOffset;
@@ -199,10 +208,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   public final boolean hasProgramDateTime;
   /**
-   * DRM initialization data for sample decryption, or null if none of the segment uses sample
-   * encryption.
+   * Contains the CDM protection schemes used by segments in this playlist. Does not contain any key
+   * acquisition data. Null if none of the segments in the playlist is CDM-encrypted.
    */
-  public final DrmInitData drmInitData;
+  public final @Nullable DrmInitData protectionSchemes;
   /**
    * The list of segments in the playlist.
    */
@@ -225,8 +234,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * @param targetDurationUs See {@link #targetDurationUs}.
    * @param hasIndependentSegments See {@link #hasIndependentSegments}.
    * @param hasEndTag See {@link #hasEndTag}.
+   * @param protectionSchemes See {@link #protectionSchemes}.
    * @param hasProgramDateTime See {@link #hasProgramDateTime}.
-   * @param drmInitData See {@link #drmInitData}.
    * @param segments See {@link #segments}.
    */
   public HlsMediaPlaylist(
@@ -243,7 +252,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       boolean hasIndependentSegments,
       boolean hasEndTag,
       boolean hasProgramDateTime,
-      DrmInitData drmInitData,
+      @Nullable DrmInitData protectionSchemes,
       List<Segment> segments) {
     super(baseUri, tags, hasIndependentSegments);
     this.playlistType = playlistType;
@@ -255,7 +264,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.targetDurationUs = targetDurationUs;
     this.hasEndTag = hasEndTag;
     this.hasProgramDateTime = hasProgramDateTime;
-    this.drmInitData = drmInitData;
+    this.protectionSchemes = protectionSchemes;
     this.segments = Collections.unmodifiableList(segments);
     if (!segments.isEmpty()) {
       Segment last = segments.get(segments.size() - 1);
@@ -323,7 +332,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         hasIndependentSegments,
         hasEndTag,
         hasProgramDateTime,
-        drmInitData,
+        protectionSchemes,
         segments);
   }
 
@@ -357,7 +366,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         hasIndependentSegments || masterPlaylist.hasIndependentSegments,
         hasEndTag,
         hasProgramDateTime,
-        drmInitData,
+        protectionSchemes,
         segments);
   }
 
@@ -383,7 +392,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         hasIndependentSegments,
         /* hasEndTag= */ true,
         hasProgramDateTime,
-        drmInitData,
+        protectionSchemes,
         segments);
   }
 
