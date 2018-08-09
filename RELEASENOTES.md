@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add a flag to opt-in to automatic audio focus handling via
+  `SimpleExoPlayer.setAudioAttributes`.
 * Distribute Cronet extension via jCenter.
 * Add `AudioListener` for listening to changes in audio configuration during
   playback ([#3994](https://github.com/google/ExoPlayer/issues/3994)).

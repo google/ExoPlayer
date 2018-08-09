@@ -19,7 +19,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.PlaybackParams;
 import android.os.Handler;
@@ -33,6 +32,7 @@ import android.view.TextureView;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioFocusManager;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -72,7 +72,7 @@ public class SimpleExoPlayer
 
   protected final Renderer[] renderers;
 
-  private final ExoPlayer player;
+  private final ExoPlayerImpl player;
   private final Handler eventHandler;
   private final ComponentListener componentListener;
   private final CopyOnWriteArraySet<com.google.android.exoplayer2.video.VideoListener>
@@ -85,8 +85,7 @@ public class SimpleExoPlayer
   private final BandwidthMeter bandwidthMeter;
   private final AnalyticsCollector analyticsCollector;
 
-  @SuppressWarnings({"unused", "FieldCanBeLocal"})
-  private final @Nullable AudioManager audioManager;
+  private final AudioFocusManager audioFocusManager;
 
   private Format videoFormat;
   private Format audioFormat;
@@ -116,7 +115,9 @@ public class SimpleExoPlayer
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
    *     used to call listeners on.
    * @deprecated Use {@link #SimpleExoPlayer(Context, RenderersFactory, TrackSelector, LoadControl,
-   *     BandwidthMeter, DrmSessionManager, Looper)}.
+   *     BandwidthMeter, DrmSessionManager, Looper)}. The use of {@link
+   *     SimpleExoPlayer#setAudioAttributes(AudioAttributes, boolean)} to manage audio focus will be
+   *     unavailable for a player created with this constructor.
    */
   @Deprecated
   protected SimpleExoPlayer(
@@ -253,7 +254,7 @@ public class SimpleExoPlayer
 
     // Build the player and associated objects.
     player =
-        createExoPlayerImpl(renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
+        new ExoPlayerImpl(renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
     analyticsCollector = analyticsCollectorFactory.createAnalyticsCollector(player, clock);
     addListener(analyticsCollector);
     videoDebugListeners.add(analyticsCollector);
@@ -265,13 +266,7 @@ public class SimpleExoPlayer
     if (drmSessionManager instanceof DefaultDrmSessionManager) {
       ((DefaultDrmSessionManager) drmSessionManager).addListener(eventHandler, analyticsCollector);
     }
-    // TODO: Remove null check once the deprecated factory method and constructor that don't take
-    // Contexts have been removed.
-    audioManager =
-        context == null
-            ? null
-            : (AudioManager)
-                context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+    audioFocusManager = new AudioFocusManager(context, componentListener);
   }
 
   @Override
@@ -417,22 +412,32 @@ public class SimpleExoPlayer
 
   @Override
   public void setAudioAttributes(AudioAttributes audioAttributes) {
-    if (Util.areEqual(this.audioAttributes, audioAttributes)) {
-      return;
-    }
-    this.audioAttributes = audioAttributes;
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        player
-            .createMessage(renderer)
-            .setType(C.MSG_SET_AUDIO_ATTRIBUTES)
-            .setPayload(audioAttributes)
-            .send();
+    setAudioAttributes(audioAttributes, /* handleAudioFocus= */ false);
+  }
+
+  @Override
+  public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+    if (!Util.areEqual(this.audioAttributes, audioAttributes)) {
+      this.audioAttributes = audioAttributes;
+      for (Renderer renderer : renderers) {
+        if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
+          player
+              .createMessage(renderer)
+              .setType(C.MSG_SET_AUDIO_ATTRIBUTES)
+              .setPayload(audioAttributes)
+              .send();
+        }
+      }
+      for (AudioListener audioListener : audioListeners) {
+        audioListener.onAudioAttributesChanged(audioAttributes);
       }
     }
-    for (AudioListener audioListener : audioListeners) {
-      audioListener.onAudioAttributesChanged(audioAttributes);
-    }
+
+    @AudioFocusManager.PlayerCommand
+    int playerCommand =
+        audioFocusManager.setAudioAttributes(
+            handleAudioFocus ? audioAttributes : null, getPlayWhenReady(), getPlaybackState());
+    updatePlayWhenReady(getPlayWhenReady(), playerCommand);
   }
 
   @Override
@@ -452,11 +457,7 @@ public class SimpleExoPlayer
       return;
     }
     this.audioVolume = audioVolume;
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        player.createMessage(renderer).setType(C.MSG_SET_VOLUME).setPayload(audioVolume).send();
-      }
-    }
+    sendVolumeToRenderers();
     for (AudioListener audioListener : audioListeners) {
       audioListener.onVolumeChanged(audioVolume);
     }
@@ -792,12 +793,17 @@ public class SimpleExoPlayer
       mediaSource.addEventListener(eventHandler, analyticsCollector);
       this.mediaSource = mediaSource;
     }
+    @AudioFocusManager.PlayerCommand
+    int playerCommand = audioFocusManager.handlePrepare(getPlayWhenReady());
+    updatePlayWhenReady(getPlayWhenReady(), playerCommand);
     player.prepare(mediaSource, resetPosition, resetState);
   }
 
   @Override
   public void setPlayWhenReady(boolean playWhenReady) {
-    player.setPlayWhenReady(playWhenReady);
+    @AudioFocusManager.PlayerCommand
+    int playerCommand = audioFocusManager.handleSetPlayWhenReady(playWhenReady, getPlaybackState());
+    updatePlayWhenReady(playWhenReady, playerCommand);
   }
 
   @Override
@@ -892,11 +898,13 @@ public class SimpleExoPlayer
       mediaSource = null;
       analyticsCollector.resetForNewMediaSource();
     }
+    audioFocusManager.handleStop();
     currentCues = Collections.emptyList();
   }
 
   @Override
   public void release() {
+    audioFocusManager.handleStop();
     player.release();
     removeSurfaceCallbacks();
     if (surface != null) {
@@ -1039,28 +1047,6 @@ public class SimpleExoPlayer
 
   // Internal methods.
 
-  /**
-   * Creates the {@link ExoPlayer} implementation used by this instance.
-   *
-   * @param renderers The {@link Renderer}s that will be used by the instance.
-   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-   * @param loadControl The {@link LoadControl} that will be used by the instance.
-   * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
-   * @param clock The {@link Clock} that will be used by this instance.
-   * @param looper The {@link Looper} which must be used for all calls to the player and which is
-   *     used to call listeners on.
-   * @return A new {@link ExoPlayer} instance.
-   */
-  protected ExoPlayer createExoPlayerImpl(
-      Renderer[] renderers,
-      TrackSelector trackSelector,
-      LoadControl loadControl,
-      BandwidthMeter bandwidthMeter,
-      Clock clock,
-      Looper looper) {
-    return new ExoPlayerImpl(renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
-  }
-
   private void removeSurfaceCallbacks() {
     if (textureView != null) {
       if (textureView.getSurfaceTextureListener() != componentListener) {
@@ -1114,9 +1100,31 @@ public class SimpleExoPlayer
     }
   }
 
-  private final class ComponentListener implements VideoRendererEventListener,
-      AudioRendererEventListener, TextOutput, MetadataOutput, SurfaceHolder.Callback,
-      TextureView.SurfaceTextureListener {
+  private void sendVolumeToRenderers() {
+    float scaledVolume = audioVolume * audioFocusManager.getVolumeMultiplier();
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
+        player.createMessage(renderer).setType(C.MSG_SET_VOLUME).setPayload(scaledVolume).send();
+      }
+    }
+  }
+
+  private void updatePlayWhenReady(
+      boolean playWhenReady, @AudioFocusManager.PlayerCommand int playerCommand) {
+
+    player.setPlayWhenReady(
+        playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_DO_NOT_PLAY,
+        playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY);
+  }
+
+  private final class ComponentListener
+      implements VideoRendererEventListener,
+          AudioRendererEventListener,
+          TextOutput,
+          MetadataOutput,
+          SurfaceHolder.Callback,
+          TextureView.SurfaceTextureListener,
+          AudioFocusManager.PlayerControl {
 
     // VideoRendererEventListener implementation
 
@@ -1314,6 +1322,17 @@ public class SimpleExoPlayer
     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
       // Do nothing.
     }
-  }
 
+    // AudioFocusManager.PlayerControl implementation
+
+    @Override
+    public void setVolumeMultiplier(float volumeMultiplier) {
+      sendVolumeToRenderers();
+    }
+
+    @Override
+    public void executePlayerCommand(@AudioFocusManager.PlayerCommand int playerCommand) {
+      updatePlayWhenReady(getPlayWhenReady(), playerCommand);
+    }
+  }
 }

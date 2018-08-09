@@ -66,6 +66,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final ArrayDeque<PlaybackInfoUpdate> pendingPlaybackInfoUpdates;
 
   private boolean playWhenReady;
+  private boolean internalPlayWhenReady;
   private @RepeatMode int repeatMode;
   private boolean shuffleModeEnabled;
   private int pendingOperationAcks;
@@ -219,9 +220,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void setPlayWhenReady(boolean playWhenReady) {
+    setPlayWhenReady(playWhenReady, /* suppressPlayback= */ false);
+  }
+
+  public void setPlayWhenReady(boolean playWhenReady, boolean suppressPlayback) {
+    boolean internalPlayWhenReady = playWhenReady && !suppressPlayback;
+    if (this.internalPlayWhenReady != internalPlayWhenReady) {
+      this.internalPlayWhenReady = internalPlayWhenReady;
+      internalPlayer.setPlayWhenReady(internalPlayWhenReady);
+    }
     if (this.playWhenReady != playWhenReady) {
       this.playWhenReady = playWhenReady;
-      internalPlayer.setPlayWhenReady(playWhenReady);
       updatePlaybackInfo(
           playbackInfo,
           /* positionDiscontinuity= */ false,

@@ -19,6 +19,7 @@ import android.content.Context;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -145,7 +146,9 @@ public final class ExoPlayerFactory {
    *
    * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-   * @deprecated Use {@link #newSimpleInstance(Context, RenderersFactory, TrackSelector)}.
+   * @deprecated Use {@link #newSimpleInstance(Context, RenderersFactory, TrackSelector)}. The use
+   *     of {@link SimpleExoPlayer#setAudioAttributes(AudioAttributes, boolean)} to manage audio
+   *     focus will be unavailable for the {@link SimpleExoPlayer} returned by this method.
    */
   @Deprecated
   @SuppressWarnings("nullness:argument.type.incompatible")
