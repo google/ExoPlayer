@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
+import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.source.UnrecognizedInputFormatException;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
@@ -40,6 +41,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.PolyNull;
@@ -82,6 +84,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   // Replaced by METHOD_SAMPLE_AES_CTR. Keep for backward compatibility.
   private static final String METHOD_SAMPLE_AES_CENC = "SAMPLE-AES-CENC";
   private static final String METHOD_SAMPLE_AES_CTR = "SAMPLE-AES-CTR";
+  private static final String KEYFORMAT_PLAYREADY = "com.microsoft.playready";
   private static final String KEYFORMAT_IDENTITY = "identity";
   private static final String KEYFORMAT_WIDEVINE_PSSH_BINARY =
       "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed";
@@ -128,8 +131,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               + "|"
               + METHOD_SAMPLE_AES_CTR
               + ")"
-              + "\\s*(,|$)");
+              + "\\s*(?:,|$)");
   private static final Pattern REGEX_KEYFORMAT = Pattern.compile("KEYFORMAT=\"(.+?)\"");
+  private static final Pattern REGEX_KEYFORMATVERSIONS =
+      Pattern.compile("KEYFORMATVERSIONS=\"(.+?)\"");
   private static final Pattern REGEX_URI = Pattern.compile("URI=\"(.+?)\"");
   private static final Pattern REGEX_IV = Pattern.compile("IV=([^,.*]+)");
   private static final Pattern REGEX_TYPE = Pattern.compile("TYPE=(" + TYPE_AUDIO + "|" + TYPE_VIDEO
@@ -422,9 +427,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long segmentMediaSequence = 0;
     boolean hasGapTag = false;
 
+    DrmInitData playlistProtectionSchemes = null;
     String encryptionKeyUri = null;
     String encryptionIV = null;
-    DrmInitData drmInitData = null;
+    TreeMap<String, SchemeData> currentSchemeDatas = new TreeMap<>();
+    String encryptionScheme = null;
+    DrmInitData cachedDrmInitData = null;
 
     String line;
     while (iterator.hasNext()) {
@@ -469,13 +477,16 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             (long) (parseDoubleAttr(line, REGEX_MEDIA_DURATION) * C.MICROS_PER_SECOND);
         segmentTitle = parseOptionalStringAttr(line, REGEX_MEDIA_TITLE, "");
       } else if (line.startsWith(TAG_KEY)) {
-        String method = parseOptionalStringAttr(line, REGEX_METHOD);
-        String keyFormat = parseOptionalStringAttr(line, REGEX_KEYFORMAT);
+        String method = parseStringAttr(line, REGEX_METHOD);
+        String keyFormat = parseOptionalStringAttr(line, REGEX_KEYFORMAT, KEYFORMAT_IDENTITY);
         encryptionKeyUri = null;
         encryptionIV = null;
-        if (!METHOD_NONE.equals(method)) {
+        if (METHOD_NONE.equals(method)) {
+          currentSchemeDatas.clear();
+          cachedDrmInitData = null;
+        } else /* !METHOD_NONE.equals(method) */ {
           encryptionIV = parseOptionalStringAttr(line, REGEX_IV);
-          if (KEYFORMAT_IDENTITY.equals(keyFormat) || keyFormat == null) {
+          if (KEYFORMAT_IDENTITY.equals(keyFormat)) {
             if (METHOD_AES_128.equals(method)) {
               // The segment is fully encrypted using an identity key.
               encryptionKeyUri = parseStringAttr(line, REGEX_URI);
@@ -483,16 +494,22 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
               // Do nothing. Samples are encrypted using an identity key, but this is not supported.
               // Hopefully, a traditional DRM alternative is also provided.
             }
-          } else if (method != null) {
-            SchemeData schemeData = parseWidevineSchemeData(line, keyFormat);
+          } else {
+            if (encryptionScheme == null) {
+              encryptionScheme =
+                  METHOD_SAMPLE_AES_CENC.equals(method) || METHOD_SAMPLE_AES_CTR.equals(method)
+                      ? C.CENC_TYPE_cenc
+                      : C.CENC_TYPE_cbcs;
+            }
+            SchemeData schemeData;
+            if (KEYFORMAT_PLAYREADY.equals(keyFormat)) {
+              schemeData = parsePlayReadySchemeData(line);
+            } else {
+              schemeData = parseWidevineSchemeData(line, keyFormat);
+            }
             if (schemeData != null) {
-              drmInitData =
-                  new DrmInitData(
-                      (METHOD_SAMPLE_AES_CENC.equals(method)
-                              || METHOD_SAMPLE_AES_CTR.equals(method))
-                          ? C.CENC_TYPE_cenc
-                          : C.CENC_TYPE_cbcs,
-                      schemeData);
+              cachedDrmInitData = null;
+              currentSchemeDatas.put(keyFormat, schemeData);
             }
           }
         }
@@ -529,10 +546,24 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         } else {
           segmentEncryptionIV = Long.toHexString(segmentMediaSequence);
         }
+
         segmentMediaSequence++;
         if (segmentByteRangeLength == C.LENGTH_UNSET) {
           segmentByteRangeOffset = 0;
         }
+
+        if (cachedDrmInitData == null && !currentSchemeDatas.isEmpty()) {
+          SchemeData[] schemeDatas = currentSchemeDatas.values().toArray(new SchemeData[0]);
+          cachedDrmInitData = new DrmInitData(encryptionScheme, schemeDatas);
+          if (playlistProtectionSchemes == null) {
+            SchemeData[] playlistSchemeDatas = new SchemeData[schemeDatas.length];
+            for (int i = 0; i < schemeDatas.length; i++) {
+              playlistSchemeDatas[i] = schemeDatas[i].copyWithData(null);
+            }
+            playlistProtectionSchemes = new DrmInitData(encryptionScheme, playlistSchemeDatas);
+          }
+        }
+
         segments.add(
             new Segment(
                 line,
@@ -541,6 +572,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 segmentDurationUs,
                 relativeDiscontinuitySequence,
                 segmentStartTimeUs,
+                cachedDrmInitData,
                 encryptionKeyUri,
                 segmentEncryptionIV,
                 segmentByteRangeOffset,
@@ -570,11 +602,23 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasIndependentSegmentsTag,
         hasEndTag,
         /* hasProgramDateTime= */ playlistStartTimeUs != 0,
-        drmInitData,
+        playlistProtectionSchemes,
         segments);
   }
 
-  private static SchemeData parseWidevineSchemeData(String line, String keyFormat)
+  private static @Nullable SchemeData parsePlayReadySchemeData(String line) throws ParserException {
+    String keyFormatVersions = parseOptionalStringAttr(line, REGEX_KEYFORMATVERSIONS, "1");
+    if (!"1".equals(keyFormatVersions)) {
+      // Not supported.
+      return null;
+    }
+    String uriString = parseStringAttr(line, REGEX_URI);
+    byte[] data = Base64.decode(uriString.substring(uriString.indexOf(',')), Base64.DEFAULT);
+    byte[] psshData = PsshAtomUtil.buildPsshAtom(C.PLAYREADY_UUID, data);
+    return new SchemeData(C.PLAYREADY_UUID, MimeTypes.VIDEO_MP4, psshData);
+  }
+
+  private static @Nullable SchemeData parseWidevineSchemeData(String line, String keyFormat)
       throws ParserException {
     if (KEYFORMAT_WIDEVINE_PSSH_BINARY.equals(keyFormat)) {
      String uriString = parseStringAttr(line, REGEX_URI);
@@ -604,11 +648,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   }
 
   private static String parseStringAttr(String line, Pattern pattern) throws ParserException {
-    Matcher matcher = pattern.matcher(line);
-    if (matcher.find() && matcher.groupCount() == 1) {
-      return matcher.group(1);
+    String value = parseOptionalStringAttr(line, pattern);
+    if (value != null) {
+      return value;
+    } else {
+      throw new ParserException("Couldn't match " + pattern.pattern() + " in " + line);
     }
-    throw new ParserException("Couldn't match " + pattern.pattern() + " in " + line);
   }
 
   private static @Nullable String parseOptionalStringAttr(String line, Pattern pattern) {
