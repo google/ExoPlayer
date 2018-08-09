@@ -91,7 +91,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         /* manifest= */ null,
         DUMMY_MEDIA_PERIOD_ID,
         startPositionUs,
-        /* contentPositionUs =*/ C.TIME_UNSET,
+        /* contentPositionUs= */ C.TIME_UNSET,
         Player.STATE_IDLE,
         /* isLoading= */ false,
         TrackGroupArray.EMPTY,

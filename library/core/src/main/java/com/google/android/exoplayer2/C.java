@@ -283,24 +283,32 @@ public final class C {
   public static final int FLAG_AUDIBILITY_ENFORCED =
       android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED;
 
-  /**
-   * Usage types for {@link com.google.android.exoplayer2.audio.AudioAttributes}.
-   */
+  /** Usage types for {@link com.google.android.exoplayer2.audio.AudioAttributes}. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({USAGE_ALARM, USAGE_ASSISTANCE_ACCESSIBILITY, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
-      USAGE_ASSISTANCE_SONIFICATION, USAGE_GAME, USAGE_MEDIA, USAGE_NOTIFICATION,
-      USAGE_NOTIFICATION_COMMUNICATION_DELAYED, USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
-      USAGE_NOTIFICATION_COMMUNICATION_REQUEST, USAGE_NOTIFICATION_EVENT,
-      USAGE_NOTIFICATION_RINGTONE, USAGE_UNKNOWN, USAGE_VOICE_COMMUNICATION,
-      USAGE_VOICE_COMMUNICATION_SIGNALLING})
+  @IntDef({
+    USAGE_ALARM,
+    USAGE_ASSISTANCE_ACCESSIBILITY,
+    USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+    USAGE_ASSISTANCE_SONIFICATION,
+    USAGE_ASSISTANT,
+    USAGE_GAME,
+    USAGE_MEDIA,
+    USAGE_NOTIFICATION,
+    USAGE_NOTIFICATION_COMMUNICATION_DELAYED,
+    USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
+    USAGE_NOTIFICATION_COMMUNICATION_REQUEST,
+    USAGE_NOTIFICATION_EVENT,
+    USAGE_NOTIFICATION_RINGTONE,
+    USAGE_UNKNOWN,
+    USAGE_VOICE_COMMUNICATION,
+    USAGE_VOICE_COMMUNICATION_SIGNALLING
+  })
   public @interface AudioUsage {}
   /**
    * @see android.media.AudioAttributes#USAGE_ALARM
    */
   public static final int USAGE_ALARM = android.media.AudioAttributes.USAGE_ALARM;
-  /**
-   * @see android.media.AudioAttributes#USAGE_ASSISTANCE_ACCESSIBILITY
-   */
+  /** @see android.media.AudioAttributes#USAGE_ASSISTANCE_ACCESSIBILITY */
   public static final int USAGE_ASSISTANCE_ACCESSIBILITY =
       android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY;
   /**
@@ -313,6 +321,8 @@ public final class C {
    */
   public static final int USAGE_ASSISTANCE_SONIFICATION =
       android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;
+  /** @see android.media.AudioAttributes#USAGE_ASSISTANT */
+  public static final int USAGE_ASSISTANT = android.media.AudioAttributes.USAGE_ASSISTANT;
   /**
    * @see android.media.AudioAttributes#USAGE_GAME
    */
@@ -364,6 +374,29 @@ public final class C {
    */
   public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING =
       android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
+
+  /** Audio focus types for {@link AudioFocusConfiguration}. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    AUDIOFOCUS_NONE,
+    AUDIOFOCUS_GAIN,
+    AUDIOFOCUS_GAIN_TRANSIENT,
+    AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
+    AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
+  })
+  public @interface AudioFocusGain {}
+  /** @see AudioManager#AUDIOFOCUS_NONE */
+  public static final int AUDIOFOCUS_NONE = AudioManager.AUDIOFOCUS_NONE;
+  /** @see AudioManager#AUDIOFOCUS_GAIN */
+  public static final int AUDIOFOCUS_GAIN = AudioManager.AUDIOFOCUS_GAIN;
+  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT */
+  public static final int AUDIOFOCUS_GAIN_TRANSIENT = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
+  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK */
+  public static final int AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK =
+      AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
+  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE */
+  public static final int AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE =
+      AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
 
   /**
    * Flags which can apply to a buffer containing a media sample.
