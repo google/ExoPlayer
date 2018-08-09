@@ -21,11 +21,11 @@ import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
@@ -621,7 +621,7 @@ public final class DefaultHlsPlaylistTracker
      */
     private boolean blacklistPlaylist() {
       blacklistUntilMs =
-          SystemClock.elapsedRealtime() + ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS;
+          SystemClock.elapsedRealtime() + DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS;
       return primaryHlsUrl == playlistUrl && !maybeSelectNewPrimaryUrl();
     }
   }

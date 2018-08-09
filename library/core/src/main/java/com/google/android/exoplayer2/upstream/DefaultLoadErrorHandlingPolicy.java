@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.upstream;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
 import java.io.IOException;
 
@@ -31,6 +30,8 @@ public final class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPo
    * streams.
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_PROGRESSIVE_LIVE = 6;
+  /** The default duration for which a track is blacklisted in milliseconds. */
+  public static final long DEFAULT_TRACK_BLACKLIST_MS = 60000;
 
   private static final int DEFAULT_BEHAVIOR_MIN_LOADABLE_RETRY_COUNT = -1;
 
@@ -59,8 +60,7 @@ public final class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPo
 
   /**
    * Blacklists resources whose load error was an {@link InvalidResponseCodeException} with response
-   * code HTTP 404 or 410. The duration of the blacklisting is {@link
-   * ChunkedTrackBlacklistUtil#DEFAULT_TRACK_BLACKLIST_MS}.
+   * code HTTP 404 or 410. The duration of the blacklisting is {@link #DEFAULT_TRACK_BLACKLIST_MS}.
    */
   @Override
   public long getBlacklistDurationMsFor(
@@ -69,7 +69,7 @@ public final class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPo
       int responseCode = ((InvalidResponseCodeException) exception).responseCode;
       return responseCode == 404 // HTTP 404 Not Found.
               || responseCode == 410 // HTTP 410 Gone.
-          ? ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS
+          ? DEFAULT_TRACK_BLACKLIST_MS
           : C.TIME_UNSET;
     }
     return C.TIME_UNSET;

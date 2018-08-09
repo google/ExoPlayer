@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.Chunk;
-import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.source.chunk.DataChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
@@ -33,6 +32,7 @@ import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
@@ -429,7 +429,7 @@ import java.util.List;
     seenExpectedPlaylistError |= expectedPlaylistUrl == url;
     return !shouldBlacklist
         || trackSelection.blacklist(
-            trackSelectionIndex, ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS);
+            trackSelectionIndex, DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
   }
 
   // Private methods.

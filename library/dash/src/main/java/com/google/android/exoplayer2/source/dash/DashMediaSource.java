@@ -43,6 +43,8 @@ import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
@@ -77,7 +79,7 @@ public final class DashMediaSource extends BaseMediaSource {
 
     private @Nullable ParsingLoadable.Parser<? extends DashManifest> manifestParser;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
-    private int minLoadableRetryCount;
+    private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long livePresentationDelayMs;
     private boolean livePresentationDelayOverridesManifest;
     private boolean isCreateCalled;
@@ -107,7 +109,7 @@ public final class DashMediaSource extends BaseMediaSource {
         @Nullable DataSource.Factory manifestDataSourceFactory) {
       this.chunkSourceFactory = Assertions.checkNotNull(chunkSourceFactory);
       this.manifestDataSourceFactory = manifestDataSourceFactory;
-      minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
+      loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
     }
@@ -128,16 +130,36 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     /**
-     * Sets the minimum number of times to retry if a loading error occurs. The default value is
-     * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT}.
+     * Sets the minimum number of times to retry if a loading error occurs. See {@link
+     * #setLoadErrorHandlingPolicy} for the default value.
+     *
+     * <p>Calling this method is equivalent to calling {@link #setLoadErrorHandlingPolicy} with
+     * {@link DefaultLoadErrorHandlingPolicy (int)
+     * DefaultLoadErrorHandlingPolicy(minLoadableRetryCount)}
      *
      * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     * @deprecated Use {@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)} instead.
      */
+    @Deprecated
     public Factory setMinLoadableRetryCount(int minLoadableRetryCount) {
+      return setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount));
+    }
+
+    /**
+     * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
+     * DefaultLoadErrorHandlingPolicy()}.
+     *
+     * <p>Calling this method overrides any calls to {@link #setMinLoadableRetryCount(int)}.
+     *
+     * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       Assertions.checkState(!isCreateCalled);
-      this.minLoadableRetryCount = minLoadableRetryCount;
+      this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
       return this;
     }
 
@@ -225,7 +247,7 @@ public final class DashMediaSource extends BaseMediaSource {
           /* manifestParser= */ null,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
-          minLoadableRetryCount,
+          loadErrorHandlingPolicy,
           livePresentationDelayMs,
           livePresentationDelayOverridesManifest,
           tag);
@@ -266,7 +288,7 @@ public final class DashMediaSource extends BaseMediaSource {
           manifestParser,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
-          minLoadableRetryCount,
+          loadErrorHandlingPolicy,
           livePresentationDelayMs,
           livePresentationDelayOverridesManifest,
           tag);
@@ -293,11 +315,6 @@ public final class DashMediaSource extends BaseMediaSource {
       return new int[] {C.TYPE_DASH};
     }
   }
-
-  /**
-   * The default minimum number of times to retry loading data prior to failing.
-   */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
   /**
    * The default presentation delay for live streams. The presentation delay is the duration by
@@ -328,7 +345,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
-  private final int minLoadableRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final long livePresentationDelayMs;
   private final boolean livePresentationDelayOverridesManifest;
   private final EventDispatcher manifestEventDispatcher;
@@ -379,7 +396,11 @@ public final class DashMediaSource extends BaseMediaSource {
       DashChunkSource.Factory chunkSourceFactory,
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
-    this(manifest, chunkSourceFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT, eventHandler,
+    this(
+        manifest,
+        chunkSourceFactory,
+        DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT,
+        eventHandler,
         eventListener);
   }
 
@@ -407,7 +428,7 @@ public final class DashMediaSource extends BaseMediaSource {
         /* manifestParser= */ null,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
-        minLoadableRetryCount,
+        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
         DEFAULT_LIVE_PRESENTATION_DELAY_MS,
         /* livePresentationDelayOverridesManifest= */ false,
         /* tag= */ null);
@@ -436,9 +457,14 @@ public final class DashMediaSource extends BaseMediaSource {
       DashChunkSource.Factory chunkSourceFactory,
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
-    this(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
-        DEFAULT_MIN_LOADABLE_RETRY_COUNT, DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS,
-        eventHandler, eventListener);
+    this(
+        manifestUri,
+        manifestDataSourceFactory,
+        chunkSourceFactory,
+        DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT,
+        DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS,
+        eventHandler,
+        eventListener);
   }
 
   /**
@@ -515,7 +541,7 @@ public final class DashMediaSource extends BaseMediaSource {
         manifestParser,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
-        minLoadableRetryCount,
+        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
         livePresentationDelayMs == DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS
             ? DEFAULT_LIVE_PRESENTATION_DELAY_MS
             : livePresentationDelayMs,
@@ -533,7 +559,7 @@ public final class DashMediaSource extends BaseMediaSource {
       ParsingLoadable.Parser<? extends DashManifest> manifestParser,
       DashChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
-      int minLoadableRetryCount,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       long livePresentationDelayMs,
       boolean livePresentationDelayOverridesManifest,
       @Nullable Object tag) {
@@ -543,7 +569,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
-    this.minLoadableRetryCount = minLoadableRetryCount;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.livePresentationDelayOverridesManifest = livePresentationDelayOverridesManifest;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
@@ -625,7 +651,7 @@ public final class DashMediaSource extends BaseMediaSource {
             periodIndex,
             chunkSourceFactory,
             mediaTransferListener,
-            minLoadableRetryCount,
+            loadErrorHandlingPolicy,
             periodEventDispatcher,
             elapsedRealtimeOffsetMs,
             manifestLoadErrorThrower,
@@ -735,7 +761,8 @@ public final class DashMediaSource extends BaseMediaSource {
       }
 
       if (isManifestStale) {
-        if (staleManifestReloadAttempt++ < minLoadableRetryCount) {
+        if (staleManifestReloadAttempt++
+            < loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type)) {
           scheduleManifestRefresh(getManifestLoadRetryDelayMillis());
         } else {
           manifestFatalError = new DashManifestStaleException();
@@ -1004,7 +1031,7 @@ public final class DashMediaSource extends BaseMediaSource {
     startLoading(
         new ParsingLoadable<>(dataSource, manifestUri, C.DATA_TYPE_MANIFEST, manifestParser),
         manifestCallback,
-        minLoadableRetryCount);
+        loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_MANIFEST));
   }
 
   private long getManifestLoadRetryDelayMillis() {

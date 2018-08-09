@@ -20,9 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
-import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
@@ -34,56 +32,43 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public final class DefaultLoadErrorHandlingPolicyTest {
 
-  private static final Loadable DUMMY_LOADABLE =
-      new Loadable() {
-        @Override
-        public void cancelLoad() {
-          // Do nothing.
-        }
-
-        @Override
-        public void load() throws IOException, InterruptedException {
-          // Do nothing.
-        }
-      };
-
   @Test
-  public void getBlacklistDurationMsFor_blacklist404() throws Exception {
+  public void getBlacklistDurationMsFor_blacklist404() {
     InvalidResponseCodeException exception =
         new InvalidResponseCodeException(404, Collections.emptyMap(), new DataSpec(Uri.EMPTY));
     assertThat(getDefaultPolicyBlacklistOutputFor(exception))
-        .isEqualTo(ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS);
+        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
   }
 
   @Test
-  public void getBlacklistDurationMsFor_blacklist410() throws Exception {
+  public void getBlacklistDurationMsFor_blacklist410() {
     InvalidResponseCodeException exception =
         new InvalidResponseCodeException(410, Collections.emptyMap(), new DataSpec(Uri.EMPTY));
     assertThat(getDefaultPolicyBlacklistOutputFor(exception))
-        .isEqualTo(ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS);
+        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
   }
 
   @Test
-  public void getBlacklistDurationMsFor_dontBlacklistUnexpectedHttpCodes() throws Exception {
+  public void getBlacklistDurationMsFor_dontBlacklistUnexpectedHttpCodes() {
     InvalidResponseCodeException exception =
         new InvalidResponseCodeException(500, Collections.emptyMap(), new DataSpec(Uri.EMPTY));
     assertThat(getDefaultPolicyBlacklistOutputFor(exception)).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
-  public void getBlacklistDurationMsFor_dontBlacklistUnexpectedExceptions() throws Exception {
+  public void getBlacklistDurationMsFor_dontBlacklistUnexpectedExceptions() {
     FileNotFoundException exception = new FileNotFoundException();
     assertThat(getDefaultPolicyBlacklistOutputFor(exception)).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
-  public void getRetryDelayMsFor_dontRetryParserException() throws Exception {
+  public void getRetryDelayMsFor_dontRetryParserException() {
     assertThat(getDefaultPolicyRetryDelayOutputFor(new ParserException(), 1))
         .isEqualTo(C.TIME_UNSET);
   }
 
   @Test
-  public void getRetryDelayMsFor_successiveRetryDelays() throws Exception {
+  public void getRetryDelayMsFor_successiveRetryDelays() {
     assertThat(getDefaultPolicyRetryDelayOutputFor(new FileNotFoundException(), 3)).isEqualTo(2000);
     assertThat(getDefaultPolicyRetryDelayOutputFor(new FileNotFoundException(), 5)).isEqualTo(4000);
     assertThat(getDefaultPolicyRetryDelayOutputFor(new FileNotFoundException(), 9)).isEqualTo(5000);

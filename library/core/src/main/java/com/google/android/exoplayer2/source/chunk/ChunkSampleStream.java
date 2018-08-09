@@ -27,6 +27,8 @@ import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.util.Assertions;
@@ -64,7 +66,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private final T chunkSource;
   private final SequenceableLoader.Callback<ChunkSampleStream<T>> callback;
   private final EventDispatcher eventDispatcher;
-  private final int minLoadableRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final Loader loader;
   private final ChunkHolder nextChunkHolder;
   private final ArrayList<BaseMediaChunk> mediaChunks;
@@ -81,6 +83,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   /* package */ boolean loadingFinished;
 
   /**
+   * Constructs an instance.
+   *
    * @param primaryTrackType The type of the primary track. One of the {@link C} {@code
    *     TRACK_TYPE_*} constants.
    * @param embeddedTrackTypes The types of any embedded tracks, or null.
@@ -92,7 +96,10 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    * @param minLoadableRetryCount The minimum number of times that the source should retry a load
    *     before propagating an error.
    * @param eventDispatcher A dispatcher to notify of events.
+   * @deprecated Use {@link #ChunkSampleStream(int, int[], Format[], ChunkSource, Callback,
+   *     Allocator, long, LoadErrorHandlingPolicy, EventDispatcher)} instead.
    */
+  @Deprecated
   public ChunkSampleStream(
       int primaryTrackType,
       int[] embeddedTrackTypes,
@@ -103,13 +110,49 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       long positionUs,
       int minLoadableRetryCount,
       EventDispatcher eventDispatcher) {
+    this(
+        primaryTrackType,
+        embeddedTrackTypes,
+        embeddedTrackFormats,
+        chunkSource,
+        callback,
+        allocator,
+        positionUs,
+        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
+        eventDispatcher);
+  }
+
+  /**
+   * Constructs an instance.
+   *
+   * @param primaryTrackType The type of the primary track. One of the {@link C} {@code
+   *     TRACK_TYPE_*} constants.
+   * @param embeddedTrackTypes The types of any embedded tracks, or null.
+   * @param embeddedTrackFormats The formats of the embedded tracks, or null.
+   * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
+   * @param callback An {@link Callback} for the stream.
+   * @param allocator An {@link Allocator} from which allocations can be obtained.
+   * @param positionUs The position from which to start loading media.
+   * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
+   * @param eventDispatcher A dispatcher to notify of events.
+   */
+  public ChunkSampleStream(
+      int primaryTrackType,
+      int[] embeddedTrackTypes,
+      Format[] embeddedTrackFormats,
+      T chunkSource,
+      Callback<ChunkSampleStream<T>> callback,
+      Allocator allocator,
+      long positionUs,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+      EventDispatcher eventDispatcher) {
     this.primaryTrackType = primaryTrackType;
     this.embeddedTrackTypes = embeddedTrackTypes;
     this.embeddedTrackFormats = embeddedTrackFormats;
     this.chunkSource = chunkSource;
     this.callback = callback;
     this.eventDispatcher = eventDispatcher;
-    this.minLoadableRetryCount = minLoadableRetryCount;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     loader = new Loader("Loader:ChunkSampleStream");
     nextChunkHolder = new ChunkHolder();
     mediaChunks = new ArrayList<>();
@@ -439,12 +482,15 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     int lastChunkIndex = mediaChunks.size() - 1;
     boolean cancelable =
         bytesLoaded == 0 || !isMediaChunk || !haveReadFromMediaChunk(lastChunkIndex);
-    boolean canceled = false;
-    if (chunkSource.onChunkLoadError(loadable, cancelable, error)) {
-      if (!cancelable) {
-        Log.w(TAG, "Ignoring attempt to cancel non-cancelable load.");
-      } else {
-        canceled = true;
+    long blacklistDurationMs =
+        cancelable
+            ? loadErrorHandlingPolicy.getBlacklistDurationMsFor(
+                loadable.type, loadDurationMs, error, errorCount)
+            : C.TIME_UNSET;
+    LoadErrorAction loadErrorAction = null;
+    if (chunkSource.onChunkLoadError(loadable, cancelable, error, blacklistDurationMs)) {
+      if (cancelable) {
+        loadErrorAction = Loader.DONT_RETRY;
         if (isMediaChunk) {
           BaseMediaChunk removed = discardUpstreamMediaChunksFromIndex(lastChunkIndex);
           Assertions.checkState(removed == loadable);
@@ -452,8 +498,23 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
             pendingResetPositionUs = lastSeekPositionUs;
           }
         }
+      } else {
+        Log.w(TAG, "Ignoring attempt to cancel non-cancelable load.");
       }
     }
+
+    if (loadErrorAction == null) {
+      // The load was not cancelled. Either the load must be retried or the error propagated.
+      long retryDelayMs =
+          loadErrorHandlingPolicy.getRetryDelayMsFor(
+              loadable.type, loadDurationMs, error, errorCount);
+      loadErrorAction =
+          retryDelayMs != C.TIME_UNSET
+              ? Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs)
+              : Loader.DONT_RETRY_FATAL;
+    }
+
+    boolean canceled = !loadErrorAction.isRetry();
     eventDispatcher.loadError(
         loadable.dataSpec,
         loadable.getUri(),
@@ -471,10 +532,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         canceled);
     if (canceled) {
       callback.onContinueLoadingRequested(this);
-      return Loader.DONT_RETRY;
-    } else {
-      return Loader.RETRY;
     }
+    return loadErrorAction;
   }
 
   // SequenceableLoader implementation
@@ -521,7 +580,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       mediaChunk.init(mediaChunkOutput);
       mediaChunks.add(mediaChunk);
     }
-    long elapsedRealtimeMs = loader.startLoading(loadable, this, minLoadableRetryCount);
+    long elapsedRealtimeMs =
+        loader.startLoading(
+            loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));
     eventDispatcher.loadStarted(
         loadable.dataSpec,
         loadable.dataSpec.uri,

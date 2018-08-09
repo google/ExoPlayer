@@ -40,6 +40,8 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestP
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
@@ -65,7 +67,7 @@ public final class SsMediaSource extends BaseMediaSource
 
     private @Nullable ParsingLoadable.Parser<? extends SsManifest> manifestParser;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
-    private int minLoadableRetryCount;
+    private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long livePresentationDelayMs;
     private boolean isCreateCalled;
     private @Nullable Object tag;
@@ -94,7 +96,7 @@ public final class SsMediaSource extends BaseMediaSource
         @Nullable DataSource.Factory manifestDataSourceFactory) {
       this.chunkSourceFactory = Assertions.checkNotNull(chunkSourceFactory);
       this.manifestDataSourceFactory = manifestDataSourceFactory;
-      minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
+      loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
     }
@@ -114,16 +116,36 @@ public final class SsMediaSource extends BaseMediaSource
     }
 
     /**
-     * Sets the minimum number of times to retry if a loading error occurs. The default value is
-     * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT}.
+     * Sets the minimum number of times to retry if a loading error occurs. See {@link
+     * #setLoadErrorHandlingPolicy} for the default value.
+     *
+     * <p>Calling this method is equivalent to calling {@link #setLoadErrorHandlingPolicy} with
+     * {@link DefaultLoadErrorHandlingPolicy(int)
+     * DefaultLoadErrorHandlingPolicy(minLoadableRetryCount)}
      *
      * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     * @deprecated Use {@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)} instead.
      */
+    @Deprecated
     public Factory setMinLoadableRetryCount(int minLoadableRetryCount) {
+      return setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount));
+    }
+
+    /**
+     * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
+     * DefaultLoadErrorHandlingPolicy()}.
+     *
+     * <p>Calling this method overrides any calls to {@link #setMinLoadableRetryCount(int)}.
+     *
+     * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       Assertions.checkState(!isCreateCalled);
-      this.minLoadableRetryCount = minLoadableRetryCount;
+      this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
       return this;
     }
 
@@ -193,7 +215,7 @@ public final class SsMediaSource extends BaseMediaSource
           /* manifestParser= */ null,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
-          minLoadableRetryCount,
+          loadErrorHandlingPolicy,
           livePresentationDelayMs,
           tag);
     }
@@ -233,7 +255,7 @@ public final class SsMediaSource extends BaseMediaSource
           manifestParser,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
-          minLoadableRetryCount,
+          loadErrorHandlingPolicy,
           livePresentationDelayMs,
           tag);
     }
@@ -262,10 +284,6 @@ public final class SsMediaSource extends BaseMediaSource
   }
 
   /**
-   * The default minimum number of times to retry loading data prior to failing.
-   */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
-  /**
    * The default presentation delay for live streams. The presentation delay is the duration by
    * which the default start position precedes the end of the live window.
    */
@@ -285,7 +303,7 @@ public final class SsMediaSource extends BaseMediaSource
   private final DataSource.Factory manifestDataSourceFactory;
   private final SsChunkSource.Factory chunkSourceFactory;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
-  private final int minLoadableRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final long livePresentationDelayMs;
   private final EventDispatcher manifestEventDispatcher;
   private final ParsingLoadable.Parser<? extends SsManifest> manifestParser;
@@ -317,8 +335,12 @@ public final class SsMediaSource extends BaseMediaSource
       SsChunkSource.Factory chunkSourceFactory,
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
-    this(manifest, chunkSourceFactory, DEFAULT_MIN_LOADABLE_RETRY_COUNT,
-        eventHandler, eventListener);
+    this(
+        manifest,
+        chunkSourceFactory,
+        DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT,
+        eventHandler,
+        eventListener);
   }
 
   /**
@@ -345,7 +367,7 @@ public final class SsMediaSource extends BaseMediaSource
         /* manifestParser= */ null,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
-        minLoadableRetryCount,
+        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
         DEFAULT_LIVE_PRESENTATION_DELAY_MS,
         /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
@@ -372,8 +394,13 @@ public final class SsMediaSource extends BaseMediaSource
       SsChunkSource.Factory chunkSourceFactory,
       Handler eventHandler,
       MediaSourceEventListener eventListener) {
-    this(manifestUri, manifestDataSourceFactory, chunkSourceFactory,
-        DEFAULT_MIN_LOADABLE_RETRY_COUNT, DEFAULT_LIVE_PRESENTATION_DELAY_MS, eventHandler,
+    this(
+        manifestUri,
+        manifestDataSourceFactory,
+        chunkSourceFactory,
+        DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT,
+        DEFAULT_LIVE_PRESENTATION_DELAY_MS,
+        eventHandler,
         eventListener);
   }
 
@@ -438,7 +465,7 @@ public final class SsMediaSource extends BaseMediaSource
         manifestParser,
         chunkSourceFactory,
         new DefaultCompositeSequenceableLoaderFactory(),
-        minLoadableRetryCount,
+        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
         livePresentationDelayMs,
         /* tag= */ null);
     if (eventHandler != null && eventListener != null) {
@@ -453,7 +480,7 @@ public final class SsMediaSource extends BaseMediaSource
       ParsingLoadable.Parser<? extends SsManifest> manifestParser,
       SsChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
-      int minLoadableRetryCount,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       long livePresentationDelayMs,
       @Nullable Object tag) {
     Assertions.checkState(manifest == null || !manifest.isLive);
@@ -463,7 +490,7 @@ public final class SsMediaSource extends BaseMediaSource
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
-    this.minLoadableRetryCount = minLoadableRetryCount;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.livePresentationDelayMs = livePresentationDelayMs;
     this.manifestEventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
     this.tag = tag;
@@ -506,7 +533,7 @@ public final class SsMediaSource extends BaseMediaSource
             chunkSourceFactory,
             mediaTransferListener,
             compositeSequenceableLoaderFactory,
-            minLoadableRetryCount,
+            loadErrorHandlingPolicy,
             eventDispatcher,
             manifestLoaderErrorThrower,
             allocator);
@@ -668,7 +695,9 @@ public final class SsMediaSource extends BaseMediaSource
   private void startLoadingManifest() {
     ParsingLoadable<SsManifest> loadable = new ParsingLoadable<>(manifestDataSource,
         manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
-    long elapsedRealtimeMs = manifestLoader.startLoading(loadable, this, minLoadableRetryCount);
+    long elapsedRealtimeMs =
+        manifestLoader.startLoading(
+            loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));
     manifestEventDispatcher.loadStarted(
         loadable.dataSpec, loadable.dataSpec.uri, loadable.type, elapsedRealtimeMs);
   }
