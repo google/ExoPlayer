@@ -97,6 +97,9 @@
   ([#4583](https://github.com/google/ExoPlayer/issues/4583)).
 * Add `DataSpec.httpMethod` and update `HttpDataSource` implementations to
   support HTTP HEAD method. Previously, only GET and POST were supported.
+* IMA: Improve handling of consecutive empty ad groups
+  ([#4030](https://github.com/google/ExoPlayer/issues/4030)),
+  ([#4280](https://github.com/google/ExoPlayer/issues/4280)).
 
 ### 2.8.3 ###
 
