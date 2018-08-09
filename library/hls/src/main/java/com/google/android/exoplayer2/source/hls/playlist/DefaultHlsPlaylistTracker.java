@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
@@ -208,7 +207,7 @@ public final class DefaultHlsPlaylistTracker
     MediaPlaylistBundle primaryBundle = playlistBundles.get(primaryHlsUrl);
     if (isMediaPlaylist) {
       // We don't need to load the playlist again. We can use the same result.
-      primaryBundle.processLoadedPlaylist((HlsMediaPlaylist) result);
+      primaryBundle.processLoadedPlaylist((HlsMediaPlaylist) result, loadDurationMs);
     } else {
       primaryBundle.loadPlaylist();
     }
@@ -321,11 +320,11 @@ public final class DefaultHlsPlaylistTracker
     }
   }
 
-  private boolean notifyPlaylistError(HlsUrl playlistUrl, boolean shouldBlacklist) {
+  private boolean notifyPlaylistError(HlsUrl playlistUrl, long blacklistDurationMs) {
     int listenersSize = listeners.size();
     boolean anyBlacklistingFailed = false;
     for (int i = 0; i < listenersSize; i++) {
-      anyBlacklistingFailed |= !listeners.get(i).onPlaylistError(playlistUrl, shouldBlacklist);
+      anyBlacklistingFailed |= !listeners.get(i).onPlaylistError(playlistUrl, blacklistDurationMs);
     }
     return anyBlacklistingFailed;
   }
@@ -473,7 +472,7 @@ public final class DefaultHlsPlaylistTracker
         ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs, long loadDurationMs) {
       HlsPlaylist result = loadable.getResult();
       if (result instanceof HlsMediaPlaylist) {
-        processLoadedPlaylist((HlsMediaPlaylist) result);
+        processLoadedPlaylist((HlsMediaPlaylist) result, loadDurationMs);
         eventDispatcher.loadCompleted(
             loadable.dataSpec,
             loadable.getUri(),
@@ -516,9 +515,9 @@ public final class DefaultHlsPlaylistTracker
       boolean shouldBlacklist = blacklistDurationMs != C.TIME_UNSET;
 
       boolean blacklistingFailed =
-          notifyPlaylistError(playlistUrl, shouldBlacklist) || !shouldBlacklist;
+          notifyPlaylistError(playlistUrl, blacklistDurationMs) || !shouldBlacklist;
       if (shouldBlacklist) {
-        blacklistingFailed |= blacklistPlaylist();
+        blacklistingFailed |= blacklistPlaylist(blacklistDurationMs);
       }
 
       if (blacklistingFailed) {
@@ -569,7 +568,7 @@ public final class DefaultHlsPlaylistTracker
           elapsedRealtime);
     }
 
-    private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist) {
+    private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist, long loadDurationMs) {
       // Update the loaded playlist with any inheritable information from the master playlist.
       loadedPlaylist = loadedPlaylist.copyWithMasterPlaylistInfo(masterPlaylist);
 
@@ -585,17 +584,22 @@ public final class DefaultHlsPlaylistTracker
         if (loadedPlaylist.mediaSequence + loadedPlaylist.segments.size()
             < playlistSnapshot.mediaSequence) {
           // TODO: Allow customization of playlist resets handling.
-          // The media sequence jumped backwards. The server has probably reset.
+          // The media sequence jumped backwards. The server has probably reset. We do not try
+          // blacklisting in this case.
           playlistError = new PlaylistResetException(playlistUrl.url);
-          notifyPlaylistError(playlistUrl, false);
+          notifyPlaylistError(playlistUrl, C.TIME_UNSET);
         } else if (currentTimeMs - lastSnapshotChangeMs
             > C.usToMs(playlistSnapshot.targetDurationUs)
                 * PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT) {
           // TODO: Allow customization of stuck playlists handling.
-          // The playlist seems to be stuck. Blacklist it.
           playlistError = new PlaylistStuckException(playlistUrl.url);
-          notifyPlaylistError(playlistUrl, true);
-          blacklistPlaylist();
+          long blacklistDurationMs =
+              loadErrorHandlingPolicy.getBlacklistDurationMsFor(
+                  C.DATA_TYPE_MANIFEST, loadDurationMs, playlistError, /* errorCount= */ 1);
+          notifyPlaylistError(playlistUrl, blacklistDurationMs);
+          if (blacklistDurationMs != C.TIME_UNSET) {
+            blacklistPlaylist(blacklistDurationMs);
+          }
         }
       }
       // Do not allow the playlist to load again within the target duration if we obtained a new
@@ -617,11 +621,12 @@ public final class DefaultHlsPlaylistTracker
     /**
      * Blacklists the playlist.
      *
+     * @param blacklistDurationMs The number of milliseconds for which the playlist should be
+     *     blacklisted.
      * @return Whether the playlist is the primary, despite being blacklisted.
      */
-    private boolean blacklistPlaylist() {
-      blacklistUntilMs =
-          SystemClock.elapsedRealtime() + DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS;
+    private boolean blacklistPlaylist(long blacklistDurationMs) {
+      blacklistUntilMs = SystemClock.elapsedRealtime() + blacklistDurationMs;
       return primaryHlsUrl == playlistUrl && !maybeSelectNewPrimaryUrl();
     }
   }

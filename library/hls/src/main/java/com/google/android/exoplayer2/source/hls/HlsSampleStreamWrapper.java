@@ -416,8 +416,8 @@ import java.util.List;
     chunkSource.setIsTimestampMaster(isTimestampMaster);
   }
 
-  public boolean onPlaylistError(HlsUrl url, boolean shouldBlacklist) {
-    return chunkSource.onPlaylistError(url, shouldBlacklist);
+  public boolean onPlaylistError(HlsUrl url, long blacklistDurationMs) {
+    return chunkSource.onPlaylistError(url, blacklistDurationMs);
   }
 
   // SampleStream implementation.

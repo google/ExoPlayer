@@ -59,10 +59,11 @@ public interface HlsPlaylistTracker {
      * Called if an error is encountered while loading a playlist.
      *
      * @param url The loaded url that caused the error.
-     * @param shouldBlacklist Whether the playlist should be blacklisted.
+     * @param blacklistDurationMs The duration for which the playlist should be blacklisted. Or
+     *     {@link C#TIME_UNSET} if the playlist should not be blacklisted.
      * @return True if blacklisting did not encounter errors. False otherwise.
      */
-    boolean onPlaylistError(HlsUrl url, boolean shouldBlacklist);
+    boolean onPlaylistError(HlsUrl url, long blacklistDurationMs);
   }
 
   /** Thrown when a playlist is considered to be stuck due to a server side error. */
