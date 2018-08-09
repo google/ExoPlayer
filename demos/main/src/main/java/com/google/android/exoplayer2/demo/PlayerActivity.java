@@ -207,6 +207,7 @@ public class PlayerActivity extends Activity
   @Override
   public void onNewIntent(Intent intent) {
     releasePlayer();
+    releaseAdsLoader();
     clearStartPosition();
     setIntent(intent);
   }
