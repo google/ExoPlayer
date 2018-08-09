@@ -270,11 +270,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
     }
     List<MediaCodecInfo> decoderInfos =
-        mediaCodecSelector.getDecoderInfos(format, requiresSecureDecryption);
+        mediaCodecSelector.getDecoderInfos(format.sampleMimeType, requiresSecureDecryption);
     if (decoderInfos.isEmpty()) {
       return requiresSecureDecryption
               && !mediaCodecSelector
-                  .getDecoderInfos(format, /* requiresSecureDecoder= */ false)
+                  .getDecoderInfos(format.sampleMimeType, /* requiresSecureDecoder= */ false)
                   .isEmpty()
           ? FORMAT_UNSUPPORTED_DRM
           : FORMAT_UNSUPPORTED_SUBTYPE;
