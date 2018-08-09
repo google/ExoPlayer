@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
-import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.source.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer2.source.chunk.InitializationChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
@@ -380,7 +379,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   @Override
-  public boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e) {
+  public boolean onChunkLoadError(
+      Chunk chunk, boolean cancelable, Exception e, long blacklistDurationMs) {
     if (!cancelable) {
       return false;
     }
@@ -403,9 +403,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
         }
       }
     }
-    // Blacklist if appropriate.
-    return ChunkedTrackBlacklistUtil.maybeBlacklistTrack(trackSelection,
-        trackSelection.indexOf(chunk.trackFormat), e);
+    return blacklistDurationMs != C.TIME_UNSET
+        && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), blacklistDurationMs);
   }
 
   // Internal methods.

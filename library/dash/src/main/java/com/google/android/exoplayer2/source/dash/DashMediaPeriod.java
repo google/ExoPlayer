@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -62,7 +63,7 @@ import java.util.List;
   /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final @Nullable TransferListener transferListener;
-  private final int minLoadableRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final long elapsedRealtimeOffset;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final Allocator allocator;
@@ -89,7 +90,7 @@ import java.util.List;
       int periodIndex,
       DashChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
-      int minLoadableRetryCount,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       long elapsedRealtimeOffset,
       LoaderErrorThrower manifestLoaderErrorThrower,
@@ -101,7 +102,7 @@ import java.util.List;
     this.periodIndex = periodIndex;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
-    this.minLoadableRetryCount = minLoadableRetryCount;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
     this.elapsedRealtimeOffset = elapsedRealtimeOffset;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
@@ -612,7 +613,7 @@ import java.util.List;
             this,
             allocator,
             positionUs,
-            minLoadableRetryCount,
+            loadErrorHandlingPolicy,
             eventDispatcher);
     synchronized (this) {
       // The map is also accessed on the loading thread so synchronize access.

@@ -178,11 +178,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
   }
 
-  /**
-   * The default minimum number of times to retry loading data prior to failing.
-   */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
-
   private final DataSpec dataSpec;
   private final DataSource.Factory dataSourceFactory;
   private final Format format;
@@ -204,7 +199,12 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   @Deprecated
   public SingleSampleMediaSource(
       Uri uri, DataSource.Factory dataSourceFactory, Format format, long durationUs) {
-    this(uri, dataSourceFactory, format, durationUs, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
+    this(
+        uri,
+        dataSourceFactory,
+        format,
+        durationUs,
+        DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
   /**
