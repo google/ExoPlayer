@@ -17,7 +17,9 @@ package com.google.android.exoplayer2.ext.ima;
 
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdPodInfo;
+import com.google.ads.interactivemedia.v3.api.CompanionAd;
 import com.google.ads.interactivemedia.v3.api.UiElement;
+import java.util.List;
 import java.util.Set;
 
 /** A fake ad for testing. */
@@ -184,6 +186,11 @@ import java.util.Set;
 
   @Override
   public Set<UiElement> getUiElements() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<CompanionAd> getCompanionAds() {
     throw new UnsupportedOperationException();
   }
 }

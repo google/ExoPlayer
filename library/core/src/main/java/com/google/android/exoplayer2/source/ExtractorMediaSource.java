@@ -145,7 +145,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
      * #setLoadErrorHandlingPolicy} for the default value.
      *
      * <p>Calling this method is equivalent to calling {@link #setLoadErrorHandlingPolicy} with
-     * {@link DefaultLoadErrorHandlingPolicy(int)
+     * {@link DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy(int)
      * DefaultLoadErrorHandlingPolicy(minLoadableRetryCount)}
      *
      * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
@@ -160,7 +160,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
 
     /**
      * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
-     * DefaultLoadErrorHandlingPolicy()}.
+     * DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy()}.
      *
      * <p>Calling this method overrides any calls to {@link #setMinLoadableRetryCount(int)}.
      *

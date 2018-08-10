@@ -125,7 +125,7 @@ public final class HlsMediaSource extends BaseMediaSource
 
     /**
      * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
-     * DefaultLoadErrorHandlingPolicy()}.
+     * DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy()}.
      *
      * <p>Calling this method overrides any calls to {@link #setMinLoadableRetryCount(int)}.
      *
@@ -147,7 +147,7 @@ public final class HlsMediaSource extends BaseMediaSource
      * {@link DefaultLoadErrorHandlingPolicy#DEFAULT_MIN_LOADABLE_RETRY_COUNT}.
      *
      * <p>Calling this method is equivalent to calling {@link #setLoadErrorHandlingPolicy} with
-     * {@link DefaultLoadErrorHandlingPolicy(int)
+     * {@link DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy(int)
      * DefaultLoadErrorHandlingPolicy(minLoadableRetryCount)}
      *
      * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
