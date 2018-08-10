@@ -1329,6 +1329,18 @@ public final class Format implements Parcelable {
       result = 31 * result + accessibilityChannel;
       result = 31 * result + (drmInitData == null ? 0 : drmInitData.hashCode());
       result = 31 * result + (metadata == null ? 0 : metadata.hashCode());
+      result = 31 * result + (label != null ? label.hashCode() : 0);
+      result = 31 * result + maxInputSize;
+      result = 31 * result + (int) subsampleOffsetUs;
+      result = 31 * result + Float.floatToIntBits(frameRate);
+      result = 31 * result + Float.floatToIntBits(pixelWidthHeightRatio);
+      result = 31 * result + rotationDegrees;
+      result = 31 * result + stereoMode;
+      result = 31 * result + pcmEncoding;
+      result = 31 * result + encoderDelay;
+      result = 31 * result + encoderPadding;
+      result = 31 * result + selectionFlags;
+      // Not all of the fields are included to keep the calculation quick enough.
       hashCode = result;
     }
     return hashCode;
@@ -1343,13 +1355,16 @@ public final class Format implements Parcelable {
       return false;
     }
     Format other = (Format) obj;
+    if (hashCode != 0 && other.hashCode != 0 && hashCode != other.hashCode) {
+      return false;
+    }
     return bitrate == other.bitrate
         && maxInputSize == other.maxInputSize
         && width == other.width
         && height == other.height
-        && frameRate == other.frameRate
+        && Float.compare(frameRate, other.frameRate) == 0
         && rotationDegrees == other.rotationDegrees
-        && pixelWidthHeightRatio == other.pixelWidthHeightRatio
+        && Float.compare(pixelWidthHeightRatio, other.pixelWidthHeightRatio) == 0
         && stereoMode == other.stereoMode
         && channelCount == other.channelCount
         && sampleRate == other.sampleRate
