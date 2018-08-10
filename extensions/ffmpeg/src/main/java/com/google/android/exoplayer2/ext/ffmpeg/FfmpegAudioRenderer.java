@@ -95,7 +95,7 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   protected int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
       Format format) {
     Assertions.checkNotNull(format.sampleMimeType);
-    if (!FfmpegLibrary.isAvailable() || !MimeTypes.isAudio(format.sampleMimeType)) {
+    if (!FfmpegLibrary.isAvailable()) {
       return FORMAT_UNSUPPORTED_TYPE;
     } else if (!FfmpegLibrary.supportsFormat(format.sampleMimeType, format.pcmEncoding)
         || !isOutputSupported(format)) {

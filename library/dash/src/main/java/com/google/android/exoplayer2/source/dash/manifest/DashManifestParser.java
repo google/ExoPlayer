@@ -1022,10 +1022,12 @@ public class DashManifestParser extends DefaultHandler
     } else if (mimeTypeIsRawText(containerMimeType)) {
       return containerMimeType;
     } else if (MimeTypes.APPLICATION_MP4.equals(containerMimeType)) {
-      if ("stpp".equals(codecs)) {
-        return MimeTypes.APPLICATION_TTML;
-      } else if ("wvtt".equals(codecs)) {
-        return MimeTypes.APPLICATION_MP4VTT;
+      if (codecs != null) {
+        if (codecs.startsWith("stpp")) {
+          return MimeTypes.APPLICATION_TTML;
+        } else if (codecs.startsWith("wvtt")) {
+          return MimeTypes.APPLICATION_MP4VTT;
+        }
       }
     } else if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
       if (codecs != null) {

@@ -218,6 +218,9 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   @Override
   public final int supportsFormat(Format format) {
+    if (!MimeTypes.isAudio(format.sampleMimeType)) {
+      return FORMAT_UNSUPPORTED_TYPE;
+    }
     int formatSupport = supportsFormatInternal(drmSessionManager, format);
     if (formatSupport <= FORMAT_UNSUPPORTED_DRM) {
       return formatSupport;
@@ -227,15 +230,15 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   /**
-   * Returns the {@link #FORMAT_SUPPORT_MASK} component of the return value for
-   * {@link #supportsFormat(Format)}.
+   * Returns the {@link #FORMAT_SUPPORT_MASK} component of the return value for {@link
+   * #supportsFormat(Format)}.
    *
    * @param drmSessionManager The renderer's {@link DrmSessionManager}.
-   * @param format The format.
+   * @param format The format, which has an audio {@link Format#sampleMimeType}.
    * @return The extent to which the renderer supports the format itself.
    */
-  protected abstract int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      Format format);
+  protected abstract int supportsFormatInternal(
+      DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format);
 
   /**
    * Returns whether the audio sink can accept audio in the specified encoding.
