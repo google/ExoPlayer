@@ -360,7 +360,11 @@ public class PlayerActivity extends Activity
         finish();
         return;
       }
-      if (Util.maybeRequestReadExternalStoragePermission(this, uris)) {
+      if (!Util.checkCleartextTrafficPermitted(uris)) {
+        showToast(R.string.error_cleartext_not_permitted);
+        return;
+      }
+      if (Util.maybeRequestReadExternalStoragePermission(/* activity= */ this, uris)) {
         // The player will be reinitialized if the permission is granted.
         return;
       }

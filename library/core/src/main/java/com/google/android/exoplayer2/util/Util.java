@@ -33,6 +33,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
+import android.security.NetworkSecurityPolicy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
@@ -182,6 +183,29 @@ public final class Util {
       }
     }
     return false;
+  }
+
+  /**
+   * Returns whether it may be possible to load the given URIs based on the network security
+   * policy's cleartext traffic permissions.
+   *
+   * @param uris A list of URIs that will be loaded.
+   * @return Whether it may be possible to load the given URIs.
+   */
+  @TargetApi(24)
+  public static boolean checkCleartextTrafficPermitted(Uri... uris) {
+    if (Util.SDK_INT < 24) {
+      // We assume cleartext traffic is permitted.
+      return true;
+    }
+    for (Uri uri : uris) {
+      if ("http".equals(uri.getScheme())
+          && !NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted(uri.getHost())) {
+        // The security policy prevents cleartext traffic.
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
