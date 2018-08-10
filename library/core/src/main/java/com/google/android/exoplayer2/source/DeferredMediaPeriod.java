@@ -24,10 +24,10 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
 
 /**
- * Media period that wraps a media source and defers calling its
- * {@link MediaSource#createPeriod(MediaPeriodId, Allocator)} method until {@link #createPeriod()}
- * has been called. This is useful if you need to return a media period immediately but the media
- * source that should create it is not yet prepared.
+ * Media period that wraps a media source and defers calling its {@link
+ * MediaSource#createPeriod(MediaPeriodId, Allocator)} method until {@link
+ * #createPeriod(MediaPeriodId)} has been called. This is useful if you need to return a media
+ * period immediately but the media source that should create it is not yet prepared.
  */
 public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 

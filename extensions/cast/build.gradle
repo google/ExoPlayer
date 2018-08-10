@@ -31,7 +31,7 @@ android {
 }
 
 dependencies {
-    api 'com.google.android.gms:play-services-cast-framework:' + playServicesLibraryVersion
+    api 'com.google.android.gms:play-services-cast-framework:16.0.1'
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-ui')
     testImplementation project(modulePrefix + 'testutils')
@@ -49,6 +49,8 @@ dependencies {
     api 'com.android.support:mediarouter-v7:' + supportLibraryVersion
     api 'com.android.support:recyclerview-v7:' + supportLibraryVersion
 }
+
+apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'
 
 ext {
     javadocTitle = 'Cast extension'

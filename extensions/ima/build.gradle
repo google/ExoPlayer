@@ -33,7 +33,7 @@ android {
 dependencies {
     api 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.4'
     implementation project(modulePrefix + 'library-core')
-    implementation 'com.google.android.gms:play-services-ads:' + playServicesLibraryVersion
+    implementation 'com.google.android.gms:play-services-ads:15.0.1'
     // These dependencies are necessary to force the supportLibraryVersion of
     // com.android.support:support-v4 and com.android.support:customtabs to be
     // used. Else older versions are used, for example via:
@@ -47,6 +47,8 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation project(modulePrefix + 'testutils-robolectric')
 }
+
+apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'
 
 ext {
     javadocTitle = 'IMA extension'

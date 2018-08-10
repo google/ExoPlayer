@@ -375,7 +375,7 @@ public final class C {
   public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING =
       android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
-  /** Audio focus types for {@link AudioFocusConfiguration}. */
+  /** Audio focus types. */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     AUDIOFOCUS_NONE,
