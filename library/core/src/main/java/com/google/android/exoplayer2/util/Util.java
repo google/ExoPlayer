@@ -73,6 +73,7 @@ import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
@@ -268,6 +269,13 @@ public final class Util {
   @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
   @EnsuresNonNull("#1")
   public static <T> T castNonNull(@Nullable T value) {
+    return value;
+  }
+
+  /** Casts a nullable type array to a non-null type array without runtime null check. */
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @EnsuresNonNull("#1")
+  public static <T> T[] castNonNullTypeArray(@NullableType T[] value) {
     return value;
   }
 
