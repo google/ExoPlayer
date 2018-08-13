@@ -585,10 +585,13 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     // Output the sample metadata.
     if (segmentIndexEarliestPresentationTimeUs != C.TIME_UNSET) {
+      long sampleTimeUs = segmentIndexEarliestPresentationTimeUs + presentationTimeDeltaUs;
+      if (timestampAdjuster != null) {
+        sampleTimeUs = timestampAdjuster.adjustSampleTimestamp(sampleTimeUs);
+      }
       for (TrackOutput emsgTrackOutput : emsgTrackOutputs) {
         emsgTrackOutput.sampleMetadata(
-            segmentIndexEarliestPresentationTimeUs + presentationTimeDeltaUs,
-            C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0 /* offset */, null);
+            sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, /* offset= */ 0, null);
       }
     } else {
       // We need the first sample timestamp in the segment before we can output the metadata.
@@ -1195,6 +1198,10 @@ public final class FragmentedMp4Extractor implements Extractor {
     Track track = currentTrackBundle.track;
     TrackOutput output = currentTrackBundle.output;
     int sampleIndex = currentTrackBundle.currentSampleIndex;
+    long sampleTimeUs = fragment.getSamplePresentationTime(sampleIndex) * 1000L;
+    if (timestampAdjuster != null) {
+      sampleTimeUs = timestampAdjuster.adjustSampleTimestamp(sampleTimeUs);
+    }
     if (track.nalUnitLengthFieldLength != 0) {
       // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
@@ -1235,8 +1242,7 @@ public final class FragmentedMp4Extractor implements Extractor {
             // If the format is H.265/HEVC the NAL unit header has two bytes so skip one more byte.
             nalBuffer.setPosition(MimeTypes.VIDEO_H265.equals(track.format.sampleMimeType) ? 1 : 0);
             nalBuffer.setLimit(unescapedLength);
-            CeaUtil.consume(fragment.getSamplePresentationTime(sampleIndex) * 1000L, nalBuffer,
-                cea608TrackOutputs);
+            CeaUtil.consume(sampleTimeUs, nalBuffer, cea608TrackOutputs);
           } else {
             // Write the payload of the NAL unit.
             writtenBytes = output.sampleData(input, sampleCurrentNalBytesRemaining, false);
@@ -1250,11 +1256,6 @@ public final class FragmentedMp4Extractor implements Extractor {
         int writtenBytes = output.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;
       }
-    }
-
-    long sampleTimeUs = fragment.getSamplePresentationTime(sampleIndex) * 1000L;
-    if (timestampAdjuster != null) {
-      sampleTimeUs = timestampAdjuster.adjustSampleTimestamp(sampleTimeUs);
     }
 
     @C.BufferFlags int sampleFlags = fragment.sampleIsSyncFrameTable[sampleIndex]
@@ -1283,10 +1284,17 @@ public final class FragmentedMp4Extractor implements Extractor {
     while (!pendingMetadataSampleInfos.isEmpty()) {
       MetadataSampleInfo sampleInfo = pendingMetadataSampleInfos.removeFirst();
       pendingMetadataSampleBytes -= sampleInfo.size;
+      long metadataTimeUs = sampleTimeUs + sampleInfo.presentationTimeDeltaUs;
+      if (timestampAdjuster != null) {
+        metadataTimeUs = timestampAdjuster.adjustSampleTimestamp(metadataTimeUs);
+      }
       for (TrackOutput emsgTrackOutput : emsgTrackOutputs) {
         emsgTrackOutput.sampleMetadata(
-            sampleTimeUs + sampleInfo.presentationTimeDeltaUs,
-            C.BUFFER_FLAG_KEY_FRAME, sampleInfo.size, pendingMetadataSampleBytes, null);
+            metadataTimeUs,
+            C.BUFFER_FLAG_KEY_FRAME,
+            sampleInfo.size,
+            pendingMetadataSampleBytes,
+            null);
       }
     }
   }
