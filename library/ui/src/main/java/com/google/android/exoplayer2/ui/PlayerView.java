@@ -25,8 +25,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -251,7 +254,7 @@ public class PlayerView extends FrameLayout {
   private Player player;
   private boolean useController;
   private boolean useArtwork;
-  private Bitmap defaultArtwork;
+  private Drawable defaultArtwork;
   private boolean showBuffering;
   private boolean keepContentOnPlayerReset;
   private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
@@ -383,7 +386,7 @@ public class PlayerView extends FrameLayout {
     artworkView = findViewById(R.id.exo_artwork);
     this.useArtwork = useArtwork && artworkView != null;
     if (defaultArtworkId != 0) {
-      defaultArtwork = BitmapFactory.decodeResource(context.getResources(), defaultArtworkId);
+      defaultArtwork = ContextCompat.getDrawable(getContext(), defaultArtworkId);
     }
 
     // Subtitle view.
@@ -572,7 +575,7 @@ public class PlayerView extends FrameLayout {
   }
 
   /** Returns the default artwork to display. */
-  public Bitmap getDefaultArtwork() {
+  public Drawable getDefaultArtwork() {
     return defaultArtwork;
   }
 
@@ -581,8 +584,20 @@ public class PlayerView extends FrameLayout {
    * present in the media.
    *
    * @param defaultArtwork the default artwork to display.
+   * @deprecated use (@link {@link #setDefaultArtwork(Drawable)} instead.
    */
+  @Deprecated
   public void setDefaultArtwork(Bitmap defaultArtwork) {
+    setDefaultArtwork(new BitmapDrawable(getResources(), defaultArtwork));
+  }
+
+  /**
+   * Sets the default artwork to display if {@code useArtwork} is {@code true} and no artwork is
+   * present in the media.
+   *
+   * @param defaultArtwork the default artwork to display
+   */
+  public void setDefaultArtwork(Drawable defaultArtwork) {
     if (this.defaultArtwork != defaultArtwork) {
       this.defaultArtwork = defaultArtwork;
       updateForCurrentTrackSelections(/* isNewPlayer= */ false);
@@ -1088,7 +1103,7 @@ public class PlayerView extends FrameLayout {
           }
         }
       }
-      if (setArtworkFromBitmap(defaultArtwork)) {
+      if (setDrawableArtwork(defaultArtwork)) {
         return;
       }
     }
@@ -1102,26 +1117,20 @@ public class PlayerView extends FrameLayout {
       if (metadataEntry instanceof ApicFrame) {
         byte[] bitmapData = ((ApicFrame) metadataEntry).pictureData;
         Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
-        return setArtworkFromBitmap(bitmap);
+        return setDrawableArtwork(new BitmapDrawable(getResources(), bitmap));
       }
     }
     return false;
   }
 
-  private boolean setArtworkFromBitmap(Bitmap bitmap) {
-    if (bitmap != null) {
-      int bitmapWidth = bitmap.getWidth();
-      int bitmapHeight = bitmap.getHeight();
-      if (bitmapWidth > 0 && bitmapHeight > 0) {
-        if (contentFrame != null) {
-          contentFrame.setAspectRatio((float) bitmapWidth / bitmapHeight);
-        }
-        artworkView.setImageBitmap(bitmap);
-        artworkView.setVisibility(VISIBLE);
-        return true;
+  private boolean setDrawableArtwork(Drawable drawable) {
+    if(drawable != null) {
+      artworkView.setImageDrawable(drawable);
+      if(contentFrame != null) {
+        contentFrame.setAspectRatio(0);
       }
     }
-    return false;
+    return true;
   }
 
   private void hideArtwork() {
