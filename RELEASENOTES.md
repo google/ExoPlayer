@@ -33,6 +33,11 @@
     each encoding for passthrough playbacks
     ([#3803](https://github.com/google/ExoPlayer/issues/3803)).
   * Add support for attaching auxiliary audio effects to the `AudioTrack`.
+* Video:
+  * Add callback to `VideoListener` to notify of surface size changes.
+  * Scale up the initial video decoder maximum input size so playlist item
+    transitions with small increases in maximum sample size don't require
+    reinitialization ([#4510](https://github.com/google/ExoPlayer/issues/4510)).
 * Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
   creating a `CacheDataSource`.
 * Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend
@@ -71,7 +76,6 @@
   * Add support for EXT-X-INDEPENDENT-SEGMENTS in the master playlist.
   * Support load error handling customization
     ([#2981](https://github.com/google/ExoPlayer/issues/2981)).
-* Add callback to `VideoListener` to notify of surface size changes.
 * Fix bug when reporting buffered position for multi-period windows and add
   two additional convenience methods `Player.getTotalBufferedDuration` and
   `Player.getContentBufferedDuration`
