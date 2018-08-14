@@ -32,6 +32,7 @@
   * Increase `AudioTrack` buffer sizes to the theoretical maximum required for
     each encoding for passthrough playbacks
     ([#3803](https://github.com/google/ExoPlayer/issues/3803)).
+  * Add support for attaching auxiliary audio effects to the `AudioTrack`.
 * Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
   creating a `CacheDataSource`.
 * Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend

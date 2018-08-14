@@ -24,6 +24,7 @@ import android.media.MediaFormat;
 import android.support.annotation.IntDef;
 import android.view.Surface;
 import com.google.android.exoplayer2.PlayerMessage.Target;
+import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -724,6 +725,13 @@ public final class C {
    * owned by a {@link android.view.SurfaceView}.
    */
   public static final int MSG_SET_SCALING_MODE = 4;
+
+  /**
+   * A type of a message that can be passed to an audio {@link Renderer} via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be an {@link AuxEffectInfo}
+   * instance representing an auxiliary audio effect for the underlying audio track.
+   */
+  public static final int MSG_SET_AUX_EFFECT_INFO = 5;
 
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
