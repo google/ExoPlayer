@@ -280,6 +280,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   private boolean playing;
   private int audioSessionId;
+  private AuxEffectInfo auxEffectInfo;
   private boolean tunneling;
   private long lastFeedElapsedRealtimeMs;
 
@@ -356,6 +357,7 @@ public final class DefaultAudioSink implements AudioSink {
     startMediaTimeState = START_NOT_SET;
     audioAttributes = AudioAttributes.DEFAULT;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
+    auxEffectInfo = new AuxEffectInfo(AuxEffectInfo.NO_AUX_EFFECT_ID, 0f);
     playbackParameters = PlaybackParameters.DEFAULT;
     drainingAudioProcessorIndex = C.INDEX_UNSET;
     activeAudioProcessors = new AudioProcessor[0];
@@ -547,6 +549,11 @@ public final class DefaultAudioSink implements AudioSink {
     audioTrackPositionTracker.setAudioTrack(
         audioTrack, outputEncoding, outputPcmFrameSize, bufferSize);
     setVolumeInternal();
+
+    if (auxEffectInfo.effectId != AuxEffectInfo.NO_AUX_EFFECT_ID) {
+      audioTrack.attachAuxEffect(auxEffectInfo.effectId);
+      audioTrack.setAuxEffectSendLevel(auxEffectInfo.sendLevel);
+    }
   }
 
   @Override
@@ -865,6 +872,24 @@ public final class DefaultAudioSink implements AudioSink {
       this.audioSessionId = audioSessionId;
       reset();
     }
+  }
+
+  @Override
+  public void setAuxEffectInfo(AuxEffectInfo auxEffectInfo) {
+    if (this.auxEffectInfo.equals(auxEffectInfo)) {
+      return;
+    }
+    int effectId = auxEffectInfo.effectId;
+    float sendLevel = auxEffectInfo.sendLevel;
+    if (audioTrack != null) {
+      if (this.auxEffectInfo.effectId != effectId) {
+        audioTrack.attachAuxEffect(effectId);
+      }
+      if (effectId != AuxEffectInfo.NO_AUX_EFFECT_ID) {
+        audioTrack.setAuxEffectSendLevel(sendLevel);
+      }
+    }
+    this.auxEffectInfo = auxEffectInfo;
   }
 
   @Override

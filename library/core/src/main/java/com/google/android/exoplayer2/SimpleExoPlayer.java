@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioFocusManager;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -448,6 +449,24 @@ public class SimpleExoPlayer
   @Override
   public int getAudioSessionId() {
     return audioSessionId;
+  }
+
+  @Override
+  public void setAuxEffectInfo(AuxEffectInfo auxEffectInfo) {
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
+        player
+            .createMessage(renderer)
+            .setType(C.MSG_SET_AUX_EFFECT_INFO)
+            .setPayload(auxEffectInfo)
+            .send();
+      }
+    }
+  }
+
+  @Override
+  public void clearAuxEffectInfo() {
+    setAuxEffectInfo(new AuxEffectInfo(AuxEffectInfo.NO_AUX_EFFECT_ID, /* sendLevel= */ 0f));
   }
 
   @Override
