@@ -84,6 +84,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   // Generally there is zero or one pending output stream offset. We track more offsets to allow for
   // pending output streams that have fewer frames than the codec latency.
   private static final int MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT = 10;
+  /**
+   * Scale factor for the initial maximum input size used to configure the codec in non-adaptive
+   * playbacks. See {@link #getCodecMaxValues(MediaCodecInfo, Format, Format[])}.
+   */
+  private static final float INITIAL_FORMAT_MAX_INPUT_SIZE_SCALE_FACTOR = 1.5f;
 
   private static boolean evaluatedDeviceNeedsSetOutputSurfaceWorkaround;
   private static boolean deviceNeedsSetOutputSurfaceWorkaround;
@@ -1040,6 +1045,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (streamFormats.length == 1) {
       // The single entry in streamFormats must correspond to the format for which the codec is
       // being configured.
+      if (maxInputSize != Format.NO_VALUE) {
+        int codecMaxInputSize =
+            getCodecMaxInputSize(codecInfo, format.sampleMimeType, format.width, format.height);
+        if (codecMaxInputSize != Format.NO_VALUE) {
+          // Scale up the initial video decoder maximum input size so playlist item transitions with
+          // small increases in maximum sample size don't require reinitialization. This only makes
+          // a difference if the exact maximum sample sizes are known from the container.
+          int scaledMaxInputSize =
+              (int) (maxInputSize * INITIAL_FORMAT_MAX_INPUT_SIZE_SCALE_FACTOR);
+          // Avoid exceeding the maximum expected for the codec.
+          maxInputSize = Math.min(scaledMaxInputSize, codecMaxInputSize);
+        }
+      }
       return new CodecMaxValues(maxWidth, maxHeight, maxInputSize);
     }
     boolean haveUnknownDimensions = false;
@@ -1061,7 +1079,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         maxInputSize =
             Math.max(
                 maxInputSize,
-                getMaxInputSize(codecInfo, format.sampleMimeType, maxWidth, maxHeight));
+                getCodecMaxInputSize(codecInfo, format.sampleMimeType, maxWidth, maxHeight));
         Log.w(TAG, "Codec max resolution adjusted to: " + maxWidth + "x" + maxHeight);
       }
     }
@@ -1130,12 +1148,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     } else {
       // Calculated maximum input sizes are overestimates, so it's not necessary to add the size of
       // initialization data.
-      return getMaxInputSize(codecInfo, format.sampleMimeType, format.width, format.height);
+      return getCodecMaxInputSize(codecInfo, format.sampleMimeType, format.width, format.height);
     }
   }
 
   /**
-   * Returns a maximum input size for a given codec, mime type, width and height.
+   * Returns a maximum input size for a given codec, MIME type, width and height.
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
    * @param sampleMimeType The format mime type.
@@ -1144,7 +1162,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @return A maximum input size in bytes, or {@link Format#NO_VALUE} if a maximum could not be
    *     determined.
    */
-  private static int getMaxInputSize(
+  private static int getCodecMaxInputSize(
       MediaCodecInfo codecInfo, String sampleMimeType, int width, int height) {
     if (width == Format.NO_VALUE || height == Format.NO_VALUE) {
       // We can't infer a maximum input size without video dimensions.
