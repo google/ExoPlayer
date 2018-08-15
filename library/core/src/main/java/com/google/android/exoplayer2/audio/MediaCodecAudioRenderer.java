@@ -287,13 +287,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
     // Check capabilities for the first decoder in the list, which takes priority.
     MediaCodecInfo decoderInfo = decoderInfos.get(0);
-    // Note: We assume support for unknown sampleRate and channelCount.
-    boolean decoderCapable = Util.SDK_INT < 21
-        || ((format.sampleRate == Format.NO_VALUE
-        || decoderInfo.isAudioSampleRateSupportedV21(format.sampleRate))
-        && (format.channelCount == Format.NO_VALUE
-        ||  decoderInfo.isAudioChannelCountSupportedV21(format.channelCount)));
-    int formatSupport = decoderCapable ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
+    boolean isFormatSupported = decoderInfo.isFormatSupported(format);
+    int formatSupport = isFormatSupported ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
     return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | formatSupport;
   }
 
