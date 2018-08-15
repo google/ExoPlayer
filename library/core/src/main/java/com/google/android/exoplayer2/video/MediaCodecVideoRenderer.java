@@ -265,23 +265,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     // Check capabilities for the first decoder in the list, which takes priority.
     MediaCodecInfo decoderInfo = decoderInfos.get(0);
-    boolean decoderCapable = decoderInfo.isCodecSupported(format.codecs);
-    if (decoderCapable && format.width > 0 && format.height > 0) {
-      if (Util.SDK_INT >= 21) {
-        decoderCapable = decoderInfo.isVideoSizeAndRateSupportedV21(format.width, format.height,
-            format.frameRate);
-      } else {
-        decoderCapable = format.width * format.height <= MediaCodecUtil.maxH264DecodableFrameSize();
-        if (!decoderCapable) {
-          Log.d(TAG, "FalseCheck [legacyFrameSize, " + format.width + "x" + format.height + "] ["
-              + Util.DEVICE_DEBUG_INFO + "]");
-        }
-      }
-    }
-
+    boolean isFormatSupported = decoderInfo.isFormatSupported(format);
     int adaptiveSupport = decoderInfo.adaptive ? ADAPTIVE_SEAMLESS : ADAPTIVE_NOT_SEAMLESS;
     int tunnelingSupport = decoderInfo.tunneling ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
-    int formatSupport = decoderCapable ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
+    int formatSupport = isFormatSupported ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
     return adaptiveSupport | tunnelingSupport | formatSupport;
   }
 
