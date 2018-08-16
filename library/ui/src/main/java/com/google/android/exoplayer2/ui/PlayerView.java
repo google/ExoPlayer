@@ -25,9 +25,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.RectF;
-import android.support.annotation.IntDef;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -89,7 +89,7 @@ import java.util.List;
  *   <li><b>{@code default_artwork}</b> - Default artwork to use if no artwork available in audio
  *       streams.
  *       <ul>
- *         <li>Corresponding method: {@link #setDefaultArtwork(Bitmap)}
+ *         <li>Corresponding method: {@link #setDefaultArtwork(Drawable)}
  *         <li>Default: {@code null}
  *       </ul>
  *   <li><b>{@code use_controller}</b> - Whether the playback controls can be shown.
@@ -116,10 +116,10 @@ import java.util.List;
  *         <li>Default: {@code true}
  *       </ul>
  *   <li><b>{@code show_buffering}</b> - Whether the buffering spinner is displayed when the player
- *       is buffering.
+ *       is buffering. Valid values are {@code never}, {@code when_playing} and {@code always}.
  *       <ul>
- *         <li>Corresponding method: {@link #setShowBuffering(boolean)}
- *         <li>Default: {@code false}
+ *         <li>Corresponding method: {@link #setShowBuffering(int)}
+ *         <li>Default: {@code never}
  *       </ul>
  *   <li><b>{@code resize_mode}</b> - Controls how video and album art is resized within the view.
  *       Valid values are {@code fit}, {@code fixed_width}, {@code fixed_height} and {@code fill}.
@@ -243,13 +243,22 @@ public class PlayerView extends FrameLayout {
   private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
   private static final int SURFACE_TYPE_MONO360_VIEW = 3;
 
-  public static final int SHOW_BUFFERING_NEVER = 0;
-  public static final int SHOW_BUFFERING_ALWAYS = 1;
-  public static final int SHOW_BUFFERING_WHEN_PLAYING = 2;
-
+  /** Determines when the buffering view is shown. */
   @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
   @Retention(RetentionPolicy.SOURCE)
   public @interface ShowBuffering {}
+  /** The buffering view is never shown. */
+  public static final int SHOW_BUFFERING_NEVER = 0;
+  /**
+   * The buffering view is shown when the player is in the {@link Player#STATE_BUFFERING buffering}
+   * state and {@link Player#getPlayWhenReady() playWhenReady} is {@code true}.
+   */
+  public static final int SHOW_BUFFERING_WHEN_PLAYING = 1;
+  /**
+   * The buffering view is always shown when the player is in the {@link Player#STATE_BUFFERING
+   * buffering} state.
+   */
+  public static final int SHOW_BUFFERING_ALWAYS = 2;
 
   private final AspectRatioFrameLayout contentFrame;
   private final View shutterView;
@@ -265,7 +274,7 @@ public class PlayerView extends FrameLayout {
   private Player player;
   private boolean useController;
   private boolean useArtwork;
-  private Drawable defaultArtwork;
+  private @Nullable Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
   private boolean keepContentOnPlayerReset;
   private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
@@ -598,8 +607,9 @@ public class PlayerView extends FrameLayout {
    * @deprecated use (@link {@link #setDefaultArtwork(Drawable)} instead.
    */
   @Deprecated
-  public void setDefaultArtwork(Bitmap defaultArtwork) {
-    setDefaultArtwork(new BitmapDrawable(getResources(), defaultArtwork));
+  public void setDefaultArtwork(@Nullable Bitmap defaultArtwork) {
+    setDefaultArtwork(
+        defaultArtwork == null ? null : new BitmapDrawable(getResources(), defaultArtwork));
   }
 
   /**
@@ -608,7 +618,7 @@ public class PlayerView extends FrameLayout {
    *
    * @param defaultArtwork the default artwork to display
    */
-  public void setDefaultArtwork(Drawable defaultArtwork) {
+  public void setDefaultArtwork(@Nullable Drawable defaultArtwork) {
     if (this.defaultArtwork != defaultArtwork) {
       this.defaultArtwork = defaultArtwork;
       updateForCurrentTrackSelections(/* isNewPlayer= */ false);
@@ -682,7 +692,6 @@ public class PlayerView extends FrameLayout {
    * buffering spinner is not displayed by default.
    *
    * @deprecated Use {@link #setShowBuffering(int)}
-   *
    * @param showBuffering Whether the buffering icon is displayed
    */
   @Deprecated
@@ -692,15 +701,11 @@ public class PlayerView extends FrameLayout {
 
   /**
    * Sets whether a buffering spinner is displayed when the player is in the buffering state. The
-   * buffering spinner is not displayed by default (initial value {@link #SHOW_BUFFERING_NEVER})
+   * buffering spinner is not displayed by default.
    *
-   * <p><ul>
-   * <li>{@link #SHOW_BUFFERING_ALWAYS} displayed always when buffering
-   * <li>{@link #SHOW_BUFFERING_NEVER} not displayed at all
-   * <li>{@link #SHOW_BUFFERING_WHEN_PLAYING} displayed only when playing and buffering
-   * </ul></p>
-   *
-   * @param showBuffering Buffering strategy that defines when the buffering icon is displayed
+   * @param showBuffering The mode that defines when the buffering spinner is displayed. One of
+   *     {@link #SHOW_BUFFERING_NEVER}, {@link #SHOW_BUFFERING_WHEN_PLAYING} and
+   *     {@link #SHOW_BUFFERING_ALWAYS}.
    */
   public void setShowBuffering(@ShowBuffering int showBuffering) {
     if (this.showBuffering != showBuffering) {
@@ -1153,14 +1158,20 @@ public class PlayerView extends FrameLayout {
     return false;
   }
 
-  private boolean setDrawableArtwork(Drawable drawable) {
-    if(drawable != null) {
-      artworkView.setImageDrawable(drawable);
-      if(contentFrame != null) {
-        contentFrame.setAspectRatio(0);
+  private boolean setDrawableArtwork(@Nullable Drawable drawable) {
+    if (drawable != null) {
+      int drawableWidth = drawable.getIntrinsicWidth();
+      int drawableHeight = drawable.getIntrinsicHeight();
+      if (drawableWidth > 0 && drawableHeight > 0) {
+        if (contentFrame != null) {
+          contentFrame.setAspectRatio((float) drawableWidth / drawableHeight);
+        }
+        artworkView.setImageDrawable(drawable);
+        artworkView.setVisibility(VISIBLE);
+        return true;
       }
     }
-    return true;
+    return false;
   }
 
   private void hideArtwork() {
@@ -1178,23 +1189,11 @@ public class PlayerView extends FrameLayout {
 
   private void updateBuffering() {
     if (bufferingView != null) {
-
-      boolean showBufferingSpinner = false;
-
-      if (player != null && player.getPlaybackState() == Player.STATE_BUFFERING) {
-        switch (showBuffering) {
-          case SHOW_BUFFERING_ALWAYS:
-            showBufferingSpinner = true;
-            break;
-          case SHOW_BUFFERING_NEVER:
-            showBufferingSpinner = false;
-            break;
-          case SHOW_BUFFERING_WHEN_PLAYING:
-            showBufferingSpinner = player.getPlayWhenReady();
-            break;
-        }
-      }
-
+      boolean showBufferingSpinner =
+          player != null
+              && player.getPlaybackState() == Player.STATE_BUFFERING
+              && (showBuffering == SHOW_BUFFERING_ALWAYS
+                  || (showBuffering == SHOW_BUFFERING_WHEN_PLAYING && player.getPlayWhenReady()));
       bufferingView.setVisibility(showBufferingSpinner ? View.VISIBLE : View.GONE);
     }
   }
