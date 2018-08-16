@@ -148,6 +148,26 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_DEFAULT = compileBooleanAttrPattern("DEFAULT");
   private static final Pattern REGEX_FORCED = compileBooleanAttrPattern("FORCED");
 
+  private final HlsMasterPlaylist masterPlaylist;
+
+  /**
+   * Creates an instance where media playlists are parsed without inheriting attributes from a
+   * master playlist.
+   */
+  public HlsPlaylistParser() {
+    this(HlsMasterPlaylist.EMPTY);
+  }
+
+  /**
+   * Creates an instance where parsed media playlists inherit attributes from the given master
+   * playlist.
+   *
+   * @param masterPlaylist The master playlist from which media playlists will inherit attributes.
+   */
+  public HlsPlaylistParser(HlsMasterPlaylist masterPlaylist) {
+    this.masterPlaylist = masterPlaylist;
+  }
+
   @Override
   public HlsPlaylist parse(Uri uri, InputStream inputStream) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -174,7 +194,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             || line.equals(TAG_DISCONTINUITY_SEQUENCE)
             || line.equals(TAG_ENDLIST)) {
           extraLines.add(line);
-          return parseMediaPlaylist(new LineIterator(extraLines, reader), uri.toString());
+          return parseMediaPlaylist(
+              masterPlaylist, new LineIterator(extraLines, reader), uri.toString());
         } else {
           extraLines.add(line);
         }
@@ -402,14 +423,14 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return flags;
   }
 
-  private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, String baseUri)
-      throws IOException {
+  private static HlsMediaPlaylist parseMediaPlaylist(
+      HlsMasterPlaylist masterPlaylist, LineIterator iterator, String baseUri) throws IOException {
     @HlsMediaPlaylist.PlaylistType int playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_UNKNOWN;
     long startOffsetUs = C.TIME_UNSET;
     long mediaSequence = 0;
     int version = 1; // Default version == 1.
     long targetDurationUs = C.TIME_UNSET;
-    boolean hasIndependentSegmentsTag = false;
+    boolean hasIndependentSegmentsTag = masterPlaylist.hasIndependentSegments;
     boolean hasEndTag = false;
     Segment initializationSegment = null;
     List<Segment> segments = new ArrayList<>();

@@ -25,6 +25,18 @@ import java.util.List;
 /** Represents an HLS master playlist. */
 public final class HlsMasterPlaylist extends HlsPlaylist {
 
+  /** Represents an empty master playlist, from which no attributes can be inherited. */
+  public static final HlsMasterPlaylist EMPTY =
+      new HlsMasterPlaylist(
+          /* baseUri= */ "",
+          /* tags= */ Collections.emptyList(),
+          /* variants= */ Collections.emptyList(),
+          /* audios= */ Collections.emptyList(),
+          /* subtitles= */ Collections.emptyList(),
+          /* muxedAudioFormat= */ null,
+          /* muxedCaptionFormats= */ Collections.emptyList(),
+          /* hasIndependentSegments= */ false);
+
   public static final int GROUP_INDEX_VARIANT = 0;
   public static final int GROUP_INDEX_AUDIO = 1;
   public static final int GROUP_INDEX_SUBTITLE = 2;

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
@@ -47,18 +48,19 @@ public final class DefaultHlsPlaylistTracker
   private static final double PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT = 3.5;
 
   private final HlsDataSourceFactory dataSourceFactory;
-  private final ParsingLoadable.Parser<HlsPlaylist> playlistParser;
+  private final HlsPlaylistParserFactory playlistParserFactory;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final IdentityHashMap<HlsUrl, MediaPlaylistBundle> playlistBundles;
   private final List<PlaylistEventListener> listeners;
 
-  private EventDispatcher eventDispatcher;
-  private Loader initialPlaylistLoader;
-  private Handler playlistRefreshHandler;
-  private PrimaryPlaylistListener primaryPlaylistListener;
-  private HlsMasterPlaylist masterPlaylist;
-  private HlsUrl primaryHlsUrl;
-  private HlsMediaPlaylist primaryUrlSnapshot;
+  private @Nullable ParsingLoadable.Parser<HlsPlaylist> mediaPlaylistParser;
+  private @Nullable EventDispatcher eventDispatcher;
+  private @Nullable Loader initialPlaylistLoader;
+  private @Nullable Handler playlistRefreshHandler;
+  private @Nullable PrimaryPlaylistListener primaryPlaylistListener;
+  private @Nullable HlsMasterPlaylist masterPlaylist;
+  private @Nullable HlsUrl primaryHlsUrl;
+  private @Nullable HlsMediaPlaylist primaryUrlSnapshot;
   private boolean isLive;
   private long initialStartTimeUs;
 
@@ -66,13 +68,30 @@ public final class DefaultHlsPlaylistTracker
    * @param dataSourceFactory A factory for {@link DataSource} instances.
    * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
    * @param playlistParser A {@link ParsingLoadable.Parser} for HLS playlists.
+   * @deprecated Use {@link #DefaultHlsPlaylistTracker(HlsDataSourceFactory,
+   *     LoadErrorHandlingPolicy, HlsPlaylistParserFactory)} instead. Using this constructor
+   *     prevents support for attributes that are carried over from the master playlist to the media
+   *     playlists.
    */
+  @Deprecated
   public DefaultHlsPlaylistTracker(
       HlsDataSourceFactory dataSourceFactory,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
+    this(dataSourceFactory, loadErrorHandlingPolicy, createFixedFactory(playlistParser));
+  }
+
+  /**
+   * @param dataSourceFactory A factory for {@link DataSource} instances.
+   * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
+   * @param playlistParserFactory An {@link HlsPlaylistParserFactory}.
+   */
+  public DefaultHlsPlaylistTracker(
+      HlsDataSourceFactory dataSourceFactory,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+      HlsPlaylistParserFactory playlistParserFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    this.playlistParser = playlistParser;
+    this.playlistParserFactory = playlistParserFactory;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     listeners = new ArrayList<>();
     playlistBundles = new IdentityHashMap<>();
@@ -94,7 +113,7 @@ public final class DefaultHlsPlaylistTracker
             dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST),
             initialPlaylistUri,
             C.DATA_TYPE_MANIFEST,
-            playlistParser);
+            playlistParserFactory.createPlaylistParser());
     Assertions.checkState(initialPlaylistLoader == null);
     initialPlaylistLoader = new Loader("DefaultHlsPlaylistTracker:MasterPlaylist");
     long elapsedRealtime =
@@ -198,6 +217,7 @@ public final class DefaultHlsPlaylistTracker
       masterPlaylist = (HlsMasterPlaylist) result;
     }
     this.masterPlaylist = masterPlaylist;
+    mediaPlaylistParser = playlistParserFactory.createPlaylistParser(masterPlaylist);
     primaryHlsUrl = masterPlaylist.variants.get(0);
     ArrayList<HlsUrl> urls = new ArrayList<>();
     urls.addAll(masterPlaylist.variants);
@@ -420,7 +440,7 @@ public final class DefaultHlsPlaylistTracker
               dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST),
               UriUtil.resolveToUri(masterPlaylist.baseUri, playlistUrl.url),
               C.DATA_TYPE_MANIFEST,
-              playlistParser);
+              mediaPlaylistParser);
     }
 
     public HlsMediaPlaylist getPlaylistSnapshot() {
@@ -569,9 +589,6 @@ public final class DefaultHlsPlaylistTracker
     }
 
     private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist, long loadDurationMs) {
-      // Update the loaded playlist with any inheritable information from the master playlist.
-      loadedPlaylist = loadedPlaylist.copyWithMasterPlaylistInfo(masterPlaylist);
-
       HlsMediaPlaylist oldPlaylist = playlistSnapshot;
       long currentTimeMs = SystemClock.elapsedRealtime();
       lastSnapshotLoadMs = currentTimeMs;
@@ -629,5 +646,27 @@ public final class DefaultHlsPlaylistTracker
       blacklistUntilMs = SystemClock.elapsedRealtime() + blacklistDurationMs;
       return primaryHlsUrl == playlistUrl && !maybeSelectNewPrimaryUrl();
     }
+  }
+
+  /**
+   * Creates a factory which always returns the given playlist parser.
+   *
+   * @param playlistParser The parser to return.
+   * @return A factory which always returns the given playlist parser.
+   */
+  private static HlsPlaylistParserFactory createFixedFactory(
+      ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
+    return new HlsPlaylistParserFactory() {
+      @Override
+      public ParsingLoadable.Parser<HlsPlaylist> createPlaylistParser() {
+        return playlistParser;
+      }
+
+      @Override
+      public ParsingLoadable.Parser<HlsPlaylist> createPlaylistParser(
+          HlsMasterPlaylist masterPlaylist) {
+        return playlistParser;
+      }
+    };
   }
 }

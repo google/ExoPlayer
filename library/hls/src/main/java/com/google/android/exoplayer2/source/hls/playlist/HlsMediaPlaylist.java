@@ -337,40 +337,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   }
 
   /**
-   * Returns a playlist identical to this one, except for adding any inheritable attributes from the
-   * provided {@link HlsMasterPlaylist}.
-   *
-   * <p>The inheritable attributes are:
-   *
-   * <ul>
-   *   <li>{@link #hasIndependentSegments}.
-   * </ul>
-   *
-   * @return An identical playlist including the inheritable attributes from {@code masterPlaylist}.
-   */
-  public HlsMediaPlaylist copyWithMasterPlaylistInfo(HlsMasterPlaylist masterPlaylist) {
-    if (hasIndependentSegments || !masterPlaylist.hasIndependentSegments) {
-      return this;
-    }
-    return new HlsMediaPlaylist(
-        playlistType,
-        baseUri,
-        tags,
-        startOffsetUs,
-        startTimeUs,
-        hasDiscontinuitySequence,
-        discontinuitySequence,
-        mediaSequence,
-        version,
-        targetDurationUs,
-        hasIndependentSegments || masterPlaylist.hasIndependentSegments,
-        hasEndTag,
-        hasProgramDateTime,
-        protectionSchemes,
-        segments);
-  }
-
-  /**
    * Returns a playlist identical to this one except that an end tag is added. If an end tag is
    * already present then the playlist will return itself.
    */

@@ -383,10 +383,11 @@ public class HlsMediaPlaylistParserTest {
             + "#EXTINF:5.005,\n"
             + "02/00/47.ts\n";
     InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
-    HlsMediaPlaylist playlist =
+    HlsMediaPlaylist standalonePlaylist =
         (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
-    assertThat(playlist.hasIndependentSegments).isFalse();
+    assertThat(standalonePlaylist.hasIndependentSegments).isFalse();
 
+    inputStream.reset();
     HlsMasterPlaylist masterPlaylist =
         new HlsMasterPlaylist(
             /* baseUri= */ "https://example.com/",
@@ -397,7 +398,8 @@ public class HlsMediaPlaylistParserTest {
             /* muxedAudioFormat= */ null,
             /* muxedCaptionFormats= */ null,
             /* hasIndependentSegments= */ true);
-
-    assertThat(playlist.copyWithMasterPlaylistInfo(masterPlaylist).hasIndependentSegments).isTrue();
+    HlsMediaPlaylist playlistWithInheritance =
+        (HlsMediaPlaylist) new HlsPlaylistParser(masterPlaylist).parse(playlistUri, inputStream);
+    assertThat(playlistWithInheritance.hasIndependentSegments).isTrue();
   }
 }
