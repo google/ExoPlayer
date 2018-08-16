@@ -107,8 +107,8 @@ public class PlayerActivity extends Activity
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
 
   public static final String ABR_ALGORITHM_EXTRA = "abr_algorithm";
-  private static final String ABR_ALGORITHM_DEFAULT = "default";
-  private static final String ABR_ALGORITHM_RANDOM = "random";
+  public static final String ABR_ALGORITHM_DEFAULT = "default";
+  public static final String ABR_ALGORITHM_RANDOM = "random";
 
   public static final String SPHERICAL_STEREO_MODE_EXTRA = "spherical_stereo_mode";
   public static final String SPHERICAL_STEREO_MODE_MONO = "mono";
