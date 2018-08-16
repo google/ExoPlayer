@@ -44,9 +44,10 @@
   on ExoPlayer via its source code rather than an AAR may need to add
   `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to their
   gradle settings to ensure bytecode compatibility.
-* Add support for lazy preparation of playlist media sources in
-  `ConcatenatingMediaSource`
-  ([#3972](https://github.com/google/ExoPlayer/issues/3972)).
+* ConcatenatingMediaSource:
+  * Add support for lazy preparation of playlist media sources
+    ([#3972](https://github.com/google/ExoPlayer/issues/3972)).
+  * Add support for range removal with `removeMediaSourceRange` methods.
 * `BandwidthMeter` management:
   * Pass `BandwidthMeter` directly to `ExoPlayerFactory` instead of
     `TrackSelection.Factory` and `DataSource.Factory`. May also be omitted to
@@ -108,6 +109,9 @@
 * IMA: Improve handling of consecutive empty ad groups
   ([#4030](https://github.com/google/ExoPlayer/issues/4030)),
   ([#4280](https://github.com/google/ExoPlayer/issues/4280)).
+* Add option to show buffering view when playWhenReady is false
+  ([#4304](https://github.com/google/ExoPlayer/issues/4304)).
+* Allow any `Drawable` to be used as `PlayerView` default artwork.
 
 ### 2.8.3 ###
 

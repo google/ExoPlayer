@@ -37,8 +37,8 @@ import java.util.regex.Pattern;
 
 /**
  * A special purpose extractor for WebVTT content in HLS.
- * <p>
- * This extractor passes through non-empty WebVTT files untouched, however derives the correct
+ *
+ * <p>This extractor passes through non-empty WebVTT files untouched, however derives the correct
  * sample timestamp for each by sniffing the X-TIMESTAMP-MAP header along with the start timestamp
  * of the first cue header. Empty WebVTT files are not passed through, since it's not possible to
  * derive a sample timestamp in this case.
