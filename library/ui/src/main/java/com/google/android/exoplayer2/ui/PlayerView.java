@@ -25,6 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -61,6 +62,8 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
@@ -237,6 +240,14 @@ public class PlayerView extends FrameLayout {
   private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
   private static final int SURFACE_TYPE_MONO360_VIEW = 3;
 
+  public static final int SHOW_BUFFERING_NEVER = 0;
+  public static final int SHOW_BUFFERING_ALWAYS = 1;
+  public static final int SHOW_BUFFERING_WHEN_PLAYING = 2;
+
+  @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface ShowBuffering {}
+
   private final AspectRatioFrameLayout contentFrame;
   private final View shutterView;
   private final View surfaceView;
@@ -252,7 +263,7 @@ public class PlayerView extends FrameLayout {
   private boolean useController;
   private boolean useArtwork;
   private Bitmap defaultArtwork;
-  private boolean showBuffering;
+  private @ShowBuffering int showBuffering;
   private boolean keepContentOnPlayerReset;
   private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   private @Nullable CharSequence customErrorMessage;
@@ -306,7 +317,7 @@ public class PlayerView extends FrameLayout {
     boolean controllerHideOnTouch = true;
     boolean controllerAutoShow = true;
     boolean controllerHideDuringAds = true;
-    boolean showBuffering = false;
+    int showBuffering = SHOW_BUFFERING_NEVER;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PlayerView, 0, 0);
       try {
@@ -324,7 +335,7 @@ public class PlayerView extends FrameLayout {
         controllerHideOnTouch =
             a.getBoolean(R.styleable.PlayerView_hide_on_touch, controllerHideOnTouch);
         controllerAutoShow = a.getBoolean(R.styleable.PlayerView_auto_show, controllerAutoShow);
-        showBuffering = a.getBoolean(R.styleable.PlayerView_show_buffering, showBuffering);
+        showBuffering = a.getInteger(R.styleable.PlayerView_show_buffering, showBuffering);
         keepContentOnPlayerReset =
             a.getBoolean(
                 R.styleable.PlayerView_keep_content_on_player_reset, keepContentOnPlayerReset);
@@ -655,9 +666,28 @@ public class PlayerView extends FrameLayout {
    * Sets whether a buffering spinner is displayed when the player is in the buffering state. The
    * buffering spinner is not displayed by default.
    *
+   * @deprecated Use {@link #setShowBuffering(int)}
+   *
    * @param showBuffering Whether the buffering icon is displayed
    */
+  @Deprecated
   public void setShowBuffering(boolean showBuffering) {
+    setShowBuffering(showBuffering ? SHOW_BUFFERING_WHEN_PLAYING : SHOW_BUFFERING_NEVER);
+  }
+
+  /**
+   * Sets whether a buffering spinner is displayed when the player is in the buffering state. The
+   * buffering spinner is not displayed by default (initial value {@link #SHOW_BUFFERING_NEVER})
+   *
+   * <p><ul>
+   * <li>{@link #SHOW_BUFFERING_ALWAYS} displayed always when buffering
+   * <li>{@link #SHOW_BUFFERING_NEVER} not displayed at all
+   * <li>{@link #SHOW_BUFFERING_WHEN_PLAYING} displayed only when playing and buffering
+   * </ul></p>
+   *
+   * @param showBuffering Buffering strategy that defines when the buffering icon is displayed
+   */
+  public void setShowBuffering(@ShowBuffering int showBuffering) {
     if (this.showBuffering != showBuffering) {
       this.showBuffering = showBuffering;
       updateBuffering();
@@ -1139,11 +1169,23 @@ public class PlayerView extends FrameLayout {
 
   private void updateBuffering() {
     if (bufferingView != null) {
-      boolean showBufferingSpinner =
-          showBuffering
-              && player != null
-              && player.getPlaybackState() == Player.STATE_BUFFERING
-              && player.getPlayWhenReady();
+
+      boolean showBufferingSpinner = false;
+
+      if (player != null && player.getPlaybackState() == Player.STATE_BUFFERING) {
+        switch (showBuffering) {
+          case SHOW_BUFFERING_ALWAYS:
+            showBufferingSpinner = true;
+            break;
+          case SHOW_BUFFERING_NEVER:
+            showBufferingSpinner = false;
+            break;
+          case SHOW_BUFFERING_WHEN_PLAYING:
+            showBufferingSpinner = player.getPlayWhenReady();
+            break;
+        }
+      }
+
       bufferingView.setVisibility(showBufferingSpinner ? View.VISIBLE : View.GONE);
     }
   }
