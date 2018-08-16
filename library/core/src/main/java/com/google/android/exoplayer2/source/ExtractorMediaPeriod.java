@@ -370,8 +370,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     positionUs = seekMap.isSeekable() ? positionUs : 0;
     lastSeekPositionUs = positionUs;
     notifyDiscontinuity = false;
-    // If we're not pending a reset, see if we can seek within the buffer.
-    if (!isPendingReset() && seekInsideBufferUs(trackIsAudioVideoFlags, positionUs)) {
+    // If we're not playing a live stream or pending a reset, see if we can seek within the buffer.
+    if (dataType != C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE
+        && !isPendingReset()
+        && seekInsideBufferUs(trackIsAudioVideoFlags, positionUs)) {
       return positionUs;
     }
     // We were unable to seek within the buffer, so need to reset.
