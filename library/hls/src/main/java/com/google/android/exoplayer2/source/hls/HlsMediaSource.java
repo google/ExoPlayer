@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistTrack
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
+import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -171,7 +172,11 @@ public final class HlsMediaSource extends BaseMediaSource
      * @param playlistParser A {@link ParsingLoadable.Parser} for HLS playlists.
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     * @deprecated Use {@link #setPlaylistTracker(HlsPlaylistTracker)} instead. Using this method
+     *     prevents support for attributes that are carried over from the master playlist to the
+     *     media playlists.
      */
+    @Deprecated
     public Factory setPlaylistParser(ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
       Assertions.checkState(!isCreateCalled);
       Assertions.checkState(playlistTracker == null, "A playlist tracker has already been set.");
@@ -239,11 +244,15 @@ public final class HlsMediaSource extends BaseMediaSource
     public HlsMediaSource createMediaSource(Uri playlistUri) {
       isCreateCalled = true;
       if (playlistTracker == null) {
-        playlistTracker =
-            new DefaultHlsPlaylistTracker(
-                hlsDataSourceFactory,
-                loadErrorHandlingPolicy,
-                playlistParser != null ? playlistParser : new HlsPlaylistParser());
+        if (playlistParser == null) {
+          playlistTracker =
+              new DefaultHlsPlaylistTracker(
+                  hlsDataSourceFactory, loadErrorHandlingPolicy, HlsPlaylistParserFactory.DEFAULT);
+        } else {
+          playlistTracker =
+              new DefaultHlsPlaylistTracker(
+                  hlsDataSourceFactory, loadErrorHandlingPolicy, playlistParser);
+        }
       }
       return new HlsMediaSource(
           playlistUri,
