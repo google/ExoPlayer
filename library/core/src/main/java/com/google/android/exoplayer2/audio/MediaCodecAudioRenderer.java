@@ -76,8 +76,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private boolean passthroughEnabled;
   private boolean codecNeedsDiscardChannelsWorkaround;
   private android.media.MediaFormat passthroughMediaFormat;
-  @C.Encoding
-  private int pcmEncoding;
+  private @C.Encoding int pcmEncoding;
   private int channelCount;
   private int encoderDelay;
   private int encoderPadding;
@@ -288,8 +287,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     // Check capabilities for the first decoder in the list, which takes priority.
     MediaCodecInfo decoderInfo = decoderInfos.get(0);
     boolean isFormatSupported = decoderInfo.isFormatSupported(format);
+    int adaptiveSupport =
+        isFormatSupported && decoderInfo.isSeamlessAdaptationSupported(format)
+            ? ADAPTIVE_SEAMLESS
+            : ADAPTIVE_NOT_SEAMLESS;
     int formatSupport = isFormatSupported ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
-    return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | formatSupport;
+    return adaptiveSupport | tunnelingSupport | formatSupport;
   }
 
   @Override
@@ -344,13 +347,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected @KeepCodecResult int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
-    return KEEP_CODEC_RESULT_NO;
-    // TODO: Determine when codecs can be safely kept. When doing so, also uncomment the commented
-    // out code in getCodecMaxInputSize.
-    // return getCodecMaxInputSize(codecInfo, newFormat) <= codecMaxInputSize
-    //         && areAdaptationCompatible(oldFormat, newFormat)
-    //     ? KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
-    //     : KEEP_CODEC_RESULT_NO;
+    if (getCodecMaxInputSize(codecInfo, newFormat) <= codecMaxInputSize
+        && codecInfo.isSeamlessAdaptationSupported(oldFormat, newFormat)
+        && oldFormat.encoderDelay == 0
+        && oldFormat.encoderPadding == 0
+        && newFormat.encoderDelay == 0
+        && newFormat.encoderPadding == 0) {
+      return KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION;
+    } else {
+      return KEEP_CODEC_RESULT_NO;
+    }
   }
 
   @Override
@@ -361,9 +367,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected float getCodecOperatingRate(
       float operatingRate, Format format, Format[] streamFormats) {
-    return format.sampleRate == Format.NO_VALUE
-        ? CODEC_OPERATING_RATE_UNSET
-        : (format.sampleRate * operatingRate);
+    // Use the highest known stream sample-rate up front, to avoid having to reconfigure the codec
+    // should an adaptive switch to that stream occur.
+    int maxSampleRate = -1;
+    for (Format streamFormat : streamFormats) {
+      int streamSampleRate = streamFormat.sampleRate;
+      if (streamSampleRate != Format.NO_VALUE) {
+        maxSampleRate = Math.max(maxSampleRate, streamSampleRate);
+      }
+    }
+    return maxSampleRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxSampleRate * operatingRate);
   }
 
   @Override
@@ -603,16 +616,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected int getCodecMaxInputSize(
       MediaCodecInfo codecInfo, Format format, Format[] streamFormats) {
     int maxInputSize = getCodecMaxInputSize(codecInfo, format);
-    // if (streamFormats.length == 1) {
-    //   // The single entry in streamFormats must correspond to the format for which the codec is
-    //   // being configured.
-    //   return maxInputSize;
-    // }
-    // for (Format streamFormat : streamFormats) {
-    //   if (areAdaptationCompatible(format, streamFormat)) {
-    //     maxInputSize = Math.max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
-    //   }
-    // }
+    if (streamFormats.length == 1) {
+      // The single entry in streamFormats must correspond to the format for which the codec is
+      // being configured.
+      return maxInputSize;
+    }
+    for (Format streamFormat : streamFormats) {
+      if (codecInfo.isSeamlessAdaptationSupported(format, streamFormat)) {
+        maxInputSize = Math.max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
+      }
+    }
     return maxInputSize;
   }
 
@@ -687,25 +700,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
               : Math.max(currentPositionUs, newCurrentPositionUs);
       allowPositionDiscontinuity = false;
     }
-  }
-
-  /**
-   * Returns whether a codec with suitable maximum input size will support adaptation between two
-   * {@link Format}s.
-   *
-   * @param first The first format.
-   * @param second The second format.
-   * @return Whether the codec will support adaptation between the two {@link Format}s.
-   */
-  private static boolean areAdaptationCompatible(Format first, Format second) {
-    return first.sampleMimeType.equals(second.sampleMimeType)
-        && first.channelCount == second.channelCount
-        && first.sampleRate == second.sampleRate
-        && first.encoderDelay == 0
-        && first.encoderPadding == 0
-        && second.encoderDelay == 0
-        && second.encoderPadding == 0
-        && first.initializationDataEquals(second);
   }
 
   /**

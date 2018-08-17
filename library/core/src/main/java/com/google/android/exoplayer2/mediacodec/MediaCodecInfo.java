@@ -30,10 +30,9 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * Information about a {@link MediaCodec} for a given mime type.
- */
+/** Information about a {@link MediaCodec} for a given mime type. */
 @TargetApi(16)
+@SuppressWarnings("InlinedApi")
 public final class MediaCodecInfo {
 
   public static final String TAG = "MediaCodecInfo";
@@ -257,6 +256,63 @@ public final class MediaCodecInfo {
     }
     logNoSupport("codec.profileLevel, " + codec + ", " + codecMimeType);
     return false;
+  }
+
+  /**
+   * Returns whether it may be possible to adapt to playing a different format when the codec is
+   * configured to play media in the specified {@code format}. For adaptation to succeed, the codec
+   * must also be configured with appropriate maximum values and {@link
+   * #isSeamlessAdaptationSupported(Format, Format)} must return {@code true} for the old/new
+   * formats.
+   *
+   * @param format The format of media for which the decoder will be configured.
+   * @return Whether adaptation may be possible
+   */
+  public boolean isSeamlessAdaptationSupported(Format format) {
+    if (isVideo) {
+      return adaptive;
+    } else {
+      Pair<Integer, Integer> codecProfileLevel =
+          MediaCodecUtil.getCodecProfileAndLevel(format.codecs);
+      return codecProfileLevel != null && codecProfileLevel.first == CodecProfileLevel.AACObjectXHE;
+    }
+  }
+
+  /**
+   * Returns whether it is possible to adapt the decoder seamlessly from {@code oldFormat} to {@code
+   * newFormat}.
+   *
+   * @param oldFormat The format being decoded.
+   * @param newFormat The new format.
+   * @return Whether it is possible to adapt the decoder seamlessly.
+   */
+  public boolean isSeamlessAdaptationSupported(Format oldFormat, Format newFormat) {
+    if (isVideo) {
+      return oldFormat.sampleMimeType.equals(newFormat.sampleMimeType)
+          && oldFormat.rotationDegrees == newFormat.rotationDegrees
+          && (adaptive
+              || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height))
+          && Util.areEqual(oldFormat.colorInfo, newFormat.colorInfo);
+    } else {
+      if (!MimeTypes.AUDIO_AAC.equals(mimeType)
+          || !oldFormat.sampleMimeType.equals(newFormat.sampleMimeType)
+          || oldFormat.channelCount != newFormat.channelCount
+          || oldFormat.sampleRate != newFormat.sampleRate) {
+        return false;
+      }
+      // Check the codec profile levels support adaptation.
+      Pair<Integer, Integer> oldCodecProfileLevel =
+          MediaCodecUtil.getCodecProfileAndLevel(oldFormat.codecs);
+      Pair<Integer, Integer> newCodecProfileLevel =
+          MediaCodecUtil.getCodecProfileAndLevel(newFormat.codecs);
+      if (oldCodecProfileLevel == null || newCodecProfileLevel == null) {
+        return false;
+      }
+      int oldProfile = oldCodecProfileLevel.first;
+      int newProfile = newCodecProfileLevel.first;
+      return oldProfile == CodecProfileLevel.AACObjectXHE
+          && newProfile == CodecProfileLevel.AACObjectXHE;
+    }
   }
 
   /**

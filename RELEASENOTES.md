@@ -33,6 +33,7 @@
     each encoding for passthrough playbacks
     ([#3803](https://github.com/google/ExoPlayer/issues/3803)).
   * Add support for attaching auxiliary audio effects to the `AudioTrack`.
+  * Add support for seamless adaptation while playing xHE-AAC streams.
 * Video:
   * Add callback to `VideoListener` to notify of surface size changes.
   * Scale up the initial video decoder maximum input size so playlist item

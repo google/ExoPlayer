@@ -266,7 +266,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // Check capabilities for the first decoder in the list, which takes priority.
     MediaCodecInfo decoderInfo = decoderInfos.get(0);
     boolean isFormatSupported = decoderInfo.isFormatSupported(format);
-    int adaptiveSupport = decoderInfo.adaptive ? ADAPTIVE_SEAMLESS : ADAPTIVE_NOT_SEAMLESS;
+    int adaptiveSupport =
+        decoderInfo.isSeamlessAdaptationSupported(format)
+            ? ADAPTIVE_SEAMLESS
+            : ADAPTIVE_NOT_SEAMLESS;
     int tunnelingSupport = decoderInfo.tunneling ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     int formatSupport = isFormatSupported ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
     return adaptiveSupport | tunnelingSupport | formatSupport;
@@ -473,7 +476,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected @KeepCodecResult int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
-    if (areAdaptationCompatible(codecInfo.adaptive, oldFormat, newFormat)
+    if (codecInfo.isSeamlessAdaptationSupported(oldFormat, newFormat)
         && newFormat.width <= codecMaxValues.width
         && newFormat.height <= codecMaxValues.height
         && getMaxInputSize(codecInfo, newFormat) <= codecMaxValues.inputSize) {
@@ -1049,7 +1052,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     boolean haveUnknownDimensions = false;
     for (Format streamFormat : streamFormats) {
-      if (areAdaptationCompatible(codecInfo.adaptive, format, streamFormat)) {
+      if (codecInfo.isSeamlessAdaptationSupported(format, streamFormat)) {
         haveUnknownDimensions |=
             (streamFormat.width == Format.NO_VALUE || streamFormat.height == Format.NO_VALUE);
         maxWidth = Math.max(maxWidth, streamFormat.width);
@@ -1194,23 +1197,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
     return (maxPixels * 3) / (2 * minCompressionRatio);
-  }
-
-  /**
-   * Returns whether a codec with suitable {@link CodecMaxValues} will support adaptation between
-   * two {@link Format}s.
-   *
-   * @param codecIsAdaptive Whether the codec supports seamless resolution switches.
-   * @param first The first format.
-   * @param second The second format.
-   * @return Whether the codec will support adaptation between the two {@link Format}s.
-   */
-  private static boolean areAdaptationCompatible(
-      boolean codecIsAdaptive, Format first, Format second) {
-    return first.sampleMimeType.equals(second.sampleMimeType)
-        && first.rotationDegrees == second.rotationDegrees
-        && (codecIsAdaptive || (first.width == second.width && first.height == second.height))
-        && Util.areEqual(first.colorInfo, second.colorInfo);
   }
 
   /**
