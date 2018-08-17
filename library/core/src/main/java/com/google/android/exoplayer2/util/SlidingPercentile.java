@@ -35,19 +35,9 @@ import java.util.Comparator;
 public class SlidingPercentile {
 
   // Orderings.
-  private static final Comparator<Sample> INDEX_COMPARATOR = new Comparator<Sample>() {
-    @Override
-    public int compare(Sample a, Sample b) {
-      return a.index - b.index;
-    }
-  };
-
-  private static final Comparator<Sample> VALUE_COMPARATOR = new Comparator<Sample>() {
-    @Override
-    public int compare(Sample a, Sample b) {
-      return a.value < b.value ? -1 : b.value < a.value ? 1 : 0;
-    }
-  };
+  private static final Comparator<Sample> INDEX_COMPARATOR = (a, b) -> a.index - b.index;
+  private static final Comparator<Sample> VALUE_COMPARATOR =
+      (a, b) -> Float.compare(a.value, b.value);
 
   private static final int SORT_ORDER_NONE = -1;
   private static final int SORT_ORDER_BY_VALUE = 0;

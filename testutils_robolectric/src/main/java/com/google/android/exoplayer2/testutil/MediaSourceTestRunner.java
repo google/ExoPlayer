@@ -97,16 +97,13 @@ public class MediaSourceTestRunner {
     final Throwable[] throwable = new Throwable[1];
     final ConditionVariable finishedCondition = new ConditionVariable();
     playbackHandler.post(
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              runnable.run();
-            } catch (Throwable e) {
-              throwable[0] = e;
-            } finally {
-              finishedCondition.open();
-            }
+        () -> {
+          try {
+            runnable.run();
+          } catch (Throwable e) {
+            throwable[0] = e;
+          } finally {
+            finishedCondition.open();
           }
         });
     assertThat(finishedCondition.block(TIMEOUT_MS)).isTrue();
@@ -123,22 +120,19 @@ public class MediaSourceTestRunner {
   public Timeline prepareSource() throws IOException {
     final IOException[] prepareError = new IOException[1];
     runOnPlaybackThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            mediaSource.prepareSource(
-                player,
-                /* isTopLevelSource= */ true,
-                mediaSourceListener,
-                /* mediaTransferListener= */ null);
-            try {
-              // TODO: This only catches errors that are set synchronously in prepareSource. To
-              // capture async errors we'll need to poll maybeThrowSourceInfoRefreshError until the
-              // first call to onSourceInfoRefreshed.
-              mediaSource.maybeThrowSourceInfoRefreshError();
-            } catch (IOException e) {
-              prepareError[0] = e;
-            }
+        () -> {
+          mediaSource.prepareSource(
+              player,
+              /* isTopLevelSource= */ true,
+              mediaSourceListener,
+              /* mediaTransferListener= */ null);
+          try {
+            // TODO: This only catches errors that are set synchronously in prepareSource. To
+            // capture async errors we'll need to poll maybeThrowSourceInfoRefreshError until the
+            // first call to onSourceInfoRefreshed.
+            mediaSource.maybeThrowSourceInfoRefreshError();
+          } catch (IOException e) {
+            prepareError[0] = e;
           }
         });
     if (prepareError[0] != null) {
@@ -156,13 +150,7 @@ public class MediaSourceTestRunner {
    */
   public MediaPeriod createPeriod(final MediaPeriodId periodId) {
     final MediaPeriod[] holder = new MediaPeriod[1];
-    runOnPlaybackThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            holder[0] = mediaSource.createPeriod(periodId, allocator);
-          }
-        });
+    runOnPlaybackThread(() -> holder[0] = mediaSource.createPeriod(periodId, allocator));
     assertThat(holder[0]).isNotNull();
     return holder[0];
   }
@@ -179,24 +167,21 @@ public class MediaSourceTestRunner {
     final ConditionVariable prepareCalled = new ConditionVariable();
     final CountDownLatch preparedCountDown = new CountDownLatch(1);
     runOnPlaybackThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            mediaPeriod.prepare(
-                new MediaPeriod.Callback() {
-                  @Override
-                  public void onPrepared(MediaPeriod mediaPeriod) {
-                    preparedCountDown.countDown();
-                  }
+        () -> {
+          mediaPeriod.prepare(
+              new MediaPeriod.Callback() {
+                @Override
+                public void onPrepared(MediaPeriod mediaPeriod1) {
+                  preparedCountDown.countDown();
+                }
 
-                  @Override
-                  public void onContinueLoadingRequested(MediaPeriod source) {
-                    // Do nothing.
-                  }
-                },
-                positionUs);
-            prepareCalled.open();
-          }
+                @Override
+                public void onContinueLoadingRequested(MediaPeriod source) {
+                  // Do nothing.
+                }
+              },
+              positionUs);
+          prepareCalled.open();
         });
     prepareCalled.block();
     return preparedCountDown;
@@ -208,13 +193,7 @@ public class MediaSourceTestRunner {
    * @param mediaPeriod The {@link MediaPeriod} to release.
    */
   public void releasePeriod(final MediaPeriod mediaPeriod) {
-    runOnPlaybackThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            mediaSource.releasePeriod(mediaPeriod);
-          }
-        });
+    runOnPlaybackThread(() -> mediaSource.releasePeriod(mediaPeriod));
   }
 
   /**
@@ -222,13 +201,7 @@ public class MediaSourceTestRunner {
    * thread.
    */
   public void releaseSource() {
-    runOnPlaybackThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            mediaSource.releaseSource(mediaSourceListener);
-          }
-        });
+    runOnPlaybackThread(() -> mediaSource.releaseSource(mediaSourceListener));
   }
 
   /**

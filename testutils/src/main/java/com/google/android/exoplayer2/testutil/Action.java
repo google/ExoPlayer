@@ -469,12 +469,8 @@ public abstract class Action {
         SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
       player
           .createMessage(
-              new Target() {
-                @Override
-                public void handleMessage(int messageType, Object payload)
-                    throws ExoPlaybackException {
-                  throw exception;
-                }
+              (messageType, payload) -> {
+                throw exception;
               })
           .send();
     }
@@ -510,25 +506,14 @@ public abstract class Action {
       // Schedule one message on the playback thread to pause the player immediately.
       player
           .createMessage(
-              new Target() {
-                @Override
-                public void handleMessage(int messageType, Object payload)
-                    throws ExoPlaybackException {
-                  player.setPlayWhenReady(/* playWhenReady= */ false);
-                }
-              })
+              (messageType, payload) -> player.setPlayWhenReady(/* playWhenReady= */ false))
           .setPosition(windowIndex, positionMs)
           .send();
       // Schedule another message on this test thread to continue action schedule.
       player
           .createMessage(
-              new Target() {
-                @Override
-                public void handleMessage(int messageType, Object payload)
-                    throws ExoPlaybackException {
-                  nextAction.schedule(player, trackSelector, surface, handler);
-                }
-              })
+              (messageType, payload) ->
+                  nextAction.schedule(player, trackSelector, surface, handler))
           .setPosition(windowIndex, positionMs)
           .setHandler(new Handler())
           .send();

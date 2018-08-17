@@ -30,8 +30,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -145,13 +143,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener,
     ListView sampleList = dialogList.findViewById(R.id.sample_list);
     sampleList.setAdapter(new SampleListAdapter(this));
     sampleList.setOnItemClickListener(
-        new OnItemClickListener() {
-
-          @Override
-          public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            playerManager.addItem(DemoUtil.SAMPLES.get(position));
-            mediaQueueListAdapter.notifyItemInserted(playerManager.getMediaQueueSize() - 1);
-          }
+        (parent, view, position, id) -> {
+          playerManager.addItem(DemoUtil.SAMPLES.get(position));
+          mediaQueueListAdapter.notifyItemInserted(playerManager.getMediaQueueSize() - 1);
         });
     return dialogList;
   }

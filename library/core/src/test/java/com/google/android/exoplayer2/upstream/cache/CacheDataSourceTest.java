@@ -60,13 +60,7 @@ public final class CacheDataSourceTest {
     testDataUri = Uri.parse("test_data");
     fixedCacheKey = CacheUtil.generateKey(testDataUri);
     expectedCacheKey = fixedCacheKey;
-    cacheKeyFactory =
-        new CacheKeyFactory() {
-          @Override
-          public String buildCacheKey(DataSpec dataSpec) {
-            return CACHE_KEY_PREFIX + "." + CacheUtil.generateKey(dataSpec.uri);
-          }
-        };
+    cacheKeyFactory = dataSpec -> CACHE_KEY_PREFIX + "." + CacheUtil.generateKey(dataSpec.uri);
     tempFolder = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
   }
@@ -366,13 +360,7 @@ public final class CacheDataSourceTest {
     // Insert an action just before the end of the data to fail the test if reading from upstream
     // reaches end of the data.
     fakeData
-        .appendReadAction(
-            new Runnable() {
-              @Override
-              public void run() {
-                fail("Read from upstream shouldn't reach to the end of the data.");
-              }
-            })
+        .appendReadAction(() -> fail("Read from upstream shouldn't reach to the end of the data."))
         .appendReadData(1);
     // Create cache read-only CacheDataSource.
     CacheDataSource cacheDataSource =
@@ -408,13 +396,7 @@ public final class CacheDataSourceTest {
     // Insert an action just before the end of the data to fail the test if reading from upstream
     // reaches end of the data.
     fakeData
-        .appendReadAction(
-            new Runnable() {
-              @Override
-              public void run() {
-                fail("Read from upstream shouldn't reach to the end of the data.");
-              }
-            })
+        .appendReadAction(() -> fail("Read from upstream shouldn't reach to the end of the data."))
         .appendReadData(1);
 
     // Lock the content on the cache.

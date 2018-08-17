@@ -344,12 +344,7 @@ public abstract class ExoHostedTest
     player = null;
     // We post opening of the finished condition so that any events posted to the main thread as a
     // result of player.release() are guaranteed to be handled before the test returns.
-    actionHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        testFinished.open();
-      }
-    });
+    actionHandler.post(testFinished::open);
     return true;
   }
 

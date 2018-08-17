@@ -24,8 +24,6 @@ import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
@@ -80,13 +78,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   @Override
   public void setOnEventListener(
       final ExoMediaDrm.OnEventListener<? super FrameworkMediaCrypto> listener) {
-    mediaDrm.setOnEventListener(listener == null ? null : new MediaDrm.OnEventListener() {
-      @Override
-      public void onEvent(@NonNull MediaDrm md, @Nullable byte[] sessionId, int event, int extra,
-          byte[] data) {
-        listener.onEvent(FrameworkMediaDrm.this, sessionId, event, extra, data);
-      }
-    });
+    mediaDrm.setOnEventListener(
+        listener == null
+            ? null
+            : (mediaDrm, sessionId, event, extra, data) ->
+                listener.onEvent(FrameworkMediaDrm.this, sessionId, event, extra, data));
   }
 
   @Override
@@ -99,20 +95,13 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     mediaDrm.setOnKeyStatusChangeListener(
         listener == null
             ? null
-            : new MediaDrm.OnKeyStatusChangeListener() {
-              @Override
-              public void onKeyStatusChange(
-                  @NonNull MediaDrm md,
-                  @NonNull byte[] sessionId,
-                  @NonNull List<MediaDrm.KeyStatus> keyInfo,
-                  boolean hasNewUsableKey) {
-                List<KeyStatus> exoKeyInfo = new ArrayList<>();
-                for (MediaDrm.KeyStatus keyStatus : keyInfo) {
-                  exoKeyInfo.add(new KeyStatus(keyStatus.getStatusCode(), keyStatus.getKeyId()));
-                }
-                listener.onKeyStatusChange(
-                    FrameworkMediaDrm.this, sessionId, exoKeyInfo, hasNewUsableKey);
+            : (mediaDrm, sessionId, keyInfo, hasNewUsableKey) -> {
+              List<KeyStatus> exoKeyInfo = new ArrayList<>();
+              for (MediaDrm.KeyStatus keyStatus : keyInfo) {
+                exoKeyInfo.add(new KeyStatus(keyStatus.getStatusCode(), keyStatus.getKeyId()));
               }
+              listener.onKeyStatusChange(
+                  FrameworkMediaDrm.this, sessionId, exoKeyInfo, hasNewUsableKey);
             },
         null);
   }

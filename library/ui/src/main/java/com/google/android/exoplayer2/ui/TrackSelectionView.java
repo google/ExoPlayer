@@ -19,7 +19,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.support.annotation.AttrRes;
 import android.support.annotation.Nullable;
@@ -80,13 +79,7 @@ public class TrackSelectionView extends LinearLayout {
 
     final TrackSelectionView selectionView = dialogView.findViewById(R.id.exo_track_selection_view);
     selectionView.init(trackSelector, rendererIndex);
-    Dialog.OnClickListener okClickListener =
-        new Dialog.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            selectionView.applySelection();
-          }
-        };
+    Dialog.OnClickListener okClickListener = (dialog, which) -> selectionView.applySelection();
 
     AlertDialog dialog =
         builder

@@ -325,12 +325,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     final ComponentListener componentListener = new ComponentListener();
     this.componentListener = componentListener;
     prepareChildSource(DUMMY_CONTENT_MEDIA_PERIOD_ID, contentMediaSource);
-    mainHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        adsLoader.attachPlayer(player, componentListener, adUiViewGroup);
-      }
-    });
+    mainHandler.post(() -> adsLoader.attachPlayer(player, componentListener, adUiViewGroup));
   }
 
   @Override
@@ -397,12 +392,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     adPlaybackState = null;
     adGroupMediaSources = new MediaSource[0][];
     adDurationsUs = new long[0][];
-    mainHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        adsLoader.detachPlayer();
-      }
-    });
+    mainHandler.post(adsLoader::detachPlayer);
   }
 
   @Override
@@ -500,15 +490,13 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       if (released) {
         return;
       }
-      playerHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          if (released) {
-            return;
-          }
-          AdsMediaSource.this.onAdPlaybackState(adPlaybackState);
-        }
-      });
+      playerHandler.post(
+          () -> {
+            if (released) {
+              return;
+            }
+            AdsMediaSource.this.onAdPlaybackState(adPlaybackState);
+          });
     }
 
     @Override
@@ -517,14 +505,12 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
         return;
       }
       if (eventHandler != null && eventListener != null) {
-        eventHandler.post(new Runnable() {
-          @Override
-          public void run() {
-            if (!released) {
-              eventListener.onAdClicked();
-            }
-          }
-        });
+        eventHandler.post(
+            () -> {
+              if (!released) {
+                eventListener.onAdClicked();
+              }
+            });
       }
     }
 
@@ -534,14 +520,12 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
         return;
       }
       if (eventHandler != null && eventListener != null) {
-        eventHandler.post(new Runnable() {
-          @Override
-          public void run() {
-            if (!released) {
-              eventListener.onAdTapped();
-            }
-          }
-        });
+        eventHandler.post(
+            () -> {
+              if (!released) {
+                eventListener.onAdTapped();
+              }
+            });
       }
     }
 
@@ -562,15 +546,12 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
               /* wasCanceled= */ true);
       if (eventHandler != null && eventListener != null) {
         eventHandler.post(
-            new Runnable() {
-              @Override
-              public void run() {
-                if (!released) {
-                  if (error.type == AdLoadException.TYPE_UNEXPECTED) {
-                    eventListener.onInternalAdLoadError(error.getRuntimeExceptionForUnexpected());
-                  } else {
-                    eventListener.onAdLoadError(error);
-                  }
+            () -> {
+              if (!released) {
+                if (error.type == AdLoadException.TYPE_UNEXPECTED) {
+                  eventListener.onInternalAdLoadError(error.getRuntimeExceptionForUnexpected());
+                } else {
+                  eventListener.onAdLoadError(error);
                 }
               }
             });
@@ -603,12 +584,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
               AdLoadException.createForAd(exception),
               /* wasCanceled= */ true);
       mainHandler.post(
-          new Runnable() {
-            @Override
-            public void run() {
-              adsLoader.handlePrepareError(adGroupIndex, adIndexInAdGroup, exception);
-            }
-          });
+          () -> adsLoader.handlePrepareError(adGroupIndex, adIndexInAdGroup, exception));
     }
   }
 }

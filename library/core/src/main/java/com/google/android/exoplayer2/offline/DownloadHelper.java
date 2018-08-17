@@ -59,21 +59,9 @@ public abstract class DownloadHelper {
       public void run() {
         try {
           prepareInternal();
-          handler.post(
-              new Runnable() {
-                @Override
-                public void run() {
-                  callback.onPrepared(DownloadHelper.this);
-                }
-              });
+          handler.post(() -> callback.onPrepared(DownloadHelper.this));
         } catch (final IOException e) {
-          handler.post(
-              new Runnable() {
-                @Override
-                public void run() {
-                  callback.onPrepareError(DownloadHelper.this, e);
-                }
-              });
+          handler.post(() -> callback.onPrepareError(DownloadHelper.this, e));
         }
       }
     }.start();

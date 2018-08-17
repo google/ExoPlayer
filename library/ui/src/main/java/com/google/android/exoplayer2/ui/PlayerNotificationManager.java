@@ -203,14 +203,11 @@ public class PlayerNotificationManager {
     public void onBitmap(final Bitmap bitmap) {
       if (bitmap != null) {
         mainHandler.post(
-            new Runnable() {
-              @Override
-              public void run() {
-                if (player != null
-                    && notificationTag == currentNotificationTag
-                    && isNotificationStarted) {
-                  updateNotification(bitmap);
-                }
+            () -> {
+              if (player != null
+                  && notificationTag == currentNotificationTag
+                  && isNotificationStarted) {
+                updateNotification(bitmap);
               }
             });
       }

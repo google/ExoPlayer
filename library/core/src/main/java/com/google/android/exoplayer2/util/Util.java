@@ -34,7 +34,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.security.NetworkSecurityPolicy;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -67,7 +66,6 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
@@ -341,12 +339,7 @@ public final class Util {
    * @return The executor.
    */
   public static ExecutorService newSingleThreadExecutor(final String threadName) {
-    return Executors.newSingleThreadExecutor(new ThreadFactory() {
-      @Override
-      public Thread newThread(@NonNull Runnable r) {
-        return new Thread(r, threadName);
-      }
-    });
+    return Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, threadName));
   }
 
   /**

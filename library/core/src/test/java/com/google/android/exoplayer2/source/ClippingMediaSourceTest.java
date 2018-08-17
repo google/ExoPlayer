@@ -501,9 +501,7 @@ public final class ClippingMediaSourceTest {
     final MediaLoadData[] reportedMediaLoadData = new MediaLoadData[1];
     try {
       testRunner.runOnPlaybackThread(
-          new Runnable() {
-            @Override
-            public void run() {
+          () ->
               clippingMediaSource.addEventListener(
                   new Handler(),
                   new DefaultMediaSourceEventListener() {
@@ -514,9 +512,7 @@ public final class ClippingMediaSourceTest {
                         MediaLoadData mediaLoadData) {
                       reportedMediaLoadData[0] = mediaLoadData;
                     }
-                  });
-            }
-          });
+                  }));
       testRunner.prepareSource();
       // Create period to send the test event configured above.
       testRunner.createPeriod(

@@ -15,9 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
-import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
-import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -28,25 +26,11 @@ public final class Mp3ExtractorTest {
 
   @Test
   public void testMp3Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new Mp3Extractor();
-          }
-        },
-        "mp3/bear.mp3");
+    ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/bear.mp3");
   }
 
   @Test
   public void testTrimmedMp3Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new Mp3Extractor();
-          }
-        },
-        "mp3/play-trimmed.mp3");
+    ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/play-trimmed.mp3");
   }
 }

@@ -56,13 +56,7 @@ public final class Id3Decoder implements MetadataDecoder {
 
   /** A predicate that indicates no frames should be decoded. */
   public static final FramePredicate NO_FRAMES_PREDICATE =
-      new FramePredicate() {
-
-        @Override
-        public boolean evaluate(int majorVersion, int id0, int id1, int id2, int id3) {
-          return false;
-        }
-      };
+      (majorVersion, id0, id1, id2, id3) -> false;
 
   private static final String TAG = "Id3Decoder";
 
