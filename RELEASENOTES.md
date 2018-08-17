@@ -1,5 +1,11 @@
 # Release notes #
 
+### 2.8.4 ###
+
+* IMA: Improve handling of consecutive empty ad groups
+  ([#4030](https://github.com/google/ExoPlayer/issues/4030)),
+  ([#4280](https://github.com/google/ExoPlayer/issues/4280)).
+
 ### 2.8.3 ###
 
 * IMA:
