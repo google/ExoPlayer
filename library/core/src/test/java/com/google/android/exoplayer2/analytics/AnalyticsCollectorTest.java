@@ -17,9 +17,6 @@ package com.google.android.exoplayer2.analytics;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
@@ -35,10 +32,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -53,7 +47,6 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
-import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -601,13 +594,9 @@ public final class AnalyticsCollectorTest {
             // Ensure second period is already being read from.
             .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ periodDurationMs)
             .executeRunnable(
-                new Runnable() {
-                  @Override
-                  public void run() {
+                () ->
                     concatenatedMediaSource.moveMediaSource(
-                        /* currentIndex= */ 0, /* newIndex= */ 1);
-                  }
-                })
+                        /* currentIndex= */ 0, /* newIndex= */ 1))
             .waitForTimelineChanged(/* expectedTimeline= */ null)
             .play()
             .build();
@@ -658,10 +647,6 @@ public final class AnalyticsCollectorTest {
   @Test
   public void testNotifyExternalEvents() throws Exception {
     MediaSource mediaSource = new FakeMediaSource(SINGLE_PERIOD_TIMELINE, /* manifest= */ null);
-    final NetworkInfo networkInfo =
-        ((ConnectivityManager)
-                RuntimeEnvironment.application.getSystemService(Context.CONNECTIVITY_SERVICE))
-            .getActiveNetworkInfo();
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("AnalyticsCollectorTest")
             .pause()
@@ -689,21 +674,16 @@ public final class AnalyticsCollectorTest {
   private static TestAnalyticsListener runAnalyticsTest(
       MediaSource mediaSource, @Nullable ActionSchedule actionSchedule) throws Exception {
     RenderersFactory renderersFactory =
-        new RenderersFactory() {
-          @Override
-          public Renderer[] createRenderers(
-              Handler eventHandler,
-              VideoRendererEventListener videoRendererEventListener,
-              AudioRendererEventListener audioRendererEventListener,
-              TextOutput textRendererOutput,
-              MetadataOutput metadataRendererOutput,
-              @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-            return new Renderer[] {
+        (eventHandler,
+            videoRendererEventListener,
+            audioRendererEventListener,
+            textRendererOutput,
+            metadataRendererOutput,
+            drmSessionManager) ->
+            new Renderer[] {
               new FakeVideoRenderer(eventHandler, videoRendererEventListener),
               new FakeAudioRenderer(eventHandler, audioRendererEventListener)
             };
-          }
-        };
     TestAnalyticsListener listener = new TestAnalyticsListener();
     try {
       new ExoPlayerTestRunner.Builder()

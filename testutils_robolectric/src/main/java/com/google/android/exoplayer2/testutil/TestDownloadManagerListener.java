@@ -81,12 +81,9 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
       downloadFinishedCondition = new CountDownLatch(1);
     }
     dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            if (downloadManager.isIdle()) {
-              downloadFinishedCondition.countDown();
-            }
+        () -> {
+          if (downloadManager.isIdle()) {
+            downloadFinishedCondition.countDown();
           }
         });
     assertThat(downloadFinishedCondition.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue();

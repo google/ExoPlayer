@@ -853,15 +853,12 @@ import java.util.Collections;
   private void sendMessageToTargetThread(final PlayerMessage message) {
     Handler handler = message.getHandler();
     handler.post(
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              deliverMessage(message);
-            } catch (ExoPlaybackException e) {
-              Log.e(TAG, "Unexpected error delivering message on external thread.", e);
-              throw new RuntimeException(e);
-            }
+        () -> {
+          try {
+            deliverMessage(message);
+          } catch (ExoPlaybackException e) {
+            Log.e(TAG, "Unexpected error delivering message on external thread.", e);
+            throw new RuntimeException(e);
           }
         });
   }

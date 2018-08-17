@@ -684,12 +684,7 @@ public final class SsMediaSource extends BaseMediaSource
     }
     long nextLoadTimestamp = manifestLoadStartTimestamp + MINIMUM_MANIFEST_REFRESH_PERIOD_MS;
     long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
-    manifestRefreshHandler.postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        startLoadingManifest();
-      }
-    }, delayUntilNextLoad);
+    manifestRefreshHandler.postDelayed(this::startLoadingManifest, delayUntilNextLoad);
   }
 
   private void startLoadingManifest() {

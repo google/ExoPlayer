@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.extractor.ogg;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
@@ -32,13 +31,7 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public final class OggExtractorTest {
 
-  private static final ExtractorFactory OGG_EXTRACTOR_FACTORY =
-      new ExtractorFactory() {
-        @Override
-        public Extractor create() {
-          return new OggExtractor();
-        }
-      };
+  private static final ExtractorFactory OGG_EXTRACTOR_FACTORY = OggExtractor::new;
 
   @Test
   public void testOpus() throws Exception {

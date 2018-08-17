@@ -589,18 +589,8 @@ public final class DashMediaSource extends BaseMediaSource {
     } else {
       manifestCallback = new ManifestCallback();
       manifestLoadErrorThrower = new ManifestLoadErrorThrower();
-      refreshManifestRunnable = new Runnable() {
-        @Override
-        public void run() {
-          startLoadingManifest();
-        }
-      };
-      simulateManifestRefreshRunnable = new Runnable() {
-        @Override
-        public void run() {
-          processManifest(false);
-        }
-      };
+      refreshManifestRunnable = this::startLoadingManifest;
+      simulateManifestRefreshRunnable = () -> processManifest(false);
     }
   }
 

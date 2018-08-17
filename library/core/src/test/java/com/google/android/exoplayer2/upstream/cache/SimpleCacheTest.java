@@ -37,8 +37,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 
@@ -259,12 +257,12 @@ public class SimpleCacheTest {
     addCache(simpleCache, KEY_1, 0, 15);
 
     // Make index.store() throw exception from now on.
-    doAnswer(new Answer<Object>() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        throw new Cache.CacheException("SimpleCacheTest");
-      }
-    }).when(index).store();
+    doAnswer(
+            invocation -> {
+              throw new CacheException("SimpleCacheTest");
+            })
+        .when(index)
+        .store();
 
     // Adding more content will make LeastRecentlyUsedCacheEvictor evict previous content.
     try {

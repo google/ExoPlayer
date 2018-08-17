@@ -15,9 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
-import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -28,27 +26,16 @@ public final class AdtsExtractorTest {
 
   @Test
   public void testSample() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new AdtsExtractor();
-          }
-        },
-        "ts/sample.adts");
+    ExtractorAsserts.assertBehavior(AdtsExtractor::new, "ts/sample.adts");
   }
 
   @Test
   public void testSample_withSeeking() throws Exception {
     ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new AdtsExtractor(
+        () ->
+            new AdtsExtractor(
                 /* firstStreamSampleTimestampUs= */ 0,
-                /* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
-          }
-        },
+                /* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
         "ts/sample_cbs.adts");
   }
 }

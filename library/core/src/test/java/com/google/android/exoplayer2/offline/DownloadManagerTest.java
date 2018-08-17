@@ -331,13 +331,7 @@ public class DownloadManagerTest {
     remove2Action.post().assertStarted();
     download2Action.post().assertDoesNotStart();
 
-    runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            downloadManager.stopDownloads();
-          }
-        });
+    runOnMainThread(() -> downloadManager.stopDownloads());
 
     download1Action.assertStopped();
 
@@ -354,13 +348,7 @@ public class DownloadManagerTest {
     // New download actions can be added but they don't start.
     download3Action.post().assertDoesNotStart();
 
-    runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            downloadManager.startDownloads();
-          }
-        });
+    runOnMainThread(() -> downloadManager.startDownloads());
 
     download2Action.assertStarted().unblock().assertCompleted();
     download3Action.assertStarted().unblock().assertCompleted();
@@ -380,24 +368,12 @@ public class DownloadManagerTest {
     // download3Action doesn't start as DM was configured to run two downloads in parallel.
     download3Action.post().assertDoesNotStart();
 
-    runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            downloadManager.stopDownloads();
-          }
-        });
+    runOnMainThread(() -> downloadManager.stopDownloads());
 
     // download1Action doesn't stop yet as it ignores interrupts.
     download2Action.assertStopped();
 
-    runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            downloadManager.startDownloads();
-          }
-        });
+    runOnMainThread(() -> downloadManager.startDownloads());
 
     // download2Action starts immediately.
     download2Action.assertStarted();
@@ -421,22 +397,19 @@ public class DownloadManagerTest {
     }
     try {
       runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              downloadManager =
-                  new DownloadManager(
-                      new DownloaderConstructorHelper(
-                          Mockito.mock(Cache.class), DummyDataSource.FACTORY),
-                      maxActiveDownloadTasks,
-                      MIN_RETRY_COUNT,
-                      actionFile,
-                      ProgressiveDownloadAction.DESERIALIZER);
-              downloadManagerListener =
-                  new TestDownloadManagerListener(downloadManager, dummyMainThread);
-              downloadManager.addListener(downloadManagerListener);
-              downloadManager.startDownloads();
-            }
+          () -> {
+            downloadManager =
+                new DownloadManager(
+                    new DownloaderConstructorHelper(
+                        Mockito.mock(Cache.class), DummyDataSource.FACTORY),
+                    maxActiveDownloadTasks,
+                    MIN_RETRY_COUNT,
+                    actionFile,
+                    ProgressiveDownloadAction.DESERIALIZER);
+            downloadManagerListener =
+                new TestDownloadManagerListener(downloadManager, dummyMainThread);
+            downloadManager.addListener(downloadManagerListener);
+            downloadManager.startDownloads();
           });
     } catch (Throwable throwable) {
       throw new Exception(throwable);
@@ -445,13 +418,7 @@ public class DownloadManagerTest {
 
   private void releaseDownloadManager() throws Exception {
     try {
-      runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              downloadManager.release();
-            }
-          });
+      runOnMainThread(() -> downloadManager.release());
     } catch (Throwable throwable) {
       throw new Exception(throwable);
     }
@@ -519,13 +486,7 @@ public class DownloadManagerTest {
     }
 
     private FakeDownloadAction post() {
-      runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              downloadManager.handleAction(FakeDownloadAction.this);
-            }
-          });
+      runOnMainThread(() -> downloadManager.handleAction(FakeDownloadAction.this));
       return this;
     }
 

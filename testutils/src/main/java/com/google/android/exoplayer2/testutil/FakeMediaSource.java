@@ -149,15 +149,12 @@ public class FakeMediaSource extends BaseMediaSource {
   public synchronized void setNewSourceInfo(final Timeline newTimeline, final Object newManifest) {
     if (sourceInfoRefreshHandler != null) {
       sourceInfoRefreshHandler.post(
-          new Runnable() {
-            @Override
-            public void run() {
-              assertThat(releasedSource).isFalse();
-              assertThat(preparedSource).isTrue();
-              timeline = newTimeline;
-              manifest = newManifest;
-              finishSourcePreparation();
-            }
+          () -> {
+            assertThat(releasedSource).isFalse();
+            assertThat(preparedSource).isTrue();
+            timeline = newTimeline;
+            manifest = newManifest;
+            finishSourcePreparation();
           });
     } else {
       timeline = newTimeline;

@@ -208,6 +208,8 @@ public class PlayerControlView extends FrameLayout {
   private final Formatter formatter;
   private final Timeline.Period period;
   private final Timeline.Window window;
+  private final Runnable updateProgressAction;
+  private final Runnable hideAction;
 
   private final Drawable repeatOffButtonDrawable;
   private final Drawable repeatOneButtonDrawable;
@@ -235,22 +237,6 @@ public class PlayerControlView extends FrameLayout {
   private boolean[] playedAdGroups;
   private long[] extraAdGroupTimesMs;
   private boolean[] extraPlayedAdGroups;
-
-  private final Runnable updateProgressAction =
-      new Runnable() {
-        @Override
-        public void run() {
-          updateProgress();
-        }
-      };
-
-  private final Runnable hideAction =
-      new Runnable() {
-        @Override
-        public void run() {
-          hide();
-        }
-      };
 
   public PlayerControlView(Context context) {
     this(context, null);
@@ -303,6 +289,8 @@ public class PlayerControlView extends FrameLayout {
     extraPlayedAdGroups = new boolean[0];
     componentListener = new ComponentListener();
     controlDispatcher = new com.google.android.exoplayer2.DefaultControlDispatcher();
+    updateProgressAction = this::updateProgress;
+    hideAction = this::hide;
 
     LayoutInflater.from(context).inflate(controllerLayoutId, this);
     setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);

@@ -93,13 +93,7 @@ public class FakeMediaPeriod implements MediaPeriod {
   public synchronized void setPreparationComplete() {
     deferOnPrepared = false;
     if (playerHandler != null && prepareCallback != null) {
-      playerHandler.post(
-          new Runnable() {
-            @Override
-            public void run() {
-              finishPreparation();
-            }
-          });
+      playerHandler.post(this::finishPreparation);
     }
   }
 

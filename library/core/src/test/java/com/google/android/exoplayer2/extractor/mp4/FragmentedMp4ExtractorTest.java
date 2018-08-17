@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.extractor.mp4;
 
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -53,11 +52,6 @@ public final class FragmentedMp4ExtractorTest {
   }
 
   private static ExtractorFactory getExtractorFactory(final List<Format> closedCaptionFormats) {
-    return new ExtractorFactory() {
-      @Override
-      public Extractor create() {
-        return new FragmentedMp4Extractor(0, null, null, null, closedCaptionFormats);
-      }
-    };
+    return () -> new FragmentedMp4Extractor(0, null, null, null, closedCaptionFormats);
   }
 }

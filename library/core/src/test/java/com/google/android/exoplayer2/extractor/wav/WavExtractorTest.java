@@ -15,9 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.wav;
 
-import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
-import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -28,13 +26,6 @@ public final class WavExtractorTest {
 
   @Test
   public void testSample() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new WavExtractor();
-          }
-        },
-        "wav/sample.wav");
+    ExtractorAsserts.assertBehavior(WavExtractor::new, "wav/sample.wav");
   }
 }
