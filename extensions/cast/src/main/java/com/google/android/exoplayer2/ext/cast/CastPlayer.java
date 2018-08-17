@@ -839,7 +839,6 @@ public final class CastPlayer implements Player {
     @Override
     public void onAdBreakStatusUpdated() {}
 
-
     // SessionManagerListener implementation.
 
     @Override
