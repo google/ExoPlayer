@@ -136,6 +136,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private long lastInputTimeUs;
   private long outputStreamOffsetUs;
   private int pendingOutputStreamOffsetCount;
+  private @Nullable VideoFrameMetadataListener frameMetadataListener;
 
   /**
    * @param context A context.
@@ -386,6 +387,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       if (codec != null) {
         codec.setVideoScalingMode(scalingMode);
       }
+    } else if (messageType == C.MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
+      frameMetadataListener = (VideoFrameMetadataListener) message;
     } else {
       super.handleMessage(messageType, message);
     }
@@ -587,9 +590,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
-      ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
-      boolean shouldSkip) throws ExoPlaybackException {
+  protected boolean processOutputBuffer(
+      long positionUs,
+      long elapsedRealtimeUs,
+      MediaCodec codec,
+      ByteBuffer buffer,
+      int bufferIndex,
+      int bufferFlags,
+      long bufferPresentationTimeUs,
+      boolean shouldSkip,
+      Format format)
+      throws ExoPlaybackException {
     if (initialPositionUs == C.TIME_UNSET) {
       initialPositionUs = positionUs;
     }
@@ -616,8 +627,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!renderedFirstFrame
         || (isStarted
             && shouldForceRenderOutputBuffer(earlyUs, elapsedRealtimeNowUs - lastRenderTimeUs))) {
+      long releaseTimeNs = System.nanoTime();
+      notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format);
       if (Util.SDK_INT >= 21) {
-        renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, System.nanoTime());
+        renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, releaseTimeNs);
       } else {
         renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
       }
@@ -653,6 +666,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (Util.SDK_INT >= 21) {
       // Let the underlying framework time the release.
       if (earlyUs < 50000) {
+        notifyFrameMetadataListener(presentationTimeUs, adjustedReleaseTimeNs, format);
         renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, adjustedReleaseTimeNs);
         return true;
       }
@@ -670,6 +684,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             return false;
           }
         }
+        notifyFrameMetadataListener(presentationTimeUs, adjustedReleaseTimeNs, format);
         renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
         return true;
       }
@@ -679,10 +694,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return false;
   }
 
+  private void notifyFrameMetadataListener(
+      long presentationTimeUs, long releaseTimeNs, Format format) {
+    if (frameMetadataListener != null) {
+      frameMetadataListener.onVideoFrameAboutToBeRendered(
+          presentationTimeUs, releaseTimeNs, format);
+    }
+  }
+
   /**
    * Returns the offset that should be subtracted from {@code bufferPresentationTimeUs} in {@link
-   * #processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean)} to get the
-   * playback position with respect to the media.
+   * #processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean, Format)} to
+   * get the playback position with respect to the media.
    */
   protected long getOutputStreamOffsetUs() {
     return outputStreamOffsetUs;

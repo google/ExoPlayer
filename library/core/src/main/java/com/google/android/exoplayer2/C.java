@@ -26,6 +26,7 @@ import android.view.Surface;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
@@ -732,6 +733,13 @@ public final class C {
    * instance representing an auxiliary audio effect for the underlying audio track.
    */
   public static final int MSG_SET_AUX_EFFECT_INFO = 5;
+
+  /**
+   * The type of a message that can be passed to a video {@link Renderer} via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be a {@link
+   * VideoFrameMetadataListener} instance, or null.
+   */
+  public static final int MSG_SET_VIDEO_FRAME_METADATA_LISTENER = 6;
 
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
