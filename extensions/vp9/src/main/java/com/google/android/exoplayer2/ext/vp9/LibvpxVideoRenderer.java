@@ -39,8 +39,10 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 import java.lang.annotation.Retention;
@@ -109,11 +111,14 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private final boolean playClearSamplesWithoutKeys;
   private final EventDispatcher eventDispatcher;
   private final FormatHolder formatHolder;
+  private final TimedValueQueue<Format> formatQueue;
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
   private final boolean useSurfaceYuvOutput;
 
   private Format format;
+  private Format pendingFormat;
+  private Format outputFormat;
   private VpxDecoder decoder;
   private VpxInputBuffer inputBuffer;
   private VpxOutputBuffer outputBuffer;
@@ -142,6 +147,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private int consecutiveDroppedFrameCount;
   private int buffersInCodecCount;
   private long lastRenderTimeUs;
+  private long outputStreamOffsetUs;
+  private VideoFrameMetadataListener frameMetadataListener;
 
   protected DecoderCounters decoderCounters;
 
@@ -219,6 +226,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
     formatHolder = new FormatHolder();
+    formatQueue = new TimedValueQueue<>();
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     outputMode = VpxDecoder.OUTPUT_MODE_NONE;
@@ -328,6 +336,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     } else {
       joiningDeadlineMs = C.TIME_UNSET;
     }
+    formatQueue.clear();
   }
 
   @Override
@@ -369,6 +378,12 @@ public class LibvpxVideoRenderer extends BaseRenderer {
         }
       }
     }
+  }
+
+  @Override
+  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+    outputStreamOffsetUs = offsetUs;
+    super.onStreamChanged(formats, offsetUs);
   }
 
   /**
@@ -437,6 +452,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
     Format oldFormat = format;
     format = newFormat;
+    pendingFormat = newFormat;
 
     boolean drmInitDataChanged = !Util.areEqual(format.drmInitData, oldFormat == null ? null
         : oldFormat.drmInitData);
@@ -629,6 +645,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       setOutput((Surface) message, null);
     } else if (messageType == MSG_SET_OUTPUT_BUFFER_RENDERER) {
       setOutput(null, (VpxOutputBufferRenderer) message);
+    } else if (messageType == C.MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
+      frameMetadataListener = (VideoFrameMetadataListener) message;
     } else {
       super.handleMessage(messageType, message);
     }
@@ -772,6 +790,10 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     if (waitingForKeys) {
       return false;
     }
+    if (pendingFormat != null) {
+      formatQueue.add(inputBuffer.timeUs, pendingFormat);
+      pendingFormat = null;
+    }
     inputBuffer.flip();
     inputBuffer.colorInfo = formatHolder.format.colorInfo;
     onQueueInputBuffer(inputBuffer);
@@ -851,11 +873,21 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       return false;
     }
 
+    long presentationTimeUs = outputBuffer.timeUs - outputStreamOffsetUs;
+    Format format = formatQueue.pollFloor(presentationTimeUs);
+    if (format != null) {
+      outputFormat = format;
+    }
+
     long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
     boolean isStarted = getState() == STATE_STARTED;
     if (!renderedFirstFrame
         || (isStarted
             && shouldForceRenderOutputBuffer(earlyUs, elapsedRealtimeNowUs - lastRenderTimeUs))) {
+      if (frameMetadataListener != null) {
+        frameMetadataListener.onVideoFrameAboutToBeRendered(
+            presentationTimeUs, System.nanoTime(), outputFormat);
+      }
       renderOutputBuffer(outputBuffer);
       return true;
     }
@@ -873,6 +905,10 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     }
 
     if (earlyUs < 30000) {
+      if (frameMetadataListener != null) {
+        frameMetadataListener.onVideoFrameAboutToBeRendered(
+            presentationTimeUs, System.nanoTime(), outputFormat);
+      }
       renderOutputBuffer(outputBuffer);
       return true;
     }

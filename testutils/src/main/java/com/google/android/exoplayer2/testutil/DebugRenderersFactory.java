@@ -126,17 +126,33 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
     }
 
     @Override
-    protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
-        ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
-        boolean shouldSkip) throws ExoPlaybackException {
+    protected boolean processOutputBuffer(
+        long positionUs,
+        long elapsedRealtimeUs,
+        MediaCodec codec,
+        ByteBuffer buffer,
+        int bufferIndex,
+        int bufferFlags,
+        long bufferPresentationTimeUs,
+        boolean shouldSkip,
+        Format format)
+        throws ExoPlaybackException {
       if (skipToPositionBeforeRenderingFirstFrame && bufferPresentationTimeUs < positionUs) {
         // After the codec has been initialized, don't render the first frame until we've caught up
         // to the playback position. Else test runs on devices that do not support dummy surface
         // will drop frames between rendering the first one and catching up [Internal: b/66494991].
         shouldSkip = true;
       }
-      return super.processOutputBuffer(positionUs, elapsedRealtimeUs, codec, buffer, bufferIndex,
-          bufferFlags, bufferPresentationTimeUs, shouldSkip);
+      return super.processOutputBuffer(
+          positionUs,
+          elapsedRealtimeUs,
+          codec,
+          buffer,
+          bufferIndex,
+          bufferFlags,
+          bufferPresentationTimeUs,
+          shouldSkip,
+          format);
     }
 
     @Override
