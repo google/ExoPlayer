@@ -27,6 +27,7 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.txt'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     sourceSets.main {
@@ -37,6 +38,7 @@ android {
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
+    androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
 }
 
 ext {

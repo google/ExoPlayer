@@ -15,11 +15,13 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
+
 import android.media.MediaCodecInfo.AudioCapabilities;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
-import android.test.InstrumentationTestCase;
+import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
@@ -29,9 +31,13 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /** Tests enumeration of decoders using {@link MediaCodecUtil}. */
-public class EnumerateDecodersTest extends InstrumentationTestCase {
+@RunWith(AndroidJUnit4.class)
+public class EnumerateDecodersTest {
 
   private static final String TAG = "EnumerateDecodersTest";
 
@@ -40,14 +46,14 @@ public class EnumerateDecodersTest extends InstrumentationTestCase {
 
   private MetricsLogger metricsLogger;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() {
     metricsLogger =
         MetricsLogger.Factory.createDefault(
             getInstrumentation(), TAG, REPORT_NAME, REPORT_OBJECT_NAME);
   }
 
+  @Test
   public void testEnumerateDecoders() throws Exception {
     enumerateDecoders(MimeTypes.VIDEO_H263);
     enumerateDecoders(MimeTypes.VIDEO_H264);
