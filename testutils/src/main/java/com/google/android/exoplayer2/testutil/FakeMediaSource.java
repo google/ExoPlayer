@@ -111,8 +111,9 @@ public class FakeMediaSource extends BaseMediaSource {
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
-    Assertions.checkIndex(id.periodIndex, 0, timeline.getPeriodCount());
-    Period period = timeline.getPeriod(id.periodIndex, new Period());
+    int periodIndex = timeline.getIndexOfPeriod(id.periodUid);
+    Assertions.checkArgument(periodIndex != C.INDEX_UNSET);
+    Period period = timeline.getPeriod(periodIndex, new Period());
     EventDispatcher eventDispatcher =
         createEventDispatcher(period.windowIndex, id, period.getPositionInWindowMs());
     FakeMediaPeriod mediaPeriod =

@@ -308,7 +308,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-    Assertions.checkArgument(id.periodIndex == 0);
     return new SingleSampleMediaPeriod(
         dataSpec,
         dataSourceFactory,

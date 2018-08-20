@@ -29,7 +29,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    * Dummy media period id used while the timeline is empty and no period id is specified. This id
    * is used when playback infos are created with {@link #createDummy(long, TrackSelectorResult)}.
    */
-  public static final MediaPeriodId DUMMY_MEDIA_PERIOD_ID = new MediaPeriodId(/* periodIndex= */ 0);
+  public static final MediaPeriodId DUMMY_MEDIA_PERIOD_ID =
+      new MediaPeriodId(/* periodUid= */ new Object());
 
   /** The current {@link Timeline}. */
   public final Timeline timeline;
@@ -147,23 +148,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         startPositionUs,
         /* totalBufferedDurationUs= */ 0,
         startPositionUs);
-  }
-
-  public PlaybackInfo copyWithPeriodIndex(int periodIndex) {
-    return new PlaybackInfo(
-        timeline,
-        manifest,
-        periodId.copyWithPeriodIndex(periodIndex),
-        startPositionUs,
-        contentPositionUs,
-        playbackState,
-        isLoading,
-        trackGroups,
-        trackSelectorResult,
-        loadingMediaPeriodId,
-        bufferedPositionUs,
-        totalBufferedDurationUs,
-        positionUs);
   }
 
   public PlaybackInfo copyWithTimeline(Timeline timeline, Object manifest) {

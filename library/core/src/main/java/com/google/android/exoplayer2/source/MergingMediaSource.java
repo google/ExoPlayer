@@ -68,10 +68,10 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   private static final int PERIOD_COUNT_UNSET = -1;
 
   private final MediaSource[] mediaSources;
+  private final Timeline[] timelines;
   private final ArrayList<MediaSource> pendingTimelineSources;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
-  private Timeline primaryTimeline;
   private Object primaryManifest;
   private int periodCount;
   private IllegalMergeException mergeError;
@@ -95,6 +95,7 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     pendingTimelineSources = new ArrayList<>(Arrays.asList(mediaSources));
     periodCount = PERIOD_COUNT_UNSET;
+    timelines = new Timeline[mediaSources.length];
   }
 
   @Override
@@ -119,8 +120,11 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     MediaPeriod[] periods = new MediaPeriod[mediaSources.length];
+    int periodIndex = timelines[0].getIndexOfPeriod(id.periodUid);
     for (int i = 0; i < periods.length; i++) {
-      periods[i] = mediaSources[i].createPeriod(id, allocator);
+      MediaPeriodId childMediaPeriodId =
+          id.copyWithPeriodUid(timelines[i].getUidOfPeriod(periodIndex));
+      periods[i] = mediaSources[i].createPeriod(childMediaPeriodId, allocator);
     }
     return new MergingMediaPeriod(compositeSequenceableLoaderFactory, periods);
   }
@@ -136,7 +140,7 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   @Override
   public void releaseSourceInternal() {
     super.releaseSourceInternal();
-    primaryTimeline = null;
+    Arrays.fill(timelines, null);
     primaryManifest = null;
     periodCount = PERIOD_COUNT_UNSET;
     mergeError = null;
@@ -154,12 +158,12 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
       return;
     }
     pendingTimelineSources.remove(mediaSource);
+    timelines[id] = timeline;
     if (mediaSource == mediaSources[0]) {
-      primaryTimeline = timeline;
       primaryManifest = manifest;
     }
     if (pendingTimelineSources.isEmpty()) {
-      refreshSourceInfo(primaryTimeline, primaryManifest);
+      refreshSourceInfo(timelines[0], primaryManifest);
     }
   }
 

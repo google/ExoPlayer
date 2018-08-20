@@ -40,8 +40,6 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   private final Map<MediaPeriodId, MediaPeriodId> childMediaPeriodIdToMediaPeriodId;
   private final Map<MediaPeriod, MediaPeriodId> mediaPeriodToChildMediaPeriodId;
 
-  private int childPeriodCount;
-
   /**
    * Loops the provided source indefinitely. Note that it is usually better to use
    * {@link ExoPlayer#setRepeatMode(int)}.
@@ -80,7 +78,8 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
     if (loopCount == Integer.MAX_VALUE) {
       return childSource.createPeriod(id, allocator);
     }
-    MediaPeriodId childMediaPeriodId = id.copyWithPeriodIndex(id.periodIndex % childPeriodCount);
+    Object childPeriodUid = LoopingTimeline.getChildPeriodUidFromConcatenatedUid(id.periodUid);
+    MediaPeriodId childMediaPeriodId = id.copyWithPeriodUid(childPeriodUid);
     childMediaPeriodIdToMediaPeriodId.put(childMediaPeriodId, id);
     MediaPeriod mediaPeriod = childSource.createPeriod(childMediaPeriodId, allocator);
     mediaPeriodToChildMediaPeriodId.put(mediaPeriod, childMediaPeriodId);
@@ -97,15 +96,8 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  public void releaseSourceInternal() {
-    super.releaseSourceInternal();
-    childPeriodCount = 0;
-  }
-
-  @Override
   protected void onChildSourceInfoRefreshed(
       Void id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest) {
-    childPeriodCount = timeline.getPeriodCount();
     Timeline loopingTimeline =
         loopCount != Integer.MAX_VALUE
             ? new LoopingTimeline(timeline, loopCount)

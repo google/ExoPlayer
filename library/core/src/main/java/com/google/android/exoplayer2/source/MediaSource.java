@@ -66,10 +66,8 @@ public interface MediaSource {
    */
   final class MediaPeriodId {
 
-    /**
-     * The timeline period index.
-     */
-    public final int periodIndex;
+    /** The unique id of the timeline period. */
+    public final Object periodUid;
 
     /**
      * If the media period is in an ad group, the index of the ad group in the period.
@@ -103,72 +101,70 @@ public interface MediaSource {
      * Creates a media period identifier for a dummy period which is not part of a buffered sequence
      * of windows.
      *
-     * @param periodIndex The period index.
+     * @param periodUid The unique id of the timeline period.
      */
-    public MediaPeriodId(int periodIndex) {
-      this(periodIndex, C.INDEX_UNSET);
+    public MediaPeriodId(Object periodUid) {
+      this(periodUid, C.INDEX_UNSET);
     }
 
     /**
      * Creates a media period identifier for the specified period in the timeline.
      *
-     * @param periodIndex The timeline period index.
+     * @param periodUid The unique id of the timeline period.
      * @param windowSequenceNumber The sequence number of the window in the buffered sequence of
      *     windows this media period is part of.
      */
-    public MediaPeriodId(int periodIndex, long windowSequenceNumber) {
-      this(periodIndex, C.INDEX_UNSET, C.INDEX_UNSET, windowSequenceNumber, C.TIME_END_OF_SOURCE);
+    public MediaPeriodId(Object periodUid, long windowSequenceNumber) {
+      this(periodUid, C.INDEX_UNSET, C.INDEX_UNSET, windowSequenceNumber, C.TIME_END_OF_SOURCE);
     }
 
     /**
      * Creates a media period identifier for the specified clipped period in the timeline.
      *
-     * @param periodIndex The timeline period index.
+     * @param periodUid The unique id of the timeline period.
      * @param windowSequenceNumber The sequence number of the window in the buffered sequence of
      *     windows this media period is part of.
      * @param endPositionUs The end position of the media period within the timeline period, in
      *     microseconds.
      */
-    public MediaPeriodId(int periodIndex, long windowSequenceNumber, long endPositionUs) {
-      this(periodIndex, C.INDEX_UNSET, C.INDEX_UNSET, windowSequenceNumber, endPositionUs);
+    public MediaPeriodId(Object periodUid, long windowSequenceNumber, long endPositionUs) {
+      this(periodUid, C.INDEX_UNSET, C.INDEX_UNSET, windowSequenceNumber, endPositionUs);
     }
 
     /**
      * Creates a media period identifier that identifies an ad within an ad group at the specified
      * timeline period.
      *
-     * @param periodIndex The index of the timeline period that contains the ad group.
+     * @param periodUid The unique id of the timeline period that contains the ad group.
      * @param adGroupIndex The index of the ad group.
      * @param adIndexInAdGroup The index of the ad in the ad group.
      * @param windowSequenceNumber The sequence number of the window in the buffered sequence of
      *     windows this media period is part of.
      */
     public MediaPeriodId(
-        int periodIndex, int adGroupIndex, int adIndexInAdGroup, long windowSequenceNumber) {
-      this(periodIndex, adGroupIndex, adIndexInAdGroup, windowSequenceNumber, C.TIME_END_OF_SOURCE);
+        Object periodUid, int adGroupIndex, int adIndexInAdGroup, long windowSequenceNumber) {
+      this(periodUid, adGroupIndex, adIndexInAdGroup, windowSequenceNumber, C.TIME_END_OF_SOURCE);
     }
 
     private MediaPeriodId(
-        int periodIndex,
+        Object periodUid,
         int adGroupIndex,
         int adIndexInAdGroup,
         long windowSequenceNumber,
         long endPositionUs) {
-      this.periodIndex = periodIndex;
+      this.periodUid = periodUid;
       this.adGroupIndex = adGroupIndex;
       this.adIndexInAdGroup = adIndexInAdGroup;
       this.windowSequenceNumber = windowSequenceNumber;
       this.endPositionUs = endPositionUs;
     }
 
-    /**
-     * Returns a copy of this period identifier but with {@code newPeriodIndex} as its period index.
-     */
-    public MediaPeriodId copyWithPeriodIndex(int newPeriodIndex) {
-      return periodIndex == newPeriodIndex
+    /** Returns a copy of this period identifier but with {@code newPeriodUid} as its period uid. */
+    public MediaPeriodId copyWithPeriodUid(Object newPeriodUid) {
+      return periodUid.equals(newPeriodUid)
           ? this
           : new MediaPeriodId(
-              newPeriodIndex, adGroupIndex, adIndexInAdGroup, windowSequenceNumber, endPositionUs);
+              newPeriodUid, adGroupIndex, adIndexInAdGroup, windowSequenceNumber, endPositionUs);
     }
 
     /**
@@ -188,7 +184,7 @@ public interface MediaSource {
       }
 
       MediaPeriodId periodId = (MediaPeriodId) obj;
-      return periodIndex == periodId.periodIndex
+      return periodUid.equals(periodId.periodUid)
           && adGroupIndex == periodId.adGroupIndex
           && adIndexInAdGroup == periodId.adIndexInAdGroup
           && windowSequenceNumber == periodId.windowSequenceNumber
@@ -198,14 +194,13 @@ public interface MediaSource {
     @Override
     public int hashCode() {
       int result = 17;
-      result = 31 * result + periodIndex;
+      result = 31 * result + periodUid.hashCode();
       result = 31 * result + adGroupIndex;
       result = 31 * result + adIndexInAdGroup;
       result = 31 * result + (int) windowSequenceNumber;
       result = 31 * result + (int) endPositionUs;
       return result;
     }
-
   }
 
   /**

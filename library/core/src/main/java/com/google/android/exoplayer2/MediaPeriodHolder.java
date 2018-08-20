@@ -62,7 +62,6 @@ import com.google.android.exoplayer2.util.Assertions;
    * @param trackSelector The track selector.
    * @param allocator The allocator.
    * @param mediaSource The media source that produced the media period.
-   * @param uid The unique identifier for the containing timeline period.
    * @param info Information used to identify this media period in its timeline period.
    */
   public MediaPeriodHolder(
@@ -71,13 +70,12 @@ import com.google.android.exoplayer2.util.Assertions;
       TrackSelector trackSelector,
       Allocator allocator,
       MediaSource mediaSource,
-      Object uid,
       MediaPeriodInfo info) {
     this.rendererCapabilities = rendererCapabilities;
     this.rendererPositionOffsetUs = rendererPositionOffsetUs - info.startPositionUs;
     this.trackSelector = trackSelector;
     this.mediaSource = mediaSource;
-    this.uid = Assertions.checkNotNull(uid);
+    this.uid = Assertions.checkNotNull(info.id.periodUid);
     this.info = info;
     sampleStreams = new SampleStream[rendererCapabilities.length];
     mayRetainStreamFlags = new boolean[rendererCapabilities.length];
