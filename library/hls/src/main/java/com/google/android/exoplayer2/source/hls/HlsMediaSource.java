@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispat
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistParserFactory;
 import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistTracker;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
@@ -62,7 +63,7 @@ public final class HlsMediaSource extends BaseMediaSource
     private final HlsDataSourceFactory hlsDataSourceFactory;
 
     private HlsExtractorFactory extractorFactory;
-    private @Nullable ParsingLoadable.Parser<HlsPlaylist> playlistParser;
+    private @Nullable HlsPlaylistParserFactory playlistParserFactory;
     private @Nullable HlsPlaylistTracker playlistTracker;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -164,23 +165,19 @@ public final class HlsMediaSource extends BaseMediaSource
     }
 
     /**
-     * Sets the parser to parse HLS playlists. The default is an instance of {@link
-     * HlsPlaylistParser}.
+     * Sets the factory from which playlist parsers will be obtained. The default value is created
+     * by calling {@link DefaultHlsPlaylistParserFactory#DefaultHlsPlaylistParserFactory()}.
      *
      * <p>Must not be called after calling {@link #setPlaylistTracker} on the same builder.
      *
-     * @param playlistParser A {@link ParsingLoadable.Parser} for HLS playlists.
+     * @param playlistParserFactory An {@link HlsPlaylistParserFactory}.
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
-     * @deprecated Use {@link #setPlaylistTracker(HlsPlaylistTracker)} instead. Using this method
-     *     prevents support for attributes that are carried over from the master playlist to the
-     *     media playlists.
      */
-    @Deprecated
-    public Factory setPlaylistParser(ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
+    public Factory setPlaylistParserFactory(HlsPlaylistParserFactory playlistParserFactory) {
       Assertions.checkState(!isCreateCalled);
       Assertions.checkState(playlistTracker == null, "A playlist tracker has already been set.");
-      this.playlistParser = Assertions.checkNotNull(playlistParser);
+      this.playlistParserFactory = Assertions.checkNotNull(playlistParserFactory);
       return this;
     }
 
@@ -189,7 +186,7 @@ public final class HlsMediaSource extends BaseMediaSource
      * DefaultHlsPlaylistTracker}. Playlist trackers must not be shared by {@link HlsMediaSource}
      * instances.
      *
-     * <p>Must not be called after calling {@link #setPlaylistParser} on the same builder.
+     * <p>Must not be called after calling {@link #setPlaylistParserFactory} on the same builder.
      *
      * @param playlistTracker A tracker for HLS playlists.
      * @return This factory, for convenience.
@@ -197,7 +194,8 @@ public final class HlsMediaSource extends BaseMediaSource
      */
     public Factory setPlaylistTracker(HlsPlaylistTracker playlistTracker) {
       Assertions.checkState(!isCreateCalled);
-      Assertions.checkState(playlistParser == null, "A playlist parser has already been set.");
+      Assertions.checkState(
+          playlistParserFactory == null, "A playlist parser factory has already been set.");
       this.playlistTracker = Assertions.checkNotNull(playlistTracker);
       return this;
     }
@@ -244,14 +242,16 @@ public final class HlsMediaSource extends BaseMediaSource
     public HlsMediaSource createMediaSource(Uri playlistUri) {
       isCreateCalled = true;
       if (playlistTracker == null) {
-        if (playlistParser == null) {
+        if (playlistParserFactory == null) {
           playlistTracker =
               new DefaultHlsPlaylistTracker(
-                  hlsDataSourceFactory, loadErrorHandlingPolicy, HlsPlaylistParserFactory.DEFAULT);
+                  hlsDataSourceFactory,
+                  loadErrorHandlingPolicy,
+                  new DefaultHlsPlaylistParserFactory());
         } else {
           playlistTracker =
               new DefaultHlsPlaylistTracker(
-                  hlsDataSourceFactory, loadErrorHandlingPolicy, playlistParser);
+                  hlsDataSourceFactory, loadErrorHandlingPolicy, playlistParserFactory);
         }
       }
       return new HlsMediaSource(
