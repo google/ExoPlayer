@@ -705,11 +705,10 @@ public class AnalyticsCollector
     public @Nullable MediaPeriodId tryResolveWindowIndex(int windowIndex) {
       MediaPeriodId match = null;
       if (timeline != null) {
-        int timelinePeriodCount = timeline.getPeriodCount();
         for (int i = 0; i < activeMediaPeriods.size(); i++) {
           WindowAndMediaPeriodId mediaPeriod = activeMediaPeriods.get(i);
-          int periodIndex = mediaPeriod.mediaPeriodId.periodIndex;
-          if (periodIndex < timelinePeriodCount
+          int periodIndex = timeline.getIndexOfPeriod(mediaPeriod.mediaPeriodId.periodUid);
+          if (periodIndex != C.INDEX_UNSET
               && timeline.getPeriod(periodIndex, period).windowIndex == windowIndex) {
             if (match != null) {
               // Ambiguous match.
@@ -731,10 +730,10 @@ public class AnalyticsCollector
     public void onTimelineChanged(Timeline timeline) {
       for (int i = 0; i < activeMediaPeriods.size(); i++) {
         activeMediaPeriods.set(
-            i, updateMediaPeriodToNewTimeline(activeMediaPeriods.get(i), timeline));
+            i, updateWindowIndexToNewTimeline(activeMediaPeriods.get(i), timeline));
       }
       if (readingMediaPeriod != null) {
-        readingMediaPeriod = updateMediaPeriodToNewTimeline(readingMediaPeriod, timeline);
+        readingMediaPeriod = updateWindowIndexToNewTimeline(readingMediaPeriod, timeline);
       }
       this.timeline = timeline;
       updateLastReportedPlayingMediaPeriod();
@@ -779,19 +778,17 @@ public class AnalyticsCollector
       }
     }
 
-    private WindowAndMediaPeriodId updateMediaPeriodToNewTimeline(
+    private WindowAndMediaPeriodId updateWindowIndexToNewTimeline(
         WindowAndMediaPeriodId mediaPeriod, Timeline newTimeline) {
       if (newTimeline.isEmpty() || timeline.isEmpty()) {
         return mediaPeriod;
       }
-      Object uid = timeline.getUidOfPeriod(mediaPeriod.mediaPeriodId.periodIndex);
-      int newPeriodIndex = newTimeline.getIndexOfPeriod(uid);
+      int newPeriodIndex = newTimeline.getIndexOfPeriod(mediaPeriod.mediaPeriodId.periodUid);
       if (newPeriodIndex == C.INDEX_UNSET) {
         return mediaPeriod;
       }
       int newWindowIndex = newTimeline.getPeriod(newPeriodIndex, period).windowIndex;
-      return new WindowAndMediaPeriodId(
-          newWindowIndex, mediaPeriod.mediaPeriodId.copyWithPeriodIndex(newPeriodIndex));
+      return new WindowAndMediaPeriodId(newWindowIndex, mediaPeriod.mediaPeriodId);
     }
   }
 

@@ -187,10 +187,28 @@ public final class ExoPlayerTest {
   @Test
   public void testReadAheadToEndDoesNotResetRenderer() throws Exception {
     // Use sufficiently short periods to ensure the player attempts to read all at once.
-    TimelineWindowDefinition windowDefinition =
+    TimelineWindowDefinition windowDefinition0 =
         new TimelineWindowDefinition(
-            /* isSeekable= */ false, /* isDynamic= */ false, /* durationUs= */ 100_000);
-    Timeline timeline = new FakeTimeline(windowDefinition, windowDefinition, windowDefinition);
+            /* periodCount= */ 1,
+            /* id= */ 0,
+            /* isSeekable= */ false,
+            /* isDynamic= */ false,
+            /* durationUs= */ 100_000);
+    TimelineWindowDefinition windowDefinition1 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 1,
+            /* isSeekable= */ false,
+            /* isDynamic= */ false,
+            /* durationUs= */ 100_000);
+    TimelineWindowDefinition windowDefinition2 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 2,
+            /* isSeekable= */ false,
+            /* isDynamic= */ false,
+            /* durationUs= */ 100_000);
+    Timeline timeline = new FakeTimeline(windowDefinition0, windowDefinition1, windowDefinition2);
     final FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     FakeMediaClockRenderer audioRenderer =
         new FakeMediaClockRenderer(Builder.AUDIO_FORMAT) {
@@ -2019,9 +2037,12 @@ public final class ExoPlayerTest {
     // Assert that the second period was re-created from the new timeline.
     assertThat(mediaSource.getCreatedMediaPeriods())
         .containsExactly(
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0),
-            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 1),
-            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 2))
+            new MediaPeriodId(
+                timeline1.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0),
+            new MediaPeriodId(
+                timeline1.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 1),
+            new MediaPeriodId(
+                timeline2.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 2))
         .inOrder();
   }
 
@@ -2057,10 +2078,14 @@ public final class ExoPlayerTest {
     testRunner.assertPlayedPeriodIndices(0, 1, 0, 1);
     assertThat(mediaSource.getCreatedMediaPeriods())
         .containsAllOf(
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0),
-            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 0));
+            new MediaPeriodId(
+                timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0),
+            new MediaPeriodId(
+                timeline.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 0));
     assertThat(mediaSource.getCreatedMediaPeriods())
-        .doesNotContain(new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 1));
+        .doesNotContain(
+            new MediaPeriodId(
+                timeline.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 1));
   }
 
   @Test

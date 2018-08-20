@@ -525,7 +525,6 @@ public final class SsMediaSource extends BaseMediaSource
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-    Assertions.checkArgument(id.periodIndex == 0);
     EventDispatcher eventDispatcher = createEventDispatcher(id);
     SsMediaPeriod period =
         new SsMediaPeriod(

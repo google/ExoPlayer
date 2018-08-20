@@ -251,12 +251,12 @@ public class MediaSourceTestRunner {
   public void assertPrepareAndReleaseAllPeriods() throws InterruptedException {
     Timeline.Period period = new Timeline.Period();
     for (int i = 0; i < timeline.getPeriodCount(); i++) {
-      timeline.getPeriod(i, period);
-      assertPrepareAndReleasePeriod(new MediaPeriodId(i, period.windowIndex));
+      timeline.getPeriod(i, period, /* setIds= */ true);
+      assertPrepareAndReleasePeriod(new MediaPeriodId(period.uid, period.windowIndex));
       for (int adGroupIndex = 0; adGroupIndex < period.getAdGroupCount(); adGroupIndex++) {
         for (int adIndex = 0; adIndex < period.getAdCountInAdGroup(adGroupIndex); adIndex++) {
           assertPrepareAndReleasePeriod(
-              new MediaPeriodId(i, adGroupIndex, adIndex, period.windowIndex));
+              new MediaPeriodId(period.uid, adGroupIndex, adIndex, period.windowIndex));
         }
       }
     }
@@ -272,7 +272,7 @@ public class MediaSourceTestRunner {
     // to releasePeriod.
     MediaPeriodId secondMediaPeriodId =
         new MediaPeriodId(
-            mediaPeriodId.periodIndex,
+            mediaPeriodId.periodUid,
             mediaPeriodId.adGroupIndex,
             mediaPeriodId.adIndexInAdGroup,
             mediaPeriodId.windowSequenceNumber + 1000);
@@ -322,8 +322,8 @@ public class MediaSourceTestRunner {
       int windowIndex = windowIndexAndMediaPeriodId.first;
       MediaPeriodId mediaPeriodId = windowIndexAndMediaPeriodId.second;
       if (expectedLoads.remove(mediaPeriodId)) {
-        assertThat(windowIndex)
-            .isEqualTo(timeline.getPeriod(mediaPeriodId.periodIndex, period).windowIndex);
+        int periodIndex = timeline.getIndexOfPeriod(mediaPeriodId.periodUid);
+        assertThat(windowIndex).isEqualTo(timeline.getPeriod(periodIndex, period).windowIndex);
       }
     }
     assertWithMessage("Not all expected media source loads have been completed.")

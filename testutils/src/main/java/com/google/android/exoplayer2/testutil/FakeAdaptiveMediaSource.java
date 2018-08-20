@@ -53,7 +53,7 @@ public class FakeAdaptiveMediaSource extends FakeMediaSource {
       Allocator allocator,
       EventDispatcher eventDispatcher,
       @Nullable TransferListener transferListener) {
-    Period period = timeline.getPeriod(id.periodIndex, new Period());
+    Period period = timeline.getPeriodByUid(id.periodUid, new Period());
     return new FakeAdaptiveMediaPeriod(
         trackGroupArray,
         eventDispatcher,

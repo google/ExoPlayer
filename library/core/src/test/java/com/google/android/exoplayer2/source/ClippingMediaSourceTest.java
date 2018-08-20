@@ -469,11 +469,11 @@ public final class ClippingMediaSourceTest {
   private static MediaLoadData getClippingMediaSourceMediaLoadData(
       long clippingStartUs, long clippingEndUs, final long eventStartUs, final long eventEndUs)
       throws IOException {
+    Timeline timeline =
+        new SinglePeriodTimeline(
+            TEST_PERIOD_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false);
     FakeMediaSource fakeMediaSource =
-        new FakeMediaSource(
-            new SinglePeriodTimeline(
-                TEST_PERIOD_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false),
-            /* manifest= */ null) {
+        new FakeMediaSource(timeline, /* manifest= */ null) {
           @Override
           protected FakeMediaPeriod createFakeMediaPeriod(
               MediaPeriodId id,
@@ -516,7 +516,8 @@ public final class ClippingMediaSourceTest {
       testRunner.prepareSource();
       // Create period to send the test event configured above.
       testRunner.createPeriod(
-          new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+          new MediaPeriodId(
+              timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0));
       assertThat(reportedMediaLoadData[0]).isNotNull();
     } finally {
       testRunner.release();
@@ -580,7 +581,9 @@ public final class ClippingMediaSourceTest {
       clippedTimelines[0] = testRunner.prepareSource();
       MediaPeriod mediaPeriod =
           testRunner.createPeriod(
-              new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+              new MediaPeriodId(
+                  clippedTimelines[0].getUidOfPeriod(/* periodIndex= */ 0),
+                  /* windowSequenceNumber= */ 0));
       for (int i = 0; i < additionalTimelines.length; i++) {
         fakeMediaSource.setNewSourceInfo(additionalTimelines[i], /* newManifest= */ null);
         clippedTimelines[i + 1] = testRunner.assertTimelineChangeBlocking();

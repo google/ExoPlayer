@@ -176,7 +176,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   // Used to identify the content "child" source for CompositeMediaSource.
   private static final MediaPeriodId DUMMY_CONTENT_MEDIA_PERIOD_ID =
-      new MediaPeriodId(/* periodIndex= */ 0);
+      new MediaPeriodId(/* periodUid= */ new Object());
 
   private final MediaSource contentMediaSource;
   private final MediaSourceFactory adMediaSourceFactory;
@@ -194,7 +194,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   private Object contentManifest;
   private AdPlaybackState adPlaybackState;
   private MediaSource[][] adGroupMediaSources;
-  private long[][] adDurationsUs;
+  private Timeline[][] adGroupTimelines;
 
   /**
    * Constructs a new source that inserts ads linearly with the content specified by {@code
@@ -309,7 +309,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     deferredMediaPeriodByAdMediaSource = new HashMap<>();
     period = new Timeline.Period();
     adGroupMediaSources = new MediaSource[0][];
-    adDurationsUs = new long[0][];
+    adGroupTimelines = new Timeline[0][];
     adsLoader.setSupportedContentTypes(adMediaSourceFactory.getSupportedTypes());
   }
 
@@ -341,8 +341,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
           int adCount = adIndexInAdGroup + 1;
           adGroupMediaSources[adGroupIndex] =
               Arrays.copyOf(adGroupMediaSources[adGroupIndex], adCount);
-          adDurationsUs[adGroupIndex] = Arrays.copyOf(adDurationsUs[adGroupIndex], adCount);
-          Arrays.fill(adDurationsUs[adGroupIndex], oldAdCount, adCount, C.TIME_UNSET);
+          adGroupTimelines[adGroupIndex] = Arrays.copyOf(adGroupTimelines[adGroupIndex], adCount);
         }
         adGroupMediaSources[adGroupIndex][adIndexInAdGroup] = adMediaSource;
         deferredMediaPeriodByAdMediaSource.put(adMediaSource, new ArrayList<>());
@@ -354,8 +353,9 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
           new AdPrepareErrorListener(adUri, adGroupIndex, adIndexInAdGroup));
       List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.get(mediaSource);
       if (mediaPeriods == null) {
-        MediaPeriodId adSourceMediaPeriodId =
-            new MediaPeriodId(/* periodIndex= */ 0, id.windowSequenceNumber);
+        Object periodUid =
+            adGroupTimelines[adGroupIndex][adIndexInAdGroup].getUidOfPeriod(/* periodIndex= */ 0);
+        MediaPeriodId adSourceMediaPeriodId = new MediaPeriodId(periodUid, id.windowSequenceNumber);
         deferredMediaPeriod.createPeriod(adSourceMediaPeriodId);
       } else {
         // Keep track of the deferred media period so it can be populated with the real media period
@@ -391,7 +391,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     contentManifest = null;
     adPlaybackState = null;
     adGroupMediaSources = new MediaSource[0][];
-    adDurationsUs = new long[0][];
+    adGroupTimelines = new Timeline[0][];
     mainHandler.post(adsLoader::detachPlayer);
   }
 
@@ -424,8 +424,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     if (this.adPlaybackState == null) {
       adGroupMediaSources = new MediaSource[adPlaybackState.adGroupCount][];
       Arrays.fill(adGroupMediaSources, new MediaSource[0]);
-      adDurationsUs = new long[adPlaybackState.adGroupCount][];
-      Arrays.fill(adDurationsUs, new long[0]);
+      adGroupTimelines = new Timeline[adPlaybackState.adGroupCount][];
+      Arrays.fill(adGroupTimelines, new Timeline[0]);
     }
     this.adPlaybackState = adPlaybackState;
     maybeUpdateSourceInfo();
@@ -440,13 +440,14 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   private void onAdSourceInfoRefreshed(MediaSource mediaSource, int adGroupIndex,
       int adIndexInAdGroup, Timeline timeline) {
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
-    adDurationsUs[adGroupIndex][adIndexInAdGroup] = timeline.getPeriod(0, period).getDurationUs();
+    adGroupTimelines[adGroupIndex][adIndexInAdGroup] = timeline;
     List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.remove(mediaSource);
     if (mediaPeriods != null) {
+      Object periodUid = timeline.getUidOfPeriod(/* periodIndex= */ 0);
       for (int i = 0; i < mediaPeriods.size(); i++) {
         DeferredMediaPeriod mediaPeriod = mediaPeriods.get(i);
         MediaPeriodId adSourceMediaPeriodId =
-            new MediaPeriodId(/* periodIndex= */ 0, mediaPeriod.id.windowSequenceNumber);
+            new MediaPeriodId(periodUid, mediaPeriod.id.windowSequenceNumber);
         mediaPeriod.createPeriod(adSourceMediaPeriodId);
       }
     }
@@ -455,13 +456,27 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   private void maybeUpdateSourceInfo() {
     if (adPlaybackState != null && contentTimeline != null) {
-      adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
+      adPlaybackState = adPlaybackState.withAdDurationsUs(getAdDurations(adGroupTimelines, period));
       Timeline timeline =
           adPlaybackState.adGroupCount == 0
               ? contentTimeline
               : new SinglePeriodAdTimeline(contentTimeline, adPlaybackState);
       refreshSourceInfo(timeline, contentManifest);
     }
+  }
+
+  private static long[][] getAdDurations(Timeline[][] adTimelines, Timeline.Period period) {
+    long[][] adDurations = new long[adTimelines.length][];
+    for (int i = 0; i < adTimelines.length; i++) {
+      adDurations[i] = new long[adTimelines[i].length];
+      for (int j = 0; j < adTimelines[i].length; j++) {
+        adDurations[i][j] =
+            adTimelines[i][j] == null
+                ? C.TIME_UNSET
+                : adTimelines[i][j].getPeriod(/* periodIndex= */ 0, period).getDurationUs();
+      }
+    }
+    return adDurations;
   }
 
   /** Listener for component events. All methods are called on the main thread. */

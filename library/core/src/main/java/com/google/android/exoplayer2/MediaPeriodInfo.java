@@ -62,20 +62,6 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
     this.isFinal = isFinal;
   }
 
-  /**
-   * Returns a copy of this instance with the period identifier's period index set to the specified
-   * value.
-   */
-  public MediaPeriodInfo copyWithPeriodIndex(int periodIndex) {
-    return new MediaPeriodInfo(
-        id.copyWithPeriodIndex(periodIndex),
-        startPositionUs,
-        contentPositionUs,
-        durationUs,
-        isLastInTimelinePeriod,
-        isFinal);
-  }
-
   /** Returns a copy of this instance with the start position set to the specified value. */
   public MediaPeriodInfo copyWithStartPositionUs(long startPositionUs) {
     return new MediaPeriodInfo(

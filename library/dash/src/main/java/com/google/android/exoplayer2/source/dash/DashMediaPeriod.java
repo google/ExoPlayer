@@ -73,8 +73,8 @@ import java.util.List;
   private final PlayerEmsgHandler playerEmsgHandler;
   private final IdentityHashMap<ChunkSampleStream<DashChunkSource>, PlayerTrackEmsgHandler>
       trackEmsgHandlerBySampleStream;
+  private final EventDispatcher eventDispatcher;
 
-  private EventDispatcher eventDispatcher;
   private @Nullable Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
   private EventSampleStream[] eventSampleStreams;
@@ -131,13 +131,6 @@ import java.util.List;
    */
   public void updateManifest(DashManifest manifest, int periodIndex) {
     this.manifest = manifest;
-    if (this.periodIndex != periodIndex) {
-      eventDispatcher =
-          eventDispatcher.withParameters(
-              /* windowIndex= */ 0,
-              eventDispatcher.mediaPeriodId.copyWithPeriodIndex(periodIndex),
-              manifest.getPeriod(periodIndex).startMs);
-    }
     this.periodIndex = periodIndex;
     playerEmsgHandler.updateManifest(manifest);
     if (sampleStreams != null) {

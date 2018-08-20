@@ -702,13 +702,13 @@ public abstract class Timeline {
    * Calls {@link #getPeriodPosition(Window, Period, int, long, long)} with a zero default position
    * projection.
    */
-  public final Pair<Integer, Long> getPeriodPosition(Window window, Period period, int windowIndex,
-      long windowPositionUs) {
+  public final Pair<Object, Long> getPeriodPosition(
+      Window window, Period period, int windowIndex, long windowPositionUs) {
     return getPeriodPosition(window, period, windowIndex, windowPositionUs, 0);
   }
 
   /**
-   * Converts (windowIndex, windowPositionUs) to the corresponding (periodIndex, periodPositionUs).
+   * Converts (windowIndex, windowPositionUs) to the corresponding (periodUid, periodPositionUs).
    *
    * @param window A {@link Window} that may be overwritten.
    * @param period A {@link Period} that may be overwritten.
@@ -717,12 +717,16 @@ public abstract class Timeline {
    *     start position.
    * @param defaultPositionProjectionUs If {@code windowPositionUs} is {@link C#TIME_UNSET}, the
    *     duration into the future by which the window's position should be projected.
-   * @return The corresponding (periodIndex, periodPositionUs), or null if {@code #windowPositionUs}
+   * @return The corresponding (periodUid, periodPositionUs), or null if {@code #windowPositionUs}
    *     is {@link C#TIME_UNSET}, {@code defaultPositionProjectionUs} is non-zero, and the window's
    *     position could not be projected by {@code defaultPositionProjectionUs}.
    */
-  public final Pair<Integer, Long> getPeriodPosition(Window window, Period period, int windowIndex,
-      long windowPositionUs, long defaultPositionProjectionUs) {
+  public final Pair<Object, Long> getPeriodPosition(
+      Window window,
+      Period period,
+      int windowIndex,
+      long windowPositionUs,
+      long defaultPositionProjectionUs) {
     Assertions.checkIndex(windowIndex, 0, getWindowCount());
     getWindow(windowIndex, window, false, defaultPositionProjectionUs);
     if (windowPositionUs == C.TIME_UNSET) {
@@ -733,13 +737,13 @@ public abstract class Timeline {
     }
     int periodIndex = window.firstPeriodIndex;
     long periodPositionUs = window.getPositionInFirstPeriodUs() + windowPositionUs;
-    long periodDurationUs = getPeriod(periodIndex, period).getDurationUs();
+    long periodDurationUs = getPeriod(periodIndex, period, /* setIds= */ true).getDurationUs();
     while (periodDurationUs != C.TIME_UNSET && periodPositionUs >= periodDurationUs
         && periodIndex < window.lastPeriodIndex) {
       periodPositionUs -= periodDurationUs;
-      periodDurationUs = getPeriod(++periodIndex, period).getDurationUs();
+      periodDurationUs = getPeriod(++periodIndex, period, /* setIds= */ true).getDurationUs();
     }
-    return Pair.create(periodIndex, periodPositionUs);
+    return Pair.create(period.uid, periodPositionUs);
   }
 
   /**
