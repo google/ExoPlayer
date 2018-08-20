@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.net.Uri;
-import android.test.ActivityInstrumentationTestCase2;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.DashUtil;
@@ -37,15 +39,21 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-/**
- * Tests downloaded DASH playbacks.
- */
-public final class DashDownloadTest extends ActivityInstrumentationTestCase2<HostActivity> {
+/** Tests downloaded DASH playbacks. */
+@RunWith(AndroidJUnit4.class)
+public final class DashDownloadTest {
 
   private static final String TAG = "DashDownloadTest";
 
   private static final Uri MANIFEST_URI = Uri.parse(DashTestData.H264_MANIFEST);
+
+  @Rule public ActivityTestRule<HostActivity> testRule = new ActivityTestRule<>(HostActivity.class);
 
   private DashTestRunner testRunner;
   private File tempFolder;
@@ -53,20 +61,16 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
   private DefaultHttpDataSourceFactory httpDataSourceFactory;
   private CacheDataSourceFactory offlineDataSourceFactory;
 
-  public DashDownloadTest() {
-    super(HostActivity.class);
-  }
-
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    testRunner = new DashTestRunner(TAG, getActivity(), getInstrumentation())
-        .setManifestUrl(DashTestData.H264_MANIFEST)
-        .setFullPlaybackNoSeeking(true)
-        .setCanIncludeAdditionalVideoFormats(false)
-        .setAudioVideoFormats(DashTestData.AAC_AUDIO_REPRESENTATION_ID,
-            DashTestData.H264_CDD_FIXED);
-    tempFolder = Util.createTempDirectory(getActivity(), "ExoPlayerTest");
+  @Before
+  public void setUp() throws Exception {
+    testRunner =
+        new DashTestRunner(TAG, testRule.getActivity(), getInstrumentation())
+            .setManifestUrl(DashTestData.H264_MANIFEST)
+            .setFullPlaybackNoSeeking(true)
+            .setCanIncludeAdditionalVideoFormats(false)
+            .setAudioVideoFormats(
+                DashTestData.AAC_AUDIO_REPRESENTATION_ID, DashTestData.H264_CDD_FIXED);
+    tempFolder = Util.createTempDirectory(testRule.getActivity(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
     httpDataSourceFactory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
     offlineDataSourceFactory =
@@ -74,16 +78,16 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
             cache, DummyDataSource.FACTORY, CacheDataSource.FLAG_BLOCK_ON_CACHE);
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     testRunner = null;
     Util.recursiveDelete(tempFolder);
     cache = null;
-    super.tearDown();
   }
 
   // Download tests
 
+  @Test
   public void testDownload() throws Exception {
     if (Util.SDK_INT < 16) {
       return; // Pass.

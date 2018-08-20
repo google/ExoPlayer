@@ -15,17 +15,24 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-import android.test.ActivityInstrumentationTestCase2;
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
+
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-/**
- * Test playback of encrypted DASH streams using different CENC scheme types.
- */
-public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCase2<HostActivity> {
+/** Test playback of encrypted DASH streams using different CENC scheme types. */
+@RunWith(AndroidJUnit4.class)
+public final class CommonEncryptionDrmTest {
 
   private static final String TAG = "CencDrmTest";
 
@@ -44,29 +51,26 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
       .seekAndWait(270000).delay(10000).seekAndWait(200000).delay(10000).seekAndWait(732000)
       .build();
 
+  @Rule public ActivityTestRule<HostActivity> testRule = new ActivityTestRule<>(HostActivity.class);
+
   private DashTestRunner testRunner;
 
-  public CommonEncryptionDrmTest() {
-    super(HostActivity.class);
+  @Before
+  public void setUp() {
+    testRunner =
+        new DashTestRunner(TAG, testRule.getActivity(), getInstrumentation())
+            .setWidevineInfo(MimeTypes.VIDEO_H264, false)
+            .setActionSchedule(ACTION_SCHEDULE_WITH_SEEKS)
+            .setAudioVideoFormats(ID_AUDIO, IDS_VIDEO)
+            .setCanIncludeAdditionalVideoFormats(true);
   }
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-
-    testRunner = new DashTestRunner(TAG, getActivity(), getInstrumentation())
-        .setWidevineInfo(MimeTypes.VIDEO_H264, false)
-        .setActionSchedule(ACTION_SCHEDULE_WITH_SEEKS)
-        .setAudioVideoFormats(ID_AUDIO, IDS_VIDEO)
-        .setCanIncludeAdditionalVideoFormats(true);
-  }
-
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     testRunner = null;
-    super.tearDown();
   }
 
+  @Test
   public void testCencSchemeTypeV18() {
     if (Util.SDK_INT < 18) {
       // Pass.
@@ -75,6 +79,7 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
     testRunner.setStreamName("test_widevine_h264_scheme_cenc").setManifestUrl(URL_cenc).run();
   }
 
+  @Test
   public void testCbc1SchemeTypeV25() {
     if (Util.SDK_INT < 25) {
       // cbc1 support was added in API 24, but it is stable from API 25 onwards.
@@ -85,6 +90,7 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
     testRunner.setStreamName("test_widevine_h264_scheme_cbc1").setManifestUrl(URL_cbc1).run();
   }
 
+  @Test
   public void testCbcsSchemeTypeV25() {
     if (Util.SDK_INT < 25) {
       // cbcs support was added in API 24, but it is stable from API 25 onwards.
@@ -95,8 +101,8 @@ public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCa
     testRunner.setStreamName("test_widevine_h264_scheme_cbcs").setManifestUrl(URL_cbcs).run();
   }
 
+  @Test
   public void testCensSchemeTypeV25() {
     // TODO: Implement once content is available. Track [internal: b/31219813].
   }
-
 }
