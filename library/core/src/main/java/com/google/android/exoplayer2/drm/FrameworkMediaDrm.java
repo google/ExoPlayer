@@ -142,9 +142,10 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
       }
     }
 
-    // Prior to API level 26 the ClearKey CDM only accepted "cenc" as the scheme for MP4.
+    // Prior to API level 26 the ClearKey CDM only accepted "cenc" as the scheme for MP4. 
+    // For APIs less than 27 ClearKey UUID is changed to Common PSSH UUID in the constructor
     if (Util.SDK_INT < 26
-        && C.CLEARKEY_UUID.equals(uuid)
+        && C.COMMON_PSSH_UUID.equals(uuid)
         && (MimeTypes.VIDEO_MP4.equals(mimeType) || MimeTypes.AUDIO_MP4.equals(mimeType))) {
       mimeType = CENC_SCHEME_MIME_TYPE;
     }
