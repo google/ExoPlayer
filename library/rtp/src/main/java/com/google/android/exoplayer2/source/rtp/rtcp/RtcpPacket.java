@@ -193,7 +193,7 @@ public abstract class RtcpPacket {
 
                     RtcpChunk[] chunks = getChunksFromPayload(sdesPayload, offset + 4, sourceCount);
 
-                    if (sourceCount == chunks.length) {
+                    if (chunks != null && sourceCount == chunks.length) {
                         builder.addPacket(new RtcpSdesPacket.Builder()
                                 .setChunks(chunks)
                                 .build());
