@@ -193,6 +193,18 @@ public interface Renderer extends PlayerMessage.Target {
   void resetPosition(long positionUs) throws ExoPlaybackException;
 
   /**
+   * Sets the operating rate of this renderer, where 1 is the default rate, 2 is twice the default
+   * rate, 0.5 is half the default rate and so on. The operating rate is a hint to the renderer of
+   * the speed at which playback will proceed, and may be used for resource planning.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param operatingRate The operating rate.
+   * @throws ExoPlaybackException If an error occurs handling the operating rate.
+   */
+  default void setOperatingRate(float operatingRate) throws ExoPlaybackException {};
+
+  /**
    * Incrementally renders the {@link SampleStream}.
    * <p>
    * If the renderer is in the {@link #STATE_ENABLED} state then each call to this method will do

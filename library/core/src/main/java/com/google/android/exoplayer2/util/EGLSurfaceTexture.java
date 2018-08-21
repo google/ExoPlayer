@@ -135,11 +135,24 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
         GLES20.glDeleteTextures(1, textureIdHolder, 0);
       }
     } finally {
+      if (display != null && !display.equals(EGL14.EGL_NO_DISPLAY)) {
+        EGL14.eglMakeCurrent(
+            display, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+      }
       if (surface != null && !surface.equals(EGL14.EGL_NO_SURFACE)) {
         EGL14.eglDestroySurface(display, surface);
       }
       if (context != null) {
         EGL14.eglDestroyContext(display, context);
+      }
+      // EGL14.eglReleaseThread could crash before Android K (see [internal: b/11327779]).
+      if (Util.SDK_INT >= 19) {
+        EGL14.eglReleaseThread();
+      }
+      if (display != null && !display.equals(EGL14.EGL_NO_DISPLAY)) {
+        // Android is unusual in that it uses a reference-counted EGLDisplay.  So for
+        // every eglInitialize() we need an eglTerminate().
+        EGL14.eglTerminate(display);
       }
       display = null;
       context = null;

@@ -32,8 +32,7 @@ import java.util.Map;
 /* package */ final class CastTimeline extends Timeline {
 
   public static final CastTimeline EMPTY_CAST_TIMELINE =
-      new CastTimeline(
-          Collections.<MediaQueueItem>emptyList(), Collections.<String, Long>emptyMap());
+      new CastTimeline(Collections.emptyList(), Collections.emptyMap());
 
   private final SparseIntArray idsToIndex;
   private final int[] ids;
@@ -106,6 +105,11 @@ import java.util.Map;
   @Override
   public int getIndexOfPeriod(Object uid) {
     return uid instanceof Integer ? idsToIndex.get((int) uid, C.INDEX_UNSET) : C.INDEX_UNSET;
+  }
+
+  @Override
+  public Object getUidOfPeriod(int periodIndex) {
+    return ids[periodIndex];
   }
 
   // equals and hashCode implementations.

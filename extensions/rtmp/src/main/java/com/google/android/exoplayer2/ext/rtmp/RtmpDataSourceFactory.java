@@ -25,17 +25,14 @@ import com.google.android.exoplayer2.upstream.TransferListener;
  */
 public final class RtmpDataSourceFactory implements DataSource.Factory {
 
-  @Nullable
-  private final TransferListener<? super RtmpDataSource> listener;
+  private final @Nullable TransferListener listener;
 
   public RtmpDataSourceFactory() {
     this(null);
   }
 
-  /**
-   * @param listener An optional listener.
-   */
-  public RtmpDataSourceFactory(@Nullable TransferListener<? super RtmpDataSource> listener) {
+  /** @param listener An optional listener. */
+  public RtmpDataSourceFactory(@Nullable TransferListener listener) {
     this.listener = listener;
   }
 

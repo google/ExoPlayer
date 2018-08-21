@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -128,12 +129,19 @@ public class SsManifestTest {
         768,
         null,
         formats,
-        Collections.<Long>emptyList(),
+        Collections.emptyList(),
         0);
   }
 
   private static Format newFormat(String id) {
     return Format.createContainerFormat(
-        id, MimeTypes.VIDEO_MP4, MimeTypes.VIDEO_H264, null, Format.NO_VALUE, 0, null);
+        id,
+        /* label= */ null,
+        MimeTypes.VIDEO_MP4,
+        MimeTypes.VIDEO_H264,
+        /* codecs= */ null,
+        /* bitrate= */ Format.NO_VALUE,
+        /* selectionFlags= */ 0,
+        /* language= */ null);
   }
 }

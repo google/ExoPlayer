@@ -16,9 +16,12 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Tees data into a {@link DataSink} as the data is read.
@@ -41,6 +44,11 @@ public final class TeeDataSource implements DataSource {
   }
 
   @Override
+  public void addTransferListener(TransferListener transferListener) {
+    upstream.addTransferListener(transferListener);
+  }
+
+  @Override
   public long open(DataSpec dataSpec) throws IOException {
     bytesRemaining = upstream.open(dataSpec);
     if (bytesRemaining == 0) {
@@ -48,14 +56,7 @@ public final class TeeDataSource implements DataSource {
     }
     if (dataSpec.length == C.LENGTH_UNSET && bytesRemaining != C.LENGTH_UNSET) {
       // Reconstruct dataSpec in order to provide the resolved length to the sink.
-      dataSpec =
-          new DataSpec(
-              dataSpec.uri,
-              dataSpec.absoluteStreamPosition,
-              dataSpec.position,
-              bytesRemaining,
-              dataSpec.key,
-              dataSpec.flags);
+      dataSpec = dataSpec.subrange(0, bytesRemaining);
     }
     dataSinkNeedsClosing = true;
     dataSink.open(dataSpec);
@@ -79,8 +80,13 @@ public final class TeeDataSource implements DataSource {
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return upstream.getUri();
+  }
+
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    return upstream.getResponseHeaders();
   }
 
   @Override

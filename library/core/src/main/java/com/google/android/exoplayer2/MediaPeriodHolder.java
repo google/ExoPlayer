@@ -39,7 +39,6 @@ import com.google.android.exoplayer2.util.Assertions;
   public final SampleStream[] sampleStreams;
   public final boolean[] mayRetainStreamFlags;
 
-  public long rendererPositionOffsetUs;
   public boolean prepared;
   public boolean hasEnabledTracks;
   public MediaPeriodInfo info;
@@ -51,6 +50,7 @@ import com.google.android.exoplayer2.util.Assertions;
   private final TrackSelector trackSelector;
   private final MediaSource mediaSource;
 
+  private long rendererPositionOffsetUs;
   private TrackSelectorResult periodTrackSelectorResult;
 
   /**
@@ -82,13 +82,13 @@ import com.google.android.exoplayer2.util.Assertions;
     sampleStreams = new SampleStream[rendererCapabilities.length];
     mayRetainStreamFlags = new boolean[rendererCapabilities.length];
     MediaPeriod mediaPeriod = mediaSource.createPeriod(info.id, allocator);
-    if (info.endPositionUs != C.TIME_END_OF_SOURCE) {
+    if (info.id.endPositionUs != C.TIME_END_OF_SOURCE) {
       mediaPeriod =
           new ClippingMediaPeriod(
               mediaPeriod,
               /* enableInitialDiscontinuity= */ true,
               /* startUs= */ 0,
-              info.endPositionUs);
+              info.id.endPositionUs);
     }
     this.mediaPeriod = mediaPeriod;
   }
@@ -103,6 +103,10 @@ import com.google.android.exoplayer2.util.Assertions;
 
   public long getRendererOffset() {
     return rendererPositionOffsetUs;
+  }
+
+  public long getStartPositionRendererTime() {
+    return info.startPositionUs + rendererPositionOffsetUs;
   }
 
   public boolean isFullyBuffered() {
@@ -127,7 +131,8 @@ import com.google.android.exoplayer2.util.Assertions;
     if (!prepared) {
       return info.startPositionUs;
     }
-    long bufferedPositionUs = mediaPeriod.getBufferedPositionUs();
+    long bufferedPositionUs =
+        hasEnabledTracks ? mediaPeriod.getBufferedPositionUs() : C.TIME_END_OF_SOURCE;
     return bufferedPositionUs == C.TIME_END_OF_SOURCE && convertEosToDuration
         ? info.durationUs
         : bufferedPositionUs;
@@ -218,7 +223,7 @@ import com.google.android.exoplayer2.util.Assertions;
   public void release() {
     updatePeriodTrackSelectorResult(null);
     try {
-      if (info.endPositionUs != C.TIME_END_OF_SOURCE) {
+      if (info.id.endPositionUs != C.TIME_END_OF_SOURCE) {
         mediaSource.releasePeriod(((ClippingMediaPeriod) mediaPeriod).mediaPeriod);
       } else {
         mediaSource.releasePeriod(mediaPeriod);

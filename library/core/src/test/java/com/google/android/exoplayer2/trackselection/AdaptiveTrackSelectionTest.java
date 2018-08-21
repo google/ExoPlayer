@@ -421,10 +421,5 @@ public final class AdaptiveTrackSelectionTest {
     public boolean isLoadCompleted() {
       return true;
     }
-
-    @Override
-    public long bytesLoaded() {
-      return 0;
-    }
   }
 }

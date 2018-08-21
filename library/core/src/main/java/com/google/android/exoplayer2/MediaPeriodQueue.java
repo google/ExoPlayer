@@ -47,17 +47,18 @@ import com.google.android.exoplayer2.util.Assertions;
   private Timeline timeline;
   private @RepeatMode int repeatMode;
   private boolean shuffleModeEnabled;
-  private MediaPeriodHolder playing;
-  private MediaPeriodHolder reading;
-  private MediaPeriodHolder loading;
+  private @Nullable MediaPeriodHolder playing;
+  private @Nullable MediaPeriodHolder reading;
+  private @Nullable MediaPeriodHolder loading;
   private int length;
-  private Object oldFrontPeriodUid;
+  private @Nullable Object oldFrontPeriodUid;
   private long oldFrontPeriodWindowSequenceNumber;
 
   /** Creates a new media period queue. */
   public MediaPeriodQueue() {
     period = new Timeline.Period();
     window = new Timeline.Window();
+    timeline = Timeline.EMPTY;
   }
 
   /**
@@ -228,11 +229,13 @@ import com.google.android.exoplayer2.util.Assertions;
         reading = playing.next;
       }
       playing.release();
-      playing = playing.next;
       length--;
       if (length == 0) {
         loading = null;
+        oldFrontPeriodUid = playing.uid;
+        oldFrontPeriodWindowSequenceNumber = playing.info.id.windowSequenceNumber;
       }
+      playing = playing.next;
     } else {
       playing = loading;
       reading = loading;
@@ -312,7 +315,7 @@ import com.google.android.exoplayer2.util.Assertions;
       } else {
         // Check this period holder still follows the previous one, based on the new timeline.
         if (periodIndex == C.INDEX_UNSET
-            || !periodHolder.uid.equals(timeline.getPeriod(periodIndex, period, true).uid)) {
+            || !periodHolder.uid.equals(timeline.getUidOfPeriod(periodIndex))) {
           // The holder uid is inconsistent with the new timeline.
           return !removeAfter(previousPeriodHolder);
         }
@@ -389,7 +392,12 @@ import com.google.android.exoplayer2.util.Assertions;
     timeline.getPeriod(periodIndex, period);
     int adGroupIndex = period.getAdGroupIndexForPositionUs(positionUs);
     if (adGroupIndex == C.INDEX_UNSET) {
-      return new MediaPeriodId(periodIndex, windowSequenceNumber);
+      int nextAdGroupIndex = period.getAdGroupIndexAfterPositionUs(positionUs);
+      long endPositionUs =
+          nextAdGroupIndex == C.INDEX_UNSET
+              ? C.TIME_END_OF_SOURCE
+              : period.getAdGroupTimeUs(nextAdGroupIndex);
+      return new MediaPeriodId(periodIndex, windowSequenceNumber, endPositionUs);
     } else {
       int adIndexInAdGroup = period.getFirstAdIndexToPlay(adGroupIndex);
       return new MediaPeriodId(periodIndex, adGroupIndex, adIndexInAdGroup, windowSequenceNumber);
@@ -448,7 +456,6 @@ import com.google.android.exoplayer2.util.Assertions;
   private boolean canKeepMediaPeriodHolder(MediaPeriodHolder periodHolder, MediaPeriodInfo info) {
     MediaPeriodInfo periodHolderInfo = periodHolder.info;
     return periodHolderInfo.startPositionUs == info.startPositionUs
-        && periodHolderInfo.endPositionUs == info.endPositionUs
         && periodHolderInfo.id.equals(info.id);
   }
 
@@ -591,14 +598,14 @@ import com.google.android.exoplayer2.util.Assertions;
             mediaPeriodInfo.contentPositionUs,
             currentPeriodId.windowSequenceNumber);
       }
-    } else if (mediaPeriodInfo.endPositionUs != C.TIME_END_OF_SOURCE) {
+    } else if (mediaPeriodInfo.id.endPositionUs != C.TIME_END_OF_SOURCE) {
       // Play the next ad group if it's available.
-      int nextAdGroupIndex = period.getAdGroupIndexForPositionUs(mediaPeriodInfo.endPositionUs);
+      int nextAdGroupIndex = period.getAdGroupIndexForPositionUs(mediaPeriodInfo.id.endPositionUs);
       if (nextAdGroupIndex == C.INDEX_UNSET) {
         // The next ad group can't be played. Play content from the ad group position instead.
         return getMediaPeriodInfoForContent(
             currentPeriodId.periodIndex,
-            mediaPeriodInfo.endPositionUs,
+            mediaPeriodInfo.id.endPositionUs,
             currentPeriodId.windowSequenceNumber);
       }
       int adIndexInAdGroup = period.getFirstAdIndexToPlay(nextAdGroupIndex);
@@ -608,7 +615,7 @@ import com.google.android.exoplayer2.util.Assertions;
               currentPeriodId.periodIndex,
               nextAdGroupIndex,
               adIndexInAdGroup,
-              mediaPeriodInfo.endPositionUs,
+              mediaPeriodInfo.id.endPositionUs,
               currentPeriodId.windowSequenceNumber);
     } else {
       // Check if the postroll ad should be played.
@@ -637,18 +644,18 @@ import com.google.android.exoplayer2.util.Assertions;
 
   private MediaPeriodInfo getUpdatedMediaPeriodInfo(MediaPeriodInfo info, MediaPeriodId newId) {
     long startPositionUs = info.startPositionUs;
-    long endPositionUs = info.endPositionUs;
-    boolean isLastInPeriod = isLastInPeriod(newId, endPositionUs);
+    boolean isLastInPeriod = isLastInPeriod(newId);
     boolean isLastInTimeline = isLastInTimeline(newId, isLastInPeriod);
     timeline.getPeriod(newId.periodIndex, period);
     long durationUs =
         newId.isAd()
             ? period.getAdDurationUs(newId.adGroupIndex, newId.adIndexInAdGroup)
-            : (endPositionUs == C.TIME_END_OF_SOURCE ? period.getDurationUs() : endPositionUs);
+            : (newId.endPositionUs == C.TIME_END_OF_SOURCE
+                ? period.getDurationUs()
+                : newId.endPositionUs);
     return new MediaPeriodInfo(
         newId,
         startPositionUs,
-        endPositionUs,
         info.contentPositionUs,
         durationUs,
         isLastInPeriod,
@@ -681,7 +688,7 @@ import com.google.android.exoplayer2.util.Assertions;
       long windowSequenceNumber) {
     MediaPeriodId id =
         new MediaPeriodId(periodIndex, adGroupIndex, adIndexInAdGroup, windowSequenceNumber);
-    boolean isLastInPeriod = isLastInPeriod(id, C.TIME_END_OF_SOURCE);
+    boolean isLastInPeriod = isLastInPeriod(id);
     boolean isLastInTimeline = isLastInTimeline(id, isLastInPeriod);
     long durationUs =
         timeline
@@ -694,7 +701,6 @@ import com.google.android.exoplayer2.util.Assertions;
     return new MediaPeriodInfo(
         id,
         startPositionUs,
-        C.TIME_END_OF_SOURCE,
         contentPositionUs,
         durationUs,
         isLastInPeriod,
@@ -703,21 +709,22 @@ import com.google.android.exoplayer2.util.Assertions;
 
   private MediaPeriodInfo getMediaPeriodInfoForContent(
       int periodIndex, long startPositionUs, long windowSequenceNumber) {
-    MediaPeriodId id = new MediaPeriodId(periodIndex, windowSequenceNumber);
-    timeline.getPeriod(id.periodIndex, period);
     int nextAdGroupIndex = period.getAdGroupIndexAfterPositionUs(startPositionUs);
-    long endUs =
+    long endPositionUs =
         nextAdGroupIndex == C.INDEX_UNSET
             ? C.TIME_END_OF_SOURCE
             : period.getAdGroupTimeUs(nextAdGroupIndex);
-    boolean isLastInPeriod = isLastInPeriod(id, endUs);
+    MediaPeriodId id = new MediaPeriodId(periodIndex, windowSequenceNumber, endPositionUs);
+    timeline.getPeriod(id.periodIndex, period);
+    boolean isLastInPeriod = isLastInPeriod(id);
     boolean isLastInTimeline = isLastInTimeline(id, isLastInPeriod);
-    long durationUs = endUs == C.TIME_END_OF_SOURCE ? period.getDurationUs() : endUs;
+    long durationUs =
+        endPositionUs == C.TIME_END_OF_SOURCE ? period.getDurationUs() : endPositionUs;
     return new MediaPeriodInfo(
-        id, startPositionUs, endUs, C.TIME_UNSET, durationUs, isLastInPeriod, isLastInTimeline);
+        id, startPositionUs, C.TIME_UNSET, durationUs, isLastInPeriod, isLastInTimeline);
   }
 
-  private boolean isLastInPeriod(MediaPeriodId id, long endPositionUs) {
+  private boolean isLastInPeriod(MediaPeriodId id) {
     int adGroupCount = timeline.getPeriod(id.periodIndex, period).getAdGroupCount();
     if (adGroupCount == 0) {
       return true;
@@ -727,7 +734,7 @@ import com.google.android.exoplayer2.util.Assertions;
     boolean isAd = id.isAd();
     if (period.getAdGroupTimeUs(lastAdGroupIndex) != C.TIME_END_OF_SOURCE) {
       // There's no postroll ad.
-      return !isAd && endPositionUs == C.TIME_END_OF_SOURCE;
+      return !isAd && id.endPositionUs == C.TIME_END_OF_SOURCE;
     }
 
     int postrollAdCount = period.getAdCountInAdGroup(lastAdGroupIndex);

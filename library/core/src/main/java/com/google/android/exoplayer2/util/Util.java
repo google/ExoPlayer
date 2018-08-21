@@ -25,11 +25,15 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Point;
+import android.media.AudioFormat;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcel;
+import android.security.NetworkSecurityPolicy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
@@ -66,6 +70,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
+import org.checkerframework.checker.initialization.qual.UnknownInitialization;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
 /**
@@ -178,6 +187,29 @@ public final class Util {
   }
 
   /**
+   * Returns whether it may be possible to load the given URIs based on the network security
+   * policy's cleartext traffic permissions.
+   *
+   * @param uris A list of URIs that will be loaded.
+   * @return Whether it may be possible to load the given URIs.
+   */
+  @TargetApi(24)
+  public static boolean checkCleartextTrafficPermitted(Uri... uris) {
+    if (Util.SDK_INT < 24) {
+      // We assume cleartext traffic is permitted.
+      return true;
+    }
+    for (Uri uri : uris) {
+      if ("http".equals(uri.getScheme())
+          && !NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted(uri.getHost())) {
+        // The security policy prevents cleartext traffic.
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Returns true if the URI is a path to a local file or a reference to a local file.
    *
    * @param uri The uri to test.
@@ -230,6 +262,24 @@ public final class Util {
   }
 
   /**
+   * Casts a nullable variable to a non-null variable without runtime null check.
+   *
+   * <p>Use {@link Assertions#checkNotNull(Object)} to throw if the value is null.
+   */
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @EnsuresNonNull("#1")
+  public static <T> T castNonNull(@Nullable T value) {
+    return value;
+  }
+
+  /** Casts a nullable type array to a non-null type array without runtime null check. */
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
+  @EnsuresNonNull("#1")
+  public static <T> T[] castNonNullTypeArray(@NullableType T[] value) {
+    return value;
+  }
+
+  /**
    * Copies and optionally truncates an array. Prevents null array elements created by {@link
    * Arrays#copyOf(Object[], int)} by ensuring the new length does not exceed the current length.
    *
@@ -237,10 +287,51 @@ public final class Util {
    * @param length The output array length. Must be less or equal to the length of the input array.
    * @return The copied array.
    */
-  @SuppressWarnings("nullness:assignment.type.incompatible")
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
   public static <T> T[] nullSafeArrayCopy(T[] input, int length) {
     Assertions.checkArgument(length <= input.length);
     return Arrays.copyOf(input, length);
+  }
+
+  /**
+   * Creates a {@link Handler} with the specified {@link Handler.Callback} on the current {@link
+   * Looper} thread. The method accepts partially initialized objects as callback under the
+   * assumption that the Handler won't be used to send messages until the callback is fully
+   * initialized.
+   *
+   * <p>If the current thread doesn't have a {@link Looper}, the application's main thread {@link
+   * Looper} is used.
+   *
+   * @param callback A {@link Handler.Callback}. May be a partially initialized class.
+   * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
+   */
+  public static Handler createHandler(Handler.@UnknownInitialization Callback callback) {
+    return createHandler(getLooper(), callback);
+  }
+
+  /**
+   * Creates a {@link Handler} with the specified {@link Handler.Callback} on the specified {@link
+   * Looper} thread. The method accepts partially initialized objects as callback under the
+   * assumption that the Handler won't be used to send messages until the callback is fully
+   * initialized.
+   *
+   * @param looper A {@link Looper} to run the callback on.
+   * @param callback A {@link Handler.Callback}. May be a partially initialized class.
+   * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
+   */
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
+  public static Handler createHandler(
+      Looper looper, Handler.@UnknownInitialization Callback callback) {
+    return new Handler(looper, callback);
+  }
+
+  /**
+   * Returns the {@link Looper} associated with the current thread, or the {@link Looper} of the
+   * application's main thread if the current thread doesn't have a {@link Looper}.
+   */
+  public static Looper getLooper() {
+    Looper myLooper = Looper.myLooper();
+    return myLooper != null ? myLooper : Looper.getMainLooper();
   }
 
   /**
@@ -583,10 +674,10 @@ public final class Util {
   /**
    * Returns the index of the largest element in {@code list} that is less than (or optionally equal
    * to) a specified {@code value}.
-   * <p>
-   * The search is performed using a binary search algorithm, so the list must be sorted. If the
-   * list contains multiple elements equal to {@code value} and {@code inclusive} is true, the
-   * index of the first one will be returned.
+   *
+   * <p>The search is performed using a binary search algorithm, so the list must be sorted. If the
+   * list contains multiple elements equal to {@code value} and {@code inclusive} is true, the index
+   * of the first one will be returned.
    *
    * @param <T> The type of values being searched.
    * @param list The list to search.
@@ -599,8 +690,11 @@ public final class Util {
    * @return The index of the largest element in {@code list} that is less than (or optionally equal
    *     to) {@code value}.
    */
-  public static <T> int binarySearchFloor(List<? extends Comparable<? super T>> list, T value,
-      boolean inclusive, boolean stayInBounds) {
+  public static <T extends Comparable<? super T>> int binarySearchFloor(
+      List<? extends Comparable<? super T>> list,
+      T value,
+      boolean inclusive,
+      boolean stayInBounds) {
     int index = Collections.binarySearch(list, value);
     if (index < 0) {
       index = -(index + 2);
@@ -649,10 +743,10 @@ public final class Util {
   /**
    * Returns the index of the smallest element in {@code list} that is greater than (or optionally
    * equal to) a specified value.
-   * <p>
-   * The search is performed using a binary search algorithm, so the list must be sorted. If the
-   * list contains multiple elements equal to {@code value} and {@code inclusive} is true, the
-   * index of the last one will be returned.
+   *
+   * <p>The search is performed using a binary search algorithm, so the list must be sorted. If the
+   * list contains multiple elements equal to {@code value} and {@code inclusive} is true, the index
+   * of the last one will be returned.
    *
    * @param <T> The type of values being searched.
    * @param list The list to search.
@@ -661,13 +755,16 @@ public final class Util {
    *     index. If false then the returned index corresponds to the smallest element strictly
    *     greater than the value.
    * @param stayInBounds If true, then {@code (list.size() - 1)} will be returned in the case that
-   *     the value is greater than the largest element in the list. If false then
-   *     {@code list.size()} will be returned.
+   *     the value is greater than the largest element in the list. If false then {@code
+   *     list.size()} will be returned.
    * @return The index of the smallest element in {@code list} that is greater than (or optionally
    *     equal to) {@code value}.
    */
-  public static <T> int binarySearchCeil(List<? extends Comparable<? super T>> list, T value,
-      boolean inclusive, boolean stayInBounds) {
+  public static <T extends Comparable<? super T>> int binarySearchCeil(
+      List<? extends Comparable<? super T>> list,
+      T value,
+      boolean inclusive,
+      boolean stayInBounds) {
     int index = Collections.binarySearch(list, value);
     if (index < 0) {
       index = ~index;
@@ -926,7 +1023,7 @@ public final class Util {
    * @param list A list of integers.
    * @return The list in array form, or null if the input list was null.
    */
-  public static int[] toArray(List<Integer> list) {
+  public static int @PolyNull [] toArray(@PolyNull List<Integer> list) {
     if (list == null) {
       return null;
     }
@@ -1009,19 +1106,19 @@ public final class Util {
   }
 
   /**
-   * Returns a copy of {@code codecs} without the codecs whose track type doesn't match
-   * {@code trackType}.
+   * Returns a copy of {@code codecs} without the codecs whose track type doesn't match {@code
+   * trackType}.
    *
    * @param codecs A codec sequence string, as defined in RFC 6381.
    * @param trackType One of {@link C}{@code .TRACK_TYPE_*}.
-   * @return A copy of {@code codecs} without the codecs whose track type doesn't match
-   *     {@code trackType}.
+   * @return A copy of {@code codecs} without the codecs whose track type doesn't match {@code
+   *     trackType}.
    */
-  public static String getCodecsOfType(String codecs, int trackType) {
-    if (TextUtils.isEmpty(codecs)) {
+  public static @Nullable String getCodecsOfType(String codecs, int trackType) {
+    String[] codecArray = splitCodecs(codecs);
+    if (codecArray.length == 0) {
       return null;
     }
-    String[] codecArray = split(codecs.trim(), "(\\s*,\\s*)");
     StringBuilder builder = new StringBuilder();
     for (String codec : codecArray) {
       if (trackType == MimeTypes.getTrackTypeOfCodec(codec)) {
@@ -1032,6 +1129,19 @@ public final class Util {
       }
     }
     return builder.length() > 0 ? builder.toString() : null;
+  }
+
+  /**
+   * Splits a codecs sequence string, as defined in RFC 6381, into individual codec strings.
+   *
+   * @param codecs A codec sequence string, as defined in RFC 6381.
+   * @return The split codecs, or an array of length zero if the input was empty.
+   */
+  public static String[] splitCodecs(String codecs) {
+    if (TextUtils.isEmpty(codecs)) {
+      return new String[0];
+    }
+    return split(codecs.trim(), "(\\s*,\\s*)");
   }
 
   /**
@@ -1060,12 +1170,12 @@ public final class Util {
   }
 
   /**
-   * Returns whether {@code encoding} is one of the PCM encodings.
+   * Returns whether {@code encoding} is one of the linear PCM encodings.
    *
    * @param encoding The encoding of the audio data.
    * @return Whether the encoding is one of the PCM encodings.
    */
-  public static boolean isEncodingPcm(@C.Encoding int encoding) {
+  public static boolean isEncodingLinearPcm(@C.Encoding int encoding) {
     return encoding == C.ENCODING_PCM_8BIT
         || encoding == C.ENCODING_PCM_16BIT
         || encoding == C.ENCODING_PCM_24BIT
@@ -1081,6 +1191,47 @@ public final class Util {
    */
   public static boolean isEncodingHighResolutionIntegerPcm(@C.PcmEncoding int encoding) {
     return encoding == C.ENCODING_PCM_24BIT || encoding == C.ENCODING_PCM_32BIT;
+  }
+
+  /**
+   * Returns the audio track channel configuration for the given channel count, or {@link
+   * AudioFormat#CHANNEL_INVALID} if output is not poossible.
+   *
+   * @param channelCount The number of channels in the input audio.
+   * @return The channel configuration or {@link AudioFormat#CHANNEL_INVALID} if output is not
+   *     possible.
+   */
+  public static int getAudioTrackChannelConfig(int channelCount) {
+    switch (channelCount) {
+      case 1:
+        return AudioFormat.CHANNEL_OUT_MONO;
+      case 2:
+        return AudioFormat.CHANNEL_OUT_STEREO;
+      case 3:
+        return AudioFormat.CHANNEL_OUT_STEREO | AudioFormat.CHANNEL_OUT_FRONT_CENTER;
+      case 4:
+        return AudioFormat.CHANNEL_OUT_QUAD;
+      case 5:
+        return AudioFormat.CHANNEL_OUT_QUAD | AudioFormat.CHANNEL_OUT_FRONT_CENTER;
+      case 6:
+        return AudioFormat.CHANNEL_OUT_5POINT1;
+      case 7:
+        return AudioFormat.CHANNEL_OUT_5POINT1 | AudioFormat.CHANNEL_OUT_BACK_CENTER;
+      case 8:
+        if (Util.SDK_INT >= 23) {
+          return AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
+        } else if (Util.SDK_INT >= 21) {
+          // Equal to AudioFormat.CHANNEL_OUT_7POINT1_SURROUND, which is hidden before Android M.
+          return AudioFormat.CHANNEL_OUT_5POINT1
+              | AudioFormat.CHANNEL_OUT_SIDE_LEFT
+              | AudioFormat.CHANNEL_OUT_SIDE_RIGHT;
+        } else {
+          // 8 ch output is not supported before Android L.
+          return AudioFormat.CHANNEL_INVALID;
+        }
+      default:
+        return AudioFormat.CHANNEL_INVALID;
+    }
   }
 
   /**
@@ -1194,7 +1345,7 @@ public final class Util {
    *     "clearkey"}.
    * @return The derived {@link UUID}, or {@code null} if one could not be derived.
    */
-  public static UUID getDrmUuid(String drmScheme) {
+  public static @Nullable UUID getDrmUuid(String drmScheme) {
     switch (Util.toLowerInvariant(drmScheme)) {
       case "widevine":
         return C.WIDEVINE_UUID;
@@ -1370,7 +1521,7 @@ public final class Util {
    * @return The original value of the file name before it was escaped, or null if the escaped
    *     fileName seems invalid.
    */
-  public static String unescapeFileName(String fileName) {
+  public static @Nullable String unescapeFileName(String fileName) {
     int length = fileName.length();
     int percentCharacterCount = 0;
     for (int i = 0; i < length; i++) {
@@ -1416,8 +1567,9 @@ public final class Util {
 
   /** Recursively deletes a directory and its content. */
   public static void recursiveDelete(File fileOrDirectory) {
-    if (fileOrDirectory.isDirectory()) {
-      for (File child : fileOrDirectory.listFiles()) {
+    File[] directoryFiles = fileOrDirectory.listFiles();
+    if (directoryFiles != null) {
+      for (File child : directoryFiles) {
         recursiveDelete(child);
       }
     }
@@ -1519,6 +1671,53 @@ public final class Util {
       }
     }
     return toUpperInvariant(Locale.getDefault().getCountry());
+  }
+
+  /**
+   * Uncompresses the data in {@code input}.
+   *
+   * @param input Wraps the compressed input data.
+   * @param output Wraps an output buffer to be used to store the uncompressed data. If {@code
+   *     output.data} is null or it isn't big enough to hold the uncompressed data, a new array is
+   *     created. If {@code true} is returned then the output's position will be set to 0 and its
+   *     limit will be set to the length of the uncompressed data.
+   * @param inflater If not null, used to uncompressed the input. Otherwise a new {@link Inflater}
+   *     is created.
+   * @return Whether the input is uncompressed successfully.
+   */
+  public static boolean inflate(
+      ParsableByteArray input, ParsableByteArray output, @Nullable Inflater inflater) {
+    if (input.bytesLeft() <= 0) {
+      return false;
+    }
+    byte[] outputData = output.data;
+    if (outputData == null) {
+      outputData = new byte[input.bytesLeft()];
+    }
+    if (inflater == null) {
+      inflater = new Inflater();
+    }
+    inflater.setInput(input.data, input.getPosition(), input.bytesLeft());
+    try {
+      int outputSize = 0;
+      while (true) {
+        outputSize += inflater.inflate(outputData, outputSize, outputData.length - outputSize);
+        if (inflater.finished()) {
+          output.reset(outputData, outputSize);
+          return true;
+        }
+        if (inflater.needsDictionary() || inflater.needsInput()) {
+          return false;
+        }
+        if (outputSize == outputData.length) {
+          outputData = Arrays.copyOf(outputData, outputData.length * 2);
+        }
+      }
+    } catch (DataFormatException e) {
+      return false;
+    } finally {
+      inflater.reset();
+    }
   }
 
   /**

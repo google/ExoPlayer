@@ -17,14 +17,15 @@ package com.google.android.exoplayer2.castdemo;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.view.View;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Player.DefaultEventListener;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -36,14 +37,11 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
@@ -51,11 +49,9 @@ import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
 
-/**
- * Manages players and an internal media queue for the ExoPlayer/Cast demo app.
- */
-/* package */ final class PlayerManager extends DefaultEventListener
-    implements CastPlayer.SessionAvailabilityListener {
+/** Manages players and an internal media queue for the ExoPlayer/Cast demo app. */
+/* package */ final class PlayerManager
+    implements EventListener, CastPlayer.SessionAvailabilityListener {
 
   /**
    * Listener for changes in the media queue playback position.
@@ -70,9 +66,8 @@ import java.util.ArrayList;
   }
 
   private static final String USER_AGENT = "ExoCastDemoPlayer";
-  private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
   private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
-      new DefaultHttpDataSourceFactory(USER_AGENT, BANDWIDTH_METER);
+      new DefaultHttpDataSourceFactory(USER_AGENT);
 
   private final PlayerView localPlayerView;
   private final PlayerControlView castControlView;
@@ -119,9 +114,9 @@ import java.util.ArrayList;
     currentItemIndex = C.INDEX_UNSET;
     concatenatingMediaSource = new ConcatenatingMediaSource();
 
-    DefaultTrackSelector trackSelector = new DefaultTrackSelector(BANDWIDTH_METER);
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
     RenderersFactory renderersFactory = new DefaultRenderersFactory(context);
-    exoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
+    exoPlayer = ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector);
     exoPlayer.addListener(this);
     localPlayerView.setPlayer(exoPlayer);
 
@@ -282,7 +277,7 @@ import java.util.ArrayList;
 
   @Override
   public void onTimelineChanged(
-      Timeline timeline, Object manifest, @TimelineChangeReason int reason) {
+      Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
     updateCurrentItemIndex();
     if (timeline.isEmpty()) {
       castMediaQueueCreationPending = true;
@@ -396,13 +391,9 @@ import java.util.ArrayList;
     Uri uri = Uri.parse(sample.uri);
     switch (sample.mimeType) {
       case DemoUtil.MIME_TYPE_SS:
-        return new SsMediaSource.Factory(
-                new DefaultSsChunkSource.Factory(DATA_SOURCE_FACTORY), DATA_SOURCE_FACTORY)
-            .createMediaSource(uri);
+        return new SsMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_DASH:
-        return new DashMediaSource.Factory(
-                new DefaultDashChunkSource.Factory(DATA_SOURCE_FACTORY), DATA_SOURCE_FACTORY)
-            .createMediaSource(uri);
+        return new DashMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_HLS:
         return new HlsMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_VIDEO_MP4:

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -88,7 +89,7 @@ public final class Id3Decoder implements MetadataDecoder {
   private static final int ID3_TEXT_ENCODING_UTF_16BE = 2;
   private static final int ID3_TEXT_ENCODING_UTF_8 = 3;
 
-  private final FramePredicate framePredicate;
+  private final @Nullable FramePredicate framePredicate;
 
   public Id3Decoder() {
     this(null);
@@ -97,12 +98,12 @@ public final class Id3Decoder implements MetadataDecoder {
   /**
    * @param framePredicate Determines which frames are decoded. May be null to decode all frames.
    */
-  public Id3Decoder(FramePredicate framePredicate) {
+  public Id3Decoder(@Nullable FramePredicate framePredicate) {
     this.framePredicate = framePredicate;
   }
 
   @Override
-  public Metadata decode(MetadataInputBuffer inputBuffer) {
+  public @Nullable Metadata decode(MetadataInputBuffer inputBuffer) {
     ByteBuffer buffer = inputBuffer.data;
     return decode(buffer.array(), buffer.limit());
   }
@@ -112,9 +113,10 @@ public final class Id3Decoder implements MetadataDecoder {
    *
    * @param data The bytes to decode ID3 tags from.
    * @param size Amount of bytes in {@code data} to read.
-   * @return A {@link Metadata} object containing the decoded ID3 tags.
+   * @return A {@link Metadata} object containing the decoded ID3 tags, or null if the data could
+   *     not be decoded.
    */
-  public Metadata decode(byte[] data, int size) {
+  public @Nullable Metadata decode(byte[] data, int size) {
     List<Id3Frame> id3Frames = new ArrayList<>();
     ParsableByteArray id3Data = new ParsableByteArray(data, size);
 
@@ -156,7 +158,7 @@ public final class Id3Decoder implements MetadataDecoder {
    * @param data A {@link ParsableByteArray} from which the header should be read.
    * @return The parsed header, or null if the ID3 tag is unsupported.
    */
-  private static Id3Header decodeHeader(ParsableByteArray data) {
+  private static @Nullable Id3Header decodeHeader(ParsableByteArray data) {
     if (data.bytesLeft() < ID3_HEADER_LENGTH) {
       Log.w(TAG, "Data too short to be an ID3 tag");
       return null;
@@ -270,8 +272,12 @@ public final class Id3Decoder implements MetadataDecoder {
     }
   }
 
-  private static Id3Frame decodeFrame(int majorVersion, ParsableByteArray id3Data,
-      boolean unsignedIntFrameSizeHack, int frameHeaderSize, FramePredicate framePredicate) {
+  private static @Nullable Id3Frame decodeFrame(
+      int majorVersion,
+      ParsableByteArray id3Data,
+      boolean unsignedIntFrameSizeHack,
+      int frameHeaderSize,
+      @Nullable FramePredicate framePredicate) {
     int frameId0 = id3Data.readUnsignedByte();
     int frameId1 = id3Data.readUnsignedByte();
     int frameId2 = id3Data.readUnsignedByte();
@@ -399,8 +405,8 @@ public final class Id3Decoder implements MetadataDecoder {
     }
   }
 
-  private static TextInformationFrame decodeTxxxFrame(ParsableByteArray id3Data, int frameSize)
-      throws UnsupportedEncodingException {
+  private static @Nullable TextInformationFrame decodeTxxxFrame(
+      ParsableByteArray id3Data, int frameSize) throws UnsupportedEncodingException {
     if (frameSize < 1) {
       // Frame is malformed.
       return null;
@@ -422,8 +428,8 @@ public final class Id3Decoder implements MetadataDecoder {
     return new TextInformationFrame("TXXX", description, value);
   }
 
-  private static TextInformationFrame decodeTextInformationFrame(ParsableByteArray id3Data,
-      int frameSize, String id) throws UnsupportedEncodingException {
+  private static @Nullable TextInformationFrame decodeTextInformationFrame(
+      ParsableByteArray id3Data, int frameSize, String id) throws UnsupportedEncodingException {
     if (frameSize < 1) {
       // Frame is malformed.
       return null;
@@ -441,7 +447,7 @@ public final class Id3Decoder implements MetadataDecoder {
     return new TextInformationFrame(id, null, value);
   }
 
-  private static UrlLinkFrame decodeWxxxFrame(ParsableByteArray id3Data, int frameSize)
+  private static @Nullable UrlLinkFrame decodeWxxxFrame(ParsableByteArray id3Data, int frameSize)
       throws UnsupportedEncodingException {
     if (frameSize < 1) {
       // Frame is malformed.
@@ -552,7 +558,7 @@ public final class Id3Decoder implements MetadataDecoder {
     return new ApicFrame(mimeType, description, pictureType, pictureData);
   }
 
-  private static CommentFrame decodeCommentFrame(ParsableByteArray id3Data, int frameSize)
+  private static @Nullable CommentFrame decodeCommentFrame(ParsableByteArray id3Data, int frameSize)
       throws UnsupportedEncodingException {
     if (frameSize < 4) {
       // Frame is malformed.
@@ -579,9 +585,14 @@ public final class Id3Decoder implements MetadataDecoder {
     return new CommentFrame(language, description, text);
   }
 
-  private static ChapterFrame decodeChapterFrame(ParsableByteArray id3Data, int frameSize,
-      int majorVersion, boolean unsignedIntFrameSizeHack, int frameHeaderSize,
-      FramePredicate framePredicate) throws UnsupportedEncodingException {
+  private static ChapterFrame decodeChapterFrame(
+      ParsableByteArray id3Data,
+      int frameSize,
+      int majorVersion,
+      boolean unsignedIntFrameSizeHack,
+      int frameHeaderSize,
+      @Nullable FramePredicate framePredicate)
+      throws UnsupportedEncodingException {
     int framePosition = id3Data.getPosition();
     int chapterIdEndIndex = indexOfZeroByte(id3Data.data, framePosition);
     String chapterId = new String(id3Data.data, framePosition, chapterIdEndIndex - framePosition,
@@ -614,9 +625,14 @@ public final class Id3Decoder implements MetadataDecoder {
     return new ChapterFrame(chapterId, startTime, endTime, startOffset, endOffset, subFrameArray);
   }
 
-  private static ChapterTocFrame decodeChapterTOCFrame(ParsableByteArray id3Data, int frameSize,
-      int majorVersion, boolean unsignedIntFrameSizeHack, int frameHeaderSize,
-      FramePredicate framePredicate) throws UnsupportedEncodingException {
+  private static ChapterTocFrame decodeChapterTOCFrame(
+      ParsableByteArray id3Data,
+      int frameSize,
+      int majorVersion,
+      boolean unsignedIntFrameSizeHack,
+      int frameHeaderSize,
+      @Nullable FramePredicate framePredicate)
+      throws UnsupportedEncodingException {
     int framePosition = id3Data.getPosition();
     int elementIdEndIndex = indexOfZeroByte(id3Data.data, framePosition);
     String elementId = new String(id3Data.data, framePosition, elementIdEndIndex - framePosition,

@@ -93,8 +93,7 @@ public final class AnalyticsCollectorTest {
   private static final int EVENT_MEDIA_PERIOD_RELEASED = 18;
   private static final int EVENT_READING_STARTED = 19;
   private static final int EVENT_BANDWIDTH_ESTIMATE = 20;
-  private static final int EVENT_VIEWPORT_SIZE_CHANGED = 21;
-  private static final int EVENT_NETWORK_TYPE_CHANGED = 22;
+  private static final int EVENT_SURFACE_SIZE_CHANGED = 21;
   private static final int EVENT_METADATA = 23;
   private static final int EVENT_DECODER_ENABLED = 24;
   private static final int EVENT_DECODER_INIT = 25;
@@ -671,10 +670,6 @@ public final class AnalyticsCollectorTest {
                 new PlayerRunnable() {
                   @Override
                   public void run(SimpleExoPlayer player) {
-                    player.getAnalyticsCollector().notifyNetworkTypeChanged(networkInfo);
-                    player
-                        .getAnalyticsCollector()
-                        .notifyViewportSizeChanged(/* width= */ 320, /* height= */ 240);
                     player.getAnalyticsCollector().notifySeekStarted();
                   }
                 })
@@ -685,8 +680,6 @@ public final class AnalyticsCollectorTest {
 
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(PERIOD_0);
     assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(PERIOD_0);
-    assertThat(listener.getEvents(EVENT_VIEWPORT_SIZE_CHANGED)).containsExactly(PERIOD_0);
-    assertThat(listener.getEvents(EVENT_NETWORK_TYPE_CHANGED)).containsExactly(PERIOD_0);
   }
 
   private static TestAnalyticsListener runAnalyticsTest(MediaSource mediaSource) throws Exception {
@@ -718,7 +711,7 @@ public final class AnalyticsCollectorTest {
           .setRenderersFactory(renderersFactory)
           .setAnalyticsListener(listener)
           .setActionSchedule(actionSchedule)
-          .build()
+          .build(RuntimeEnvironment.application)
           .start()
           .blockUntilActionScheduleFinished(TIMEOUT_MS)
           .blockUntilEnded(TIMEOUT_MS);
@@ -829,7 +822,7 @@ public final class AnalyticsCollectorTest {
     @Override
     protected void onBufferRead() {
       if (!notifiedAudioSessionId) {
-        eventDispatcher.audioSessionId(/* audioSessionId= */ 0);
+        eventDispatcher.audioSessionId(/* audioSessionId= */ 1);
         notifiedAudioSessionId = true;
       }
     }
@@ -1017,13 +1010,8 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onViewportSizeChange(EventTime eventTime, int width, int height) {
-      reportedEvents.add(new ReportedEvent(EVENT_VIEWPORT_SIZE_CHANGED, eventTime));
-    }
-
-    @Override
-    public void onNetworkTypeChanged(EventTime eventTime, @Nullable NetworkInfo networkInfo) {
-      reportedEvents.add(new ReportedEvent(EVENT_NETWORK_TYPE_CHANGED, eventTime));
+    public void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {
+      reportedEvents.add(new ReportedEvent(EVENT_SURFACE_SIZE_CHANGED, eventTime));
     }
 
     @Override

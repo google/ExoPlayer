@@ -50,7 +50,7 @@ public final class FixedTrackSelection extends BaseTrackSelection {
 
     @Override
     public FixedTrackSelection createTrackSelection(
-        TrackGroup group, @Nullable BandwidthMeter bandwidthMeter, int... tracks) {
+        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks) {
       Assertions.checkArgument(tracks.length == 1);
       return new FixedTrackSelection(group, tracks[0], reason, data);
     }

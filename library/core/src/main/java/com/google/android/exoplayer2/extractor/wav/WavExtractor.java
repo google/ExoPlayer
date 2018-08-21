@@ -32,17 +32,8 @@ import java.io.IOException;
  */
 public final class WavExtractor implements Extractor {
 
-  /**
-   * Factory for {@link WavExtractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new WavExtractor()};
-    }
-
-  };
+  /** Factory for {@link WavExtractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new WavExtractor()};
 
   /** Arbitrary maximum input size of 32KB, which is ~170ms of 16-bit stereo PCM audio at 48KHz. */
   private static final int MAX_INPUT_SIZE = 32 * 1024;

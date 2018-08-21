@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.analytics;
 
-import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
@@ -26,6 +25,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -41,6 +41,8 @@ import java.io.IOException;
  *
  * <p>All events are recorded with an {@link EventTime} specifying the elapsed real time and media
  * time at the time of the event.
+ *
+ * <p>All methods have no-op default implementations to allow selective overrides.
  */
 public interface AnalyticsListener {
 
@@ -127,7 +129,8 @@ public interface AnalyticsListener {
    * @param playWhenReady Whether the playback will proceed when ready.
    * @param playbackState One of the {@link Player}.STATE constants.
    */
-  void onPlayerStateChanged(EventTime eventTime, boolean playWhenReady, int playbackState);
+  default void onPlayerStateChanged(
+      EventTime eventTime, boolean playWhenReady, int playbackState) {}
 
   /**
    * Called when the timeline changed.
@@ -135,7 +138,7 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param reason The reason for the timeline change.
    */
-  void onTimelineChanged(EventTime eventTime, @TimelineChangeReason int reason);
+  default void onTimelineChanged(EventTime eventTime, @TimelineChangeReason int reason) {}
 
   /**
    * Called when a position discontinuity occurred.
@@ -143,21 +146,21 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param reason The reason for the position discontinuity.
    */
-  void onPositionDiscontinuity(EventTime eventTime, @DiscontinuityReason int reason);
+  default void onPositionDiscontinuity(EventTime eventTime, @DiscontinuityReason int reason) {}
 
   /**
    * Called when a seek operation started.
    *
    * @param eventTime The event time.
    */
-  void onSeekStarted(EventTime eventTime);
+  default void onSeekStarted(EventTime eventTime) {}
 
   /**
    * Called when a seek operation was processed.
    *
    * @param eventTime The event time.
    */
-  void onSeekProcessed(EventTime eventTime);
+  default void onSeekProcessed(EventTime eventTime) {}
 
   /**
    * Called when the playback parameters changed.
@@ -165,7 +168,8 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param playbackParameters The new playback parameters.
    */
-  void onPlaybackParametersChanged(EventTime eventTime, PlaybackParameters playbackParameters);
+  default void onPlaybackParametersChanged(
+      EventTime eventTime, PlaybackParameters playbackParameters) {}
 
   /**
    * Called when the repeat mode changed.
@@ -173,7 +177,7 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param repeatMode The new repeat mode.
    */
-  void onRepeatModeChanged(EventTime eventTime, @Player.RepeatMode int repeatMode);
+  default void onRepeatModeChanged(EventTime eventTime, @Player.RepeatMode int repeatMode) {}
 
   /**
    * Called when the shuffle mode changed.
@@ -181,7 +185,7 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param shuffleModeEnabled Whether the shuffle mode is enabled.
    */
-  void onShuffleModeChanged(EventTime eventTime, boolean shuffleModeEnabled);
+  default void onShuffleModeChanged(EventTime eventTime, boolean shuffleModeEnabled) {}
 
   /**
    * Called when the player starts or stops loading data from a source.
@@ -189,7 +193,7 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param isLoading Whether the player is loading.
    */
-  void onLoadingChanged(EventTime eventTime, boolean isLoading);
+  default void onLoadingChanged(EventTime eventTime, boolean isLoading) {}
 
   /**
    * Called when a fatal player error occurred.
@@ -197,7 +201,7 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param error The error.
    */
-  void onPlayerError(EventTime eventTime, ExoPlaybackException error);
+  default void onPlayerError(EventTime eventTime, ExoPlaybackException error) {}
 
   /**
    * Called when the available or selected tracks for the renderers changed.
@@ -206,8 +210,8 @@ public interface AnalyticsListener {
    * @param trackGroups The available tracks. May be empty.
    * @param trackSelections The track selections for each renderer. May contain null elements.
    */
-  void onTracksChanged(
-      EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections);
+  default void onTracksChanged(
+      EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
   /**
    * Called when a media source started loading data.
@@ -216,7 +220,8 @@ public interface AnalyticsListener {
    * @param loadEventInfo The {@link LoadEventInfo} defining the load event.
    * @param mediaLoadData The {@link MediaLoadData} defining the data being loaded.
    */
-  void onLoadStarted(EventTime eventTime, LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData);
+  default void onLoadStarted(
+      EventTime eventTime, LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {}
 
   /**
    * Called when a media source completed loading data.
@@ -225,8 +230,8 @@ public interface AnalyticsListener {
    * @param loadEventInfo The {@link LoadEventInfo} defining the load event.
    * @param mediaLoadData The {@link MediaLoadData} defining the data being loaded.
    */
-  void onLoadCompleted(
-      EventTime eventTime, LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData);
+  default void onLoadCompleted(
+      EventTime eventTime, LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {}
 
   /**
    * Called when a media source canceled loading data.
@@ -235,8 +240,8 @@ public interface AnalyticsListener {
    * @param loadEventInfo The {@link LoadEventInfo} defining the load event.
    * @param mediaLoadData The {@link MediaLoadData} defining the data being loaded.
    */
-  void onLoadCanceled(
-      EventTime eventTime, LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData);
+  default void onLoadCanceled(
+      EventTime eventTime, LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {}
 
   /**
    * Called when a media source loading error occurred. These errors are just for informational
@@ -248,12 +253,12 @@ public interface AnalyticsListener {
    * @param error The load error.
    * @param wasCanceled Whether the load was canceled as a result of the error.
    */
-  void onLoadError(
+  default void onLoadError(
       EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData,
       IOException error,
-      boolean wasCanceled);
+      boolean wasCanceled) {}
 
   /**
    * Called when the downstream format sent to the renderers changed.
@@ -261,7 +266,7 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param mediaLoadData The {@link MediaLoadData} defining the newly selected media data.
    */
-  void onDownstreamFormatChanged(EventTime eventTime, MediaLoadData mediaLoadData);
+  default void onDownstreamFormatChanged(EventTime eventTime, MediaLoadData mediaLoadData) {}
 
   /**
    * Called when data is removed from the back of a media buffer, typically so that it can be
@@ -270,28 +275,28 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param mediaLoadData The {@link MediaLoadData} defining the media being discarded.
    */
-  void onUpstreamDiscarded(EventTime eventTime, MediaLoadData mediaLoadData);
+  default void onUpstreamDiscarded(EventTime eventTime, MediaLoadData mediaLoadData) {}
 
   /**
    * Called when a media source created a media period.
    *
    * @param eventTime The event time.
    */
-  void onMediaPeriodCreated(EventTime eventTime);
+  default void onMediaPeriodCreated(EventTime eventTime) {}
 
   /**
    * Called when a media source released a media period.
    *
    * @param eventTime The event time.
    */
-  void onMediaPeriodReleased(EventTime eventTime);
+  default void onMediaPeriodReleased(EventTime eventTime) {}
 
   /**
    * Called when the player started reading a media period.
    *
    * @param eventTime The event time.
    */
-  void onReadingStarted(EventTime eventTime);
+  default void onReadingStarted(EventTime eventTime) {}
 
   /**
    * Called when the bandwidth estimate for the current data source has been updated.
@@ -301,25 +306,19 @@ public interface AnalyticsListener {
    * @param totalBytesLoaded The total bytes loaded this update is based on.
    * @param bitrateEstimate The bandwidth estimate, in bits per second.
    */
-  void onBandwidthEstimate(
-      EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate);
+  default void onBandwidthEstimate(
+      EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate) {}
 
   /**
-   * Called when the viewport size of the output surface changed.
+   * Called when the output surface size changed.
    *
    * @param eventTime The event time.
-   * @param width The width of the viewport in device-independent pixels (dp).
-   * @param height The height of the viewport in device-independent pixels (dp).
+   * @param width The surface width in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if the
+   *     video is not rendered onto a surface.
+   * @param height The surface height in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
+   *     the video is not rendered onto a surface.
    */
-  void onViewportSizeChange(EventTime eventTime, int width, int height);
-
-  /**
-   * Called when the type of the network connection changed.
-   *
-   * @param eventTime The event time.
-   * @param networkInfo The network info for the current connection, or null if disconnected.
-   */
-  void onNetworkTypeChanged(EventTime eventTime, @Nullable NetworkInfo networkInfo);
+  default void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {}
 
   /**
    * Called when there is {@link Metadata} associated with the current playback time.
@@ -327,7 +326,7 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param metadata The metadata.
    */
-  void onMetadata(EventTime eventTime, Metadata metadata);
+  default void onMetadata(EventTime eventTime, Metadata metadata) {}
 
   /**
    * Called when an audio or video decoder has been enabled.
@@ -337,7 +336,8 @@ public interface AnalyticsListener {
    *     {@link C#TRACK_TYPE_VIDEO}.
    * @param decoderCounters The accumulated event counters associated with this decoder.
    */
-  void onDecoderEnabled(EventTime eventTime, int trackType, DecoderCounters decoderCounters);
+  default void onDecoderEnabled(
+      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
 
   /**
    * Called when an audio or video decoder has been initialized.
@@ -348,8 +348,8 @@ public interface AnalyticsListener {
    * @param decoderName The decoder that was created.
    * @param initializationDurationMs Time taken to initialize the decoder, in milliseconds.
    */
-  void onDecoderInitialized(
-      EventTime eventTime, int trackType, String decoderName, long initializationDurationMs);
+  default void onDecoderInitialized(
+      EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {}
 
   /**
    * Called when an audio or video decoder input format changed.
@@ -359,7 +359,7 @@ public interface AnalyticsListener {
    *     C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}.
    * @param format The new input format for the decoder.
    */
-  void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format);
+  default void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {}
 
   /**
    * Called when an audio or video decoder has been disabled.
@@ -369,7 +369,8 @@ public interface AnalyticsListener {
    *     {@link C#TRACK_TYPE_VIDEO}.
    * @param decoderCounters The accumulated event counters associated with this decoder.
    */
-  void onDecoderDisabled(EventTime eventTime, int trackType, DecoderCounters decoderCounters);
+  default void onDecoderDisabled(
+      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
 
   /**
    * Called when the audio session id is set.
@@ -377,7 +378,23 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param audioSessionId The audio session id.
    */
-  void onAudioSessionId(EventTime eventTime, int audioSessionId);
+  default void onAudioSessionId(EventTime eventTime, int audioSessionId) {}
+
+  /**
+   * Called when the audio attributes change.
+   *
+   * @param eventTime The event time.
+   * @param audioAttributes The audio attributes.
+   */
+  default void onAudioAttributesChanged(EventTime eventTime, AudioAttributes audioAttributes) {}
+
+  /**
+   * Called when the volume changes.
+   *
+   * @param eventTime The event time.
+   * @param volume The new volume, with 0 being silence and 1 being unity gain.
+   */
+  default void onVolumeChanged(EventTime eventTime, float volume) {}
 
   /**
    * Called when an audio underrun occurred.
@@ -389,8 +406,8 @@ public interface AnalyticsListener {
    *     as the buffered media can have a variable bitrate so the duration may be unknown.
    * @param elapsedSinceLastFeedMs The time since the {@link AudioSink} was last fed data.
    */
-  void onAudioUnderrun(
-      EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
+  default void onAudioUnderrun(
+      EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
 
   /**
    * Called after video frames have been dropped.
@@ -401,7 +418,7 @@ public interface AnalyticsListener {
    *     is timed from when the renderer was started or from when dropped frames were last reported
    *     (whichever was more recent), and not from when the first of the reported drops occurred.
    */
-  void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs);
+  default void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {}
 
   /**
    * Called before a frame is rendered for the first time since setting the surface, and each time
@@ -416,12 +433,12 @@ public interface AnalyticsListener {
    *     since the renderer will apply all necessary rotations internally.
    * @param pixelWidthHeightRatio The width to height ratio of each pixel.
    */
-  void onVideoSizeChanged(
+  default void onVideoSizeChanged(
       EventTime eventTime,
       int width,
       int height,
       int unappliedRotationDegrees,
-      float pixelWidthHeightRatio);
+      float pixelWidthHeightRatio) {}
 
   /**
    * Called when a frame is rendered for the first time since setting the surface, and when a frame
@@ -431,14 +448,14 @@ public interface AnalyticsListener {
    * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
    *     the renderer renders to something that isn't a {@link Surface}.
    */
-  void onRenderedFirstFrame(EventTime eventTime, Surface surface);
+  default void onRenderedFirstFrame(EventTime eventTime, Surface surface) {}
 
   /**
    * Called each time drm keys are loaded.
    *
    * @param eventTime The event time.
    */
-  void onDrmKeysLoaded(EventTime eventTime);
+  default void onDrmKeysLoaded(EventTime eventTime) {}
 
   /**
    * Called when a drm error occurs. These errors are just for informational purposes and the player
@@ -447,19 +464,19 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param error The error.
    */
-  void onDrmSessionManagerError(EventTime eventTime, Exception error);
+  default void onDrmSessionManagerError(EventTime eventTime, Exception error) {}
 
   /**
    * Called each time offline drm keys are restored.
    *
    * @param eventTime The event time.
    */
-  void onDrmKeysRestored(EventTime eventTime);
+  default void onDrmKeysRestored(EventTime eventTime) {}
 
   /**
    * Called each time offline drm keys are removed.
    *
    * @param eventTime The event time.
    */
-  void onDrmKeysRemoved(EventTime eventTime);
+  default void onDrmKeysRemoved(EventTime eventTime) {}
 }

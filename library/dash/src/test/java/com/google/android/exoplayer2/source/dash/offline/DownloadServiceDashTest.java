@@ -20,18 +20,16 @@ import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTest
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 
-import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Scheduler;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
@@ -52,7 +50,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -65,8 +62,8 @@ public class DownloadServiceDashTest {
   private SimpleCache cache;
   private File tempFolder;
   private FakeDataSet fakeDataSet;
-  private RepresentationKey fakeRepresentationKey1;
-  private RepresentationKey fakeRepresentationKey2;
+  private StreamKey fakeStreamKey1;
+  private StreamKey fakeStreamKey2;
   private Context context;
   private DownloadService dashDownloadService;
   private ConditionVariable pauseDownloadCondition;
@@ -108,8 +105,8 @@ public class DownloadServiceDashTest {
             .setRandomData("text_segment_3", 3);
     final DataSource.Factory fakeDataSourceFactory =
         new FakeDataSource.Factory(null).setFakeDataSet(fakeDataSet);
-    fakeRepresentationKey1 = new RepresentationKey(0, 0, 0);
-    fakeRepresentationKey2 = new RepresentationKey(0, 1, 0);
+    fakeStreamKey1 = new StreamKey(0, 0, 0);
+    fakeStreamKey2 = new StreamKey(0, 1, 0);
 
     dummyMainThread.runOnMainThread(
         new Runnable() {
@@ -135,27 +132,15 @@ public class DownloadServiceDashTest {
             dashDownloadManager.startDownloads();
 
             dashDownloadService =
-                new DownloadService(/*foregroundNotificationId=*/ 1) {
-
+                new DownloadService(DownloadService.FOREGROUND_NOTIFICATION_ID_NONE) {
                   @Override
                   protected DownloadManager getDownloadManager() {
                     return dashDownloadManager;
                   }
 
-                  @Override
-                  protected Notification getForegroundNotification(TaskState[] taskStates) {
-                    return Mockito.mock(Notification.class);
-                  }
-
                   @Nullable
                   @Override
                   protected Scheduler getScheduler() {
-                    return null;
-                  }
-
-                  @Nullable
-                  @Override
-                  protected Requirements getRequirements() {
                     return null;
                   }
                 };
@@ -180,8 +165,8 @@ public class DownloadServiceDashTest {
   @Ignore // b/78877092
   @Test
   public void testMultipleDownloadAction() throws Throwable {
-    downloadKeys(fakeRepresentationKey1);
-    downloadKeys(fakeRepresentationKey2);
+    downloadKeys(fakeStreamKey1);
+    downloadKeys(fakeStreamKey2);
 
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
@@ -191,7 +176,7 @@ public class DownloadServiceDashTest {
   @Ignore // b/78877092
   @Test
   public void testRemoveAction() throws Throwable {
-    downloadKeys(fakeRepresentationKey1, fakeRepresentationKey2);
+    downloadKeys(fakeStreamKey1, fakeStreamKey2);
 
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
 
@@ -206,7 +191,7 @@ public class DownloadServiceDashTest {
   @Test
   public void testRemoveBeforeDownloadComplete() throws Throwable {
     pauseDownloadCondition = new ConditionVariable();
-    downloadKeys(fakeRepresentationKey1, fakeRepresentationKey2);
+    downloadKeys(fakeStreamKey1, fakeStreamKey2);
 
     removeAll();
 
@@ -219,11 +204,11 @@ public class DownloadServiceDashTest {
     callDownloadServiceOnStart(newAction(TEST_MPD_URI, true, null));
   }
 
-  private void downloadKeys(RepresentationKey... keys) {
+  private void downloadKeys(StreamKey... keys) {
     callDownloadServiceOnStart(newAction(TEST_MPD_URI, false, null, keys));
   }
 
-  private void callDownloadServiceOnStart(final DashDownloadAction action) {
+  private void callDownloadServiceOnStart(final DownloadAction action) {
     dummyMainThread.runOnMainThread(
         new Runnable() {
           @Override
@@ -235,10 +220,16 @@ public class DownloadServiceDashTest {
         });
   }
 
-  private static DashDownloadAction newAction(
-      Uri uri, boolean isRemoveAction, @Nullable byte[] data, RepresentationKey... keys) {
-    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+  private static DownloadAction newAction(
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, StreamKey... keys) {
+    ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    return new DashDownloadAction(uri, isRemoveAction, data, keysList);
+    DownloadAction result;
+    if (isRemoveAction) {
+      result = DashDownloadAction.createRemoveAction(uri, data);
+    } else {
+      result = DashDownloadAction.createDownloadAction(uri, data, keysList);
+    }
+    return result;
   }
 }

@@ -15,15 +15,11 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
-import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.extractor.BinarySearchSeeker;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.FlacStreamInfo;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -33,111 +29,51 @@ import java.nio.ByteBuffer;
  * <p>This seeker performs seeking by using binary search within the stream, until it finds the
  * frame that contains the target sample.
  */
-/* package */ final class FlacBinarySearchSeeker {
+/* package */ final class FlacBinarySearchSeeker extends BinarySearchSeeker {
 
-  /**
-   * When seeking within the source, if the offset is smaller than or equal to this value, the seek
-   * operation will be performed using a skip operation. Otherwise, the source will be reloaded at
-   * the new seek position.
-   */
-  private static final long MAX_SKIP_BYTES = 256 * 1024;
-
-  private final FlacStreamInfo streamInfo;
-  private final FlacBinarySearchSeekMap seekMap;
   private final FlacDecoderJni decoderJni;
-
-  private final long firstFramePosition;
-  private final long inputLength;
-  private final long approxBytesPerFrame;
-
-  private @Nullable SeekOperationParams pendingSeekOperationParams;
 
   public FlacBinarySearchSeeker(
       FlacStreamInfo streamInfo,
       long firstFramePosition,
       long inputLength,
       FlacDecoderJni decoderJni) {
-    this.streamInfo = Assertions.checkNotNull(streamInfo);
+    super(
+        new FlacSeekTimestampConverter(streamInfo),
+        new FlacTimestampSeeker(decoderJni),
+        streamInfo.durationUs(),
+        /* floorTimePosition= */ 0,
+        /* ceilingTimePosition= */ streamInfo.totalSamples,
+        /* floorBytePosition= */ firstFramePosition,
+        /* ceilingBytePosition= */ inputLength,
+        /* approxBytesPerFrame= */ streamInfo.getApproxBytesPerFrame(),
+        /* minimumSearchRange= */ Math.max(1, streamInfo.minFrameSize));
     this.decoderJni = Assertions.checkNotNull(decoderJni);
-    this.firstFramePosition = firstFramePosition;
-    this.inputLength = inputLength;
-    this.approxBytesPerFrame = streamInfo.getApproxBytesPerFrame();
-
-    pendingSeekOperationParams = null;
-    seekMap =
-        new FlacBinarySearchSeekMap(
-            streamInfo,
-            firstFramePosition,
-            inputLength,
-            streamInfo.durationUs(),
-            approxBytesPerFrame);
   }
 
-  /** Returns the seek map for the wrapped FLAC stream. */
-  public SeekMap getSeekMap() {
-    return seekMap;
+  @Override
+  protected void onSeekOperationFinished(boolean foundTargetFrame, long resultPosition) {
+    if (!foundTargetFrame) {
+      // If we can't find the target frame (sample), we need to reset the decoder jni so that
+      // it can continue from the result position.
+      decoderJni.reset(resultPosition);
+    }
   }
 
-  /** Sets the target time in microseconds within the stream to seek to. */
-  public void setSeekTargetUs(long timeUs) {
-    if (pendingSeekOperationParams != null && pendingSeekOperationParams.seekTimeUs == timeUs) {
-      return;
+  private static final class FlacTimestampSeeker implements TimestampSeeker {
+
+    private final FlacDecoderJni decoderJni;
+
+    private FlacTimestampSeeker(FlacDecoderJni decoderJni) {
+      this.decoderJni = decoderJni;
     }
 
-    pendingSeekOperationParams =
-        new SeekOperationParams(
-            timeUs,
-            streamInfo.getSampleIndex(timeUs),
-            /* floorSample= */ 0,
-            /* ceilingSample= */ streamInfo.totalSamples,
-            /* floorPosition= */ firstFramePosition,
-            /* ceilingPosition= */ inputLength,
-            approxBytesPerFrame);
-  }
-
-  /** Returns whether the last operation set by {@link #setSeekTargetUs(long)} is still pending. */
-  public boolean hasPendingSeek() {
-    return pendingSeekOperationParams != null;
-  }
-
-  /**
-   * Continues to handle the pending seek operation. Returns one of the {@code RESULT_} values from
-   * {@link Extractor}.
-   *
-   * @param input The {@link ExtractorInput} from which data should be read.
-   * @param seekPositionHolder If {@link Extractor#RESULT_SEEK} is returned, this holder is updated
-   *     to hold the position of the required seek.
-   * @param outputBuffer If {@link Extractor#RESULT_CONTINUE} is returned, this byte buffer maybe
-   *     updated to hold the extracted frame that contains the target sample. The caller needs to
-   *     check the byte buffer limit to see if an extracted frame is available.
-   * @return One of the {@code RESULT_} values defined in {@link Extractor}.
-   * @throws IOException If an error occurred reading from the input.
-   * @throws InterruptedException If the thread was interrupted.
-   */
-  public int handlePendingSeek(
-      ExtractorInput input, PositionHolder seekPositionHolder, ByteBuffer outputBuffer)
-      throws InterruptedException, IOException {
-    outputBuffer.position(0);
-    outputBuffer.limit(0);
-    while (true) {
-      long floorPosition = pendingSeekOperationParams.floorPosition;
-      long ceilingPosition = pendingSeekOperationParams.ceilingPosition;
-      long searchPosition = pendingSeekOperationParams.nextSearchPosition;
-
-      // streamInfo may not contain minFrameSize, in which case this value will be 0.
-      int minFrameSize = Math.max(1, streamInfo.minFrameSize);
-      if (floorPosition + minFrameSize >= ceilingPosition) {
-        // The seeking range is too small for more than 1 frame, so we can just continue from
-        // the floor position.
-        pendingSeekOperationParams = null;
-        decoderJni.reset(floorPosition);
-        return seekToPosition(input, floorPosition, seekPositionHolder);
-      }
-
-      if (!skipInputUntilPosition(input, searchPosition)) {
-        return seekToPosition(input, searchPosition, seekPositionHolder);
-      }
-
+    @Override
+    public TimestampSearchResult searchForTimestamp(
+        ExtractorInput input, long targetSampleIndex, OutputFrameHolder outputFrameHolder)
+        throws IOException, InterruptedException {
+      ByteBuffer outputBuffer = outputFrameHolder.byteBuffer;
+      long searchPosition = input.getPosition();
       decoderJni.reset(searchPosition);
       try {
         decoderJni.decodeSampleWithBacktrackPosition(
@@ -145,11 +81,10 @@ import java.nio.ByteBuffer;
       } catch (FlacDecoderJni.FlacFrameDecodeException e) {
         // For some reasons, the extractor can't find a frame mid-stream.
         // Stop the seeking and let it re-try playing at the last search position.
-        pendingSeekOperationParams = null;
-        throw new IOException("Cannot read frame at position " + searchPosition, e);
+        return TimestampSearchResult.NO_TIMESTAMP_IN_RANGE_RESULT;
       }
       if (outputBuffer.limit() == 0) {
-        return Extractor.RESULT_END_OF_INPUT;
+        return TimestampSearchResult.NO_TIMESTAMP_IN_RANGE_RESULT;
       }
 
       long lastFrameSampleIndex = decoderJni.getLastFrameFirstSampleIndex();
@@ -157,184 +92,35 @@ import java.nio.ByteBuffer;
       long nextFrameSamplePosition = decoderJni.getDecodePosition();
 
       boolean targetSampleInLastFrame =
-          lastFrameSampleIndex <= pendingSeekOperationParams.targetSample
-              && nextFrameSampleIndex > pendingSeekOperationParams.targetSample;
+          lastFrameSampleIndex <= targetSampleIndex && nextFrameSampleIndex > targetSampleIndex;
 
       if (targetSampleInLastFrame) {
-        pendingSeekOperationParams = null;
-        return Extractor.RESULT_CONTINUE;
-      }
-
-      if (nextFrameSampleIndex <= pendingSeekOperationParams.targetSample) {
-        pendingSeekOperationParams.updateSeekFloor(nextFrameSampleIndex, nextFrameSamplePosition);
+        // We are holding the target frame in outputFrameHolder. Set its presentation time now.
+        outputFrameHolder.timeUs = decoderJni.getLastFrameTimestamp();
+        return TimestampSearchResult.targetFoundResult(input.getPosition());
+      } else if (nextFrameSampleIndex <= targetSampleIndex) {
+        return TimestampSearchResult.underestimatedResult(
+            nextFrameSampleIndex, nextFrameSamplePosition);
       } else {
-        pendingSeekOperationParams.updateSeekCeiling(lastFrameSampleIndex, searchPosition);
+        return TimestampSearchResult.overestimatedResult(lastFrameSampleIndex, searchPosition);
       }
     }
   }
 
-  private boolean skipInputUntilPosition(ExtractorInput input, long position)
-      throws IOException, InterruptedException {
-    long bytesToSkip = position - input.getPosition();
-    if (bytesToSkip >= 0 && bytesToSkip <= MAX_SKIP_BYTES) {
-      input.skipFully((int) bytesToSkip);
-      return true;
-    }
-    return false;
-  }
-
-  private int seekToPosition(
-      ExtractorInput input, long position, PositionHolder seekPositionHolder) {
-    if (position == input.getPosition()) {
-      return Extractor.RESULT_CONTINUE;
-    } else {
-      seekPositionHolder.position = position;
-      return Extractor.RESULT_SEEK;
-    }
-  }
-
   /**
-   * Contains parameters for a pending seek operation by {@link FlacBinarySearchSeeker}.
-   *
-   * <p>This class holds parameters for a binary-search for the {@code targetSample} in the range
-   * [floorPosition, ceilingPosition).
+   * A {@link SeekTimestampConverter} implementation that returns the frame index (sample index) as
+   * the timestamp for a stream seek time position.
    */
-  private static final class SeekOperationParams {
-    private final long seekTimeUs;
-    private final long targetSample;
-    private final long approxBytesPerFrame;
-    private long floorSample;
-    private long ceilingSample;
-    private long floorPosition;
-    private long ceilingPosition;
-    private long nextSearchPosition;
-
-    private SeekOperationParams(
-        long seekTimeUs,
-        long targetSample,
-        long floorSample,
-        long ceilingSample,
-        long floorPosition,
-        long ceilingPosition,
-        long approxBytesPerFrame) {
-      this.seekTimeUs = seekTimeUs;
-      this.floorSample = floorSample;
-      this.ceilingSample = ceilingSample;
-      this.floorPosition = floorPosition;
-      this.ceilingPosition = ceilingPosition;
-      this.targetSample = targetSample;
-      this.approxBytesPerFrame = approxBytesPerFrame;
-      updateNextSearchPosition();
-    }
-
-    /** Updates the floor constraints (inclusive) of the seek operation. */
-    private void updateSeekFloor(long floorSample, long floorPosition) {
-      this.floorSample = floorSample;
-      this.floorPosition = floorPosition;
-      updateNextSearchPosition();
-    }
-
-    /** Updates the ceiling constraints (exclusive) of the seek operation. */
-    private void updateSeekCeiling(long ceilingSample, long ceilingPosition) {
-      this.ceilingSample = ceilingSample;
-      this.ceilingPosition = ceilingPosition;
-      updateNextSearchPosition();
-    }
-
-    private void updateNextSearchPosition() {
-      this.nextSearchPosition =
-          getNextSearchPosition(
-              targetSample,
-              floorSample,
-              ceilingSample,
-              floorPosition,
-              ceilingPosition,
-              approxBytesPerFrame);
-    }
-
-    /**
-     * Returns the next position in FLAC stream to search for target sample, given [floorPosition,
-     * ceilingPosition).
-     */
-    private static long getNextSearchPosition(
-        long targetSample,
-        long floorSample,
-        long ceilingSample,
-        long floorPosition,
-        long ceilingPosition,
-        long approxBytesPerFrame) {
-      if (floorPosition + 1 >= ceilingPosition || floorSample + 1 >= ceilingSample) {
-        return floorPosition;
-      }
-      long samplesToSkip = targetSample - floorSample;
-      long estimatedBytesPerSample =
-          Math.max(1, (ceilingPosition - floorPosition) / (ceilingSample - floorSample));
-      // In the stream, the samples are accessed in a group of frame. Given a stream position, the
-      // seeker will be able to find the first frame following that position.
-      // Hence, if our target sample is in the middle of a frame, and our estimate position is
-      // correct, or very near the actual sample position, the seeker will keep accessing the next
-      // frame, rather than the frame that contains the target sample.
-      // Moreover, it's better to under-estimate rather than over-estimate, because the extractor
-      // input can skip forward easily, but cannot rewind easily (it may require a new connection
-      // to be made).
-      // Therefore, we should reduce the estimated position by some amount, so it will converge to
-      // the correct frame earlier.
-      long bytesToSkip = samplesToSkip * estimatedBytesPerSample;
-      long confidenceInterval = bytesToSkip / 20;
-
-      long estimatedFramePosition = floorPosition + bytesToSkip - (approxBytesPerFrame - 1);
-      long estimatedPosition = estimatedFramePosition - confidenceInterval;
-
-      return Util.constrainValue(estimatedPosition, floorPosition, ceilingPosition - 1);
-    }
-  }
-
-  /**
-   * A {@link SeekMap} implementation that returns the estimated byte location from {@link
-   * SeekOperationParams#getNextSearchPosition(long, long, long, long, long, long)} for each {@link
-   * #getSeekPoints(long)} query.
-   */
-  private static final class FlacBinarySearchSeekMap implements SeekMap {
+  private static final class FlacSeekTimestampConverter implements SeekTimestampConverter {
     private final FlacStreamInfo streamInfo;
-    private final long firstFramePosition;
-    private final long inputLength;
-    private final long approxBytesPerFrame;
-    private final long durationUs;
 
-    private FlacBinarySearchSeekMap(
-        FlacStreamInfo streamInfo,
-        long firstFramePosition,
-        long inputLength,
-        long durationUs,
-        long approxBytesPerFrame) {
+    public FlacSeekTimestampConverter(FlacStreamInfo streamInfo) {
       this.streamInfo = streamInfo;
-      this.firstFramePosition = firstFramePosition;
-      this.inputLength = inputLength;
-      this.approxBytesPerFrame = approxBytesPerFrame;
-      this.durationUs = durationUs;
     }
 
     @Override
-    public boolean isSeekable() {
-      return true;
-    }
-
-    @Override
-    public SeekPoints getSeekPoints(long timeUs) {
-      long nextSearchPosition =
-          SeekOperationParams.getNextSearchPosition(
-              streamInfo.getSampleIndex(timeUs),
-              /* floorSample= */ 0,
-              /* ceilingSample= */ streamInfo.totalSamples,
-              /* floorPosition= */ firstFramePosition,
-              /* ceilingPosition= */ inputLength,
-              approxBytesPerFrame);
-      return new SeekPoints(new SeekPoint(timeUs, nextSearchPosition));
-    }
-
-    @Override
-    public long getDurationUs() {
-      return durationUs;
+    public long timeUsToTargetTime(long timeUs) {
+      return Assertions.checkNotNull(streamInfo).getSampleIndex(timeUs);
     }
   }
 }

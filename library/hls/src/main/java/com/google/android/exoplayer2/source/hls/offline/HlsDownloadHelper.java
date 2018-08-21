@@ -17,8 +17,10 @@ package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.offline.DownloadHelper;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.offline.TrackKey;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -26,14 +28,12 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
-import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -44,7 +44,7 @@ public final class HlsDownloadHelper extends DownloadHelper {
   private final DataSource.Factory manifestDataSourceFactory;
 
   private @MonotonicNonNull HlsPlaylist playlist;
-  private int[] renditionTypes;
+  private int[] renditionGroups;
 
   public HlsDownloadHelper(Uri uri, DataSource.Factory manifestDataSourceFactory) {
     this.uri = uri;
@@ -54,7 +54,7 @@ public final class HlsDownloadHelper extends DownloadHelper {
   @Override
   protected void prepareInternal() throws IOException {
     DataSource dataSource = manifestDataSourceFactory.createDataSource();
-    playlist = ParsingLoadable.load(dataSource, new HlsPlaylistParser(), uri);
+    playlist = ParsingLoadable.load(dataSource, new HlsPlaylistParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
   /** Returns the HLS playlist. Must not be called until after preparation completes. */
@@ -73,23 +73,24 @@ public final class HlsDownloadHelper extends DownloadHelper {
   public TrackGroupArray getTrackGroups(int periodIndex) {
     Assertions.checkNotNull(playlist);
     if (playlist instanceof HlsMediaPlaylist) {
+      renditionGroups = new int[0];
       return TrackGroupArray.EMPTY;
     }
     // TODO: Generate track groups as in playback. Reverse the mapping in getDownloadAction.
     HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
     TrackGroup[] trackGroups = new TrackGroup[3];
-    renditionTypes = new int[3];
+    renditionGroups = new int[3];
     int trackGroupIndex = 0;
     if (!masterPlaylist.variants.isEmpty()) {
-      renditionTypes[trackGroupIndex] = RenditionKey.TYPE_VARIANT;
+      renditionGroups[trackGroupIndex] = HlsMasterPlaylist.GROUP_INDEX_VARIANT;
       trackGroups[trackGroupIndex++] = new TrackGroup(toFormats(masterPlaylist.variants));
     }
     if (!masterPlaylist.audios.isEmpty()) {
-      renditionTypes[trackGroupIndex] = RenditionKey.TYPE_AUDIO;
+      renditionGroups[trackGroupIndex] = HlsMasterPlaylist.GROUP_INDEX_AUDIO;
       trackGroups[trackGroupIndex++] = new TrackGroup(toFormats(masterPlaylist.audios));
     }
     if (!masterPlaylist.subtitles.isEmpty()) {
-      renditionTypes[trackGroupIndex] = RenditionKey.TYPE_SUBTITLE;
+      renditionGroups[trackGroupIndex] = HlsMasterPlaylist.GROUP_INDEX_SUBTITLE;
       trackGroups[trackGroupIndex++] = new TrackGroup(toFormats(masterPlaylist.subtitles));
     }
     return new TrackGroupArray(Arrays.copyOf(trackGroups, trackGroupIndex));
@@ -97,15 +98,14 @@ public final class HlsDownloadHelper extends DownloadHelper {
 
   @Override
   public HlsDownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
-    Assertions.checkNotNull(renditionTypes);
-    return new HlsDownloadAction(
-        uri, /* isRemoveAction= */ false, data, toRenditionKeys(trackKeys, renditionTypes));
+    Assertions.checkNotNull(renditionGroups);
+    return HlsDownloadAction.createDownloadAction(
+        uri, data, toStreamKeys(trackKeys, renditionGroups));
   }
 
   @Override
   public HlsDownloadAction getRemoveAction(@Nullable byte[] data) {
-    return new HlsDownloadAction(
-        uri, /* isRemoveAction= */ true, data, Collections.<RenditionKey>emptyList());
+    return HlsDownloadAction.createRemoveAction(uri, data);
   }
 
   private static Format[] toFormats(List<HlsMasterPlaylist.HlsUrl> hlsUrls) {
@@ -116,11 +116,11 @@ public final class HlsDownloadHelper extends DownloadHelper {
     return formats;
   }
 
-  private static List<RenditionKey> toRenditionKeys(List<TrackKey> trackKeys, int[] groups) {
-    List<RenditionKey> representationKeys = new ArrayList<>(trackKeys.size());
+  private static List<StreamKey> toStreamKeys(List<TrackKey> trackKeys, int[] groups) {
+    List<StreamKey> representationKeys = new ArrayList<>(trackKeys.size());
     for (int i = 0; i < trackKeys.size(); i++) {
       TrackKey trackKey = trackKeys.get(i);
-      representationKeys.add(new RenditionKey(groups[trackKey.groupIndex], trackKey.trackIndex));
+      representationKeys.add(new StreamKey(groups[trackKey.groupIndex], trackKey.trackIndex));
     }
     return representationKeys;
   }

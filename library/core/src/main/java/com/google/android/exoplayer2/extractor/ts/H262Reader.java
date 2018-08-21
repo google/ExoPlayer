@@ -36,6 +36,7 @@ public final class H262Reader implements ElementaryStreamReader {
   private static final int START_SEQUENCE_HEADER = 0xB3;
   private static final int START_EXTENSION = 0xB5;
   private static final int START_GROUP = 0xB8;
+  private static final int START_USER_DATA = 0xB2;
 
   private String formatId;
   private TrackOutput output;
@@ -48,9 +49,13 @@ public final class H262Reader implements ElementaryStreamReader {
   private boolean hasOutputFormat;
   private long frameDurationUs;
 
+  private final UserDataReader userDataReader;
+  private final ParsableByteArray userDataParsable;
+
   // State that should be reset on seek.
   private final boolean[] prefixFlags;
   private final CsdBuffer csdBuffer;
+  private final NalUnitTargetBuffer userData;
   private long totalBytesWritten;
   private boolean startedFirstSample;
 
@@ -64,14 +69,29 @@ public final class H262Reader implements ElementaryStreamReader {
   private boolean sampleHasPicture;
 
   public H262Reader() {
+    this(null);
+  }
+
+  public H262Reader(UserDataReader userDataReader) {
+    this.userDataReader = userDataReader;
     prefixFlags = new boolean[4];
     csdBuffer = new CsdBuffer(128);
+    if (userDataReader != null) {
+      userData = new NalUnitTargetBuffer(START_USER_DATA, 128);
+      userDataParsable = new ParsableByteArray();
+    } else {
+      userData = null;
+      userDataParsable = null;
+    }
   }
 
   @Override
   public void seek() {
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     csdBuffer.reset();
+    if (userDataReader != null) {
+      userData.reset();
+    }
     totalBytesWritten = 0;
     startedFirstSample = false;
   }
@@ -81,6 +101,9 @@ public final class H262Reader implements ElementaryStreamReader {
     idGenerator.generateNewId();
     formatId = idGenerator.getFormatId();
     output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_VIDEO);
+    if (userDataReader != null) {
+      userDataReader.createTracks(extractorOutput, idGenerator);
+    }
   }
 
   @Override
@@ -106,16 +129,19 @@ public final class H262Reader implements ElementaryStreamReader {
         if (!hasOutputFormat) {
           csdBuffer.onData(dataArray, offset, limit);
         }
+        if (userDataReader != null) {
+          userData.appendToNalUnit(dataArray, offset, limit);
+        }
         return;
       }
 
       // We've found a start code with the following value.
       int startCodeValue = data.data[startCodeOffset + 3] & 0xFF;
+      // This is the number of bytes from the current offset to the start of the next start
+      // code. It may be negative if the start code started in the previously consumed data.
+      int lengthToStartCode = startCodeOffset - offset;
 
       if (!hasOutputFormat) {
-        // This is the number of bytes from the current offset to the start of the next start
-        // code. It may be negative if the start code started in the previously consumed data.
-        int lengthToStartCode = startCodeOffset - offset;
         if (lengthToStartCode > 0) {
           csdBuffer.onData(dataArray, offset, startCodeOffset);
         }
@@ -130,7 +156,24 @@ public final class H262Reader implements ElementaryStreamReader {
           hasOutputFormat = true;
         }
       }
+      if (userDataReader != null) {
+        int bytesAlreadyPassed = 0;
+        if (lengthToStartCode > 0) {
+          userData.appendToNalUnit(dataArray, offset, startCodeOffset);
+        } else {
+          bytesAlreadyPassed = -lengthToStartCode;
+        }
 
+        if (userData.endNalUnit(bytesAlreadyPassed)) {
+          int unescapedLength = NalUnitUtil.unescapeStream(userData.nalData, userData.nalLength);
+          userDataParsable.reset(userData.nalData, unescapedLength);
+          userDataReader.consume(sampleTimeUs, userDataParsable);
+        }
+
+        if (startCodeValue == START_USER_DATA && data.data[startCodeOffset + 2] == 0x1) {
+          userData.startNalUnit(startCodeValue);
+        }
+      }
       if (startCodeValue == START_PICTURE || startCodeValue == START_SEQUENCE_HEADER) {
         int bytesWrittenPastStartCode = limit - startCodeOffset;
         if (startedFirstSample && sampleHasPicture && hasOutputFormat) {

@@ -15,14 +15,13 @@
  */
 package com.google.android.exoplayer2;
 
+import android.support.annotation.Nullable;
+
 /**
  * Holds a {@link Format}.
  */
 public final class FormatHolder {
 
-  /**
-   * The held {@link Format}.
-   */
-  public Format format;
-
+  /** The held {@link Format}. */
+  public @Nullable Format format;
 }

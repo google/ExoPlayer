@@ -87,7 +87,7 @@ public final class RequirementsWatcher {
   public void start() {
     Assertions.checkNotNull(Looper.myLooper());
 
-    checkRequirements(true);
+    requirementsWereMet = requirements.checkRequirements(context);
 
     IntentFilter filter = new IntentFilter();
     if (requirements.getRequiredNetworkType() != Requirements.NETWORK_TYPE_NONE) {
@@ -158,13 +158,11 @@ public final class RequirementsWatcher {
     }
   }
 
-  private void checkRequirements(boolean force) {
+  private void checkRequirements() {
     boolean requirementsAreMet = requirements.checkRequirements(context);
-    if (!force) {
-      if (requirementsAreMet == requirementsWereMet) {
-        logd("requirementsAreMet is still " + requirementsAreMet);
-        return;
-      }
+    if (requirementsAreMet == requirementsWereMet) {
+      logd("requirementsAreMet is still " + requirementsAreMet);
+      return;
     }
     requirementsWereMet = requirementsAreMet;
     if (requirementsAreMet) {
@@ -187,7 +185,7 @@ public final class RequirementsWatcher {
     public void onReceive(Context context, Intent intent) {
       if (!isInitialStickyBroadcast()) {
         logd(RequirementsWatcher.this + " received " + intent.getAction());
-        checkRequirements(false);
+        checkRequirements();
       }
     }
   }
@@ -198,14 +196,14 @@ public final class RequirementsWatcher {
     public void onAvailable(Network network) {
       super.onAvailable(network);
       logd(RequirementsWatcher.this + " NetworkCallback.onAvailable");
-      checkRequirements(false);
+      checkRequirements();
     }
 
     @Override
     public void onLost(Network network) {
       super.onLost(network);
       logd(RequirementsWatcher.this + " NetworkCallback.onLost");
-      checkRequirements(false);
+      checkRequirements();
     }
   }
 }

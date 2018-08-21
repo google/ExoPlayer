@@ -34,7 +34,7 @@ public final class DefaultContentMetadata implements ContentMetadata {
 
   /** An empty DefaultContentMetadata. */
   public static final DefaultContentMetadata EMPTY =
-      new DefaultContentMetadata(Collections.<String, byte[]>emptyMap());
+      new DefaultContentMetadata(Collections.emptyMap());
 
   private static final int MAX_VALUE_LENGTH = 10 * 1024 * 1024;
   private int hashCode;

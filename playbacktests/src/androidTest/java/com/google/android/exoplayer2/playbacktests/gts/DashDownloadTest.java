@@ -20,11 +20,11 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloader;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
@@ -106,7 +106,7 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
   private DashDownloader downloadContent() throws Exception {
     DashManifest dashManifest =
         DashUtil.loadManifest(httpDataSourceFactory.createDataSource(), MANIFEST_URI);
-    ArrayList<RepresentationKey> keys = new ArrayList<>();
+    ArrayList<StreamKey> keys = new ArrayList<>();
     for (int pIndex = 0; pIndex < dashManifest.getPeriodCount(); pIndex++) {
       List<AdaptationSet> adaptationSets = dashManifest.getPeriod(pIndex).adaptationSets;
       for (int aIndex = 0; aIndex < adaptationSets.size(); aIndex++) {
@@ -116,7 +116,7 @@ public final class DashDownloadTest extends ActivityInstrumentationTestCase2<Hos
           String id = representations.get(rIndex).format.id;
           if (DashTestData.AAC_AUDIO_REPRESENTATION_ID.equals(id)
               || DashTestData.H264_CDD_FIXED.equals(id)) {
-            keys.add(new RepresentationKey(pIndex, aIndex, rIndex));
+            keys.add(new StreamKey(pIndex, aIndex, rIndex));
           }
         }
       }

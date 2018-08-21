@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.analytics;
 
-import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
@@ -27,6 +26,8 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionEventListener;
@@ -39,6 +40,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,7 +61,9 @@ public class AnalyticsCollector
         VideoRendererEventListener,
         MediaSourceEventListener,
         BandwidthMeter.EventListener,
-        DefaultDrmSessionEventListener {
+        DefaultDrmSessionEventListener,
+        VideoListener,
+        AudioListener {
 
   /** Factory for an analytics collector. */
   public static class Factory {
@@ -147,31 +151,6 @@ public class AnalyticsCollector
   }
 
   /**
-   * Notify analytics collector that the viewport size changed.
-   *
-   * @param width The new width of the viewport in device-independent pixels (dp).
-   * @param height The new height of the viewport in device-independent pixels (dp).
-   */
-  public final void notifyViewportSizeChanged(int width, int height) {
-    EventTime eventTime = generatePlayingMediaPeriodEventTime();
-    for (AnalyticsListener listener : listeners) {
-      listener.onViewportSizeChange(eventTime, width, height);
-    }
-  }
-
-  /**
-   * Notify analytics collector that the network type or connectivity changed.
-   *
-   * @param networkInfo The new network info, or null if no network connection exists.
-   */
-  public final void notifyNetworkTypeChanged(@Nullable NetworkInfo networkInfo) {
-    EventTime eventTime = generatePlayingMediaPeriodEventTime();
-    for (AnalyticsListener listener : listeners) {
-      listener.onNetworkTypeChanged(eventTime, networkInfo);
-    }
-  }
-
-  /**
    * Resets the analytics collector for a new media source. Should be called before the player is
    * prepared with a new media source.
    */
@@ -202,14 +181,6 @@ public class AnalyticsCollector
     EventTime eventTime = generatePlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onDecoderEnabled(eventTime, C.TRACK_TYPE_AUDIO, counters);
-    }
-  }
-
-  @Override
-  public final void onAudioSessionId(int audioSessionId) {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
-    for (AnalyticsListener listener : listeners) {
-      listener.onAudioSessionId(eventTime, audioSessionId);
     }
   }
 
@@ -247,6 +218,32 @@ public class AnalyticsCollector
     EventTime eventTime = generateLastReportedPlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onDecoderDisabled(eventTime, C.TRACK_TYPE_AUDIO, counters);
+    }
+  }
+
+  // AudioListener implementation.
+
+  @Override
+  public final void onAudioSessionId(int audioSessionId) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onAudioSessionId(eventTime, audioSessionId);
+    }
+  }
+
+  @Override
+  public void onAudioAttributesChanged(AudioAttributes audioAttributes) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onAudioAttributesChanged(eventTime, audioAttributes);
+    }
+  }
+
+  @Override
+  public void onVolumeChanged(float audioVolume) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onVolumeChanged(eventTime, audioVolume);
     }
   }
 
@@ -288,12 +285,12 @@ public class AnalyticsCollector
   }
 
   @Override
-  public final void onVideoSizeChanged(
-      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
+  public final void onVideoDisabled(DecoderCounters counters) {
+    // The renderers are disabled after we changed the playing media period on the playback thread
+    // but before this change is reported to the app thread.
+    EventTime eventTime = generateLastReportedPlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
-      listener.onVideoSizeChanged(
-          eventTime, width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
+      listener.onDecoderDisabled(eventTime, C.TRACK_TYPE_VIDEO, counters);
     }
   }
 
@@ -305,14 +302,29 @@ public class AnalyticsCollector
     }
   }
 
+  // VideoListener implementation.
+
   @Override
-  public final void onVideoDisabled(DecoderCounters counters) {
-    // The renderers are disabled after we changed the playing media period on the playback thread
-    // but before this change is reported to the app thread.
-    EventTime eventTime = generateLastReportedPlayingMediaPeriodEventTime();
+  public final void onVideoSizeChanged(
+      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
-      listener.onDecoderDisabled(eventTime, C.TRACK_TYPE_VIDEO, counters);
+      listener.onVideoSizeChanged(
+          eventTime, width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
     }
+  }
+
+  @Override
+  public void onSurfaceSizeChanged(int width, int height) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onSurfaceSizeChanged(eventTime, width, height);
+    }
+  }
+
+  @Override
+  public final void onRenderedFirstFrame() {
+    // Do nothing. Already reported in VideoRendererEventListener.onRenderedFirstFrame.
   }
 
   // MediaSourceEventListener implementation.
@@ -420,7 +432,7 @@ public class AnalyticsCollector
 
   @Override
   public final void onTimelineChanged(
-      Timeline timeline, Object manifest, @Player.TimelineChangeReason int reason) {
+      Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
     mediaPeriodQueueTracker.onTimelineChanged(timeline);
     EventTime eventTime = generatePlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
@@ -583,8 +595,6 @@ public class AnalyticsCollector
       // This event is for content in a future window. Assume default start position.
       eventPositionMs = timeline.getWindow(windowIndex, window).getDefaultPositionMs();
     }
-    // TODO(b/30792113): implement this properly (player.getTotalBufferedDuration()).
-    long bufferedDurationMs = player.getBufferedPosition() - player.getContentPosition();
     return new EventTime(
         realtimeMs,
         timeline,
@@ -592,7 +602,7 @@ public class AnalyticsCollector
         mediaPeriodId,
         eventPositionMs,
         player.getCurrentPosition(),
-        bufferedDurationMs);
+        player.getTotalBufferedDuration());
   }
 
   private EventTime generateEventTime(@Nullable WindowAndMediaPeriodId mediaPeriod) {
@@ -774,8 +784,7 @@ public class AnalyticsCollector
       if (newTimeline.isEmpty() || timeline.isEmpty()) {
         return mediaPeriod;
       }
-      Object uid =
-          timeline.getPeriod(mediaPeriod.mediaPeriodId.periodIndex, period, /* setIds= */ true).uid;
+      Object uid = timeline.getUidOfPeriod(mediaPeriod.mediaPeriodId.periodIndex);
       int newPeriodIndex = newTimeline.getIndexOfPeriod(uid);
       if (newPeriodIndex == C.INDEX_UNSET) {
         return mediaPeriod;

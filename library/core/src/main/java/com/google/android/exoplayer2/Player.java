@@ -22,9 +22,13 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioListener;
+import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -49,6 +53,89 @@ import java.lang.annotation.RetentionPolicy;
  * </ul>
  */
 public interface Player {
+
+  /** The audio component of a {@link Player}. */
+  interface AudioComponent {
+
+    /**
+     * Adds a listener to receive audio events.
+     *
+     * @param listener The listener to register.
+     */
+    void addAudioListener(AudioListener listener);
+
+    /**
+     * Removes a listener of audio events.
+     *
+     * @param listener The listener to unregister.
+     */
+    void removeAudioListener(AudioListener listener);
+
+    /**
+     * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
+     * default audio attributes will be used. They are suitable for general media playback.
+     *
+     * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
+     * the audio track is recreated. A new audio session id will also be generated.
+     *
+     * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
+     * ignored, but they will take effect if audio is later played without tunneling.
+     *
+     * <p>If the device is running a build before platform API version 21, audio attributes cannot
+     * be set directly on the underlying audio track. In this case, the usage will be mapped onto an
+     * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
+     *
+     * @param audioAttributes The attributes to use for audio playback.
+     * @deprecated Use {@link AudioComponent#setAudioAttributes(AudioAttributes, boolean)}.
+     */
+    @Deprecated
+    void setAudioAttributes(AudioAttributes audioAttributes);
+
+    /**
+     * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
+     * default audio attributes will be used. They are suitable for general media playback.
+     *
+     * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
+     * the audio track is recreated. A new audio session id will also be generated.
+     *
+     * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
+     * ignored, but they will take effect if audio is later played without tunneling.
+     *
+     * <p>If the device is running a build before platform API version 21, audio attributes cannot
+     * be set directly on the underlying audio track. In this case, the usage will be mapped onto an
+     * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
+     *
+     * <p>If audio focus should be handled, the {@link AudioAttributes#usage} must be {@link
+     * C#USAGE_MEDIA} or {@link C#USAGE_GAME}. Other usages will throw an {@link
+     * IllegalArgumentException}.
+     *
+     * @param audioAttributes The attributes to use for audio playback.
+     * @param handleAudioFocus True if the player should handle audio focus, false otherwise.
+     */
+    void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus);
+
+    /** Returns the attributes for audio playback. */
+    AudioAttributes getAudioAttributes();
+
+    /** Returns the audio session identifier, or {@link C#AUDIO_SESSION_ID_UNSET} if not set. */
+    int getAudioSessionId();
+
+    /** Sets information on an auxiliary audio effect to attach to the underlying audio track. */
+    void setAuxEffectInfo(AuxEffectInfo auxEffectInfo);
+
+    /** Detaches any previously attached auxiliary audio effect from the underlying audio track. */
+    void clearAuxEffectInfo();
+
+    /**
+     * Sets the audio volume, with 0 being silence and 1 being unity gain.
+     *
+     * @param audioVolume The audio volume.
+     */
+    void setVolume(float audioVolume);
+
+    /** Returns the audio volume, with 0 being silence and 1 being unity gain. */
+    float getVolume();
+  }
 
   /** The video component of a {@link Player}. */
   interface VideoComponent {
@@ -175,23 +262,25 @@ public interface Player {
   }
 
   /**
-   * Listener of changes in player state.
+   * Listener of changes in player state. All methods have no-op default implementations to allow
+   * selective overrides.
    */
   interface EventListener {
 
     /**
      * Called when the timeline and/or manifest has been refreshed.
-     * <p>
-     * Note that if the timeline has changed then a position discontinuity may also have occurred.
-     * For example, the current period index may have changed as a result of periods being added or
-     * removed from the timeline. This will <em>not</em> be reported via a separate call to
+     *
+     * <p>Note that if the timeline has changed then a position discontinuity may also have
+     * occurred. For example, the current period index may have changed as a result of periods being
+     * added or removed from the timeline. This will <em>not</em> be reported via a separate call to
      * {@link #onPositionDiscontinuity(int)}.
      *
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param manifest The latest manifest. May be null.
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      */
-    void onTimelineChanged(Timeline timeline, Object manifest, @TimelineChangeReason int reason);
+    default void onTimelineChanged(
+        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
 
     /**
      * Called when the available or selected tracks change.
@@ -200,46 +289,47 @@ public interface Player {
      * @param trackSelections The track selections for each renderer. Never null and always of
      *     length {@link #getRendererCount()}, but may contain null elements.
      */
-    void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections);
+    default void onTracksChanged(
+        TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
     /**
      * Called when the player starts or stops loading the source.
      *
      * @param isLoading Whether the source is currently being loaded.
      */
-    void onLoadingChanged(boolean isLoading);
+    default void onLoadingChanged(boolean isLoading) {}
 
     /**
-     * Called when the value returned from either {@link #getPlayWhenReady()} or
-     * {@link #getPlaybackState()} changes.
+     * Called when the value returned from either {@link #getPlayWhenReady()} or {@link
+     * #getPlaybackState()} changes.
      *
      * @param playWhenReady Whether playback will proceed when ready.
      * @param playbackState One of the {@code STATE} constants.
      */
-    void onPlayerStateChanged(boolean playWhenReady, int playbackState);
+    default void onPlayerStateChanged(boolean playWhenReady, int playbackState) {}
 
     /**
      * Called when the value of {@link #getRepeatMode()} changes.
      *
      * @param repeatMode The {@link RepeatMode} used for playback.
      */
-    void onRepeatModeChanged(@RepeatMode int repeatMode);
+    default void onRepeatModeChanged(@RepeatMode int repeatMode) {}
 
     /**
      * Called when the value of {@link #getShuffleModeEnabled()} changes.
      *
      * @param shuffleModeEnabled Whether shuffling of windows is enabled.
      */
-    void onShuffleModeEnabledChanged(boolean shuffleModeEnabled);
+    default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
 
     /**
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
-     * immediately after this method is called. The player instance can still be used, and
-     * {@link #release()} must still be called on the player should it no longer be required.
+     * immediately after this method is called. The player instance can still be used, and {@link
+     * #release()} must still be called on the player should it no longer be required.
      *
      * @param error The error.
      */
-    void onPlayerError(ExoPlaybackException error);
+    default void onPlayerError(ExoPlaybackException error) {}
 
     /**
      * Called when a position discontinuity occurs without a change to the timeline. A position
@@ -247,14 +337,14 @@ public interface Player {
      * transitioning from one period in the timeline to the next), or when the playback position
      * jumps within the period currently being played (as a result of a seek being performed, or
      * when the source introduces a discontinuity internally).
-     * <p>
-     * When a position discontinuity occurs as a result of a change to the timeline this method is
-     * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object, int)} is called in this
+     *
+     * <p>When a position discontinuity occurs as a result of a change to the timeline this method
+     * is <em>not</em> called. {@link #onTimelineChanged(Timeline, Object, int)} is called in this
      * case.
      *
      * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
-    void onPositionDiscontinuity(@DiscontinuityReason int reason);
+    default void onPositionDiscontinuity(@DiscontinuityReason int reason) {}
 
     /**
      * Called when the current playback parameters change. The playback parameters may change due to
@@ -264,83 +354,35 @@ public interface Player {
      *
      * @param playbackParameters The playback parameters.
      */
-    void onPlaybackParametersChanged(PlaybackParameters playbackParameters);
+    default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
 
     /**
      * Called when all pending seek requests have been processed by the player. This is guaranteed
-     * to happen after any necessary changes to the player state were reported to
-     * {@link #onPlayerStateChanged(boolean, int)}.
+     * to happen after any necessary changes to the player state were reported to {@link
+     * #onPlayerStateChanged(boolean, int)}.
      */
-    void onSeekProcessed();
-
+    default void onSeekProcessed() {}
   }
 
   /**
-   * {@link EventListener} allowing selective overrides. All methods are implemented as no-ops.
+   * @deprecated Use {@link EventListener} interface directly for selective overrides as all methods
+   *     are implemented as no-op default methods.
    */
+  @Deprecated
   abstract class DefaultEventListener implements EventListener {
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest,
-        @TimelineChangeReason int reason) {
+    public void onTimelineChanged(
+        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
       // Call deprecated version. Otherwise, do nothing.
       onTimelineChanged(timeline, manifest);
     }
 
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onRepeatModeChanged(@RepeatMode int repeatMode) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlayerError(ExoPlaybackException error) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onSeekProcessed() {
-      // Do nothing.
-    }
-
-    /**
-     * @deprecated Use {@link DefaultEventListener#onTimelineChanged(Timeline, Object, int)}
-     *     instead.
-     */
+    /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, Object, int)} instead. */
     @Deprecated
-    public void onTimelineChanged(Timeline timeline, Object manifest) {
+    public void onTimelineChanged(Timeline timeline, @Nullable Object manifest) {
       // Do nothing.
     }
-
   }
 
   /**
@@ -427,6 +469,10 @@ public interface Player {
    * Timeline or manifest changed as a result of an dynamic update introduced by the played media.
    */
   int TIMELINE_CHANGE_REASON_DYNAMIC = 2;
+
+  /** Returns the component of this player for audio output, or null if audio is not supported. */
+  @Nullable
+  AudioComponent getAudioComponent();
 
   /** Returns the component of this player for video output, or null if video is not supported. */
   @Nullable
@@ -678,22 +724,26 @@ public interface Player {
    */
   long getDuration();
 
-  /**
-   * Returns the playback position in the current window, in milliseconds.
-   */
+  /** Returns the playback position in the current content window or ad, in milliseconds. */
   long getCurrentPosition();
 
   /**
-   * Returns an estimate of the position in the current window up to which data is buffered, in
-   * milliseconds.
+   * Returns an estimate of the position in the current content window or ad up to which data is
+   * buffered, in milliseconds.
    */
   long getBufferedPosition();
 
   /**
-   * Returns an estimate of the percentage in the current window up to which data is buffered, or 0
-   * if no estimate is available.
+   * Returns an estimate of the percentage in the current content window or ad up to which data is
+   * buffered, or 0 if no estimate is available.
    */
   int getBufferedPercentage();
+
+  /**
+   * Returns an estimate of the total buffered duration from the current position, in milliseconds.
+   * This includes pre-buffered data for subsequent ads and windows.
+   */
+  long getTotalBufferedDuration();
 
   /**
    * Returns whether the current window is dynamic, or {@code false} if the {@link Timeline} is
@@ -735,4 +785,10 @@ public interface Player {
    */
   long getContentPosition();
 
+  /**
+   * If {@link #isPlayingAd()} returns {@code true}, returns an estimate of the content position in
+   * the current content window up to which data is buffered, in milliseconds. If there is no ad
+   * playing, the returned position is the same as that returned by {@link #getBufferedPosition()}.
+   */
+  long getContentBufferedPosition();
 }

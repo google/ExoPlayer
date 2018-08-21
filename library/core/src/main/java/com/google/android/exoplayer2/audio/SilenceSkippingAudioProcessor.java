@@ -33,12 +33,12 @@ public final class SilenceSkippingAudioProcessor implements AudioProcessor {
    * The minimum duration of audio that must be below {@link #SILENCE_THRESHOLD_LEVEL} to classify
    * that part of audio as silent, in microseconds.
    */
-  private static final long MINIMUM_SILENCE_DURATION_US = 100_000;
+  private static final long MINIMUM_SILENCE_DURATION_US = 150_000;
   /**
    * The duration of silence by which to extend non-silent sections, in microseconds. The value must
    * not exceed {@link #MINIMUM_SILENCE_DURATION_US}.
    */
-  private static final long PADDING_SILENCE_US = 10_000;
+  private static final long PADDING_SILENCE_US = 20_000;
   /**
    * The absolute level below which an individual PCM sample is classified as silent. Note: the
    * specified value will be rounded so that the threshold check only depends on the more

@@ -47,7 +47,7 @@ public final class RandomTrackSelection extends BaseTrackSelection {
 
     @Override
     public RandomTrackSelection createTrackSelection(
-        TrackGroup group, @Nullable BandwidthMeter bandwidthMeter, int... tracks) {
+        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks) {
       return new RandomTrackSelection(group, tracks, random);
     }
   }

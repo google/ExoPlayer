@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -24,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /** Contains the necessary parameters for a download or remove action. */
 public abstract class DownloadAction {
@@ -48,6 +51,48 @@ public abstract class DownloadAction {
      */
     public abstract DownloadAction readFromStream(int version, DataInputStream input)
         throws IOException;
+  }
+
+  private static @Nullable Deserializer[] defaultDeserializers;
+
+  /** Returns available default {@link Deserializer}s. */
+  public static synchronized Deserializer[] getDefaultDeserializers() {
+    if (defaultDeserializers != null) {
+      return defaultDeserializers;
+    }
+    Deserializer[] deserializers = new Deserializer[4];
+    int count = 0;
+    deserializers[count++] = ProgressiveDownloadAction.DESERIALIZER;
+    Class<?> clazz;
+    // Full class names used for constructor args so the LINT rule triggers if any of them move.
+    try {
+      // LINT.IfChange
+      clazz = Class.forName("com.google.android.exoplayer2.source.dash.offline.DashDownloadAction");
+      // LINT.ThenChange(../../../../../../../../../dash/proguard-rules.txt)
+      deserializers[count++] = getDeserializer(clazz);
+    } catch (Exception e) {
+      // Do nothing.
+    }
+    try {
+      // LINT.IfChange
+      clazz = Class.forName("com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction");
+      // LINT.ThenChange(../../../../../../../../../hls/proguard-rules.txt)
+      deserializers[count++] = getDeserializer(clazz);
+    } catch (Exception e) {
+      // Do nothing.
+    }
+    try {
+      // LINT.IfChange
+      clazz =
+          Class.forName(
+              "com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction");
+      // LINT.ThenChange(../../../../../../../../../smoothstreaming/proguard-rules.txt)
+      deserializers[count++] = getDeserializer(clazz);
+    } catch (Exception e) {
+      // Do nothing.
+    }
+    defaultDeserializers = Arrays.copyOf(Assertions.checkNotNull(deserializers), count);
+    return defaultDeserializers;
   }
 
   /**
@@ -132,11 +177,16 @@ public abstract class DownloadAction {
     return uri.equals(other.uri);
   }
 
+  /** Returns keys of tracks to be downloaded. */
+  public List<StreamKey> getKeys() {
+    return Collections.emptyList();
+  }
+
   /** Serializes itself into the {@code output}. */
   protected abstract void writeToStream(DataOutputStream output) throws IOException;
 
   /** Creates a {@link Downloader} with the given parameters. */
-  protected abstract Downloader createDownloader(
+  public abstract Downloader createDownloader(
       DownloaderConstructorHelper downloaderConstructorHelper);
 
   @Override
@@ -160,4 +210,9 @@ public abstract class DownloadAction {
     return result;
   }
 
+  private static Deserializer getDeserializer(Class<?> clazz)
+      throws NoSuchFieldException, IllegalAccessException {
+    Object value = clazz.getDeclaredField("DESERIALIZER").get(null);
+    return (Deserializer) Assertions.checkNotNull(value);
+  }
 }

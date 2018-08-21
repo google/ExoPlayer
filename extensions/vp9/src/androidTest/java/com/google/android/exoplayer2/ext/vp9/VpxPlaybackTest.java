@@ -95,8 +95,7 @@ public class VpxPlaybackTest extends InstrumentationTestCase {
     }
   }
 
-  private static class TestPlaybackRunnable extends Player.DefaultEventListener
-      implements Runnable {
+  private static class TestPlaybackRunnable implements Player.EventListener, Runnable {
 
     private final Context context;
     private final Uri uri;

@@ -52,26 +52,25 @@ public final class PsshAtomUtil {
   @SuppressWarnings("ParameterNotNullable")
   public static byte[] buildPsshAtom(
       UUID systemId, @Nullable UUID[] keyIds, @Nullable byte[] data) {
-    boolean buildV1Atom = keyIds != null;
     int dataLength = data != null ? data.length : 0;
     int psshBoxLength = Atom.FULL_HEADER_SIZE + 16 /* SystemId */ + 4 /* DataSize */ + dataLength;
-    if (buildV1Atom) {
+    if (keyIds != null) {
       psshBoxLength += 4 /* KID_count */ + (keyIds.length * 16) /* KIDs */;
     }
     ByteBuffer psshBox = ByteBuffer.allocate(psshBoxLength);
     psshBox.putInt(psshBoxLength);
     psshBox.putInt(Atom.TYPE_pssh);
-    psshBox.putInt(buildV1Atom ? 0x01000000 : 0 /* version=(buildV1Atom ? 1 : 0), flags=0 */);
+    psshBox.putInt(keyIds != null ? 0x01000000 : 0 /* version=(buildV1Atom ? 1 : 0), flags=0 */);
     psshBox.putLong(systemId.getMostSignificantBits());
     psshBox.putLong(systemId.getLeastSignificantBits());
-    if (buildV1Atom) {
+    if (keyIds != null) {
       psshBox.putInt(keyIds.length);
       for (UUID keyId : keyIds) {
         psshBox.putLong(keyId.getMostSignificantBits());
         psshBox.putLong(keyId.getLeastSignificantBits());
       }
     }
-    if (dataLength != 0) {
+    if (data != null && data.length != 0) {
       psshBox.putInt(data.length);
       psshBox.put(data);
     } // Else the last 4 bytes are a 0 DataSize.

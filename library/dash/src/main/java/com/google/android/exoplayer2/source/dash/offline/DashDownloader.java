@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.offline.DownloadException;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
 import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.DashWrappingSegmentIndex;
@@ -30,7 +31,6 @@ import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.IOException;
@@ -51,9 +51,7 @@ import java.util.List;
  * // period.
  * DashDownloader dashDownloader =
  *     new DashDownloader(
- *         manifestUrl,
- *         Collections.singletonList(new RepresentationKey(0, 0, 0)),
- *         constructorHelper);
+ *         manifestUrl, Collections.singletonList(new StreamKey(0, 0, 0)), constructorHelper);
  * // Perform the download.
  * dashDownloader.download();
  * // Access downloaded data using CacheDataSource
@@ -61,19 +59,17 @@ import java.util.List;
  *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
  * }</pre>
  */
-public final class DashDownloader extends SegmentDownloader<DashManifest, RepresentationKey> {
+public final class DashDownloader extends SegmentDownloader<DashManifest> {
 
   /**
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
-   * @param representationKeys Keys defining which representations in the manifest should be
-   *     selected for download. If empty, all representations are downloaded.
+   * @param streamKeys Keys defining which representations in the manifest should be selected for
+   *     download. If empty, all representations are downloaded.
    * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
    */
   public DashDownloader(
-      Uri manifestUri,
-      List<RepresentationKey> representationKeys,
-      DownloaderConstructorHelper constructorHelper) {
-    super(manifestUri, representationKeys, constructorHelper);
+      Uri manifestUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
+    super(manifestUri, streamKeys, constructorHelper);
   }
 
   @Override
@@ -167,7 +163,9 @@ public final class DashDownloader extends SegmentDownloader<DashManifest, Repres
       return index;
     }
     ChunkIndex seekMap = DashUtil.loadChunkIndex(dataSource, trackType, representation);
-    return seekMap == null ? null : new DashWrappingSegmentIndex(seekMap);
+    return seekMap == null
+        ? null
+        : new DashWrappingSegmentIndex(seekMap, representation.presentationTimeOffsetUs);
   }
 
 }

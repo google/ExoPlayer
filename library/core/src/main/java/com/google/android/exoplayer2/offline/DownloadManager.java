@@ -108,7 +108,8 @@ public final class DownloadManager {
    * @param upstreamDataSourceFactory A {@link DataSource.Factory} for creating data sources for
    *     downloading upstream data.
    * @param actionSaveFile File to save active actions.
-   * @param deserializers Used to deserialize {@link DownloadAction}s.
+   * @param deserializers Used to deserialize {@link DownloadAction}s. If empty, {@link
+   *     DownloadAction#getDefaultDeserializers()} is used instead.
    */
   public DownloadManager(
       Cache cache,
@@ -127,7 +128,8 @@ public final class DownloadManager {
    * @param constructorHelper A {@link DownloaderConstructorHelper} to create {@link Downloader}s
    *     for downloading data.
    * @param actionFile The file in which active actions are saved.
-   * @param deserializers Used to deserialize {@link DownloadAction}s.
+   * @param deserializers Used to deserialize {@link DownloadAction}s. If empty, {@link
+   *     DownloadAction#getDefaultDeserializers()} is used instead.
    */
   public DownloadManager(
       DownloaderConstructorHelper constructorHelper,
@@ -149,7 +151,8 @@ public final class DownloadManager {
    * @param maxSimultaneousDownloads The maximum number of simultaneous download tasks.
    * @param minRetryCount The minimum number of times a task must be retried before failing.
    * @param actionFile The file in which active actions are saved.
-   * @param deserializers Used to deserialize {@link DownloadAction}s.
+   * @param deserializers Used to deserialize {@link DownloadAction}s. If empty, {@link
+   *     DownloadAction#getDefaultDeserializers()} is used instead.
    */
   public DownloadManager(
       DownloaderConstructorHelper constructorHelper,
@@ -157,13 +160,12 @@ public final class DownloadManager {
       int minRetryCount,
       File actionFile,
       Deserializer... deserializers) {
-    Assertions.checkArgument(deserializers.length > 0, "At least one Deserializer is required.");
-
     this.downloaderConstructorHelper = constructorHelper;
     this.maxActiveDownloadTasks = maxSimultaneousDownloads;
     this.minRetryCount = minRetryCount;
     this.actionFile = new ActionFile(actionFile);
-    this.deserializers = deserializers;
+    this.deserializers =
+        deserializers.length > 0 ? deserializers : DownloadAction.getDefaultDeserializers();
     this.downloadsStopped = true;
 
     tasks = new ArrayList<>();
@@ -728,6 +730,11 @@ public final class DownloadManager {
           return "CANCELING";
         case STATE_STARTED_STOPPING:
           return "STOPPING";
+        case STATE_QUEUED:
+        case STATE_STARTED:
+        case STATE_COMPLETED:
+        case STATE_CANCELED:
+        case STATE_FAILED:
         default:
           return TaskState.getStateString(currentState);
       }
@@ -740,6 +747,11 @@ public final class DownloadManager {
         case STATE_STARTED_CANCELING:
         case STATE_STARTED_STOPPING:
           return STATE_STARTED;
+        case STATE_QUEUED:
+        case STATE_STARTED:
+        case STATE_COMPLETED:
+        case STATE_CANCELED:
+        case STATE_FAILED:
         default:
           return currentState;
       }
@@ -773,7 +785,7 @@ public final class DownloadManager {
     private void stop() {
       if (changeStateAndNotify(STATE_STARTED, STATE_STARTED_STOPPING)) {
         logd("Stopping", this);
-        thread.interrupt();
+        cancelDownload();
       }
     }
 
