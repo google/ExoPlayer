@@ -109,39 +109,6 @@ public class SimpleExoPlayer
   private VideoFrameMetadataListener videoFrameMetadataListener;
 
   /**
-   * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
-   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-   * @param loadControl The {@link LoadControl} that will be used by the instance.
-   * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
-   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
-   *     will not be used for DRM protected playbacks.
-   * @param looper The {@link Looper} which must be used for all calls to the player and which is
-   *     used to call listeners on.
-   * @deprecated Use {@link #SimpleExoPlayer(Context, RenderersFactory, TrackSelector, LoadControl,
-   *     BandwidthMeter, DrmSessionManager, Looper)}. The use of {@link
-   *     SimpleExoPlayer#setAudioAttributes(AudioAttributes, boolean)} to manage audio focus will be
-   *     unavailable for a player created with this constructor.
-   */
-  @Deprecated
-  protected SimpleExoPlayer(
-      RenderersFactory renderersFactory,
-      TrackSelector trackSelector,
-      LoadControl loadControl,
-      BandwidthMeter bandwidthMeter,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      Looper looper) {
-    this(
-        /* context= */ null,
-        renderersFactory,
-        trackSelector,
-        loadControl,
-        drmSessionManager,
-        bandwidthMeter,
-        new AnalyticsCollector.Factory(),
-        looper);
-  }
-
-  /**
    * @param context A {@link Context}.
    * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
