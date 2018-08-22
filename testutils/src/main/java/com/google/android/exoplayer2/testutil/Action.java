@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
+import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 
 /**
@@ -503,10 +504,24 @@ public abstract class Action {
         final Surface surface,
         final HandlerWrapper handler,
         final ActionNode nextAction) {
-      // Schedule one message on the playback thread to pause the player immediately.
+      Handler testThreadHandler = new Handler();
+      // Schedule a message on the playback thread to ensure the player is paused immediately.
       player
           .createMessage(
-              (messageType, payload) -> player.setPlayWhenReady(/* playWhenReady= */ false))
+              (messageType, payload) -> {
+                // Block playback thread until pause command has been sent from test thread.
+                ConditionVariable blockPlaybackThreadCondition = new ConditionVariable();
+                testThreadHandler.post(
+                    () -> {
+                      player.setPlayWhenReady(/* playWhenReady= */ false);
+                      blockPlaybackThreadCondition.open();
+                    });
+                try {
+                  blockPlaybackThreadCondition.block();
+                } catch (InterruptedException e) {
+                  // Ignore.
+                }
+              })
           .setPosition(windowIndex, positionMs)
           .send();
       // Schedule another message on this test thread to continue action schedule.
@@ -515,7 +530,7 @@ public abstract class Action {
               (messageType, payload) ->
                   nextAction.schedule(player, trackSelector, surface, handler))
           .setPosition(windowIndex, positionMs)
-          .setHandler(new Handler())
+          .setHandler(testThreadHandler)
           .send();
       player.setPlayWhenReady(true);
     }

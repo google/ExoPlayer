@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
@@ -1290,12 +1289,12 @@ public final class ExoPlayerTest {
   @Test
   public void testPlaybackErrorDuringSourceInfoRefreshWithShuffleModeEnabledUsesCorrectFirstPeriod()
       throws Exception {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
-    FakeMediaSource mediaSource = new FakeMediaSource(/* timeline= */ null, /* manifest= */ null);
+    FakeMediaSource mediaSource =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), /* manifest= */ null);
     ConcatenatingMediaSource concatenatingMediaSource =
         new ConcatenatingMediaSource(
             /* isAtomic= */ false, new FakeShuffleOrder(0), mediaSource, mediaSource);
-    AtomicInteger windowIndexAfterReprepare = new AtomicInteger();
+    AtomicInteger windowIndexAfterError = new AtomicInteger();
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("testPlaybackErrorDuringSourceInfoRefreshUsesCorrectFirstPeriod")
             .setShuffleModeEnabled(true)
@@ -1304,17 +1303,12 @@ public final class ExoPlayerTest {
             // is still being prepared. The error will be thrown while the player handles the new
             // source info.
             .seek(/* windowIndex= */ 100, /* positionMs= */ 0)
-            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline, /* newManifest= */ null))
             .waitForPlaybackState(Player.STATE_IDLE)
-            // Re-prepare to play the source in its default shuffled order.
-            .prepareSource(
-                concatenatingMediaSource, /* resetPosition= */ false, /* resetState= */ false)
-            .waitForTimelineChanged(null)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
                   public void run(SimpleExoPlayer player) {
-                    windowIndexAfterReprepare.set(player.getCurrentWindowIndex());
+                    windowIndexAfterError.set(player.getCurrentWindowIndex());
                   }
                 })
             .build();
@@ -1330,7 +1324,7 @@ public final class ExoPlayerTest {
       // Expected exception.
       assertThat(e.getUnexpectedException()).isInstanceOf(IllegalSeekPositionException.class);
     }
-    assertThat(windowIndexAfterReprepare.get()).isEqualTo(1);
+    assertThat(windowIndexAfterError.get()).isEqualTo(1);
   }
 
   @Test
@@ -2253,21 +2247,20 @@ public final class ExoPlayerTest {
   @Test
   public void testUpdateTrackSelectorThenSeekToUnpreparedPeriod_returnsEmptyTrackGroups()
       throws Exception {
-    Timeline fakeTimeline = new FakeTimeline(/* windowCount= */ 1);
+    // Use unset duration to prevent pre-loading of the second window.
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ C.TIME_UNSET));
     MediaSource[] fakeMediaSources = {
       new FakeMediaSource(fakeTimeline, null, Builder.VIDEO_FORMAT),
       new FakeMediaSource(fakeTimeline, null, Builder.AUDIO_FORMAT)
     };
-    MediaSource mediaSource =
-        new ConcatenatingMediaSource(
-            /* isAtomic= */ false,
-            /* useLazyPreparation= */ true,
-            new ShuffleOrder.DefaultShuffleOrder(0),
-            fakeMediaSources);
+    MediaSource mediaSource = new ConcatenatingMediaSource(fakeMediaSources);
     FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
     DefaultTrackSelector trackSelector = new DefaultTrackSelector();
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder("testSendMessages")
+        new ActionSchedule.Builder("testUpdateTrackSelectorThenSeekToUnpreparedPeriod")
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
