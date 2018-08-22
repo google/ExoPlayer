@@ -418,6 +418,7 @@ public final class C {
   /** Indicates that a buffer is (at least partially) encrypted. */
   public static final int BUFFER_FLAG_ENCRYPTED = 1 << 30; // 0x40000000
   /** Indicates that a buffer should be decoded but not rendered. */
+  @SuppressWarnings("NumericOverflow")
   public static final int BUFFER_FLAG_DECODE_ONLY = 1 << 31; // 0x80000000
 
   /**

@@ -424,12 +424,10 @@ public interface Player {
    */
   int STATE_ENDED = 4;
 
-  /**
-   * Repeat modes for playback.
-   */
+  /** Repeat modes for playback. */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({REPEAT_MODE_OFF, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
-  public @interface RepeatMode {}
+  @interface RepeatMode {}
   /**
    * Normal playback without repetition.
    */
@@ -452,7 +450,7 @@ public interface Player {
     DISCONTINUITY_REASON_AD_INSERTION,
     DISCONTINUITY_REASON_INTERNAL
   })
-  public @interface DiscontinuityReason {}
+  @interface DiscontinuityReason {}
   /**
    * Automatic playback transition from one period in the timeline to the next. The period index may
    * be the same as it was before the discontinuity in case the current period is repeated.
@@ -470,13 +468,14 @@ public interface Player {
   /** Discontinuity introduced internally by the source. */
   int DISCONTINUITY_REASON_INTERNAL = 4;
 
-  /**
-   * Reasons for timeline and/or manifest changes.
-   */
+  /** Reasons for timeline and/or manifest changes. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TIMELINE_CHANGE_REASON_PREPARED, TIMELINE_CHANGE_REASON_RESET,
-      TIMELINE_CHANGE_REASON_DYNAMIC})
-  public @interface TimelineChangeReason {}
+  @IntDef({
+    TIMELINE_CHANGE_REASON_PREPARED,
+    TIMELINE_CHANGE_REASON_RESET,
+    TIMELINE_CHANGE_REASON_DYNAMIC
+  })
+  @interface TimelineChangeReason {}
   /**
    * Timeline and manifest changed as a result of a player initialization with new media.
    */
