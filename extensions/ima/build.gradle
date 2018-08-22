@@ -48,8 +48,6 @@ dependencies {
     testImplementation project(modulePrefix + 'testutils-robolectric')
 }
 
-apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'
-
 ext {
     javadocTitle = 'IMA extension'
 }
