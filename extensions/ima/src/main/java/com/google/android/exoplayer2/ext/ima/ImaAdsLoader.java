@@ -631,11 +631,8 @@ public final class ImaAdsLoader
     } else if (fakeContentProgressElapsedRealtimeMs != C.TIME_UNSET) {
       long elapsedSinceEndMs = SystemClock.elapsedRealtime() - fakeContentProgressElapsedRealtimeMs;
       contentPositionMs = fakeContentProgressOffsetMs + elapsedSinceEndMs;
-      int adGroupIndexForPosition =
+      expectedAdGroupIndex =
           adPlaybackState.getAdGroupIndexForPositionUs(C.msToUs(contentPositionMs));
-      if (adGroupIndexForPosition != C.INDEX_UNSET) {
-        expectedAdGroupIndex = adGroupIndexForPosition;
-      }
     } else if (imaAdState == IMA_AD_STATE_NONE && !playingAd && hasContentDuration) {
       contentPositionMs = player.getCurrentPosition();
       // Update the expected ad group index for the current content position. The update is delayed
@@ -1126,15 +1123,6 @@ public final class ImaAdsLoader
     updateAdPlaybackState();
     if (pendingAdLoadError == null) {
       pendingAdLoadError = AdLoadException.createForAdGroup(error, adGroupIndex);
-    }
-    // Discard the ad break, which makes sure we don't receive duplicate load error events.
-    adsManager.discardAdBreak();
-    // Set the next expected ad group index so we can handle multiple load errors in a row.
-    adGroupIndex++;
-    if (adGroupIndex < adPlaybackState.adGroupCount) {
-      expectedAdGroupIndex = adGroupIndex;
-    } else {
-      expectedAdGroupIndex = C.INDEX_UNSET;
     }
     pendingContentPositionMs = C.TIME_UNSET;
   }
