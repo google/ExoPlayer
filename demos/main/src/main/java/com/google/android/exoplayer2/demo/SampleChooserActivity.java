@@ -22,6 +22,7 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.Menu;
@@ -162,8 +163,8 @@ public class SampleChooserActivity extends Activity
     startActivity(
         sample.buildIntent(
             /* context= */ this,
-            preferExtensionDecodersMenuItem.isChecked(),
-            randomAbrMenuItem.isChecked()
+            isNonNullAndChecked(preferExtensionDecodersMenuItem),
+            isNonNullAndChecked(randomAbrMenuItem)
                 ? PlayerActivity.ABR_ALGORITHM_RANDOM
                 : PlayerActivity.ABR_ALGORITHM_DEFAULT));
     return true;
@@ -196,6 +197,11 @@ public class SampleChooserActivity extends Activity
       return R.string.download_scheme_unsupported;
     }
     return 0;
+  }
+
+  private static boolean isNonNullAndChecked(@Nullable MenuItem menuItem) {
+    // Temporary workaround for layouts that do not inflate the options menu.
+    return menuItem != null && menuItem.isChecked();
   }
 
   private final class SampleListLoader extends AsyncTask<String, Void, List<SampleGroup>> {
