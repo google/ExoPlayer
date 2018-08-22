@@ -597,7 +597,7 @@ public class PlayerView extends FrameLayout {
   }
 
   /** Returns the default artwork to display. */
-  public Drawable getDefaultArtwork() {
+  public @Nullable Drawable getDefaultArtwork() {
     return defaultArtwork;
   }
 

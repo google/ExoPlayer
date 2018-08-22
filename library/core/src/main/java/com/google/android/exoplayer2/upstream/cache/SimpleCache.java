@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import android.os.ConditionVariable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
@@ -224,7 +225,7 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized SimpleCacheSpan startReadWriteNonBlocking(String key, long position)
+  public synchronized @Nullable SimpleCacheSpan startReadWriteNonBlocking(String key, long position)
       throws CacheException {
     Assertions.checkState(!released);
     SimpleCacheSpan cacheSpan = getSpan(key, position);
