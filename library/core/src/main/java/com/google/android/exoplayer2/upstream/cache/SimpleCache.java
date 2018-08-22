@@ -232,10 +232,16 @@ public final class SimpleCache implements Cache {
 
     // Read case.
     if (cacheSpan.isCached) {
-      // Obtain a new span with updated last access timestamp.
-      SimpleCacheSpan newCacheSpan = index.get(key).touch(cacheSpan);
-      notifySpanTouched(cacheSpan, newCacheSpan);
-      return newCacheSpan;
+      try {
+        // Obtain a new span with updated last access timestamp.
+        SimpleCacheSpan newCacheSpan = index.get(key).touch(cacheSpan);
+        notifySpanTouched(cacheSpan, newCacheSpan);
+        return newCacheSpan;
+      } catch (CacheException e) {
+        // Ignore. In worst case the cache span is evicted early.
+        // This happens very rarely [Internal: b/38351639]
+        return cacheSpan;
+      }
     }
 
     CachedContent cachedContent = index.getOrAdd(key);
