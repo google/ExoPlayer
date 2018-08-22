@@ -36,12 +36,6 @@ public final class CommonEncryptionDrmTest {
 
   private static final String TAG = "CencDrmTest";
 
-  private static final String URL_cenc =
-      "https://storage.googleapis.com/exoplayer-test-media-1/gts/tears-cenc.mpd";
-  private static final String URL_cbc1 =
-      "https://storage.googleapis.com/exoplayer-test-media-1/gts/tears-aes-cbc1.mpd";
-  private static final String URL_cbcs =
-      "https://storage.googleapis.com/exoplayer-test-media-1/gts/tears-aes-cbcs.mpd";
   private static final String ID_AUDIO = "0";
   private static final String[] IDS_VIDEO = new String[] {"1", "2"};
 
@@ -76,7 +70,10 @@ public final class CommonEncryptionDrmTest {
       // Pass.
       return;
     }
-    testRunner.setStreamName("test_widevine_h264_scheme_cenc").setManifestUrl(URL_cenc).run();
+    testRunner
+        .setStreamName("test_widevine_h264_scheme_cenc")
+        .setManifestUrl(DashTestData.WIDEVINE_SCHEME_CENC)
+        .run();
   }
 
   @Test
@@ -87,7 +84,10 @@ public final class CommonEncryptionDrmTest {
       // Pass.
       return;
     }
-    testRunner.setStreamName("test_widevine_h264_scheme_cbc1").setManifestUrl(URL_cbc1).run();
+    testRunner
+        .setStreamName("test_widevine_h264_scheme_cbc1")
+        .setManifestUrl(DashTestData.WIDEVINE_SCHEME_CBC1)
+        .run();
   }
 
   @Test
@@ -98,7 +98,10 @@ public final class CommonEncryptionDrmTest {
       // Pass.
       return;
     }
-    testRunner.setStreamName("test_widevine_h264_scheme_cbcs").setManifestUrl(URL_cbcs).run();
+    testRunner
+        .setStreamName("test_widevine_h264_scheme_cbcs")
+        .setManifestUrl(DashTestData.WIDEVINE_SCHEME_CBCS)
+        .run();
   }
 
   @Test
