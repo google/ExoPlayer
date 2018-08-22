@@ -19,6 +19,7 @@ import android.content.Context;
 import android.graphics.Point;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -2032,7 +2033,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *     negative integer if this score is worse than the other.
      */
     @Override
-    public int compareTo(AudioTrackScore other) {
+    public int compareTo(@NonNull AudioTrackScore other) {
       if (this.withinRendererCapabilitiesScore != other.withinRendererCapabilitiesScore) {
         return compareInts(this.withinRendererCapabilitiesScore,
             other.withinRendererCapabilitiesScore);

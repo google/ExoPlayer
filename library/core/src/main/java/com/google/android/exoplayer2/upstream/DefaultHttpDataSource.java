@@ -379,7 +379,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *
    * @return The current open connection, or null.
    */
-  protected final HttpURLConnection getConnection() {
+  protected final @Nullable HttpURLConnection getConnection() {
     return connection;
   }
 

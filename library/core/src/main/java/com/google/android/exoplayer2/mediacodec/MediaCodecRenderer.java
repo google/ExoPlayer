@@ -490,7 +490,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return codec;
   }
 
-  protected final MediaCodecInfo getCodecInfo() {
+  protected final @Nullable MediaCodecInfo getCodecInfo() {
     return codecInfo;
   }
 
