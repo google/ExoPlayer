@@ -424,10 +424,13 @@ public interface Player {
    */
   int STATE_ENDED = 4;
 
-  /** Repeat modes for playback. */
+  /**
+   * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
+   * #REPEAT_MODE_ALL}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({REPEAT_MODE_OFF, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
-  @interface RepeatMode {}
+  public @interface RepeatMode {}
   /**
    * Normal playback without repetition.
    */
@@ -441,7 +444,11 @@ public interface Player {
    */
   int REPEAT_MODE_ALL = 2;
 
-  /** Reasons for position discontinuities. */
+  /**
+   * Reasons for position discontinuities. One of {@link #DISCONTINUITY_REASON_PERIOD_TRANSITION},
+   * {@link #DISCONTINUITY_REASON_SEEK}, {@link #DISCONTINUITY_REASON_SEEK_ADJUSTMENT}, {@link
+   * #DISCONTINUITY_REASON_AD_INSERTION} or {@link #DISCONTINUITY_REASON_INTERNAL}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     DISCONTINUITY_REASON_PERIOD_TRANSITION,
@@ -450,7 +457,7 @@ public interface Player {
     DISCONTINUITY_REASON_AD_INSERTION,
     DISCONTINUITY_REASON_INTERNAL
   })
-  @interface DiscontinuityReason {}
+  public @interface DiscontinuityReason {}
   /**
    * Automatic playback transition from one period in the timeline to the next. The period index may
    * be the same as it was before the discontinuity in case the current period is repeated.
@@ -468,14 +475,17 @@ public interface Player {
   /** Discontinuity introduced internally by the source. */
   int DISCONTINUITY_REASON_INTERNAL = 4;
 
-  /** Reasons for timeline and/or manifest changes. */
+  /**
+   * Reasons for timeline and/or manifest changes. One of {@link #TIMELINE_CHANGE_REASON_PREPARED},
+   * {@link #TIMELINE_CHANGE_REASON_RESET} or {@link #TIMELINE_CHANGE_REASON_DYNAMIC}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     TIMELINE_CHANGE_REASON_PREPARED,
     TIMELINE_CHANGE_REASON_RESET,
     TIMELINE_CHANGE_REASON_DYNAMIC
   })
-  @interface TimelineChangeReason {}
+  public @interface TimelineChangeReason {}
   /**
    * Timeline and manifest changed as a result of a player initialization with new media.
    */

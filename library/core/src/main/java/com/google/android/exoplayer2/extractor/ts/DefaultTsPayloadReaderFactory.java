@@ -34,13 +34,24 @@ import java.util.List;
 public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Factory {
 
   /**
-   * Flags controlling elementary stream readers' behavior.
+   * Flags controlling elementary stream readers' behavior. Possible flag values are {@link
+   * #FLAG_ALLOW_NON_IDR_KEYFRAMES}, {@link #FLAG_IGNORE_AAC_STREAM}, {@link
+   * #FLAG_IGNORE_H264_STREAM}, {@link #FLAG_DETECT_ACCESS_UNITS}, {@link
+   * #FLAG_IGNORE_SPLICE_INFO_STREAM} and {@link #FLAG_OVERRIDE_CAPTION_DESCRIPTORS}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {FLAG_ALLOW_NON_IDR_KEYFRAMES, FLAG_IGNORE_AAC_STREAM,
-      FLAG_IGNORE_H264_STREAM, FLAG_DETECT_ACCESS_UNITS, FLAG_IGNORE_SPLICE_INFO_STREAM,
-      FLAG_OVERRIDE_CAPTION_DESCRIPTORS})
+  @IntDef(
+      flag = true,
+      value = {
+        FLAG_ALLOW_NON_IDR_KEYFRAMES,
+        FLAG_IGNORE_AAC_STREAM,
+        FLAG_IGNORE_H264_STREAM,
+        FLAG_DETECT_ACCESS_UNITS,
+        FLAG_IGNORE_SPLICE_INFO_STREAM,
+        FLAG_OVERRIDE_CAPTION_DESCRIPTORS
+      })
   public @interface Flags {}
+
   public static final int FLAG_ALLOW_NON_IDR_KEYFRAMES = 1;
   public static final int FLAG_IGNORE_AAC_STREAM = 1 << 1;
   public static final int FLAG_IGNORE_H264_STREAM = 1 << 2;

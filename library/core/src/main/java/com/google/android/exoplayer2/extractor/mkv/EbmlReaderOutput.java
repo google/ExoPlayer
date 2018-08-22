@@ -27,7 +27,10 @@ import java.lang.annotation.RetentionPolicy;
  */
 /* package */ interface EbmlReaderOutput {
 
-  /** EBML element types. */
+  /**
+   * EBML element types. One of {@link #TYPE_UNKNOWN}, {@link #TYPE_MASTER}, {@link
+   * #TYPE_UNSIGNED_INT}, {@link #TYPE_STRING}, {@link #TYPE_BINARY} or {@link #TYPE_FLOAT}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TYPE_UNKNOWN, TYPE_MASTER, TYPE_UNSIGNED_INT, TYPE_STRING, TYPE_BINARY, TYPE_FLOAT})
   @interface ElementType {}

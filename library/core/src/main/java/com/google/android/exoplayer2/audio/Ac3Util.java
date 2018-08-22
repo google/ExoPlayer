@@ -33,7 +33,10 @@ public final class Ac3Util {
   /** Holds sample format information as presented by a syncframe header. */
   public static final class SyncFrameInfo {
 
-    /** AC3 stream types. See also ETSI TS 102 366 E.1.3.1.1. */
+    /**
+     * AC3 stream types. See also ETSI TS 102 366 E.1.3.1.1. One of {@link #STREAM_TYPE_UNDEFINED},
+     * {@link #STREAM_TYPE_TYPE0}, {@link #STREAM_TYPE_TYPE1} or {@link #STREAM_TYPE_TYPE2}.
+     */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({STREAM_TYPE_UNDEFINED, STREAM_TYPE_TYPE0, STREAM_TYPE_TYPE1, STREAM_TYPE_TYPE2})
     public @interface StreamType {}

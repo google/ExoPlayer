@@ -39,7 +39,10 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
     void onFrameAvailable();
   }
 
-  /** Secure mode to be used by the EGL surface and context. */
+  /**
+   * Secure mode to be used by the EGL surface and context. One of {@link #SECURE_MODE_NONE}, {@link
+   * #SECURE_MODE_SURFACELESS_CONTEXT} or {@link #SECURE_MODE_PROTECTED_PBUFFER}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({SECURE_MODE_NONE, SECURE_MODE_SURFACELESS_CONTEXT, SECURE_MODE_PROTECTED_PBUFFER})
   public @interface SecureMode {}

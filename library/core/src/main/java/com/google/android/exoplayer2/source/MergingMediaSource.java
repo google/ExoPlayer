@@ -40,9 +40,7 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
    */
   public static final class IllegalMergeException extends IOException {
 
-    /**
-     * The reason the merge failed.
-     */
+    /** The reason the merge failed. One of {@link #REASON_PERIOD_COUNT_MISMATCH}. */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({REASON_PERIOD_COUNT_MISMATCH})
     public @interface Reason {}

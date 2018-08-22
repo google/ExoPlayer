@@ -37,7 +37,10 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   /** Thrown when a {@link ClippingMediaSource} cannot clip its wrapped source. */
   public static final class IllegalClippingException extends IOException {
 
-    /** The reason clipping failed. */
+    /**
+     * The reason clipping failed. One of {@link #REASON_INVALID_PERIOD_COUNT}, {@link
+     * #REASON_NOT_SEEKABLE_TO_START} or {@link #REASON_START_EXCEEDS_END}.
+     */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({REASON_INVALID_PERIOD_COUNT, REASON_NOT_SEEKABLE_TO_START, REASON_START_EXCEEDS_END})
     public @interface Reason {}

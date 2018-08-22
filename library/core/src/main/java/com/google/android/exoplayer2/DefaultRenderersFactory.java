@@ -52,11 +52,11 @@ public class DefaultRenderersFactory implements RenderersFactory {
   public static final long DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS = 5000;
 
   /**
-   * Modes for using extension renderers.
+   * Modes for using extension renderers. One of {@link #EXTENSION_RENDERER_MODE_OFF}, {@link
+   * #EXTENSION_RENDERER_MODE_ON} or {@link #EXTENSION_RENDERER_MODE_PREFER}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({EXTENSION_RENDERER_MODE_OFF, EXTENSION_RENDERER_MODE_ON,
-      EXTENSION_RENDERER_MODE_PREFER})
+  @IntDef({EXTENSION_RENDERER_MODE_OFF, EXTENSION_RENDERER_MODE_ON, EXTENSION_RENDERER_MODE_PREFER})
   public @interface ExtensionRendererMode {}
   /**
    * Do not allow use of extension renderers.

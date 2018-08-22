@@ -65,10 +65,13 @@ public final class MatroskaExtractor implements Extractor {
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new MatroskaExtractor()};
 
   /**
-   * Flags controlling the behavior of the extractor.
+   * Flags controlling the behavior of the extractor. Possible flag value is {@link
+   * #FLAG_DISABLE_SEEK_FOR_CUES}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {FLAG_DISABLE_SEEK_FOR_CUES})
+  @IntDef(
+      flag = true,
+      value = {FLAG_DISABLE_SEEK_FOR_CUES})
   public @interface Flags {}
   /**
    * Flag to disable seeking for cues.

@@ -50,7 +50,10 @@ public final class FlacExtractor implements Extractor {
   /** Factory that returns one extractor which is a {@link FlacExtractor}. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new FlacExtractor()};
 
-  /** Flags controlling the behavior of the extractor. */
+  /**
+   * Flags controlling the behavior of the extractor. Possible flag value is {@link
+   * #FLAG_DISABLE_ID3_METADATA}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,

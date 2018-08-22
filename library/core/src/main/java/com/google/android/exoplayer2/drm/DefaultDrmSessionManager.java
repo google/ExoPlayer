@@ -67,7 +67,10 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    */
   public static final String PLAYREADY_CUSTOM_DATA_KEY = "PRCustomData";
 
-  /** Determines the action to be done after a session acquired. */
+  /**
+   * Determines the action to be done after a session acquired. One of {@link #MODE_PLAYBACK},
+   * {@link #MODE_QUERY}, {@link #MODE_DOWNLOAD} or {@link #MODE_RELEASE}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({MODE_PLAYBACK, MODE_QUERY, MODE_DOWNLOAD, MODE_RELEASE})
   public @interface Mode {}

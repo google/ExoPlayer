@@ -47,7 +47,10 @@ public final class AmrExtractor implements Extractor {
   /** Factory for {@link AmrExtractor} instances. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new AmrExtractor()};
 
-  /** Flags controlling the behavior of the extractor. */
+  /**
+   * Flags controlling the behavior of the extractor. Possible flag value is {@link
+   * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
