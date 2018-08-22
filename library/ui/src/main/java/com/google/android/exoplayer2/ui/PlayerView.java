@@ -509,6 +509,7 @@ public class PlayerView extends FrameLayout {
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalSurfaceView) {
           oldVideoComponent.clearVideoSurface(((SphericalSurfaceView) surfaceView).getSurface());
+          oldVideoComponent.clearVideoFrameMetadataListener(((SphericalSurfaceView) surfaceView));
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -535,6 +536,7 @@ public class PlayerView extends FrameLayout {
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalSurfaceView) {
           newVideoComponent.setVideoSurface(((SphericalSurfaceView) surfaceView).getSurface());
+          newVideoComponent.setVideoFrameMetadataListener(((SphericalSurfaceView) surfaceView));
         } else if (surfaceView instanceof SurfaceView) {
           newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
         }
