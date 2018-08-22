@@ -54,7 +54,8 @@ public final class TsExtractor implements Extractor {
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new TsExtractor()};
 
   /**
-   * Modes for the extractor.
+   * Modes for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT} or {@link
+   * #MODE_HLS}.
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({MODE_MULTI_PMT, MODE_SINGLE_PMT, MODE_HLS})

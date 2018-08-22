@@ -62,12 +62,21 @@ public final class FragmentedMp4Extractor implements Extractor {
       () -> new Extractor[] {new FragmentedMp4Extractor()};
 
   /**
-   * Flags controlling the behavior of the extractor.
+   * Flags controlling the behavior of the extractor. Possible flag values are {@link
+   * #FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME}, {@link #FLAG_WORKAROUND_IGNORE_TFDT_BOX},
+   * {@link #FLAG_ENABLE_EMSG_TRACK}, {@link #FLAG_SIDELOADED} and {@link
+   * #FLAG_WORKAROUND_IGNORE_EDIT_LISTS}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME,
-      FLAG_WORKAROUND_IGNORE_TFDT_BOX, FLAG_ENABLE_EMSG_TRACK, FLAG_SIDELOADED,
-      FLAG_WORKAROUND_IGNORE_EDIT_LISTS})
+  @IntDef(
+      flag = true,
+      value = {
+        FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME,
+        FLAG_WORKAROUND_IGNORE_TFDT_BOX,
+        FLAG_ENABLE_EMSG_TRACK,
+        FLAG_SIDELOADED,
+        FLAG_WORKAROUND_IGNORE_EDIT_LISTS
+      })
   public @interface Flags {}
   /**
    * Flag to work around an issue in some video streams where every frame is marked as a sync frame.

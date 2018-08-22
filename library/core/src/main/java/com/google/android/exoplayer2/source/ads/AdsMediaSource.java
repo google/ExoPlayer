@@ -82,7 +82,10 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
    */
   public static final class AdLoadException extends IOException {
 
-    /** Types of ad load exceptions. */
+    /**
+     * Types of ad load exceptions. One of {@link #TYPE_AD}, {@link #TYPE_AD_GROUP}, {@link
+     * #TYPE_ALL_ADS} or {@link #TYPE_UNEXPECTED}.
+     */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({TYPE_AD, TYPE_AD_GROUP, TYPE_ALL_ADS, TYPE_UNEXPECTED})
     public @interface Type {}

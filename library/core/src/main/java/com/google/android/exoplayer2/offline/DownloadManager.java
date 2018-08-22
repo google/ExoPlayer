@@ -521,7 +521,8 @@ public final class DownloadManager {
   public static final class TaskState {
 
     /**
-     * Task states.
+     * Task states. One of {@link #STATE_QUEUED}, {@link #STATE_STARTED}, {@link #STATE_COMPLETED},
+     * {@link #STATE_CANCELED} or {@link #STATE_FAILED}.
      *
      * <p>Transition diagram:
      *
@@ -601,7 +602,10 @@ public final class DownloadManager {
   private static final class Task implements Runnable {
 
     /**
-     * Task states.
+     * Task states. One of {@link TaskState#STATE_QUEUED}, {@link TaskState#STATE_STARTED}, {@link
+     * TaskState#STATE_COMPLETED}, {@link TaskState#STATE_CANCELED}, {@link TaskState#STATE_FAILED},
+     * {@link #STATE_QUEUED_CANCELING}, {@link #STATE_STARTED_CANCELING} or {@link
+     * #STATE_STARTED_STOPPING}.
      *
      * <p>Transition map (vertical states are source states):
      *

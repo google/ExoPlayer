@@ -31,11 +31,18 @@ import java.lang.annotation.RetentionPolicy;
 public final class CaptionStyleCompat {
 
   /**
-   * The type of edge, which may be none.
+   * The type of edge, which may be none. One of {@link #EDGE_TYPE_NONE}, {@link
+   * #EDGE_TYPE_OUTLINE}, {@link #EDGE_TYPE_DROP_SHADOW}, {@link #EDGE_TYPE_RAISED} or {@link
+   * #EDGE_TYPE_DEPRESSED}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({EDGE_TYPE_NONE, EDGE_TYPE_OUTLINE, EDGE_TYPE_DROP_SHADOW, EDGE_TYPE_RAISED,
-      EDGE_TYPE_DEPRESSED})
+  @IntDef({
+    EDGE_TYPE_NONE,
+    EDGE_TYPE_OUTLINE,
+    EDGE_TYPE_DROP_SHADOW,
+    EDGE_TYPE_RAISED,
+    EDGE_TYPE_DEPRESSED
+  })
   public @interface EdgeType {}
   /**
    * Edge type value specifying no character edges.

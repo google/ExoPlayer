@@ -34,10 +34,13 @@ import java.lang.annotation.RetentionPolicy;
  */
 public interface Renderer extends PlayerMessage.Target {
 
-  /** The renderer states. */
+  /**
+   * The renderer states. One of {@link #STATE_DISABLED}, {@link #STATE_ENABLED} or {@link
+   * #STATE_STARTED}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_DISABLED, STATE_ENABLED, STATE_STARTED})
-  @interface State {}
+  public @interface State {}
   /**
    * The renderer is disabled.
    */

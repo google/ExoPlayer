@@ -234,7 +234,11 @@ public final class AdPlaybackState {
     }
   }
 
-  /** Represents the state of an ad in an ad group. */
+  /**
+   * Represents the state of an ad in an ad group. One of {@link #AD_STATE_UNAVAILABLE}, {@link
+   * #AD_STATE_AVAILABLE}, {@link #AD_STATE_SKIPPED}, {@link #AD_STATE_PLAYED} or {@link
+   * #AD_STATE_ERROR}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     AD_STATE_UNAVAILABLE,

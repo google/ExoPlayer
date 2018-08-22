@@ -27,11 +27,16 @@ import java.nio.ByteBuffer;
 public class DecoderInputBuffer extends Buffer {
 
   /**
-   * The buffer replacement mode, which may disable replacement.
+   * The buffer replacement mode, which may disable replacement. One of {@link
+   * #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} or {@link
+   * #BUFFER_REPLACEMENT_MODE_DIRECT}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({BUFFER_REPLACEMENT_MODE_DISABLED, BUFFER_REPLACEMENT_MODE_NORMAL,
-      BUFFER_REPLACEMENT_MODE_DIRECT})
+  @IntDef({
+    BUFFER_REPLACEMENT_MODE_DISABLED,
+    BUFFER_REPLACEMENT_MODE_NORMAL,
+    BUFFER_REPLACEMENT_MODE_DIRECT
+  })
   public @interface BufferReplacementMode {}
   /**
    * Disallows buffer replacement.

@@ -39,10 +39,13 @@ public interface DrmSession<T extends ExoMediaCrypto> {
 
   }
 
-  /** The state of the DRM session. */
+  /**
+   * The state of the DRM session. One of {@link #STATE_RELEASED}, {@link #STATE_ERROR}, {@link
+   * #STATE_OPENING}, {@link #STATE_OPENED} or {@link #STATE_OPENED_WITH_KEYS}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_RELEASED, STATE_ERROR, STATE_OPENING, STATE_OPENED, STATE_OPENED_WITH_KEYS})
-  @interface State {}
+  public @interface State {}
   /**
    * The session has been released.
    */

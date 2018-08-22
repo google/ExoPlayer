@@ -39,7 +39,8 @@ public final class CronetEngineWrapper {
   private final @CronetEngineSource int cronetEngineSource;
 
   /**
-   * Source of {@link CronetEngine}.
+   * Source of {@link CronetEngine}. One of {@link #SOURCE_NATIVE}, {@link #SOURCE_GMS}, {@link
+   * #SOURCE_UNKNOWN}, {@link #SOURCE_USER_PROVIDED} or {@link #SOURCE_UNAVAILABLE}.
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({SOURCE_NATIVE, SOURCE_GMS, SOURCE_UNKNOWN, SOURCE_USER_PROVIDED, SOURCE_UNAVAILABLE})

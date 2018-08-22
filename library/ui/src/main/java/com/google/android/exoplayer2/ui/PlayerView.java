@@ -243,9 +243,12 @@ public class PlayerView extends FrameLayout {
   private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
   private static final int SURFACE_TYPE_MONO360_VIEW = 3;
 
-  /** Determines when the buffering view is shown. */
-  @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
+  /**
+   * Determines when the buffering view is shown. One of {@link #SHOW_BUFFERING_NEVER}, {@link
+   * #SHOW_BUFFERING_WHEN_PLAYING} or {@link #SHOW_BUFFERING_ALWAYS}.
+   */
   @Retention(RetentionPolicy.SOURCE)
+  @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
   public @interface ShowBuffering {}
   /** The buffering view is never shown. */
   public static final int SHOW_BUFFERING_NEVER = 0;
