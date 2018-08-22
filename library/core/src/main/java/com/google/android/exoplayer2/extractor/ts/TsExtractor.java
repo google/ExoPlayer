@@ -243,8 +243,8 @@ public final class TsExtractor implements Extractor {
   @Override
   public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+    long inputLength = input.getLength();
     if (tracksEnded) {
-      long inputLength = input.getLength();
       boolean canReadDuration = inputLength != C.LENGTH_UNSET && mode != MODE_HLS;
       if (canReadDuration && !durationReader.isDurationReadFinished()) {
         return durationReader.readDuration(input, seekPosition, pcrPid);
@@ -324,10 +324,10 @@ public final class TsExtractor implements Extractor {
       payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator);
       tsPacketBuffer.setLimit(limit);
     }
-    if (mode != MODE_HLS && !wereTracksEnded && tracksEnded) {
-      // We have read all tracks from all PMTs in this stream. Now seek to the beginning and read
-      // again to make sure we output all media, including any contained in packets prior to those
-      // containing the track information.
+    if (mode != MODE_HLS && !wereTracksEnded && tracksEnded && inputLength != C.LENGTH_UNSET) {
+      // We have read all tracks from all PMTs in this non-live stream. Now seek to the beginning
+      // and read again to make sure we output all media, including any contained in packets prior
+      // to those containing the track information.
       pendingSeekToStart = true;
     }
 
