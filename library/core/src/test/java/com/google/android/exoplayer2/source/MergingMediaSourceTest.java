@@ -95,15 +95,15 @@ public class MergingMediaSourceTest {
     for (int i = 0; i < timelines.length; i++) {
       mediaSources[i] = new FakeMediaSource(timelines[i], null);
     }
-    MergingMediaSource mediaSource = new MergingMediaSource(mediaSources);
-    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
+    MergingMediaSource mergingMediaSource = new MergingMediaSource(mediaSources);
+    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mergingMediaSource, null);
     try {
       Timeline timeline = testRunner.prepareSource();
       // The merged timeline should always be the one from the first child.
       assertThat(timeline).isEqualTo(timelines[0]);
       testRunner.releaseSource();
-      for (int i = 0; i < mediaSources.length; i++) {
-        mediaSources[i].assertReleased();
+      for (FakeMediaSource mediaSource : mediaSources) {
+        mediaSource.assertReleased();
       }
     } finally {
       testRunner.release();

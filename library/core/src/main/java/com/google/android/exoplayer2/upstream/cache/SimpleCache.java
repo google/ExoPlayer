@@ -191,7 +191,7 @@ public final class SimpleCache implements Cache {
     Assertions.checkState(!released);
     CachedContent cachedContent = index.get(key);
     return cachedContent == null || cachedContent.isEmpty()
-        ? new TreeSet<CacheSpan>()
+        ? new TreeSet<>()
         : new TreeSet<CacheSpan>(cachedContent.getSpans());
   }
 

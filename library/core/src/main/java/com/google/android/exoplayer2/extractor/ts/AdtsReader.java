@@ -81,7 +81,6 @@ public final class AdtsReader implements ElementaryStreamReader {
   private int firstFrameSampleRateIndex;
 
   private int currentFrameVersion;
-  private int currentFrameSampleRateIndex;
 
   // Used when parsing the header.
   private boolean hasOutputFormat;
@@ -327,7 +326,7 @@ public final class AdtsReader implements ElementaryStreamReader {
     adtsScratch.data[0] = buffer.data[buffer.getPosition()];
 
     adtsScratch.setPosition(2);
-    currentFrameSampleRateIndex = adtsScratch.readBits(4);
+    int currentFrameSampleRateIndex = adtsScratch.readBits(4);
     if (firstFrameSampleRateIndex != C.INDEX_UNSET
         && currentFrameSampleRateIndex != firstFrameSampleRateIndex) {
       // Invalid header.

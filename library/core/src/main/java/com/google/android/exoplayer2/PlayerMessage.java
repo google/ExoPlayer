@@ -231,7 +231,7 @@ public final class PlayerMessage {
    * Player.EventListener#onPlayerError(ExoPlaybackException)}.
    *
    * @return This message.
-   * @throws IllegalStateException If {@link #send()} has already been called.
+   * @throws IllegalStateException If this message has already been sent.
    */
   public PlayerMessage send() {
     Assertions.checkState(!isSent);

@@ -213,7 +213,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
 
     /**
      * @param xmlParser The underlying {@link XmlPullParser}
-     * @throws ParserException
+     * @throws ParserException If a parsing error occurs.
      */
     protected void parseStartTag(XmlPullParser xmlParser) throws ParserException {
       // Do nothing.

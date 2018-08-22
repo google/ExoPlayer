@@ -401,8 +401,8 @@ public final class SilenceSkippingAudioProcessorTest {
     public void appendFrames(int count, short... channelLevels) {
       Assertions.checkState(!built);
       for (int i = 0; i < count; i += channelCount) {
-        for (int j = 0; j < channelLevels.length; j++) {
-          buffer.put(channelLevels[j]);
+        for (short channelLevel : channelLevels) {
+          buffer.put(channelLevel);
         }
       }
     }

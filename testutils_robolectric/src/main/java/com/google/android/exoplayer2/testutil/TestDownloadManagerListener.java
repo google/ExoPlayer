@@ -95,7 +95,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   private ArrayBlockingQueue<Integer> getStateQueue(DownloadAction action) {
     synchronized (actionStates) {
       if (!actionStates.containsKey(action)) {
-        actionStates.put(action, new ArrayBlockingQueue<Integer>(10));
+        actionStates.put(action, new ArrayBlockingQueue<>(10));
       }
       return actionStates.get(action);
     }

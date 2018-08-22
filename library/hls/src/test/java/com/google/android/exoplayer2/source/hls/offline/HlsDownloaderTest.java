@@ -191,8 +191,7 @@ public class HlsDownloaderTest {
   private static ArrayList<StreamKey> getKeys(int... variantIndices) {
     ArrayList<StreamKey> streamKeys = new ArrayList<>();
     for (int variantIndex : variantIndices) {
-      final int trackIndex = variantIndex;
-      streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, trackIndex));
+      streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, variantIndex));
     }
     return streamKeys;
   }

@@ -202,7 +202,7 @@ public interface Renderer extends PlayerMessage.Target {
    * @param operatingRate The operating rate.
    * @throws ExoPlaybackException If an error occurs handling the operating rate.
    */
-  default void setOperatingRate(float operatingRate) throws ExoPlaybackException {};
+  default void setOperatingRate(float operatingRate) throws ExoPlaybackException {}
 
   /**
    * Incrementally renders the {@link SampleStream}.
