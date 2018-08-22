@@ -20,8 +20,9 @@ import static com.google.android.exoplayer2.ui.spherical.GlUtil.checkGlError;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
 import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.ui.spherical.Mesh.EyeType;
+import com.google.android.exoplayer2.ui.spherical.ProjectionRenderer.EyeType;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.video.spherical.Projection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -33,14 +34,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /*package*/ final class SceneRenderer {
 
   private final AtomicBoolean frameAvailable;
+  private final ProjectionRenderer projectionRenderer;
 
   private int textureId;
-  @Nullable private SurfaceTexture surfaceTexture;
-  @MonotonicNonNull private Mesh mesh;
-  private boolean meshInitialized;
+  private @MonotonicNonNull SurfaceTexture surfaceTexture;
+  private @Nullable Projection pendingProjection;
+  private long pendingProjectionTimeNs;
+  private long lastFrameTimestamp;
 
-  public SceneRenderer() {
+  public SceneRenderer(Projection projection) {
     frameAvailable = new AtomicBoolean();
+    projectionRenderer = new ProjectionRenderer();
+    projectionRenderer.setProjection(projection);
   }
 
   /** Initializes the renderer. */
@@ -49,19 +54,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     checkGlError();
 
+    projectionRenderer.init();
+    checkGlError();
+
     textureId = GlUtil.createExternalTexture();
     surfaceTexture = new SurfaceTexture(textureId);
     surfaceTexture.setOnFrameAvailableListener(surfaceTexture -> frameAvailable.set(true));
     return surfaceTexture;
   }
 
-  /** Sets a {@link Mesh} to be used to display video. */
-  public void setMesh(Mesh mesh) {
-    if (this.mesh != null) {
-      this.mesh.shutdown();
-    }
-    this.mesh = mesh;
-    meshInitialized = false;
+  /** Sets a {@link Projection} to be used to display video. */
+  public void setProjection(Projection projection, long timeNs) {
+    pendingProjection = projection;
+    pendingProjectionTimeNs = timeNs;
   }
 
   /**
@@ -71,14 +76,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param eyeType an {@link EyeType} value
    */
   public void drawFrame(float[] viewProjectionMatrix, int eyeType) {
-    if (mesh == null) {
-      return;
-    }
-    if (!meshInitialized) {
-      meshInitialized = true;
-      mesh.init();
-    }
-
     // glClear isn't strictly necessary when rendering fully spherical panoramas, but it can improve
     // performance on tiled renderers by causing the GPU to discard previous data.
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
@@ -87,8 +84,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (frameAvailable.compareAndSet(true, false)) {
       Assertions.checkNotNull(surfaceTexture).updateTexImage();
       checkGlError();
+      lastFrameTimestamp = surfaceTexture.getTimestamp();
+    }
+    if (pendingProjection != null && pendingProjectionTimeNs <= lastFrameTimestamp) {
+      projectionRenderer.setProjection(pendingProjection);
+      pendingProjection = null;
     }
 
-    mesh.draw(textureId, viewProjectionMatrix, eyeType);
+    projectionRenderer.draw(textureId, viewProjectionMatrix, eyeType);
   }
 }

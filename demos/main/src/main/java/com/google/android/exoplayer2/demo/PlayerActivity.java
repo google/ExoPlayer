@@ -190,7 +190,7 @@ public class PlayerActivity extends Activity
         finish();
         return;
       }
-      ((SphericalSurfaceView) playerView.getVideoSurfaceView()).setStereoMode(stereoMode);
+      ((SphericalSurfaceView) playerView.getVideoSurfaceView()).setDefaultStereoMode(stereoMode);
     }
 
     if (savedInstanceState != null) {
