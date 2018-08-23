@@ -59,6 +59,7 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
+import com.google.android.exoplayer2.ui.spherical.SingleTapListener;
 import com.google.android.exoplayer2.ui.spherical.SphericalSurfaceView;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
@@ -390,6 +391,7 @@ public class PlayerView extends FrameLayout {
           Assertions.checkState(Util.SDK_INT >= 15);
           SphericalSurfaceView sphericalSurfaceView = new SphericalSurfaceView(context);
           sphericalSurfaceView.setSurfaceListener(componentListener);
+          sphericalSurfaceView.setSingleTapListener(componentListener);
           surfaceView = sphericalSurfaceView;
           break;
         default:
@@ -1021,15 +1023,10 @@ public class PlayerView extends FrameLayout {
 
   @Override
   public boolean onTouchEvent(MotionEvent ev) {
-    if (!useController || player == null || ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
+    if (ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
       return false;
     }
-    if (!controller.isVisible()) {
-      maybeShowController(true);
-    } else if (controllerHideOnTouch) {
-      controller.hide();
-    }
-    return true;
+    return toggleControllerVisibility();
   }
 
   @Override
@@ -1065,6 +1062,18 @@ public class PlayerView extends FrameLayout {
     if (surfaceView instanceof SphericalSurfaceView) {
       ((SphericalSurfaceView) surfaceView).onPause();
     }
+  }
+
+  private boolean toggleControllerVisibility() {
+    if (!useController || player == null) {
+      return false;
+    }
+    if (!controller.isVisible()) {
+      maybeShowController(true);
+    } else if (controllerHideOnTouch) {
+      controller.hide();
+    }
+    return true;
   }
 
   /** Shows the playback controls, but only if forced or shown indefinitely. */
@@ -1286,7 +1295,8 @@ public class PlayerView extends FrameLayout {
           TextOutput,
           VideoListener,
           OnLayoutChangeListener,
-          SphericalSurfaceView.SurfaceListener {
+          SphericalSurfaceView.SurfaceListener,
+          SingleTapListener {
 
     // TextOutput implementation
 
@@ -1390,6 +1400,13 @@ public class PlayerView extends FrameLayout {
           videoComponent.setVideoSurface(surface);
         }
       }
+    }
+
+    // SingleTapListener implementation
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+      return toggleControllerVisibility();
     }
   }
 }
