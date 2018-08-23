@@ -70,6 +70,8 @@
   * Allow configuration of the Loader retry delay
     ([#3370](https://github.com/google/ExoPlayer/issues/3370)).
 * HLS:
+  * Add support for variable substitution
+    ([#4422](https://github.com/google/ExoPlayer/issues/4422)).
   * Add support for PlayReady.
   * Add support for alternative EXT-X-KEY tags.
   * Set the bitrate on primary track sample formats
