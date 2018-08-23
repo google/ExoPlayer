@@ -117,6 +117,15 @@ public class HlsMasterPlaylistParserTest {
           + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"mp4a.40.2 , avc1.66.30 \"\n"
           + "http://example.com/spaces_in_codecs.m3u8\n";
 
+  private static final String PLAYLIST_WITH_VARIABLE_SUBSTITUTION =
+      " #EXTM3U \n"
+          + "\n"
+          + "#EXT-X-DEFINE:NAME=\"codecs\",VALUE=\"mp4a.40.5\"\n"
+          + "#EXT-X-DEFINE:NAME=\"tricky\",VALUE=\"This/{$nested}/reference/shouldnt/work\"\n"
+          + "#EXT-X-DEFINE:NAME=\"nested\",VALUE=\"This should not be inserted\"\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=\"{$codecs}\"\n"
+          + "http://example.com/{$tricky}\n";
+
   @Test
   public void testParseMasterPlaylist() throws IOException {
     HlsMasterPlaylist masterPlaylist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
@@ -216,6 +225,15 @@ public class HlsMasterPlaylistParserTest {
     HlsMasterPlaylist playlistWithoutIndependentSegments =
         parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
     assertThat(playlistWithoutIndependentSegments.hasIndependentSegments).isFalse();
+  }
+
+  @Test
+  public void testVariableSubstitution() throws IOException {
+    HlsMasterPlaylist playlistWithSubstitutions =
+        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_VARIABLE_SUBSTITUTION);
+    HlsMasterPlaylist.HlsUrl variant = playlistWithSubstitutions.variants.get(0);
+    assertThat(variant.format.codecs).isEqualTo("mp4a.40.5");
+    assertThat(variant.url).isEqualTo("http://example.com/This/{$nested}/reference/shouldnt/work");
   }
 
   private static HlsMasterPlaylist parseMasterPlaylist(String uri, String playlistString)
