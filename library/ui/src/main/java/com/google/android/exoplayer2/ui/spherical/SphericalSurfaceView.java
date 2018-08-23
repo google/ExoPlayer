@@ -91,6 +91,7 @@ public final class SphericalSurfaceView extends GLSurfaceView
   private final PhoneOrientationListener phoneOrientationListener;
   private final Renderer renderer;
   private final Handler mainHandler;
+  private final TouchTracker touchTracker;
   private @Nullable SurfaceListener surfaceListener;
   private @Nullable SurfaceTexture surfaceTexture;
   private @Nullable Surface surface;
@@ -121,7 +122,7 @@ public final class SphericalSurfaceView extends GLSurfaceView
 
     renderer = new Renderer();
 
-    TouchTracker touchTracker = new TouchTracker(renderer, PX_PER_DEGREES);
+    touchTracker = new TouchTracker(context, renderer, PX_PER_DEGREES);
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     Display display = Assertions.checkNotNull(windowManager).getDefaultDisplay();
     phoneOrientationListener = new PhoneOrientationListener(display, touchTracker, renderer);
@@ -153,6 +154,11 @@ public final class SphericalSurfaceView extends GLSurfaceView
    */
   public void setSurfaceListener(@Nullable SurfaceListener listener) {
     surfaceListener = listener;
+  }
+
+  /** Sets the {@link SingleTapListener} used to listen to single tap events on this view. */
+  public void setSingleTapListener(@Nullable SingleTapListener listener) {
+    touchTracker.setSingleTapListener(listener);
   }
 
   @Override
