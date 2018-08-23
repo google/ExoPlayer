@@ -40,7 +40,7 @@ public interface Renderer extends PlayerMessage.Target {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_DISABLED, STATE_ENABLED, STATE_STARTED})
-  public @interface State {}
+  @interface State {}
   /**
    * The renderer is disabled.
    */

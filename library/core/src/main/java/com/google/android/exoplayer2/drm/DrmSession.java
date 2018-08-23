@@ -45,7 +45,7 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_RELEASED, STATE_ERROR, STATE_OPENING, STATE_OPENED, STATE_OPENED_WITH_KEYS})
-  public @interface State {}
+  @interface State {}
   /**
    * The session has been released.
    */

@@ -227,7 +227,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @SuppressLint("WrongConstant") // Suppress spurious lint error [Internal ref: b/32137960]
-  private static final void forceWidevineL3(MediaDrm mediaDrm) {
+  private static void forceWidevineL3(MediaDrm mediaDrm) {
     mediaDrm.setPropertyString("securityLevel", "L3");
   }
 

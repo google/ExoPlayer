@@ -97,7 +97,7 @@ public final class ConcatenatingMediaSourceTest {
 
     // Add bulk.
     mediaSource.addMediaSources(
-        3, Arrays.<MediaSource>asList(childSources[4], childSources[5], childSources[6]));
+        3, Arrays.asList(childSources[4], childSources[5], childSources[6]));
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 2, 4, 1, 5, 6, 7, 3);
     TimelineAsserts.assertWindowTags(timeline, 222, 444, 111, 555, 666, 777, 333);
@@ -375,7 +375,7 @@ public final class ConcatenatingMediaSourceTest {
         };
     Timeline nonEmptyTimeline = new FakeTimeline(/* windowCount = */ 1);
 
-    mediaSource.addMediaSources(Arrays.<MediaSource>asList(childSources));
+    mediaSource.addMediaSources(Arrays.asList(childSources));
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertEmpty(timeline);
 
@@ -642,7 +642,7 @@ public final class ConcatenatingMediaSourceTest {
     ConcatenatingMediaSource mediaSource =
         new ConcatenatingMediaSource(/* isAtomic= */ true, new FakeShuffleOrder(0));
     testRunner = new MediaSourceTestRunner(mediaSource, null);
-    mediaSource.addMediaSources(Arrays.<MediaSource>asList(createMediaSources(3)));
+    mediaSource.addMediaSources(Arrays.asList(createMediaSources(3)));
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertWindowTags(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 2, 3);
@@ -747,7 +747,7 @@ public final class ConcatenatingMediaSourceTest {
     mediaSource.addMediaSource(childSource);
     mediaSource.addMediaSource(childSource);
     testRunner.prepareSource();
-    mediaSource.addMediaSources(Arrays.<MediaSource>asList(childSource, childSource));
+    mediaSource.addMediaSources(Arrays.asList(childSource, childSource));
     Timeline timeline = testRunner.assertTimelineChangeBlocking();
 
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1, 1, 1, 1, 1, 1);
@@ -780,7 +780,7 @@ public final class ConcatenatingMediaSourceTest {
 
     testRunner.prepareSource();
     mediaSource.addMediaSources(
-        Arrays.<MediaSource>asList(childSource, nestedConcatenation, nestedConcatenation));
+        Arrays.asList(childSource, nestedConcatenation, nestedConcatenation));
     testRunner.assertTimelineChangeBlocking();
     nestedConcatenation.addMediaSource(childSource);
     testRunner.assertTimelineChangeBlocking();

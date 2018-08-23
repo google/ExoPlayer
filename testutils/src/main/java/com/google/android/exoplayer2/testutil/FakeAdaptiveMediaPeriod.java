@@ -76,8 +76,13 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
-  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+  @SuppressWarnings("unchecked")
+  public long selectTracks(
+      TrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs) {
     long returnPositionUs = super.selectTracks(selections, mayRetainStreamFlags, streams,
         streamResetFlags, positionUs);
     List<ChunkSampleStream<FakeChunkSource>> validStreams = new ArrayList<>();

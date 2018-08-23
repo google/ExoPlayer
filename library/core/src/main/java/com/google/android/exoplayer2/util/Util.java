@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -1553,7 +1554,7 @@ public final class Util {
    * and is not declared to be thrown.
    */
   public static void sneakyThrow(Throwable t) {
-    Util.<RuntimeException>sneakyThrowInternal(t);
+    Util.sneakyThrowInternal(t);
   }
 
   @SuppressWarnings("unchecked")
@@ -1749,6 +1750,7 @@ public final class Util {
         // Attempt to read sys.display-size.
         String sysDisplaySize = null;
         try {
+          @SuppressLint("PrivateApi")
           Class<?> systemProperties = Class.forName("android.os.SystemProperties");
           Method getMethod = systemProperties.getMethod("get", String.class);
           sysDisplaySize = (String) getMethod.invoke(systemProperties, "sys.display-size");
