@@ -1054,6 +1054,11 @@ public class SimpleExoPlayer
   }
 
   @Override
+  public long getContentDuration() {
+    return player.getContentDuration();
+  }
+
+  @Override
   public long getContentPosition() {
     return player.getContentPosition();
   }

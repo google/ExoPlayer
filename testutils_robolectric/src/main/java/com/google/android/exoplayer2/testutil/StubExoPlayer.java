@@ -300,6 +300,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public long getContentDuration() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public long getContentPosition() {
     throw new UnsupportedOperationException();
   }
