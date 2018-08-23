@@ -494,18 +494,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public long getDuration() {
-    Timeline timeline = playbackInfo.timeline;
-    if (timeline.isEmpty()) {
-      return C.TIME_UNSET;
-    }
     if (isPlayingAd()) {
       MediaPeriodId periodId = playbackInfo.periodId;
-      timeline.getPeriodByUid(periodId.periodUid, period);
+      playbackInfo.timeline.getPeriodByUid(periodId.periodUid, period);
       long adDurationUs = period.getAdDurationUs(periodId.adGroupIndex, periodId.adIndexInAdGroup);
       return C.usToMs(adDurationUs);
-    } else {
-      return timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
     }
+    return getContentDuration();
   }
 
   @Override
@@ -568,6 +563,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public int getCurrentAdIndexInAdGroup() {
     return isPlayingAd() ? playbackInfo.periodId.adIndexInAdGroup : C.INDEX_UNSET;
+  }
+
+  @Override
+  public long getContentDuration() {
+    return playbackInfo.timeline.isEmpty()
+        ? C.TIME_UNSET
+        : playbackInfo.timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
   }
 
   @Override

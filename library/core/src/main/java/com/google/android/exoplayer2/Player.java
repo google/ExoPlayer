@@ -748,8 +748,8 @@ public interface Player {
   @Nullable Object getCurrentTag();
 
   /**
-   * Returns the duration of the current window in milliseconds, or {@link C#TIME_UNSET} if the
-   * duration is not known.
+   * Returns the duration of the current content window or ad in milliseconds, or {@link
+   * C#TIME_UNSET} if the duration is not known.
    */
   long getDuration();
 
@@ -806,6 +806,13 @@ public interface Player {
    * {@link C#INDEX_UNSET} otherwise.
    */
   int getCurrentAdIndexInAdGroup();
+
+  /**
+   * If {@link #isPlayingAd()} returns {@code true}, returns the duration of the current content
+   * window in milliseconds, or {@link C#TIME_UNSET} if the duration is not known. If there is no ad
+   * playing, the returned duration is the same as that returned by {@link #getDuration()}.
+   */
+  long getContentDuration();
 
   /**
    * If {@link #isPlayingAd()} returns {@code true}, returns the content position that will be
