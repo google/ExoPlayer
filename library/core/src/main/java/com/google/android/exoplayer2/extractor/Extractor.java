@@ -50,7 +50,7 @@ public interface Extractor {
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(value = {RESULT_CONTINUE, RESULT_SEEK, RESULT_END_OF_INPUT})
-  public @interface ReadResult {}
+  @interface ReadResult {}
 
   /**
    * Returns whether this extractor can extract samples from the {@link ExtractorInput}, which must
