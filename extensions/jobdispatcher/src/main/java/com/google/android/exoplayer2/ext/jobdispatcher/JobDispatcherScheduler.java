@@ -29,6 +29,7 @@ import com.firebase.jobdispatcher.JobService;
 import com.firebase.jobdispatcher.Lifetime;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.Scheduler;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -146,11 +147,14 @@ public final class JobDispatcherScheduler implements Scheduler {
     public boolean onStartJob(JobParameters params) {
       logd("JobDispatcherSchedulerService is started");
       Bundle extras = params.getExtras();
+      Assertions.checkNotNull(extras, "Service started without extras.");
       Requirements requirements = new Requirements(extras.getInt(KEY_REQUIREMENTS));
       if (requirements.checkRequirements(this)) {
         logd("Requirements are met");
         String serviceAction = extras.getString(KEY_SERVICE_ACTION);
         String servicePackage = extras.getString(KEY_SERVICE_PACKAGE);
+        Assertions.checkNotNull(serviceAction, "Service action missing.");
+        Assertions.checkNotNull(servicePackage, "Service package missing.");
         Intent intent = new Intent(serviceAction).setPackage(servicePackage);
         logd("Starting service action: " + serviceAction + " package: " + servicePackage);
         Util.startForegroundService(this, intent);

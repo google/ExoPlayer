@@ -121,6 +121,7 @@ public class FakeMediaPeriod implements MediaPeriod {
   public synchronized void prepare(Callback callback, long positionUs) {
     eventDispatcher.loadStarted(
         FAKE_DATA_SPEC,
+        FAKE_DATA_SPEC.uri,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -232,6 +233,7 @@ public class FakeMediaPeriod implements MediaPeriod {
     prepareCallback.onPrepared(this);
     eventDispatcher.loadCompleted(
         FAKE_DATA_SPEC,
+        FAKE_DATA_SPEC.uri,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,

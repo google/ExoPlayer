@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import java.util.List;
 
 /**
@@ -39,12 +41,13 @@ public interface TrackSelection {
      * Creates a new selection.
      *
      * @param group The {@link TrackGroup}. Must not be null.
+     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
      * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
      *     null or empty. May be in any order.
      * @return The created selection.
      */
-    TrackSelection createTrackSelection(TrackGroup group, int... tracks);
-
+    TrackSelection createTrackSelection(
+        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks);
   }
 
   /**
@@ -90,7 +93,9 @@ public interface TrackSelection {
   int getIndexInTrackGroup(int index);
 
   /**
-   * Returns the index in the selection of the track with the specified format.
+   * Returns the index in the selection of the track with the specified format. The format is
+   * located by identity so, for example, {@code selection.indexOf(selection.getFormat(index)) ==
+   * index} even if multiple selected tracks have formats that contain the same values.
    *
    * @param format The format.
    * @return The index in the selection, or {@link C#INDEX_UNSET} if the track with the specified
@@ -129,10 +134,8 @@ public interface TrackSelection {
    */
   int getSelectionReason();
 
-  /**
-   * Returns optional data associated with the current track selection.
-   */
-  Object getSelectionData();
+  /** Returns optional data associated with the current track selection. */
+  @Nullable Object getSelectionData();
 
   // Adaptation.
 

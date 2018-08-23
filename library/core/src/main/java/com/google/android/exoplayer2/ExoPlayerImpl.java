@@ -30,11 +30,14 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -44,23 +47,33 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   private static final String TAG = "ExoPlayerImpl";
 
+  /**
+   * This empty track selector result can only be used for {@link PlaybackInfo#trackSelectorResult}
+   * when the player does not have any track selection made (such as when player is reset, or when
+   * player seeks to an unprepared period). It will not be used as result of any {@link
+   * TrackSelector#selectTracks(RendererCapabilities[], TrackGroupArray)} operation.
+   */
+  /* package */ final TrackSelectorResult emptyTrackSelectorResult;
+
   private final Renderer[] renderers;
   private final TrackSelector trackSelector;
-  private final TrackSelectorResult emptyTrackSelectorResult;
   private final Handler eventHandler;
   private final ExoPlayerImplInternal internalPlayer;
   private final Handler internalPlayerHandler;
   private final CopyOnWriteArraySet<Player.EventListener> listeners;
   private final Timeline.Window window;
   private final Timeline.Period period;
+  private final ArrayDeque<PlaybackInfoUpdate> pendingPlaybackInfoUpdates;
 
   private boolean playWhenReady;
+  private boolean internalPlayWhenReady;
   private @RepeatMode int repeatMode;
   private boolean shuffleModeEnabled;
   private int pendingOperationAcks;
   private boolean hasPendingPrepare;
   private boolean hasPendingSeek;
   private PlaybackParameters playbackParameters;
+  private SeekParameters seekParameters;
   private @Nullable ExoPlaybackException playbackError;
 
   // Playback information when there is no pending seek/set source operation.
@@ -77,11 +90,19 @@ import java.util.concurrent.CopyOnWriteArraySet;
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
    * @param clock The {@link Clock} that will be used by the instance.
+   * @param looper The {@link Looper} which must be used for all calls to the player and which is
+   *     used to call listeners on.
    */
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(
-      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl, Clock clock) {
+      Renderer[] renderers,
+      TrackSelector trackSelector,
+      LoadControl loadControl,
+      BandwidthMeter bandwidthMeter,
+      Clock clock,
+      Looper looper) {
     Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "]");
     Assertions.checkState(renderers.length > 0);
@@ -99,25 +120,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
     window = new Timeline.Window();
     period = new Timeline.Period();
     playbackParameters = PlaybackParameters.DEFAULT;
-    Looper eventLooper = Looper.myLooper() != null ? Looper.myLooper() : Looper.getMainLooper();
-    eventHandler = new Handler(eventLooper) {
-      @Override
-      public void handleMessage(Message msg) {
-        ExoPlayerImpl.this.handleEvent(msg);
-      }
-    };
-    playbackInfo =
-        new PlaybackInfo(
-            Timeline.EMPTY,
-            /* startPositionUs= */ 0,
-            TrackGroupArray.EMPTY,
-            emptyTrackSelectorResult);
+    seekParameters = SeekParameters.DEFAULT;
+    eventHandler =
+        new Handler(looper) {
+          @Override
+          public void handleMessage(Message msg) {
+            ExoPlayerImpl.this.handleEvent(msg);
+          }
+        };
+    playbackInfo = PlaybackInfo.createDummy(/* startPositionUs= */ 0, emptyTrackSelectorResult);
+    pendingPlaybackInfoUpdates = new ArrayDeque<>();
     internalPlayer =
         new ExoPlayerImplInternal(
             renderers,
             trackSelector,
             emptyTrackSelectorResult,
             loadControl,
+            bandwidthMeter,
             playWhenReady,
             repeatMode,
             shuffleModeEnabled,
@@ -125,6 +144,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
             this,
             clock);
     internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
+  }
+
+  @Override
+  public AudioComponent getAudioComponent() {
+    return null;
   }
 
   @Override
@@ -140,6 +164,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public Looper getPlaybackLooper() {
     return internalPlayer.getPlaybackLooper();
+  }
+
+  @Override
+  public Looper getApplicationLooper() {
+    return eventHandler.getLooper();
   }
 
   @Override
@@ -185,18 +214,30 @@ import java.util.concurrent.CopyOnWriteArraySet;
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         TIMELINE_CHANGE_REASON_RESET,
-        /* seekProcessed= */ false);
+        /* seekProcessed= */ false,
+        /* playWhenReadyChanged= */ false);
   }
 
   @Override
   public void setPlayWhenReady(boolean playWhenReady) {
+    setPlayWhenReady(playWhenReady, /* suppressPlayback= */ false);
+  }
+
+  public void setPlayWhenReady(boolean playWhenReady, boolean suppressPlayback) {
+    boolean internalPlayWhenReady = playWhenReady && !suppressPlayback;
+    if (this.internalPlayWhenReady != internalPlayWhenReady) {
+      this.internalPlayWhenReady = internalPlayWhenReady;
+      internalPlayer.setPlayWhenReady(internalPlayWhenReady);
+    }
     if (this.playWhenReady != playWhenReady) {
       this.playWhenReady = playWhenReady;
-      internalPlayer.setPlayWhenReady(playWhenReady);
-      PlaybackInfo playbackInfo = this.playbackInfo;
-      for (Player.EventListener listener : listeners) {
-        listener.onPlayerStateChanged(playWhenReady, playbackInfo.playbackState);
-      }
+      updatePlaybackInfo(
+          playbackInfo,
+          /* positionDiscontinuity= */ false,
+          /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+          /* ignored */ TIMELINE_CHANGE_REASON_RESET,
+          /* seekProcessed= */ false,
+          /* playWhenReadyChanged= */ true);
     }
   }
 
@@ -286,10 +327,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
     } else {
       long windowPositionUs = positionMs == C.TIME_UNSET
           ? timeline.getWindow(windowIndex, window).getDefaultPositionUs() : C.msToUs(positionMs);
-      Pair<Integer, Long> periodIndexAndPositon =
+      Pair<Integer, Long> periodIndexAndPosition =
           timeline.getPeriodPosition(window, period, windowIndex, windowPositionUs);
       maskingWindowPositionMs = C.usToMs(windowPositionUs);
-      maskingPeriodIndex = periodIndexAndPositon.first;
+      maskingPeriodIndex = periodIndexAndPosition.first;
     }
     internalPlayer.seekTo(timeline, windowIndex, C.msToUs(positionMs));
     for (Player.EventListener listener : listeners) {
@@ -315,7 +356,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (seekParameters == null) {
       seekParameters = SeekParameters.DEFAULT;
     }
-    internalPlayer.setSeekParameters(seekParameters);
+    if (!this.seekParameters.equals(seekParameters)) {
+      this.seekParameters = seekParameters;
+      internalPlayer.setSeekParameters(seekParameters);
+    }
+  }
+
+  @Override
+  public SeekParameters getSeekParameters() {
+    return seekParameters;
   }
 
   @Override
@@ -352,7 +401,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         TIMELINE_CHANGE_REASON_RESET,
-        /* seekProcessed= */ false);
+        /* seekProcessed= */ false,
+        /* playWhenReadyChanged= */ false);
   }
 
   @Override
@@ -461,27 +511,35 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public long getCurrentPosition() {
     if (shouldMaskPosition()) {
       return maskingWindowPositionMs;
+    } else if (playbackInfo.periodId.isAd()) {
+      return C.usToMs(playbackInfo.positionUs);
     } else {
-      return playbackInfoPositionUsToWindowPositionMs(playbackInfo.positionUs);
+      return periodPositionUsToWindowPositionMs(playbackInfo.periodId, playbackInfo.positionUs);
     }
   }
 
   @Override
   public long getBufferedPosition() {
-    // TODO - Implement this properly.
-    if (shouldMaskPosition()) {
-      return maskingWindowPositionMs;
-    } else {
-      return playbackInfoPositionUsToWindowPositionMs(playbackInfo.bufferedPositionUs);
+    if (isPlayingAd()) {
+      return playbackInfo.loadingMediaPeriodId.equals(playbackInfo.periodId)
+          ? C.usToMs(playbackInfo.bufferedPositionUs)
+          : getDuration();
     }
+    return getContentBufferedPosition();
   }
 
   @Override
   public int getBufferedPercentage() {
     long position = getBufferedPosition();
     long duration = getDuration();
-    return position == C.TIME_UNSET || duration == C.TIME_UNSET ? 0
+    return position == C.TIME_UNSET || duration == C.TIME_UNSET
+        ? 0
         : (duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100));
+  }
+
+  @Override
+  public long getTotalBufferedDuration() {
+    return Math.max(0, C.usToMs(playbackInfo.totalBufferedDurationUs));
   }
 
   @Override
@@ -519,6 +577,29 @@ import java.util.concurrent.CopyOnWriteArraySet;
     } else {
       return getCurrentPosition();
     }
+  }
+
+  @Override
+  public long getContentBufferedPosition() {
+    if (shouldMaskPosition()) {
+      return maskingWindowPositionMs;
+    }
+    if (playbackInfo.loadingMediaPeriodId.windowSequenceNumber
+        != playbackInfo.periodId.windowSequenceNumber) {
+      return playbackInfo.timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+    }
+    long contentBufferedPositionUs = playbackInfo.bufferedPositionUs;
+    if (playbackInfo.loadingMediaPeriodId.isAd()) {
+      Timeline.Period loadingPeriod =
+          playbackInfo.timeline.getPeriod(playbackInfo.loadingMediaPeriodId.periodIndex, period);
+      contentBufferedPositionUs =
+          loadingPeriod.getAdGroupTimeUs(playbackInfo.loadingMediaPeriodId.adGroupIndex);
+      if (contentBufferedPositionUs == C.TIME_END_OF_SOURCE) {
+        contentBufferedPositionUs = loadingPeriod.durationUs;
+      }
+    }
+    return periodPositionUsToWindowPositionMs(
+        playbackInfo.loadingMediaPeriodId, contentBufferedPositionUs);
   }
 
   @Override
@@ -615,7 +696,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
           positionDiscontinuity,
           positionDiscontinuityReason,
           timelineChangeReason,
-          seekProcessed);
+          seekProcessed,
+          /* playWhenReadyChanged= */ false);
     }
   }
 
@@ -639,68 +721,133 @@ import java.util.concurrent.CopyOnWriteArraySet;
         playbackState,
         /* isLoading= */ false,
         resetState ? TrackGroupArray.EMPTY : playbackInfo.trackGroups,
-        resetState ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult);
+        resetState ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult,
+        playbackInfo.periodId,
+        playbackInfo.startPositionUs,
+        /* totalBufferedDurationUs= */ 0,
+        playbackInfo.startPositionUs);
   }
 
   private void updatePlaybackInfo(
-      PlaybackInfo newPlaybackInfo,
+      PlaybackInfo playbackInfo,
       boolean positionDiscontinuity,
       @Player.DiscontinuityReason int positionDiscontinuityReason,
       @Player.TimelineChangeReason int timelineChangeReason,
-      boolean seekProcessed) {
-    boolean timelineOrManifestChanged =
-        playbackInfo.timeline != newPlaybackInfo.timeline
-            || playbackInfo.manifest != newPlaybackInfo.manifest;
-    boolean playbackStateChanged = playbackInfo.playbackState != newPlaybackInfo.playbackState;
-    boolean isLoadingChanged = playbackInfo.isLoading != newPlaybackInfo.isLoading;
-    boolean trackSelectorResultChanged =
-        playbackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult;
-    playbackInfo = newPlaybackInfo;
-    if (timelineOrManifestChanged || timelineChangeReason == TIMELINE_CHANGE_REASON_PREPARED) {
-      for (Player.EventListener listener : listeners) {
-        listener.onTimelineChanged(
-            playbackInfo.timeline, playbackInfo.manifest, timelineChangeReason);
-      }
+      boolean seekProcessed,
+      boolean playWhenReadyChanged) {
+    boolean isRunningRecursiveListenerNotification = !pendingPlaybackInfoUpdates.isEmpty();
+    pendingPlaybackInfoUpdates.addLast(
+        new PlaybackInfoUpdate(
+            playbackInfo,
+            /* previousPlaybackInfo= */ this.playbackInfo,
+            listeners,
+            trackSelector,
+            positionDiscontinuity,
+            positionDiscontinuityReason,
+            timelineChangeReason,
+            seekProcessed,
+            playWhenReady,
+            playWhenReadyChanged));
+    // Assign playback info immediately such that all getters return the right values.
+    this.playbackInfo = playbackInfo;
+    if (isRunningRecursiveListenerNotification) {
+      return;
     }
-    if (positionDiscontinuity) {
-      for (Player.EventListener listener : listeners) {
-        listener.onPositionDiscontinuity(positionDiscontinuityReason);
-      }
-    }
-    if (trackSelectorResultChanged) {
-      trackSelector.onSelectionActivated(playbackInfo.trackSelectorResult.info);
-      for (Player.EventListener listener : listeners) {
-        listener.onTracksChanged(
-            playbackInfo.trackGroups, playbackInfo.trackSelectorResult.selections);
-      }
-    }
-    if (isLoadingChanged) {
-      for (Player.EventListener listener : listeners) {
-        listener.onLoadingChanged(playbackInfo.isLoading);
-      }
-    }
-    if (playbackStateChanged) {
-      for (Player.EventListener listener : listeners) {
-        listener.onPlayerStateChanged(playWhenReady, playbackInfo.playbackState);
-      }
-    }
-    if (seekProcessed) {
-      for (Player.EventListener listener : listeners) {
-        listener.onSeekProcessed();
-      }
+    while (!pendingPlaybackInfoUpdates.isEmpty()) {
+      pendingPlaybackInfoUpdates.peekFirst().notifyListeners();
+      pendingPlaybackInfoUpdates.removeFirst();
     }
   }
 
-  private long playbackInfoPositionUsToWindowPositionMs(long positionUs) {
+  private long periodPositionUsToWindowPositionMs(MediaPeriodId periodId, long positionUs) {
     long positionMs = C.usToMs(positionUs);
-    if (!playbackInfo.periodId.isAd()) {
-      playbackInfo.timeline.getPeriod(playbackInfo.periodId.periodIndex, period);
-      positionMs += period.getPositionInWindowMs();
-    }
+    playbackInfo.timeline.getPeriod(periodId.periodIndex, period);
+    positionMs += period.getPositionInWindowMs();
     return positionMs;
   }
 
   private boolean shouldMaskPosition() {
     return playbackInfo.timeline.isEmpty() || pendingOperationAcks > 0;
+  }
+
+  private static final class PlaybackInfoUpdate {
+
+    private final PlaybackInfo playbackInfo;
+    private final Set<Player.EventListener> listeners;
+    private final TrackSelector trackSelector;
+    private final boolean positionDiscontinuity;
+    private final @Player.DiscontinuityReason int positionDiscontinuityReason;
+    private final @Player.TimelineChangeReason int timelineChangeReason;
+    private final boolean seekProcessed;
+    private final boolean playWhenReady;
+    private final boolean playbackStateOrPlayWhenReadyChanged;
+    private final boolean timelineOrManifestChanged;
+    private final boolean isLoadingChanged;
+    private final boolean trackSelectorResultChanged;
+
+    public PlaybackInfoUpdate(
+        PlaybackInfo playbackInfo,
+        PlaybackInfo previousPlaybackInfo,
+        Set<Player.EventListener> listeners,
+        TrackSelector trackSelector,
+        boolean positionDiscontinuity,
+        @Player.DiscontinuityReason int positionDiscontinuityReason,
+        @Player.TimelineChangeReason int timelineChangeReason,
+        boolean seekProcessed,
+        boolean playWhenReady,
+        boolean playWhenReadyChanged) {
+      this.playbackInfo = playbackInfo;
+      this.listeners = listeners;
+      this.trackSelector = trackSelector;
+      this.positionDiscontinuity = positionDiscontinuity;
+      this.positionDiscontinuityReason = positionDiscontinuityReason;
+      this.timelineChangeReason = timelineChangeReason;
+      this.seekProcessed = seekProcessed;
+      this.playWhenReady = playWhenReady;
+      playbackStateOrPlayWhenReadyChanged =
+          playWhenReadyChanged || previousPlaybackInfo.playbackState != playbackInfo.playbackState;
+      timelineOrManifestChanged =
+          previousPlaybackInfo.timeline != playbackInfo.timeline
+              || previousPlaybackInfo.manifest != playbackInfo.manifest;
+      isLoadingChanged = previousPlaybackInfo.isLoading != playbackInfo.isLoading;
+      trackSelectorResultChanged =
+          previousPlaybackInfo.trackSelectorResult != playbackInfo.trackSelectorResult;
+    }
+
+    public void notifyListeners() {
+      if (timelineOrManifestChanged || timelineChangeReason == TIMELINE_CHANGE_REASON_PREPARED) {
+        for (Player.EventListener listener : listeners) {
+          listener.onTimelineChanged(
+              playbackInfo.timeline, playbackInfo.manifest, timelineChangeReason);
+        }
+      }
+      if (positionDiscontinuity) {
+        for (Player.EventListener listener : listeners) {
+          listener.onPositionDiscontinuity(positionDiscontinuityReason);
+        }
+      }
+      if (trackSelectorResultChanged) {
+        trackSelector.onSelectionActivated(playbackInfo.trackSelectorResult.info);
+        for (Player.EventListener listener : listeners) {
+          listener.onTracksChanged(
+              playbackInfo.trackGroups, playbackInfo.trackSelectorResult.selections);
+        }
+      }
+      if (isLoadingChanged) {
+        for (Player.EventListener listener : listeners) {
+          listener.onLoadingChanged(playbackInfo.isLoading);
+        }
+      }
+      if (playbackStateOrPlayWhenReadyChanged) {
+        for (Player.EventListener listener : listeners) {
+          listener.onPlayerStateChanged(playWhenReady, playbackInfo.playbackState);
+        }
+      }
+      if (seekProcessed) {
+        for (Player.EventListener listener : listeners) {
+          listener.onSeekProcessed();
+        }
+      }
+    }
   }
 }

@@ -108,4 +108,7 @@ import com.google.android.exoplayer2.util.Util;
     return new Results(offsets, sizes, maximumSize, timestamps, flags, duration);
   }
 
+  private FixedSampleSizeRechunker() {
+    // Prevent instantiation.
+  }
 }

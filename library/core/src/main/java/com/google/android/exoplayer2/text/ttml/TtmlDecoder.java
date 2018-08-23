@@ -26,8 +26,8 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -109,13 +109,13 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes, 0, length);
       xmlParser.setInput(inputStream, null);
       TtmlSubtitle ttmlSubtitle = null;
-      LinkedList<TtmlNode> nodeStack = new LinkedList<>();
+      ArrayDeque<TtmlNode> nodeStack = new ArrayDeque<>();
       int unsupportedNodeDepth = 0;
       int eventType = xmlParser.getEventType();
       FrameAndTickRate frameAndTickRate = DEFAULT_FRAME_AND_TICK_RATE;
       CellResolution cellResolution = DEFAULT_CELL_RESOLUTION;
       while (eventType != XmlPullParser.END_DOCUMENT) {
-        TtmlNode parent = nodeStack.peekLast();
+        TtmlNode parent = nodeStack.peek();
         if (unsupportedNodeDepth == 0) {
           String name = xmlParser.getName();
           if (eventType == XmlPullParser.START_TAG) {
@@ -131,7 +131,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
             } else {
               try {
                 TtmlNode node = parseNode(xmlParser, parent, regionMap, frameAndTickRate);
-                nodeStack.addLast(node);
+                nodeStack.push(node);
                 if (parent != null) {
                   parent.addChild(node);
                 }
@@ -145,9 +145,9 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
             parent.addChild(TtmlNode.buildTextNode(xmlParser.getText()));
           } else if (eventType == XmlPullParser.END_TAG) {
             if (xmlParser.getName().equals(TtmlNode.TAG_TT)) {
-              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast(), globalStyles, regionMap);
+              ttmlSubtitle = new TtmlSubtitle(nodeStack.peek(), globalStyles, regionMap);
             }
-            nodeStack.removeLast();
+            nodeStack.pop();
           }
         } else {
           if (eventType == XmlPullParser.START_TAG) {
@@ -178,7 +178,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     float frameRateMultiplier = 1;
     String frameRateMultiplierString = xmlParser.getAttributeValue(TTP, "frameRateMultiplier");
     if (frameRateMultiplierString != null) {
-      String[] parts = frameRateMultiplierString.split(" ");
+      String[] parts = Util.split(frameRateMultiplierString, " ");
       if (parts.length != 2) {
         throw new SubtitleDecoderException("frameRateMultiplier doesn't have 2 parts");
       }
@@ -354,7 +354,8 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   }
 
   private String[] parseStyleIds(String parentStyleIds) {
-    return parentStyleIds.split("\\s+");
+    parentStyleIds = parentStyleIds.trim();
+    return parentStyleIds.isEmpty() ? new String[0] : Util.split(parentStyleIds, "\\s+");
   }
 
   private TtmlStyle parseStyleAttributes(XmlPullParser parser, TtmlStyle style) {
@@ -531,7 +532,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
 
   private static void parseFontSize(String expression, TtmlStyle out) throws
       SubtitleDecoderException {
-    String[] expressions = expression.split("\\s+");
+    String[] expressions = Util.split(expression, "\\s+");
     Matcher matcher;
     if (expressions.length == 1) {
       matcher = FONT_SIZE.matcher(expression);

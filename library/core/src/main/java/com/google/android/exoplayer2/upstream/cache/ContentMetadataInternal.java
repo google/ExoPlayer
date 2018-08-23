@@ -20,7 +20,7 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 
 /** Helper classes to easily access and modify internal metadata values. */
-/*package*/ final class ContentMetadataInternal {
+/* package */ final class ContentMetadataInternal {
 
   private static final String PREFIX = ContentMetadata.INTERNAL_METADATA_NAME_PREFIX;
   private static final String METADATA_NAME_REDIRECTED_URI = PREFIX + "redir";
@@ -58,5 +58,9 @@ import com.google.android.exoplayer2.C;
   /** Adds a mutation to remove redirected uri metadata value. */
   public static void removeRedirectedUri(ContentMetadataMutations mutations) {
     mutations.remove(METADATA_NAME_REDIRECTED_URI);
+  }
+
+  private ContentMetadataInternal() {
+    // Prevent instantiation.
   }
 }

@@ -32,7 +32,6 @@ public abstract class DataChunk extends Chunk {
   private static final int READ_GRANULARITY = 16 * 1024;
 
   private byte[] data;
-  private int limit;
 
   private volatile boolean loadCanceled;
 
@@ -63,11 +62,6 @@ public abstract class DataChunk extends Chunk {
     return data;
   }
 
-  @Override
-  public long bytesLoaded() {
-    return limit;
-  }
-
   // Loadable implementation
 
   @Override
@@ -76,18 +70,13 @@ public abstract class DataChunk extends Chunk {
   }
 
   @Override
-  public final boolean isLoadCanceled() {
-    return loadCanceled;
-  }
-
-  @Override
   public final void load() throws IOException, InterruptedException {
     try {
       dataSource.open(dataSpec);
-      limit = 0;
+      int limit = 0;
       int bytesRead = 0;
       while (bytesRead != C.RESULT_END_OF_INPUT && !loadCanceled) {
-        maybeExpandData();
+        maybeExpandData(limit);
         bytesRead = dataSource.read(data, limit, READ_GRANULARITY);
         if (bytesRead != -1) {
           limit += bytesRead;
@@ -111,7 +100,7 @@ public abstract class DataChunk extends Chunk {
    */
   protected abstract void consume(byte[] data, int limit) throws IOException;
 
-  private void maybeExpandData() {
+  private void maybeExpandData(int limit) {
     if (data == null) {
       data = new byte[READ_GRANULARITY];
     } else if (data.length < limit + READ_GRANULARITY) {
@@ -120,5 +109,4 @@ public abstract class DataChunk extends Chunk {
       data = Arrays.copyOf(data, data.length + READ_GRANULARITY);
     }
   }
-
 }

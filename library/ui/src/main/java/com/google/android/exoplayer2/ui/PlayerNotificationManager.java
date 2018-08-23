@@ -391,7 +391,7 @@ public class PlayerNotificationManager {
     customActions =
         customActionReceiver != null
             ? customActionReceiver.createCustomActions(context)
-            : Collections.<String, NotificationCompat.Action>emptyMap();
+            : Collections.emptyMap();
     for (String action : customActions.keySet()) {
       intentFilter.addAction(action);
     }
@@ -460,7 +460,7 @@ public class PlayerNotificationManager {
       return;
     }
     this.fastForwardMs = fastForwardMs;
-    maybeUpdateNotification();
+    invalidate();
   }
 
   /**
@@ -474,7 +474,7 @@ public class PlayerNotificationManager {
       return;
     }
     this.rewindMs = rewindMs;
-    maybeUpdateNotification();
+    invalidate();
   }
 
   /**
@@ -485,7 +485,7 @@ public class PlayerNotificationManager {
   public final void setUseNavigationActions(boolean useNavigationActions) {
     if (this.useNavigationActions != useNavigationActions) {
       this.useNavigationActions = useNavigationActions;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -497,7 +497,7 @@ public class PlayerNotificationManager {
   public final void setUsePlayPauseActions(boolean usePlayPauseActions) {
     if (this.usePlayPauseActions != usePlayPauseActions) {
       this.usePlayPauseActions = usePlayPauseActions;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -520,7 +520,7 @@ public class PlayerNotificationManager {
     } else {
       stopPendingIntent = null;
     }
-    maybeUpdateNotification();
+    invalidate();
   }
 
   /**
@@ -531,7 +531,7 @@ public class PlayerNotificationManager {
   public final void setMediaSessionToken(MediaSessionCompat.Token token) {
     if (!Util.areEqual(this.mediaSessionToken, token)) {
       mediaSessionToken = token;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -555,7 +555,7 @@ public class PlayerNotificationManager {
       default:
         throw new IllegalArgumentException();
     }
-    maybeUpdateNotification();
+    invalidate();
   }
 
   /**
@@ -569,7 +569,7 @@ public class PlayerNotificationManager {
   public final void setColorized(boolean colorized) {
     if (this.colorized != colorized) {
       this.colorized = colorized;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -583,7 +583,7 @@ public class PlayerNotificationManager {
   public final void setDefaults(int defaults) {
     if (this.defaults != defaults) {
       this.defaults = defaults;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -597,7 +597,7 @@ public class PlayerNotificationManager {
   public final void setColor(int color) {
     if (this.color != color) {
       this.color = color;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -613,7 +613,7 @@ public class PlayerNotificationManager {
   public final void setOngoing(boolean ongoing) {
     if (this.ongoing != ongoing) {
       this.ongoing = ongoing;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -642,7 +642,7 @@ public class PlayerNotificationManager {
       default:
         throw new IllegalArgumentException();
     }
-    maybeUpdateNotification();
+    invalidate();
   }
 
   /**
@@ -655,7 +655,7 @@ public class PlayerNotificationManager {
   public final void setSmallIcon(@DrawableRes int smallIconResourceId) {
     if (this.smallIconResourceId != smallIconResourceId) {
       this.smallIconResourceId = smallIconResourceId;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -669,7 +669,7 @@ public class PlayerNotificationManager {
   public final void setUseChronometer(boolean useChronometer) {
     if (this.useChronometer != useChronometer) {
       this.useChronometer = useChronometer;
-      maybeUpdateNotification();
+      invalidate();
     }
   }
 
@@ -696,7 +696,14 @@ public class PlayerNotificationManager {
       default:
         throw new IllegalStateException();
     }
-    maybeUpdateNotification();
+    invalidate();
+  }
+
+  /** Forces an update of the notification if already started. */
+  public void invalidate() {
+    if (isNotificationStarted && player != null) {
+      updateNotification(null);
+    }
   }
 
   @RequiresNonNull("player")
@@ -719,12 +726,6 @@ public class PlayerNotificationManager {
     }
   }
 
-  private void maybeUpdateNotification() {
-    if (isNotificationStarted && player != null) {
-      updateNotification(null);
-    }
-  }
-
   private void stopNotification() {
     if (isNotificationStarted) {
       notificationManager.cancel(notificationId);
@@ -744,7 +745,6 @@ public class PlayerNotificationManager {
    * @return The {@link Notification} which has been built.
    */
   protected Notification createNotification(Player player, @Nullable Bitmap largeIcon) {
-    boolean isPlayingAd = player.isPlayingAd();
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
     List<String> actionNames = getActions(player);
     for (int i = 0; i < actionNames.size(); i++) {
@@ -759,18 +759,18 @@ public class PlayerNotificationManager {
     }
     // Create a media style notification.
     MediaStyle mediaStyle = new MediaStyle();
-    builder.setStyle(mediaStyle);
     if (mediaSessionToken != null) {
       mediaStyle.setMediaSession(mediaSessionToken);
     }
-    mediaStyle.setShowActionsInCompactView(getActionIndicesForCompactView(player));
+    mediaStyle.setShowActionsInCompactView(getActionIndicesForCompactView(actionNames, player));
     // Configure stop action (eg. when user dismisses the notification when !isOngoing).
-    boolean useStopAction = stopAction != null && !isPlayingAd;
+    boolean useStopAction = stopAction != null;
     mediaStyle.setShowCancelButton(useStopAction);
     if (useStopAction && stopPendingIntent != null) {
       builder.setDeleteIntent(stopPendingIntent);
       mediaStyle.setCancelButtonIntent(stopPendingIntent);
     }
+    builder.setStyle(mediaStyle);
     // Set notification properties from getters.
     builder
         .setBadgeIconType(badgeIconType)
@@ -782,6 +782,7 @@ public class PlayerNotificationManager {
         .setPriority(priority)
         .setDefaults(defaults);
     if (useChronometer
+        && !player.isPlayingAd()
         && !player.isCurrentWindowDynamic()
         && player.getPlayWhenReady()
         && player.getPlaybackState() == Player.STATE_READY) {
@@ -830,33 +831,36 @@ public class PlayerNotificationManager {
    * name is ignored.
    */
   protected List<String> getActions(Player player) {
+    boolean isPlayingAd = player.isPlayingAd();
     List<String> stringActions = new ArrayList<>();
-    if (!player.isPlayingAd()) {
+    if (!isPlayingAd) {
       if (useNavigationActions) {
         stringActions.add(ACTION_PREVIOUS);
       }
       if (rewindMs > 0) {
         stringActions.add(ACTION_REWIND);
       }
-      if (usePlayPauseActions) {
-        if (player.getPlayWhenReady()) {
-          stringActions.add(ACTION_PAUSE);
-        } else {
-          stringActions.add(ACTION_PLAY);
-        }
+    }
+    if (usePlayPauseActions) {
+      if (player.getPlayWhenReady()) {
+        stringActions.add(ACTION_PAUSE);
+      } else {
+        stringActions.add(ACTION_PLAY);
       }
+    }
+    if (!isPlayingAd) {
       if (fastForwardMs > 0) {
         stringActions.add(ACTION_FAST_FORWARD);
       }
       if (useNavigationActions && player.getNextWindowIndex() != C.INDEX_UNSET) {
         stringActions.add(ACTION_NEXT);
       }
-      if (customActionReceiver != null) {
-        stringActions.addAll(customActionReceiver.getCustomActions(player));
-      }
-      if (ACTION_STOP.equals(stopAction)) {
-        stringActions.add(stopAction);
-      }
+    }
+    if (customActionReceiver != null) {
+      stringActions.addAll(customActionReceiver.getCustomActions(player));
+    }
+    if (ACTION_STOP.equals(stopAction)) {
+      stringActions.add(stopAction);
     }
     return stringActions;
   }
@@ -864,18 +868,18 @@ public class PlayerNotificationManager {
   /**
    * Gets an array with the indices of the buttons to be shown in compact mode.
    *
-   * <p>This method can be overridden. The indices must refer to the list of actions returned by
-   * {@link #getActions(Player)}.
+   * <p>This method can be overridden. The indices must refer to the list of actions passed as the
+   * first parameter.
    *
+   * @param actionNames The names of the actions included in the notification.
    * @param player The player for which state to build a notification.
    */
-  protected int[] getActionIndicesForCompactView(Player player) {
-    if (!usePlayPauseActions) {
-      return new int[0];
-    }
-    int actionIndex = useNavigationActions ? 1 : 0;
-    actionIndex += fastForwardMs > 0 ? 1 : 0;
-    return new int[] {actionIndex};
+  protected int[] getActionIndicesForCompactView(List<String> actionNames, Player player) {
+    int pauseActionIndex = actionNames.indexOf(ACTION_PAUSE);
+    int playActionIndex = actionNames.indexOf(ACTION_PLAY);
+    return pauseActionIndex != -1
+        ? new int[] {pauseActionIndex}
+        : (playActionIndex != -1 ? new int[] {playActionIndex} : new int[0]);
   }
 
   private static Map<String, NotificationCompat.Action> createPlaybackActions(Context context) {
@@ -936,7 +940,7 @@ public class PlayerNotificationManager {
     return actions;
   }
 
-  private class PlayerListener extends Player.DefaultEventListener {
+  private class PlayerListener implements Player.EventListener {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
@@ -949,7 +953,7 @@ public class PlayerNotificationManager {
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+    public void onTimelineChanged(Timeline timeline, @Nullable Object manifest, int reason) {
       if (player == null || player.getPlaybackState() == Player.STATE_IDLE) {
         return;
       }

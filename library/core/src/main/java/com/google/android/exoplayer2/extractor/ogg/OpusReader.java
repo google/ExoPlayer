@@ -130,6 +130,6 @@ import java.util.List;
     } else {
       length = 10000 << length;
     }
-    return frames * length;
+    return (long) frames * length;
   }
 }

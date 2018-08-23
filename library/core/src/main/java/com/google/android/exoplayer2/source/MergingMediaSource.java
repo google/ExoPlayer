@@ -20,6 +20,7 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -97,8 +98,11 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   }
 
   @Override
-  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
-    super.prepareSourceInternal(player, isTopLevelSource);
+  public void prepareSourceInternal(
+      ExoPlayer player,
+      boolean isTopLevelSource,
+      @Nullable TransferListener mediaTransferListener) {
+    super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
     for (int i = 0; i < mediaSources.length; i++) {
       prepareChildSource(i, mediaSources[i]);
     }
@@ -157,6 +161,12 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     if (pendingTimelineSources.isEmpty()) {
       refreshSourceInfo(primaryTimeline, primaryManifest);
     }
+  }
+
+  @Override
+  protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
+      Integer id, MediaPeriodId mediaPeriodId) {
+    return id == 0 ? mediaPeriodId : null;
   }
 
   private IllegalMergeException checkTimelineMerges(Timeline timeline) {

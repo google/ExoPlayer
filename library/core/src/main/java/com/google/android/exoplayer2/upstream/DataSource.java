@@ -19,6 +19,9 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A component from which streams of data can be read.
@@ -34,8 +37,14 @@ public interface DataSource {
      * Creates a {@link DataSource} instance.
      */
     DataSource createDataSource();
-
   }
+
+  /**
+   * Adds a {@link TransferListener} to listen to data transfers. This method is not thread-safe.
+   *
+   * @param transferListener A {@link TransferListener}.
+   */
+  void addTransferListener(TransferListener transferListener);
 
   /**
    * Opens the source to read the specified data.
@@ -83,6 +92,14 @@ public interface DataSource {
   @Nullable Uri getUri();
 
   /**
+   * When the source is open, returns the response headers associated with the last {@link #open}
+   * call. Otherwise, returns an empty map.
+   */
+  default Map<String, List<String>> getResponseHeaders() {
+    return Collections.emptyMap();
+  }
+
+  /**
    * Closes the source.
    * <p>
    * Note: This method must be called even if the corresponding call to {@link #open(DataSpec)}
@@ -91,5 +108,4 @@ public interface DataSource {
    * @throws IOException If an error occurs closing the source.
    */
   void close() throws IOException;
-
 }

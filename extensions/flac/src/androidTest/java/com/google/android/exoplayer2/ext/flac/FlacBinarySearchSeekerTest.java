@@ -67,6 +67,6 @@ public final class FlacBinarySearchSeekerTest extends InstrumentationTestCase {
             decoderJni.decodeMetadata(), /* firstFramePosition= */ 0, data.length, decoderJni);
 
     seeker.setSeekTargetUs(/* timeUs= */ 1000);
-    assertThat(seeker.hasPendingSeek()).isTrue();
+    assertThat(seeker.isSeeking()).isTrue();
   }
 }

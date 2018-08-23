@@ -61,9 +61,9 @@ public final class RobolectricUtil {
 
     @Implementation
     public static void loop() {
-      ShadowLooper looper = shadowOf(Looper.myLooper());
-      if (looper instanceof CustomLooper) {
-        ((CustomLooper) looper).doLoop();
+      Looper looper = Looper.myLooper();
+      if (shadowOf(looper) instanceof CustomLooper) {
+        ((CustomLooper) shadowOf(looper)).doLoop();
       }
     }
 
@@ -93,8 +93,9 @@ public final class RobolectricUtil {
     }
 
     private void doLoop() {
-      try {
-        while (true) {
+      boolean wasInterrupted = false;
+      while (true) {
+        try {
           PendingMessage pendingMessage = pendingMessages.take();
           if (pendingMessage.message == null) {
             // Null message is signal to end message loop.
@@ -118,6 +119,11 @@ public final class RobolectricUtil {
             }
             if (!isRemoved) {
               try {
+                if (wasInterrupted) {
+                  wasInterrupted = false;
+                  // Restore the interrupt status flag, so long-running messages will exit early.
+                  Thread.currentThread().interrupt();
+                }
                 target.dispatchMessage(pendingMessage.message);
               } catch (Throwable t) {
                 // Interrupt the main thread to terminate the test. Robolectric's HandlerThread will
@@ -132,9 +138,9 @@ public final class RobolectricUtil {
           } else {
             callInstanceMethod(pendingMessage.message, "recycle");
           }
+        } catch (InterruptedException e) {
+          wasInterrupted = true;
         }
-      } catch (InterruptedException e) {
-        // Ignore.
       }
     }
   }
@@ -155,9 +161,10 @@ public final class RobolectricUtil {
     @Implementation
     @Override
     public boolean enqueueMessage(Message msg, long when) {
-      ShadowLooper looper = shadowOf(ShadowLooper.getLooperForThread(looperThread));
-      if (looper instanceof CustomLooper && looper != ShadowLooper.getShadowMainLooper()) {
-        ((CustomLooper) looper).addPendingMessage(msg, when);
+      Looper looper = ShadowLooper.getLooperForThread(looperThread);
+      if (shadowOf(looper) instanceof CustomLooper
+          && shadowOf(looper) != ShadowLooper.getShadowMainLooper()) {
+        ((CustomLooper) shadowOf(looper)).addPendingMessage(msg, when);
       } else {
         super.enqueueMessage(msg, when);
       }
@@ -166,9 +173,10 @@ public final class RobolectricUtil {
 
     @Implementation
     public void removeMessages(Handler handler, int what, Object object) {
-      ShadowLooper looper = shadowOf(ShadowLooper.getLooperForThread(looperThread));
-      if (looper instanceof CustomLooper && looper != ShadowLooper.getShadowMainLooper()) {
-        ((CustomLooper) looper).removeMessages(handler, what, object);
+      Looper looper = ShadowLooper.getLooperForThread(looperThread);
+      if (shadowOf(looper) instanceof CustomLooper
+          && shadowOf(looper) != ShadowLooper.getShadowMainLooper()) {
+        ((CustomLooper) shadowOf(looper)).removeMessages(handler, what, object);
       }
     }
   }

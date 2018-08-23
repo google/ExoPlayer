@@ -25,6 +25,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -87,7 +88,7 @@ import java.util.Locale;
  *       below for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.id.exo_player_control_view}
+ *         <li>Default: {@code R.layout.exo_player_control_view}
  *       </ul>
  * </ul>
  *
@@ -715,7 +716,7 @@ public class PlayerControlView extends FrameLayout {
     long bufferedPosition = 0;
     long duration = 0;
     if (player != null) {
-      long currentWindowTimeBarOffsetUs = 0;
+      long currentWindowTimeBarOffsetMs = 0;
       long durationUs = 0;
       int adGroupCount = 0;
       Timeline timeline = player.getCurrentTimeline();
@@ -726,7 +727,7 @@ public class PlayerControlView extends FrameLayout {
             multiWindowTimeBar ? timeline.getWindowCount() - 1 : currentWindowIndex;
         for (int i = firstWindowIndex; i <= lastWindowIndex; i++) {
           if (i == currentWindowIndex) {
-            currentWindowTimeBarOffsetUs = durationUs;
+            currentWindowTimeBarOffsetMs = C.usToMs(durationUs);
           }
           timeline.getWindow(i, window);
           if (window.durationUs == C.TIME_UNSET) {
@@ -762,15 +763,8 @@ public class PlayerControlView extends FrameLayout {
         }
       }
       duration = C.usToMs(durationUs);
-      position = C.usToMs(currentWindowTimeBarOffsetUs);
-      bufferedPosition = position;
-      if (player.isPlayingAd()) {
-        position += player.getContentPosition();
-        bufferedPosition = position;
-      } else {
-        position += player.getCurrentPosition();
-        bufferedPosition += player.getBufferedPosition();
-      }
+      position = currentWindowTimeBarOffsetMs + player.getContentPosition();
+      bufferedPosition = currentWindowTimeBarOffsetMs + player.getContentBufferedPosition();
       if (timeBar != null) {
         int extraAdGroupCount = extraAdGroupTimesMs.length;
         int totalAdGroupCount = adGroupCount + extraAdGroupCount;
@@ -953,6 +947,16 @@ public class PlayerControlView extends FrameLayout {
   }
 
   @Override
+  public final boolean dispatchTouchEvent(MotionEvent ev) {
+    if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+      removeCallbacks(hideAction);
+    } else if (ev.getAction() == MotionEvent.ACTION_UP) {
+      hideAfterTimeout();
+    }
+    return super.dispatchTouchEvent(ev);
+  }
+
+  @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
     return dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
   }
@@ -1037,12 +1041,11 @@ public class PlayerControlView extends FrameLayout {
     return true;
   }
 
-  private final class ComponentListener extends Player.DefaultEventListener
-      implements TimeBar.OnScrubListener, OnClickListener {
+  private final class ComponentListener
+      implements Player.EventListener, TimeBar.OnScrubListener, OnClickListener {
 
     @Override
     public void onScrubStart(TimeBar timeBar, long position) {
-      removeCallbacks(hideAction);
       scrubbing = true;
     }
 
@@ -1059,7 +1062,6 @@ public class PlayerControlView extends FrameLayout {
       if (!canceled && player != null) {
         seekToTimeBarPosition(position);
       }
-      hideAfterTimeout();
     }
 
     @Override
@@ -1088,7 +1090,7 @@ public class PlayerControlView extends FrameLayout {
 
     @Override
     public void onTimelineChanged(
-        Timeline timeline, Object manifest, @Player.TimelineChangeReason int reason) {
+        Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
       updateNavigation();
       updateTimeBarMode();
       updateProgress();
@@ -1123,7 +1125,6 @@ public class PlayerControlView extends FrameLayout {
           controlDispatcher.dispatchSetShuffleModeEnabled(player, !player.getShuffleModeEnabled());
         }
       }
-      hideAfterTimeout();
     }
   }
 }

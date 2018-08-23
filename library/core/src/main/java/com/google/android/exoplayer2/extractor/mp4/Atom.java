@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
@@ -214,14 +215,14 @@ import java.util.List;
 
     /**
      * Returns the child leaf of the given type.
-     * <p>
-     * If no child exists with the given type then null is returned. If multiple children exist with
-     * the given type then the first one to have been added is returned.
+     *
+     * <p>If no child exists with the given type then null is returned. If multiple children exist
+     * with the given type then the first one to have been added is returned.
      *
      * @param type The leaf type.
      * @return The child leaf of the given type, or null if no such child exists.
      */
-    public LeafAtom getLeafAtomOfType(int type) {
+    public @Nullable LeafAtom getLeafAtomOfType(int type) {
       int childrenSize = leafChildren.size();
       for (int i = 0; i < childrenSize; i++) {
         LeafAtom atom = leafChildren.get(i);
@@ -234,14 +235,14 @@ import java.util.List;
 
     /**
      * Returns the child container of the given type.
-     * <p>
-     * If no child exists with the given type then null is returned. If multiple children exist with
-     * the given type then the first one to have been added is returned.
+     *
+     * <p>If no child exists with the given type then null is returned. If multiple children exist
+     * with the given type then the first one to have been added is returned.
      *
      * @param type The container type.
      * @return The child container of the given type, or null if no such child exists.
      */
-    public ContainerAtom getContainerAtomOfType(int type) {
+    public @Nullable ContainerAtom getContainerAtomOfType(int type) {
       int childrenSize = containerChildren.size();
       for (int i = 0; i < childrenSize; i++) {
         ContainerAtom atom = containerChildren.get(i);

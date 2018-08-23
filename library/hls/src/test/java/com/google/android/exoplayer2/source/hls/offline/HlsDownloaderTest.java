@@ -36,7 +36,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
+import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource.Factory;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
@@ -181,17 +182,18 @@ public class HlsDownloaderTest {
     assertCachedData(cache, fakeDataSet);
   }
 
-  private HlsDownloader getHlsDownloader(String mediaPlaylistUri, List<RenditionKey> keys) {
+  private HlsDownloader getHlsDownloader(String mediaPlaylistUri, List<StreamKey> keys) {
     Factory factory = new Factory(null).setFakeDataSet(fakeDataSet);
     return new HlsDownloader(
         Uri.parse(mediaPlaylistUri), keys, new DownloaderConstructorHelper(cache, factory));
   }
 
-  private static ArrayList<RenditionKey> getKeys(int... variantIndices) {
-    ArrayList<RenditionKey> renditionKeys = new ArrayList<>();
+  private static ArrayList<StreamKey> getKeys(int... variantIndices) {
+    ArrayList<StreamKey> streamKeys = new ArrayList<>();
     for (int variantIndex : variantIndices) {
-      renditionKeys.add(new RenditionKey(RenditionKey.TYPE_VARIANT, variantIndex));
+      final int trackIndex = variantIndex;
+      streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, trackIndex));
     }
-    return renditionKeys;
+    return streamKeys;
   }
 }

@@ -23,8 +23,8 @@ import android.os.ConditionVariable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
@@ -875,21 +875,20 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testReleaseAndReprepareSource() throws IOException {
-    Period period = new Period();
     FakeMediaSource[] fakeMediaSources = createMediaSources(/* count= */ 2);
     mediaSource.addMediaSource(fakeMediaSources[0]); // Child source with 1 period.
     mediaSource.addMediaSource(fakeMediaSources[1]); // Child source with 2 periods.
     Timeline timeline = testRunner.prepareSource();
-    Object periodId0 = timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid;
-    Object periodId1 = timeline.getPeriod(/* periodIndex= */ 1, period, /* setIds= */ true).uid;
-    Object periodId2 = timeline.getPeriod(/* periodIndex= */ 2, period, /* setIds= */ true).uid;
+    Object periodId0 = timeline.getUidOfPeriod(/* periodIndex= */ 0);
+    Object periodId1 = timeline.getUidOfPeriod(/* periodIndex= */ 1);
+    Object periodId2 = timeline.getUidOfPeriod(/* periodIndex= */ 2);
     testRunner.releaseSource();
 
     mediaSource.moveMediaSource(/* currentIndex= */ 1, /* newIndex= */ 0);
     timeline = testRunner.prepareSource();
-    Object newPeriodId0 = timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid;
-    Object newPeriodId1 = timeline.getPeriod(/* periodIndex= */ 1, period, /* setIds= */ true).uid;
-    Object newPeriodId2 = timeline.getPeriod(/* periodIndex= */ 2, period, /* setIds= */ true).uid;
+    Object newPeriodId0 = timeline.getUidOfPeriod(/* periodIndex= */ 0);
+    Object newPeriodId1 = timeline.getUidOfPeriod(/* periodIndex= */ 1);
+    Object newPeriodId2 = timeline.getUidOfPeriod(/* periodIndex= */ 2);
     assertThat(newPeriodId0).isEqualTo(periodId1);
     assertThat(newPeriodId1).isEqualTo(periodId2);
     assertThat(newPeriodId2).isEqualTo(periodId0);
@@ -911,6 +910,58 @@ public final class ConcatenatingMediaSourceTest {
 
     testRunner.assertCompletedMediaPeriodLoads(
         new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+  }
+
+  @Test
+  public void testChildSourceIsNotPreparedWithLazyPreparation() throws IOException {
+    FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
+    mediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false,
+            /* useLazyPreparation= */ true,
+            new DefaultShuffleOrder(0),
+            childSources);
+    testRunner = new MediaSourceTestRunner(mediaSource, /* allocator= */ null);
+    testRunner.prepareSource();
+
+    assertThat(childSources[0].isPrepared()).isFalse();
+    assertThat(childSources[1].isPrepared()).isFalse();
+  }
+
+  @Test
+  public void testChildSourceIsPreparedWithLazyPreparationAfterPeriodCreation() throws IOException {
+    FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
+    mediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false,
+            /* useLazyPreparation= */ true,
+            new DefaultShuffleOrder(0),
+            childSources);
+    testRunner = new MediaSourceTestRunner(mediaSource, /* allocator= */ null);
+    testRunner.prepareSource();
+    testRunner.createPeriod(new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+
+    assertThat(childSources[0].isPrepared()).isTrue();
+    assertThat(childSources[1].isPrepared()).isFalse();
+  }
+
+  @Test
+  public void testChildSourceWithLazyPreparationOnlyPreparesSourceOnce() throws IOException {
+    FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
+    mediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false,
+            /* useLazyPreparation= */ true,
+            new DefaultShuffleOrder(0),
+            childSources);
+    testRunner = new MediaSourceTestRunner(mediaSource, /* allocator= */ null);
+    testRunner.prepareSource();
+
+    // The lazy preparation must only be triggered once, even if we create multiple periods from
+    // the media source. FakeMediaSource.prepareSource asserts that it's not called twice, so
+    // creating two periods shouldn't throw.
+    testRunner.createPeriod(new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+    testRunner.createPeriod(new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
   }
 
   private void assertCompletedAllMediaPeriodLoads(Timeline timeline) {

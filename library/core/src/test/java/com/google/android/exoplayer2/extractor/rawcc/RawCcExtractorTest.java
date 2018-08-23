@@ -38,14 +38,15 @@ public final class RawCcExtractorTest {
           public Extractor create() {
             return new RawCcExtractor(
                 Format.createTextContainerFormat(
-                    null,
-                    null,
-                    MimeTypes.APPLICATION_CEA608,
-                    "cea608",
-                    Format.NO_VALUE,
-                    0,
-                    null,
-                    1));
+                    /* id= */ null,
+                    /* label= */ null,
+                    /* containerMimeType= */ null,
+                    /* sampleMimeType= */ MimeTypes.APPLICATION_CEA608,
+                    /* codecs= */ "cea608",
+                    /* bitrate= */ Format.NO_VALUE,
+                    /* selectionFlags= */ 0,
+                    /* language= */ null,
+                    /* accessibilityChannel= */ 1));
           }
         },
         "rawcc/sample.rawcc");

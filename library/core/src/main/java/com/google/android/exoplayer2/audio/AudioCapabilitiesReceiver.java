@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.os.Handler;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
@@ -44,17 +46,29 @@ public final class AudioCapabilitiesReceiver {
   }
 
   private final Context context;
+  private final @Nullable Handler handler;
   private final Listener listener;
-  private final BroadcastReceiver receiver;
+  private final @Nullable BroadcastReceiver receiver;
 
-  /* package */ AudioCapabilities audioCapabilities;
+  /* package */ @Nullable AudioCapabilities audioCapabilities;
 
   /**
    * @param context A context for registering the receiver.
    * @param listener The listener to notify when audio capabilities change.
    */
   public AudioCapabilitiesReceiver(Context context, Listener listener) {
+    this(context, /* handler= */ null, listener);
+  }
+
+  /**
+   * @param context A context for registering the receiver.
+   * @param handler The handler to which {@link Listener} events will be posted. If null, listener
+   *     methods are invoked on the main thread.
+   * @param listener The listener to notify when audio capabilities change.
+   */
+  public AudioCapabilitiesReceiver(Context context, @Nullable Handler handler, Listener listener) {
     this.context = Assertions.checkNotNull(context);
+    this.handler = handler;
     this.listener = Assertions.checkNotNull(listener);
     this.receiver = Util.SDK_INT >= 21 ? new HdmiAudioPlugBroadcastReceiver() : null;
   }
@@ -68,8 +82,17 @@ public final class AudioCapabilitiesReceiver {
    */
   @SuppressWarnings("InlinedApi")
   public AudioCapabilities register() {
-    Intent stickyIntent = receiver == null ? null
-        : context.registerReceiver(receiver, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG));
+    Intent stickyIntent = null;
+    if (receiver != null) {
+      IntentFilter intentFilter = new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG);
+      if (handler != null) {
+        stickyIntent =
+            context.registerReceiver(
+                receiver, intentFilter, /* broadcastPermission= */ null, handler);
+      } else {
+        stickyIntent = context.registerReceiver(receiver, intentFilter);
+      }
+    }
     audioCapabilities = AudioCapabilities.getCapabilities(stickyIntent);
     return audioCapabilities;
   }

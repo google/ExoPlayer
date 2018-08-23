@@ -25,9 +25,10 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.ConditionVariable;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
@@ -62,8 +63,8 @@ public class DownloadManagerDashTest {
   private File tempFolder;
   private FakeDataSet fakeDataSet;
   private DownloadManager downloadManager;
-  private RepresentationKey fakeRepresentationKey1;
-  private RepresentationKey fakeRepresentationKey2;
+  private StreamKey fakeStreamKey1;
+  private StreamKey fakeStreamKey2;
   private TestDownloadManagerListener downloadManagerListener;
   private File actionFile;
   private DummyMainThread dummyMainThread;
@@ -88,8 +89,8 @@ public class DownloadManagerDashTest {
             .setRandomData("text_segment_2", 2)
             .setRandomData("text_segment_3", 3);
 
-    fakeRepresentationKey1 = new RepresentationKey(0, 0, 0);
-    fakeRepresentationKey2 = new RepresentationKey(0, 1, 0);
+    fakeStreamKey1 = new StreamKey(0, 0, 0);
+    fakeStreamKey2 = new StreamKey(0, 1, 0);
     actionFile = new File(tempFolder, "actionFile");
     createDownloadManager();
   }
@@ -133,7 +134,7 @@ public class DownloadManagerDashTest {
           @Override
           public void run() {
             // Setup an Action and immediately release the DM.
-            handleDownloadAction(fakeRepresentationKey1, fakeRepresentationKey2);
+            handleDownloadAction(fakeStreamKey1, fakeStreamKey2);
             downloadManager.release();
           }
         });
@@ -160,15 +161,15 @@ public class DownloadManagerDashTest {
 
   @Test
   public void testHandleDownloadAction() throws Throwable {
-    handleDownloadAction(fakeRepresentationKey1, fakeRepresentationKey2);
+    handleDownloadAction(fakeStreamKey1, fakeStreamKey2);
     blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertCachedData(cache, fakeDataSet);
   }
 
   @Test
   public void testHandleMultipleDownloadAction() throws Throwable {
-    handleDownloadAction(fakeRepresentationKey1);
-    handleDownloadAction(fakeRepresentationKey2);
+    handleDownloadAction(fakeStreamKey1);
+    handleDownloadAction(fakeStreamKey2);
     blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertCachedData(cache, fakeDataSet);
   }
@@ -181,13 +182,13 @@ public class DownloadManagerDashTest {
             new Runnable() {
               @Override
               public void run() {
-                handleDownloadAction(fakeRepresentationKey2);
+                handleDownloadAction(fakeStreamKey2);
               }
             })
         .appendReadData(TestUtil.buildTestData(5))
         .endData();
 
-    handleDownloadAction(fakeRepresentationKey1);
+    handleDownloadAction(fakeStreamKey1);
 
     blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertCachedData(cache, fakeDataSet);
@@ -195,7 +196,7 @@ public class DownloadManagerDashTest {
 
   @Test
   public void testHandleRemoveAction() throws Throwable {
-    handleDownloadAction(fakeRepresentationKey1);
+    handleDownloadAction(fakeStreamKey1);
 
     blockUntilTasksCompleteAndThrowAnyDownloadError();
 
@@ -210,7 +211,7 @@ public class DownloadManagerDashTest {
   @Ignore
   @Test
   public void testHandleRemoveActionBeforeDownloadFinish() throws Throwable {
-    handleDownloadAction(fakeRepresentationKey1);
+    handleDownloadAction(fakeStreamKey1);
     handleRemoveAction();
 
     blockUntilTasksCompleteAndThrowAnyDownloadError();
@@ -233,7 +234,7 @@ public class DownloadManagerDashTest {
         .appendReadData(TestUtil.buildTestData(5))
         .endData();
 
-    handleDownloadAction(fakeRepresentationKey1);
+    handleDownloadAction(fakeStreamKey1);
 
     assertThat(downloadInProgressCondition.block(ASSERT_TRUE_TIMEOUT)).isTrue();
 
@@ -248,7 +249,7 @@ public class DownloadManagerDashTest {
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
-  private void handleDownloadAction(RepresentationKey... keys) {
+  private void handleDownloadAction(StreamKey... keys) {
     downloadManager.handleAction(newAction(TEST_MPD_URI, false, null, keys));
   }
 
@@ -279,10 +280,16 @@ public class DownloadManagerDashTest {
         });
   }
 
-  private static DashDownloadAction newAction(
-      Uri uri, boolean isRemoveAction, @Nullable byte[] data, RepresentationKey... keys) {
-    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+  private static DownloadAction newAction(
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, StreamKey... keys) {
+    ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    return new DashDownloadAction(uri, isRemoveAction, data, keysList);
+    DownloadAction result;
+    if (isRemoveAction) {
+      result = DashDownloadAction.createRemoveAction(uri, data);
+    } else {
+      result = DashDownloadAction.createDownloadAction(uri, data, keysList);
+    }
+    return result;
   }
 }

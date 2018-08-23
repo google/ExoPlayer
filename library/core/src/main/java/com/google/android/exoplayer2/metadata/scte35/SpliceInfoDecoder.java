@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.metadata.scte35;
 
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
-import com.google.android.exoplayer2.metadata.MetadataDecoderException;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -46,7 +45,7 @@ public final class SpliceInfoDecoder implements MetadataDecoder {
   }
 
   @Override
-  public Metadata decode(MetadataInputBuffer inputBuffer) throws MetadataDecoderException {
+  public Metadata decode(MetadataInputBuffer inputBuffer) {
     // Internal timestamps adjustment.
     if (timestampAdjuster == null
         || inputBuffer.subsampleOffsetUs != timestampAdjuster.getTimestampOffsetUs()) {

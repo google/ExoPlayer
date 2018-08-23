@@ -18,20 +18,23 @@ package com.google.android.exoplayer2.upstream.cache;
 import android.net.Uri;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link DataSource} that reads and writes a {@link Cache}. Requests are fulfilled from the cache
@@ -52,8 +55,6 @@ public final class CacheDataSource implements DataSource {
    */
   public static final long DEFAULT_MAX_CACHE_FILE_SIZE = 2 * 1024 * 1024;
 
-  private static final String TAG = "CacheDataSource";
-
   /**
    * Flags controlling the cache's behavior.
    */
@@ -65,20 +66,20 @@ public final class CacheDataSource implements DataSource {
    * A flag indicating whether we will block reads if the cache key is locked. If unset then data is
    * read from upstream if the cache key is locked, regardless of whether the data is cached.
    */
-  public static final int FLAG_BLOCK_ON_CACHE = 1 << 0;
+  public static final int FLAG_BLOCK_ON_CACHE = 1;
 
   /**
    * A flag indicating whether the cache is bypassed following any cache related error. If set
    * then cache related exceptions may be thrown for one cycle of open, read and close calls.
    * Subsequent cycles of these calls will then bypass the cache.
    */
-  public static final int FLAG_IGNORE_CACHE_ON_ERROR = 1 << 1;
+  public static final int FLAG_IGNORE_CACHE_ON_ERROR = 1 << 1; // 2
 
   /**
    * A flag indicating that the cache should be bypassed for requests whose lengths are unset. This
    * flag is provided for legacy reasons only.
    */
-  public static final int FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS = 1 << 2;
+  public static final int FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS = 1 << 2; // 4
 
   /** Reasons the cache may be ignored. */
   @Retention(RetentionPolicy.SOURCE)
@@ -120,23 +121,25 @@ public final class CacheDataSource implements DataSource {
 
   private final Cache cache;
   private final DataSource cacheReadDataSource;
-  private final DataSource cacheWriteDataSource;
+  private final @Nullable DataSource cacheWriteDataSource;
   private final DataSource upstreamDataSource;
+  private final CacheKeyFactory cacheKeyFactory;
   @Nullable private final EventListener eventListener;
 
   private final boolean blockOnCache;
   private final boolean ignoreCacheOnError;
   private final boolean ignoreCacheForUnsetLengthRequests;
 
-  private DataSource currentDataSource;
+  private @Nullable DataSource currentDataSource;
   private boolean currentDataSpecLengthUnset;
-  private Uri uri;
-  private Uri actualUri;
+  private @Nullable Uri uri;
+  private @Nullable Uri actualUri;
+  private @HttpMethod int httpMethod;
   private int flags;
-  private String key;
+  private @Nullable String key;
   private long readPosition;
   private long bytesRemaining;
-  private CacheSpan currentHoleSpan;
+  private @Nullable CacheSpan currentHoleSpan;
   private boolean seenCacheError;
   private boolean currentRequestIgnoresCache;
   private long totalCachedBytesRead;
@@ -181,8 +184,13 @@ public final class CacheDataSource implements DataSource {
    */
   public CacheDataSource(Cache cache, DataSource upstream, @Flags int flags,
       long maxCacheFileSize) {
-    this(cache, upstream, new FileDataSource(), new CacheDataSink(cache, maxCacheFileSize),
-        flags, null);
+    this(
+        cache,
+        upstream,
+        new FileDataSource(),
+        new CacheDataSink(cache, maxCacheFileSize),
+        flags,
+        /* eventListener= */ null);
   }
 
   /**
@@ -201,8 +209,43 @@ public final class CacheDataSource implements DataSource {
    */
   public CacheDataSource(Cache cache, DataSource upstream, DataSource cacheReadDataSource,
       DataSink cacheWriteDataSink, @Flags int flags, @Nullable EventListener eventListener) {
+    this(
+        cache,
+        upstream,
+        cacheReadDataSource,
+        cacheWriteDataSink,
+        flags,
+        eventListener,
+        /* cacheKeyFactory= */ null);
+  }
+
+  /**
+   * Constructs an instance with arbitrary {@link DataSource} and {@link DataSink} instances for
+   * reading and writing the cache. One use of this constructor is to allow data to be transformed
+   * before it is written to disk.
+   *
+   * @param cache The cache.
+   * @param upstream A {@link DataSource} for reading data not in the cache.
+   * @param cacheReadDataSource A {@link DataSource} for reading data from the cache.
+   * @param cacheWriteDataSink A {@link DataSink} for writing data to the cache. If null, cache is
+   *     accessed read-only.
+   * @param flags A combination of {@link #FLAG_BLOCK_ON_CACHE}, {@link #FLAG_IGNORE_CACHE_ON_ERROR}
+   *     and {@link #FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS}, or 0.
+   * @param eventListener An optional {@link EventListener} to receive events.
+   * @param cacheKeyFactory An optional factory for cache keys.
+   */
+  public CacheDataSource(
+      Cache cache,
+      DataSource upstream,
+      DataSource cacheReadDataSource,
+      DataSink cacheWriteDataSink,
+      @Flags int flags,
+      @Nullable EventListener eventListener,
+      @Nullable CacheKeyFactory cacheKeyFactory) {
     this.cache = cache;
     this.cacheReadDataSource = cacheReadDataSource;
+    this.cacheKeyFactory =
+        cacheKeyFactory != null ? cacheKeyFactory : CacheUtil.DEFAULT_CACHE_KEY_FACTORY;
     this.blockOnCache = (flags & FLAG_BLOCK_ON_CACHE) != 0;
     this.ignoreCacheOnError = (flags & FLAG_IGNORE_CACHE_ON_ERROR) != 0;
     this.ignoreCacheForUnsetLengthRequests =
@@ -217,11 +260,18 @@ public final class CacheDataSource implements DataSource {
   }
 
   @Override
+  public void addTransferListener(TransferListener transferListener) {
+    cacheReadDataSource.addTransferListener(transferListener);
+    upstreamDataSource.addTransferListener(transferListener);
+  }
+
+  @Override
   public long open(DataSpec dataSpec) throws IOException {
     try {
-      key = CacheUtil.getKey(dataSpec);
+      key = cacheKeyFactory.buildCacheKey(dataSpec);
       uri = dataSpec.uri;
-      actualUri = loadRedirectedUriOrReturnGivenUri(cache, key, uri);
+      actualUri = getRedirectedUriOrDefault(cache, key, /* defaultUri= */ uri);
+      httpMethod = dataSpec.httpMethod;
       flags = dataSpec.flags;
       readPosition = dataSpec.position;
 
@@ -272,7 +322,7 @@ public final class CacheDataSource implements DataSource {
           bytesRemaining -= bytesRead;
         }
       } else if (currentDataSpecLengthUnset) {
-        setBytesRemainingAndMaybeStoreLength(0);
+        setNoBytesRemainingAndMaybeStoreLength();
       } else if (bytesRemaining > 0 || bytesRemaining == C.LENGTH_UNSET) {
         closeCurrentSource();
         openNextSource(false);
@@ -281,7 +331,7 @@ public final class CacheDataSource implements DataSource {
       return bytesRead;
     } catch (IOException e) {
       if (currentDataSpecLengthUnset && isCausedByPositionOutOfRange(e)) {
-        setBytesRemainingAndMaybeStoreLength(0);
+        setNoBytesRemainingAndMaybeStoreLength();
         return C.RESULT_END_OF_INPUT;
       }
       handleBeforeThrow(e);
@@ -290,14 +340,23 @@ public final class CacheDataSource implements DataSource {
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return actualUri;
+  }
+
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    // TODO: Implement.
+    return isReadingFromUpstream()
+        ? upstreamDataSource.getResponseHeaders()
+        : DataSource.super.getResponseHeaders();
   }
 
   @Override
   public void close() throws IOException {
     uri = null;
     actualUri = null;
+    httpMethod = DataSpec.HTTP_METHOD_GET;
     notifyBytesRead();
     try {
       closeCurrentSource();
@@ -342,7 +401,9 @@ public final class CacheDataSource implements DataSource {
       // The data is locked in the cache, or we're ignoring the cache. Bypass the cache and read
       // from upstream.
       nextDataSource = upstreamDataSource;
-      nextDataSpec = new DataSpec(uri, readPosition, bytesRemaining, key, flags);
+      nextDataSpec =
+          new DataSpec(
+              uri, httpMethod, null, readPosition, readPosition, bytesRemaining, key, flags);
     } else if (nextSpan.isCached) {
       // Data is cached, read from cache.
       Uri fileUri = Uri.fromFile(nextSpan.file);
@@ -364,7 +425,8 @@ public final class CacheDataSource implements DataSource {
           length = Math.min(length, bytesRemaining);
         }
       }
-      nextDataSpec = new DataSpec(uri, readPosition, length, key, flags);
+      nextDataSpec =
+          new DataSpec(uri, httpMethod, null, readPosition, readPosition, length, key, flags);
       if (cacheWriteDataSource != null) {
         nextDataSource = cacheWriteDataSource;
       } else {
@@ -402,46 +464,38 @@ public final class CacheDataSource implements DataSource {
     currentDataSource = nextDataSource;
     currentDataSpecLengthUnset = nextDataSpec.length == C.LENGTH_UNSET;
     long resolvedLength = nextDataSource.open(nextDataSpec);
-    if (currentDataSpecLengthUnset && resolvedLength != C.LENGTH_UNSET) {
-      setBytesRemainingAndMaybeStoreLength(resolvedLength);
-    }
-    // TODO find a way to store length and redirected uri in one metadata mutation.
-    maybeUpdateActualUriFieldAndRedirectedUriMetadata();
-  }
 
-  private void maybeUpdateActualUriFieldAndRedirectedUriMetadata() {
-    if (!isReadingFromUpstream()) {
-      return;
-    }
-    actualUri = currentDataSource.getUri();
-    maybeUpdateRedirectedUriMetadata();
-  }
-
-  private void maybeUpdateRedirectedUriMetadata() {
-    if (!isWritingToCache()) {
-      return;
-    }
+    // Update bytesRemaining, actualUri and (if writing to cache) the cache metadata.
     ContentMetadataMutations mutations = new ContentMetadataMutations();
-    boolean isRedirected = !uri.equals(actualUri);
-    if (isRedirected) {
-      ContentMetadataInternal.setRedirectedUri(mutations, actualUri);
-    } else {
-      ContentMetadataInternal.removeRedirectedUri(mutations);
+    if (currentDataSpecLengthUnset && resolvedLength != C.LENGTH_UNSET) {
+      bytesRemaining = resolvedLength;
+      ContentMetadataInternal.setContentLength(mutations, readPosition + bytesRemaining);
     }
-    try {
+    if (isReadingFromUpstream()) {
+      actualUri = currentDataSource.getUri();
+      boolean isRedirected = !uri.equals(actualUri);
+      if (isRedirected) {
+        ContentMetadataInternal.setRedirectedUri(mutations, actualUri);
+      } else {
+        ContentMetadataInternal.removeRedirectedUri(mutations);
+      }
+    }
+    if (isWritingToCache()) {
       cache.applyContentMetadataMutations(key, mutations);
-    } catch (CacheException e) {
-      String message =
-          "Couldn't update redirected URI. "
-              + "This might cause relative URIs get resolved incorrectly.";
-      Log.w(TAG, message, e);
     }
   }
 
-  private static Uri loadRedirectedUriOrReturnGivenUri(Cache cache, String key, Uri uri) {
+  private void setNoBytesRemainingAndMaybeStoreLength() throws IOException {
+    bytesRemaining = 0;
+    if (isWritingToCache()) {
+      cache.setContentLength(key, readPosition);
+    }
+  }
+
+  private static Uri getRedirectedUriOrDefault(Cache cache, String key, Uri defaultUri) {
     ContentMetadata contentMetadata = cache.getContentMetadata(key);
     Uri redirectedUri = ContentMetadataInternal.getRedirectedUri(contentMetadata);
-    return redirectedUri == null ? uri : redirectedUri;
+    return redirectedUri == null ? defaultUri : redirectedUri;
   }
 
   private static boolean isCausedByPositionOutOfRange(IOException e) {
@@ -456,13 +510,6 @@ public final class CacheDataSource implements DataSource {
       cause = cause.getCause();
     }
     return false;
-  }
-
-  private void setBytesRemainingAndMaybeStoreLength(long bytesRemaining) throws IOException {
-    this.bytesRemaining = bytesRemaining;
-    if (isWritingToCache()) {
-      cache.setContentLength(key, readPosition + bytesRemaining);
-    }
   }
 
   private boolean isReadingFromUpstream() {

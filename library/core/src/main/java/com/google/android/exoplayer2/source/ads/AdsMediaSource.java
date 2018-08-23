@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadDa
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -46,7 +47,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** A {@link MediaSource} that inserts ads linearly with a provided content media source. */
+/**
+ * A {@link MediaSource} that inserts ads linearly with a provided content media source. This source
+ * cannot be used as a child source in a composition. It must be the top-level source used to
+ * prepare the player.
+ */
 public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   /** Factory for creating {@link MediaSource}s to play ad media. */
@@ -169,7 +174,9 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   }
 
-  private static final String TAG = "AdsMediaSource";
+  // Used to identify the content "child" source for CompositeMediaSource.
+  private static final MediaPeriodId DUMMY_CONTENT_MEDIA_PERIOD_ID =
+      new MediaPeriodId(/* periodIndex= */ 0);
 
   private final MediaSource contentMediaSource;
   private final MediaSourceFactory adMediaSourceFactory;
@@ -307,12 +314,17 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   }
 
   @Override
-  public void prepareSourceInternal(final ExoPlayer player, boolean isTopLevelSource) {
-    super.prepareSourceInternal(player, isTopLevelSource);
-    Assertions.checkArgument(isTopLevelSource);
+  public void prepareSourceInternal(
+      final ExoPlayer player,
+      boolean isTopLevelSource,
+      @Nullable TransferListener mediaTransferListener) {
+    super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
+    Assertions.checkArgument(
+        isTopLevelSource,
+        "AdsMediaSource must be the top-level source used to prepare the player.");
     final ComponentListener componentListener = new ComponentListener();
     this.componentListener = componentListener;
-    prepareChildSource(new MediaPeriodId(/* periodIndex= */ 0), contentMediaSource);
+    prepareChildSource(DUMMY_CONTENT_MEDIA_PERIOD_ID, contentMediaSource);
     mainHandler.post(new Runnable() {
       @Override
       public void run() {
@@ -338,20 +350,18 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
           Arrays.fill(adDurationsUs[adGroupIndex], oldAdCount, adCount, C.TIME_UNSET);
         }
         adGroupMediaSources[adGroupIndex][adIndexInAdGroup] = adMediaSource;
-        deferredMediaPeriodByAdMediaSource.put(adMediaSource, new ArrayList<DeferredMediaPeriod>());
+        deferredMediaPeriodByAdMediaSource.put(adMediaSource, new ArrayList<>());
         prepareChildSource(id, adMediaSource);
       }
       MediaSource mediaSource = adGroupMediaSources[adGroupIndex][adIndexInAdGroup];
-      DeferredMediaPeriod deferredMediaPeriod =
-          new DeferredMediaPeriod(
-              mediaSource,
-              new MediaPeriodId(/* periodIndex= */ 0, id.windowSequenceNumber),
-              allocator);
+      DeferredMediaPeriod deferredMediaPeriod = new DeferredMediaPeriod(mediaSource, id, allocator);
       deferredMediaPeriod.setPrepareErrorListener(
           new AdPrepareErrorListener(adUri, adGroupIndex, adIndexInAdGroup));
       List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.get(mediaSource);
       if (mediaPeriods == null) {
-        deferredMediaPeriod.createPeriod();
+        MediaPeriodId adSourceMediaPeriodId =
+            new MediaPeriodId(/* periodIndex= */ 0, id.windowSequenceNumber);
+        deferredMediaPeriod.createPeriod(adSourceMediaPeriodId);
       } else {
         // Keep track of the deferred media period so it can be populated with the real media period
         // when the source's info becomes available.
@@ -360,7 +370,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       return deferredMediaPeriod;
     } else {
       DeferredMediaPeriod mediaPeriod = new DeferredMediaPeriod(contentMediaSource, id, allocator);
-      mediaPeriod.createPeriod();
+      mediaPeriod.createPeriod(id);
       return mediaPeriod;
     }
   }
@@ -413,8 +423,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   @Override
   protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       MediaPeriodId childId, MediaPeriodId mediaPeriodId) {
-    // The child id for the content period is just a dummy without window sequence number. That's
-    // why we need to forward the reported mediaPeriodId in this case.
+    // The child id for the content period is just DUMMY_CONTENT_MEDIA_PERIOD_ID. That's why we need
+    // to forward the reported mediaPeriodId in this case.
     return childId.isAd() ? childId : mediaPeriodId;
   }
 
@@ -441,12 +451,14 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       int adIndexInAdGroup, Timeline timeline) {
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
     adDurationsUs[adGroupIndex][adIndexInAdGroup] = timeline.getPeriod(0, period).getDurationUs();
-    if (deferredMediaPeriodByAdMediaSource.containsKey(mediaSource)) {
-      List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.get(mediaSource);
+    List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.remove(mediaSource);
+    if (mediaPeriods != null) {
       for (int i = 0; i < mediaPeriods.size(); i++) {
-        mediaPeriods.get(i).createPeriod();
+        DeferredMediaPeriod mediaPeriod = mediaPeriods.get(i);
+        MediaPeriodId adSourceMediaPeriodId =
+            new MediaPeriodId(/* periodIndex= */ 0, mediaPeriod.id.windowSequenceNumber);
+        mediaPeriod.createPeriod(adSourceMediaPeriodId);
       }
-      deferredMediaPeriodByAdMediaSource.remove(mediaSource);
     }
     maybeUpdateSourceInfo();
   }
@@ -541,6 +553,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       createEventDispatcher(/* mediaPeriodId= */ null)
           .loadError(
               dataSpec,
+              dataSpec.uri,
               C.DATA_TYPE_AD,
               C.TRACK_TYPE_UNKNOWN,
               /* loadDurationMs= */ 0,
@@ -582,6 +595,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       createEventDispatcher(mediaPeriodId)
           .loadError(
               new DataSpec(adUri),
+              adUri,
               C.DATA_TYPE_AD,
               C.TRACK_TYPE_UNKNOWN,
               /* loadDurationMs= */ 0,

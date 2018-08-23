@@ -21,25 +21,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-/** A manifest parser that includes only the tracks identified by the given track keys. */
-public final class FilteringManifestParser<T extends FilterableManifest<T, K>, K>
-    implements Parser<T> {
+/** A manifest parser that includes only the streams identified by the given stream keys. */
+public final class FilteringManifestParser<T extends FilterableManifest<T>> implements Parser<T> {
 
   private final Parser<T> parser;
-  private final List<K> trackKeys;
+  private final List<StreamKey> streamKeys;
 
   /**
    * @param parser A parser for the manifest that will be filtered.
-   * @param trackKeys The track keys. If null or empty then filtering will not occur.
+   * @param streamKeys The stream keys. If null or empty then filtering will not occur.
    */
-  public FilteringManifestParser(Parser<T> parser, List<K> trackKeys) {
+  public FilteringManifestParser(Parser<T> parser, List<StreamKey> streamKeys) {
     this.parser = parser;
-    this.trackKeys = trackKeys;
+    this.streamKeys = streamKeys;
   }
 
   @Override
   public T parse(Uri uri, InputStream inputStream) throws IOException {
     T manifest = parser.parse(uri, inputStream);
-    return trackKeys == null || trackKeys.isEmpty() ? manifest : manifest.copy(trackKeys);
+    return streamKeys == null || streamKeys.isEmpty() ? manifest : manifest.copy(streamKeys);
   }
 }

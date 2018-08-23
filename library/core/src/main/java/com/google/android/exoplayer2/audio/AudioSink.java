@@ -283,10 +283,11 @@ public interface AudioSink {
    */
   void setAudioAttributes(AudioAttributes audioAttributes);
 
-  /**
-   * Sets the audio session id.
-   */
+  /** Sets the audio session id. */
   void setAudioSessionId(int audioSessionId);
+
+  /** Sets the auxiliary effect. */
+  void setAuxEffectInfo(AuxEffectInfo auxEffectInfo);
 
   /**
    * Enables tunneling, if possible. The sink is reset if tunneling was previously disabled or if

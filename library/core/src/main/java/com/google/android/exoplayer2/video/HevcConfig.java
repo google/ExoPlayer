@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.video;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -26,7 +27,7 @@ import java.util.List;
  */
 public final class HevcConfig {
 
-  public final List<byte[]> initializationData;
+  public final @Nullable List<byte[]> initializationData;
   public final int nalUnitLengthFieldLength;
 
   /**
@@ -82,7 +83,7 @@ public final class HevcConfig {
     }
   }
 
-  private HevcConfig(List<byte[]> initializationData, int nalUnitLengthFieldLength) {
+  private HevcConfig(@Nullable List<byte[]> initializationData, int nalUnitLengthFieldLength) {
     this.initializationData = initializationData;
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
   }

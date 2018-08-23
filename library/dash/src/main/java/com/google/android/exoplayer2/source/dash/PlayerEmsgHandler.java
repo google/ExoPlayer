@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
@@ -100,7 +101,6 @@ public final class PlayerEmsgHandler implements Handler.Callback {
    *     messages that generate DASH media source events.
    * @param allocator An {@link Allocator} from which allocations can be obtained.
    */
-  @SuppressWarnings("nullness")
   public PlayerEmsgHandler(
       DashManifest manifest, PlayerEmsgCallback playerEmsgCallback, Allocator allocator) {
     this.manifest = manifest;
@@ -108,7 +108,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     this.allocator = allocator;
 
     manifestPublishTimeToExpiryTimeUs = new TreeMap<>();
-    handler = new Handler(this);
+    handler = Util.createHandler(/* callback= */ this);
     decoder = new EventMessageDecoder();
     lastLoadedChunkEndTimeUs = C.TIME_UNSET;
     lastLoadedChunkEndTimeBeforeRefreshUs = C.TIME_UNSET;
@@ -336,7 +336,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
 
     @Override
     public void sampleMetadata(
-        long timeUs, int flags, int size, int offset, CryptoData encryptionData) {
+        long timeUs, int flags, int size, int offset, @Nullable CryptoData encryptionData) {
       sampleQueue.sampleMetadata(timeUs, flags, size, offset, encryptionData);
       parseAndDiscardSamples();
     }

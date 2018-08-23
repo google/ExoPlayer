@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,10 +40,8 @@ public final class RepeatModeUtil {
    * "Repeat One" button enabled.
    */
   public static final int REPEAT_TOGGLE_MODE_ONE = 1;
-  /**
-   * "Repeat All" button enabled.
-   */
-  public static final int REPEAT_TOGGLE_MODE_ALL = 2;
+  /** "Repeat All" button enabled. */
+  public static final int REPEAT_TOGGLE_MODE_ALL = 1 << 1; // 2
 
   private RepeatModeUtil() {
     // Prevent instantiation.

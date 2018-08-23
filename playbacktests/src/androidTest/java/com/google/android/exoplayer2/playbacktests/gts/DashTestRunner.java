@@ -301,14 +301,14 @@ public final class DashTestRunner {
         DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
       SimpleExoPlayer player =
           ExoPlayerFactory.newSimpleInstance(
-              new DebugRenderersFactory(host), trackSelector, drmSessionManager);
+              host, new DebugRenderersFactory(host), trackSelector, drmSessionManager);
       player.setVideoSurface(surface);
       return player;
     }
 
     @Override
-    protected MediaSource buildSource(HostActivity host, String userAgent,
-        TransferListener<? super DataSource> mediaTransferListener) {
+    protected MediaSource buildSource(
+        HostActivity host, String userAgent, TransferListener mediaTransferListener) {
       DataSource.Factory manifestDataSourceFactory = dataSourceFactory != null
           ? dataSourceFactory : new DefaultDataSourceFactory(host, userAgent);
       DataSource.Factory mediaDataSourceFactory = dataSourceFactory != null

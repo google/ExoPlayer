@@ -105,101 +105,63 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
         boolean hasNewUsableKey);
   }
 
-  /**
-   * @see android.media.MediaDrm.KeyStatus
-   */
-  interface KeyStatus {
-    /** Returns the status code for the key. */
-    int getStatusCode();
-    /** Returns the id for the key. */
-    byte[] getKeyId();
-  }
-
-  /**
-   * Default implementation of {@link KeyStatus}.
-   */
-  final class DefaultKeyStatus implements KeyStatus {
+  /** @see android.media.MediaDrm.KeyStatus */
+  final class KeyStatus {
 
     private final int statusCode;
     private final byte[] keyId;
 
-    DefaultKeyStatus(int statusCode, byte[] keyId) {
+    public KeyStatus(int statusCode, byte[] keyId) {
       this.statusCode = statusCode;
       this.keyId = keyId;
     }
 
-    @Override
     public int getStatusCode() {
       return statusCode;
     }
 
-    @Override
     public byte[] getKeyId() {
       return keyId;
     }
 
   }
 
-  /**
-   * @see android.media.MediaDrm.KeyRequest
-   */
-  interface KeyRequest {
-    byte[] getData();
-    String getDefaultUrl();
-  }
-
-  /**
-   * Default implementation of {@link KeyRequest}.
-   */
-  final class DefaultKeyRequest implements KeyRequest {
+  /** @see android.media.MediaDrm.KeyRequest */
+  final class KeyRequest {
 
     private final byte[] data;
     private final String defaultUrl;
 
-    public DefaultKeyRequest(byte[] data, String defaultUrl) {
+    public KeyRequest(byte[] data, String defaultUrl) {
       this.data = data;
       this.defaultUrl = defaultUrl;
     }
 
-    @Override
     public byte[] getData() {
       return data;
     }
 
-    @Override
     public String getDefaultUrl() {
       return defaultUrl;
     }
 
   }
 
-  /**
-   * @see android.media.MediaDrm.ProvisionRequest
-   */
-  interface ProvisionRequest {
-    byte[] getData();
-    String getDefaultUrl();
-  }
-
-  /**
-   * Default implementation of {@link ProvisionRequest}.
-   */
-  final class DefaultProvisionRequest implements ProvisionRequest {
+  /** @see android.media.MediaDrm.ProvisionRequest */
+  final class ProvisionRequest {
 
     private final byte[] data;
     private final String defaultUrl;
 
-    public DefaultProvisionRequest(byte[] data, String defaultUrl) {
+    public ProvisionRequest(byte[] data, String defaultUrl) {
       this.data = data;
       this.defaultUrl = defaultUrl;
     }
 
-    @Override
     public byte[] getData() {
       return data;
     }
 
-    @Override
     public String getDefaultUrl() {
       return defaultUrl;
     }

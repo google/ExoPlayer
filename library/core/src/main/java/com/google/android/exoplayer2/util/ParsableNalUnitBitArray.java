@@ -140,7 +140,7 @@ public final class ParsableNalUnitBitArray {
       returnValue |= (data[byteOffset] & 0xFF) << bitOffset;
       byteOffset += shouldSkipByte(byteOffset + 1) ? 2 : 1;
     }
-    returnValue |= (data[byteOffset] & 0xFF) >> 8 - bitOffset;
+    returnValue |= (data[byteOffset] & 0xFF) >> (8 - bitOffset);
     returnValue &= 0xFFFFFFFF >>> (32 - numBits);
     if (bitOffset == 8) {
       bitOffset = 0;

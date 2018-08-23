@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,17 +59,17 @@ public class DashManifestTest {
                 newAdaptationSet(8, representations[2][0]),
                 newAdaptationSet(9, representations[2][1])));
 
-    List<RepresentationKey> keys =
+    List<StreamKey> keys =
         Arrays.asList(
-            new RepresentationKey(0, 0, 0),
-            new RepresentationKey(0, 0, 1),
-            new RepresentationKey(0, 1, 2),
-            new RepresentationKey(1, 0, 1),
-            new RepresentationKey(1, 1, 0),
-            new RepresentationKey(1, 1, 2),
-            new RepresentationKey(2, 0, 1),
-            new RepresentationKey(2, 0, 2),
-            new RepresentationKey(2, 1, 0));
+            new StreamKey(0, 0, 0),
+            new StreamKey(0, 0, 1),
+            new StreamKey(0, 1, 2),
+            new StreamKey(1, 0, 1),
+            new StreamKey(1, 1, 0),
+            new StreamKey(1, 1, 2),
+            new StreamKey(2, 0, 1),
+            new StreamKey(2, 0, 2),
+            new StreamKey(2, 1, 0));
     // Keys don't need to be in any particular order
     Collections.shuffle(keys, new Random(0));
 
@@ -105,8 +106,7 @@ public class DashManifestTest {
             newPeriod("4", 4, newAdaptationSet(5, representations[1][0])));
 
     DashManifest copyManifest =
-        sourceManifest.copy(
-            Arrays.asList(new RepresentationKey(0, 0, 0), new RepresentationKey(1, 0, 0)));
+        sourceManifest.copy(Arrays.asList(new StreamKey(0, 0, 0), new StreamKey(1, 0, 0)));
 
     DashManifest expectedManifest =
         newDashManifest(
@@ -141,12 +141,12 @@ public class DashManifestTest {
     DashManifest copyManifest =
         sourceManifest.copy(
             Arrays.asList(
-                new RepresentationKey(0, 0, 0),
-                new RepresentationKey(0, 0, 1),
-                new RepresentationKey(0, 1, 2),
-                new RepresentationKey(2, 0, 1),
-                new RepresentationKey(2, 0, 2),
-                new RepresentationKey(2, 1, 0)));
+                new StreamKey(0, 0, 0),
+                new StreamKey(0, 0, 1),
+                new StreamKey(0, 1, 2),
+                new StreamKey(2, 0, 1),
+                new StreamKey(2, 0, 2),
+                new StreamKey(2, 1, 0)));
 
     DashManifest expectedManifest =
         newDashManifest(

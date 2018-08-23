@@ -24,6 +24,7 @@ import android.media.MediaFormat;
 import android.support.annotation.IntDef;
 import android.view.Surface;
 import com.google.android.exoplayer2.PlayerMessage.Target;
+import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -76,6 +77,12 @@ public final class C {
    * The number of nanoseconds in one second.
    */
   public static final long NANOS_PER_SECOND = 1000000000L;
+
+  /** The number of bits per byte. */
+  public static final int BITS_PER_BYTE = 8;
+
+  /** The number of bytes per float. */
+  public static final int BYTES_PER_FLOAT = 4;
 
   /**
    * The name of the ASCII charset.
@@ -136,6 +143,8 @@ public final class C {
     ENCODING_PCM_24BIT,
     ENCODING_PCM_32BIT,
     ENCODING_PCM_FLOAT,
+    ENCODING_PCM_MU_LAW,
+    ENCODING_PCM_A_LAW,
     ENCODING_AC3,
     ENCODING_E_AC3,
     ENCODING_DTS,
@@ -144,12 +153,19 @@ public final class C {
   })
   public @interface Encoding {}
 
-  /**
-   * Represents a PCM audio encoding, or an invalid or unset value.
-   */
+  /** Represents a PCM audio encoding, or an invalid or unset value. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({Format.NO_VALUE, ENCODING_INVALID, ENCODING_PCM_8BIT, ENCODING_PCM_16BIT,
-      ENCODING_PCM_24BIT, ENCODING_PCM_32BIT, ENCODING_PCM_FLOAT})
+  @IntDef({
+    Format.NO_VALUE,
+    ENCODING_INVALID,
+    ENCODING_PCM_8BIT,
+    ENCODING_PCM_16BIT,
+    ENCODING_PCM_24BIT,
+    ENCODING_PCM_32BIT,
+    ENCODING_PCM_FLOAT,
+    ENCODING_PCM_MU_LAW,
+    ENCODING_PCM_A_LAW
+  })
   public @interface PcmEncoding {}
   /** @see AudioFormat#ENCODING_INVALID */
   public static final int ENCODING_INVALID = AudioFormat.ENCODING_INVALID;
@@ -163,6 +179,10 @@ public final class C {
   public static final int ENCODING_PCM_32BIT = 0x40000000;
   /** @see AudioFormat#ENCODING_PCM_FLOAT */
   public static final int ENCODING_PCM_FLOAT = AudioFormat.ENCODING_PCM_FLOAT;
+  /** Audio encoding for mu-law. */
+  public static final int ENCODING_PCM_MU_LAW = 0x10000000;
+  /** Audio encoding for A-law. */
+  public static final int ENCODING_PCM_A_LAW = 0x20000000;
   /** @see AudioFormat#ENCODING_AC3 */
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
   /** @see AudioFormat#ENCODING_E_AC3 */
@@ -173,13 +193,6 @@ public final class C {
   public static final int ENCODING_DTS_HD = AudioFormat.ENCODING_DTS_HD;
   /** @see AudioFormat#ENCODING_DOLBY_TRUEHD */
   public static final int ENCODING_DOLBY_TRUEHD = AudioFormat.ENCODING_DOLBY_TRUEHD;
-
-  /**
-   * @see AudioFormat#CHANNEL_OUT_7POINT1_SURROUND
-   */
-  @SuppressWarnings("deprecation")
-  public static final int CHANNEL_OUT_7POINT1_SURROUND = Util.SDK_INT < 23
-      ? AudioFormat.CHANNEL_OUT_7POINT1 : AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
 
   /**
    * Stream types for an {@link android.media.AudioTrack}.
@@ -271,24 +284,32 @@ public final class C {
   public static final int FLAG_AUDIBILITY_ENFORCED =
       android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED;
 
-  /**
-   * Usage types for {@link com.google.android.exoplayer2.audio.AudioAttributes}.
-   */
+  /** Usage types for {@link com.google.android.exoplayer2.audio.AudioAttributes}. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({USAGE_ALARM, USAGE_ASSISTANCE_ACCESSIBILITY, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
-      USAGE_ASSISTANCE_SONIFICATION, USAGE_GAME, USAGE_MEDIA, USAGE_NOTIFICATION,
-      USAGE_NOTIFICATION_COMMUNICATION_DELAYED, USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
-      USAGE_NOTIFICATION_COMMUNICATION_REQUEST, USAGE_NOTIFICATION_EVENT,
-      USAGE_NOTIFICATION_RINGTONE, USAGE_UNKNOWN, USAGE_VOICE_COMMUNICATION,
-      USAGE_VOICE_COMMUNICATION_SIGNALLING})
+  @IntDef({
+    USAGE_ALARM,
+    USAGE_ASSISTANCE_ACCESSIBILITY,
+    USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+    USAGE_ASSISTANCE_SONIFICATION,
+    USAGE_ASSISTANT,
+    USAGE_GAME,
+    USAGE_MEDIA,
+    USAGE_NOTIFICATION,
+    USAGE_NOTIFICATION_COMMUNICATION_DELAYED,
+    USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
+    USAGE_NOTIFICATION_COMMUNICATION_REQUEST,
+    USAGE_NOTIFICATION_EVENT,
+    USAGE_NOTIFICATION_RINGTONE,
+    USAGE_UNKNOWN,
+    USAGE_VOICE_COMMUNICATION,
+    USAGE_VOICE_COMMUNICATION_SIGNALLING
+  })
   public @interface AudioUsage {}
   /**
    * @see android.media.AudioAttributes#USAGE_ALARM
    */
   public static final int USAGE_ALARM = android.media.AudioAttributes.USAGE_ALARM;
-  /**
-   * @see android.media.AudioAttributes#USAGE_ASSISTANCE_ACCESSIBILITY
-   */
+  /** @see android.media.AudioAttributes#USAGE_ASSISTANCE_ACCESSIBILITY */
   public static final int USAGE_ASSISTANCE_ACCESSIBILITY =
       android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY;
   /**
@@ -301,6 +322,8 @@ public final class C {
    */
   public static final int USAGE_ASSISTANCE_SONIFICATION =
       android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;
+  /** @see android.media.AudioAttributes#USAGE_ASSISTANT */
+  public static final int USAGE_ASSISTANT = android.media.AudioAttributes.USAGE_ASSISTANT;
   /**
    * @see android.media.AudioAttributes#USAGE_GAME
    */
@@ -353,6 +376,29 @@ public final class C {
   public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING =
       android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
+  /** Audio focus types. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    AUDIOFOCUS_NONE,
+    AUDIOFOCUS_GAIN,
+    AUDIOFOCUS_GAIN_TRANSIENT,
+    AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
+    AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
+  })
+  public @interface AudioFocusGain {}
+  /** @see AudioManager#AUDIOFOCUS_NONE */
+  public static final int AUDIOFOCUS_NONE = AudioManager.AUDIOFOCUS_NONE;
+  /** @see AudioManager#AUDIOFOCUS_GAIN */
+  public static final int AUDIOFOCUS_GAIN = AudioManager.AUDIOFOCUS_GAIN;
+  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT */
+  public static final int AUDIOFOCUS_GAIN_TRANSIENT = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
+  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK */
+  public static final int AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK =
+      AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
+  /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE */
+  public static final int AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE =
+      AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
+
   /**
    * Flags which can apply to a buffer containing a media sample.
    */
@@ -368,14 +414,10 @@ public final class C {
    * Flag for empty buffers that signal that the end of the stream was reached.
    */
   public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
-  /**
-   * Indicates that a buffer is (at least partially) encrypted.
-   */
-  public static final int BUFFER_FLAG_ENCRYPTED = 0x40000000;
-  /**
-   * Indicates that a buffer should be decoded but not rendered.
-   */
-  public static final int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
+  /** Indicates that a buffer is (at least partially) encrypted. */
+  public static final int BUFFER_FLAG_ENCRYPTED = 1 << 30; // 0x40000000
+  /** Indicates that a buffer should be decoded but not rendered. */
+  public static final int BUFFER_FLAG_DECODE_ONLY = 1 << 31; // 0x80000000
 
   /**
    * Video scaling modes for {@link MediaCodec}-based {@link Renderer}s.
@@ -409,15 +451,13 @@ public final class C {
    * Indicates that the track should be selected if user preferences do not state otherwise.
    */
   public static final int SELECTION_FLAG_DEFAULT = 1;
-  /**
-   * Indicates that the track must be displayed. Only applies to text tracks.
-   */
-  public static final int SELECTION_FLAG_FORCED = 2;
+  /** Indicates that the track must be displayed. Only applies to text tracks. */
+  public static final int SELECTION_FLAG_FORCED = 1 << 1; // 2
   /**
    * Indicates that the player may choose to play the track in absence of an explicit user
    * preference.
    */
-  public static final int SELECTION_FLAG_AUTOSELECT = 4;
+  public static final int SELECTION_FLAG_AUTOSELECT = 1 << 2; // 4
 
   /**
    * Represents an undetermined language as an ISO 639 alpha-3 language code.
@@ -469,32 +509,24 @@ public final class C {
    */
   public static final int RESULT_FORMAT_READ = -5;
 
-  /**
-   * A data type constant for data of unknown or unspecified type.
-   */
+  /** A data type constant for data of unknown or unspecified type. */
   public static final int DATA_TYPE_UNKNOWN = 0;
-  /**
-   * A data type constant for media, typically containing media samples.
-   */
+  /** A data type constant for media, typically containing media samples. */
   public static final int DATA_TYPE_MEDIA = 1;
-  /**
-   * A data type constant for media, typically containing only initialization data.
-   */
+  /** A data type constant for media, typically containing only initialization data. */
   public static final int DATA_TYPE_MEDIA_INITIALIZATION = 2;
-  /**
-   * A data type constant for drm or encryption data.
-   */
+  /** A data type constant for drm or encryption data. */
   public static final int DATA_TYPE_DRM = 3;
-  /**
-   * A data type constant for a manifest file.
-   */
+  /** A data type constant for a manifest file. */
   public static final int DATA_TYPE_MANIFEST = 4;
-  /**
-   * A data type constant for time synchronization data.
-   */
+  /** A data type constant for time synchronization data. */
   public static final int DATA_TYPE_TIME_SYNCHRONIZATION = 5;
   /** A data type constant for ads loader data. */
   public static final int DATA_TYPE_AD = 6;
+  /**
+   * A data type constant for live progressive media streams, typically containing media samples.
+   */
+  public static final int DATA_TYPE_MEDIA_PROGRESSIVE_LIVE = 7;
   /**
    * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or
    * equal to this value.
@@ -695,6 +727,13 @@ public final class C {
   public static final int MSG_SET_SCALING_MODE = 4;
 
   /**
+   * A type of a message that can be passed to an audio {@link Renderer} via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be an {@link AuxEffectInfo}
+   * instance representing an auxiliary audio effect for the underlying audio track.
+   */
+  public static final int MSG_SET_AUX_EFFECT_INFO = 5;
+
+  /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * {@link Renderer}s. These custom constants must be greater than or equal to this value.
    */
@@ -796,6 +835,45 @@ public final class C {
    * <p>Larger values indicate higher priorities.
    */
   public static final int PRIORITY_DOWNLOAD = PRIORITY_PLAYBACK - 1000;
+
+  /** Network connection type. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    NETWORK_TYPE_UNKNOWN,
+    NETWORK_TYPE_OFFLINE,
+    NETWORK_TYPE_WIFI,
+    NETWORK_TYPE_2G,
+    NETWORK_TYPE_3G,
+    NETWORK_TYPE_4G,
+    NETWORK_TYPE_CELLULAR_UNKNOWN,
+    NETWORK_TYPE_ETHERNET,
+    NETWORK_TYPE_OTHER
+  })
+  public @interface NetworkType {}
+  /** Unknown network type. */
+  public static final int NETWORK_TYPE_UNKNOWN = 0;
+  /** No network connection. */
+  public static final int NETWORK_TYPE_OFFLINE = 1;
+  /** Network type for a Wifi connection. */
+  public static final int NETWORK_TYPE_WIFI = 2;
+  /** Network type for a 2G cellular connection. */
+  public static final int NETWORK_TYPE_2G = 3;
+  /** Network type for a 3G cellular connection. */
+  public static final int NETWORK_TYPE_3G = 4;
+  /** Network type for a 4G cellular connection. */
+  public static final int NETWORK_TYPE_4G = 5;
+  /**
+   * Network type for cellular connections which cannot be mapped to one of {@link
+   * #NETWORK_TYPE_2G}, {@link #NETWORK_TYPE_3G}, or {@link #NETWORK_TYPE_4G}.
+   */
+  public static final int NETWORK_TYPE_CELLULAR_UNKNOWN = 6;
+  /** Network type for an Ethernet connection. */
+  public static final int NETWORK_TYPE_ETHERNET = 7;
+  /**
+   * Network type for other connections which are not Wifi or cellular (e.g. Ethernet, VPN,
+   * Bluetooth).
+   */
+  public static final int NETWORK_TYPE_OTHER = 8;
 
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving

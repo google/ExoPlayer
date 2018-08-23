@@ -169,6 +169,19 @@ import com.google.android.exoplayer2.Timeline;
   }
 
   @Override
+  public final Period getPeriodByUid(Object uid, Period period) {
+    Pair<?, ?> childUidAndPeriodUid = (Pair<?, ?>) uid;
+    Object childUid = childUidAndPeriodUid.first;
+    Object periodUid = childUidAndPeriodUid.second;
+    int childIndex = getChildIndexByChildUid(childUid);
+    int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
+    getTimelineByChildIndex(childIndex).getPeriodByUid(periodUid, period);
+    period.windowIndex += firstWindowIndexInChild;
+    period.uid = uid;
+    return period;
+  }
+
+  @Override
   public final Period getPeriod(int periodIndex, Period period, boolean setIds) {
     int childIndex = getChildIndexByPeriodIndex(periodIndex);
     int firstWindowIndexInChild = getFirstWindowIndexByChildIndex(childIndex);
@@ -197,6 +210,15 @@ import com.google.android.exoplayer2.Timeline;
     int periodIndexInChild = getTimelineByChildIndex(childIndex).getIndexOfPeriod(periodUid);
     return periodIndexInChild == C.INDEX_UNSET ? C.INDEX_UNSET
         : getFirstPeriodIndexByChildIndex(childIndex) + periodIndexInChild;
+  }
+
+  @Override
+  public final Object getUidOfPeriod(int periodIndex) {
+    int childIndex = getChildIndexByPeriodIndex(periodIndex);
+    int firstPeriodIndexInChild = getFirstPeriodIndexByChildIndex(childIndex);
+    Object periodUidInChild =
+        getTimelineByChildIndex(childIndex).getUidOfPeriod(periodIndex - firstPeriodIndexInChild);
+    return Pair.create(getChildUidByChildIndex(childIndex), periodUidInChild);
   }
 
   /**

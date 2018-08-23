@@ -35,24 +35,20 @@ import java.io.IOException;
  */
 public final class PsExtractor implements Extractor {
 
-  /**
-   * Factory for {@link PsExtractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
+  /** Factory for {@link PsExtractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new PsExtractor()};
 
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new PsExtractor()};
-    }
-
-  };
-
-  private static final int PACK_START_CODE = 0x000001BA;
-  private static final int SYSTEM_HEADER_START_CODE = 0x000001BB;
-  private static final int PACKET_START_CODE_PREFIX = 0x000001;
-  private static final int MPEG_PROGRAM_END_CODE = 0x000001B9;
+  /* package */ static final int PACK_START_CODE = 0x000001BA;
+  /* package */ static final int SYSTEM_HEADER_START_CODE = 0x000001BB;
+  /* package */ static final int PACKET_START_CODE_PREFIX = 0x000001;
+  /* package */ static final int MPEG_PROGRAM_END_CODE = 0x000001B9;
   private static final int MAX_STREAM_ID_PLUS_ONE = 0x100;
+
+  // Max search length for first audio and video track in input data.
   private static final long MAX_SEARCH_LENGTH = 1024 * 1024;
+  // Max search length for additional audio and video tracks in input data after at least one audio
+  // and video track has been found.
+  private static final long MAX_SEARCH_LENGTH_AFTER_AUDIO_AND_VIDEO_FOUND = 8 * 1024;
 
   public static final int PRIVATE_STREAM_1 = 0xBD;
   public static final int AUDIO_STREAM = 0xC0;
@@ -63,12 +59,17 @@ public final class PsExtractor implements Extractor {
   private final TimestampAdjuster timestampAdjuster;
   private final SparseArray<PesReader> psPayloadReaders; // Indexed by pid
   private final ParsableByteArray psPacketBuffer;
+  private final PsDurationReader durationReader;
+
   private boolean foundAllTracks;
   private boolean foundAudioTrack;
   private boolean foundVideoTrack;
+  private long lastTrackPosition;
 
   // Accessed only by the loading thread.
+  private PsBinarySearchSeeker psBinarySearchSeeker;
   private ExtractorOutput output;
+  private boolean hasOutputSeekMap;
 
   public PsExtractor() {
     this(new TimestampAdjuster(0));
@@ -78,6 +79,7 @@ public final class PsExtractor implements Extractor {
     this.timestampAdjuster = timestampAdjuster;
     psPacketBuffer = new ParsableByteArray(4096);
     psPayloadReaders = new SparseArray<>();
+    durationReader = new PsDurationReader();
   }
 
   // Extractor implementation.
@@ -124,12 +126,27 @@ public final class PsExtractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
   }
 
   @Override
   public void seek(long position, long timeUs) {
-    timestampAdjuster.reset();
+    boolean hasNotEncounteredFirstTimestamp =
+        timestampAdjuster.getTimestampOffsetUs() == C.TIME_UNSET;
+    if (hasNotEncounteredFirstTimestamp
+        || (timestampAdjuster.getFirstSampleTimestampUs() != 0
+            && timestampAdjuster.getFirstSampleTimestampUs() != timeUs)) {
+      // - If the timestamp adjuster in the PS stream has not encountered any sample, it's going to
+      // treat the first timestamp encountered as sample time 0, which is incorrect. In this case,
+      // we have to set the first sample timestamp manually.
+      // - If the timestamp adjuster has its timestamp set manually before, and now we seek to a
+      // different position, we need to set the first sample timestamp manually again.
+      timestampAdjuster.reset();
+      timestampAdjuster.setFirstSampleTimestampUs(timeUs);
+    }
+
+    if (psBinarySearchSeeker != null) {
+      psBinarySearchSeeker.setSeekTargetUs(timeUs);
+    }
     for (int i = 0; i < psPayloadReaders.size(); i++) {
       psPayloadReaders.valueAt(i).seek();
     }
@@ -143,6 +160,24 @@ public final class PsExtractor implements Extractor {
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
+
+    long inputLength = input.getLength();
+    boolean canReadDuration = inputLength != C.LENGTH_UNSET;
+    if (canReadDuration && !durationReader.isDurationReadFinished()) {
+      return durationReader.readDuration(input, seekPosition);
+    }
+    maybeOutputSeekMap(inputLength);
+    if (psBinarySearchSeeker != null && psBinarySearchSeeker.isSeeking()) {
+      return psBinarySearchSeeker.handlePendingSeek(
+          input, seekPosition, /* outputFrameHolder= */ null);
+    }
+
+    input.resetPeekPosition();
+    long peekBytesLeft =
+        inputLength != C.LENGTH_UNSET ? inputLength - input.getPeekPosition() : C.LENGTH_UNSET;
+    if (peekBytesLeft != C.LENGTH_UNSET && peekBytesLeft < 4) {
+      return RESULT_END_OF_INPUT;
+    }
     // First peek and check what type of start code is next.
     if (!input.peekFully(psPacketBuffer.data, 0, 4, true)) {
       return RESULT_END_OF_INPUT;
@@ -188,18 +223,21 @@ public final class PsExtractor implements Extractor {
     if (!foundAllTracks) {
       if (payloadReader == null) {
         ElementaryStreamReader elementaryStreamReader = null;
-        if (!foundAudioTrack && streamId == PRIVATE_STREAM_1) {
+        if (streamId == PRIVATE_STREAM_1) {
           // Private stream, used for AC3 audio.
           // NOTE: This may need further parsing to determine if its DTS, but that's likely only
           // valid for DVDs.
           elementaryStreamReader = new Ac3Reader();
           foundAudioTrack = true;
-        } else if (!foundAudioTrack && (streamId & AUDIO_STREAM_MASK) == AUDIO_STREAM) {
+          lastTrackPosition = input.getPosition();
+        } else if ((streamId & AUDIO_STREAM_MASK) == AUDIO_STREAM) {
           elementaryStreamReader = new MpegAudioReader();
           foundAudioTrack = true;
-        } else if (!foundVideoTrack && (streamId & VIDEO_STREAM_MASK) == VIDEO_STREAM) {
+          lastTrackPosition = input.getPosition();
+        } else if ((streamId & VIDEO_STREAM_MASK) == VIDEO_STREAM) {
           elementaryStreamReader = new H262Reader();
           foundVideoTrack = true;
+          lastTrackPosition = input.getPosition();
         }
         if (elementaryStreamReader != null) {
           TrackIdGenerator idGenerator = new TrackIdGenerator(streamId, MAX_STREAM_ID_PLUS_ONE);
@@ -208,7 +246,11 @@ public final class PsExtractor implements Extractor {
           psPayloadReaders.put(streamId, payloadReader);
         }
       }
-      if ((foundAudioTrack && foundVideoTrack) || input.getPosition() > MAX_SEARCH_LENGTH) {
+      long maxSearchPosition =
+          foundAudioTrack && foundVideoTrack
+              ? lastTrackPosition + MAX_SEARCH_LENGTH_AFTER_AUDIO_AND_VIDEO_FOUND
+              : MAX_SEARCH_LENGTH;
+      if (input.getPosition() > maxSearchPosition) {
         foundAllTracks = true;
         output.endTracks();
       }
@@ -236,6 +278,22 @@ public final class PsExtractor implements Extractor {
   }
 
   // Internals.
+
+  private void maybeOutputSeekMap(long inputLength) {
+    if (!hasOutputSeekMap) {
+      hasOutputSeekMap = true;
+      if (durationReader.getDurationUs() != C.TIME_UNSET) {
+        psBinarySearchSeeker =
+            new PsBinarySearchSeeker(
+                durationReader.getScrTimestampAdjuster(),
+                durationReader.getDurationUs(),
+                inputLength);
+        output.seekMap(psBinarySearchSeeker.getSeekMap());
+      } else {
+        output.seekMap(new SeekMap.Unseekable(durationReader.getDurationUs()));
+      }
+    }
+  }
 
   /**
    * Parses PES packet data and extracts samples.

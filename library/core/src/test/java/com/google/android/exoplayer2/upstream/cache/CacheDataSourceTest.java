@@ -46,16 +46,27 @@ public final class CacheDataSourceTest {
 
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   private static final int MAX_CACHE_FILE_SIZE = 3;
+  private static final String CACHE_KEY_PREFIX = "myCacheKeyFactoryPrefix";
 
   private Uri testDataUri;
-  private String testDataKey;
+  private String fixedCacheKey;
+  private String expectedCacheKey;
   private File tempFolder;
   private SimpleCache cache;
+  private CacheKeyFactory cacheKeyFactory;
 
   @Before
   public void setUp() throws Exception {
     testDataUri = Uri.parse("test_data");
-    testDataKey = CacheUtil.generateKey(testDataUri);
+    fixedCacheKey = CacheUtil.generateKey(testDataUri);
+    expectedCacheKey = fixedCacheKey;
+    cacheKeyFactory =
+        new CacheKeyFactory() {
+          @Override
+          public String buildCacheKey(DataSpec dataSpec) {
+            return CACHE_KEY_PREFIX + "." + CacheUtil.generateKey(dataSpec.uri);
+          }
+        };
     tempFolder = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
   }
@@ -78,40 +89,202 @@ public final class CacheDataSourceTest {
   }
 
   @Test
-  public void testCacheAndRead() throws Exception {
-    assertCacheAndRead(false, false);
-  }
-
-  @Test
   public void testCacheAndReadUnboundedRequest() throws Exception {
-    assertCacheAndRead(true, false);
+    assertCacheAndRead(/* unboundedRequest= */ true, /* simulateUnknownLength= */ false);
   }
 
   @Test
   public void testCacheAndReadUnknownLength() throws Exception {
-    assertCacheAndRead(false, true);
+    assertCacheAndRead(/* unboundedRequest= */ false, /* simulateUnknownLength= */ true);
   }
 
   @Test
   public void testCacheAndReadUnboundedRequestUnknownLength() throws Exception {
-    assertCacheAndRead(true, true);
+    assertCacheAndRead(/* unboundedRequest= */ true, /* simulateUnknownLength= */ true);
+  }
+
+  @Test
+  public void testCacheAndRead() throws Exception {
+    assertCacheAndRead(/* unboundedRequest= */ false, /* simulateUnknownLength= */ false);
   }
 
   @Test
   public void testUnsatisfiableRange() throws Exception {
     // Bounded request but the content length is unknown. This forces all data to be cached but not
     // the length
-    assertCacheAndRead(false, true);
+    assertCacheAndRead(/* unboundedRequest= */ false, /* simulateUnknownLength= */ true);
 
     // Now do an unbounded request. This will read all of the data from cache and then try to read
     // more from upstream which will cause to a 416 so CDS will store the length.
-    CacheDataSource cacheDataSource = createCacheDataSource(true, true);
-    assertReadDataContentLength(cacheDataSource, true, true);
+    CacheDataSource cacheDataSource =
+        createCacheDataSource(/* setReadException= */ true, /* simulateUnknownLength= */ true);
+    assertReadDataContentLength(
+        cacheDataSource, /* unboundedRequest= */ true, /* unknownLength= */ true);
 
     // If the user try to access off range then it should throw an IOException
     try {
-      cacheDataSource = createCacheDataSource(false, false);
-      cacheDataSource.open(new DataSpec(testDataUri, TEST_DATA.length, 5, testDataKey));
+      cacheDataSource =
+          createCacheDataSource(/* setReadException= */ false, /* simulateUnknownLength= */ false);
+      cacheDataSource.open(new DataSpec(testDataUri, TEST_DATA.length, 5, fixedCacheKey));
+      fail();
+    } catch (IOException e) {
+      // success
+    }
+  }
+
+  @Test
+  public void testCacheAndReadUnboundedRequestWithCacheKeyFactoryWithNullDataSpecCacheKey()
+      throws Exception {
+    fixedCacheKey = null;
+    expectedCacheKey =
+        cacheKeyFactory.buildCacheKey(
+            new DataSpec(testDataUri, TEST_DATA.length, 5, /* key= */ null));
+
+    assertCacheAndRead(
+        /* unboundedRequest= */ true, /* simulateUnknownLength= */ false, cacheKeyFactory);
+  }
+
+  @Test
+  public void testCacheAndReadUnknownLengthWithCacheKeyFactoryOverridingWithNullDataSpecCacheKey()
+      throws Exception {
+    fixedCacheKey = null;
+    expectedCacheKey =
+        cacheKeyFactory.buildCacheKey(
+            new DataSpec(testDataUri, TEST_DATA.length, 5, /* key= */ null));
+
+    assertCacheAndRead(
+        /* unboundedRequest= */ false, /* simulateUnknownLength= */ true, cacheKeyFactory);
+  }
+
+  @Test
+  public void
+      testCacheAndReadUnboundedRequestUnknownLengthWithCacheKeyFactoryWithNullDataSpecCacheKey()
+          throws Exception {
+    fixedCacheKey = null;
+    expectedCacheKey =
+        cacheKeyFactory.buildCacheKey(
+            new DataSpec(testDataUri, TEST_DATA.length, 5, /* key= */ null));
+
+    assertCacheAndRead(
+        /* unboundedRequest= */ true, /* simulateUnknownLength= */ true, cacheKeyFactory);
+  }
+
+  @Test
+  public void testCacheAndReadWithCacheKeyFactoryWithNullDataSpecCacheKey() throws Exception {
+    fixedCacheKey = null;
+    expectedCacheKey =
+        cacheKeyFactory.buildCacheKey(
+            new DataSpec(testDataUri, TEST_DATA.length, 5, /* key= */ null));
+
+    assertCacheAndRead(
+        /* unboundedRequest= */ false, /* simulateUnknownLength= */ false, cacheKeyFactory);
+  }
+
+  @Test
+  public void testUnsatisfiableRangeWithCacheKeyFactoryNullDataSpecCacheKey() throws Exception {
+    fixedCacheKey = null;
+    expectedCacheKey =
+        cacheKeyFactory.buildCacheKey(
+            new DataSpec(testDataUri, TEST_DATA.length, 5, /* key= */ null));
+
+    // Bounded request but the content length is unknown. This forces all data to be cached but not
+    // the length
+    assertCacheAndRead(
+        /* unboundedRequest= */ false, /* simulateUnknownLength= */ true, cacheKeyFactory);
+
+    // Now do an unbounded request. This will read all of the data from cache and then try to read
+    // more from upstream which will cause to a 416 so CDS will store the length.
+    CacheDataSource cacheDataSource =
+        createCacheDataSource(
+            /* setReadException= */ true, /* simulateUnknownLength= */ true, cacheKeyFactory);
+    assertReadDataContentLength(
+        cacheDataSource, /* unboundedRequest= */ true, /* unknownLength= */ true);
+
+    // If the user try to access off range then it should throw an IOException
+    try {
+      cacheDataSource =
+          createCacheDataSource(
+              /* setReadException= */ false, /* simulateUnknownLength= */ false, cacheKeyFactory);
+      cacheDataSource.open(new DataSpec(testDataUri, TEST_DATA.length, 5, fixedCacheKey));
+      fail();
+    } catch (IOException e) {
+      // success
+    }
+  }
+
+  @Test
+  public void testCacheAndReadUnboundedRequestWithCacheKeyFactoryOverridingDataSpecCacheKey()
+      throws Exception {
+    fixedCacheKey = CacheUtil.generateKey(testDataUri);
+    expectedCacheKey =
+        cacheKeyFactory.buildCacheKey(
+            new DataSpec(testDataUri, TEST_DATA.length, 5, fixedCacheKey));
+
+    assertCacheAndRead(true, false, cacheKeyFactory);
+  }
+
+  @Test
+  public void testCacheAndReadUnknownLengthWithCacheKeyFactoryOverridingDataSpecCacheKey()
+      throws Exception {
+    fixedCacheKey = CacheUtil.generateKey(testDataUri);
+    expectedCacheKey =
+        cacheKeyFactory.buildCacheKey(
+            new DataSpec(testDataUri, TEST_DATA.length, 5, fixedCacheKey));
+
+    assertCacheAndRead(false, true, cacheKeyFactory);
+  }
+
+  @Test
+  public void
+      testCacheAndReadUnboundedRequestUnknownLengthWithCacheKeyFactoryOverridingDataSpecCacheKey()
+          throws Exception {
+    fixedCacheKey = CacheUtil.generateKey(testDataUri);
+    expectedCacheKey =
+        cacheKeyFactory.buildCacheKey(
+            new DataSpec(testDataUri, TEST_DATA.length, 5, fixedCacheKey));
+
+    assertCacheAndRead(
+        /* unboundedRequest= */ true, /* simulateUnknownLength= */ true, cacheKeyFactory);
+  }
+
+  @Test
+  public void testCacheAndReadWithCacheKeyFactoryOverridingDataSpecCacheKey() throws Exception {
+    fixedCacheKey = CacheUtil.generateKey(testDataUri);
+    expectedCacheKey =
+        cacheKeyFactory.buildCacheKey(
+            new DataSpec(testDataUri, TEST_DATA.length, 5, fixedCacheKey));
+
+    assertCacheAndRead(
+        /* unboundedRequest= */ false, /* simulateUnknownLength= */ false, cacheKeyFactory);
+  }
+
+  @Test
+  public void testUnsatisfiableRangeWithCacheKeyFactoryOverridingDataSpecCacheKey()
+      throws Exception {
+    fixedCacheKey = CacheUtil.generateKey(testDataUri);
+    expectedCacheKey =
+        cacheKeyFactory.buildCacheKey(
+            new DataSpec(testDataUri, TEST_DATA.length, 5, fixedCacheKey));
+
+    // Bounded request but the content length is unknown. This forces all data to be cached but not
+    // the length
+    assertCacheAndRead(
+        /* unboundedRequest= */ false, /* simulateUnknownLength= */ true, cacheKeyFactory);
+
+    // Now do an unbounded request. This will read all of the data from cache and then try to read
+    // more from upstream which will cause to a 416 so CDS will store the length.
+    CacheDataSource cacheDataSource =
+        createCacheDataSource(
+            /* setReadException= */ true, /* simulateUnknownLength= */ true, cacheKeyFactory);
+    assertReadDataContentLength(
+        cacheDataSource, /* unboundedRequest= */ true, /* unknownLength= */ true);
+
+    // If the user try to access off range then it should throw an IOException
+    try {
+      cacheDataSource =
+          createCacheDataSource(
+              /* setReadException= */ false, /* simulateUnknownLength= */ false, cacheKeyFactory);
+      cacheDataSource.open(new DataSpec(testDataUri, TEST_DATA.length, 5, fixedCacheKey));
       fail();
     } catch (IOException e) {
       // success
@@ -123,7 +296,7 @@ public final class CacheDataSourceTest {
     // Read partial at EOS but don't cross it so length is unknown
     CacheDataSource cacheDataSource = createCacheDataSource(false, true);
     assertReadData(cacheDataSource, true, TEST_DATA.length - 2, 2);
-    assertThat(cache.getContentLength(testDataKey)).isEqualTo(C.LENGTH_UNSET);
+    assertThat(cache.getContentLength(expectedCacheKey)).isEqualTo(C.LENGTH_UNSET);
 
     // Now do an unbounded request for whole data. This will cause a bounded request from upstream.
     // End of data from upstream shouldn't be mixed up with EOS and cause length set wrong.
@@ -133,7 +306,7 @@ public final class CacheDataSourceTest {
     // Now the length set correctly do an unbounded request with offset
     assertThat(
             cacheDataSource.open(
-                new DataSpec(testDataUri, TEST_DATA.length - 2, C.LENGTH_UNSET, testDataKey)))
+                new DataSpec(testDataUri, TEST_DATA.length - 2, C.LENGTH_UNSET, expectedCacheKey)))
         .isEqualTo(2);
 
     // An unbounded request with offset for not cached content
@@ -155,12 +328,12 @@ public final class CacheDataSourceTest {
     CacheDataSource cacheDataSource = new CacheDataSource(cache, upstream, 0);
 
     int flags = DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH;
-    cacheDataSource.open(new DataSpec(testDataUri, 0, C.LENGTH_UNSET, testDataKey, flags));
+    cacheDataSource.open(new DataSpec(testDataUri, 0, C.LENGTH_UNSET, expectedCacheKey, flags));
     TestUtil.readToEnd(cacheDataSource);
     cacheDataSource.close();
 
     assertThat(upstream.getAndClearOpenedDataSpecs()).hasLength(1);
-    assertThat(cache.getContentLength(testDataKey)).isEqualTo(TEST_DATA.length);
+    assertThat(cache.getContentLength(expectedCacheKey)).isEqualTo(TEST_DATA.length);
   }
 
   @Test
@@ -171,7 +344,7 @@ public final class CacheDataSourceTest {
         new CacheDataSource(
             cache, upstream, CacheDataSource.FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS);
 
-    cacheDataSource.open(new DataSpec(testDataUri, 0, C.LENGTH_UNSET, testDataKey));
+    cacheDataSource.open(new DataSpec(testDataUri, 0, C.LENGTH_UNSET, expectedCacheKey));
     TestUtil.readToEnd(cacheDataSource);
     cacheDataSource.close();
 
@@ -206,7 +379,7 @@ public final class CacheDataSourceTest {
         new CacheDataSource(cache, upstream, new FileDataSource(), null, 0, null);
 
     // Open source and read some data from upstream as the data hasn't cached yet.
-    DataSpec dataSpec = new DataSpec(testDataUri, 0, C.LENGTH_UNSET, testDataKey);
+    DataSpec dataSpec = new DataSpec(testDataUri, 0, C.LENGTH_UNSET, fixedCacheKey);
     cacheDataSource.open(dataSpec);
     byte[] buffer = new byte[1024];
     cacheDataSource.read(buffer, 0, buffer.length);
@@ -245,7 +418,7 @@ public final class CacheDataSourceTest {
         .appendReadData(1);
 
     // Lock the content on the cache.
-    SimpleCacheSpan cacheSpan = cache.startReadWriteNonBlocking(testDataKey, 0);
+    SimpleCacheSpan cacheSpan = cache.startReadWriteNonBlocking(expectedCacheKey, 0);
     assertThat(cacheSpan).isNotNull();
     assertThat(cacheSpan.isHoleSpan()).isTrue();
 
@@ -253,7 +426,7 @@ public final class CacheDataSourceTest {
     CacheDataSource cacheDataSource = new CacheDataSource(cache, upstream, 0);
 
     // Open source and read some data from upstream without writing to cache as the data is locked.
-    DataSpec dataSpec = new DataSpec(testDataUri, 0, C.LENGTH_UNSET, testDataKey);
+    DataSpec dataSpec = new DataSpec(testDataUri, 0, C.LENGTH_UNSET, fixedCacheKey);
     cacheDataSource.open(dataSpec);
     byte[] buffer = new byte[1024];
     cacheDataSource.read(buffer, 0, buffer.length);
@@ -286,7 +459,7 @@ public final class CacheDataSourceTest {
     upstream.getDataSet().newDefaultData().appendReadData(1024).endData();
 
     // Cache the latter half of the data.
-    DataSpec dataSpec = new DataSpec(testDataUri, 512, C.LENGTH_UNSET, testDataKey);
+    DataSpec dataSpec = new DataSpec(testDataUri, 512, C.LENGTH_UNSET, fixedCacheKey);
     CacheUtil.cache(dataSpec, cache, upstream, /* counters= */ null, /* isCanceled= */ null);
 
     // Create cache read-only CacheDataSource.
@@ -294,12 +467,12 @@ public final class CacheDataSourceTest {
         new CacheDataSource(cache, upstream, new FileDataSource(), null, 0, null);
 
     // Open source and read some data from upstream as the data hasn't cached yet.
-    dataSpec = new DataSpec(testDataUri, 0, C.LENGTH_UNSET, testDataKey);
+    dataSpec = new DataSpec(testDataUri, 0, C.LENGTH_UNSET, fixedCacheKey);
     cacheDataSource.open(dataSpec);
     TestUtil.readExactly(cacheDataSource, 100);
 
     // Delete cached data.
-    CacheUtil.remove(cache, testDataKey);
+    CacheUtil.remove(cache, expectedCacheKey);
     assertCacheEmpty(cache);
 
     // Read the rest of the data.
@@ -317,21 +490,21 @@ public final class CacheDataSourceTest {
 
     // Cache the latter half of the data.
     int halfDataLength = 512;
-    DataSpec dataSpec = new DataSpec(testDataUri, halfDataLength, C.LENGTH_UNSET, testDataKey);
+    DataSpec dataSpec = new DataSpec(testDataUri, halfDataLength, C.LENGTH_UNSET, fixedCacheKey);
     CacheUtil.cache(dataSpec, cache, upstream, /* counters= */ null, /* isCanceled= */ null);
 
     // Create blocking CacheDataSource.
     CacheDataSource cacheDataSource =
         new CacheDataSource(cache, upstream, CacheDataSource.FLAG_BLOCK_ON_CACHE);
 
-    dataSpec = new DataSpec(testDataUri, 0, C.LENGTH_UNSET, testDataKey);
+    dataSpec = new DataSpec(testDataUri, 0, C.LENGTH_UNSET, fixedCacheKey);
     cacheDataSource.open(dataSpec);
 
     // Read the first half from upstream as it hasn't cached yet.
     TestUtil.readExactly(cacheDataSource, halfDataLength);
 
     // Delete the cached latter half.
-    NavigableSet<CacheSpan> cachedSpans = cache.getCachedSpans(testDataKey);
+    NavigableSet<CacheSpan> cachedSpans = cache.getCachedSpans(expectedCacheKey);
     for (CacheSpan cachedSpan : cachedSpans) {
       if (cachedSpan.position >= halfDataLength) {
         try {
@@ -355,8 +528,30 @@ public final class CacheDataSourceTest {
 
     // Just read from cache
     cacheDataSource = createCacheDataSource(true, simulateUnknownLength);
-    assertReadDataContentLength(cacheDataSource, unboundedRequest,
-        false /*length is already cached*/);
+    assertReadDataContentLength(
+        cacheDataSource,
+        unboundedRequest,
+        // Length is already cached.
+        /* unknownLength= */ false);
+  }
+
+  private void assertCacheAndRead(
+      boolean unboundedRequest, boolean simulateUnknownLength, CacheKeyFactory cacheKeyFactory)
+      throws IOException {
+    // Read all data from upstream and write to cache
+    CacheDataSource cacheDataSource =
+        createCacheDataSource(
+            /* setReadException= */ false, simulateUnknownLength, cacheKeyFactory);
+    assertReadDataContentLength(cacheDataSource, unboundedRequest, simulateUnknownLength);
+
+    // Just read from cache
+    cacheDataSource =
+        createCacheDataSource(/* setReadException= */ true, simulateUnknownLength, cacheKeyFactory);
+    assertReadDataContentLength(
+        cacheDataSource,
+        unboundedRequest,
+        // Length is already cached.
+        /* unknownLength= */ false);
   }
 
   /**
@@ -368,7 +563,7 @@ public final class CacheDataSourceTest {
     int length = unboundedRequest ? C.LENGTH_UNSET : TEST_DATA.length;
     assertReadData(cacheDataSource, unknownLength, 0, length);
     // If !unboundedRequest, CacheDataSource doesn't reach EOS so shouldn't cache content length
-    assertThat(cache.getContentLength(testDataKey))
+    assertThat(cache.getContentLength(expectedCacheKey))
         .isEqualTo(!unboundedRequest ? C.LENGTH_UNSET : TEST_DATA.length);
   }
 
@@ -380,7 +575,11 @@ public final class CacheDataSourceTest {
     }
     DataSpec dataSpec =
         new DataSpec(
-            testDataUri, position, length, testDataKey, DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
+            testDataUri,
+            position,
+            length,
+            fixedCacheKey,
+            DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
     assertThat(cacheDataSource.open(dataSpec)).isEqualTo(unknownLength ? length : testDataLength);
     cacheDataSource.close();
 
@@ -395,6 +594,16 @@ public final class CacheDataSourceTest {
         CacheDataSource.FLAG_BLOCK_ON_CACHE);
   }
 
+  private CacheDataSource createCacheDataSource(
+      boolean setReadException, boolean simulateUnknownLength, CacheKeyFactory cacheKeyFactory) {
+    return createCacheDataSource(
+        setReadException,
+        simulateUnknownLength,
+        CacheDataSource.FLAG_BLOCK_ON_CACHE,
+        new CacheDataSink(cache, MAX_CACHE_FILE_SIZE),
+        cacheKeyFactory);
+  }
+
   private CacheDataSource createCacheDataSource(boolean setReadException,
       boolean simulateUnknownLength, @CacheDataSource.Flags int flags) {
     return createCacheDataSource(setReadException, simulateUnknownLength, flags,
@@ -404,14 +613,34 @@ public final class CacheDataSourceTest {
   private CacheDataSource createCacheDataSource(boolean setReadException,
       boolean simulateUnknownLength, @CacheDataSource.Flags int flags,
       CacheDataSink cacheWriteDataSink) {
+    return createCacheDataSource(
+        setReadException,
+        simulateUnknownLength,
+        flags,
+        cacheWriteDataSink,
+        /* cacheKeyFactory= */ null);
+  }
+
+  private CacheDataSource createCacheDataSource(
+      boolean setReadException,
+      boolean simulateUnknownLength,
+      @CacheDataSource.Flags int flags,
+      CacheDataSink cacheWriteDataSink,
+      CacheKeyFactory cacheKeyFactory) {
     FakeDataSource upstream = new FakeDataSource();
     FakeData fakeData = upstream.getDataSet().newDefaultData()
         .setSimulateUnknownLength(simulateUnknownLength).appendReadData(TEST_DATA);
     if (setReadException) {
       fakeData.appendReadError(new IOException("Shouldn't read from upstream"));
     }
-    return new CacheDataSource(cache, upstream, new FileDataSource(), cacheWriteDataSink,
-        flags, null);
+    return new CacheDataSource(
+        cache,
+        upstream,
+        new FileDataSource(),
+        cacheWriteDataSink,
+        flags,
+        /* eventListener= */ null,
+        cacheKeyFactory);
   }
 
 }

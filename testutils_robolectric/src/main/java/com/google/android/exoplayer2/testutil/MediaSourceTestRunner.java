@@ -126,7 +126,11 @@ public class MediaSourceTestRunner {
         new Runnable() {
           @Override
           public void run() {
-            mediaSource.prepareSource(player, true, mediaSourceListener);
+            mediaSource.prepareSource(
+                player,
+                /* isTopLevelSource= */ true,
+                mediaSourceListener,
+                /* mediaTransferListener= */ null);
             try {
               // TODO: This only catches errors that are set synchronously in prepareSource. To
               // capture async errors we'll need to poll maybeThrowSourceInfoRefreshError until the
@@ -291,17 +295,25 @@ public class MediaSourceTestRunner {
     assertThat(lastCreatedMediaPeriod.getAndSet(/* newValue= */ null)).isEqualTo(mediaPeriodId);
     CountDownLatch preparedCondition = preparePeriod(mediaPeriod, 0);
     assertThat(preparedCondition.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
-    // MediaSource is supposed to support multiple calls to createPeriod with the same id without an
-    // intervening call to releasePeriod.
-    MediaPeriod secondMediaPeriod = createPeriod(mediaPeriodId);
-    assertThat(lastCreatedMediaPeriod.getAndSet(/* newValue= */ null)).isEqualTo(mediaPeriodId);
+    // MediaSource is supposed to support multiple calls to createPeriod without an intervening call
+    // to releasePeriod.
+    MediaPeriodId secondMediaPeriodId =
+        new MediaPeriodId(
+            mediaPeriodId.periodIndex,
+            mediaPeriodId.adGroupIndex,
+            mediaPeriodId.adIndexInAdGroup,
+            mediaPeriodId.windowSequenceNumber + 1000);
+    MediaPeriod secondMediaPeriod = createPeriod(secondMediaPeriodId);
+    assertThat(lastCreatedMediaPeriod.getAndSet(/* newValue= */ null))
+        .isEqualTo(secondMediaPeriodId);
     CountDownLatch secondPreparedCondition = preparePeriod(secondMediaPeriod, 0);
     assertThat(secondPreparedCondition.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
     // Release the periods.
     releasePeriod(mediaPeriod);
     assertThat(lastReleasedMediaPeriod.getAndSet(/* newValue= */ null)).isEqualTo(mediaPeriodId);
     releasePeriod(secondMediaPeriod);
-    assertThat(lastReleasedMediaPeriod.getAndSet(/* newValue= */ null)).isEqualTo(mediaPeriodId);
+    assertThat(lastReleasedMediaPeriod.getAndSet(/* newValue= */ null))
+        .isEqualTo(secondMediaPeriodId);
   }
 
   /**
@@ -440,6 +452,11 @@ public class MediaSourceTestRunner {
 
     public EventHandlingExoPlayer(Looper looper) {
       this.handler = new Handler(looper, this);
+    }
+
+    @Override
+    public Looper getApplicationLooper() {
+      return handler.getLooper();
     }
 
     @Override

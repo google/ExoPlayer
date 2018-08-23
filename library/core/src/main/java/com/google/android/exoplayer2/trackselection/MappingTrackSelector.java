@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.trackselection;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Base class for {@link TrackSelector}s that first establish a mapping between {@link TrackGroup}s
@@ -301,13 +303,13 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
   }
 
-  private MappedTrackInfo currentMappedTrackInfo;
+  private @Nullable MappedTrackInfo currentMappedTrackInfo;
 
   /**
    * Returns the mapping information for the currently active track selection, or null if no
    * selection is currently active.
    */
-  public final MappedTrackInfo getCurrentMappedTrackInfo() {
+  public final @Nullable MappedTrackInfo getCurrentMappedTrackInfo() {
     return currentMappedTrackInfo;
   }
 
@@ -357,9 +359,11 @@ public abstract class MappingTrackSelector extends TrackSelector {
     int[] rendererTrackTypes = new int[rendererCapabilities.length];
     for (int i = 0; i < rendererCapabilities.length; i++) {
       int rendererTrackGroupCount = rendererTrackGroupCounts[i];
-      rendererTrackGroupArrays[i] = new TrackGroupArray(
-          Arrays.copyOf(rendererTrackGroups[i], rendererTrackGroupCount));
-      rendererFormatSupports[i] = Arrays.copyOf(rendererFormatSupports[i], rendererTrackGroupCount);
+      rendererTrackGroupArrays[i] =
+          new TrackGroupArray(
+              Util.nullSafeArrayCopy(rendererTrackGroups[i], rendererTrackGroupCount));
+      rendererFormatSupports[i] =
+          Util.nullSafeArrayCopy(rendererFormatSupports[i], rendererTrackGroupCount);
       rendererTrackTypes[i] = rendererCapabilities[i].getTrackType();
     }
 
@@ -367,7 +371,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     int unmappedTrackGroupCount = rendererTrackGroupCounts[rendererCapabilities.length];
     TrackGroupArray unmappedTrackGroupArray =
         new TrackGroupArray(
-            Arrays.copyOf(
+            Util.nullSafeArrayCopy(
                 rendererTrackGroups[rendererCapabilities.length], unmappedTrackGroupCount));
 
     // Package up the track information and selections.
@@ -379,7 +383,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
             rendererFormatSupports,
             unmappedTrackGroupArray);
 
-    Pair<RendererConfiguration[], TrackSelection[]> result =
+    Pair<@NullableType RendererConfiguration[], @NullableType TrackSelection[]> result =
         selectTracks(
             mappedTrackInfo, rendererFormatSupports, rendererMixedMimeTypeAdaptationSupports);
     return new TrackSelectorResult(result.first, result.second, mappedTrackInfo);
@@ -399,11 +403,12 @@ public abstract class MappingTrackSelector extends TrackSelector {
    *     RendererCapabilities#getTrackType()} is {@link C#TRACK_TYPE_NONE}.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
-  protected abstract Pair<RendererConfiguration[], TrackSelection[]> selectTracks(
-      MappedTrackInfo mappedTrackInfo,
-      int[][][] rendererFormatSupports,
-      int[] rendererMixedMimeTypeAdaptationSupport)
-      throws ExoPlaybackException;
+  protected abstract Pair<@NullableType RendererConfiguration[], @NullableType TrackSelection[]>
+      selectTracks(
+          MappedTrackInfo mappedTrackInfo,
+          int[][][] rendererFormatSupports,
+          int[] rendererMixedMimeTypeAdaptationSupport)
+          throws ExoPlaybackException;
 
   /**
    * Finds the renderer to which the provided {@link TrackGroup} should be mapped.

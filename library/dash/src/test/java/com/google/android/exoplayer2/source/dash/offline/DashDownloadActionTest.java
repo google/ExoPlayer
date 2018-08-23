@@ -18,10 +18,9 @@ package com.google.android.exoplayer2.source.dash.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import java.io.ByteArrayInputStream;
@@ -38,9 +37,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit tests for {@link DashDownloadAction}.
- */
+/** Unit tests for {@link DashDownloadAction}. */
 @RunWith(RobolectricTestRunner.class)
 public class DashDownloadActionTest {
 
@@ -55,134 +52,106 @@ public class DashDownloadActionTest {
 
   @Test
   public void testDownloadActionIsNotRemoveAction() {
-    DashDownloadAction action = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
+    DownloadAction action = createDownloadAction(uri1);
     assertThat(action.isRemoveAction).isFalse();
   }
 
   @Test
-  public void testRemoveActionisRemoveAction() {
-    DashDownloadAction action2 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
+  public void testRemoveActionIsRemoveAction() {
+    DownloadAction action2 = createRemoveAction(uri1);
     assertThat(action2.isRemoveAction).isTrue();
   }
 
   @Test
   public void testCreateDownloader() {
     MockitoAnnotations.initMocks(this);
-    DashDownloadAction action = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
-    DownloaderConstructorHelper constructorHelper = new DownloaderConstructorHelper(
-        Mockito.mock(Cache.class), DummyDataSource.FACTORY);
+    DownloadAction action = createDownloadAction(uri1);
+    DownloaderConstructorHelper constructorHelper =
+        new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
     assertThat(action.createDownloader(constructorHelper)).isNotNull();
   }
 
   @Test
   public void testSameUriDifferentAction_IsSameMedia() {
-    DashDownloadAction action1 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
-    DashDownloadAction action2 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
+    DownloadAction action1 = createRemoveAction(uri1);
+    DownloadAction action2 = createDownloadAction(uri1);
     assertThat(action1.isSameMedia(action2)).isTrue();
   }
 
   @Test
   public void testDifferentUriAndAction_IsNotSameMedia() {
-    DashDownloadAction action3 = newAction(uri2, /* isRemoveAction= */ true, /* data= */ null);
-    DashDownloadAction action4 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
+    DownloadAction action3 = createRemoveAction(uri2);
+    DownloadAction action4 = createDownloadAction(uri1);
     assertThat(action3.isSameMedia(action4)).isFalse();
   }
 
   @SuppressWarnings("EqualsWithItself")
   @Test
   public void testEquals() {
-    DashDownloadAction action1 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
+    DownloadAction action1 = createRemoveAction(uri1);
     assertThat(action1.equals(action1)).isTrue();
 
-    DashDownloadAction action2 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
-    DashDownloadAction action3 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
+    DownloadAction action2 = createRemoveAction(uri1);
+    DownloadAction action3 = createRemoveAction(uri1);
     assertEqual(action2, action3);
 
-    DashDownloadAction action4 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
-    DashDownloadAction action5 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
+    DownloadAction action4 = createRemoveAction(uri1);
+    DownloadAction action5 = createDownloadAction(uri1);
     assertNotEqual(action4, action5);
 
-    DashDownloadAction action6 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
-    DashDownloadAction action7 =
-        newAction(
-            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(0, 0, 0));
+    DownloadAction action6 = createDownloadAction(uri1);
+    DownloadAction action7 = createDownloadAction(uri1, new StreamKey(0, 0, 0));
     assertNotEqual(action6, action7);
 
-    DashDownloadAction action8 =
-        newAction(
-            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(1, 1, 1));
-    DashDownloadAction action9 =
-        newAction(
-            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(0, 0, 0));
+    DownloadAction action8 = createDownloadAction(uri1, new StreamKey(1, 1, 1));
+    DownloadAction action9 = createDownloadAction(uri1, new StreamKey(0, 0, 0));
     assertNotEqual(action8, action9);
 
-    DashDownloadAction action10 = newAction(uri1, /* isRemoveAction= */ true, /* data= */ null);
-    DashDownloadAction action11 = newAction(uri2, /* isRemoveAction= */ true, /* data= */ null);
+    DownloadAction action10 = createRemoveAction(uri1);
+    DownloadAction action11 = createRemoveAction(uri2);
     assertNotEqual(action10, action11);
 
-    DashDownloadAction action12 =
-        newAction(
-            uri1,
-            /* isRemoveAction= */ false,
-            /* data= */ null,
-            new RepresentationKey(0, 0, 0),
-            new RepresentationKey(1, 1, 1));
-    DashDownloadAction action13 =
-        newAction(
-            uri1,
-            /* isRemoveAction= */ false,
-            /* data= */ null,
-            new RepresentationKey(1, 1, 1),
-            new RepresentationKey(0, 0, 0));
+    DownloadAction action12 =
+        createDownloadAction(uri1, new StreamKey(0, 0, 0), new StreamKey(1, 1, 1));
+    DownloadAction action13 =
+        createDownloadAction(uri1, new StreamKey(1, 1, 1), new StreamKey(0, 0, 0));
     assertEqual(action12, action13);
 
-    DashDownloadAction action14 =
-        newAction(
-            uri1, /* isRemoveAction= */ false, /* data= */ null, new RepresentationKey(0, 0, 0));
-    DashDownloadAction action15 =
-        newAction(
-            uri1,
-            /* isRemoveAction= */ false,
-            /* data= */ null,
-            new RepresentationKey(1, 1, 1),
-            new RepresentationKey(0, 0, 0));
+    DownloadAction action14 = createDownloadAction(uri1, new StreamKey(0, 0, 0));
+    DownloadAction action15 =
+        createDownloadAction(uri1, new StreamKey(1, 1, 1), new StreamKey(0, 0, 0));
     assertNotEqual(action14, action15);
 
-    DashDownloadAction action16 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
-    DashDownloadAction action17 = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
+    DownloadAction action16 = createDownloadAction(uri1);
+    DownloadAction action17 = createDownloadAction(uri1);
     assertEqual(action16, action17);
   }
 
   @Test
   public void testSerializerGetType() {
-    DashDownloadAction action = newAction(uri1, /* isRemoveAction= */ false, /* data= */ null);
+    DownloadAction action = createDownloadAction(uri1);
     assertThat(action.type).isNotNull();
   }
 
   @Test
   public void testSerializerWriteRead() throws Exception {
-    doTestSerializationRoundTrip(newAction(uri1, /* isRemoveAction= */ false, /* data= */ null));
-    doTestSerializationRoundTrip(newAction(uri1, /* isRemoveAction= */ true, /* data= */ null));
+    doTestSerializationRoundTrip(createDownloadAction(uri1));
+    doTestSerializationRoundTrip(createRemoveAction(uri1));
     doTestSerializationRoundTrip(
-        newAction(
-            uri2,
-            /* isRemoveAction= */ false,
-            /* data= */ null,
-            new RepresentationKey(0, 0, 0),
-            new RepresentationKey(1, 1, 1)));
+        createDownloadAction(uri2, new StreamKey(0, 0, 0), new StreamKey(1, 1, 1)));
   }
 
-  private static void assertNotEqual(DashDownloadAction action1, DashDownloadAction action2) {
+  private static void assertNotEqual(DownloadAction action1, DownloadAction action2) {
     assertThat(action1).isNotEqualTo(action2);
     assertThat(action2).isNotEqualTo(action1);
   }
 
-  private static void assertEqual(DashDownloadAction action1, DashDownloadAction action2) {
+  private static void assertEqual(DownloadAction action1, DownloadAction action2) {
     assertThat(action1).isEqualTo(action2);
     assertThat(action2).isEqualTo(action1);
   }
 
-  private static void doTestSerializationRoundTrip(DashDownloadAction action) throws IOException {
+  private static void doTestSerializationRoundTrip(DownloadAction action) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(out);
     DownloadAction.serializeToStream(action, output);
@@ -196,10 +165,13 @@ public class DashDownloadActionTest {
     assertThat(action).isEqualTo(action2);
   }
 
-  private static DashDownloadAction newAction(
-      Uri uri, boolean isRemoveAction, @Nullable byte[] data, RepresentationKey... keys) {
-    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+  private static DownloadAction createDownloadAction(Uri uri, StreamKey... keys) {
+    ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    return new DashDownloadAction(uri, isRemoveAction, data, keysList);
+    return DashDownloadAction.createDownloadAction(uri, null, keysList);
+  }
+
+  private static DownloadAction createRemoveAction(Uri uri) {
+    return DashDownloadAction.createRemoveAction(uri, null);
   }
 }

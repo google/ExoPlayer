@@ -26,13 +26,13 @@ public final class CeaUtil {
 
   private static final String TAG = "CeaUtil";
 
+  public static final int USER_DATA_IDENTIFIER_GA94 = Util.getIntegerCodeForString("GA94");
+  public static final int USER_DATA_TYPE_CODE_MPEG_CC = 0x3;
+
   private static final int PAYLOAD_TYPE_CC = 4;
   private static final int COUNTRY_CODE = 0xB5;
   private static final int PROVIDER_CODE_ATSC = 0x31;
   private static final int PROVIDER_CODE_DIRECTV = 0x2F;
-  private static final int USER_ID_GA94 = Util.getIntegerCodeForString("GA94");
-  private static final int USER_ID_DTG1 = Util.getIntegerCodeForString("DTG1");
-  private static final int USER_DATA_TYPE_CODE = 0x3;
 
   /**
    * Consumes the unescaped content of an SEI NAL unit, writing the content of any CEA-608 messages
@@ -67,29 +67,49 @@ public final class CeaUtil {
         boolean messageIsSupportedCeaCaption =
             countryCode == COUNTRY_CODE
                 && (providerCode == PROVIDER_CODE_ATSC || providerCode == PROVIDER_CODE_DIRECTV)
-                && userDataTypeCode == USER_DATA_TYPE_CODE;
+                && userDataTypeCode == USER_DATA_TYPE_CODE_MPEG_CC;
         if (providerCode == PROVIDER_CODE_ATSC) {
-          messageIsSupportedCeaCaption &=
-              userIdentifier == USER_ID_GA94 || userIdentifier == USER_ID_DTG1;
+          messageIsSupportedCeaCaption &= userIdentifier == USER_DATA_IDENTIFIER_GA94;
         }
         if (messageIsSupportedCeaCaption) {
-          // Ignore first three bits: reserved (1) + process_cc_data_flag (1) + zero_bit (1).
-          int ccCount = seiBuffer.readUnsignedByte() & 0x1F;
-          // Ignore em_data (1)
-          seiBuffer.skipBytes(1);
-          // Each data packet consists of 24 bits: marker bits (5) + cc_valid (1) + cc_type (2)
-          // + cc_data_1 (8) + cc_data_2 (8).
-          int sampleLength = ccCount * 3;
-          int sampleStartPosition = seiBuffer.getPosition();
-          for (TrackOutput output : outputs) {
-            seiBuffer.setPosition(sampleStartPosition);
-            output.sampleData(seiBuffer, sampleLength);
-            output.sampleMetadata(
-                presentationTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleLength, 0, null);
-          }
+          consumeCcData(presentationTimeUs, seiBuffer, outputs);
         }
       }
       seiBuffer.setPosition(nextPayloadPosition);
+    }
+  }
+
+  /**
+   * Consumes caption data (cc_data), writing the content as samples to all of the provided outputs.
+   *
+   * @param presentationTimeUs The presentation time in microseconds for any samples.
+   * @param ccDataBuffer The buffer containing the caption data.
+   * @param outputs The outputs to which any samples should be written.
+   */
+  public static void consumeCcData(
+      long presentationTimeUs, ParsableByteArray ccDataBuffer, TrackOutput[] outputs) {
+    // First byte contains: reserved (1), process_cc_data_flag (1), zero_bit (1), cc_count (5).
+    int firstByte = ccDataBuffer.readUnsignedByte();
+    boolean processCcDataFlag = (firstByte & 0x40) != 0;
+    if (!processCcDataFlag) {
+      // No need to process.
+      return;
+    }
+    int ccCount = firstByte & 0x1F;
+    ccDataBuffer.skipBytes(1); // Ignore em_data
+    // Each data packet consists of 24 bits: marker bits (5) + cc_valid (1) + cc_type (2)
+    // + cc_data_1 (8) + cc_data_2 (8).
+    int sampleLength = ccCount * 3;
+    int sampleStartPosition = ccDataBuffer.getPosition();
+    for (TrackOutput output : outputs) {
+      ccDataBuffer.setPosition(sampleStartPosition);
+      output.sampleData(ccDataBuffer, sampleLength);
+      output.sampleMetadata(
+          presentationTimeUs,
+          C.BUFFER_FLAG_KEY_FRAME,
+          sampleLength,
+          /* offset= */ 0,
+          /* encryptionData= */ null);
     }
   }
 

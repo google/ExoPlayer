@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
@@ -49,11 +48,12 @@ import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
-/**
- * A {@link HostedTest} for {@link ExoPlayer} playback tests.
- */
-public abstract class ExoHostedTest extends Player.DefaultEventListener implements HostedTest,
-    AudioRendererEventListener, VideoRendererEventListener {
+/** A {@link HostedTest} for {@link ExoPlayer} playback tests. */
+public abstract class ExoHostedTest
+    implements Player.EventListener,
+        HostedTest,
+        AudioRendererEventListener,
+        VideoRendererEventListener {
 
   static {
     // DefaultAudioSink is able to work around spurious timestamps reported by the platform (by
@@ -370,14 +370,15 @@ public abstract class ExoHostedTest extends Player.DefaultEventListener implemen
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
     RenderersFactory renderersFactory = new DefaultRenderersFactory(host, drmSessionManager,
         DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF, 0);
-    SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
+    SimpleExoPlayer player =
+        ExoPlayerFactory.newSimpleInstance(host, renderersFactory, trackSelector);
     player.setVideoSurface(surface);
     return player;
   }
 
   @SuppressWarnings("unused")
-  protected abstract MediaSource buildSource(HostActivity host, String userAgent,
-      TransferListener<? super DataSource> mediaTransferListener);
+  protected abstract MediaSource buildSource(
+      HostActivity host, String userAgent, TransferListener mediaTransferListener);
 
   @SuppressWarnings("unused")
   protected void onPlayerErrorInternal(ExoPlaybackException error) {

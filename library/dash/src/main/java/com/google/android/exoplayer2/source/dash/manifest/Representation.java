@@ -135,8 +135,10 @@ public abstract class Representation {
     this.revisionId = revisionId;
     this.format = format;
     this.baseUrl = baseUrl;
-    this.inbandEventStreams = inbandEventStreams == null ? Collections.<Descriptor>emptyList()
-        : Collections.unmodifiableList(inbandEventStreams);
+    this.inbandEventStreams =
+        inbandEventStreams == null
+            ? Collections.emptyList()
+            : Collections.unmodifiableList(inbandEventStreams);
     initializationUri = segmentBase.getInitialization(this);
     presentationTimeOffsetUs = segmentBase.getPresentationTimeOffsetUs();
   }

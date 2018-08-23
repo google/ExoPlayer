@@ -77,8 +77,10 @@ public interface TsPayloadReader {
         byte[] descriptorBytes) {
       this.streamType = streamType;
       this.language = language;
-      this.dvbSubtitleInfos = dvbSubtitleInfos == null ? Collections.<DvbSubtitleInfo>emptyList()
-          : Collections.unmodifiableList(dvbSubtitleInfos);
+      this.dvbSubtitleInfos =
+          dvbSubtitleInfos == null
+              ? Collections.emptyList()
+              : Collections.unmodifiableList(dvbSubtitleInfos);
       this.descriptorBytes = descriptorBytes;
     }
 
