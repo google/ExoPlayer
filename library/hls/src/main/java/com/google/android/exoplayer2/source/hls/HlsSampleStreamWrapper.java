@@ -571,7 +571,6 @@ import java.util.List;
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));
     eventDispatcher.loadStarted(
         loadable.dataSpec,
-        loadable.dataSpec.uri,
         loadable.type,
         trackType,
         loadable.trackFormat,
@@ -596,6 +595,7 @@ import java.util.List;
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         trackType,
         loadable.trackFormat,
@@ -619,6 +619,7 @@ import java.util.List;
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         trackType,
         loadable.trackFormat,
@@ -680,6 +681,7 @@ import java.util.List;
     eventDispatcher.loadError(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         trackType,
         loadable.trackFormat,

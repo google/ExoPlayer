@@ -569,6 +569,7 @@ public final class SsMediaSource extends BaseMediaSource
     manifestEventDispatcher.loadCompleted(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -585,6 +586,7 @@ public final class SsMediaSource extends BaseMediaSource
     manifestEventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -602,6 +604,7 @@ public final class SsMediaSource extends BaseMediaSource
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -692,8 +695,7 @@ public final class SsMediaSource extends BaseMediaSource
     long elapsedRealtimeMs =
         manifestLoader.startLoading(
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));
-    manifestEventDispatcher.loadStarted(
-        loadable.dataSpec, loadable.dataSpec.uri, loadable.type, elapsedRealtimeMs);
+    manifestEventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
 }

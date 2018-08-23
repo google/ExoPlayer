@@ -101,6 +101,10 @@
 * Add uri field to `LoadEventInfo` in `MediaSourceEventListener` or
   `AnalyticsListener` callbacks. This uri is the redirected uri if redirection
   occurred ([#2054](https://github.com/google/ExoPlayer/issues/2054)).
+* Add response headers field to `LoadEventInfo` in `MediaSourceEventListener` or
+  `AnalyticsListener` callbacks
+  ([#4361](https://github.com/google/ExoPlayer/issues/4361) and
+  [#4615](https://github.com/google/ExoPlayer/issues/4615)).
 * Allow `MediaCodecSelector`s to return multiple compatible decoders for
   `MediaCodecRenderer`, and provide an (optional) `MediaCodecSelector` that
   falls back to less preferred decoders like `MediaCodec.createDecoderByType`
