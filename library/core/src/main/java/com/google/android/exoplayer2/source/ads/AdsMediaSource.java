@@ -43,6 +43,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -556,6 +557,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
           .loadError(
               dataSpec,
               dataSpec.uri,
+              /* responseHeaders= */ Collections.emptyMap(),
               C.DATA_TYPE_AD,
               C.TRACK_TYPE_UNKNOWN,
               /* loadDurationMs= */ 0,
@@ -595,6 +597,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
           .loadError(
               new DataSpec(adUri),
               adUri,
+              /* responseHeaders= */ Collections.emptyMap(),
               C.DATA_TYPE_AD,
               C.TRACK_TYPE_UNKNOWN,
               /* loadDurationMs= */ 0,

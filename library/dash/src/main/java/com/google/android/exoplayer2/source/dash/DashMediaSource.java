@@ -709,6 +709,7 @@ public final class DashMediaSource extends BaseMediaSource {
     manifestEventDispatcher.loadCompleted(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -800,6 +801,7 @@ public final class DashMediaSource extends BaseMediaSource {
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -814,6 +816,7 @@ public final class DashMediaSource extends BaseMediaSource {
     manifestEventDispatcher.loadCompleted(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -829,6 +832,7 @@ public final class DashMediaSource extends BaseMediaSource {
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -844,6 +848,7 @@ public final class DashMediaSource extends BaseMediaSource {
     manifestEventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -1031,8 +1036,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private <T> void startLoading(ParsingLoadable<T> loadable,
       Loader.Callback<ParsingLoadable<T>> callback, int minRetryCount) {
     long elapsedRealtimeMs = loader.startLoading(loadable, callback, minRetryCount);
-    manifestEventDispatcher.loadStarted(
-        loadable.dataSpec, loadable.dataSpec.uri, loadable.type, elapsedRealtimeMs);
+    manifestEventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
   private long getNowUnixTimeUs() {

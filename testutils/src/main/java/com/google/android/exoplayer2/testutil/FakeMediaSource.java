@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -225,6 +226,7 @@ public class FakeMediaSource extends BaseMediaSource {
           new LoadEventInfo(
               FAKE_DATA_SPEC,
               FAKE_DATA_SPEC.uri,
+              /* responseHeaders= */ Collections.emptyMap(),
               elapsedRealTimeMs,
               /* loadDurationMs= */ 0,
               /* bytesLoaded= */ 0),
@@ -233,6 +235,7 @@ public class FakeMediaSource extends BaseMediaSource {
           new LoadEventInfo(
               FAKE_DATA_SPEC,
               FAKE_DATA_SPEC.uri,
+              /* responseHeaders= */ Collections.emptyMap(),
               elapsedRealTimeMs,
               /* loadDurationMs= */ 0,
               /* bytesLoaded= */ MANIFEST_LOAD_BYTES),
