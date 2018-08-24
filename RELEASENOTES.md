@@ -118,6 +118,14 @@
 * Add option to show buffering view when playWhenReady is false
   ([#4304](https://github.com/google/ExoPlayer/issues/4304)).
 * Allow any `Drawable` to be used as `PlayerView` default artwork.
+* IMA:
+  * Refine the previous fix for empty ad groups to avoid discarding ad breaks
+    unnecessarily ([#4030](https://github.com/google/ExoPlayer/issues/4030)),
+    ([#4280](https://github.com/google/ExoPlayer/issues/4280)).
+  * Fix handling of empty postrolls
+    ([#4681](https://github.com/google/ExoPlayer/issues/4681).
+  * Fix handling of postrolls with multiple ads
+    ([#4710](https://github.com/google/ExoPlayer/issues/4710).
 
 ### 2.8.4 ###
 

@@ -864,8 +864,6 @@ public final class ImaAdsLoader
         && playWhenReady) {
       checkForContentComplete();
     } else if (imaAdState != IMA_AD_STATE_NONE && playbackState == Player.STATE_ENDED) {
-      // IMA is waiting for the ad playback to finish so invoke the callback now.
-      // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
       for (int i = 0; i < adCallbacks.size(); i++) {
         adCallbacks.get(i).onEnded();
       }
@@ -1041,26 +1039,24 @@ public final class ImaAdsLoader
     int oldPlayingAdIndexInAdGroup = playingAdIndexInAdGroup;
     playingAd = player.isPlayingAd();
     playingAdIndexInAdGroup = playingAd ? player.getCurrentAdIndexInAdGroup() : C.INDEX_UNSET;
-    if (!sentContentComplete) {
-      boolean adFinished = wasPlayingAd && playingAdIndexInAdGroup != oldPlayingAdIndexInAdGroup;
-      if (adFinished) {
-        // IMA is waiting for the ad playback to finish so invoke the callback now.
-        // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
-        for (int i = 0; i < adCallbacks.size(); i++) {
-          adCallbacks.get(i).onEnded();
-        }
-        if (DEBUG) {
-          Log.d(TAG, "VideoAdPlayerCallback.onEnded in onTimelineChanged/onPositionDiscontinuity");
-        }
+    boolean adFinished = wasPlayingAd && playingAdIndexInAdGroup != oldPlayingAdIndexInAdGroup;
+    if (adFinished) {
+      // IMA is waiting for the ad playback to finish so invoke the callback now.
+      // Either CONTENT_RESUME_REQUESTED will be passed next, or playAd will be called again.
+      for (int i = 0; i < adCallbacks.size(); i++) {
+        adCallbacks.get(i).onEnded();
       }
-      if (!wasPlayingAd && playingAd && imaAdState == IMA_AD_STATE_NONE) {
-        int adGroupIndex = player.getCurrentAdGroupIndex();
-        // IMA hasn't called playAd yet, so fake the content position.
-        fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
-        fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
-        if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
-          fakeContentProgressOffsetMs = contentDurationMs;
-        }
+      if (DEBUG) {
+        Log.d(TAG, "VideoAdPlayerCallback.onEnded in onTimelineChanged/onPositionDiscontinuity");
+      }
+    }
+    if (!sentContentComplete && !wasPlayingAd && playingAd && imaAdState == IMA_AD_STATE_NONE) {
+      int adGroupIndex = player.getCurrentAdGroupIndex();
+      // IMA hasn't called playAd yet, so fake the content position.
+      fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
+      fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
+      if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
+        fakeContentProgressOffsetMs = contentDurationMs;
       }
     }
   }
@@ -1125,6 +1121,7 @@ public final class ImaAdsLoader
       pendingAdLoadError = AdLoadException.createForAdGroup(error, adGroupIndex);
     }
     pendingContentPositionMs = C.TIME_UNSET;
+    fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
   }
 
   private void handleAdPrepareError(int adGroupIndex, int adIndexInAdGroup, Exception exception) {
@@ -1172,6 +1169,10 @@ public final class ImaAdsLoader
         Log.d(TAG, "adsLoader.contentComplete");
       }
       sentContentComplete = true;
+      // After sending content complete IMA will not poll the content position, so set the expected
+      // ad group index.
+      expectedAdGroupIndex =
+          adPlaybackState.getAdGroupIndexForPositionUs(C.msToUs(contentDurationMs));
     }
   }
 
