@@ -1095,6 +1095,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    *     directly passed to the player in ExoPlayerFactory.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultTrackSelector(BandwidthMeter bandwidthMeter) {
     this(new AdaptiveTrackSelection.Factory(bandwidthMeter));
   }

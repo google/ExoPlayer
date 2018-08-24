@@ -34,10 +34,13 @@ public class PlaybackControlView extends PlayerControlView {
   public interface VisibilityListener
       extends com.google.android.exoplayer2.ui.PlayerControlView.VisibilityListener {}
 
+  @Deprecated
+  @SuppressWarnings("deprecation")
   private static final class DefaultControlDispatcher
       extends com.google.android.exoplayer2.DefaultControlDispatcher implements ControlDispatcher {}
   /** @deprecated Use {@link com.google.android.exoplayer2.DefaultControlDispatcher}. */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public static final ControlDispatcher DEFAULT_CONTROL_DISPATCHER = new DefaultControlDispatcher();
 
   /** The default fast forward increment, in milliseconds. */

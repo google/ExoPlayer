@@ -51,8 +51,9 @@ public class FakeTrackSelector extends DefaultTrackSelector {
       int[] rendererMixedMimeTypeAdaptationSupports,
       Parameters params)
       throws ExoPlaybackException {
-    TrackSelection[] selections = new TrackSelection[mappedTrackInfo.length];
-    for (int i = 0; i < mappedTrackInfo.length; i++) {
+    int rendererCount = mappedTrackInfo.getRendererCount();
+    TrackSelection[] selections = new TrackSelection[rendererCount];
+    for (int i = 0; i < rendererCount; i++) {
       TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(i);
       boolean hasTracks = trackGroupArray.length > 0;
       selections[i] = hasTracks ? reuseOrCreateTrackSelection(trackGroupArray.get(0)) : null;

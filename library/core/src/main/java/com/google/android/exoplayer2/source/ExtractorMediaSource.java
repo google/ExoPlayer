@@ -262,6 +262,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public ExtractorMediaSource(
       Uri uri,
       DataSource.Factory dataSourceFactory,
@@ -284,6 +285,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public ExtractorMediaSource(
       Uri uri,
       DataSource.Factory dataSourceFactory,
@@ -316,6 +318,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public ExtractorMediaSource(
       Uri uri,
       DataSource.Factory dataSourceFactory,
@@ -426,6 +429,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
    * Wraps a deprecated {@link EventListener}, invoking its callback from the equivalent callback in
    * {@link MediaSourceEventListener}.
    */
+  @Deprecated
+  @SuppressWarnings("deprecation")
   private static final class EventListenerWrapper extends DefaultMediaSourceEventListener {
     private final EventListener eventListener;
 

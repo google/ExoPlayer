@@ -82,7 +82,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   protected static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
 
   private final Context context;
-  @Nullable private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
+  private final @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
   private final @ExtensionRendererMode int extensionRendererMode;
   private final long allowedVideoJoiningTimeMs;
 
@@ -98,6 +98,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *     directly to {@link SimpleExoPlayer} or {@link ExoPlayerFactory}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultRenderersFactory(
       Context context, @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
     this(context, drmSessionManager, EXTENSION_RENDERER_MODE_OFF);
@@ -111,7 +112,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    */
   public DefaultRenderersFactory(
       Context context, @ExtensionRendererMode int extensionRendererMode) {
-    this(context, null, extensionRendererMode, DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS);
+    this(context, extensionRendererMode, DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS);
   }
 
   /**
@@ -119,6 +120,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *     DrmSessionManager} directly to {@link SimpleExoPlayer} or {@link ExoPlayerFactory}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultRenderersFactory(
       Context context,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
@@ -138,7 +140,10 @@ public class DefaultRenderersFactory implements RenderersFactory {
       Context context,
       @ExtensionRendererMode int extensionRendererMode,
       long allowedVideoJoiningTimeMs) {
-    this(context, null, extensionRendererMode, allowedVideoJoiningTimeMs);
+    this.context = context;
+    this.extensionRendererMode = extensionRendererMode;
+    this.allowedVideoJoiningTimeMs = allowedVideoJoiningTimeMs;
+    this.drmSessionManager = null;
   }
 
   /**
