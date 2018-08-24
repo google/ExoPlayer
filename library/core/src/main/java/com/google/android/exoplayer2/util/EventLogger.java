@@ -44,7 +44,7 @@ import java.util.Locale;
 /** Logs events from {@link Player} and other core components using {@link Log}. */
 public class EventLogger implements AnalyticsListener {
 
-  private static final String TAG = "EventLogger";
+  private static final String DEFAULT_TAG = "EventLogger";
   private static final int MAX_TIMELINE_ITEM_LINES = 3;
   private static final NumberFormat TIME_FORMAT;
   static {
@@ -55,6 +55,7 @@ public class EventLogger implements AnalyticsListener {
   }
 
   private final @Nullable MappingTrackSelector trackSelector;
+  private final String tag;
   private final Timeline.Window window;
   private final Timeline.Period period;
   private final long startTimeMs;
@@ -66,7 +67,19 @@ public class EventLogger implements AnalyticsListener {
    *     logging of track mapping is not required.
    */
   public EventLogger(@Nullable MappingTrackSelector trackSelector) {
+    this(trackSelector, DEFAULT_TAG);
+  }
+
+  /**
+   * Creates event logger.
+   *
+   * @param trackSelector The mapping track selector used by the player. May be null if detailed
+   *     logging of track mapping is not required.
+   * @param tag The tag used for logging.
+   */
+  public EventLogger(@Nullable MappingTrackSelector trackSelector, String tag) {
     this.trackSelector = trackSelector;
+    this.tag = tag;
     window = new Timeline.Window();
     period = new Timeline.Period();
     startTimeMs = SystemClock.elapsedRealtime();
@@ -403,7 +416,7 @@ public class EventLogger implements AnalyticsListener {
    * @param msg The message to log.
    */
   protected void logd(String msg) {
-    Log.d(TAG, msg);
+    Log.d(tag, msg);
   }
 
   /**
@@ -413,7 +426,7 @@ public class EventLogger implements AnalyticsListener {
    * @param tr The exception to log.
    */
   protected void loge(String msg, Throwable tr) {
-    Log.e(TAG, msg, tr);
+    Log.e(tag, msg, tr);
   }
 
   // Internal methods

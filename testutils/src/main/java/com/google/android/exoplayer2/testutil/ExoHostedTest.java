@@ -22,17 +22,16 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
-import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -43,16 +42,12 @@ import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 /** A {@link HostedTest} for {@link ExoPlayer} playback tests. */
-public abstract class ExoHostedTest
-    implements Player.EventListener,
-        HostedTest,
-        AudioRendererEventListener,
-        VideoRendererEventListener {
+public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
 
   static {
     // DefaultAudioSink is able to work around spurious timestamps reported by the platform (by
@@ -151,12 +146,11 @@ public abstract class ExoHostedTest
     DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = buildDrmSessionManager(userAgent);
     player = buildExoPlayer(host, surface, trackSelector, drmSessionManager);
     player.prepare(buildSource(host, Util.getUserAgent(host, userAgent)));
+    player.addAnalyticsListener(this);
+    player.addAnalyticsListener(new EventLogger(trackSelector, tag));
     if (analyticsListener != null) {
       player.addAnalyticsListener(analyticsListener);
     }
-    player.addListener(this);
-    player.addAudioDebugListener(this);
-    player.addVideoDebugListener(this);
     player.setPlayWhenReady(true);
     actionHandler = Clock.DEFAULT.createHandler(Looper.myLooper(), /* callback= */ null);
     // Schedule any pending actions.
@@ -199,10 +193,11 @@ public abstract class ExoHostedTest
     assertPassed(audioDecoderCounters, videoDecoderCounters);
   }
 
-  // Player.EventListener
+  // AnalyticsListener
 
   @Override
-  public final void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public final void onPlayerStateChanged(
+      EventTime eventTime, boolean playWhenReady, int playbackState) {
     Log.d(tag, "state [" + playWhenReady + ", " + playbackState + "]");
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
     if (playbackState == Player.STATE_ENDED
@@ -219,85 +214,20 @@ public abstract class ExoHostedTest
   }
 
   @Override
-  public final void onPlayerError(ExoPlaybackException error) {
+  public final void onPlayerError(EventTime eventTime, ExoPlaybackException error) {
     playerWasPrepared = true;
     playerError = error;
     onPlayerErrorInternal(error);
   }
 
-  // AudioRendererEventListener
-
   @Override
-  public void onAudioEnabled(DecoderCounters counters) {
-    Log.d(tag, "audioEnabled");
-  }
-
-  @Override
-  public void onAudioSessionId(int audioSessionId) {
-    Log.d(tag, "audioSessionId [" + audioSessionId + "]");
-  }
-
-  @Override
-  public void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs,
-      long initializationDurationMs) {
-    Log.d(tag, "audioDecoderInitialized [" + decoderName + "]");
-  }
-
-  @Override
-  public void onAudioInputFormatChanged(Format format) {
-    Log.d(tag, "audioFormatChanged [" + Format.toLogString(format) + "]");
-  }
-
-  @Override
-  public void onAudioDisabled(DecoderCounters counters) {
-    Log.d(tag, "audioDisabled");
-    audioDecoderCounters.merge(counters);
-  }
-
-  @Override
-  public void onAudioSinkUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-    Log.e(tag, "audioTrackUnderrun [" + bufferSize + ", " + bufferSizeMs + ", "
-        + elapsedSinceLastFeedMs + "]", null);
-  }
-
-  // VideoRendererEventListener
-
-  @Override
-  public void onVideoEnabled(DecoderCounters counters) {
-    Log.d(tag, "videoEnabled");
-  }
-
-  @Override
-  public void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs,
-      long initializationDurationMs) {
-    Log.d(tag, "videoDecoderInitialized [" + decoderName + "]");
-  }
-
-  @Override
-  public void onVideoInputFormatChanged(Format format) {
-    Log.d(tag, "videoFormatChanged [" + Format.toLogString(format) + "]");
-  }
-
-  @Override
-  public void onVideoDisabled(DecoderCounters counters) {
-    Log.d(tag, "videoDisabled");
-    videoDecoderCounters.merge(counters);
-  }
-
-  @Override
-  public void onDroppedFrames(int count, long elapsed) {
-    Log.d(tag, "droppedFrames [" + count + "]");
-  }
-
-  @Override
-  public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
-      float pixelWidthHeightRatio) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onRenderedFirstFrame(Surface surface) {
-    // Do nothing.
+  public void onDecoderDisabled(
+      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {
+    if (trackType == C.TRACK_TYPE_AUDIO) {
+      audioDecoderCounters.merge(decoderCounters);
+    } else if (trackType == C.TRACK_TYPE_VIDEO) {
+      videoDecoderCounters.merge(decoderCounters);
+    }
   }
 
   // Internal logic
