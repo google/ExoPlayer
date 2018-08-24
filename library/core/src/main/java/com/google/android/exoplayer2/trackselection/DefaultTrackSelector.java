@@ -168,6 +168,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private boolean selectUndeterminedTextLanguage;
     private int disabledTextTrackSelectionFlags;
     private boolean forceLowestBitrate;
+    private boolean forceHighestSupportedBitrate;
     private boolean allowMixedMimeAdaptiveness;
     private boolean allowNonSeamlessAdaptiveness;
     private int maxVideoWidth;
@@ -197,6 +198,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       selectUndeterminedTextLanguage = initialValues.selectUndeterminedTextLanguage;
       disabledTextTrackSelectionFlags = initialValues.disabledTextTrackSelectionFlags;
       forceLowestBitrate = initialValues.forceLowestBitrate;
+      forceHighestSupportedBitrate = initialValues.forceHighestSupportedBitrate;
       allowMixedMimeAdaptiveness = initialValues.allowMixedMimeAdaptiveness;
       allowNonSeamlessAdaptiveness = initialValues.allowNonSeamlessAdaptiveness;
       maxVideoWidth = initialValues.maxVideoWidth;
@@ -259,6 +261,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setForceLowestBitrate(boolean forceLowestBitrate) {
       this.forceLowestBitrate = forceLowestBitrate;
+      return this;
+    }
+
+    /**
+     * See {@link Parameters#forceHighestSupportedBitrate}.
+     *
+     * @return This builder.
+     */
+    public ParametersBuilder setForceHighestSupportedBitrate(boolean forceHighestSupportedBitrate) {
+      this.forceHighestSupportedBitrate = forceHighestSupportedBitrate;
       return this;
     }
 
@@ -520,6 +532,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           selectUndeterminedTextLanguage,
           disabledTextTrackSelectionFlags,
           forceLowestBitrate,
+          forceHighestSupportedBitrate,
           allowMixedMimeAdaptiveness,
           allowNonSeamlessAdaptiveness,
           maxVideoWidth,
@@ -635,6 +648,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public final boolean forceLowestBitrate;
     /**
+     * Whether to force selection of the highest bitrate audio and video tracks that comply with all
+     * other constraints. The default value is {@code false}.
+     */
+    public final boolean forceHighestSupportedBitrate;
+    /**
      * Whether to allow adaptive selections containing mixed mime types. The default value is {@code
      * false}.
      */
@@ -670,6 +688,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           /* selectUndeterminedTextLanguage= */ false,
           /* disabledTextTrackSelectionFlags= */ 0,
           /* forceLowestBitrate= */ false,
+          /* forceHighestSupportedBitrate= */ false,
           /* allowMixedMimeAdaptiveness= */ false,
           /* allowNonSeamlessAdaptiveness= */ true,
           /* maxVideoWidth= */ Integer.MAX_VALUE,
@@ -691,6 +710,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         boolean selectUndeterminedTextLanguage,
         int disabledTextTrackSelectionFlags,
         boolean forceLowestBitrate,
+        boolean forceHighestSupportedBitrate,
         boolean allowMixedMimeAdaptiveness,
         boolean allowNonSeamlessAdaptiveness,
         int maxVideoWidth,
@@ -709,6 +729,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.selectUndeterminedTextLanguage = selectUndeterminedTextLanguage;
       this.disabledTextTrackSelectionFlags = disabledTextTrackSelectionFlags;
       this.forceLowestBitrate = forceLowestBitrate;
+      this.forceHighestSupportedBitrate = forceHighestSupportedBitrate;
       this.allowMixedMimeAdaptiveness = allowMixedMimeAdaptiveness;
       this.allowNonSeamlessAdaptiveness = allowNonSeamlessAdaptiveness;
       this.maxVideoWidth = maxVideoWidth;
@@ -730,6 +751,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.selectUndeterminedTextLanguage = Util.readBoolean(in);
       this.disabledTextTrackSelectionFlags = in.readInt();
       this.forceLowestBitrate = Util.readBoolean(in);
+      this.forceHighestSupportedBitrate = Util.readBoolean(in);
       this.allowMixedMimeAdaptiveness = Util.readBoolean(in);
       this.allowNonSeamlessAdaptiveness = Util.readBoolean(in);
       this.maxVideoWidth = in.readInt();
@@ -797,6 +819,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return selectUndeterminedTextLanguage == other.selectUndeterminedTextLanguage
           && disabledTextTrackSelectionFlags == other.disabledTextTrackSelectionFlags
           && forceLowestBitrate == other.forceLowestBitrate
+          && forceHighestSupportedBitrate == other.forceHighestSupportedBitrate
           && allowMixedMimeAdaptiveness == other.allowMixedMimeAdaptiveness
           && allowNonSeamlessAdaptiveness == other.allowNonSeamlessAdaptiveness
           && maxVideoWidth == other.maxVideoWidth
@@ -819,6 +842,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int result = selectUndeterminedTextLanguage ? 1 : 0;
       result = 31 * result + disabledTextTrackSelectionFlags;
       result = 31 * result + (forceLowestBitrate ? 1 : 0);
+      result = 31 * result + (forceHighestSupportedBitrate ? 1 : 0);
       result = 31 * result + (allowMixedMimeAdaptiveness ? 1 : 0);
       result = 31 * result + (allowNonSeamlessAdaptiveness ? 1 : 0);
       result = 31 * result + maxVideoWidth;
@@ -852,6 +876,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       Util.writeBoolean(dest, selectUndeterminedTextLanguage);
       dest.writeInt(disabledTextTrackSelectionFlags);
       Util.writeBoolean(dest, forceLowestBitrate);
+      Util.writeBoolean(dest, forceHighestSupportedBitrate);
       Util.writeBoolean(dest, allowMixedMimeAdaptiveness);
       Util.writeBoolean(dest, allowNonSeamlessAdaptiveness);
       dest.writeInt(maxVideoWidth);
@@ -1355,7 +1380,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       @Nullable TrackSelection.Factory adaptiveTrackSelectionFactory)
       throws ExoPlaybackException {
     TrackSelection selection = null;
-    if (!params.forceLowestBitrate && adaptiveTrackSelectionFactory != null) {
+    if (!params.forceHighestSupportedBitrate
+        && !params.forceLowestBitrate
+        && adaptiveTrackSelectionFactory != null) {
       selection =
           selectAdaptiveVideoTrack(
               groups,
@@ -1606,7 +1633,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     TrackGroup selectedGroup = groups.get(selectedGroupIndex);
-    if (!params.forceLowestBitrate && adaptiveTrackSelectionFactory != null) {
+    if (!params.forceHighestSupportedBitrate
+        && !params.forceLowestBitrate
+        && adaptiveTrackSelectionFactory != null) {
       // If the group of the track with the highest score allows it, try to enable adaptation.
       int[] adaptiveTracks =
           getAdaptiveAudioTracks(
