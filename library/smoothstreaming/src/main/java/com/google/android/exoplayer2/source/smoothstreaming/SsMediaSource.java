@@ -330,6 +330,7 @@ public final class SsMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public SsMediaSource(
       SsManifest manifest,
       SsChunkSource.Factory chunkSourceFactory,
@@ -388,6 +389,7 @@ public final class SsMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public SsMediaSource(
       Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
@@ -420,6 +422,7 @@ public final class SsMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public SsMediaSource(
       Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,

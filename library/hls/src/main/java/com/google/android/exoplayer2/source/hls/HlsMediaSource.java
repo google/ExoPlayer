@@ -309,6 +309,7 @@ public final class HlsMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public HlsMediaSource(
       Uri manifestUri,
       DataSource.Factory dataSourceFactory,
@@ -334,6 +335,7 @@ public final class HlsMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public HlsMediaSource(
       Uri manifestUri,
       DataSource.Factory dataSourceFactory,
@@ -364,6 +366,7 @@ public final class HlsMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public HlsMediaSource(
       Uri manifestUri,
       HlsDataSourceFactory dataSourceFactory,

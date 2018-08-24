@@ -226,6 +226,7 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
+  @SuppressWarnings("deprecation")
   public DataSpec(
       Uri uri,
       @HttpMethod int httpMethod,

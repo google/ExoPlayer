@@ -604,6 +604,7 @@ public class SimpleExoPlayer
    * @deprecated Use {@link #addVideoListener(com.google.android.exoplayer2.video.VideoListener)}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public void setVideoListener(VideoListener listener) {
     videoListeners.clear();
     if (listener != null) {
@@ -619,6 +620,7 @@ public class SimpleExoPlayer
    *     #removeVideoListener(com.google.android.exoplayer2.video.VideoListener)}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public void clearVideoListener(VideoListener listener) {
     removeVideoListener(listener);
   }
@@ -709,6 +711,7 @@ public class SimpleExoPlayer
    *     information.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public void setVideoDebugListener(VideoRendererEventListener listener) {
     videoDebugListeners.retainAll(Collections.singleton(analyticsCollector));
     if (listener != null) {
@@ -739,6 +742,7 @@ public class SimpleExoPlayer
    *     information.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public void setAudioDebugListener(AudioRendererEventListener listener) {
     audioDebugListeners.retainAll(Collections.singleton(analyticsCollector));
     if (listener != null) {
@@ -939,6 +943,8 @@ public class SimpleExoPlayer
   }
 
   @Override
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public void sendMessages(ExoPlayerMessage... messages) {
     player.sendMessages(messages);
   }
@@ -949,6 +955,8 @@ public class SimpleExoPlayer
   }
 
   @Override
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public void blockingSendMessages(ExoPlayerMessage... messages) {
     player.blockingSendMessages(messages);
   }

@@ -142,6 +142,7 @@ public final class DefaultDataSource implements DataSource {
    *     #addTransferListener(TransferListener)}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultDataSource(
       Context context,
       @Nullable TransferListener listener,
@@ -167,6 +168,7 @@ public final class DefaultDataSource implements DataSource {
    *     #addTransferListener(TransferListener)}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultDataSource(
       Context context,
       @Nullable TransferListener listener,

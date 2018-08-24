@@ -99,6 +99,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      *     each mapped track, indexed by renderer, track group and track (in that order).
      * @param unmappedTrackGroups {@link TrackGroup}s not mapped to any renderer.
      */
+    @SuppressWarnings("deprecation")
     /* package */ MappedTrackInfo(
         int[] rendererTrackTypes,
         TrackGroupArray[] rendererTrackGroups,

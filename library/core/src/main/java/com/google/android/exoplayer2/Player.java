@@ -392,6 +392,7 @@ public interface Player {
   abstract class DefaultEventListener implements EventListener {
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
       // Call deprecated version. Otherwise, do nothing.

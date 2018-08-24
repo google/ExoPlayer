@@ -415,6 +415,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public void sendMessages(ExoPlayerMessage... messages) {
     for (ExoPlayerMessage message : messages) {
       createMessage(message.target).setType(message.messageType).setPayload(message.message).send();
@@ -432,6 +434,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public void blockingSendMessages(ExoPlayerMessage... messages) {
     List<PlayerMessage> playerMessages = new ArrayList<>();
     for (ExoPlayerMessage message : messages) {

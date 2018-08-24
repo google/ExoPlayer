@@ -95,6 +95,7 @@ public final class UdpDataSource extends BaseDataSource {
    * @deprecated Use {@link #UdpDataSource()} and {@link #addTransferListener(TransferListener)}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public UdpDataSource(@Nullable TransferListener listener) {
     this(listener, DEFAULT_MAX_PACKET_SIZE);
   }
@@ -107,6 +108,7 @@ public final class UdpDataSource extends BaseDataSource {
    * @deprecated Use {@link #UdpDataSource(int)} and {@link #addTransferListener(TransferListener)}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public UdpDataSource(@Nullable TransferListener listener, int maxPacketSize) {
     this(listener, maxPacketSize, DEFAULT_SOCKET_TIMEOUT_MILLIS);
   }

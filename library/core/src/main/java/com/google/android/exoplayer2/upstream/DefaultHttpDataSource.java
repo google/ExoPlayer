@@ -168,6 +168,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *     #addTransferListener(TransferListener)}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultHttpDataSource(
       String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
@@ -190,6 +191,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *     #addTransferListener(TransferListener)}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultHttpDataSource(
       String userAgent,
       @Nullable Predicate<String> contentTypePredicate,

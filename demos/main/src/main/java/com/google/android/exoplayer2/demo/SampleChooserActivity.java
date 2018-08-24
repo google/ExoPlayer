@@ -213,7 +213,8 @@ public class SampleChooserActivity extends Activity
       List<SampleGroup> result = new ArrayList<>();
       Context context = getApplicationContext();
       String userAgent = Util.getUserAgent(context, "ExoPlayerDemo");
-      DataSource dataSource = new DefaultDataSource(context, null, userAgent, false);
+      DataSource dataSource =
+          new DefaultDataSource(context, userAgent, /* allowCrossProtocolRedirects= */ false);
       for (String uri : uris) {
         DataSpec dataSpec = new DataSpec(Uri.parse(uri));
         InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
