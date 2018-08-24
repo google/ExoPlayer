@@ -192,6 +192,14 @@ public interface Player {
     void clearVideoSurface();
 
     /**
+     * Clears the {@link Surface} onto which video is being rendered if it matches the one passed.
+     * Else does nothing.
+     *
+     * @param surface The surface to clear.
+     */
+    void clearVideoSurface(Surface surface);
+
+    /**
      * Sets the {@link Surface} onto which video will be rendered. The caller is responsible for
      * tracking the lifecycle of the surface, and must clear the surface by calling {@code
      * setVideoSurface(null)} if the surface is destroyed.
@@ -205,14 +213,6 @@ public interface Player {
      * @param surface The {@link Surface}.
      */
     void setVideoSurface(@Nullable Surface surface);
-
-    /**
-     * Clears the {@link Surface} onto which video is being rendered if it matches the one passed.
-     * Else does nothing.
-     *
-     * @param surface The surface to clear.
-     */
-    void clearVideoSurface(Surface surface);
 
     /**
      * Sets the {@link SurfaceHolder} that holds the {@link Surface} onto which video will be

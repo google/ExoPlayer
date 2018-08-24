@@ -57,17 +57,17 @@ public class VpxPlaybackTest {
   }
 
   @Test
-  public void testBasicPlayback() throws ExoPlaybackException {
+  public void testBasicPlayback() throws Exception {
     playUri(BEAR_URI);
   }
 
   @Test
-  public void testOddDimensionsPlayback() throws ExoPlaybackException {
+  public void testOddDimensionsPlayback() throws Exception {
     playUri(BEAR_ODD_DIMENSIONS_URI);
   }
 
   @Test
-  public void test10BitProfile2Playback() throws ExoPlaybackException {
+  public void test10BitProfile2Playback() throws Exception {
     if (VpxLibrary.isHighBitDepthSupported()) {
       Log.d(TAG, "High Bit Depth supported.");
       playUri(ROADTRIP_10BIT_URI);
@@ -87,16 +87,12 @@ public class VpxPlaybackTest {
     }
   }
 
-  private void playUri(String uri) throws ExoPlaybackException {
+  private void playUri(String uri) throws Exception {
     TestPlaybackRunnable testPlaybackRunnable =
         new TestPlaybackRunnable(Uri.parse(uri), getContext());
     Thread thread = new Thread(testPlaybackRunnable);
     thread.start();
-    try {
-      thread.join();
-    } catch (InterruptedException e) {
-      fail(); // Should never happen.
-    }
+    thread.join();
     if (testPlaybackRunnable.playbackException != null) {
       throw testPlaybackRunnable.playbackException;
     }

@@ -23,7 +23,6 @@ import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
-import com.firebase.jobdispatcher.Job.Builder;
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 import com.firebase.jobdispatcher.Lifetime;
@@ -99,7 +98,7 @@ public final class JobDispatcherScheduler implements Scheduler {
       String tag,
       String serviceAction,
       String servicePackage) {
-    Builder builder =
+    Job.Builder builder =
         dispatcher
             .newJobBuilder()
             .setService(JobDispatcherSchedulerService.class) // the JobService that will be called

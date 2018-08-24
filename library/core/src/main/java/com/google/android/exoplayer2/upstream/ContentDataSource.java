@@ -148,6 +148,7 @@ public final class ContentDataSource extends BaseDataSource {
     return uri;
   }
 
+  @SuppressWarnings("Finally")
   @Override
   public void close() throws ContentDataSourceException {
     uri = null;

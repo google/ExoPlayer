@@ -169,6 +169,8 @@ public final class AdtsReader implements ElementaryStreamReader {
         case STATE_READING_SAMPLE:
           readSample(data);
           break;
+        default:
+          throw new IllegalStateException();
       }
     }
   }

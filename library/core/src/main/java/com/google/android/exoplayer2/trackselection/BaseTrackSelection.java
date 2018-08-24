@@ -186,7 +186,7 @@ public abstract class BaseTrackSelection implements TrackSelection {
 
   // Track groups are compared by identity not value, as distinct groups may have the same value.
   @Override
-  @SuppressWarnings("ReferenceEquality")
+  @SuppressWarnings({"ReferenceEquality", "EqualsGetClass"})
   public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
