@@ -189,6 +189,7 @@ public abstract class DownloadAction {
   public abstract Downloader createDownloader(
       DownloaderConstructorHelper downloaderConstructorHelper);
 
+  @SuppressWarnings("EqualsGetClass")
   @Override
   public boolean equals(@Nullable Object o) {
     if (o == null || getClass() != o.getClass()) {

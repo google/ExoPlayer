@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.cronet;
 import android.content.Context;
 import android.support.annotation.IntDef;
 import android.util.Log;
+import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
@@ -159,6 +160,8 @@ public final class CronetEngineWrapper {
     private final String gmsCoreCronetName;
     private final boolean preferGMSCoreCronet;
 
+    // Multi-catch can only be used for API 19+ in this case.
+    @SuppressWarnings("UseMultiCatch")
     public CronetProviderComparator(boolean preferGMSCoreCronet) {
       // GMSCore CronetProvider classes are only available in some configurations.
       // Thus, we use reflection to copy static name.
@@ -219,8 +222,8 @@ public final class CronetEngineWrapper {
       if (versionLeft == null || versionRight == null) {
         return 0;
       }
-      String[] versionStringsLeft = versionLeft.split("\\.");
-      String[] versionStringsRight = versionRight.split("\\.");
+      String[] versionStringsLeft = Util.split(versionLeft, "\\.");
+      String[] versionStringsRight = Util.split(versionRight, "\\.");
       int minLength = Math.min(versionStringsLeft.length, versionStringsRight.length);
       for (int i = 0; i < minLength; i++) {
         if (!versionStringsLeft[i].equals(versionStringsRight[i])) {

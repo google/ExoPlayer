@@ -305,6 +305,11 @@ public class AnalyticsCollector
   // VideoListener implementation.
 
   @Override
+  public final void onRenderedFirstFrame() {
+    // Do nothing. Already reported in VideoRendererEventListener.onRenderedFirstFrame.
+  }
+
+  @Override
   public final void onVideoSizeChanged(
       int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
@@ -320,11 +325,6 @@ public class AnalyticsCollector
     for (AnalyticsListener listener : listeners) {
       listener.onSurfaceSizeChanged(eventTime, width, height);
     }
-  }
-
-  @Override
-  public final void onRenderedFirstFrame() {
-    // Do nothing. Already reported in VideoRendererEventListener.onRenderedFirstFrame.
   }
 
   // MediaSourceEventListener implementation.

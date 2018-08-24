@@ -32,6 +32,7 @@ import java.util.Arrays;
  */
 public final class EventMessageDecoder implements MetadataDecoder {
 
+  @SuppressWarnings("ByteBufferBackingArray")
   @Override
   public Metadata decode(MetadataInputBuffer inputBuffer) {
     ByteBuffer buffer = inputBuffer.data;

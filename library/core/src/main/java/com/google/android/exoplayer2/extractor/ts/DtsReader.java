@@ -111,6 +111,8 @@ public final class DtsReader implements ElementaryStreamReader {
             state = STATE_FINDING_SYNC;
           }
           break;
+        default:
+          throw new IllegalStateException();
       }
     }
   }

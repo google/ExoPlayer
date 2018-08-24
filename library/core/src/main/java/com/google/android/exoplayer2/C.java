@@ -686,24 +686,20 @@ public final class C {
   public static final int DEFAULT_MUXED_BUFFER_SIZE = DEFAULT_VIDEO_BUFFER_SIZE
       + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
 
-  /**
-   * "cenc" scheme type name as defined in ISO/IEC 23001-7:2016.
-   */
+  /** "cenc" scheme type name as defined in ISO/IEC 23001-7:2016. */
+  @SuppressWarnings("ConstantField")
   public static final String CENC_TYPE_cenc = "cenc";
 
-  /**
-   * "cbc1" scheme type name as defined in ISO/IEC 23001-7:2016.
-   */
+  /** "cbc1" scheme type name as defined in ISO/IEC 23001-7:2016. */
+  @SuppressWarnings("ConstantField")
   public static final String CENC_TYPE_cbc1 = "cbc1";
 
-  /**
-   * "cens" scheme type name as defined in ISO/IEC 23001-7:2016.
-   */
+  /** "cens" scheme type name as defined in ISO/IEC 23001-7:2016. */
+  @SuppressWarnings("ConstantField")
   public static final String CENC_TYPE_cens = "cens";
 
-  /**
-   * "cbcs" scheme type name as defined in ISO/IEC 23001-7:2016.
-   */
+  /** "cbcs" scheme type name as defined in ISO/IEC 23001-7:2016. */
+  @SuppressWarnings("ConstantField")
   public static final String CENC_TYPE_cbcs = "cbcs";
 
   /**

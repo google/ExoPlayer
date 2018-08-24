@@ -50,20 +50,16 @@ public class FlacPlaybackTest {
   }
 
   @Test
-  public void testBasicPlayback() throws ExoPlaybackException {
+  public void testBasicPlayback() throws Exception {
     playUri(BEAR_FLAC_URI);
   }
 
-  private void playUri(String uri) throws ExoPlaybackException {
+  private void playUri(String uri) throws Exception {
     TestPlaybackRunnable testPlaybackRunnable =
         new TestPlaybackRunnable(Uri.parse(uri), getContext());
     Thread thread = new Thread(testPlaybackRunnable);
     thread.start();
-    try {
-      thread.join();
-    } catch (InterruptedException e) {
-      fail(); // Should never happen.
-    }
+    thread.join();
     if (testPlaybackRunnable.playbackException != null) {
       throw testPlaybackRunnable.playbackException;
     }

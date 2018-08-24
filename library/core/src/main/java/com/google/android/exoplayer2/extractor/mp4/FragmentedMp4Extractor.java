@@ -102,7 +102,10 @@ public final class FragmentedMp4Extractor implements Extractor {
   public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 1 << 4; // 16
 
   private static final String TAG = "FragmentedMp4Extractor";
+
+  @SuppressWarnings("ConstantField")
   private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");
+
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
   private static final Format EMSG_FORMAT =

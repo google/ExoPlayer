@@ -26,9 +26,8 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 
-/**
- * StreamReader abstract class.
- */
+/** StreamReader abstract class. */
+@SuppressWarnings("UngroupedOverloads")
 /* package */ abstract class StreamReader {
 
   private static final int STATE_READ_HEADERS = 0;

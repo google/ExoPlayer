@@ -87,7 +87,7 @@ public final class ContentDataSourceTest {
       fail();
     } catch (ContentDataSource.ContentDataSourceException e) {
       // Expected.
-      assertThat(e.getCause()).isInstanceOf(FileNotFoundException.class);
+      assertThat(e).hasCauseThat().isInstanceOf(FileNotFoundException.class);
     } finally {
       dataSource.close();
     }

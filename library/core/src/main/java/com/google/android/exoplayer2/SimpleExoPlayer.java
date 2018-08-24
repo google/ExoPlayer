@@ -287,18 +287,18 @@ public class SimpleExoPlayer
   }
 
   @Override
+  public void clearVideoSurface(Surface surface) {
+    if (surface != null && surface == this.surface) {
+      setVideoSurface(null);
+    }
+  }
+
+  @Override
   public void setVideoSurface(Surface surface) {
     removeSurfaceCallbacks();
     setVideoSurfaceInternal(surface, false);
     int newSurfaceSize = surface == null ? 0 : C.LENGTH_UNSET;
     maybeNotifySurfaceSizeChanged(/* width= */ newSurfaceSize, /* height= */ newSurfaceSize);
-  }
-
-  @Override
-  public void clearVideoSurface(Surface surface) {
-    if (surface != null && surface == this.surface) {
-      setVideoSurface(null);
-    }
   }
 
   @Override
