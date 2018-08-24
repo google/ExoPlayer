@@ -66,10 +66,10 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   private FrameworkMediaDrm(UUID uuid) throws UnsupportedSchemeException {
     Assertions.checkNotNull(uuid);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
-    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
-    uuid = Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid;
     this.uuid = uuid;
-    this.mediaDrm = new MediaDrm(uuid);
+    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
+    this.mediaDrm =
+        new MediaDrm(Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid);
     if (C.WIDEVINE_UUID.equals(uuid) && needsForceWidevineL3Workaround()) {
       forceWidevineL3(mediaDrm);
     }
