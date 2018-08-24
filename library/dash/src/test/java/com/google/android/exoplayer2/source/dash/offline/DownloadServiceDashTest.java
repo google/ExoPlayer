@@ -101,7 +101,7 @@ public class DownloadServiceDashTest {
             .setRandomData("text_segment_2", 2)
             .setRandomData("text_segment_3", 3);
     final DataSource.Factory fakeDataSourceFactory =
-        new FakeDataSource.Factory(null).setFakeDataSet(fakeDataSet);
+        new FakeDataSource.Factory().setFakeDataSet(fakeDataSet);
     fakeStreamKey1 = new StreamKey(0, 0, 0);
     fakeStreamKey2 = new StreamKey(0, 1, 0);
 

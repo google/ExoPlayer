@@ -235,8 +235,7 @@ public class DownloadManagerDashTest {
   private void createDownloadManager() {
     dummyMainThread.runOnMainThread(
         () -> {
-          Factory fakeDataSourceFactory =
-              new FakeDataSource.Factory(null).setFakeDataSet(fakeDataSet);
+          Factory fakeDataSourceFactory = new FakeDataSource.Factory().setFakeDataSet(fakeDataSet);
           downloadManager =
               new DownloadManager(
                   new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
