@@ -147,6 +147,7 @@ public final class DefaultTrackSelectorTest {
             /* selectUndeterminedTextLanguage= */ false,
             /* disabledTextTrackSelectionFlags= */ 0,
             /* forceLowestBitrate= */ true,
+            /* forceHighestSupportedBitrate= */ true,
             /* allowMixedMimeAdaptiveness= */ false,
             /* allowNonSeamlessAdaptiveness= */ true,
             /* maxVideoWidth= */ 1,
