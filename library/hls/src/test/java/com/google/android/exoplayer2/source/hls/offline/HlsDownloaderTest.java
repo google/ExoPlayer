@@ -183,7 +183,7 @@ public class HlsDownloaderTest {
   }
 
   private HlsDownloader getHlsDownloader(String mediaPlaylistUri, List<StreamKey> keys) {
-    Factory factory = new Factory(null).setFakeDataSet(fakeDataSet);
+    Factory factory = new Factory().setFakeDataSet(fakeDataSet);
     return new HlsDownloader(
         Uri.parse(mediaPlaylistUri), keys, new DownloaderConstructorHelper(cache, factory));
   }

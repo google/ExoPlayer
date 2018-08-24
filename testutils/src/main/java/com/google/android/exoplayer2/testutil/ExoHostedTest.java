@@ -22,6 +22,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
+import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -30,6 +31,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -40,9 +42,6 @@ import com.google.android.exoplayer2.testutil.HostActivity.HostedTest;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Util;
@@ -80,9 +79,7 @@ public abstract class ExoHostedTest
   private SimpleExoPlayer player;
   private Surface surface;
   private ExoPlaybackException playerError;
-  private Player.EventListener playerEventListener;
-  private VideoRendererEventListener videoDebugListener;
-  private AudioRendererEventListener audioDebugListener;
+  private AnalyticsListener analyticsListener;
   private boolean playerWasPrepared;
 
   private boolean playing;
@@ -135,33 +132,11 @@ public abstract class ExoHostedTest
     }
   }
 
-  /**
-   * Sets an {@link Player.EventListener} to listen for ExoPlayer events during the test.
-   */
-  public final void setEventListener(Player.EventListener eventListener) {
-    this.playerEventListener = eventListener;
+  /** Sets an {@link AnalyticsListener} to listen for events during the test. */
+  public final void setAnalyticsListener(AnalyticsListener analyticsListener) {
+    this.analyticsListener = analyticsListener;
     if (player != null) {
-      player.addListener(eventListener);
-    }
-  }
-
-  /**
-   * Sets an {@link VideoRendererEventListener} to listen for video debug events during the test.
-   */
-  public final void setVideoDebugListener(VideoRendererEventListener videoDebugListener) {
-    this.videoDebugListener = videoDebugListener;
-    if (player != null) {
-      player.addVideoDebugListener(videoDebugListener);
-    }
-  }
-
-  /**
-   * Sets an {@link AudioRendererEventListener} to listen for audio debug events during the test.
-   */
-  public final void setAudioDebugListener(AudioRendererEventListener audioDebugListener) {
-    this.audioDebugListener = audioDebugListener;
-    if (player != null) {
-      player.addAudioDebugListener(audioDebugListener);
+      player.addAnalyticsListener(analyticsListener);
     }
   }
 
@@ -171,20 +146,13 @@ public abstract class ExoHostedTest
   public final void onStart(HostActivity host, Surface surface) {
     this.surface = surface;
     // Build the player.
-    DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-    trackSelector = buildTrackSelector(host, bandwidthMeter);
+    trackSelector = buildTrackSelector(host);
     String userAgent = "ExoPlayerPlaybackTests";
     DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = buildDrmSessionManager(userAgent);
     player = buildExoPlayer(host, surface, trackSelector, drmSessionManager);
-    player.prepare(buildSource(host, Util.getUserAgent(host, userAgent), bandwidthMeter));
-    if (playerEventListener != null) {
-      player.addListener(playerEventListener);
-    }
-    if (videoDebugListener != null) {
-      player.addVideoDebugListener(videoDebugListener);
-    }
-    if (audioDebugListener != null) {
-      player.addAudioDebugListener(audioDebugListener);
+    player.prepare(buildSource(host, Util.getUserAgent(host, userAgent)));
+    if (analyticsListener != null) {
+      player.addAnalyticsListener(analyticsListener);
     }
     player.addListener(this);
     player.addAudioDebugListener(this);
@@ -354,26 +322,30 @@ public abstract class ExoHostedTest
   }
 
   @SuppressWarnings("unused")
-  protected DefaultTrackSelector buildTrackSelector(
-      HostActivity host, BandwidthMeter bandwidthMeter) {
-    return new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
+  protected DefaultTrackSelector buildTrackSelector(HostActivity host) {
+    return new DefaultTrackSelector(new AdaptiveTrackSelection.Factory());
   }
 
   @SuppressWarnings("unused")
-  protected SimpleExoPlayer buildExoPlayer(HostActivity host, Surface surface,
+  protected SimpleExoPlayer buildExoPlayer(
+      HostActivity host,
+      Surface surface,
       MappingTrackSelector trackSelector,
       DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    RenderersFactory renderersFactory = new DefaultRenderersFactory(host, drmSessionManager,
-        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF, 0);
+    RenderersFactory renderersFactory =
+        new DefaultRenderersFactory(
+            host,
+            DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF,
+            /* allowedVideoJoiningTimeMs= */ 0);
     SimpleExoPlayer player =
-        ExoPlayerFactory.newSimpleInstance(host, renderersFactory, trackSelector);
+        ExoPlayerFactory.newSimpleInstance(
+            host, renderersFactory, trackSelector, new DefaultLoadControl(), drmSessionManager);
     player.setVideoSurface(surface);
     return player;
   }
 
   @SuppressWarnings("unused")
-  protected abstract MediaSource buildSource(
-      HostActivity host, String userAgent, TransferListener mediaTransferListener);
+  protected abstract MediaSource buildSource(HostActivity host, String userAgent);
 
   @SuppressWarnings("unused")
   protected void onPlayerErrorInternal(ExoPlaybackException error) {
