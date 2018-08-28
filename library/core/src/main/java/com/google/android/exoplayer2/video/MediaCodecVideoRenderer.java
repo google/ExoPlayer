@@ -448,6 +448,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
+  protected boolean getCodecNeedsEosPropagation() {
+    // In tunneling mode we can't dequeue an end-of-stream buffer, so propagate it in the renderer.
+    return tunneling;
+  }
+
+  @Override
   protected void configureCodec(
       MediaCodecInfo codecInfo,
       MediaCodec codec,

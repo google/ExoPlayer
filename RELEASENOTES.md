@@ -39,6 +39,9 @@
   * Scale up the initial video decoder maximum input size so playlist item
     transitions with small increases in maximum sample size don't require
     reinitialization ([#4510](https://github.com/google/ExoPlayer/issues/4510)).
+  * Propagate the end-of-stream signal directly in the renderer when using
+    tunneling, to fix an issue where the player would remain ready after the
+    stream ended.
 * Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
   creating a `CacheDataSource`.
 * Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend
