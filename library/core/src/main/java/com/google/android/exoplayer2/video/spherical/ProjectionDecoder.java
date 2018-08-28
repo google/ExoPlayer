@@ -121,8 +121,13 @@ public final class ProjectionDecoder {
     int encoding = input.readInt();
     if (encoding == TYPE_DFL8) {
       ParsableByteArray output = new ParsableByteArray();
-      if (!Util.inflate(input, output, new Inflater(true))) {
-        return null;
+      Inflater inflater = new Inflater(true);
+      try {
+        if (!Util.inflate(input, output, inflater)) {
+          return null;
+        }
+      } finally {
+        inflater.end();
       }
       input = output;
     } else if (encoding != TYPE_RAW) {
