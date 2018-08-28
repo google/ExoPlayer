@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.drm.DefaultDrmSession.ProvisioningManager;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
-import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.Util;
@@ -133,7 +132,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    *
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
    * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
   public static DefaultDrmSessionManager<FrameworkMediaCrypto> newWidevineInstance(
@@ -209,7 +208,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param uuid The UUID of the drm scheme.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
    * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
   public static DefaultDrmSessionManager<FrameworkMediaCrypto> newFrameworkInstance(
@@ -247,7 +246,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
    */
   public DefaultDrmSessionManager(
       UUID uuid,
@@ -287,7 +286,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
    * @param multiSession A boolean that specify whether multiple key session support is enabled.
    *     Default is false.
    */
@@ -337,7 +336,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
    * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link ExoMediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   *     to {@link ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null.
    * @param multiSession A boolean that specify whether multiple key session support is enabled.
    *     Default is false.
    * @param initialDrmRequestRetryCount The number of times to retry for initial provisioning and
@@ -475,8 +474,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       // An offline license can be restored so a session can always be acquired.
       return true;
     }
-    SchemeData schemeData = getSchemeData(drmInitData, uuid, true);
-    if (schemeData == null) {
+    List<SchemeData> schemeDatas = getSchemeDatas(drmInitData, uuid, true);
+    if (schemeDatas.isEmpty()) {
       if (drmInitData.schemeDataCount == 1 && drmInitData.get(0).matches(C.COMMON_PSSH_UUID)) {
         // Assume scheme specific data will be added before the session is opened.
         Log.w(
@@ -510,10 +509,10 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       }
     }
 
-    SchemeData schemeData = null;
+    List<SchemeData> schemeDatas = null;
     if (offlineLicenseKeySetId == null) {
-      schemeData = getSchemeData(drmInitData, uuid, false);
-      if (schemeData == null) {
+      schemeDatas = getSchemeDatas(drmInitData, uuid, false);
+      if (schemeDatas.isEmpty()) {
         final MissingSchemeDataException error = new MissingSchemeDataException(uuid);
         eventDispatcher.dispatch(listener -> listener.onDrmSessionManagerError(error));
         return new ErrorStateDrmSession<>(new DrmSessionException(error));
@@ -526,9 +525,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     } else {
       // Only use an existing session if it has matching init data.
       session = null;
-      byte[] initData = schemeData != null ? schemeData.data : null;
       for (DefaultDrmSession<T> existingSession : sessions) {
-        if (existingSession.hasInitData(initData)) {
+        if (Util.areEqual(existingSession.schemeDatas, schemeDatas)) {
           session = existingSession;
           break;
         }
@@ -542,7 +540,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
               uuid,
               mediaDrm,
               this,
-              schemeData,
+              schemeDatas,
               mode,
               offlineLicenseKeySetId,
               optionalKeyRequestParameters,
@@ -605,16 +603,17 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   // Internal methods.
 
   /**
-   * Extracts {@link SchemeData} suitable for the given DRM scheme {@link UUID}.
+   * Extracts {@link SchemeData} instances suitable for the given DRM scheme {@link UUID}.
    *
    * @param drmInitData The {@link DrmInitData} from which to extract the {@link SchemeData}.
    * @param uuid The UUID.
    * @param allowMissingData Whether a {@link SchemeData} with null {@link SchemeData#data} may be
    *     returned.
-   * @return The extracted {@link SchemeData}, or null if no suitable data is present.
+   * @return The extracted {@link SchemeData} instances, or an empty list if no suitable data is
+   *     present.
    */
-  private static SchemeData getSchemeData(DrmInitData drmInitData, UUID uuid,
-      boolean allowMissingData) {
+  private static List<SchemeData> getSchemeDatas(
+      DrmInitData drmInitData, UUID uuid, boolean allowMissingData) {
     // Look for matching scheme data (matching the Common PSSH box for ClearKey).
     List<SchemeData> matchingSchemeDatas = new ArrayList<>(drmInitData.schemeDataCount);
     for (int i = 0; i < drmInitData.schemeDataCount; i++) {
@@ -625,27 +624,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         matchingSchemeDatas.add(schemeData);
       }
     }
-
-    if (matchingSchemeDatas.isEmpty()) {
-      return null;
-    }
-
-    // For Widevine PSSH boxes, prefer V1 boxes from API 23 and V0 before.
-    if (C.WIDEVINE_UUID.equals(uuid)) {
-      for (int i = 0; i < matchingSchemeDatas.size(); i++) {
-        SchemeData matchingSchemeData = matchingSchemeDatas.get(i);
-        int version = matchingSchemeData.hasData()
-            ? PsshAtomUtil.parseVersion(matchingSchemeData.data) : -1;
-        if (Util.SDK_INT < 23 && version == 0) {
-          return matchingSchemeData;
-        } else if (Util.SDK_INT >= 23 && version == 1) {
-          return matchingSchemeData;
-        }
-      }
-    }
-
-    // If we don't have any special handling, prefer the first matching scheme data.
-    return matchingSchemeDatas.get(0);
+    return matchingSchemeDatas;
   }
 
   @SuppressLint("HandlerLeak")

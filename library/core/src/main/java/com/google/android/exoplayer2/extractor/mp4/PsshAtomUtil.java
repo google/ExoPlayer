@@ -78,6 +78,16 @@ public final class PsshAtomUtil {
   }
 
   /**
+   * Returns whether the data is a valid PSSH atom.
+   *
+   * @param data The data to parse.
+   * @return Whether the data is a valid PSSH atom.
+   */
+  public static boolean isPsshAtom(byte[] data) {
+    return parsePsshAtom(data) != null;
+  }
+
+  /**
    * Parses the UUID from a PSSH atom. Version 0 and 1 PSSH atoms are supported.
    *
    * <p>The UUID is only parsed if the data is a valid PSSH atom.

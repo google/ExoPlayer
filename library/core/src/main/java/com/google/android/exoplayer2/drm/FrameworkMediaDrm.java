@@ -24,7 +24,10 @@ import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -119,44 +122,26 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   @Override
   public KeyRequest getKeyRequest(
       byte[] scope,
-      byte[] init,
-      String mimeType,
+      @Nullable List<DrmInitData.SchemeData> schemeDatas,
       int keyType,
       HashMap<String, String> optionalParameters)
       throws NotProvisionedException {
+    SchemeData schemeData = getSchemeData(uuid, schemeDatas);
 
-    // Prior to L the Widevine CDM required data to be extracted from the PSSH atom. Some Amazon
-    // devices also required data to be extracted from the PSSH atom for PlayReady.
-    if ((Util.SDK_INT < 21 && C.WIDEVINE_UUID.equals(uuid))
-        || (C.PLAYREADY_UUID.equals(uuid)
-            && "Amazon".equals(Util.MANUFACTURER)
-            && ("AFTB".equals(Util.MODEL) // Fire TV Gen 1
-                || "AFTS".equals(Util.MODEL) // Fire TV Gen 2
-                || "AFTM".equals(Util.MODEL)))) { // Fire TV Stick Gen 1
-      byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(init, uuid);
-      if (psshData == null) {
-        // Extraction failed. schemeData isn't a PSSH atom, so leave it unchanged.
-      } else {
-        init = psshData;
-      }
+    byte[] initData = adjustRequestInitData(uuid, schemeData.data);
+    String mimeType = adjustRequestMimeType(uuid, schemeData.mimeType);
+
+    MediaDrm.KeyRequest request =
+        mediaDrm.getKeyRequest(scope, initData, mimeType, keyType, optionalParameters);
+
+    byte[] requestData = adjustRequestData(uuid, request.getData());
+
+    String licenseServerUrl = request.getDefaultUrl();
+    if (TextUtils.isEmpty(licenseServerUrl) && !TextUtils.isEmpty(schemeData.licenseServerUrl)) {
+      licenseServerUrl = schemeData.licenseServerUrl;
     }
 
-    // Prior to API level 26 the ClearKey CDM only accepted "cenc" as the scheme for MP4.
-    if (Util.SDK_INT < 26
-        && C.CLEARKEY_UUID.equals(uuid)
-        && (MimeTypes.VIDEO_MP4.equals(mimeType) || MimeTypes.AUDIO_MP4.equals(mimeType))) {
-      mimeType = CENC_SCHEME_MIME_TYPE;
-    }
-
-    final MediaDrm.KeyRequest request = mediaDrm.getKeyRequest(scope, init, mimeType, keyType,
-        optionalParameters);
-
-    byte[] requestData = request.getData();
-    if (C.CLEARKEY_UUID.equals(uuid)) {
-      requestData = ClearKeyUtil.adjustRequestData(requestData);
-    }
-
-    return new KeyRequest(requestData, request.getDefaultUrl());
+    return new KeyRequest(requestData, licenseServerUrl);
   }
 
   @Override
@@ -224,6 +209,94 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         && C.WIDEVINE_UUID.equals(uuid) && "L3".equals(getPropertyString("securityLevel"));
     return new FrameworkMediaCrypto(new MediaCrypto(uuid, initData),
         forceAllowInsecureDecoderComponents);
+  }
+
+  private static SchemeData getSchemeData(UUID uuid, List<SchemeData> schemeDatas) {
+    if (!C.WIDEVINE_UUID.equals(uuid)) {
+      // For non-Widevine CDMs always use the first scheme data.
+      return schemeDatas.get(0);
+    }
+
+    if (Util.SDK_INT >= 28 && schemeDatas.size() > 1) {
+      // For API level 28 and above, concatenate multiple PSSH scheme datas if possible.
+      SchemeData firstSchemeData = schemeDatas.get(0);
+      int concatenatedDataLength = 0;
+      boolean canConcatenateData = true;
+      for (int i = 0; i < schemeDatas.size(); i++) {
+        SchemeData schemeData = schemeDatas.get(i);
+        if (schemeData.requiresSecureDecryption == firstSchemeData.requiresSecureDecryption
+            && Util.areEqual(schemeData.mimeType, firstSchemeData.mimeType)
+            && Util.areEqual(schemeData.licenseServerUrl, firstSchemeData.licenseServerUrl)
+            && PsshAtomUtil.isPsshAtom(schemeData.data)) {
+          concatenatedDataLength += schemeData.data.length;
+        } else {
+          canConcatenateData = false;
+          break;
+        }
+      }
+      if (canConcatenateData) {
+        byte[] concatenatedData = new byte[concatenatedDataLength];
+        int concatenatedDataPosition = 0;
+        for (int i = 0; i < schemeDatas.size(); i++) {
+          SchemeData schemeData = schemeDatas.get(i);
+          int schemeDataLength = schemeData.data.length;
+          System.arraycopy(
+              schemeData.data, 0, concatenatedData, concatenatedDataPosition, schemeDataLength);
+          concatenatedDataPosition += schemeDataLength;
+        }
+        return firstSchemeData.copyWithData(concatenatedData);
+      }
+    }
+
+    // For API levels 23 - 27, prefer the first V1 PSSH box. For API levels 22 and earlier, prefer
+    // the first V0 box.
+    for (int i = 0; i < schemeDatas.size(); i++) {
+      SchemeData schemeData = schemeDatas.get(i);
+      int version = PsshAtomUtil.parseVersion(schemeData.data);
+      if (Util.SDK_INT < 23 && version == 0) {
+        return schemeData;
+      } else if (Util.SDK_INT >= 23 && version == 1) {
+        return schemeData;
+      }
+    }
+
+    // If all else fails, use the first scheme data.
+    return schemeDatas.get(0);
+  }
+
+  private static byte[] adjustRequestInitData(UUID uuid, byte[] initData) {
+    // Prior to L the Widevine CDM required data to be extracted from the PSSH atom. Some Amazon
+    // devices also required data to be extracted from the PSSH atom for PlayReady.
+    if ((Util.SDK_INT < 21 && C.WIDEVINE_UUID.equals(uuid))
+        || (C.PLAYREADY_UUID.equals(uuid)
+            && "Amazon".equals(Util.MANUFACTURER)
+            && ("AFTB".equals(Util.MODEL) // Fire TV Gen 1
+                || "AFTS".equals(Util.MODEL) // Fire TV Gen 2
+                || "AFTM".equals(Util.MODEL)))) { // Fire TV Stick Gen 1
+      byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(initData, uuid);
+      if (psshData != null) {
+        // Extraction succeeded, so return the extracted data.
+        return psshData;
+      }
+    }
+    return initData;
+  }
+
+  private static String adjustRequestMimeType(UUID uuid, String mimeType) {
+    // Prior to API level 26 the ClearKey CDM only accepted "cenc" as the scheme for MP4.
+    if (Util.SDK_INT < 26
+        && C.CLEARKEY_UUID.equals(uuid)
+        && (MimeTypes.VIDEO_MP4.equals(mimeType) || MimeTypes.AUDIO_MP4.equals(mimeType))) {
+      return CENC_SCHEME_MIME_TYPE;
+    }
+    return mimeType;
+  }
+
+  private static byte[] adjustRequestData(UUID uuid, byte[] requestData) {
+    if (C.CLEARKEY_UUID.equals(uuid)) {
+      return ClearKeyUtil.adjustRequestData(requestData);
+    }
+    return requestData;
   }
 
   @SuppressLint("WrongConstant") // Suppress spurious lint error [Internal ref: b/32137960]
