@@ -130,6 +130,9 @@
     ([#4681](https://github.com/google/ExoPlayer/issues/4681).
   * Fix handling of postrolls with multiple ads
     ([#4710](https://github.com/google/ExoPlayer/issues/4710).
+* Provide additional information for adaptive track selection.
+  `TrackSelection.updateSelectedTrack` has two new parameters for the current
+  queue of media chunks and iterators for information about upcoming chunks.
 
 ### 2.8.4 ###
 
