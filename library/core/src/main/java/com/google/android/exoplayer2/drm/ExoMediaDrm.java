@@ -22,6 +22,7 @@ import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,19 +131,19 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   final class KeyRequest {
 
     private final byte[] data;
-    private final String defaultUrl;
+    private final String licenseServerUrl;
 
-    public KeyRequest(byte[] data, String defaultUrl) {
+    public KeyRequest(byte[] data, String licenseServerUrl) {
       this.data = data;
-      this.defaultUrl = defaultUrl;
+      this.licenseServerUrl = licenseServerUrl;
     }
 
     public byte[] getData() {
       return data;
     }
 
-    public String getDefaultUrl() {
-      return defaultUrl;
+    public String getLicenseServerUrl() {
+      return licenseServerUrl;
     }
 
   }
@@ -188,13 +189,29 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
    */
   void closeSession(byte[] sessionId);
 
-  /** @see MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap) */
+  /**
+   * Generates a key request.
+   *
+   * @param scope If {@code keyType} is {@link #KEY_TYPE_STREAMING} or {@link #KEY_TYPE_OFFLINE},
+   *     the session id that the keys will be provided to. If {@code keyType} is {@link
+   *     #KEY_TYPE_RELEASE}, the keySetId of the keys to release.
+   * @param schemeDatas If key type is {@link #KEY_TYPE_STREAMING} or {@link #KEY_TYPE_OFFLINE}, a
+   *     list of {@link SchemeData} instances extracted from the media. Null otherwise.
+   * @param keyType The type of the request. Either {@link #KEY_TYPE_STREAMING} to acquire keys for
+   *     streaming, {@link #KEY_TYPE_OFFLINE} to acquire keys for offline usage, or {@link
+   *     #KEY_TYPE_RELEASE} to release acquired keys. Releasing keys invalidates them for all
+   *     sessions.
+   * @param optionalParameters Are included in the key request message to allow a client application
+   *     to provide additional message parameters to the server. This may be {@code null} if no
+   *     additional parameters are to be sent.
+   * @return The generated key request.
+   * @see MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)
+   */
   KeyRequest getKeyRequest(
       byte[] scope,
-      byte[] init,
-      String mimeType,
+      @Nullable List<SchemeData> schemeDatas,
       int keyType,
-      HashMap<String, String> optionalParameters)
+      @Nullable HashMap<String, String> optionalParameters)
       throws NotProvisionedException;
 
   /** @see MediaDrm#provideKeyResponse(byte[], byte[]) */
