@@ -64,7 +64,7 @@ public final class TimedValueQueue<V> {
 
   /**
    * Returns the value with the greatest timestamp which is less than or equal to the given
-   * timestamp. Removes all older values including the returned one from the buffer.
+   * timestamp. Removes all older values and the returned one from the buffer.
    *
    * @param timestamp The timestamp value.
    * @return The value with the greatest timestamp which is less than or equal to the given

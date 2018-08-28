@@ -40,8 +40,11 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ui.spherical.ProjectionRenderer.EyeType;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
+import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import com.google.android.exoplayer2.video.spherical.FrameRotationQueue;
 import com.google.android.exoplayer2.video.spherical.Projection;
 import com.google.android.exoplayer2.video.spherical.ProjectionDecoder;
 import java.util.Arrays;
@@ -60,7 +63,7 @@ import javax.microedition.khronos.opengles.GL10;
  */
 @TargetApi(15)
 public final class SphericalSurfaceView extends GLSurfaceView
-    implements VideoFrameMetadataListener {
+    implements VideoFrameMetadataListener, CameraMotionListener {
 
   /**
    * This listener can be used to be notified when the {@link Surface} associated with this view is
@@ -91,6 +94,8 @@ public final class SphericalSurfaceView extends GLSurfaceView
   private final PhoneOrientationListener phoneOrientationListener;
   private final Renderer renderer;
   private final Handler mainHandler;
+  private final TimedValueQueue<Long> sampleTimestampQueue;
+  private final FrameRotationQueue frameRotationQueue;
   private final TouchTracker touchTracker;
   private @Nullable SurfaceListener surfaceListener;
   private @Nullable SurfaceTexture surfaceTexture;
@@ -105,9 +110,6 @@ public final class SphericalSurfaceView extends GLSurfaceView
 
   public SphericalSurfaceView(Context context, @Nullable AttributeSet attributeSet) {
     super(context, attributeSet);
-
-    defaultStereoMode = C.STEREO_MODE_MONO;
-    currentStereoMode = C.STEREO_MODE_MONO;
     mainHandler = new Handler(Looper.getMainLooper());
 
     // Configure sensors and touch.
@@ -120,7 +122,13 @@ public final class SphericalSurfaceView extends GLSurfaceView
     int type = Util.SDK_INT >= 18 ? Sensor.TYPE_GAME_ROTATION_VECTOR : Sensor.TYPE_ROTATION_VECTOR;
     orientationSensor = sensorManager.getDefaultSensor(type);
 
-    renderer = new Renderer();
+    defaultStereoMode = C.STEREO_MODE_MONO;
+    currentStereoMode = defaultStereoMode;
+    Projection projection = Projection.createEquirectangular(defaultStereoMode);
+    frameRotationQueue = new FrameRotationQueue();
+    sampleTimestampQueue = new TimedValueQueue<>();
+    SceneRenderer scene = new SceneRenderer(projection, frameRotationQueue, sampleTimestampQueue);
+    renderer = new Renderer(scene);
 
     touchTracker = new TouchTracker(context, renderer, PX_PER_DEGREES);
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -161,10 +169,27 @@ public final class SphericalSurfaceView extends GLSurfaceView
     touchTracker.setSingleTapListener(listener);
   }
 
+  // VideoFrameMetadataListener implementation.
+
   @Override
   public void onVideoFrameAboutToBeRendered(
       long presentationTimeUs, long releaseTimeNs, Format format) {
+    sampleTimestampQueue.add(releaseTimeNs, presentationTimeUs);
     setProjection(format.projectionData, format.stereoMode, releaseTimeNs);
+  }
+
+  // CameraMotionListener implementation.
+
+  @Override
+  public void onCameraMotion(long timeUs, float[] rotation) {
+    frameRotationQueue.setRotation(timeUs, rotation);
+  }
+
+  @Override
+  public void onCameraMotionReset() {
+    sampleTimestampQueue.clear();
+    frameRotationQueue.reset();
+    queueEvent(renderer.scene::resetRotation);
   }
 
   @Override
@@ -354,8 +379,8 @@ public final class SphericalSurfaceView extends GLSurfaceView
     private final float[] viewMatrix = new float[16];
     private final float[] tempMatrix = new float[16];
 
-    public Renderer() {
-      scene = new SceneRenderer(Projection.createEquirectangular(C.STEREO_MODE_MONO));
+    public Renderer(SceneRenderer scene) {
+      this.scene = scene;
       Matrix.setIdentityM(deviceOrientationMatrix, 0);
       Matrix.setIdentityM(touchPitchMatrix, 0);
       Matrix.setIdentityM(touchYawMatrix, 0);

@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
+import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
@@ -595,34 +596,22 @@ public final class C {
    */
   public static final int DATA_TYPE_CUSTOM_BASE = 10000;
 
-  /**
-   * A type constant for tracks of unknown type.
-   */
+  /** A type constant for tracks of unknown type. */
   public static final int TRACK_TYPE_UNKNOWN = -1;
-  /**
-   * A type constant for tracks of some default type, where the type itself is unknown.
-   */
+  /** A type constant for tracks of some default type, where the type itself is unknown. */
   public static final int TRACK_TYPE_DEFAULT = 0;
-  /**
-   * A type constant for audio tracks.
-   */
+  /** A type constant for audio tracks. */
   public static final int TRACK_TYPE_AUDIO = 1;
-  /**
-   * A type constant for video tracks.
-   */
+  /** A type constant for video tracks. */
   public static final int TRACK_TYPE_VIDEO = 2;
-  /**
-   * A type constant for text tracks.
-   */
+  /** A type constant for text tracks. */
   public static final int TRACK_TYPE_TEXT = 3;
-  /**
-   * A type constant for metadata tracks.
-   */
+  /** A type constant for metadata tracks. */
   public static final int TRACK_TYPE_METADATA = 4;
-  /**
-   * A type constant for a dummy or empty track.
-   */
-  public static final int TRACK_TYPE_NONE = 5;
+  /** A type constant for camera motion tracks. */
+  public static final int TRACK_TYPE_CAMERA_MOTION = 5;
+  /** A type constant for a dummy or empty track. */
+  public static final int TRACK_TYPE_NONE = 6;
   /**
    * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
    * equal to this value.
@@ -655,36 +644,27 @@ public final class C {
    */
   public static final int SELECTION_REASON_CUSTOM_BASE = 10000;
 
-  /**
-   * A default size in bytes for an individual allocation that forms part of a larger buffer.
-   */
+  /** A default size in bytes for an individual allocation that forms part of a larger buffer. */
   public static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
 
-  /**
-   * A default size in bytes for a video buffer.
-   */
+  /** A default size in bytes for a video buffer. */
   public static final int DEFAULT_VIDEO_BUFFER_SIZE = 200 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
-  /**
-   * A default size in bytes for an audio buffer.
-   */
+  /** A default size in bytes for an audio buffer. */
   public static final int DEFAULT_AUDIO_BUFFER_SIZE = 54 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
-  /**
-   * A default size in bytes for a text buffer.
-   */
+  /** A default size in bytes for a text buffer. */
   public static final int DEFAULT_TEXT_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
-  /**
-   * A default size in bytes for a metadata buffer.
-   */
+  /** A default size in bytes for a metadata buffer. */
   public static final int DEFAULT_METADATA_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
 
-  /**
-   * A default size in bytes for a muxed buffer (e.g. containing video, audio and text).
-   */
-  public static final int DEFAULT_MUXED_BUFFER_SIZE = DEFAULT_VIDEO_BUFFER_SIZE
-      + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
+  /** A default size in bytes for a camera motion buffer. */
+  public static final int DEFAULT_CAMERA_MOTION_BUFFER_SIZE = 2 * DEFAULT_BUFFER_SEGMENT_SIZE;
+
+  /** A default size in bytes for a muxed buffer (e.g. containing video, audio and text). */
+  public static final int DEFAULT_MUXED_BUFFER_SIZE =
+      DEFAULT_VIDEO_BUFFER_SIZE + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
 
   /** "cenc" scheme type name as defined in ISO/IEC 23001-7:2016. */
   @SuppressWarnings("ConstantField")
@@ -797,6 +777,13 @@ public final class C {
    * VideoFrameMetadataListener} instance, or null.
    */
   public static final int MSG_SET_VIDEO_FRAME_METADATA_LISTENER = 6;
+
+  /**
+   * The type of a message that can be passed to a camera motion {@link Renderer} via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be a {@link CameraMotionListener}
+   * instance, or null.
+   */
+  public static final int MSG_SET_CAMERA_MOTION_LISTENER = 7;
 
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
