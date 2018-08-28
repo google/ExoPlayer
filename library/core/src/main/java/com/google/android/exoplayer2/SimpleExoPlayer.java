@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -107,6 +108,7 @@ public class SimpleExoPlayer
   private MediaSource mediaSource;
   private List<Cue> currentCues;
   private VideoFrameMetadataListener videoFrameMetadataListener;
+  private CameraMotionListener cameraMotionListener;
 
   /**
    * @param context A {@link Context}.
@@ -591,6 +593,36 @@ public class SimpleExoPlayer
         player
             .createMessage(renderer)
             .setType(C.MSG_SET_VIDEO_FRAME_METADATA_LISTENER)
+            .setPayload(null)
+            .send();
+      }
+    }
+  }
+
+  @Override
+  public void setCameraMotionListener(CameraMotionListener listener) {
+    cameraMotionListener = listener;
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_CAMERA_MOTION) {
+        player
+            .createMessage(renderer)
+            .setType(C.MSG_SET_CAMERA_MOTION_LISTENER)
+            .setPayload(listener)
+            .send();
+      }
+    }
+  }
+
+  @Override
+  public void clearCameraMotionListener(CameraMotionListener listener) {
+    if (cameraMotionListener != listener) {
+      return;
+    }
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_CAMERA_MOTION) {
+        player
+            .createMessage(renderer)
+            .setType(C.MSG_SET_CAMERA_MOTION_LISTENER)
             .setPayload(null)
             .send();
       }

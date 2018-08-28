@@ -98,7 +98,8 @@
 * Use default Deserializers if non given to DownloadManager.
 * 360:
   * Add monoscopic 360 surface type to PlayerView.
-  * Support VR180 videos.
+  * Support 
+  [VR180 video format](https://github.com/google/spatial-media/blob/master/docs/vr180.md).
 * Deprecate `Player.DefaultEventListener` as selective listener overrides can
   be directly made with the `Player.EventListener` interface.
 * Deprecate `DefaultAnalyticsListener` as selective listener overrides can be

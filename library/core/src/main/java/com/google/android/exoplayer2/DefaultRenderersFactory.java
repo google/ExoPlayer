@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.android.exoplayer2.video.spherical.CameraMotionRenderer;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
@@ -182,6 +183,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
         extensionRendererMode, renderersList);
     buildMetadataRenderers(context, metadataRendererOutput, eventHandler.getLooper(),
         extensionRendererMode, renderersList);
+    buildCameraMotionRenderers(context, extensionRendererMode, renderersList);
     buildMiscellaneousRenderers(context, eventHandler, extensionRendererMode, renderersList);
     return renderersList.toArray(new Renderer[renderersList.size()]);
   }
@@ -360,12 +362,14 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *
    * @param context The {@link Context} associated with the player.
    * @param output An output for the renderers.
-   * @param outputLooper The looper associated with the thread on which the output should be
-   *     called.
+   * @param outputLooper The looper associated with the thread on which the output should be called.
    * @param extensionRendererMode The extension renderer mode.
    * @param out An array to which the built renderers should be appended.
    */
-  protected void buildTextRenderers(Context context, TextOutput output, Looper outputLooper,
+  protected void buildTextRenderers(
+      Context context,
+      TextOutput output,
+      Looper outputLooper,
       @ExtensionRendererMode int extensionRendererMode,
       ArrayList<Renderer> out) {
     out.add(new TextRenderer(output, outputLooper));
@@ -376,14 +380,29 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *
    * @param context The {@link Context} associated with the player.
    * @param output An output for the renderers.
-   * @param outputLooper The looper associated with the thread on which the output should be
-   *     called.
+   * @param outputLooper The looper associated with the thread on which the output should be called.
    * @param extensionRendererMode The extension renderer mode.
    * @param out An array to which the built renderers should be appended.
    */
-  protected void buildMetadataRenderers(Context context, MetadataOutput output, Looper outputLooper,
-      @ExtensionRendererMode int extensionRendererMode, ArrayList<Renderer> out) {
+  protected void buildMetadataRenderers(
+      Context context,
+      MetadataOutput output,
+      Looper outputLooper,
+      @ExtensionRendererMode int extensionRendererMode,
+      ArrayList<Renderer> out) {
     out.add(new MetadataRenderer(output, outputLooper));
+  }
+
+  /**
+   * Builds camera motion renderers for use by the player.
+   *
+   * @param context The {@link Context} associated with the player.
+   * @param extensionRendererMode The extension renderer mode.
+   * @param out An array to which the built renderers should be appended.
+   */
+  protected void buildCameraMotionRenderers(
+      Context context, @ExtensionRendererMode int extensionRendererMode, ArrayList<Renderer> out) {
+    out.add(new CameraMotionRenderer());
   }
 
   /**

@@ -19,9 +19,12 @@ import static com.google.android.exoplayer2.ui.spherical.GlUtil.checkGlError;
 
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ui.spherical.ProjectionRenderer.EyeType;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.TimedValueQueue;
+import com.google.android.exoplayer2.video.spherical.FrameRotationQueue;
 import com.google.android.exoplayer2.video.spherical.Projection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -35,17 +38,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final AtomicBoolean frameAvailable;
   private final ProjectionRenderer projectionRenderer;
+  private final FrameRotationQueue frameRotationQueue;
+  private final TimedValueQueue<Long> sampleTimestampQueue;
+  private final float[] rotationMatrix;
+  private final float[] tempMatrix;
 
   private int textureId;
   private @MonotonicNonNull SurfaceTexture surfaceTexture;
   private @Nullable Projection pendingProjection;
   private long pendingProjectionTimeNs;
   private long lastFrameTimestamp;
+  private boolean resetRotationAtNextFrame;
 
-  public SceneRenderer(Projection projection) {
+  public SceneRenderer(
+      Projection projection,
+      FrameRotationQueue frameRotationQueue,
+      TimedValueQueue<Long> sampleTimestampQueue) {
+    this.frameRotationQueue = frameRotationQueue;
+    this.sampleTimestampQueue = sampleTimestampQueue;
     frameAvailable = new AtomicBoolean();
     projectionRenderer = new ProjectionRenderer();
     projectionRenderer.setProjection(projection);
+    rotationMatrix = new float[16];
+    tempMatrix = new float[16];
+    resetRotation();
   }
 
   /** Initializes the renderer. */
@@ -61,6 +77,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     surfaceTexture = new SurfaceTexture(textureId);
     surfaceTexture.setOnFrameAvailableListener(surfaceTexture -> frameAvailable.set(true));
     return surfaceTexture;
+  }
+
+  public void resetRotation() {
+    resetRotationAtNextFrame = true;
   }
 
   /** Sets a {@link Projection} to be used to display video. */
@@ -84,13 +104,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (frameAvailable.compareAndSet(true, false)) {
       Assertions.checkNotNull(surfaceTexture).updateTexImage();
       checkGlError();
+      if (resetRotationAtNextFrame) {
+        Matrix.setIdentityM(rotationMatrix, 0);
+      }
       lastFrameTimestamp = surfaceTexture.getTimestamp();
+      Long sampleTimestamp = sampleTimestampQueue.poll(lastFrameTimestamp);
+      if (sampleTimestamp != null) {
+        frameRotationQueue.pollRotationMatrix(rotationMatrix, sampleTimestamp);
+      }
     }
     if (pendingProjection != null && pendingProjectionTimeNs <= lastFrameTimestamp) {
       projectionRenderer.setProjection(pendingProjection);
       pendingProjection = null;
     }
-
-    projectionRenderer.draw(textureId, viewProjectionMatrix, eyeType);
+    Matrix.multiplyMM(tempMatrix, 0, viewProjectionMatrix, 0, rotationMatrix, 0);
+    projectionRenderer.draw(textureId, tempMatrix, eyeType);
   }
 }

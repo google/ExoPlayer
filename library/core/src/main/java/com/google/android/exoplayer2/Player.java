@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
+import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -184,6 +185,21 @@ public interface Player {
      * @param listener The listener to clear.
      */
     void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener);
+
+    /**
+     * Sets a listener of camera motion events.
+     *
+     * @param listener The listener.
+     */
+    void setCameraMotionListener(CameraMotionListener listener);
+
+    /**
+     * Clears the listener which receives camera motion events if it matches the one passed. Else
+     * does nothing.
+     *
+     * @param listener The listener to clear.
+     */
+    void clearCameraMotionListener(CameraMotionListener listener);
 
     /**
      * Clears any {@link Surface}, {@link SurfaceHolder}, {@link SurfaceView} or {@link TextureView}

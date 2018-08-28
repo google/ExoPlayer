@@ -599,6 +599,8 @@ public class EventLogger implements AnalyticsListener {
         return "default";
       case C.TRACK_TYPE_METADATA:
         return "metadata";
+      case C.TRACK_TYPE_CAMERA_MOTION:
+        return "camera motion";
       case C.TRACK_TYPE_NONE:
         return "none";
       case C.TRACK_TYPE_TEXT:
