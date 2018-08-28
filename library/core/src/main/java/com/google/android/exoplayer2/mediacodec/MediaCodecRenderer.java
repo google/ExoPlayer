@@ -292,12 +292,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private @AdaptationWorkaroundMode int codecAdaptationWorkaroundMode;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
-  private boolean codecNeedsEosPropagationWorkaround;
   private boolean codecNeedsEosFlushWorkaround;
   private boolean codecNeedsEosOutputExceptionWorkaround;
   private boolean codecNeedsMonoChannelCountWorkaround;
   private boolean codecNeedsAdaptationWorkaroundBuffer;
   private boolean shouldSkipAdaptationWorkaroundOutputBuffer;
+  private boolean codecNeedsEosPropagation;
   private ByteBuffer[] inputBuffers;
   private ByteBuffer[] outputBuffers;
   private long codecHotswapDeadlineMs;
@@ -468,10 +468,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecAdaptationWorkaroundMode = codecAdaptationWorkaroundMode(codecName);
     codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
-    codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(codecInfo);
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
     codecNeedsEosOutputExceptionWorkaround = codecNeedsEosOutputExceptionWorkaround(codecName);
     codecNeedsMonoChannelCountWorkaround = codecNeedsMonoChannelCountWorkaround(codecName, format);
+    codecNeedsEosPropagation =
+        codecNeedsEosPropagationWorkaround(codecInfo) || getCodecNeedsEosPropagation();
     codecHotswapDeadlineMs =
         getState() == STATE_STARTED
             ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS)
@@ -484,6 +485,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   protected boolean shouldInitCodec(MediaCodecInfo codecInfo) {
     return true;
+  }
+
+  /**
+   * Returns whether the codec needs the renderer to propagate the end-of-stream signal directly,
+   * rather than by using an end-of-stream buffer queued to the codec.
+   */
+  protected boolean getCodecNeedsEosPropagation() {
+    return false;
   }
 
   protected final MediaCodec getCodec() {
@@ -553,11 +562,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecNeedsDiscardToSpsWorkaround = false;
     codecNeedsFlushWorkaround = false;
     codecAdaptationWorkaroundMode = ADAPTATION_WORKAROUND_MODE_NEVER;
-    codecNeedsEosPropagationWorkaround = false;
     codecNeedsEosFlushWorkaround = false;
     codecNeedsMonoChannelCountWorkaround = false;
     codecNeedsAdaptationWorkaroundBuffer = false;
     shouldSkipAdaptationWorkaroundOutputBuffer = false;
+    codecNeedsEosPropagation = false;
     codecReceivedEos = false;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     codecReinitializationState = REINITIALIZATION_STATE_NONE;
@@ -855,7 +864,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codecReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
       // We need to re-initialize the codec. Send an end of stream signal to the existing codec so
       // that it outputs any remaining buffers before we release it.
-      if (codecNeedsEosPropagationWorkaround) {
+      if (codecNeedsEosPropagation) {
         // Do nothing.
       } else {
         codecReceivedEos = true;
@@ -923,7 +932,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         return false;
       }
       try {
-        if (codecNeedsEosPropagationWorkaround) {
+        if (codecNeedsEosPropagation) {
           // Do nothing.
         } else {
           codecReceivedEos = true;
@@ -1254,7 +1263,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           return true;
         }
         /* MediaCodec.INFO_TRY_AGAIN_LATER (-1) or unknown negative return value */
-        if (codecNeedsEosPropagationWorkaround
+        if (codecNeedsEosPropagation
             && (inputStreamEnded
                 || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM)) {
           processEndOfStream();
