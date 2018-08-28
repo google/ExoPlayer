@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.Chunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -324,8 +325,16 @@ import java.util.List;
         boolean primarySampleQueueDirty = false;
         if (!seenFirstTrackSelection) {
           long bufferedDurationUs = positionUs < 0 ? -positionUs : 0;
-          primaryTrackSelection.updateSelectedTrack(positionUs, bufferedDurationUs, C.TIME_UNSET);
-          int chunkIndex = chunkSource.getTrackGroup().indexOf(getLastMediaChunk().trackFormat);
+          HlsMediaChunk lastMediaChunk = getLastMediaChunk();
+          MediaChunkIterator[] mediaChunkIterators =
+              chunkSource.createMediaChunkIterators(lastMediaChunk, positionUs);
+          primaryTrackSelection.updateSelectedTrack(
+              positionUs,
+              bufferedDurationUs,
+              C.TIME_UNSET,
+              readOnlyMediaChunks,
+              mediaChunkIterators);
+          int chunkIndex = chunkSource.getTrackGroup().indexOf(lastMediaChunk.trackFormat);
           if (primaryTrackSelection.getSelectedIndexInTrackGroup() != chunkIndex) {
             // This is the first selection and the chunk loaded during preparation does not match
             // the initially selected format.

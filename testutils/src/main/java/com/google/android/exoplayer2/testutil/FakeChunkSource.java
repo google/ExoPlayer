@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.SingleSampleMediaChunk;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -109,11 +110,17 @@ public final class FakeChunkSource implements ChunkSource {
       List<? extends MediaChunk> queue,
       ChunkHolder out) {
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
-    trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, C.TIME_UNSET);
     int chunkIndex =
         queue.isEmpty()
             ? dataSet.getChunkIndexByPosition(playbackPositionUs)
             : (int) queue.get(queue.size() - 1).getNextChunkIndex();
+    MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
+    for (int i = 0; i < chunkIterators.length; i++) {
+      int trackGroupIndex = trackSelection.getIndexInTrackGroup(i);
+      chunkIterators[i] = new FakeAdaptiveDataSet.Iterator(dataSet, trackGroupIndex, chunkIndex);
+    }
+    trackSelection.updateSelectedTrack(
+        playbackPositionUs, bufferedDurationUs, C.TIME_UNSET, queue, chunkIterators);
     if (chunkIndex >= dataSet.getChunkCount()) {
       out.endOfStream = true;
     } else {
