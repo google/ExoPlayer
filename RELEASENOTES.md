@@ -133,6 +133,9 @@
 * Provide additional information for adaptive track selection.
   `TrackSelection.updateSelectedTrack` has two new parameters for the current
   queue of media chunks and iterators for information about upcoming chunks.
+* Prevent potential issues when reporting events for multi-period media sources
+  ([#4492](https://github.com/google/ExoPlayer/issues/4492) and
+  [#4634](https://github.com/google/ExoPlayer/issues/4634)).
 
 ### 2.8.4 ###
 
