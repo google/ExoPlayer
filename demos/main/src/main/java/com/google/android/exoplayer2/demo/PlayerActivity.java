@@ -63,6 +63,9 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistParserFactory;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
+import com.google.android.exoplayer2.source.rtsp.RtspDefaultClient;
+import com.google.android.exoplayer2.source.rtsp.RtspMediaSource;
+import com.google.android.exoplayer2.source.rtsp.api.Client;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
@@ -494,7 +497,15 @@ public class PlayerActivity extends Activity
                 new DefaultHlsPlaylistParserFactory(getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_OTHER:
-        return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+        if (uri.getScheme().equals("rtsp")) {
+          return new RtspMediaSource.Factory(RtspDefaultClient.factory()
+                  .setFlags(Client.FLAG_ENABLE_RTCP_SUPPORT)
+                  .setNatMethod(Client.RTSP_NAT_DUMMY))
+                  .createMediaSource(uri);
+        } else {
+          return new ExtractorMediaSource.Factory(dataSourceFactory)
+                  .createMediaSource(uri);
+        }
       default: {
         throw new IllegalStateException("Unsupported type: " + type);
       }

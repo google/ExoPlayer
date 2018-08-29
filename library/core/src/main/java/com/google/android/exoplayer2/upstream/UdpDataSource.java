@@ -27,12 +27,16 @@ import java.net.MulticastSocket;
 import java.net.SocketException;
 
 /** A UDP {@link DataSource}. */
-public final class UdpDataSource extends BaseDataSource {
+public class UdpDataSource extends BaseDataSource {
 
   /**
    * Thrown when an error is encountered when trying to read from a {@link UdpDataSource}.
    */
   public static final class UdpDataSourceException extends IOException {
+
+    public UdpDataSourceException(String message) {
+      super(message);
+    }
 
     public UdpDataSourceException(IOException cause) {
       super(cause);
@@ -53,7 +57,7 @@ public final class UdpDataSource extends BaseDataSource {
   private final DatagramPacket packet;
 
   private @Nullable Uri uri;
-  private @Nullable DatagramSocket socket;
+  protected @Nullable DatagramSocket socket;
   private @Nullable MulticastSocket multicastSocket;
   private @Nullable InetAddress address;
   private @Nullable InetSocketAddress socketAddress;
@@ -146,7 +150,12 @@ public final class UdpDataSource extends BaseDataSource {
         multicastSocket.joinGroup(address);
         socket = multicastSocket;
       } else {
-        socket = new DatagramSocket(socketAddress);
+        if (dataSpec.isFlagSet(DataSpec.FLAG_FORCE_BOUND_LOCAL_ADDRESS)) {
+          socket = new DatagramSocket(uri.getPort());
+        } else {
+          socket = new DatagramSocket();
+          socket.connect(socketAddress);
+        }
       }
     } catch (IOException e) {
       throw new UdpDataSourceException(e);

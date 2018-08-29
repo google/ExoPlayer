@@ -194,6 +194,16 @@ import java.util.ArrayList;
   }
 
   @Override
+  public void pause() {
+    // Do nothing.
+  }
+
+  @Override
+  public void resume() {
+    // Do nothing.
+  }
+
+  @Override
   public long seekToUs(long positionUs) {
     for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
       sampleStream.seekToUs(positionUs);

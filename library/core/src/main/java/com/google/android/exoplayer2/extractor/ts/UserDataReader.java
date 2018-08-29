@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.text.cea.CeaUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.TrackIdGenerator;
 import java.util.List;
 
 /** Consumes user data, outputting contained CEA-608/708 messages to a {@link TrackOutput}. */
@@ -39,7 +40,7 @@ import java.util.List;
   }
 
   public void createTracks(
-      ExtractorOutput extractorOutput, TsPayloadReader.TrackIdGenerator idGenerator) {
+      ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
     for (int i = 0; i < outputs.length; i++) {
       idGenerator.generateNewId();
       TrackOutput output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_TEXT);

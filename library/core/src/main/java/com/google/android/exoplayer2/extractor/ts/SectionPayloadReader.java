@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.android.exoplayer2.util.TrackIdGenerator;
 
 /**
  * Reads section data.
@@ -31,7 +31,7 @@ public interface SectionPayloadReader {
    *
    * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
    * @param extractorOutput The {@link ExtractorOutput} that receives the extracted data.
-   * @param idGenerator A {@link PesReader.TrackIdGenerator} that generates unique track ids for the
+   * @param idGenerator A {@link TrackIdGenerator} that generates unique track ids for the
    *     {@link TrackOutput}s.
    */
   void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,

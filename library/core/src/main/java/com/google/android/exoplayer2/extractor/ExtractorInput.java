@@ -122,6 +122,23 @@ public interface ExtractorInput {
    * Peeks {@code length} bytes from the peek position, writing them into {@code target} at index
    * {@code offset}. The current read position is left unchanged.
    * <p>
+   * Calling {@link #resetPeekPosition()} resets the peek position to equal the current read
+   * position, so the caller can peek the same data again. Reading or skipping also resets the peek
+   * position.
+   *
+   * @param target A target array into which data should be written.
+   * @param offset The offset into the target array at which to write.
+   * @param length The number of bytes to peek from the input.
+   * @return The number of bytes peeked, or {@link C#RESULT_END_OF_INPUT} if the input has ended.
+   * @throws IOException If an error occurs peeking from the input.
+   * @throws InterruptedException If the thread is interrupted.
+   */
+  int peek(byte[] target, int offset, int length) throws IOException, InterruptedException;
+
+  /**
+   * Peeks {@code length} bytes from the peek position, writing them into {@code target} at index
+   * {@code offset}. The current read position is left unchanged.
+   * <p>
    * If the end of the input is found having peeked no data, then behavior is dependent on
    * {@code allowEndOfInput}. If {@code allowEndOfInput == true} then {@code false} is returned.
    * Otherwise an {@link EOFException} is thrown.

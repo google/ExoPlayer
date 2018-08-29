@@ -35,7 +35,7 @@ package com.google.android.exoplayer2.upstream;
  *       DataSpec, boolean)}.
  * </ol>
  */
-public interface TransferListener {
+public interface TransferListener<T> {
 
   /**
    * Called when a transfer is being initialized.

@@ -411,14 +411,33 @@ import java.util.Collections;
     this.playWhenReady = playWhenReady;
     if (!playWhenReady) {
       stopRenderers();
+      setPauseInternal();
       updatePlaybackPositions();
     } else {
       if (playbackInfo.playbackState == Player.STATE_READY) {
         startRenderers();
+        setResumeInternal();
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       } else if (playbackInfo.playbackState == Player.STATE_BUFFERING) {
+        setResumeInternal();
         handler.sendEmptyMessage(MSG_DO_SOME_WORK);
       }
+    }
+  }
+
+  private void setPauseInternal(){
+    MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
+
+    if (playingPeriodHolder != null) {
+      playingPeriodHolder.mediaPeriod.pause();
+    }
+  }
+
+  private void setResumeInternal(){
+    MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
+
+    if (playingPeriodHolder != null) {
+      playingPeriodHolder.mediaPeriod.resume();
     }
   }
 
