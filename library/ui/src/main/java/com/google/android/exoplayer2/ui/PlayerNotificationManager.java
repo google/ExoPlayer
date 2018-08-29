@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -45,6 +43,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -203,14 +202,11 @@ public class PlayerNotificationManager {
     public void onBitmap(final Bitmap bitmap) {
       if (bitmap != null) {
         mainHandler.post(
-            new Runnable() {
-              @Override
-              public void run() {
-                if (player != null
-                    && notificationTag == currentNotificationTag
-                    && isNotificationStarted) {
-                  updateNotification(bitmap);
-                }
+            () -> {
+              if (player != null
+                  && notificationTag == currentNotificationTag
+                  && isNotificationStarted) {
+                updateNotification(bitmap);
               }
             });
       }
@@ -232,8 +228,12 @@ public class PlayerNotificationManager {
   /** The action which cancels the notification and stops playback. */
   public static final String ACTION_STOP = "com.google.android.exoplayer.stop";
 
-  /** Visibility of notification on the lock screen. */
-  @Retention(SOURCE)
+  /**
+   * Visibility of notification on the lock screen. One of {@link
+   * NotificationCompat#VISIBILITY_PRIVATE}, {@link NotificationCompat#VISIBILITY_PUBLIC} or {@link
+   * NotificationCompat#VISIBILITY_SECRET}.
+   */
+  @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     NotificationCompat.VISIBILITY_PRIVATE,
     NotificationCompat.VISIBILITY_PUBLIC,
@@ -241,8 +241,13 @@ public class PlayerNotificationManager {
   })
   public @interface Visibility {}
 
-  /** Priority of the notification (required for API 25 and lower). */
-  @Retention(SOURCE)
+  /**
+   * Priority of the notification (required for API 25 and lower). One of {@link
+   * NotificationCompat#PRIORITY_DEFAULT}, {@link NotificationCompat#PRIORITY_MAX}, {@link
+   * NotificationCompat#PRIORITY_HIGH}, {@link NotificationCompat#PRIORITY_LOW }or {@link
+   * NotificationCompat#PRIORITY_MIN}.
+   */
+  @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     NotificationCompat.PRIORITY_DEFAULT,
     NotificationCompat.PRIORITY_MAX,

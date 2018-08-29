@@ -59,6 +59,7 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
+import com.google.android.exoplayer2.ui.spherical.SingleTapListener;
 import com.google.android.exoplayer2.ui.spherical.SphericalSurfaceView;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
@@ -243,9 +244,12 @@ public class PlayerView extends FrameLayout {
   private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
   private static final int SURFACE_TYPE_MONO360_VIEW = 3;
 
-  /** Determines when the buffering view is shown. */
-  @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
+  /**
+   * Determines when the buffering view is shown. One of {@link #SHOW_BUFFERING_NEVER}, {@link
+   * #SHOW_BUFFERING_WHEN_PLAYING} or {@link #SHOW_BUFFERING_ALWAYS}.
+   */
   @Retention(RetentionPolicy.SOURCE)
+  @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
   public @interface ShowBuffering {}
   /** The buffering view is never shown. */
   public static final int SHOW_BUFFERING_NEVER = 0;
@@ -387,6 +391,7 @@ public class PlayerView extends FrameLayout {
           Assertions.checkState(Util.SDK_INT >= 15);
           SphericalSurfaceView sphericalSurfaceView = new SphericalSurfaceView(context);
           sphericalSurfaceView.setSurfaceListener(componentListener);
+          sphericalSurfaceView.setSingleTapListener(componentListener);
           surfaceView = sphericalSurfaceView;
           break;
         default:
@@ -509,6 +514,8 @@ public class PlayerView extends FrameLayout {
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalSurfaceView) {
           oldVideoComponent.clearVideoSurface(((SphericalSurfaceView) surfaceView).getSurface());
+          oldVideoComponent.clearVideoFrameMetadataListener(((SphericalSurfaceView) surfaceView));
+          oldVideoComponent.clearCameraMotionListener(((SphericalSurfaceView) surfaceView));
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -534,6 +541,8 @@ public class PlayerView extends FrameLayout {
         if (surfaceView instanceof TextureView) {
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalSurfaceView) {
+          newVideoComponent.setVideoFrameMetadataListener(((SphericalSurfaceView) surfaceView));
+          newVideoComponent.setCameraMotionListener(((SphericalSurfaceView) surfaceView));
           newVideoComponent.setVideoSurface(((SphericalSurfaceView) surfaceView).getSurface());
         } else if (surfaceView instanceof SurfaceView) {
           newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
@@ -595,7 +604,7 @@ public class PlayerView extends FrameLayout {
   }
 
   /** Returns the default artwork to display. */
-  public Drawable getDefaultArtwork() {
+  public @Nullable Drawable getDefaultArtwork() {
     return defaultArtwork;
   }
 
@@ -1016,15 +1025,10 @@ public class PlayerView extends FrameLayout {
 
   @Override
   public boolean onTouchEvent(MotionEvent ev) {
-    if (!useController || player == null || ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
+    if (ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
       return false;
     }
-    if (!controller.isVisible()) {
-      maybeShowController(true);
-    } else if (controllerHideOnTouch) {
-      controller.hide();
-    }
-    return true;
+    return toggleControllerVisibility();
   }
 
   @Override
@@ -1060,6 +1064,18 @@ public class PlayerView extends FrameLayout {
     if (surfaceView instanceof SphericalSurfaceView) {
       ((SphericalSurfaceView) surfaceView).onPause();
     }
+  }
+
+  private boolean toggleControllerVisibility() {
+    if (!useController || player == null) {
+      return false;
+    }
+    if (!controller.isVisible()) {
+      maybeShowController(true);
+    } else if (controllerHideOnTouch) {
+      controller.hide();
+    }
+    return true;
   }
 
   /** Shows the playback controls, but only if forced or shown indefinitely. */
@@ -1281,7 +1297,8 @@ public class PlayerView extends FrameLayout {
           TextOutput,
           VideoListener,
           OnLayoutChangeListener,
-          SphericalSurfaceView.SurfaceListener {
+          SphericalSurfaceView.SurfaceListener,
+          SingleTapListener {
 
     // TextOutput implementation
 
@@ -1385,6 +1402,13 @@ public class PlayerView extends FrameLayout {
           videoComponent.setVideoSurface(surface);
         }
       }
+    }
+
+    // SingleTapListener implementation
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+      return toggleControllerVisibility();
     }
   }
 }

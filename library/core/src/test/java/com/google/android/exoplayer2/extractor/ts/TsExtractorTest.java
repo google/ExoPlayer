@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
-import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
@@ -50,14 +49,7 @@ public final class TsExtractorTest {
 
   @Test
   public void testSample() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new TsExtractor();
-          }
-        },
-        "ts/sample.ts");
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample.ts");
   }
 
   @Test
@@ -82,15 +74,7 @@ public final class TsExtractorTest {
     fileData = out.toByteArray();
 
     ExtractorAsserts.assertOutput(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new TsExtractor();
-          }
-        },
-        "ts/sample.ts",
-        fileData,
-        RuntimeEnvironment.application);
+        TsExtractor::new, "ts/sample.ts", fileData, RuntimeEnvironment.application);
   }
 
   @Test

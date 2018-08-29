@@ -190,11 +190,15 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public void sendMessages(ExoPlayerMessage... messages) {
     throw new UnsupportedOperationException();
   }
 
   @Override
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public void blockingSendMessages(ExoPlayerMessage... messages) {
     throw new UnsupportedOperationException();
   }
@@ -296,6 +300,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
   public int getCurrentAdIndexInAdGroup() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long getContentDuration() {
     throw new UnsupportedOperationException();
   }
 

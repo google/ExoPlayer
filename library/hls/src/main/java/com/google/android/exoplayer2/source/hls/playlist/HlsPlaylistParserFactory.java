@@ -20,20 +20,6 @@ import com.google.android.exoplayer2.upstream.ParsingLoadable;
 /** Factory for {@link HlsPlaylist} parsers. */
 public interface HlsPlaylistParserFactory {
 
-  HlsPlaylistParserFactory DEFAULT =
-      new HlsPlaylistParserFactory() {
-        @Override
-        public ParsingLoadable.Parser<HlsPlaylist> createPlaylistParser() {
-          return new HlsPlaylistParser();
-        }
-
-        @Override
-        public ParsingLoadable.Parser<HlsPlaylist> createPlaylistParser(
-            HlsMasterPlaylist masterPlaylist) {
-          return new HlsPlaylistParser(masterPlaylist);
-        }
-      };
-
   /**
    * Returns a stand-alone playlist parser. Playlists parsed by the returned parser do not inherit
    * any attributes from other playlists.

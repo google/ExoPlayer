@@ -250,6 +250,7 @@ public final class Cea608Decoder extends CeaDecoder {
     return new CeaSubtitle(cues);
   }
 
+  @SuppressWarnings("ByteBufferBackingArray")
   @Override
   protected void decode(SubtitleInputBuffer inputBuffer) {
     ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());

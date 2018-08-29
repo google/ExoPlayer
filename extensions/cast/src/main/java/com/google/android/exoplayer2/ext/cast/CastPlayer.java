@@ -568,6 +568,11 @@ public final class CastPlayer implements Player {
   }
 
   @Override
+  public long getContentDuration() {
+    return getDuration();
+  }
+
+  @Override
   public boolean isLoading() {
     return false;
   }
@@ -838,7 +843,6 @@ public final class CastPlayer implements Player {
 
     @Override
     public void onAdBreakStatusUpdated() {}
-
 
     // SessionManagerListener implementation.
 

@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -111,8 +112,9 @@ public class FakeMediaSource extends BaseMediaSource {
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
-    Assertions.checkIndex(id.periodIndex, 0, timeline.getPeriodCount());
-    Period period = timeline.getPeriod(id.periodIndex, new Period());
+    int periodIndex = timeline.getIndexOfPeriod(id.periodUid);
+    Assertions.checkArgument(periodIndex != C.INDEX_UNSET);
+    Period period = timeline.getPeriod(periodIndex, new Period());
     EventDispatcher eventDispatcher =
         createEventDispatcher(period.windowIndex, id, period.getPositionInWindowMs());
     FakeMediaPeriod mediaPeriod =
@@ -149,15 +151,12 @@ public class FakeMediaSource extends BaseMediaSource {
   public synchronized void setNewSourceInfo(final Timeline newTimeline, final Object newManifest) {
     if (sourceInfoRefreshHandler != null) {
       sourceInfoRefreshHandler.post(
-          new Runnable() {
-            @Override
-            public void run() {
-              assertThat(releasedSource).isFalse();
-              assertThat(preparedSource).isTrue();
-              timeline = newTimeline;
-              manifest = newManifest;
-              finishSourcePreparation();
-            }
+          () -> {
+            assertThat(releasedSource).isFalse();
+            assertThat(preparedSource).isTrue();
+            timeline = newTimeline;
+            manifest = newManifest;
+            finishSourcePreparation();
           });
     } else {
       timeline = newTimeline;
@@ -227,6 +226,7 @@ public class FakeMediaSource extends BaseMediaSource {
           new LoadEventInfo(
               FAKE_DATA_SPEC,
               FAKE_DATA_SPEC.uri,
+              /* responseHeaders= */ Collections.emptyMap(),
               elapsedRealTimeMs,
               /* loadDurationMs= */ 0,
               /* bytesLoaded= */ 0),
@@ -235,6 +235,7 @@ public class FakeMediaSource extends BaseMediaSource {
           new LoadEventInfo(
               FAKE_DATA_SPEC,
               FAKE_DATA_SPEC.uri,
+              /* responseHeaders= */ Collections.emptyMap(),
               elapsedRealTimeMs,
               /* loadDurationMs= */ 0,
               /* bytesLoaded= */ MANIFEST_LOAD_BYTES),

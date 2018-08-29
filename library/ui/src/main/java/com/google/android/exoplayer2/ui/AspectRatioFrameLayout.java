@@ -45,7 +45,11 @@ public final class AspectRatioFrameLayout extends FrameLayout {
   }
 
   // LINT.IfChange
-  /** Resize modes for {@link AspectRatioFrameLayout}. */
+  /**
+   * Resize modes for {@link AspectRatioFrameLayout}. One of {@link #RESIZE_MODE_FIT}, {@link
+   * #RESIZE_MODE_FIXED_WIDTH}, {@link #RESIZE_MODE_FIXED_HEIGHT}, {@link #RESIZE_MODE_FILL} or
+   * {@link #RESIZE_MODE_ZOOM}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     RESIZE_MODE_FIT,

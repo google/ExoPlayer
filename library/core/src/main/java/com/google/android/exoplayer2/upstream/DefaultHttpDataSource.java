@@ -168,6 +168,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *     #addTransferListener(TransferListener)}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultHttpDataSource(
       String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
@@ -190,6 +191,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *     #addTransferListener(TransferListener)}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultHttpDataSource(
       String userAgent,
       @Nullable Predicate<String> contentTypePredicate,
@@ -379,7 +381,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *
    * @return The current open connection, or null.
    */
-  protected final HttpURLConnection getConnection() {
+  protected final @Nullable HttpURLConnection getConnection() {
     return connection;
   }
 

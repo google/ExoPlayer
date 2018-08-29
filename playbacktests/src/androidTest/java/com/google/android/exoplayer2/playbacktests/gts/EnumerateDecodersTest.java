@@ -15,11 +15,13 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
+
 import android.media.MediaCodecInfo.AudioCapabilities;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
-import android.test.InstrumentationTestCase;
+import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
@@ -29,9 +31,13 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /** Tests enumeration of decoders using {@link MediaCodecUtil}. */
-public class EnumerateDecodersTest extends InstrumentationTestCase {
+@RunWith(AndroidJUnit4.class)
+public class EnumerateDecodersTest {
 
   private static final String TAG = "EnumerateDecodersTest";
 
@@ -40,14 +46,14 @@ public class EnumerateDecodersTest extends InstrumentationTestCase {
 
   private MetricsLogger metricsLogger;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() {
     metricsLogger =
         MetricsLogger.Factory.createDefault(
             getInstrumentation(), TAG, REPORT_NAME, REPORT_OBJECT_NAME);
   }
 
+  @Test
   public void testEnumerateDecoders() throws Exception {
     enumerateDecoders(MimeTypes.VIDEO_H263);
     enumerateDecoders(MimeTypes.VIDEO_H264);
@@ -82,33 +88,44 @@ public class EnumerateDecodersTest extends InstrumentationTestCase {
   }
 
   private void enumerateDecoders(String mimeType) throws DecoderQueryException {
-    logDecoderInfos(MediaCodecUtil.getDecoderInfos(mimeType, /* secure= */ false));
-    logDecoderInfos(MediaCodecUtil.getDecoderInfos(mimeType, /* secure= */ true));
+    logDecoderInfos(mimeType, /* secure= */ false);
+    logDecoderInfos(mimeType, /* secure= */ true);
   }
 
-  private void logDecoderInfos(List<MediaCodecInfo> mediaCodecInfos) {
+  private void logDecoderInfos(String mimeType, boolean secure) throws DecoderQueryException {
+    List<MediaCodecInfo> mediaCodecInfos = MediaCodecUtil.getDecoderInfos(mimeType, secure);
     for (MediaCodecInfo mediaCodecInfo : mediaCodecInfos) {
       CodecCapabilities capabilities = Assertions.checkNotNull(mediaCodecInfo.capabilities);
       metricsLogger.logMetric(
-          "capabilities_" + mediaCodecInfo.name, codecCapabilitiesToString(capabilities));
+          "capabilities_" + mediaCodecInfo.name, codecCapabilitiesToString(mimeType, capabilities));
     }
   }
 
-  private static String codecCapabilitiesToString(CodecCapabilities codecCapabilities) {
-    String mimeType = codecCapabilities.getMimeType();
-    boolean isVideo = MimeTypes.isVideo(mimeType);
-    boolean isAudio = MimeTypes.isAudio(mimeType);
+  private static String codecCapabilitiesToString(
+      String requestedMimeType, CodecCapabilities codecCapabilities) {
+    boolean isVideo = MimeTypes.isVideo(requestedMimeType);
+    boolean isAudio = MimeTypes.isAudio(requestedMimeType);
     StringBuilder result = new StringBuilder();
-    result.append("[mimeType=").append(mimeType).append(", profileLevels=");
-    profileLevelsToString(codecCapabilities.profileLevels, result);
-    result.append(", maxSupportedInstances=").append(codecCapabilities.getMaxSupportedInstances());
-    if (isVideo) {
-      result.append(", videoCapabilities=");
-      videoCapabilitiesToString(codecCapabilities.getVideoCapabilities(), result);
-      result.append(", colorFormats=").append(Arrays.toString(codecCapabilities.colorFormats));
-    } else if (isAudio) {
-      result.append(", audioCapabilities=");
-      audioCapabilitiesToString(codecCapabilities.getAudioCapabilities(), result);
+    result.append("[requestedMimeType=").append(requestedMimeType);
+    if (Util.SDK_INT >= 21) {
+      result.append(", mimeType=").append(codecCapabilities.getMimeType());
+    }
+    result.append(", profileLevels=");
+    appendProfileLevels(codecCapabilities.profileLevels, result);
+    if (Util.SDK_INT >= 23) {
+      result
+          .append(", maxSupportedInstances=")
+          .append(codecCapabilities.getMaxSupportedInstances());
+    }
+    if (Util.SDK_INT >= 21) {
+      if (isVideo) {
+        result.append(", videoCapabilities=");
+        appendVideoCapabilities(codecCapabilities.getVideoCapabilities(), result);
+        result.append(", colorFormats=").append(Arrays.toString(codecCapabilities.colorFormats));
+      } else if (isAudio) {
+        result.append(", audioCapabilities=");
+        appendAudioCapabilities(codecCapabilities.getAudioCapabilities(), result);
+      }
     }
     if (Util.SDK_INT >= 19
         && isVideo
@@ -134,7 +151,7 @@ public class EnumerateDecodersTest extends InstrumentationTestCase {
     return result.toString();
   }
 
-  private static void audioCapabilitiesToString(
+  private static void appendAudioCapabilities(
       AudioCapabilities audioCapabilities, StringBuilder result) {
     result
         .append("[bitrateRange=")
@@ -146,7 +163,7 @@ public class EnumerateDecodersTest extends InstrumentationTestCase {
         .append(']');
   }
 
-  private static void videoCapabilitiesToString(
+  private static void appendVideoCapabilities(
       VideoCapabilities videoCapabilities, StringBuilder result) {
     result
         .append("[bitrateRange=")
@@ -164,8 +181,7 @@ public class EnumerateDecodersTest extends InstrumentationTestCase {
         .append(']');
   }
 
-  private static void profileLevelsToString(
-      CodecProfileLevel[] profileLevels, StringBuilder result) {
+  private static void appendProfileLevels(CodecProfileLevel[] profileLevels, StringBuilder result) {
     result.append('[');
     int count = profileLevels.length;
     for (int i = 0; i < count; i++) {

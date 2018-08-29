@@ -27,9 +27,9 @@ import java.util.ArrayList;
   private final ArrayList<Player.EventListener> listeners;
   private final Timeline.Window window;
   private final Timeline.Period period;
+  private final Timeline timeline;
 
   private boolean prepared;
-  private Timeline timeline;
   private int state;
   private boolean playWhenReady;
   private long position;

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -34,7 +35,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.security.NetworkSecurityPolicy;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -67,7 +67,6 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
@@ -86,9 +85,7 @@ public final class Util {
    * Like {@link android.os.Build.VERSION#SDK_INT}, but in a place where it can be conveniently
    * overridden for local testing.
    */
-  public static final int SDK_INT =
-      (Build.VERSION.SDK_INT == 25 && Build.VERSION.CODENAME.charAt(0) == 'O') ? 26
-      : Build.VERSION.SDK_INT;
+  public static final int SDK_INT = Build.VERSION.SDK_INT;
 
   /**
    * Like {@link Build#DEVICE}, but in a place where it can be conveniently overridden for local
@@ -341,12 +338,7 @@ public final class Util {
    * @return The executor.
    */
   public static ExecutorService newSingleThreadExecutor(final String threadName) {
-    return Executors.newSingleThreadExecutor(new ThreadFactory() {
-      @Override
-      public Thread newThread(@NonNull Runnable r) {
-        return new Thread(r, threadName);
-      }
-    });
+    return Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, threadName));
   }
 
   /**
@@ -1252,6 +1244,8 @@ public final class Util {
       case C.ENCODING_PCM_32BIT:
       case C.ENCODING_PCM_FLOAT:
         return channelCount * 4;
+      case C.ENCODING_PCM_A_LAW:
+      case C.ENCODING_PCM_MU_LAW:
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:
@@ -1332,6 +1326,7 @@ public final class Util {
       case C.USAGE_NOTIFICATION_EVENT:
         return C.STREAM_TYPE_NOTIFICATION;
       case C.USAGE_ASSISTANCE_ACCESSIBILITY:
+      case C.USAGE_ASSISTANT:
       case C.USAGE_UNKNOWN:
       default:
         return C.STREAM_TYPE_DEFAULT;
@@ -1448,6 +1443,8 @@ public final class Util {
         return C.DEFAULT_TEXT_BUFFER_SIZE;
       case C.TRACK_TYPE_METADATA:
         return C.DEFAULT_METADATA_BUFFER_SIZE;
+      case C.TRACK_TYPE_CAMERA_MOTION:
+        return C.DEFAULT_CAMERA_MOTION_BUFFER_SIZE;
       default:
         throw new IllegalStateException();
     }
@@ -1557,7 +1554,7 @@ public final class Util {
    * and is not declared to be thrown.
    */
   public static void sneakyThrow(Throwable t) {
-    Util.<RuntimeException>sneakyThrowInternal(t);
+    Util.sneakyThrowInternal(t);
   }
 
   @SuppressWarnings("unchecked")
@@ -1753,6 +1750,7 @@ public final class Util {
         // Attempt to read sys.display-size.
         String sysDisplaySize = null;
         try {
+          @SuppressLint("PrivateApi")
           Class<?> systemProperties = Class.forName("android.os.SystemProperties");
           Method getMethod = systemProperties.getMethod("get", String.class);
           sysDisplaySize = (String) getMethod.invoke(systemProperties, "sys.display-size");

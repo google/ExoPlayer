@@ -56,11 +56,17 @@ public final class CacheDataSource implements DataSource {
   public static final long DEFAULT_MAX_CACHE_FILE_SIZE = 2 * 1024 * 1024;
 
   /**
-   * Flags controlling the cache's behavior.
+   * Flags controlling the cache's behavior. Possible flag values are {@link #FLAG_BLOCK_ON_CACHE},
+   * {@link #FLAG_IGNORE_CACHE_ON_ERROR} and {@link #FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {FLAG_BLOCK_ON_CACHE, FLAG_IGNORE_CACHE_ON_ERROR,
-      FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS})
+  @IntDef(
+      flag = true,
+      value = {
+        FLAG_BLOCK_ON_CACHE,
+        FLAG_IGNORE_CACHE_ON_ERROR,
+        FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS
+      })
   public @interface Flags {}
   /**
    * A flag indicating whether we will block reads if the cache key is locked. If unset then data is
@@ -81,7 +87,10 @@ public final class CacheDataSource implements DataSource {
    */
   public static final int FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS = 1 << 2; // 4
 
-  /** Reasons the cache may be ignored. */
+  /**
+   * Reasons the cache may be ignored. One of {@link #CACHE_IGNORED_REASON_ERROR} or {@link
+   * #CACHE_IGNORED_REASON_UNSET_LENGTH}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({CACHE_IGNORED_REASON_ERROR, CACHE_IGNORED_REASON_UNSET_LENGTH})
   public @interface CacheIgnoredReason {}

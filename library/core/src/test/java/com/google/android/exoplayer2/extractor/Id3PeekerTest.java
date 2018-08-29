@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
-import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.Id3DecoderTest;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import java.io.IOException;
@@ -95,12 +94,8 @@ public final class Id3PeekerTest {
     Metadata metadata =
         id3Peeker.peekId3Data(
             input,
-            new Id3Decoder.FramePredicate() {
-              @Override
-              public boolean evaluate(int majorVersion, int id0, int id1, int id2, int id3) {
-                return id0 == 'C' && id1 == 'O' && id2 == 'M' && id3 == 'M';
-              }
-            });
+            (majorVersion, id0, id1, id2, id3) ->
+                id0 == 'C' && id1 == 'O' && id2 == 'M' && id3 == 'M');
     assertThat(metadata.length()).isEqualTo(1);
 
     CommentFrame commentFrame = (CommentFrame) metadata.get(0);

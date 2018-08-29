@@ -22,8 +22,10 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.DataChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
@@ -554,4 +556,49 @@ import java.util.List;
 
   }
 
+  /** {@link MediaChunkIterator} wrapping a {@link HlsMediaPlaylist}. */
+  private static final class HlsMediaPlaylistSegmentIterator extends BaseMediaChunkIterator {
+
+    private final HlsMediaPlaylist playlist;
+    private final long startOfPlaylistInPeriodUs;
+
+    /**
+     * Creates iterator.
+     *
+     * @param playlist The {@link HlsMediaPlaylist} to wrap.
+     * @param startOfPlaylistInPeriodUs The start time of the playlist in the period, in
+     *     microseconds.
+     * @param chunkIndex The chunk index in the playlist at which the iterator will start.
+     */
+    public HlsMediaPlaylistSegmentIterator(
+        HlsMediaPlaylist playlist, long startOfPlaylistInPeriodUs, int chunkIndex) {
+      super(/* fromIndex= */ chunkIndex, /* toIndex= */ playlist.segments.size() - 1);
+      this.playlist = playlist;
+      this.startOfPlaylistInPeriodUs = startOfPlaylistInPeriodUs;
+    }
+
+    @Override
+    public DataSpec getDataSpec() {
+      checkInBounds();
+      Segment segment = playlist.segments.get((int) getCurrentIndex());
+      Uri chunkUri = UriUtil.resolveToUri(playlist.baseUri, segment.url);
+      return new DataSpec(
+          chunkUri, segment.byterangeOffset, segment.byterangeLength, /* key= */ null);
+    }
+
+    @Override
+    public long getChunkStartTimeUs() {
+      checkInBounds();
+      Segment segment = playlist.segments.get((int) getCurrentIndex());
+      return startOfPlaylistInPeriodUs + segment.relativeStartTimeUs;
+    }
+
+    @Override
+    public long getChunkEndTimeUs() {
+      checkInBounds();
+      Segment segment = playlist.segments.get((int) getCurrentIndex());
+      long segmentStartTimeInPeriodUs = startOfPlaylistInPeriodUs + segment.relativeStartTimeUs;
+      return segmentStartTimeInPeriodUs + segment.durationUs;
+    }
+  }
 }

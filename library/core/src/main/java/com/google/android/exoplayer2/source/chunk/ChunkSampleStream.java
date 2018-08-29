@@ -432,6 +432,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         primaryTrackType,
         loadable.trackFormat,
@@ -451,6 +452,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         primaryTrackType,
         loadable.trackFormat,
@@ -518,6 +520,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     eventDispatcher.loadError(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         primaryTrackType,
         loadable.trackFormat,
@@ -585,7 +588,6 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));
     eventDispatcher.loadStarted(
         loadable.dataSpec,
-        loadable.dataSpec.uri,
         loadable.type,
         primaryTrackType,
         loadable.trackFormat,

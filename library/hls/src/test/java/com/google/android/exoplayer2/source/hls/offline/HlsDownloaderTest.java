@@ -183,7 +183,7 @@ public class HlsDownloaderTest {
   }
 
   private HlsDownloader getHlsDownloader(String mediaPlaylistUri, List<StreamKey> keys) {
-    Factory factory = new Factory(null).setFakeDataSet(fakeDataSet);
+    Factory factory = new Factory().setFakeDataSet(fakeDataSet);
     return new HlsDownloader(
         Uri.parse(mediaPlaylistUri), keys, new DownloaderConstructorHelper(cache, factory));
   }
@@ -191,8 +191,7 @@ public class HlsDownloaderTest {
   private static ArrayList<StreamKey> getKeys(int... variantIndices) {
     ArrayList<StreamKey> streamKeys = new ArrayList<>();
     for (int variantIndex : variantIndices) {
-      final int trackIndex = variantIndex;
-      streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, trackIndex));
+      streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, variantIndex));
     }
     return streamKeys;
   }

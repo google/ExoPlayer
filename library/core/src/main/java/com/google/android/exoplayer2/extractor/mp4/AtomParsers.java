@@ -38,9 +38,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Utility methods for parsing MP4 format atom payloads according to ISO 14496-12.
- */
+/** Utility methods for parsing MP4 format atom payloads according to ISO 14496-12. */
+@SuppressWarnings("ConstantField")
 /* package */ final class AtomParsers {
 
   /** Thrown if an edit list couldn't be applied. */
@@ -619,9 +618,11 @@ import java.util.List;
     long timescale = mdhd.readUnsignedInt();
     mdhd.skipBytes(version == 0 ? 4 : 8);
     int languageCode = mdhd.readUnsignedShort();
-    String language = "" + (char) (((languageCode >> 10) & 0x1F) + 0x60)
-        + (char) (((languageCode >> 5) & 0x1F) + 0x60)
-        + (char) (((languageCode) & 0x1F) + 0x60);
+    String language =
+        ""
+            + (char) (((languageCode >> 10) & 0x1F) + 0x60)
+            + (char) (((languageCode >> 5) & 0x1F) + 0x60)
+            + (char) ((languageCode & 0x1F) + 0x60);
     return Pair.create(timescale, language);
   }
 

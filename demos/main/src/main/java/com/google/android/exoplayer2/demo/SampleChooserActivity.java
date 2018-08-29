@@ -22,6 +22,7 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.Menu;
@@ -162,8 +163,8 @@ public class SampleChooserActivity extends Activity
     startActivity(
         sample.buildIntent(
             /* context= */ this,
-            preferExtensionDecodersMenuItem.isChecked(),
-            randomAbrMenuItem.isChecked()
+            isNonNullAndChecked(preferExtensionDecodersMenuItem),
+            isNonNullAndChecked(randomAbrMenuItem)
                 ? PlayerActivity.ABR_ALGORITHM_RANDOM
                 : PlayerActivity.ABR_ALGORITHM_DEFAULT));
     return true;
@@ -198,6 +199,11 @@ public class SampleChooserActivity extends Activity
     return 0;
   }
 
+  private static boolean isNonNullAndChecked(@Nullable MenuItem menuItem) {
+    // Temporary workaround for layouts that do not inflate the options menu.
+    return menuItem != null && menuItem.isChecked();
+  }
+
   private final class SampleListLoader extends AsyncTask<String, Void, List<SampleGroup>> {
 
     private boolean sawError;
@@ -207,7 +213,8 @@ public class SampleChooserActivity extends Activity
       List<SampleGroup> result = new ArrayList<>();
       Context context = getApplicationContext();
       String userAgent = Util.getUserAgent(context, "ExoPlayerDemo");
-      DataSource dataSource = new DefaultDataSource(context, null, userAgent, false);
+      DataSource dataSource =
+          new DefaultDataSource(context, userAgent, /* allowCrossProtocolRedirects= */ false);
       for (String uri : uris) {
         DataSpec dataSpec = new DataSpec(Uri.parse(uri));
         InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);

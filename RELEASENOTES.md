@@ -39,6 +39,9 @@
   * Scale up the initial video decoder maximum input size so playlist item
     transitions with small increases in maximum sample size don't require
     reinitialization ([#4510](https://github.com/google/ExoPlayer/issues/4510)).
+  * Propagate the end-of-stream signal directly in the renderer when using
+    tunneling, to fix an issue where the player would remain ready after the
+    stream ended.
 * Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
   creating a `CacheDataSource`.
 * Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend
@@ -70,6 +73,8 @@
   * Allow configuration of the Loader retry delay
     ([#3370](https://github.com/google/ExoPlayer/issues/3370)).
 * HLS:
+  * Add support for variable substitution
+    ([#4422](https://github.com/google/ExoPlayer/issues/4422)).
   * Add support for PlayReady.
   * Add support for alternative EXT-X-KEY tags.
   * Set the bitrate on primary track sample formats
@@ -91,7 +96,10 @@
 * Allow setting the `Looper`, which is used to access the player, in
   `ExoPlayerFactory` ([#4278](https://github.com/google/ExoPlayer/issues/4278)).
 * Use default Deserializers if non given to DownloadManager.
-* Add monoscopic 360 surface type to PlayerView.
+* 360:
+  * Add monoscopic 360 surface type to PlayerView.
+  * Support 
+  [VR180 video format](https://github.com/google/spatial-media/blob/master/docs/vr180.md).
 * Deprecate `Player.DefaultEventListener` as selective listener overrides can
   be directly made with the `Player.EventListener` interface.
 * Deprecate `DefaultAnalyticsListener` as selective listener overrides can be
@@ -99,6 +107,10 @@
 * Add uri field to `LoadEventInfo` in `MediaSourceEventListener` or
   `AnalyticsListener` callbacks. This uri is the redirected uri if redirection
   occurred ([#2054](https://github.com/google/ExoPlayer/issues/2054)).
+* Add response headers field to `LoadEventInfo` in `MediaSourceEventListener` or
+  `AnalyticsListener` callbacks
+  ([#4361](https://github.com/google/ExoPlayer/issues/4361) and
+  [#4615](https://github.com/google/ExoPlayer/issues/4615)).
 * Allow `MediaCodecSelector`s to return multiple compatible decoders for
   `MediaCodecRenderer`, and provide an (optional) `MediaCodecSelector` that
   falls back to less preferred decoders like `MediaCodec.createDecoderByType`
@@ -110,6 +122,14 @@
 * Add option to show buffering view when playWhenReady is false
   ([#4304](https://github.com/google/ExoPlayer/issues/4304)).
 * Allow any `Drawable` to be used as `PlayerView` default artwork.
+* IMA:
+  * Refine the previous fix for empty ad groups to avoid discarding ad breaks
+    unnecessarily ([#4030](https://github.com/google/ExoPlayer/issues/4030)),
+    ([#4280](https://github.com/google/ExoPlayer/issues/4280)).
+  * Fix handling of empty postrolls
+    ([#4681](https://github.com/google/ExoPlayer/issues/4681).
+  * Fix handling of postrolls with multiple ads
+    ([#4710](https://github.com/google/ExoPlayer/issues/4710).
 
 ### 2.8.4 ###
 

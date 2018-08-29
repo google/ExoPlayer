@@ -234,7 +234,11 @@ public final class AdPlaybackState {
     }
   }
 
-  /** Represents the state of an ad in an ad group. */
+  /**
+   * Represents the state of an ad in an ad group. One of {@link #AD_STATE_UNAVAILABLE}, {@link
+   * #AD_STATE_AVAILABLE}, {@link #AD_STATE_SKIPPED}, {@link #AD_STATE_PLAYED} or {@link
+   * #AD_STATE_ERROR}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     AD_STATE_UNAVAILABLE,
@@ -311,8 +315,7 @@ public final class AdPlaybackState {
     // Use a linear search as the array elements may not be increasing due to TIME_END_OF_SOURCE.
     // In practice we expect there to be few ad groups so the search shouldn't be expensive.
     int index = adGroupTimesUs.length - 1;
-    while (index >= 0
-        && (adGroupTimesUs[index] == C.TIME_END_OF_SOURCE || adGroupTimesUs[index] > positionUs)) {
+    while (index >= 0 && isPositionBeforeAdGroup(positionUs, index)) {
       index--;
     }
     return index >= 0 && adGroups[index].hasUnplayedAds() ? index : C.INDEX_UNSET;
@@ -449,5 +452,14 @@ public final class AdPlaybackState {
     result = 31 * result + Arrays.hashCode(adGroupTimesUs);
     result = 31 * result + Arrays.hashCode(adGroups);
     return result;
+  }
+
+  private boolean isPositionBeforeAdGroup(long positionUs, int adGroupIndex) {
+    long adGroupPositionUs = adGroupTimesUs[adGroupIndex];
+    if (adGroupPositionUs == C.TIME_END_OF_SOURCE) {
+      return contentDurationUs == C.TIME_UNSET || positionUs < contentDurationUs;
+    } else {
+      return positionUs < adGroupPositionUs;
+    }
   }
 }

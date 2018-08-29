@@ -171,6 +171,7 @@ public final class RawResourceDataSource extends BaseDataSource {
     return uri;
   }
 
+  @SuppressWarnings("Finally")
   @Override
   public void close() throws RawResourceDataSourceException {
     uri = null;

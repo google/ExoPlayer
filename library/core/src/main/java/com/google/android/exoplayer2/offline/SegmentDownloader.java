@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,8 +55,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
 
     @Override
     public int compareTo(@NonNull Segment other) {
-      long startOffsetDiff = startTimeUs - other.startTimeUs;
-      return startOffsetDiff == 0 ? 0 : ((startOffsetDiff < 0) ? -1 : 1);
+      return Util.compareLong(startTimeUs, other.startTimeUs);
     }
   }
 

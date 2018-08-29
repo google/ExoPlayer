@@ -25,7 +25,8 @@ import java.lang.annotation.RetentionPolicy;
 public final class UnsupportedDrmException extends Exception {
 
   /**
-   * The reason for the exception.
+   * The reason for the exception. One of {@link #REASON_UNSUPPORTED_SCHEME} or {@link
+   * #REASON_INSTANTIATION_ERROR}.
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({REASON_UNSUPPORTED_SCHEME, REASON_INSTANTIATION_ERROR})

@@ -32,21 +32,16 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
-import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
-import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
@@ -81,13 +76,12 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     private MediaSource mediaSource;
     private DefaultTrackSelector trackSelector;
     private LoadControl loadControl;
+    private BandwidthMeter bandwidthMeter;
     private Format[] supportedFormats;
     private Renderer[] renderers;
     private RenderersFactory renderersFactory;
     private ActionSchedule actionSchedule;
     private Player.EventListener eventListener;
-    private VideoRendererEventListener videoRendererEventListener;
-    private AudioRendererEventListener audioRendererEventListener;
     private AnalyticsListener analyticsListener;
     private Integer expectedPlayerEndedCount;
 
@@ -159,6 +153,18 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
      */
     public Builder setLoadControl(LoadControl loadControl) {
       this.loadControl = loadControl;
+      return this;
+    }
+
+    /**
+     * Sets the {@link BandwidthMeter} to be used by the test runner. The default value is a {@link
+     * DefaultBandwidthMeter} in its default configuration.
+     *
+     * @param bandwidthMeter The {@link BandwidthMeter} to be used by the test runner.
+     * @return This builder.
+     */
+    public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
+      this.bandwidthMeter = bandwidthMeter;
       return this;
     }
 
@@ -243,28 +249,6 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
 
     /**
-     * Sets a {@link VideoRendererEventListener} to be registered.
-     *
-     * @param eventListener A {@link VideoRendererEventListener} to be registered.
-     * @return This builder.
-     */
-    public Builder setVideoRendererEventListener(VideoRendererEventListener eventListener) {
-      this.videoRendererEventListener = eventListener;
-      return this;
-    }
-
-    /**
-     * Sets an {@link AudioRendererEventListener} to be registered.
-     *
-     * @param eventListener An {@link AudioRendererEventListener} to be registered.
-     * @return This builder.
-     */
-    public Builder setAudioRendererEventListener(AudioRendererEventListener eventListener) {
-      this.audioRendererEventListener = eventListener;
-      return this;
-    }
-
-    /**
      * Sets an {@link AnalyticsListener} to be registered.
      *
      * @param analyticsListener An {@link AnalyticsListener} to be registered.
@@ -302,23 +286,20 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
       if (trackSelector == null) {
         trackSelector = new DefaultTrackSelector();
       }
+      if (bandwidthMeter == null) {
+        bandwidthMeter = new DefaultBandwidthMeter.Builder().build();
+      }
       if (renderersFactory == null) {
         if (renderers == null) {
           renderers = new Renderer[] {new FakeRenderer(supportedFormats)};
         }
         renderersFactory =
-            new RenderersFactory() {
-              @Override
-              public Renderer[] createRenderers(
-                  android.os.Handler eventHandler,
-                  VideoRendererEventListener videoRendererEventListener,
-                  AudioRendererEventListener audioRendererEventListener,
-                  TextOutput textRendererOutput,
-                  MetadataOutput metadataRendererOutput,
-                  DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-                return renderers;
-              }
-            };
+            (eventHandler,
+                videoRendererEventListener,
+                audioRendererEventListener,
+                textRendererOutput,
+                metadataRendererOutput,
+                drmSessionManager) -> renderers;
       }
       if (loadControl == null) {
         loadControl = new DefaultLoadControl();
@@ -342,10 +323,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
           renderersFactory,
           trackSelector,
           loadControl,
+          bandwidthMeter,
           actionSchedule,
           eventListener,
-          videoRendererEventListener,
-          audioRendererEventListener,
           analyticsListener,
           expectedPlayerEndedCount);
     }
@@ -357,10 +337,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   private final RenderersFactory renderersFactory;
   private final DefaultTrackSelector trackSelector;
   private final LoadControl loadControl;
+  private final BandwidthMeter bandwidthMeter;
   private final @Nullable ActionSchedule actionSchedule;
   private final @Nullable Player.EventListener eventListener;
-  private final @Nullable VideoRendererEventListener videoRendererEventListener;
-  private final @Nullable AudioRendererEventListener audioRendererEventListener;
   private final @Nullable AnalyticsListener analyticsListener;
 
   private final HandlerThread playerThread;
@@ -385,10 +364,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
       RenderersFactory renderersFactory,
       DefaultTrackSelector trackSelector,
       LoadControl loadControl,
+      BandwidthMeter bandwidthMeter,
       @Nullable ActionSchedule actionSchedule,
       @Nullable Player.EventListener eventListener,
-      @Nullable VideoRendererEventListener videoRendererEventListener,
-      @Nullable AudioRendererEventListener audioRendererEventListener,
       @Nullable AnalyticsListener analyticsListener,
       int expectedPlayerEndedCount) {
     this.context = context;
@@ -397,10 +375,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     this.renderersFactory = renderersFactory;
     this.trackSelector = trackSelector;
     this.loadControl = loadControl;
+    this.bandwidthMeter = bandwidthMeter;
     this.actionSchedule = actionSchedule;
     this.eventListener = eventListener;
-    this.videoRendererEventListener = videoRendererEventListener;
-    this.audioRendererEventListener = audioRendererEventListener;
     this.analyticsListener = analyticsListener;
     this.timelines = new ArrayList<>();
     this.manifests = new ArrayList<>();
@@ -425,35 +402,25 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
    */
   public ExoPlayerTestRunner start() {
     handler.post(
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              player =
-                  new TestSimpleExoPlayer(
-                      context, renderersFactory, trackSelector, loadControl, clock);
-              player.addListener(ExoPlayerTestRunner.this);
-              if (eventListener != null) {
-                player.addListener(eventListener);
-              }
-              if (videoRendererEventListener != null) {
-                player.addVideoDebugListener(videoRendererEventListener);
-              }
-              if (audioRendererEventListener != null) {
-                player.addAudioDebugListener(audioRendererEventListener);
-              }
-              if (analyticsListener != null) {
-                player.addAnalyticsListener(analyticsListener);
-              }
-              player.setPlayWhenReady(true);
-              if (actionSchedule != null) {
-                actionSchedule.start(
-                    player, trackSelector, null, handler, ExoPlayerTestRunner.this);
-              }
-              player.prepare(mediaSource);
-            } catch (Exception e) {
-              handleException(e);
+        () -> {
+          try {
+            player =
+                new TestSimpleExoPlayer(
+                    context, renderersFactory, trackSelector, loadControl, bandwidthMeter, clock);
+            player.addListener(ExoPlayerTestRunner.this);
+            if (eventListener != null) {
+              player.addListener(eventListener);
             }
+            if (analyticsListener != null) {
+              player.addAnalyticsListener(analyticsListener);
+            }
+            player.setPlayWhenReady(true);
+            if (actionSchedule != null) {
+              actionSchedule.start(player, trackSelector, null, handler, ExoPlayerTestRunner.this);
+            }
+            player.prepare(mediaSource);
+          } catch (Exception e) {
+            handleException(e);
           }
         });
     return this;
@@ -579,20 +546,18 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   // Private implementation details.
 
   private void release() throws InterruptedException {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          if (player != null) {
-            player.release();
+    handler.post(
+        () -> {
+          try {
+            if (player != null) {
+              player.release();
+            }
+          } catch (Exception e) {
+            handleException(e);
+          } finally {
+            playerThread.quit();
           }
-        } catch (Exception e) {
-          handleException(e);
-        } finally {
-          playerThread.quit();
-        }
-      }
-    });
+        });
     playerThread.join();
   }
 
@@ -664,6 +629,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
         RenderersFactory renderersFactory,
         TrackSelector trackSelector,
         LoadControl loadControl,
+        BandwidthMeter bandwidthMeter,
         Clock clock) {
       super(
           context,
@@ -671,7 +637,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
           trackSelector,
           loadControl,
           /* drmSessionManager= */ null,
-          new DefaultBandwidthMeter.Builder().build(),
+          bandwidthMeter,
           new AnalyticsCollector.Factory(),
           clock,
           Looper.myLooper());

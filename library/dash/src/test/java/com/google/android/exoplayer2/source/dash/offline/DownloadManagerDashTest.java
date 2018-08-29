@@ -110,18 +110,14 @@ public class DownloadManagerDashTest {
     fakeDataSet
         .newData(TEST_MPD_URI)
         .appendReadAction(
-            new Runnable() {
-              @SuppressWarnings("InfiniteLoopStatement")
-              @Override
-              public void run() {
-                try {
-                  // Wait until interrupted.
-                  while (true) {
-                    Thread.sleep(100000);
-                  }
-                } catch (InterruptedException ignored) {
-                  Thread.currentThread().interrupt();
+            () -> {
+              try {
+                // Wait until interrupted.
+                while (true) {
+                  Thread.sleep(100000);
                 }
+              } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
               }
             })
         .appendReadData(TEST_MPD)
@@ -130,13 +126,10 @@ public class DownloadManagerDashTest {
     // Run DM accessing code on UI/main thread as it should be. Also not to block handling of loaded
     // actions.
     dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            // Setup an Action and immediately release the DM.
-            handleDownloadAction(fakeStreamKey1, fakeStreamKey2);
-            downloadManager.release();
-          }
+        () -> {
+          // Setup an Action and immediately release the DM.
+          handleDownloadAction(fakeStreamKey1, fakeStreamKey2);
+          downloadManager.release();
         });
 
     assertThat(actionFile.exists()).isTrue();
@@ -146,13 +139,7 @@ public class DownloadManagerDashTest {
     // Revert fakeDataSet to normal.
     fakeDataSet.setData(TEST_MPD_URI, TEST_MPD);
 
-    dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            createDownloadManager();
-          }
-        });
+    dummyMainThread.runOnMainThread(this::createDownloadManager);
 
     // Block on the test thread.
     blockUntilTasksCompleteAndThrowAnyDownloadError();
@@ -178,13 +165,7 @@ public class DownloadManagerDashTest {
   public void testHandleInterferingDownloadAction() throws Throwable {
     fakeDataSet
         .newData("audio_segment_2")
-        .appendReadAction(
-            new Runnable() {
-              @Override
-              public void run() {
-                handleDownloadAction(fakeStreamKey2);
-              }
-            })
+        .appendReadAction(() -> handleDownloadAction(fakeStreamKey2))
         .appendReadData(TestUtil.buildTestData(5))
         .endData();
 
@@ -224,13 +205,7 @@ public class DownloadManagerDashTest {
     final ConditionVariable downloadInProgressCondition = new ConditionVariable();
     fakeDataSet
         .newData("audio_segment_2")
-        .appendReadAction(
-            new Runnable() {
-              @Override
-              public void run() {
-                downloadInProgressCondition.open();
-              }
-            })
+        .appendReadAction(downloadInProgressCondition::open)
         .appendReadData(TestUtil.buildTestData(5))
         .endData();
 
@@ -259,24 +234,20 @@ public class DownloadManagerDashTest {
 
   private void createDownloadManager() {
     dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            Factory fakeDataSourceFactory =
-                new FakeDataSource.Factory(null).setFakeDataSet(fakeDataSet);
-            downloadManager =
-                new DownloadManager(
-                    new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
-                    /* maxSimultaneousDownloads= */ 1,
-                    /* minRetryCount= */ 3,
-                    actionFile,
-                    DashDownloadAction.DESERIALIZER);
+        () -> {
+          Factory fakeDataSourceFactory = new FakeDataSource.Factory().setFakeDataSet(fakeDataSet);
+          downloadManager =
+              new DownloadManager(
+                  new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
+                  /* maxSimultaneousDownloads= */ 1,
+                  /* minRetryCount= */ 3,
+                  actionFile,
+                  DashDownloadAction.DESERIALIZER);
 
-            downloadManagerListener =
-                new TestDownloadManagerListener(downloadManager, dummyMainThread);
-            downloadManager.addListener(downloadManagerListener);
-            downloadManager.startDownloads();
-          }
+          downloadManagerListener =
+              new TestDownloadManagerListener(downloadManager, dummyMainThread);
+          downloadManager.addListener(downloadManagerListener);
+          downloadManager.startDownloads();
         });
   }
 

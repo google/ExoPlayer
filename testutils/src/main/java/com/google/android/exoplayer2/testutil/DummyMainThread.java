@@ -60,12 +60,9 @@ public final class DummyMainThread {
     } else {
       final ConditionVariable finishedCondition = new ConditionVariable();
       handler.post(
-          new Runnable() {
-            @Override
-            public void run() {
-              runnable.run();
-              finishedCondition.open();
-            }
+          () -> {
+            runnable.run();
+            finishedCondition.open();
           });
       assertThat(finishedCondition.block(timeoutMs)).isTrue();
     }

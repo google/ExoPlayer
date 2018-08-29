@@ -503,6 +503,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
         loadable.dataSource.getLastOpenedUri(),
+        loadable.dataSource.getLastResponseHeaders(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -524,6 +525,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.dataSource.getLastOpenedUri(),
+        loadable.dataSource.getLastResponseHeaders(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -570,6 +572,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     eventDispatcher.loadError(
         loadable.dataSpec,
         loadable.dataSource.getLastOpenedUri(),
+        loadable.dataSource.getLastResponseHeaders(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -697,7 +700,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(dataType));
     eventDispatcher.loadStarted(
         loadable.dataSpec,
-        loadable.dataSpec.uri,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,

@@ -46,13 +46,13 @@ public final class DefaultExtractorsFactoryTest {
     DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
 
     Extractor[] extractors = defaultExtractorsFactory.createExtractors();
-    List<Class> listCreatedExtractorClasses = new ArrayList<>();
+    List<Class<?>> listCreatedExtractorClasses = new ArrayList<>();
     for (Extractor extractor : extractors) {
       listCreatedExtractorClasses.add(extractor.getClass());
     }
 
-    Class[] expectedExtractorClassses =
-        new Class[] {
+    Class<?>[] expectedExtractorClassses =
+        new Class<?>[] {
           MatroskaExtractor.class,
           FragmentedMp4Extractor.class,
           Mp4Extractor.class,

@@ -78,15 +78,12 @@ public class DownloadServiceDashTest {
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
 
     Runnable pauseAction =
-        new Runnable() {
-          @Override
-          public void run() {
-            if (pauseDownloadCondition != null) {
-              try {
-                pauseDownloadCondition.block();
-              } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-              }
+        () -> {
+          if (pauseDownloadCondition != null) {
+            try {
+              pauseDownloadCondition.block();
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
             }
           }
         };
@@ -104,60 +101,51 @@ public class DownloadServiceDashTest {
             .setRandomData("text_segment_2", 2)
             .setRandomData("text_segment_3", 3);
     final DataSource.Factory fakeDataSourceFactory =
-        new FakeDataSource.Factory(null).setFakeDataSet(fakeDataSet);
+        new FakeDataSource.Factory().setFakeDataSet(fakeDataSet);
     fakeStreamKey1 = new StreamKey(0, 0, 0);
     fakeStreamKey2 = new StreamKey(0, 1, 0);
 
     dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            File actionFile;
-            try {
-              actionFile = Util.createTempFile(context, "ExoPlayerTest");
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
-            actionFile.delete();
-            final DownloadManager dashDownloadManager =
-                new DownloadManager(
-                    new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
-                    1,
-                    3,
-                    actionFile,
-                    DashDownloadAction.DESERIALIZER);
-            downloadManagerListener =
-                new TestDownloadManagerListener(dashDownloadManager, dummyMainThread);
-            dashDownloadManager.addListener(downloadManagerListener);
-            dashDownloadManager.startDownloads();
-
-            dashDownloadService =
-                new DownloadService(DownloadService.FOREGROUND_NOTIFICATION_ID_NONE) {
-                  @Override
-                  protected DownloadManager getDownloadManager() {
-                    return dashDownloadManager;
-                  }
-
-                  @Nullable
-                  @Override
-                  protected Scheduler getScheduler() {
-                    return null;
-                  }
-                };
-            dashDownloadService.onCreate();
+        () -> {
+          File actionFile;
+          try {
+            actionFile = Util.createTempFile(context, "ExoPlayerTest");
+          } catch (IOException e) {
+            throw new RuntimeException(e);
           }
+          actionFile.delete();
+          final DownloadManager dashDownloadManager =
+              new DownloadManager(
+                  new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
+                  1,
+                  3,
+                  actionFile,
+                  DashDownloadAction.DESERIALIZER);
+          downloadManagerListener =
+              new TestDownloadManagerListener(dashDownloadManager, dummyMainThread);
+          dashDownloadManager.addListener(downloadManagerListener);
+          dashDownloadManager.startDownloads();
+
+          dashDownloadService =
+              new DownloadService(DownloadService.FOREGROUND_NOTIFICATION_ID_NONE) {
+                @Override
+                protected DownloadManager getDownloadManager() {
+                  return dashDownloadManager;
+                }
+
+                @Nullable
+                @Override
+                protected Scheduler getScheduler() {
+                  return null;
+                }
+              };
+          dashDownloadService.onCreate();
         });
   }
 
   @After
   public void tearDown() {
-    dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            dashDownloadService.onDestroy();
-          }
-        });
+    dummyMainThread.runOnMainThread(() -> dashDownloadService.onDestroy());
     Util.recursiveDelete(tempFolder);
     dummyMainThread.release();
   }
@@ -210,13 +198,10 @@ public class DownloadServiceDashTest {
 
   private void callDownloadServiceOnStart(final DownloadAction action) {
     dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            Intent startIntent =
-                DownloadService.buildAddActionIntent(context, DownloadService.class, action, false);
-            dashDownloadService.onStartCommand(startIntent, 0, 0);
-          }
+        () -> {
+          Intent startIntent =
+              DownloadService.buildAddActionIntent(context, DownloadService.class, action, false);
+          dashDownloadService.onStartCommand(startIntent, 0, 0);
         });
   }
 

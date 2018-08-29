@@ -610,13 +610,7 @@ public final class ActionSchedule {
         ActionNode nextAction) {
       Assertions.checkArgument(nextAction == null);
       if (callback != null) {
-        handler.post(
-            new Runnable() {
-              @Override
-              public void run() {
-                callback.onActionScheduleFinished();
-              }
-            });
+        handler.post(() -> callback.onActionScheduleFinished());
       }
     }
 

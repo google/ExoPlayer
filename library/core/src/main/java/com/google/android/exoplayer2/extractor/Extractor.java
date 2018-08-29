@@ -44,7 +44,10 @@ public interface Extractor {
    */
   int RESULT_END_OF_INPUT = C.RESULT_END_OF_INPUT;
 
-  /** Result values that can be returned by {@link #read(ExtractorInput, PositionHolder)}. */
+  /**
+   * Result values that can be returned by {@link #read(ExtractorInput, PositionHolder)}. One of
+   * {@link #RESULT_CONTINUE}, {@link #RESULT_SEEK} or {@link #RESULT_END_OF_INPUT}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(value = {RESULT_CONTINUE, RESULT_SEEK, RESULT_END_OF_INPUT})
   @interface ReadResult {}

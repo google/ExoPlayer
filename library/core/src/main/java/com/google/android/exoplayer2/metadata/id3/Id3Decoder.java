@@ -56,13 +56,7 @@ public final class Id3Decoder implements MetadataDecoder {
 
   /** A predicate that indicates no frames should be decoded. */
   public static final FramePredicate NO_FRAMES_PREDICATE =
-      new FramePredicate() {
-
-        @Override
-        public boolean evaluate(int majorVersion, int id0, int id1, int id2, int id3) {
-          return false;
-        }
-      };
+      (majorVersion, id0, id1, id2, id3) -> false;
 
   private static final String TAG = "Id3Decoder";
 
@@ -102,6 +96,7 @@ public final class Id3Decoder implements MetadataDecoder {
     this.framePredicate = framePredicate;
   }
 
+  @SuppressWarnings("ByteBufferBackingArray")
   @Override
   public @Nullable Metadata decode(MetadataInputBuffer inputBuffer) {
     ByteBuffer buffer = inputBuffer.data;
@@ -702,14 +697,13 @@ public final class Id3Decoder implements MetadataDecoder {
    */
   private static String getCharsetName(int encodingByte) {
     switch (encodingByte) {
-      case ID3_TEXT_ENCODING_ISO_8859_1:
-        return "ISO-8859-1";
       case ID3_TEXT_ENCODING_UTF_16:
         return "UTF-16";
       case ID3_TEXT_ENCODING_UTF_16BE:
         return "UTF-16BE";
       case ID3_TEXT_ENCODING_UTF_8:
         return "UTF-8";
+      case ID3_TEXT_ENCODING_ISO_8859_1:
       default:
         return "ISO-8859-1";
     }

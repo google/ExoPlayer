@@ -95,9 +95,12 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    *
    * @param constantBitrateSeekingEnabled Whether approximate seeking using a constant bitrate
    *     assumption should be enabled for all extractors that support it.
+   * @return The factory, for convenience.
    */
-  public void setConstantBitrateSeekingEnabled(boolean constantBitrateSeekingEnabled) {
+  public synchronized DefaultExtractorsFactory setConstantBitrateSeekingEnabled(
+      boolean constantBitrateSeekingEnabled) {
     this.constantBitrateSeekingEnabled = constantBitrateSeekingEnabled;
+    return this;
   }
 
   /**

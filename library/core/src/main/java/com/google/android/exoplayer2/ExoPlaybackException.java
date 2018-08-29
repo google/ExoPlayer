@@ -28,7 +28,8 @@ import java.lang.annotation.RetentionPolicy;
 public final class ExoPlaybackException extends Exception {
 
   /**
-   * The type of source that produced the error.
+   * The type of source that produced the error. One of {@link #TYPE_SOURCE}, {@link #TYPE_RENDERER}
+   * or {@link #TYPE_UNEXPECTED}.
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TYPE_SOURCE, TYPE_RENDERER, TYPE_UNEXPECTED})

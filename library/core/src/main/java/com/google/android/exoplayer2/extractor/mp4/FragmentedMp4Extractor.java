@@ -62,12 +62,21 @@ public final class FragmentedMp4Extractor implements Extractor {
       () -> new Extractor[] {new FragmentedMp4Extractor()};
 
   /**
-   * Flags controlling the behavior of the extractor.
+   * Flags controlling the behavior of the extractor. Possible flag values are {@link
+   * #FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME}, {@link #FLAG_WORKAROUND_IGNORE_TFDT_BOX},
+   * {@link #FLAG_ENABLE_EMSG_TRACK}, {@link #FLAG_SIDELOADED} and {@link
+   * #FLAG_WORKAROUND_IGNORE_EDIT_LISTS}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME,
-      FLAG_WORKAROUND_IGNORE_TFDT_BOX, FLAG_ENABLE_EMSG_TRACK, FLAG_SIDELOADED,
-      FLAG_WORKAROUND_IGNORE_EDIT_LISTS})
+  @IntDef(
+      flag = true,
+      value = {
+        FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME,
+        FLAG_WORKAROUND_IGNORE_TFDT_BOX,
+        FLAG_ENABLE_EMSG_TRACK,
+        FLAG_SIDELOADED,
+        FLAG_WORKAROUND_IGNORE_EDIT_LISTS
+      })
   public @interface Flags {}
   /**
    * Flag to work around an issue in some video streams where every frame is marked as a sync frame.
@@ -93,7 +102,10 @@ public final class FragmentedMp4Extractor implements Extractor {
   public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 1 << 4; // 16
 
   private static final String TAG = "FragmentedMp4Extractor";
+
+  @SuppressWarnings("ConstantField")
   private static final int SAMPLE_GROUP_TYPE_seig = Util.getIntegerCodeForString("seig");
+
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
   private static final Format EMSG_FORMAT =

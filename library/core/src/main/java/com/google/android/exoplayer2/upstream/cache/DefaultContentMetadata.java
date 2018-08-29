@@ -188,9 +188,12 @@ public final class DefaultContentMetadata implements ContentMetadata {
       byte[] bytes = getBytes(value);
       if (bytes.length > MAX_VALUE_LENGTH) {
         throw new IllegalArgumentException(
-            String.format(
-                "The size of %s (%d) is greater than maximum allowed: %d",
-                name, bytes.length, MAX_VALUE_LENGTH));
+            "The size of "
+                + name
+                + " ("
+                + bytes.length
+                + ") is greater than maximum allowed: "
+                + MAX_VALUE_LENGTH);
       }
       metadata.put(name, bytes);
     }

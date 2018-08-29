@@ -227,6 +227,7 @@ public interface ExoPlayer extends Player {
 
   /** @deprecated Use {@link #createMessage(PlayerMessage.Target)} instead. */
   @Deprecated
+  @SuppressWarnings("deprecation")
   void sendMessages(ExoPlayerMessage... messages);
 
   /**
@@ -234,6 +235,7 @@ public interface ExoPlayer extends Player {
    *     PlayerMessage#blockUntilDelivered()}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**

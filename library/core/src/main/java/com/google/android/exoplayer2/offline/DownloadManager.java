@@ -336,12 +336,7 @@ public final class DownloadManager {
       tasks.get(i).stop();
     }
     final ConditionVariable fileIOFinishedCondition = new ConditionVariable();
-    fileIOHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        fileIOFinishedCondition.open();
-      }
-    });
+    fileIOHandler.post(fileIOFinishedCondition::open);
     fileIOFinishedCondition.block();
     fileIOThread.quit();
     logd("Released");
@@ -451,51 +446,45 @@ public final class DownloadManager {
 
   private void loadActions() {
     fileIOHandler.post(
-        new Runnable() {
-          @Override
-          public void run() {
-            DownloadAction[] loadedActions;
-            try {
-              loadedActions = actionFile.load(DownloadManager.this.deserializers);
-              logd("Action file is loaded.");
-            } catch (Throwable e) {
-              Log.e(TAG, "Action file loading failed.", e);
-              loadedActions = new DownloadAction[0];
-            }
-            final DownloadAction[] actions = loadedActions;
-            handler.post(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    if (released) {
-                      return;
-                    }
-                    List<Task> pendingTasks = new ArrayList<>(tasks);
-                    tasks.clear();
-                    for (DownloadAction action : actions) {
-                      addTaskForAction(action);
-                    }
-                    logd("Tasks are created.");
-                    initialized = true;
-                    for (Listener listener : listeners) {
-                      listener.onInitialized(DownloadManager.this);
-                    }
-                    if (!pendingTasks.isEmpty()) {
-                      tasks.addAll(pendingTasks);
-                      saveActions();
-                    }
-                    maybeStartTasks();
-                    for (int i = 0; i < tasks.size(); i++) {
-                      Task task = tasks.get(i);
-                      if (task.currentState == STATE_QUEUED) {
-                        // Task did not change out of its initial state, and so its initial state
-                        // won't have been reported to listeners. Do so now.
-                        notifyListenersTaskStateChange(task);
-                      }
-                    }
-                  }
-                });
+        () -> {
+          DownloadAction[] loadedActions;
+          try {
+            loadedActions = actionFile.load(DownloadManager.this.deserializers);
+            logd("Action file is loaded.");
+          } catch (Throwable e) {
+            Log.e(TAG, "Action file loading failed.", e);
+            loadedActions = new DownloadAction[0];
           }
+          final DownloadAction[] actions = loadedActions;
+          handler.post(
+              () -> {
+                if (released) {
+                  return;
+                }
+                List<Task> pendingTasks = new ArrayList<>(tasks);
+                tasks.clear();
+                for (DownloadAction action : actions) {
+                  addTaskForAction(action);
+                }
+                logd("Tasks are created.");
+                initialized = true;
+                for (Listener listener : listeners) {
+                  listener.onInitialized(DownloadManager.this);
+                }
+                if (!pendingTasks.isEmpty()) {
+                  tasks.addAll(pendingTasks);
+                  saveActions();
+                }
+                maybeStartTasks();
+                for (int i = 0; i < tasks.size(); i++) {
+                  Task task = tasks.get(i);
+                  if (task.currentState == STATE_QUEUED) {
+                    // Task did not change out of its initial state, and so its initial state
+                    // won't have been reported to listeners. Do so now.
+                    notifyListenersTaskStateChange(task);
+                  }
+                }
+              });
         });
   }
 
@@ -507,17 +496,15 @@ public final class DownloadManager {
     for (int i = 0; i < tasks.size(); i++) {
       actions[i] = tasks.get(i).action;
     }
-    fileIOHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          actionFile.store(actions);
-          logd("Actions persisted.");
-        } catch (IOException e) {
-          Log.e(TAG, "Persisting actions failed.", e);
-        }
-      }
-    });
+    fileIOHandler.post(
+        () -> {
+          try {
+            actionFile.store(actions);
+            logd("Actions persisted.");
+          } catch (IOException e) {
+            Log.e(TAG, "Persisting actions failed.", e);
+          }
+        });
   }
 
   private static void logd(String message) {
@@ -534,7 +521,8 @@ public final class DownloadManager {
   public static final class TaskState {
 
     /**
-     * Task states.
+     * Task states. One of {@link #STATE_QUEUED}, {@link #STATE_STARTED}, {@link #STATE_COMPLETED},
+     * {@link #STATE_CANCELED} or {@link #STATE_FAILED}.
      *
      * <p>Transition diagram:
      *
@@ -614,7 +602,10 @@ public final class DownloadManager {
   private static final class Task implements Runnable {
 
     /**
-     * Task states.
+     * Task states. One of {@link TaskState#STATE_QUEUED}, {@link TaskState#STATE_STARTED}, {@link
+     * TaskState#STATE_COMPLETED}, {@link TaskState#STATE_CANCELED}, {@link TaskState#STATE_FAILED},
+     * {@link #STATE_QUEUED_CANCELING}, {@link #STATE_STARTED_CANCELING} or {@link
+     * #STATE_STARTED_STOPPING}.
      *
      * <p>Transition map (vertical states are source states):
      *
@@ -771,12 +762,7 @@ public final class DownloadManager {
     private void cancel() {
       if (changeStateAndNotify(STATE_QUEUED, STATE_QUEUED_CANCELING)) {
         downloadManager.handler.post(
-            new Runnable() {
-              @Override
-              public void run() {
-                changeStateAndNotify(STATE_QUEUED_CANCELING, STATE_CANCELED);
-              }
-            });
+            () -> changeStateAndNotify(STATE_QUEUED_CANCELING, STATE_CANCELED));
       } else if (changeStateAndNotify(STATE_STARTED, STATE_STARTED_CANCELING)) {
         cancelDownload();
       }
@@ -851,19 +837,14 @@ public final class DownloadManager {
       }
       final Throwable finalError = error;
       downloadManager.handler.post(
-          new Runnable() {
-            @Override
-            public void run() {
-              if (changeStateAndNotify(
-                      STATE_STARTED,
-                      finalError != null ? STATE_FAILED : STATE_COMPLETED,
-                      finalError)
-                  || changeStateAndNotify(STATE_STARTED_CANCELING, STATE_CANCELED)
-                  || changeStateAndNotify(STATE_STARTED_STOPPING, STATE_QUEUED)) {
-                return;
-              }
-              throw new IllegalStateException();
+          () -> {
+            if (changeStateAndNotify(
+                    STATE_STARTED, finalError != null ? STATE_FAILED : STATE_COMPLETED, finalError)
+                || changeStateAndNotify(STATE_STARTED_CANCELING, STATE_CANCELED)
+                || changeStateAndNotify(STATE_STARTED_STOPPING, STATE_QUEUED)) {
+              return;
             }
+            throw new IllegalStateException();
           });
     }
 

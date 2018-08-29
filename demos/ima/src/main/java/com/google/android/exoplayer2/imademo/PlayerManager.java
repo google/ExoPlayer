@@ -76,9 +76,7 @@ import com.google.android.exoplayer2.util.Util;
             contentMediaSource,
             /* adMediaSourceFactory= */ this,
             adsLoader,
-            playerView.getOverlayFrameLayout(),
-            /* eventHandler= */ null,
-            /* eventListener= */ null);
+            playerView.getOverlayFrameLayout());
 
     // Prepare the player with the source.
     player.seekTo(contentPosition);

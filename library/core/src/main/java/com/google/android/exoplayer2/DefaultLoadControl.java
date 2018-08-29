@@ -154,6 +154,7 @@ public class DefaultLoadControl implements LoadControl {
     }
 
     /** Creates a {@link DefaultLoadControl}. */
+    @SuppressWarnings("deprecation")
     public DefaultLoadControl createDefaultLoadControl() {
       if (allocator == null) {
         allocator = new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE);
@@ -183,15 +184,15 @@ public class DefaultLoadControl implements LoadControl {
   private int targetBufferSize;
   private boolean isBuffering;
 
-  /**
-   * Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class.
-   */
+  /** Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class. */
+  @SuppressWarnings("deprecation")
   public DefaultLoadControl() {
     this(new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE));
   }
 
   /** @deprecated Use {@link Builder} instead. */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultLoadControl(DefaultAllocator allocator) {
     this(
         allocator,
@@ -205,6 +206,7 @@ public class DefaultLoadControl implements LoadControl {
 
   /** @deprecated Use {@link Builder} instead. */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultLoadControl(
       DefaultAllocator allocator,
       int minBufferMs,

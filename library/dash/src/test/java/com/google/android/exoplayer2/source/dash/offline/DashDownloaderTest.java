@@ -298,7 +298,7 @@ public class DashDownloaderTest {
   }
 
   private DashDownloader getDashDownloader(FakeDataSet fakeDataSet, StreamKey... keys) {
-    return getDashDownloader(new Factory(null).setFakeDataSet(fakeDataSet), keys);
+    return getDashDownloader(new Factory().setFakeDataSet(fakeDataSet), keys);
   }
 
   private DashDownloader getDashDownloader(Factory factory, StreamKey... keys) {

@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -57,6 +58,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static final String TAG_VERSION = "#EXT-X-VERSION";
   private static final String TAG_PLAYLIST_TYPE = "#EXT-X-PLAYLIST-TYPE";
+  private static final String TAG_DEFINE = "#EXT-X-DEFINE";
   private static final String TAG_STREAM_INF = "#EXT-X-STREAM-INF";
   private static final String TAG_MEDIA = "#EXT-X-MEDIA";
   private static final String TAG_TARGET_DURATION = "#EXT-X-TARGETDURATION";
@@ -147,6 +149,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_AUTOSELECT = compileBooleanAttrPattern("AUTOSELECT");
   private static final Pattern REGEX_DEFAULT = compileBooleanAttrPattern("DEFAULT");
   private static final Pattern REGEX_FORCED = compileBooleanAttrPattern("FORCED");
+  private static final Pattern REGEX_VALUE = Pattern.compile("VALUE=\"(.+?)\"");
+  private static final Pattern REGEX_IMPORT = Pattern.compile("IMPORT=\"(.+?)\"");
+  private static final Pattern REGEX_VARIABLE_REFERENCE =
+      Pattern.compile("\\{\\$([a-zA-Z0-9\\-_]+)\\}");
 
   private final HlsMasterPlaylist masterPlaylist;
 
@@ -239,6 +245,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       throws IOException {
     HashSet<String> variantUrls = new HashSet<>();
     HashMap<String, String> audioGroupIdToCodecs = new HashMap<>();
+    HashMap<String, String> variableDefinitions = new HashMap<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> variants = new ArrayList<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> audios = new ArrayList<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> subtitles = new ArrayList<>();
@@ -258,7 +265,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         tags.add(line);
       }
 
-      if (line.equals(TAG_INDEPENDENT_SEGMENTS)) {
+      if (line.startsWith(TAG_DEFINE)) {
+        variableDefinitions.put(
+            /* key= */ parseStringAttr(line, REGEX_NAME, variableDefinitions),
+            /* value= */ parseStringAttr(line, REGEX_VALUE, variableDefinitions));
+      } else if (line.equals(TAG_INDEPENDENT_SEGMENTS)) {
         hasIndependentSegmentsTag = true;
       } else if (line.startsWith(TAG_MEDIA)) {
         // Media tags are parsed at the end to include codec information from #EXT-X-STREAM-INF
@@ -267,13 +278,15 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.startsWith(TAG_STREAM_INF)) {
         noClosedCaptions |= line.contains(ATTR_CLOSED_CAPTIONS_NONE);
         int bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
-        String averageBandwidthString = parseOptionalStringAttr(line, REGEX_AVERAGE_BANDWIDTH);
+        String averageBandwidthString =
+            parseOptionalStringAttr(line, REGEX_AVERAGE_BANDWIDTH, variableDefinitions);
         if (averageBandwidthString != null) {
           // If available, the average bandwidth attribute is used as the variant's bitrate.
           bitrate = Integer.parseInt(averageBandwidthString);
         }
-        String codecs = parseOptionalStringAttr(line, REGEX_CODECS);
-        String resolutionString = parseOptionalStringAttr(line, REGEX_RESOLUTION);
+        String codecs = parseOptionalStringAttr(line, REGEX_CODECS, variableDefinitions);
+        String resolutionString =
+            parseOptionalStringAttr(line, REGEX_RESOLUTION, variableDefinitions);
         int width;
         int height;
         if (resolutionString != null) {
@@ -290,15 +303,18 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           height = Format.NO_VALUE;
         }
         float frameRate = Format.NO_VALUE;
-        String frameRateString = parseOptionalStringAttr(line, REGEX_FRAME_RATE);
+        String frameRateString =
+            parseOptionalStringAttr(line, REGEX_FRAME_RATE, variableDefinitions);
         if (frameRateString != null) {
           frameRate = Float.parseFloat(frameRateString);
         }
-        String audioGroupId = parseOptionalStringAttr(line, REGEX_AUDIO);
+        String audioGroupId = parseOptionalStringAttr(line, REGEX_AUDIO, variableDefinitions);
         if (audioGroupId != null && codecs != null) {
           audioGroupIdToCodecs.put(audioGroupId, Util.getCodecsOfType(codecs, C.TRACK_TYPE_AUDIO));
         }
-        line = iterator.next(); // #EXT-X-STREAM-INF's URI.
+        line =
+            replaceVariableReferences(
+                iterator.next(), variableDefinitions); // #EXT-X-STREAM-INF's URI.
         if (variantUrls.add(line)) {
           Format format =
               Format.createVideoContainerFormat(
@@ -321,12 +337,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     for (int i = 0; i < mediaTags.size(); i++) {
       line = mediaTags.get(i);
       @C.SelectionFlags int selectionFlags = parseSelectionFlags(line);
-      String uri = parseOptionalStringAttr(line, REGEX_URI);
-      String name = parseStringAttr(line, REGEX_NAME);
-      String language = parseOptionalStringAttr(line, REGEX_LANGUAGE);
-      String groupId = parseOptionalStringAttr(line, REGEX_GROUP_ID);
+      String uri = parseOptionalStringAttr(line, REGEX_URI, variableDefinitions);
+      String name = parseStringAttr(line, REGEX_NAME, variableDefinitions);
+      String language = parseOptionalStringAttr(line, REGEX_LANGUAGE, variableDefinitions);
+      String groupId = parseOptionalStringAttr(line, REGEX_GROUP_ID, variableDefinitions);
       Format format;
-      switch (parseStringAttr(line, REGEX_TYPE)) {
+      switch (parseStringAttr(line, REGEX_TYPE, variableDefinitions)) {
         case TYPE_AUDIO:
           String codecs = audioGroupIdToCodecs.get(groupId);
           String sampleMimeType = codecs != null ? MimeTypes.getMediaMimeType(codecs) : null;
@@ -363,7 +379,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format));
           break;
         case TYPE_CLOSED_CAPTIONS:
-          String instreamId = parseStringAttr(line, REGEX_INSTREAM_ID);
+          String instreamId = parseStringAttr(line, REGEX_INSTREAM_ID, variableDefinitions);
           String mimeType;
           int accessibilityChannel;
           if (instreamId.startsWith("CC")) {
@@ -405,7 +421,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         subtitles,
         muxedAudioFormat,
         muxedCaptionFormats,
-        hasIndependentSegmentsTag);
+        hasIndependentSegmentsTag,
+        variableDefinitions);
   }
 
   @C.SelectionFlags
@@ -433,6 +450,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     boolean hasIndependentSegmentsTag = masterPlaylist.hasIndependentSegments;
     boolean hasEndTag = false;
     Segment initializationSegment = null;
+    HashMap<String, String> variableDefinitions = new HashMap<>();
     List<Segment> segments = new ArrayList<>();
     List<String> tags = new ArrayList<>();
 
@@ -465,7 +483,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       }
 
       if (line.startsWith(TAG_PLAYLIST_TYPE)) {
-        String playlistTypeString = parseStringAttr(line, REGEX_PLAYLIST_TYPE);
+        String playlistTypeString = parseStringAttr(line, REGEX_PLAYLIST_TYPE, variableDefinitions);
         if ("VOD".equals(playlistTypeString)) {
           playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_VOD;
         } else if ("EVENT".equals(playlistTypeString)) {
@@ -474,8 +492,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       } else if (line.startsWith(TAG_START)) {
         startOffsetUs = (long) (parseDoubleAttr(line, REGEX_TIME_OFFSET) * C.MICROS_PER_SECOND);
       } else if (line.startsWith(TAG_INIT_SEGMENT)) {
-        String uri = parseStringAttr(line, REGEX_URI);
-        String byteRange = parseOptionalStringAttr(line, REGEX_ATTR_BYTERANGE);
+        String uri = parseStringAttr(line, REGEX_URI, variableDefinitions);
+        String byteRange = parseOptionalStringAttr(line, REGEX_ATTR_BYTERANGE, variableDefinitions);
         if (byteRange != null) {
           String[] splitByteRange = byteRange.split("@");
           segmentByteRangeLength = Long.parseLong(splitByteRange[0]);
@@ -493,24 +511,39 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         segmentMediaSequence = mediaSequence;
       } else if (line.startsWith(TAG_VERSION)) {
         version = parseIntAttr(line, REGEX_VERSION);
+      } else if (line.startsWith(TAG_DEFINE)) {
+        String importName = parseOptionalStringAttr(line, REGEX_IMPORT, variableDefinitions);
+        if (importName != null) {
+          String value = masterPlaylist.variableDefinitions.get(importName);
+          if (value != null) {
+            variableDefinitions.put(importName, value);
+          } else {
+            // The master playlist does not declare the imported variable. Ignore.
+          }
+        } else {
+          variableDefinitions.put(
+              parseStringAttr(line, REGEX_NAME, variableDefinitions),
+              parseStringAttr(line, REGEX_VALUE, variableDefinitions));
+        }
       } else if (line.startsWith(TAG_MEDIA_DURATION)) {
         segmentDurationUs =
             (long) (parseDoubleAttr(line, REGEX_MEDIA_DURATION) * C.MICROS_PER_SECOND);
-        segmentTitle = parseOptionalStringAttr(line, REGEX_MEDIA_TITLE, "");
+        segmentTitle = parseOptionalStringAttr(line, REGEX_MEDIA_TITLE, "", variableDefinitions);
       } else if (line.startsWith(TAG_KEY)) {
-        String method = parseStringAttr(line, REGEX_METHOD);
-        String keyFormat = parseOptionalStringAttr(line, REGEX_KEYFORMAT, KEYFORMAT_IDENTITY);
+        String method = parseStringAttr(line, REGEX_METHOD, variableDefinitions);
+        String keyFormat =
+            parseOptionalStringAttr(line, REGEX_KEYFORMAT, KEYFORMAT_IDENTITY, variableDefinitions);
         encryptionKeyUri = null;
         encryptionIV = null;
         if (METHOD_NONE.equals(method)) {
           currentSchemeDatas.clear();
           cachedDrmInitData = null;
         } else /* !METHOD_NONE.equals(method) */ {
-          encryptionIV = parseOptionalStringAttr(line, REGEX_IV);
+          encryptionIV = parseOptionalStringAttr(line, REGEX_IV, variableDefinitions);
           if (KEYFORMAT_IDENTITY.equals(keyFormat)) {
             if (METHOD_AES_128.equals(method)) {
               // The segment is fully encrypted using an identity key.
-              encryptionKeyUri = parseStringAttr(line, REGEX_URI);
+              encryptionKeyUri = parseStringAttr(line, REGEX_URI, variableDefinitions);
             } else {
               // Do nothing. Samples are encrypted using an identity key, but this is not supported.
               // Hopefully, a traditional DRM alternative is also provided.
@@ -524,9 +557,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             }
             SchemeData schemeData;
             if (KEYFORMAT_PLAYREADY.equals(keyFormat)) {
-              schemeData = parsePlayReadySchemeData(line);
+              schemeData = parsePlayReadySchemeData(line, variableDefinitions);
             } else {
-              schemeData = parseWidevineSchemeData(line, keyFormat);
+              schemeData = parseWidevineSchemeData(line, keyFormat, variableDefinitions);
             }
             if (schemeData != null) {
               cachedDrmInitData = null;
@@ -535,7 +568,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           }
         }
       } else if (line.startsWith(TAG_BYTERANGE)) {
-        String byteRange = parseStringAttr(line, REGEX_BYTERANGE);
+        String byteRange = parseStringAttr(line, REGEX_BYTERANGE, variableDefinitions);
         String[] splitByteRange = byteRange.split("@");
         segmentByteRangeLength = Long.parseLong(splitByteRange[0]);
         if (splitByteRange.length > 1) {
@@ -587,7 +620,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
         segments.add(
             new Segment(
-                line,
+                replaceVariableReferences(line, variableDefinitions),
                 initializationSegment,
                 segmentTitle,
                 segmentDurationUs,
@@ -627,24 +660,29 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         segments);
   }
 
-  private static @Nullable SchemeData parsePlayReadySchemeData(String line) throws ParserException {
-    String keyFormatVersions = parseOptionalStringAttr(line, REGEX_KEYFORMATVERSIONS, "1");
+  private static @Nullable SchemeData parsePlayReadySchemeData(
+      String line, Map<String, String> variableDefinitions) throws ParserException {
+    String keyFormatVersions =
+        parseOptionalStringAttr(line, REGEX_KEYFORMATVERSIONS, "1", variableDefinitions);
     if (!"1".equals(keyFormatVersions)) {
       // Not supported.
       return null;
     }
-    String uriString = parseStringAttr(line, REGEX_URI);
+    String uriString = parseStringAttr(line, REGEX_URI, variableDefinitions);
     byte[] data = Base64.decode(uriString.substring(uriString.indexOf(',')), Base64.DEFAULT);
     byte[] psshData = PsshAtomUtil.buildPsshAtom(C.PLAYREADY_UUID, data);
     return new SchemeData(C.PLAYREADY_UUID, MimeTypes.VIDEO_MP4, psshData);
   }
 
-  private static @Nullable SchemeData parseWidevineSchemeData(String line, String keyFormat)
+  private static @Nullable SchemeData parseWidevineSchemeData(
+      String line, String keyFormat, Map<String, String> variableDefinitions)
       throws ParserException {
     if (KEYFORMAT_WIDEVINE_PSSH_BINARY.equals(keyFormat)) {
-     String uriString = parseStringAttr(line, REGEX_URI);
-     return new SchemeData(C.WIDEVINE_UUID, MimeTypes.VIDEO_MP4,
-         Base64.decode(uriString.substring(uriString.indexOf(',')), Base64.DEFAULT));
+      String uriString = parseStringAttr(line, REGEX_URI, variableDefinitions);
+      return new SchemeData(
+          C.WIDEVINE_UUID,
+          MimeTypes.VIDEO_MP4,
+          Base64.decode(uriString.substring(uriString.indexOf(',')), Base64.DEFAULT));
     }
     if (KEYFORMAT_WIDEVINE_PSSH_JSON.equals(keyFormat)) {
       try {
@@ -657,19 +695,21 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   }
 
   private static int parseIntAttr(String line, Pattern pattern) throws ParserException {
-    return Integer.parseInt(parseStringAttr(line, pattern));
+    return Integer.parseInt(parseStringAttr(line, pattern, Collections.emptyMap()));
   }
 
   private static long parseLongAttr(String line, Pattern pattern) throws ParserException {
-    return Long.parseLong(parseStringAttr(line, pattern));
+    return Long.parseLong(parseStringAttr(line, pattern, Collections.emptyMap()));
   }
 
   private static double parseDoubleAttr(String line, Pattern pattern) throws ParserException {
-    return Double.parseDouble(parseStringAttr(line, pattern));
+    return Double.parseDouble(parseStringAttr(line, pattern, Collections.emptyMap()));
   }
 
-  private static String parseStringAttr(String line, Pattern pattern) throws ParserException {
-    String value = parseOptionalStringAttr(line, pattern);
+  private static String parseStringAttr(
+      String line, Pattern pattern, Map<String, String> variableDefinitions)
+      throws ParserException {
+    String value = parseOptionalStringAttr(line, pattern, variableDefinitions);
     if (value != null) {
       return value;
     } else {
@@ -677,14 +717,39 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     }
   }
 
-  private static @Nullable String parseOptionalStringAttr(String line, Pattern pattern) {
-    return parseOptionalStringAttr(line, pattern, null);
+  private static @Nullable String parseOptionalStringAttr(
+      String line, Pattern pattern, Map<String, String> variableDefinitions) {
+    return parseOptionalStringAttr(line, pattern, null, variableDefinitions);
   }
 
   private static @PolyNull String parseOptionalStringAttr(
-      String line, Pattern pattern, @PolyNull String defaultValue) {
+      String line,
+      Pattern pattern,
+      @PolyNull String defaultValue,
+      Map<String, String> variableDefinitions) {
     Matcher matcher = pattern.matcher(line);
-    return matcher.find() ? matcher.group(1) : defaultValue;
+    String value = matcher.find() ? matcher.group(1) : defaultValue;
+    return variableDefinitions.isEmpty() || value == null
+        ? value
+        : replaceVariableReferences(value, variableDefinitions);
+  }
+
+  private static String replaceVariableReferences(
+      String string, Map<String, String> variableDefinitions) {
+    Matcher matcher = REGEX_VARIABLE_REFERENCE.matcher(string);
+    // TODO: Replace StringBuffer with StringBuilder once Java 9 is available.
+    StringBuffer stringWithReplacements = new StringBuffer();
+    while (matcher.find()) {
+      String groupName = matcher.group(1);
+      if (variableDefinitions.containsKey(groupName)) {
+        matcher.appendReplacement(
+            stringWithReplacements, Matcher.quoteReplacement(variableDefinitions.get(groupName)));
+      } else {
+        // The variable is not defined. The value is ignored.
+      }
+    }
+    matcher.appendTail(stringWithReplacements);
+    return stringWithReplacements.toString();
   }
 
   private static boolean parseOptionalBooleanAttribute(

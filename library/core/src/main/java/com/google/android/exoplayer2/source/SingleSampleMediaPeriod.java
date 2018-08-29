@@ -155,7 +155,6 @@ import java.util.Arrays;
             loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_MEDIA));
     eventDispatcher.loadStarted(
         dataSpec,
-        dataSpec.uri,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         format,
@@ -211,6 +210,7 @@ import java.util.Arrays;
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
         loadable.dataSource.getLastOpenedUri(),
+        loadable.dataSource.getLastResponseHeaders(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         format,
@@ -229,6 +229,7 @@ import java.util.Arrays;
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.dataSource.getLastOpenedUri(),
+        loadable.dataSource.getLastResponseHeaders(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -269,6 +270,7 @@ import java.util.Arrays;
     eventDispatcher.loadError(
         loadable.dataSpec,
         loadable.dataSource.getLastOpenedUri(),
+        loadable.dataSource.getLastResponseHeaders(),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         format,

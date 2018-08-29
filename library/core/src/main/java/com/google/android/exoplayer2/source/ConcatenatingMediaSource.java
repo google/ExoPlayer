@@ -60,8 +60,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
   // Accessed on the playback thread.
   private final List<MediaSourceHolder> mediaSourceHolders;
-  private final MediaSourceHolder query;
   private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
+  private final Map<Object, MediaSourceHolder> mediaSourceByUid;
   private final List<Runnable> pendingOnCompletionActions;
   private final boolean isAtomic;
   private final boolean useLazyPreparation;
@@ -125,10 +125,10 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     }
     this.shuffleOrder = shuffleOrder.getLength() > 0 ? shuffleOrder.cloneAndClear() : shuffleOrder;
     this.mediaSourceByMediaPeriod = new IdentityHashMap<>();
+    this.mediaSourceByUid = new HashMap<>();
     this.mediaSourcesPublic = new ArrayList<>();
     this.mediaSourceHolders = new ArrayList<>();
     this.pendingOnCompletionActions = new ArrayList<>();
-    this.query = new MediaSourceHolder(/* mediaSource= */ null);
     this.isAtomic = isAtomic;
     this.useLazyPreparation = useLazyPreparation;
     window = new Timeline.Window();
@@ -451,8 +451,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
   @Override
   public final MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-    int mediaSourceHolderIndex = findMediaSourceHolderByPeriodIndex(id.periodIndex);
-    MediaSourceHolder holder = mediaSourceHolders.get(mediaSourceHolderIndex);
+    Object mediaSourceHolderUid = getMediaSourceHolderUid(id.periodUid);
+    MediaSourceHolder holder = Assertions.checkNotNull(mediaSourceByUid.get(mediaSourceHolderUid));
     DeferredMediaPeriod mediaPeriod = new DeferredMediaPeriod(holder.mediaSource, id, allocator);
     mediaSourceByMediaPeriod.put(mediaPeriod, holder);
     holder.activeMediaPeriods.add(mediaPeriod);
@@ -460,8 +460,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       holder.hasStartedPreparing = true;
       prepareChildSource(holder, holder.mediaSource);
     } else if (holder.isPrepared) {
-      MediaPeriodId idInSource =
-          id.copyWithPeriodIndex(id.periodIndex - holder.firstPeriodIndexInChild);
+      MediaPeriodId idInSource = id.copyWithPeriodUid(getChildPeriodUid(holder, id.periodUid));
       mediaPeriod.createPeriod(idInSource);
     }
     return mediaPeriod;
@@ -482,6 +481,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   public final void releaseSourceInternal() {
     super.releaseSourceInternal();
     mediaSourceHolders.clear();
+    mediaSourceByUid.clear();
     player = null;
     playerApplicationHandler = null;
     shuffleOrder = shuffleOrder.cloneAndClear();
@@ -506,8 +506,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       // by this media source. Otherwise it does not belong to this child source.
       if (mediaSourceHolder.activeMediaPeriods.get(i).id.windowSequenceNumber
           == mediaPeriodId.windowSequenceNumber) {
-        return mediaPeriodId.copyWithPeriodIndex(
-            mediaPeriodId.periodIndex + mediaSourceHolder.firstPeriodIndexInChild);
+        Object periodUid = getPeriodUid(mediaSourceHolder, mediaPeriodId.periodUid);
+        return mediaPeriodId.copyWithPeriodUid(periodUid);
       }
     }
     return null;
@@ -633,6 +633,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         newMediaSourceHolder.timeline.getWindowCount(),
         newMediaSourceHolder.timeline.getPeriodCount());
     mediaSourceHolders.add(newIndex, newMediaSourceHolder);
+    mediaSourceByUid.put(newMediaSourceHolder.uid, newMediaSourceHolder);
     if (!useLazyPreparation) {
       newMediaSourceHolder.hasStartedPreparing = true;
       prepareChildSource(newMediaSourceHolder, newMediaSourceHolder.mediaSource);
@@ -672,8 +673,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         DeferredMediaPeriod deferredMediaPeriod = mediaSourceHolder.activeMediaPeriods.get(i);
         deferredMediaPeriod.setDefaultPreparePositionUs(defaultPeriodPositionUs);
         MediaPeriodId idInSource =
-            deferredMediaPeriod.id.copyWithPeriodIndex(
-                deferredMediaPeriod.id.periodIndex - mediaSourceHolder.firstPeriodIndexInChild);
+            deferredMediaPeriod.id.copyWithPeriodUid(
+                getChildPeriodUid(mediaSourceHolder, deferredMediaPeriod.id.periodUid));
         deferredMediaPeriod.createPeriod(idInSource);
       }
       mediaSourceHolder.isPrepared = true;
@@ -689,6 +690,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
   private void removeMediaSourceInternal(int index) {
     MediaSourceHolder holder = mediaSourceHolders.remove(index);
+    mediaSourceByUid.remove(holder.uid);
     Timeline oldTimeline = holder.timeline;
     correctOffsets(
         index,
@@ -727,17 +729,22 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     }
   }
 
-  private int findMediaSourceHolderByPeriodIndex(int periodIndex) {
-    query.firstPeriodIndexInChild = periodIndex;
-    int index = Collections.binarySearch(mediaSourceHolders, query);
-    if (index < 0) {
-      return -index - 2;
+  /** Return uid of media source holder from period uid of concatenated source. */
+  private static Object getMediaSourceHolderUid(Object periodUid) {
+    return ConcatenatedTimeline.getChildTimelineUidFromConcatenatedUid(periodUid);
+  }
+
+  /** Return uid of child period from period uid of concatenated source. */
+  private static Object getChildPeriodUid(MediaSourceHolder holder, Object periodUid) {
+    Object childUid = ConcatenatedTimeline.getChildPeriodUidFromConcatenatedUid(periodUid);
+    return childUid.equals(DeferredTimeline.DUMMY_ID) ? holder.timeline.replacedId : childUid;
+  }
+
+  private static Object getPeriodUid(MediaSourceHolder holder, Object childPeriodUid) {
+    if (holder.timeline.replacedId.equals(childPeriodUid)) {
+      childPeriodUid = DeferredTimeline.DUMMY_ID;
     }
-    while (index < mediaSourceHolders.size() - 1
-        && mediaSourceHolders.get(index + 1).firstPeriodIndexInChild == periodIndex) {
-      index++;
-    }
-    return index;
+    return ConcatenatedTimeline.getConcatenatedUid(holder.uid, childPeriodUid);
   }
 
   /** Data class to hold playlist media sources together with meta data needed to process them. */

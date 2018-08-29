@@ -330,6 +330,7 @@ public final class SsMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public SsMediaSource(
       SsManifest manifest,
       SsChunkSource.Factory chunkSourceFactory,
@@ -388,6 +389,7 @@ public final class SsMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public SsMediaSource(
       Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
@@ -420,6 +422,7 @@ public final class SsMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public SsMediaSource(
       Uri manifestUri,
       DataSource.Factory manifestDataSourceFactory,
@@ -525,7 +528,6 @@ public final class SsMediaSource extends BaseMediaSource
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-    Assertions.checkArgument(id.periodIndex == 0);
     EventDispatcher eventDispatcher = createEventDispatcher(id);
     SsMediaPeriod period =
         new SsMediaPeriod(
@@ -570,6 +572,7 @@ public final class SsMediaSource extends BaseMediaSource
     manifestEventDispatcher.loadCompleted(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -586,6 +589,7 @@ public final class SsMediaSource extends BaseMediaSource
     manifestEventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -603,6 +607,7 @@ public final class SsMediaSource extends BaseMediaSource
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
         loadable.getUri(),
+        loadable.getResponseHeaders(),
         loadable.type,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -684,12 +689,7 @@ public final class SsMediaSource extends BaseMediaSource
     }
     long nextLoadTimestamp = manifestLoadStartTimestamp + MINIMUM_MANIFEST_REFRESH_PERIOD_MS;
     long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
-    manifestRefreshHandler.postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        startLoadingManifest();
-      }
-    }, delayUntilNextLoad);
+    manifestRefreshHandler.postDelayed(this::startLoadingManifest, delayUntilNextLoad);
   }
 
   private void startLoadingManifest() {
@@ -698,8 +698,7 @@ public final class SsMediaSource extends BaseMediaSource
     long elapsedRealtimeMs =
         manifestLoader.startLoading(
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));
-    manifestEventDispatcher.loadStarted(
-        loadable.dataSpec, loadable.dataSpec.uri, loadable.type, elapsedRealtimeMs);
+    manifestEventDispatcher.loadStarted(loadable.dataSpec, loadable.type, elapsedRealtimeMs);
   }
 
 }

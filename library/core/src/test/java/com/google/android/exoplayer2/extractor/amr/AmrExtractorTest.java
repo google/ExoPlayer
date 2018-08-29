@@ -250,14 +250,11 @@ public final class AmrExtractorTest {
 
   @NonNull
   private static ExtractorAsserts.ExtractorFactory createAmrExtractorFactory(boolean withSeeking) {
-    return new ExtractorAsserts.ExtractorFactory() {
-      @Override
-      public Extractor create() {
-        if (!withSeeking) {
-          return new AmrExtractor();
-        } else {
-          return new AmrExtractor(AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
-        }
+    return () -> {
+      if (!withSeeking) {
+        return new AmrExtractor();
+      } else {
+        return new AmrExtractor(AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
       }
     };
   }

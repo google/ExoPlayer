@@ -262,6 +262,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public ExtractorMediaSource(
       Uri uri,
       DataSource.Factory dataSourceFactory,
@@ -284,6 +285,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public ExtractorMediaSource(
       Uri uri,
       DataSource.Factory dataSourceFactory,
@@ -316,6 +318,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public ExtractorMediaSource(
       Uri uri,
       DataSource.Factory dataSourceFactory,
@@ -371,7 +374,6 @@ public final class ExtractorMediaSource extends BaseMediaSource
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-    Assertions.checkArgument(id.periodIndex == 0);
     DataSource dataSource = dataSourceFactory.createDataSource();
     if (transferListener != null) {
       dataSource.addTransferListener(transferListener);
@@ -427,6 +429,8 @@ public final class ExtractorMediaSource extends BaseMediaSource
    * Wraps a deprecated {@link EventListener}, invoking its callback from the equivalent callback in
    * {@link MediaSourceEventListener}.
    */
+  @Deprecated
+  @SuppressWarnings("deprecation")
   private static final class EventListenerWrapper extends DefaultMediaSourceEventListener {
     private final EventListener eventListener;
 

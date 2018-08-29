@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceExcep
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Predicate;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -50,6 +51,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.chromium.net.CronetEngine;
 import org.chromium.net.NetworkException;
 import org.chromium.net.UrlRequest;
@@ -60,10 +62,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.shadows.ShadowSystemClock;
 
 /** Tests for {@link CronetDataSource}. */
 @RunWith(RobolectricTestRunner.class)
@@ -73,7 +72,7 @@ public final class CronetDataSourceTest {
   private static final int TEST_READ_TIMEOUT_MS = 100;
   private static final String TEST_URL = "http://google.com";
   private static final String TEST_CONTENT_TYPE = "test/test";
-  private static final byte[] TEST_POST_BODY = "test post body".getBytes();
+  private static final byte[] TEST_POST_BODY = Util.getUtf8Bytes("test post body");
   private static final long TEST_CONTENT_LENGTH = 16000L;
   private static final int TEST_CONNECTION_STATUS = 5;
   private static final int TEST_INVALID_CONNECTION_STATUS = -1;
@@ -170,16 +169,13 @@ public final class CronetDataSourceTest {
     final UrlRequest mockUrlRequest2 = mock(UrlRequest.class);
     when(mockUrlRequestBuilder.build()).thenReturn(mockUrlRequest2);
     doAnswer(
-            new Answer<Object>() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                // Invoke the callback for the previous request.
-                dataSourceUnderTest.urlRequestCallback.onFailed(
-                    mockUrlRequest, testUrlResponseInfo, mockNetworkException);
-                dataSourceUnderTest.urlRequestCallback.onResponseStarted(
-                    mockUrlRequest2, testUrlResponseInfo);
-                return null;
-              }
+            invocation -> {
+              // Invoke the callback for the previous request.
+              dataSourceUnderTest.urlRequestCallback.onFailed(
+                  mockUrlRequest, testUrlResponseInfo, mockNetworkException);
+              dataSourceUnderTest.urlRequestCallback.onResponseStarted(
+                  mockUrlRequest2, testUrlResponseInfo);
+              return null;
             })
         .when(mockUrlRequest2)
         .start();
@@ -582,10 +578,10 @@ public final class CronetDataSourceTest {
     // We should still be trying to open.
     assertNotCountedDown(timedOutLatch);
     // We should still be trying to open as we approach the timeout.
-    ShadowSystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
+    SystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
     assertNotCountedDown(timedOutLatch);
     // Now we timeout.
-    ShadowSystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS + 10);
+    SystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS + 10);
     timedOutLatch.await();
 
     verify(mockTransferListener, never())
@@ -621,7 +617,7 @@ public final class CronetDataSourceTest {
     // We should still be trying to open.
     assertNotCountedDown(timedOutLatch);
     // We should still be trying to open as we approach the timeout.
-    ShadowSystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
+    SystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
     assertNotCountedDown(timedOutLatch);
     // Now we interrupt.
     thread.interrupt();
@@ -637,14 +633,16 @@ public final class CronetDataSourceTest {
     final ConditionVariable startCondition = buildUrlRequestStartedCondition();
     final CountDownLatch openLatch = new CountDownLatch(1);
 
+    AtomicReference<Exception> exceptionOnTestThread = new AtomicReference<>();
     new Thread() {
       @Override
       public void run() {
         try {
           dataSourceUnderTest.open(testDataSpec);
-          openLatch.countDown();
         } catch (HttpDataSourceException e) {
-          fail();
+          exceptionOnTestThread.set(e);
+        } finally {
+          openLatch.countDown();
         }
       }
     }.start();
@@ -653,11 +651,12 @@ public final class CronetDataSourceTest {
     // We should still be trying to open.
     assertNotCountedDown(openLatch);
     // We should still be trying to open as we approach the timeout.
-    ShadowSystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
+    SystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
     assertNotCountedDown(openLatch);
     // The response arrives just in time.
     dataSourceUnderTest.urlRequestCallback.onResponseStarted(mockUrlRequest, testUrlResponseInfo);
     openLatch.await();
+    assertThat(exceptionOnTestThread.get()).isNull();
   }
 
   @Test
@@ -687,14 +686,14 @@ public final class CronetDataSourceTest {
     // We should still be trying to open.
     assertNotCountedDown(timedOutLatch);
     // We should still be trying to open as we approach the timeout.
-    ShadowSystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
+    SystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
     assertNotCountedDown(timedOutLatch);
     // A redirect arrives just in time.
     dataSourceUnderTest.urlRequestCallback.onRedirectReceived(
         mockUrlRequest, testUrlResponseInfo, "RandomRedirectedUrl1");
 
     long newTimeoutMs = 2 * TEST_CONNECT_TIMEOUT_MS - 1;
-    ShadowSystemClock.setCurrentTimeMillis(startTimeMs + newTimeoutMs - 1);
+    SystemClock.setCurrentTimeMillis(startTimeMs + newTimeoutMs - 1);
     // We should still be trying to open as we approach the new timeout.
     assertNotCountedDown(timedOutLatch);
     // A redirect arrives just in time.
@@ -702,11 +701,11 @@ public final class CronetDataSourceTest {
         mockUrlRequest, testUrlResponseInfo, "RandomRedirectedUrl2");
 
     newTimeoutMs = 3 * TEST_CONNECT_TIMEOUT_MS - 2;
-    ShadowSystemClock.setCurrentTimeMillis(startTimeMs + newTimeoutMs - 1);
+    SystemClock.setCurrentTimeMillis(startTimeMs + newTimeoutMs - 1);
     // We should still be trying to open as we approach the new timeout.
     assertNotCountedDown(timedOutLatch);
     // Now we timeout.
-    ShadowSystemClock.setCurrentTimeMillis(startTimeMs + newTimeoutMs + 10);
+    SystemClock.setCurrentTimeMillis(startTimeMs + newTimeoutMs + 10);
     timedOutLatch.await();
 
     verify(mockTransferListener, never())
@@ -900,14 +899,11 @@ public final class CronetDataSourceTest {
 
   private void mockStatusResponse() {
     doAnswer(
-            new Answer<Object>() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                UrlRequest.StatusListener statusListener =
-                    (UrlRequest.StatusListener) invocation.getArguments()[0];
-                statusListener.onStatus(TEST_CONNECTION_STATUS);
-                return null;
-              }
+            invocation -> {
+              UrlRequest.StatusListener statusListener =
+                  (UrlRequest.StatusListener) invocation.getArguments()[0];
+              statusListener.onStatus(TEST_CONNECTION_STATUS);
+              return null;
             })
         .when(mockUrlRequest)
         .getStatus(any(UrlRequest.StatusListener.class));
@@ -915,13 +911,10 @@ public final class CronetDataSourceTest {
 
   private void mockResponseStartSuccess() {
     doAnswer(
-            new Answer<Object>() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                dataSourceUnderTest.urlRequestCallback.onResponseStarted(
-                    mockUrlRequest, testUrlResponseInfo);
-                return null;
-              }
+            invocation -> {
+              dataSourceUnderTest.urlRequestCallback.onResponseStarted(
+                  mockUrlRequest, testUrlResponseInfo);
+              return null;
             })
         .when(mockUrlRequest)
         .start();
@@ -929,15 +922,12 @@ public final class CronetDataSourceTest {
 
   private void mockResponseStartRedirect() {
     doAnswer(
-            new Answer<Object>() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                dataSourceUnderTest.urlRequestCallback.onRedirectReceived(
-                    mockUrlRequest,
-                    createUrlResponseInfo(307), // statusCode
-                    "http://redirect.location.com");
-                return null;
-              }
+            invocation -> {
+              dataSourceUnderTest.urlRequestCallback.onRedirectReceived(
+                  mockUrlRequest,
+                  createUrlResponseInfo(307), // statusCode
+                  "http://redirect.location.com");
+              return null;
             })
         .when(mockUrlRequest)
         .start();
@@ -945,21 +935,18 @@ public final class CronetDataSourceTest {
 
   private void mockSingleRedirectSuccess() {
     doAnswer(
-            new Answer<Object>() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                if (!redirectCalled) {
-                  redirectCalled = true;
-                  dataSourceUnderTest.urlRequestCallback.onRedirectReceived(
-                      mockUrlRequest,
-                      createUrlResponseInfoWithUrl("http://example.com/video", 300),
-                      "http://example.com/video/redirect");
-                } else {
-                  dataSourceUnderTest.urlRequestCallback.onResponseStarted(
-                      mockUrlRequest, testUrlResponseInfo);
-                }
-                return null;
+            invocation -> {
+              if (!redirectCalled) {
+                redirectCalled = true;
+                dataSourceUnderTest.urlRequestCallback.onRedirectReceived(
+                    mockUrlRequest,
+                    createUrlResponseInfoWithUrl("http://example.com/video", 300),
+                    "http://example.com/video/redirect");
+              } else {
+                dataSourceUnderTest.urlRequestCallback.onResponseStarted(
+                    mockUrlRequest, testUrlResponseInfo);
               }
+              return null;
             })
         .when(mockUrlRequest)
         .start();
@@ -967,13 +954,10 @@ public final class CronetDataSourceTest {
 
   private void mockFollowRedirectSuccess() {
     doAnswer(
-            new Answer<Object>() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                dataSourceUnderTest.urlRequestCallback.onResponseStarted(
-                    mockUrlRequest, testUrlResponseInfo);
-                return null;
-              }
+            invocation -> {
+              dataSourceUnderTest.urlRequestCallback.onResponseStarted(
+                  mockUrlRequest, testUrlResponseInfo);
+              return null;
             })
         .when(mockUrlRequest)
         .followRedirect();
@@ -981,15 +965,12 @@ public final class CronetDataSourceTest {
 
   private void mockResponseStartFailure() {
     doAnswer(
-            new Answer<Object>() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                dataSourceUnderTest.urlRequestCallback.onFailed(
-                    mockUrlRequest,
-                    createUrlResponseInfo(500), // statusCode
-                    mockNetworkException);
-                return null;
-              }
+            invocation -> {
+              dataSourceUnderTest.urlRequestCallback.onFailed(
+                  mockUrlRequest,
+                  createUrlResponseInfo(500), // statusCode
+                  mockNetworkException);
+              return null;
             })
         .when(mockUrlRequest)
         .start();
@@ -998,23 +979,20 @@ public final class CronetDataSourceTest {
   private void mockReadSuccess(int position, int length) {
     final int[] positionAndRemaining = new int[] {position, length};
     doAnswer(
-            new Answer<Void>() {
-              @Override
-              public Void answer(InvocationOnMock invocation) throws Throwable {
-                if (positionAndRemaining[1] == 0) {
-                  dataSourceUnderTest.urlRequestCallback.onSucceeded(
-                      mockUrlRequest, testUrlResponseInfo);
-                } else {
-                  ByteBuffer inputBuffer = (ByteBuffer) invocation.getArguments()[0];
-                  int readLength = Math.min(positionAndRemaining[1], inputBuffer.remaining());
-                  inputBuffer.put(buildTestDataBuffer(positionAndRemaining[0], readLength));
-                  positionAndRemaining[0] += readLength;
-                  positionAndRemaining[1] -= readLength;
-                  dataSourceUnderTest.urlRequestCallback.onReadCompleted(
-                      mockUrlRequest, testUrlResponseInfo, inputBuffer);
-                }
-                return null;
+            invocation -> {
+              if (positionAndRemaining[1] == 0) {
+                dataSourceUnderTest.urlRequestCallback.onSucceeded(
+                    mockUrlRequest, testUrlResponseInfo);
+              } else {
+                ByteBuffer inputBuffer = (ByteBuffer) invocation.getArguments()[0];
+                int readLength = Math.min(positionAndRemaining[1], inputBuffer.remaining());
+                inputBuffer.put(buildTestDataBuffer(positionAndRemaining[0], readLength));
+                positionAndRemaining[0] += readLength;
+                positionAndRemaining[1] -= readLength;
+                dataSourceUnderTest.urlRequestCallback.onReadCompleted(
+                    mockUrlRequest, testUrlResponseInfo, inputBuffer);
               }
+              return null;
             })
         .when(mockUrlRequest)
         .read(any(ByteBuffer.class));
@@ -1022,15 +1000,12 @@ public final class CronetDataSourceTest {
 
   private void mockReadFailure() {
     doAnswer(
-            new Answer<Object>() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                dataSourceUnderTest.urlRequestCallback.onFailed(
-                    mockUrlRequest,
-                    createUrlResponseInfo(500), // statusCode
-                    mockNetworkException);
-                return null;
-              }
+            invocation -> {
+              dataSourceUnderTest.urlRequestCallback.onFailed(
+                  mockUrlRequest,
+                  createUrlResponseInfo(500), // statusCode
+                  mockNetworkException);
+              return null;
             })
         .when(mockUrlRequest)
         .read(any(ByteBuffer.class));
@@ -1039,12 +1014,9 @@ public final class CronetDataSourceTest {
   private ConditionVariable buildReadStartedCondition() {
     final ConditionVariable startedCondition = new ConditionVariable();
     doAnswer(
-            new Answer<Object>() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                startedCondition.open();
-                return null;
-              }
+            invocation -> {
+              startedCondition.open();
+              return null;
             })
         .when(mockUrlRequest)
         .read(any(ByteBuffer.class));
@@ -1054,12 +1026,9 @@ public final class CronetDataSourceTest {
   private ConditionVariable buildUrlRequestStartedCondition() {
     final ConditionVariable startedCondition = new ConditionVariable();
     doAnswer(
-            new Answer<Object>() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                startedCondition.open();
-                return null;
-              }
+            invocation -> {
+              startedCondition.open();
+              return null;
             })
         .when(mockUrlRequest)
         .start();

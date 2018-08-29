@@ -64,9 +64,7 @@ public class SsManifestTest {
     SsManifest sourceManifest =
         newSsManifest(newStreamElement("1", formats[0]), newStreamElement("2", formats[1]));
 
-    List<StreamKey> keys = Arrays.asList(new StreamKey(1, 0));
-    // Keys don't need to be in any particular order
-    Collections.shuffle(keys, new Random(0));
+    List<StreamKey> keys = Collections.singletonList(new StreamKey(1, 0));
 
     SsManifest copyManifest = sourceManifest.copy(keys);
 

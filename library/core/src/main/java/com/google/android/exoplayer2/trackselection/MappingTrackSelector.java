@@ -43,7 +43,11 @@ public abstract class MappingTrackSelector extends TrackSelector {
    */
   public static final class MappedTrackInfo {
 
-    /** Levels of renderer support. Higher numerical values indicate higher levels of support. */
+    /**
+     * Levels of renderer support. Higher numerical values indicate higher levels of support. One of
+     * {@link #RENDERER_SUPPORT_NO_TRACKS}, {@link #RENDERER_SUPPORT_UNSUPPORTED_TRACKS}, {@link
+     * #RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS} or {@link #RENDERER_SUPPORT_PLAYABLE_TRACKS}.
+     */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
       RENDERER_SUPPORT_NO_TRACKS,
@@ -95,6 +99,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      *     each mapped track, indexed by renderer, track group and track (in that order).
      * @param unmappedTrackGroups {@link TrackGroup}s not mapped to any renderer.
      */
+    @SuppressWarnings("deprecation")
     /* package */ MappedTrackInfo(
         int[] rendererTrackTypes,
         TrackGroupArray[] rendererTrackGroups,

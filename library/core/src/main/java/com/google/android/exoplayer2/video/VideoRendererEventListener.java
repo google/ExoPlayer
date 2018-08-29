@@ -129,12 +129,7 @@ public interface VideoRendererEventListener {
      */
     public void enabled(final DecoderCounters decoderCounters) {
       if (listener != null) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            listener.onVideoEnabled(decoderCounters);
-          }
-        });
+        handler.post(() -> listener.onVideoEnabled(decoderCounters));
       }
     }
 
@@ -144,13 +139,10 @@ public interface VideoRendererEventListener {
     public void decoderInitialized(final String decoderName,
         final long initializedTimestampMs, final long initializationDurationMs) {
       if (listener != null) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            listener.onVideoDecoderInitialized(decoderName, initializedTimestampMs,
-                initializationDurationMs);
-          }
-        });
+        handler.post(
+            () ->
+                listener.onVideoDecoderInitialized(
+                    decoderName, initializedTimestampMs, initializationDurationMs));
       }
     }
 
@@ -159,12 +151,7 @@ public interface VideoRendererEventListener {
      */
     public void inputFormatChanged(final Format format) {
       if (listener != null) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            listener.onVideoInputFormatChanged(format);
-          }
-        });
+        handler.post(() -> listener.onVideoInputFormatChanged(format));
       }
     }
 
@@ -173,12 +160,7 @@ public interface VideoRendererEventListener {
      */
     public void droppedFrames(final int droppedFrameCount, final long elapsedMs) {
       if (listener != null) {
-        handler.post(new Runnable()  {
-          @Override
-          public void run() {
-            listener.onDroppedFrames(droppedFrameCount, elapsedMs);
-          }
-        });
+        handler.post(() -> listener.onDroppedFrames(droppedFrameCount, elapsedMs));
       }
     }
 
@@ -188,13 +170,10 @@ public interface VideoRendererEventListener {
     public void videoSizeChanged(final int width, final int height,
         final int unappliedRotationDegrees, final float pixelWidthHeightRatio) {
       if (listener != null) {
-        handler.post(new Runnable()  {
-          @Override
-          public void run() {
-            listener.onVideoSizeChanged(width, height, unappliedRotationDegrees,
-                pixelWidthHeightRatio);
-          }
-        });
+        handler.post(
+            () ->
+                listener.onVideoSizeChanged(
+                    width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
       }
     }
 
@@ -203,12 +182,7 @@ public interface VideoRendererEventListener {
      */
     public void renderedFirstFrame(final Surface surface) {
       if (listener != null) {
-        handler.post(new Runnable()  {
-          @Override
-          public void run() {
-            listener.onRenderedFirstFrame(surface);
-          }
-        });
+        handler.post(() -> listener.onRenderedFirstFrame(surface));
       }
     }
 
@@ -217,13 +191,11 @@ public interface VideoRendererEventListener {
      */
     public void disabled(final DecoderCounters counters) {
       if (listener != null) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            counters.ensureUpdated();
-            listener.onVideoDisabled(counters);
-          }
-        });
+        handler.post(
+            () -> {
+              counters.ensureUpdated();
+              listener.onVideoDisabled(counters);
+            });
       }
     }
 

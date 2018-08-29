@@ -197,6 +197,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public SingleSampleMediaSource(
       Uri uri, DataSource.Factory dataSourceFactory, Format format, long durationUs) {
     this(
@@ -249,6 +250,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
    * @deprecated Use {@link Factory} instead.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public SingleSampleMediaSource(
       Uri uri,
       DataSource.Factory dataSourceFactory,
@@ -308,7 +310,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-    Assertions.checkArgument(id.periodIndex == 0);
     return new SingleSampleMediaPeriod(
         dataSpec,
         dataSourceFactory,
@@ -334,6 +335,8 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
    * Wraps a deprecated {@link EventListener}, invoking its callback from the equivalent callback in
    * {@link MediaSourceEventListener}.
    */
+  @Deprecated
+  @SuppressWarnings("deprecation")
   private static final class EventListenerWrapper extends DefaultMediaSourceEventListener {
 
     private final EventListener eventListener;

@@ -24,8 +24,6 @@ import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
@@ -68,10 +66,10 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   private FrameworkMediaDrm(UUID uuid) throws UnsupportedSchemeException {
     Assertions.checkNotNull(uuid);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
-    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
-    uuid = Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid;
     this.uuid = uuid;
-    this.mediaDrm = new MediaDrm(uuid);
+    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
+    this.mediaDrm =
+        new MediaDrm(Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid);
     if (C.WIDEVINE_UUID.equals(uuid) && needsForceWidevineL3Workaround()) {
       forceWidevineL3(mediaDrm);
     }
@@ -80,13 +78,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   @Override
   public void setOnEventListener(
       final ExoMediaDrm.OnEventListener<? super FrameworkMediaCrypto> listener) {
-    mediaDrm.setOnEventListener(listener == null ? null : new MediaDrm.OnEventListener() {
-      @Override
-      public void onEvent(@NonNull MediaDrm md, @Nullable byte[] sessionId, int event, int extra,
-          byte[] data) {
-        listener.onEvent(FrameworkMediaDrm.this, sessionId, event, extra, data);
-      }
-    });
+    mediaDrm.setOnEventListener(
+        listener == null
+            ? null
+            : (mediaDrm, sessionId, event, extra, data) ->
+                listener.onEvent(FrameworkMediaDrm.this, sessionId, event, extra, data));
   }
 
   @Override
@@ -99,20 +95,13 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     mediaDrm.setOnKeyStatusChangeListener(
         listener == null
             ? null
-            : new MediaDrm.OnKeyStatusChangeListener() {
-              @Override
-              public void onKeyStatusChange(
-                  @NonNull MediaDrm md,
-                  @NonNull byte[] sessionId,
-                  @NonNull List<MediaDrm.KeyStatus> keyInfo,
-                  boolean hasNewUsableKey) {
-                List<KeyStatus> exoKeyInfo = new ArrayList<>();
-                for (MediaDrm.KeyStatus keyStatus : keyInfo) {
-                  exoKeyInfo.add(new KeyStatus(keyStatus.getStatusCode(), keyStatus.getKeyId()));
-                }
-                listener.onKeyStatusChange(
-                    FrameworkMediaDrm.this, sessionId, exoKeyInfo, hasNewUsableKey);
+            : (mediaDrm, sessionId, keyInfo, hasNewUsableKey) -> {
+              List<KeyStatus> exoKeyInfo = new ArrayList<>();
+              for (MediaDrm.KeyStatus keyStatus : keyInfo) {
+                exoKeyInfo.add(new KeyStatus(keyStatus.getStatusCode(), keyStatus.getKeyId()));
               }
+              listener.onKeyStatusChange(
+                  FrameworkMediaDrm.this, sessionId, exoKeyInfo, hasNewUsableKey);
             },
         null);
   }
@@ -238,7 +227,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @SuppressLint("WrongConstant") // Suppress spurious lint error [Internal ref: b/32137960]
-  private static final void forceWidevineL3(MediaDrm mediaDrm) {
+  private static void forceWidevineL3(MediaDrm mediaDrm) {
     mediaDrm.setPropertyString("securityLevel", "L3");
   }
 

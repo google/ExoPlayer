@@ -24,6 +24,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link Loadable} for objects that can be parsed from binary data using a {@link Parser}.
@@ -130,6 +132,14 @@ public final class ParsingLoadable<T> implements Loadable {
    */
   public Uri getUri() {
     return dataSource.getLastOpenedUri();
+  }
+
+  /**
+   * Returns the response headers associated with the load. Must only be called after the load
+   * completed, failed, or was canceled.
+   */
+  public Map<String, List<String>> getResponseHeaders() {
+    return dataSource.getLastResponseHeaders();
   }
 
   @Override

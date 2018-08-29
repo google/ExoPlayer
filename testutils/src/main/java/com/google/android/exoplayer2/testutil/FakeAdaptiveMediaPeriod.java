@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
@@ -76,8 +77,13 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
-  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+  @SuppressWarnings("unchecked")
+  public long selectTracks(
+      TrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs) {
     long returnPositionUs = super.selectTracks(selections, mayRetainStreamFlags, streams,
         streamResetFlags, positionUs);
     List<ChunkSampleStream<FakeChunkSource>> validStreams = new ArrayList<>();
@@ -137,13 +143,13 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
         chunkSourceFactory.createChunkSource(trackSelection, durationUs, transferListener);
     return new ChunkSampleStream<>(
         MimeTypes.getTrackType(trackSelection.getSelectedFormat().sampleMimeType),
-        null,
-        null,
+        /* embeddedTrackTypes= */ null,
+        /* embeddedTrackFormats= */ null,
         chunkSource,
-        this,
+        /* callback= */ this,
         allocator,
-        0,
-        3,
+        /* positionUs= */ 0,
+        new DefaultLoadErrorHandlingPolicy(/* minimumLoadableRetryCount= */ 3),
         eventDispatcher);
   }
 

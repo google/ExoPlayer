@@ -96,7 +96,7 @@ public class DrmInitDataTest {
   }
 
   @Test
-  @Deprecated
+  @SuppressWarnings("deprecation")
   public void testGetByUuid() {
     // Basic matching.
     DrmInitData testInitData = new DrmInitData(DATA_1, DATA_2);
@@ -130,6 +130,7 @@ public class DrmInitDataTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testSchemeDatasWithSameUuid() {
     DrmInitData testInitData = new DrmInitData(DATA_1, DATA_1B);
     assertThat(testInitData.schemeDataCount).isEqualTo(2);

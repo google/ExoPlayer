@@ -248,8 +248,6 @@ public final class MediaSessionConnector {
      * description)}.
      */
     void onRemoveQueueItem(Player player, MediaDescriptionCompat description);
-    /** See {@link MediaSessionCompat.Callback#onRemoveQueueItemAt(int index)}. */
-    void onRemoveQueueItemAt(Player player, int index);
   }
 
   /** Callback receiving a user rating for the active media item. */
@@ -1020,13 +1018,6 @@ public final class MediaSessionConnector {
     public void onRemoveQueueItem(MediaDescriptionCompat description) {
       if (queueEditor != null) {
         queueEditor.onRemoveQueueItem(player, description);
-      }
-    }
-
-    @Override
-    public void onRemoveQueueItemAt(int index) {
-      if (queueEditor != null) {
-        queueEditor.onRemoveQueueItemAt(player, index);
       }
     }
   }

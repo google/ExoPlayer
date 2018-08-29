@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -397,9 +398,71 @@ public class HlsMediaPlaylistParserTest {
             /* subtitles= */ Collections.emptyList(),
             /* muxedAudioFormat= */ null,
             /* muxedCaptionFormats= */ null,
-            /* hasIndependentSegments= */ true);
+            /* hasIndependentSegments= */ true,
+            /* variableDefinitions */ Collections.emptyMap());
     HlsMediaPlaylist playlistWithInheritance =
         (HlsMediaPlaylist) new HlsPlaylistParser(masterPlaylist).parse(playlistUri, inputStream);
     assertThat(playlistWithInheritance.hasIndependentSegments).isTrue();
+  }
+
+  @Test
+  public void testVariableSubstitution() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/substitution.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:8\n"
+            + "#EXT-X-DEFINE:NAME=\"underscore_1\",VALUE=\"{\"\n"
+            + "#EXT-X-DEFINE:NAME=\"dash-1\",VALUE=\"replaced_value.ts\"\n"
+            + "#EXT-X-TARGETDURATION:5\n"
+            + "#EXT-X-MEDIA-SEQUENCE:10\n"
+            + "#EXTINF:5.005,\n"
+            + "segment1.ts\n"
+            + "#EXT-X-MAP:URI=\"{$dash-1}\""
+            + "#EXTINF:5.005,\n"
+            + "segment{$underscore_1}$name_1}\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+    Segment segment = playlist.segments.get(1);
+    assertThat(segment.initializationSegment.url).isEqualTo("replaced_value.ts");
+    assertThat(segment.url).isEqualTo("segment{$name_1}");
+  }
+
+  @Test
+  public void testInheritedVariableSubstitution() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:8\n"
+            + "#EXT-X-TARGETDURATION:5\n"
+            + "#EXT-X-MEDIA-SEQUENCE:10\n"
+            + "#EXT-X-DEFINE:IMPORT=\"imported_base\"\n"
+            + "#EXTINF:5.005,\n"
+            + "{$imported_base}1.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "{$imported_base}2.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "{$imported_base}3.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "{$imported_base}4.ts\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+    HashMap<String, String> variableDefinitions = new HashMap<>();
+    variableDefinitions.put("imported_base", "long_path");
+    HlsMasterPlaylist masterPlaylist =
+        new HlsMasterPlaylist(
+            /* baseUri= */ "",
+            /* tags= */ Collections.emptyList(),
+            /* variants= */ Collections.emptyList(),
+            /* audios= */ Collections.emptyList(),
+            /* subtitles= */ Collections.emptyList(),
+            /* muxedAudioFormat= */ null,
+            /* muxedCaptionFormats= */ Collections.emptyList(),
+            /* hasIndependentSegments= */ false,
+            variableDefinitions);
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser(masterPlaylist).parse(playlistUri, inputStream);
+    for (int i = 1; i <= 4; i++) {
+      assertThat(playlist.segments.get(i - 1).url).isEqualTo("long_path" + i + ".ts");
+    }
   }
 }

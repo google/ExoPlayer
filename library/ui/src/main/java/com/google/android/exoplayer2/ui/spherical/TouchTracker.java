@@ -15,8 +15,11 @@
  */
 package com.google.android.exoplayer2.ui.spherical;
 
+import android.content.Context;
 import android.graphics.PointF;
 import android.support.annotation.BinderThread;
+import android.support.annotation.Nullable;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -42,7 +45,8 @@ import android.view.View;
  * Mesh as the user moves their finger. However, that requires quaternion interpolation.
  */
 // @VisibleForTesting
-/*package*/ class TouchTracker implements View.OnTouchListener {
+/*package*/ class TouchTracker extends GestureDetector.SimpleOnGestureListener
+    implements View.OnTouchListener {
 
   /*package*/ interface Listener {
     void onScrollChange(PointF scrollOffsetDegrees);
@@ -58,14 +62,25 @@ import android.view.View;
 
   private final Listener listener;
   private final float pxPerDegrees;
+  private final GestureDetector gestureDetector;
   // The conversion from touch to yaw & pitch requires compensating for device roll. This is set
   // on the sensor thread and read on the UI thread.
   private volatile float roll;
+  private @Nullable SingleTapListener singleTapListener;
 
-  public TouchTracker(Listener listener, float pxPerDegrees) {
+  @SuppressWarnings({
+    "nullness:assignment.type.incompatible",
+    "nullness:argument.type.incompatible"
+  })
+  public TouchTracker(Context context, Listener listener, float pxPerDegrees) {
     this.listener = listener;
     this.pxPerDegrees = pxPerDegrees;
+    gestureDetector = new GestureDetector(context, this);
     roll = SphericalSurfaceView.UPRIGHT_ROLL;
+  }
+
+  public void setSingleTapListener(@Nullable SingleTapListener listener) {
+    singleTapListener = listener;
   }
 
   /**
@@ -75,36 +90,46 @@ import android.view.View;
    */
   @Override
   public boolean onTouch(View v, MotionEvent event) {
-    switch (event.getAction()) {
-      case MotionEvent.ACTION_DOWN:
-        // Initialize drag gesture.
-        previousTouchPointPx.set(event.getX(), event.getY());
-        return true;
-      case MotionEvent.ACTION_MOVE:
-        // Calculate the touch delta in screen space.
-        float touchX = (event.getX() - previousTouchPointPx.x) / pxPerDegrees;
-        float touchY = (event.getY() - previousTouchPointPx.y) / pxPerDegrees;
-        previousTouchPointPx.set(event.getX(), event.getY());
+    return gestureDetector.onTouchEvent(event);
+  }
 
-        float r = roll; // Copy volatile state.
-        float cr = (float) Math.cos(r);
-        float sr = (float) Math.sin(r);
-        // To convert from screen space to the 3D space, we need to adjust the drag vector based
-        // on the roll of the phone. This is standard rotationMatrix(roll) * vector math but has
-        // an inverted y-axis due to the screen-space coordinates vs GL coordinates.
-        // Handle yaw.
-        accumulatedTouchOffsetDegrees.x -= cr * touchX - sr * touchY;
-        // Handle pitch and limit it to 45 degrees.
-        accumulatedTouchOffsetDegrees.y += sr * touchX + cr * touchY;
-        accumulatedTouchOffsetDegrees.y =
-            Math.max(
-                -MAX_PITCH_DEGREES, Math.min(MAX_PITCH_DEGREES, accumulatedTouchOffsetDegrees.y));
+  @Override
+  public boolean onDown(MotionEvent e) {
+    // Initialize drag gesture.
+    previousTouchPointPx.set(e.getX(), e.getY());
+    return true;
+  }
 
-        listener.onScrollChange(accumulatedTouchOffsetDegrees);
-        return true;
-      default:
-        return false;
+  @Override
+  public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+    // Calculate the touch delta in screen space.
+    float touchX = (e2.getX() - previousTouchPointPx.x) / pxPerDegrees;
+    float touchY = (e2.getY() - previousTouchPointPx.y) / pxPerDegrees;
+    previousTouchPointPx.set(e2.getX(), e2.getY());
+
+    float r = roll; // Copy volatile state.
+    float cr = (float) Math.cos(r);
+    float sr = (float) Math.sin(r);
+    // To convert from screen space to the 3D space, we need to adjust the drag vector based
+    // on the roll of the phone. This is standard rotationMatrix(roll) * vector math but has
+    // an inverted y-axis due to the screen-space coordinates vs GL coordinates.
+    // Handle yaw.
+    accumulatedTouchOffsetDegrees.x -= cr * touchX - sr * touchY;
+    // Handle pitch and limit it to 45 degrees.
+    accumulatedTouchOffsetDegrees.y += sr * touchX + cr * touchY;
+    accumulatedTouchOffsetDegrees.y =
+        Math.max(-MAX_PITCH_DEGREES, Math.min(MAX_PITCH_DEGREES, accumulatedTouchOffsetDegrees.y));
+
+    listener.onScrollChange(accumulatedTouchOffsetDegrees);
+    return true;
+  }
+
+  @Override
+  public boolean onSingleTapUp(MotionEvent e) {
+    if (singleTapListener != null) {
+      return singleTapListener.onSingleTapUp(e);
     }
+    return false;
   }
 
   @BinderThread

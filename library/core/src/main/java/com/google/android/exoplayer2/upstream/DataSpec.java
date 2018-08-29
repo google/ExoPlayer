@@ -30,10 +30,13 @@ import java.util.Arrays;
 public final class DataSpec {
 
   /**
-   * The flags that apply to any request for data.
+   * The flags that apply to any request for data. Possible flag values are {@link #FLAG_ALLOW_GZIP}
+   * and {@link #FLAG_ALLOW_CACHING_UNKNOWN_LENGTH}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {FLAG_ALLOW_GZIP, FLAG_ALLOW_CACHING_UNKNOWN_LENGTH})
+  @IntDef(
+      flag = true,
+      value = {FLAG_ALLOW_GZIP, FLAG_ALLOW_CACHING_UNKNOWN_LENGTH})
   public @interface Flags {}
   /**
    * Permits an underlying network stack to request that the server use gzip compression.
@@ -54,7 +57,11 @@ public final class DataSpec {
    */
   public static final int FLAG_ALLOW_CACHING_UNKNOWN_LENGTH = 1 << 1; // 2
 
-  /** The set of HTTP methods that are supported by ExoPlayer {@link HttpDataSource}s. */
+  /**
+   * The set of HTTP methods that are supported by ExoPlayer {@link HttpDataSource}s. One of {@link
+   * #HTTP_METHOD_GET}, {@link #HTTP_METHOD_POST} or {@link #HTTP_METHOD_HEAD}.
+   */
+  @Retention(RetentionPolicy.SOURCE)
   @IntDef({HTTP_METHOD_GET, HTTP_METHOD_POST, HTTP_METHOD_HEAD})
   public @interface HttpMethod {}
 
@@ -219,6 +226,7 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
+  @SuppressWarnings("deprecation")
   public DataSpec(
       Uri uri,
       @HttpMethod int httpMethod,

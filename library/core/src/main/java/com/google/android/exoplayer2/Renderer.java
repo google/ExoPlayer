@@ -34,7 +34,10 @@ import java.lang.annotation.RetentionPolicy;
  */
 public interface Renderer extends PlayerMessage.Target {
 
-  /** The renderer states. */
+  /**
+   * The renderer states. One of {@link #STATE_DISABLED}, {@link #STATE_ENABLED} or {@link
+   * #STATE_STARTED}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_DISABLED, STATE_ENABLED, STATE_STARTED})
   @interface State {}
@@ -202,7 +205,7 @@ public interface Renderer extends PlayerMessage.Target {
    * @param operatingRate The operating rate.
    * @throws ExoPlaybackException If an error occurs handling the operating rate.
    */
-  default void setOperatingRate(float operatingRate) throws ExoPlaybackException {};
+  default void setOperatingRate(float operatingRate) throws ExoPlaybackException {}
 
   /**
    * Incrementally renders the {@link SampleStream}.
