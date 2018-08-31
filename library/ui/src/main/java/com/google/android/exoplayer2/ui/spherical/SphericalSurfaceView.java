@@ -37,17 +37,10 @@ import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.spherical.ProjectionRenderer.EyeType;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
-import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
-import com.google.android.exoplayer2.video.spherical.FrameRotationQueue;
-import com.google.android.exoplayer2.video.spherical.Projection;
-import com.google.android.exoplayer2.video.spherical.ProjectionDecoder;
-import java.util.Arrays;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -62,8 +55,7 @@ import javax.microedition.khronos.opengles.GL10;
  * match what they expect.
  */
 @TargetApi(15)
-public final class SphericalSurfaceView extends GLSurfaceView
-    implements VideoFrameMetadataListener, CameraMotionListener {
+public final class SphericalSurfaceView extends GLSurfaceView {
 
   /**
    * This listener can be used to be notified when the {@link Surface} associated with this view is
@@ -94,15 +86,12 @@ public final class SphericalSurfaceView extends GLSurfaceView
   private final PhoneOrientationListener phoneOrientationListener;
   private final Renderer renderer;
   private final Handler mainHandler;
-  private final TimedValueQueue<Long> sampleTimestampQueue;
-  private final FrameRotationQueue frameRotationQueue;
   private final TouchTracker touchTracker;
+  private final SceneRenderer scene;
   private @Nullable SurfaceListener surfaceListener;
   private @Nullable SurfaceTexture surfaceTexture;
   private @Nullable Surface surface;
-  private @C.StreamType int defaultStereoMode;
-  private @C.StreamType int currentStereoMode;
-  private @Nullable byte[] currentProjectionData;
+  private @Nullable Player.VideoComponent videoComponent;
 
   public SphericalSurfaceView(Context context) {
     this(context, null);
@@ -122,12 +111,7 @@ public final class SphericalSurfaceView extends GLSurfaceView
     int type = Util.SDK_INT >= 18 ? Sensor.TYPE_GAME_ROTATION_VECTOR : Sensor.TYPE_ROTATION_VECTOR;
     orientationSensor = sensorManager.getDefaultSensor(type);
 
-    defaultStereoMode = C.STEREO_MODE_MONO;
-    currentStereoMode = defaultStereoMode;
-    Projection projection = Projection.createEquirectangular(defaultStereoMode);
-    frameRotationQueue = new FrameRotationQueue();
-    sampleTimestampQueue = new TimedValueQueue<>();
-    SceneRenderer scene = new SceneRenderer(projection, frameRotationQueue, sampleTimestampQueue);
+    scene = new SceneRenderer();
     renderer = new Renderer(scene);
 
     touchTracker = new TouchTracker(context, renderer, PX_PER_DEGREES);
@@ -147,12 +131,27 @@ public final class SphericalSurfaceView extends GLSurfaceView
    * @param stereoMode A {@link C.StereoMode} value.
    */
   public void setDefaultStereoMode(@C.StereoMode int stereoMode) {
-    defaultStereoMode = stereoMode;
+    scene.setDefaultStereoMode(stereoMode);
   }
 
-  /** Returns the {@link Surface} associated with this view. */
-  public @Nullable Surface getSurface() {
-    return surface;
+  /** Sets the {@link Player.VideoComponent} to use. */
+  public void setVideoComponent(@Nullable Player.VideoComponent newVideoComponent) {
+    if (newVideoComponent == videoComponent) {
+      return;
+    }
+    if (videoComponent != null) {
+      if (surface != null) {
+        videoComponent.clearVideoSurface(surface);
+      }
+      videoComponent.clearVideoFrameMetadataListener(scene);
+      videoComponent.clearCameraMotionListener(scene);
+    }
+    videoComponent = newVideoComponent;
+    if (videoComponent != null) {
+      videoComponent.setVideoFrameMetadataListener(scene);
+      videoComponent.setCameraMotionListener(scene);
+      videoComponent.setVideoSurface(surface);
+    }
   }
 
   /**
@@ -167,29 +166,6 @@ public final class SphericalSurfaceView extends GLSurfaceView
   /** Sets the {@link SingleTapListener} used to listen to single tap events on this view. */
   public void setSingleTapListener(@Nullable SingleTapListener listener) {
     touchTracker.setSingleTapListener(listener);
-  }
-
-  // VideoFrameMetadataListener implementation.
-
-  @Override
-  public void onVideoFrameAboutToBeRendered(
-      long presentationTimeUs, long releaseTimeNs, Format format) {
-    sampleTimestampQueue.add(releaseTimeNs, presentationTimeUs);
-    setProjection(format.projectionData, format.stereoMode, releaseTimeNs);
-  }
-
-  // CameraMotionListener implementation.
-
-  @Override
-  public void onCameraMotion(long timeUs, float[] rotation) {
-    frameRotationQueue.setRotation(timeUs, rotation);
-  }
-
-  @Override
-  public void onCameraMotionReset() {
-    sampleTimestampQueue.clear();
-    frameRotationQueue.reset();
-    queueEvent(renderer.scene::resetRotation);
   }
 
   @Override
@@ -251,35 +227,6 @@ public final class SphericalSurfaceView extends GLSurfaceView
     if (oldSurface != null) {
       oldSurface.release();
     }
-  }
-
-  /**
-   * Sets projection data and stereo mode of the media to be played.
-   *
-   * @param projectionData Contains the projection data to be rendered.
-   * @param stereoMode A {@link C.StereoMode} value.
-   * @param timeNs When then new projection should be used.
-   */
-  private void setProjection(
-      @Nullable byte[] projectionData, @C.StereoMode int stereoMode, long timeNs) {
-    byte[] oldProjectionData = currentProjectionData;
-    int oldStereoMode = currentStereoMode;
-    currentProjectionData = projectionData;
-    currentStereoMode = stereoMode == Format.NO_VALUE ? defaultStereoMode : stereoMode;
-    if (oldStereoMode == currentStereoMode
-        && Arrays.equals(oldProjectionData, currentProjectionData)) {
-      return;
-    }
-
-    Projection projectionFromData = null;
-    if (currentProjectionData != null) {
-      projectionFromData = ProjectionDecoder.decode(currentProjectionData, currentStereoMode);
-    }
-    Projection projection =
-        projectionFromData != null && ProjectionRenderer.isSupported(projectionFromData)
-            ? projectionFromData
-            : Projection.createEquirectangular(currentStereoMode);
-    queueEvent(() -> renderer.scene.setProjection(projection, timeNs));
   }
 
   /** Detects sensor events and saves them as a matrix. */

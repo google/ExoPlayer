@@ -21,7 +21,6 @@ import android.annotation.TargetApi;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.video.spherical.Projection;
 import java.nio.FloatBuffer;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -143,13 +142,19 @@ import org.checkerframework.checker.nullness.qual.Nullable;
   }
 
   /**
-   * Renders the mesh. This must be called on the GL thread.
+   * Renders the mesh. If the projection hasn't been set, does nothing. This must be called on the
+   * GL thread.
    *
    * @param textureId GL_TEXTURE_EXTERNAL_OES used for this mesh.
    * @param mvpMatrix The Model View Projection matrix.
    * @param eyeType An {@link EyeType} value.
    */
   /* package */ void draw(int textureId, float[] mvpMatrix, int eyeType) {
+    MeshData meshData = eyeType == EyeType.RIGHT ? rightMeshData : leftMeshData;
+    if (meshData == null) {
+      return;
+    }
+
     // Configure shader.
     GLES20.glUseProgram(program);
     checkGlError();
@@ -173,9 +178,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId);
     GLES20.glUniform1i(textureHandle, 0);
     checkGlError();
-
-    MeshData meshData =
-        Assertions.checkNotNull(eyeType == EyeType.RIGHT ? rightMeshData : leftMeshData);
 
     // Load position data.
     GLES20.glVertexAttribPointer(
