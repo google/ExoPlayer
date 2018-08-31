@@ -35,7 +35,13 @@ public final class DefaultOggSeekerTest {
   @Test
   public void testSetupWithUnsetEndPositionFails() {
     try {
-      new DefaultOggSeeker(0, C.LENGTH_UNSET, new TestStreamReader(), 1, 1);
+      new DefaultOggSeeker(
+          /* startPosition= */ 0,
+          /* endPosition= */ C.LENGTH_UNSET,
+          /* streamReader= */ new TestStreamReader(),
+          /* firstPayloadPageSize= */ 1,
+          /* firstPayloadPageGranulePosition= */ 1,
+          /* firstPayloadPageIsLastPage= */ false);
       fail();
     } catch (IllegalArgumentException e) {
       // ignored
@@ -56,11 +62,12 @@ public final class DefaultOggSeekerTest {
     TestStreamReader streamReader = new TestStreamReader();
     DefaultOggSeeker oggSeeker =
         new DefaultOggSeeker(
-            0,
-            testFile.data.length,
-            streamReader,
-            testFile.firstPayloadPageSize,
-            testFile.firstPayloadPageGranulePosition);
+            /* startPosition= */ 0,
+            /* endPosition= */ testFile.data.length,
+            /* streamReader= */ streamReader,
+            /* firstPayloadPageSize= */ testFile.firstPayloadPageSize,
+            /* firstPayloadPageGranulePosition= */ testFile.firstPayloadPageGranulePosition,
+            /* firstPayloadPageIsLastPage= */ false);
     OggPageHeader pageHeader = new OggPageHeader();
 
     while (true) {

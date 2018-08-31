@@ -51,11 +51,11 @@ import java.util.Arrays;
    * can resume properly from an error while reading a continued packet spanned across multiple
    * pages.
    *
-   * @param input the {@link ExtractorInput} to read data from.
-   * @return {@code true} if the read was successful. {@code false} if the end of the input was
-   *    encountered having read no data.
-   * @throws IOException thrown if reading from the input fails.
-   * @throws InterruptedException thrown if interrupted while reading from input.
+   * @param input The {@link ExtractorInput} to read data from.
+   * @return {@code true} if the read was successful. The read fails if the end of the input is
+   *     encountered without reading data.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If the thread is interrupted.
    */
   public boolean populate(ExtractorInput input) throws IOException, InterruptedException {
     Assertions.checkState(input != null);
