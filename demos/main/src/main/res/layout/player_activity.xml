@@ -46,4 +46,10 @@
 
   </LinearLayout>
 
+  <Button android:id="@+id/switch_surface_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_vertical|end"
+      android:text="@string/switch_surface"/>
+
 </FrameLayout>

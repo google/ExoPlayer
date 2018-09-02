@@ -91,6 +91,7 @@ public final class DummySurface extends Surface {
     assertApiLevel17OrHigher();
     Assertions.checkState(!secure || isSecureSupported(context));
     DummySurfaceThread thread = new DummySurfaceThread();
+    Log.d(TAG, "newInstace [secure=" + secure + "]");
     return thread.init(secure ? secureMode : SECURE_MODE_NONE);
   }
 
@@ -143,12 +144,9 @@ public final class DummySurface extends Surface {
     if (!eglExtensions.contains(EXTENSION_PROTECTED_CONTENT)) {
       return SECURE_MODE_NONE;
     }
-    // If we can't use surfaceless contexts, we use a protected 1 * 1 pixel buffer surface. This may
-    // require support for EXT_protected_surface, but in practice it works on some devices that
-    // don't have that extension. See also https://github.com/google/ExoPlayer/issues/3558.
-    return eglExtensions.contains(EXTENSION_SURFACELESS_CONTEXT)
-        ? SECURE_MODE_SURFACELESS_CONTEXT
-        : SECURE_MODE_PROTECTED_PBUFFER;
+    return //eglExtensions.contains(EXTENSION_SURFACELESS_CONTEXT)
+        //? SECURE_MODE_SURFACELESS_CONTEXT
+        SECURE_MODE_PROTECTED_PBUFFER;
   }
 
   private static class DummySurfaceThread extends HandlerThread implements Callback {

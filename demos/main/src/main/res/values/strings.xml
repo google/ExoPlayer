@@ -57,4 +57,6 @@
 
   <string name="download_ads_unsupported">IMA does not support offline ads</string>
 
+  <string name="switch_surface">Switch surface</string>
+
 </resources>

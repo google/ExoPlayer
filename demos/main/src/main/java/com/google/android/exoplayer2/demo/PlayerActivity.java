@@ -25,6 +25,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Pair;
 import android.view.KeyEvent;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -133,6 +134,7 @@ public class PlayerActivity extends Activity
   private PlayerView playerView;
   private LinearLayout debugRootView;
   private TextView debugTextView;
+  private Button switchSurfaceButton;
 
   private DataSource.Factory mediaDataSourceFactory;
   private SimpleExoPlayer player;
@@ -143,6 +145,7 @@ public class PlayerActivity extends Activity
   private DebugTextViewHelper debugViewHelper;
   private TrackGroupArray lastSeenTrackGroupArray;
 
+  private boolean surfaceCleared;
   private boolean startAutoPlay;
   private int startWindow;
   private long startPosition;
@@ -173,6 +176,9 @@ public class PlayerActivity extends Activity
     playerView.setControllerVisibilityListener(this);
     playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
     playerView.requestFocus();
+
+    switchSurfaceButton = findViewById(R.id.switch_surface_button);
+    switchSurfaceButton.setOnClickListener(this);
 
     if (savedInstanceState != null) {
       trackSelectorParameters = savedInstanceState.getParcelable(KEY_TRACK_SELECTOR_PARAMETERS);
@@ -286,6 +292,13 @@ public class PlayerActivity extends Activity
         dialogPair.second.setAllowAdaptiveSelections(allowAdaptiveSelections);
         dialogPair.first.show();
       }
+    } else if (view == switchSurfaceButton) {
+      if (surfaceCleared) {
+        player.setVideoSurfaceView((SurfaceView) playerView.getVideoSurfaceView());
+      } else {
+        player.setVideoSurface(null);
+      }
+      surfaceCleared = !surfaceCleared;
     }
   }
 
