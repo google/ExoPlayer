@@ -451,6 +451,13 @@ public interface AnalyticsListener {
   default void onRenderedFirstFrame(EventTime eventTime, Surface surface) {}
 
   /**
+   * Called each time a drm session is acquired.
+   *
+   * @param eventTime The event time.
+   */
+  default void onDrmSessionAcquired(EventTime eventTime) {}
+
+  /**
    * Called each time drm keys are loaded.
    *
    * @param eventTime The event time.
@@ -479,4 +486,11 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    */
   default void onDrmKeysRemoved(EventTime eventTime) {}
+
+  /**
+   * Called each time a drm session is released.
+   *
+   * @param eventTime The event time.
+   */
+  default void onDrmSessionReleased(EventTime eventTime) {}
 }

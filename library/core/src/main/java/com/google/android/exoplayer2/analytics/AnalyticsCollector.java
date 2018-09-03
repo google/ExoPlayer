@@ -535,6 +535,14 @@ public class AnalyticsCollector
   // DefaultDrmSessionManager.EventListener implementation.
 
   @Override
+  public final void onDrmSessionAcquired() {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onDrmSessionAcquired(eventTime);
+    }
+  }
+
+  @Override
   public final void onDrmKeysLoaded() {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
@@ -563,6 +571,14 @@ public class AnalyticsCollector
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onDrmKeysRemoved(eventTime);
+    }
+  }
+
+  @Override
+  public final void onDrmSessionReleased() {
+    EventTime eventTime = generateLastReportedPlayingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onDrmSessionReleased(eventTime);
     }
   }
 

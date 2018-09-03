@@ -101,6 +101,8 @@ public final class AnalyticsCollectorTest {
   private static final int EVENT_DRM_ERROR = 34;
   private static final int EVENT_DRM_KEYS_RESTORED = 35;
   private static final int EVENT_DRM_KEYS_REMOVED = 36;
+  private static final int EVENT_DRM_SESSION_ACQUIRED = 37;
+  private static final int EVENT_DRM_SESSION_RELEASED = 38;
 
   private static final int TIMEOUT_MS = 10000;
   private static final Timeline SINGLE_PERIOD_TIMELINE = new FakeTimeline(/* windowCount= */ 1);
@@ -1092,6 +1094,11 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
+    public void onDrmSessionAcquired(EventTime eventTime) {
+      reportedEvents.add(new ReportedEvent(EVENT_DRM_SESSION_ACQUIRED, eventTime));
+    }
+
+    @Override
     public void onDrmKeysLoaded(EventTime eventTime) {
       reportedEvents.add(new ReportedEvent(EVENT_DRM_KEYS_LOADED, eventTime));
     }
@@ -1109,6 +1116,11 @@ public final class AnalyticsCollectorTest {
     @Override
     public void onDrmKeysRemoved(EventTime eventTime) {
       reportedEvents.add(new ReportedEvent(EVENT_DRM_KEYS_REMOVED, eventTime));
+    }
+
+    @Override
+    public void onDrmSessionReleased(EventTime eventTime) {
+      reportedEvents.add(new ReportedEvent(EVENT_DRM_SESSION_RELEASED, eventTime));
     }
 
     private static final class ReportedEvent {

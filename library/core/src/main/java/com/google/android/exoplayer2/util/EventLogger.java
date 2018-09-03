@@ -391,6 +391,11 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
+  public void onDrmSessionAcquired(EventTime eventTime) {
+    logd(eventTime, "drmSessionAcquired");
+  }
+
+  @Override
   public void onDrmSessionManagerError(EventTime eventTime, Exception e) {
     printInternalError(eventTime, "drmSessionManagerError", e);
   }
@@ -408,6 +413,11 @@ public class EventLogger implements AnalyticsListener {
   @Override
   public void onDrmKeysLoaded(EventTime eventTime) {
     logd(eventTime, "drmKeysLoaded");
+  }
+
+  @Override
+  public void onDrmSessionReleased(EventTime eventTime) {
+    logd(eventTime, "drmSessionReleased");
   }
 
   /**
