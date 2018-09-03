@@ -654,14 +654,22 @@ import java.util.List;
           || childAtomType == Atom.TYPE_vp09) {
         parseVideoSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             rotationDegrees, drmInitData, out, i);
-      } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
-          || childAtomType == Atom.TYPE_ac_3 || childAtomType == Atom.TYPE_ec_3
-          || childAtomType == Atom.TYPE_dtsc || childAtomType == Atom.TYPE_dtse
-          || childAtomType == Atom.TYPE_dtsh || childAtomType == Atom.TYPE_dtsl
-          || childAtomType == Atom.TYPE_samr || childAtomType == Atom.TYPE_sawb
-          || childAtomType == Atom.TYPE_lpcm || childAtomType == Atom.TYPE_sowt
-          || childAtomType == Atom.TYPE__mp3 || childAtomType == Atom.TYPE_alac
-          || childAtomType == Atom.TYPE_alaw || childAtomType == Atom.TYPE_ulaw ) {
+      } else if (childAtomType == Atom.TYPE_mp4a
+          || childAtomType == Atom.TYPE_enca
+          || childAtomType == Atom.TYPE_ac_3
+          || childAtomType == Atom.TYPE_ec_3
+          || childAtomType == Atom.TYPE_dtsc
+          || childAtomType == Atom.TYPE_dtse
+          || childAtomType == Atom.TYPE_dtsh
+          || childAtomType == Atom.TYPE_dtsl
+          || childAtomType == Atom.TYPE_samr
+          || childAtomType == Atom.TYPE_sawb
+          || childAtomType == Atom.TYPE_lpcm
+          || childAtomType == Atom.TYPE_sowt
+          || childAtomType == Atom.TYPE__mp3
+          || childAtomType == Atom.TYPE_alac
+          || childAtomType == Atom.TYPE_alaw
+          || childAtomType == Atom.TYPE_ulaw) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             language, isQuickTime, drmInitData, out, i);
       } else if (childAtomType == Atom.TYPE_TTML || childAtomType == Atom.TYPE_tx3g
@@ -956,7 +964,7 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_ALAC;
     } else if (atomType == Atom.TYPE_alaw) {
       mimeType = MimeTypes.AUDIO_ALAW;
-    } else if (atomType == Atom.TYPE_ulaw ) {
+    } else if (atomType == Atom.TYPE_ulaw) {
       mimeType = MimeTypes.AUDIO_MLAW;
     }
 
