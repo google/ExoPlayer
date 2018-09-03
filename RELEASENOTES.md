@@ -136,6 +136,8 @@
 * Prevent potential issues when reporting events for multi-period media sources
   ([#4492](https://github.com/google/ExoPlayer/issues/4492) and
   [#4634](https://github.com/google/ExoPlayer/issues/4634)).
+* Add callbacks to `DefaultDrmSessionEventListener` and `AnalyticsListener` to
+  get notified of acquired and released DRM sessions.
 
 ### 2.8.4 ###
 

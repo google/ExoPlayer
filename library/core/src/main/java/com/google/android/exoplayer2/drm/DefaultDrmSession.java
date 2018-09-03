@@ -184,6 +184,7 @@ import java.util.UUID;
       if (sessionId != null) {
         mediaDrm.closeSession(sessionId);
         sessionId = null;
+        eventDispatcher.dispatch(DefaultDrmSessionEventListener::onDrmSessionReleased);
       }
       return true;
     }
@@ -279,6 +280,7 @@ import java.util.UUID;
 
     try {
       sessionId = mediaDrm.openSession();
+      eventDispatcher.dispatch(DefaultDrmSessionEventListener::onDrmSessionAcquired);
       mediaCrypto = mediaDrm.createMediaCrypto(sessionId);
       state = STATE_OPENED;
       return true;
