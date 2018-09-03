@@ -566,16 +566,16 @@ public class PlayerView extends FrameLayout {
   }
 
   /**
-   * Sets the resize mode.
+   * Sets the {@link ResizeMode}.
    *
-   * @param resizeMode The resize mode.
+   * @param resizeMode The {@link ResizeMode}.
    */
   public void setResizeMode(@ResizeMode int resizeMode) {
     Assertions.checkState(contentFrame != null);
     contentFrame.setResizeMode(resizeMode);
   }
 
-  /** Returns the resize mode. */
+  /** Returns the {@link ResizeMode}. */
   public @ResizeMode int getResizeMode() {
     Assertions.checkState(contentFrame != null);
     return contentFrame.getResizeMode();

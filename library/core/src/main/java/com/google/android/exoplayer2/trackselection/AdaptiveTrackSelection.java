@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.trackselection;
 
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
@@ -60,7 +61,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
 
     /**
      * @deprecated Use {@link #Factory()} instead. Custom bandwidth meter should be directly passed
-     *     to the player in ExoPlayerFactory.
+     *     to the player in {@link ExoPlayerFactory}.
      */
     @Deprecated
     @SuppressWarnings("deprecation")
@@ -108,7 +109,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
 
     /**
      * @deprecated Use {@link #Factory(int, int, int, float)} instead. Custom bandwidth meter should
-     *     be directly passed to the player in ExoPlayerFactory.
+     *     be directly passed to the player in {@link ExoPlayerFactory}.
      */
     @Deprecated
     @SuppressWarnings("deprecation")
@@ -177,7 +178,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
 
     /**
      * @deprecated Use {@link #Factory(int, int, int, float, float, long, Clock)} instead. Custom
-     *     bandwidth meter should be directly passed to the player in ExoPlayerFactory.
+     *     bandwidth meter should be directly passed to the player in {@link ExoPlayerFactory}.
      */
     @Deprecated
     public Factory(

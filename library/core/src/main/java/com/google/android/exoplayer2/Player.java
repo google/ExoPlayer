@@ -22,6 +22,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import com.google.android.exoplayer2.C.VideoScalingMode;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
@@ -143,14 +144,14 @@ public interface Player {
   interface VideoComponent {
 
     /**
-     * Sets the video scaling mode.
+     * Sets the {@link @VideoScalingMode}.
      *
-     * @param videoScalingMode The video scaling mode.
+     * @param videoScalingMode The {@link @VideoScalingMode}.
      */
-    void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode);
+    void setVideoScalingMode(@VideoScalingMode int videoScalingMode);
 
-    /** Returns the video scaling mode. */
-    @C.VideoScalingMode
+    /** Returns the {@link @VideoScalingMode}. */
+    @VideoScalingMode
     int getVideoScalingMode();
 
     /**
