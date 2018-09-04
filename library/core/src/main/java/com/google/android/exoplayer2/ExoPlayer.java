@@ -189,6 +189,12 @@ public interface ExoPlayer extends Player {
   Looper getApplicationLooper();
 
   /**
+   * Retries a failed or stopped playback. Does nothing if the player has been reset, or if playback
+   * has not failed or been stopped.
+   */
+  void retry();
+
+  /**
    * Prepares the player to play the provided {@link MediaSource}. Equivalent to
    * {@code prepare(mediaSource, true, true)}.
    * <p>

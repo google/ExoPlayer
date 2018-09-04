@@ -65,6 +65,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final Timeline.Period period;
   private final ArrayDeque<PlaybackInfoUpdate> pendingPlaybackInfoUpdates;
 
+  private MediaSource mediaSource;
   private boolean playWhenReady;
   private boolean internalPlayWhenReady;
   private @RepeatMode int repeatMode;
@@ -192,13 +193,22 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public void retry() {
+    if (mediaSource != null
+        && (playbackError != null || playbackInfo.playbackState == Player.STATE_IDLE)) {
+      prepare(mediaSource, /* resetPosition= */ false, /* resetState= */ false);
+    }
+  }
+
+  @Override
   public void prepare(MediaSource mediaSource) {
-    prepare(mediaSource, true, true);
+    prepare(mediaSource, /* resetPosition= */ true, /* resetState= */ true);
   }
 
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     playbackError = null;
+    this.mediaSource = mediaSource;
     PlaybackInfo playbackInfo =
         getResetPlaybackInfo(
             resetPosition, resetState, /* playbackState= */ Player.STATE_BUFFERING);
@@ -384,6 +394,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public void stop(boolean reset) {
     if (reset) {
       playbackError = null;
+      mediaSource = null;
     }
     PlaybackInfo playbackInfo =
         getResetPlaybackInfo(
@@ -410,6 +421,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     Log.i(TAG, "Release " + Integer.toHexString(System.identityHashCode(this)) + " ["
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "] ["
         + ExoPlayerLibraryInfo.registeredModules() + "]");
+    mediaSource = null;
     internalPlayer.release();
     eventHandler.removeCallbacksAndMessages(null);
   }

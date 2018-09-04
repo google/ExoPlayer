@@ -80,6 +80,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public void retry() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void prepare(MediaSource mediaSource) {
     throw new UnsupportedOperationException();
   }
