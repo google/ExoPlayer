@@ -7,8 +7,9 @@
   `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to their
   gradle settings to ensure bytecode compatibility.
 * Set `compileSdkVersion` and `targetSdkVersion` to 28.
-* Added support for automatic audio focus handling via
+* Support for automatic audio focus handling via
   `SimpleExoPlayer.setAudioAttributes`.
+* Added `ExoPlayer.retry` convenience method.
 * Add `AudioListener` for listening to changes in audio configuration during
   playback ([#3994](https://github.com/google/ExoPlayer/issues/3994)).
 * Add `LoadErrorHandlingPolicy` to allow configuration of load error handling

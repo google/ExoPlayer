@@ -833,20 +833,26 @@ public class SimpleExoPlayer
   }
 
   @Override
+  public void retry() {
+    if (mediaSource != null
+        && (getPlaybackError() != null || getPlaybackState() == Player.STATE_IDLE)) {
+      prepare(mediaSource, /* resetPosition= */ false, /* resetState= */ false);
+    }
+  }
+
+  @Override
   public void prepare(MediaSource mediaSource) {
     prepare(mediaSource, /* resetPosition= */ true, /* resetState= */ true);
   }
 
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
-    if (this.mediaSource != mediaSource) {
-      if (this.mediaSource != null) {
-        this.mediaSource.removeEventListener(analyticsCollector);
-        analyticsCollector.resetForNewMediaSource();
-      }
-      mediaSource.addEventListener(eventHandler, analyticsCollector);
-      this.mediaSource = mediaSource;
+    if (this.mediaSource != null) {
+      this.mediaSource.removeEventListener(analyticsCollector);
+      analyticsCollector.resetForNewMediaSource();
     }
+    this.mediaSource = mediaSource;
+    mediaSource.addEventListener(eventHandler, analyticsCollector);
     @AudioFocusManager.PlayerCommand
     int playerCommand = audioFocusManager.handlePrepare(getPlayWhenReady());
     updatePlayWhenReady(getPlayWhenReady(), playerCommand);
@@ -949,8 +955,10 @@ public class SimpleExoPlayer
     player.stop(reset);
     if (mediaSource != null) {
       mediaSource.removeEventListener(analyticsCollector);
-      mediaSource = null;
       analyticsCollector.resetForNewMediaSource();
+      if (reset) {
+        mediaSource = null;
+      }
     }
     audioFocusManager.handleStop();
     currentCues = Collections.emptyList();
@@ -969,6 +977,7 @@ public class SimpleExoPlayer
     }
     if (mediaSource != null) {
       mediaSource.removeEventListener(analyticsCollector);
+      mediaSource = null;
     }
     bandwidthMeter.removeEventListener(analyticsCollector);
     currentCues = Collections.emptyList();
