@@ -499,10 +499,10 @@ public final class ParsableByteArray {
 
   /**
    * Reads a line of text.
-   * <p>
-   * A line is considered to be terminated by any one of a carriage return ('\r'), a line feed
+   *
+   * <p>A line is considered to be terminated by any one of a carriage return ('\r'), a line feed
    * ('\n'), or a carriage return followed immediately by a line feed ('\r\n'). The system's default
-   * charset (UTF-8) is used.
+   * charset (UTF-8) is used. This method discards leading UTF-8 byte order marks, if present.
    *
    * @return The line not including any line-termination characters, or null if the end of the data
    *     has already been reached.
@@ -517,7 +517,7 @@ public final class ParsableByteArray {
     }
     if (lineLimit - position >= 3 && data[position] == (byte) 0xEF
         && data[position + 1] == (byte) 0xBB && data[position + 2] == (byte) 0xBF) {
-      // There's a byte order mark at the start of the line. Discard it.
+      // There's a UTF-8 byte order mark at the start of the line. Discard it.
       position += 3;
     }
     String line = Util.fromUtf8Bytes(data, position, lineLimit - position);
