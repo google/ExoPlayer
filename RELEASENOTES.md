@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* WAV: Fix issue where white noise would be output at the end of playback
+  ([#4724](https://github.com/google/ExoPlayer/issues/4724)).
 * Add a flag to opt-in to automatic audio focus handling via
   `SimpleExoPlayer.setAudioAttributes`.
 * Distribute Cronet extension via jCenter.
