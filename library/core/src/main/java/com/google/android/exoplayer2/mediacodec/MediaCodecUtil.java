@@ -317,6 +317,11 @@ public final class MediaCodecUtil {
       return false;
     }
 
+    // Work around https://github.com/google/ExoPlayer/issues/4519.
+    if ("OMX.SEC.mp3.dec".equals(name) && "SM-T530".equals(Util.MODEL)) {
+      return false;
+    }
+
     // Work around https://github.com/google/ExoPlayer/issues/1528 and
     // https://github.com/google/ExoPlayer/issues/3171.
     if (Util.SDK_INT < 18 && "OMX.MTK.AUDIO.DECODER.AAC".equals(name)
