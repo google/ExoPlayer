@@ -2,14 +2,14 @@
 
 ### dev-v2 (not yet released) ###
 
-* Turned on Java 8 compiler support for the ExoPlayer library. Apps that depend
+* Turn on Java 8 compiler support for the ExoPlayer library. Apps that depend
   on ExoPlayer via its source code rather than an AAR may need to add
   `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to their
   gradle settings to ensure bytecode compatibility.
 * Set `compileSdkVersion` and `targetSdkVersion` to 28.
 * Support for automatic audio focus handling via
   `SimpleExoPlayer.setAudioAttributes`.
-* Added `ExoPlayer.retry` convenience method.
+* Add `ExoPlayer.retry` convenience method.
 * Add `AudioListener` for listening to changes in audio configuration during
   playback ([#3994](https://github.com/google/ExoPlayer/issues/3994)).
 * Add `LoadErrorHandlingPolicy` to allow configuration of load error handling
@@ -18,7 +18,7 @@
 * Allow passing a `Looper`, which specifies the thread that must be used to
   access the player, when instantiating player instances using
   `ExoPlayerFactory` ([#4278](https://github.com/google/ExoPlayer/issues/4278)).
-* Simplified `BandwidthMeter` injection: The `BandwidthMeter` should now be
+* Simplify `BandwidthMeter` injection: The `BandwidthMeter` should now be
   passed directly to `ExoPlayerFactory`, instead of to `TrackSelection.Factory`
   and `DataSource.Factory`. The `BandwidthMeter` is passed to the components
   that need it internally. The `BandwidthMeter` may also be omitted, in which
@@ -36,7 +36,7 @@
     ([#4422](https://github.com/google/ExoPlayer/issues/4422)).
   * Fix the bitrate being unset on primary track sample formats
     ([#3297](https://github.com/google/ExoPlayer/issues/3297)).
-* Improved seeking support for progressive streams:
+* Improve seeking support for progressive streams:
   * Support seeking in MPEG-TS
     ([#966](https://github.com/google/ExoPlayer/issues/966)).
   * Support seeking in MPEG-PS
@@ -53,7 +53,7 @@
     that support it.
 * Video:
   * Add callback to `VideoListener` to notify of surface size changes.
-  * Improved performance when playing high frame-rate content, and when playing
+  * Improve performance when playing high frame-rate content, and when playing
     at greater than 1x speed
     ([#2777](https://github.com/google/ExoPlayer/issues/2777)).
   * Scale up the initial video decoder maximum input size so playlist
