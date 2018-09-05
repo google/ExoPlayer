@@ -71,6 +71,8 @@
     ([#3803](https://github.com/google/ExoPlayer/issues/3803)).
   * WAV: Fix issue where white noise would be output at the end of playback
     ([#4724](https://github.com/google/ExoPlayer/issues/4724)).
+  * MP3: Fix issue where streams would play twice on the SM-T530
+    ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
 * Analytics:
   * Add callbacks to `DefaultDrmSessionEventListener` and `AnalyticsListener` to
     be notified of acquired and released DRM sessions.
