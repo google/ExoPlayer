@@ -1562,7 +1562,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           boolean isWithinConstraints = selectedTrackIndices.contains(trackIndex)
               && (format.width == Format.NO_VALUE || format.width <= params.maxVideoWidth)
               && (format.height == Format.NO_VALUE || format.height <= params.maxVideoHeight)
-              && (format.bitrate == Format.NO_VALUE || format.bitrate <= params.maxVideoBitrate);
+              && (format.bitrate == Format.NO_VALUE || format.bitrate <= params.maxVideoBitrate)
+              && (format.frameRate == Format.NO_VALUE || format.frameRate <= params.maxFrameRate);
           if (!isWithinConstraints && !params.exceedVideoConstraintsIfNecessary) {
             // Track should not be selected.
             continue;
