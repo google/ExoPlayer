@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import java.io.EOFException;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,30 +38,37 @@ public class WebvttExtractorTest {
 
   @Test
   public void sniff_discardsByteOrderMark() throws IOException, InterruptedException {
-    byte[] data = new byte[] {(byte) 0xFE, (byte) 0xFF, 'W', 'E', 'B', 'V', 'T', 'T', '\n', ' '};
+    byte[] data =
+        new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF, 'W', 'E', 'B', 'V', 'T', 'T', '\n', ' '};
     assertThat(sniffData(data)).isTrue();
   }
 
   @Test
   public void sniff_failsForIncorrectBom() throws IOException, InterruptedException {
-    byte[] data = new byte[] {(byte) 0xFE, (byte) 0xFE, 'W', 'E', 'B', 'V', 'T', 'T', '\n'};
+    byte[] data =
+        new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBB, 'W', 'E', 'B', 'V', 'T', 'T', '\n'};
     assertThat(sniffData(data)).isFalse();
   }
 
   @Test
   public void sniff_failsForIncompleteHeader() throws IOException, InterruptedException {
-    byte[] data = new byte[] {(byte) 0xFE, (byte) 0xFE, 'W', 'E', 'B', 'V', 'T', '\n'};
+    byte[] data = new byte[] {'W', 'E', 'B', 'V', 'T', '\n'};
     assertThat(sniffData(data)).isFalse();
   }
 
   @Test
   public void sniff_failsForIncorrectHeader() throws IOException, InterruptedException {
-    byte[] data = new byte[] {(byte) 0xFE, (byte) 0xFE, 'W', 'e', 'B', 'V', 'T', 'T', '\n'};
+    byte[] data =
+        new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF, 'W', 'e', 'B', 'V', 'T', 'T', '\n'};
     assertThat(sniffData(data)).isFalse();
   }
 
   private static boolean sniffData(byte[] data) throws IOException, InterruptedException {
     ExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
-    return new WebvttExtractor(/* language= */ null, new TimestampAdjuster(0)).sniff(input);
+    try {
+      return new WebvttExtractor(/* language= */ null, new TimestampAdjuster(0)).sniff(input);
+    } catch (EOFException e) {
+      return false;
+    }
   }
 }

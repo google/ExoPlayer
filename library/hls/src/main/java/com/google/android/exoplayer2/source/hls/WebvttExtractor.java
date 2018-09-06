@@ -46,7 +46,8 @@ public final class WebvttExtractor implements Extractor {
 
   private static final Pattern LOCAL_TIMESTAMP = Pattern.compile("LOCAL:([^,]+)");
   private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:(\\d+)");
-  private static final int HEADER_MAX_LENGTH = 2 /* optional Byte Order Mark */ + 6 /* "WEBVTT" */;
+  private static final int HEADER_MIN_LENGTH = 6 /* "WEBVTT" */;
+  private static final int HEADER_MAX_LENGTH = 3 /* optional Byte Order Mark */ + HEADER_MIN_LENGTH;
 
   private final String language;
   private final TimestampAdjuster timestampAdjuster;
@@ -68,8 +69,19 @@ public final class WebvttExtractor implements Extractor {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+    // Check whether there is a header without BOM.
     input.peekFully(
-        sampleData, /* offset= */ 0, /* length= */ HEADER_MAX_LENGTH, /* allowEndOfInput= */ false);
+        sampleData, /* offset= */ 0, /* length= */ HEADER_MIN_LENGTH, /* allowEndOfInput= */ false);
+    sampleDataWrapper.reset(sampleData, HEADER_MIN_LENGTH);
+    if (WebvttParserUtil.isWebvttHeaderLine(sampleDataWrapper)) {
+      return true;
+    }
+    // The header did not match, try including the BOM.
+    input.peekFully(
+        sampleData,
+        /* offset= */ HEADER_MIN_LENGTH,
+        HEADER_MAX_LENGTH - HEADER_MIN_LENGTH,
+        /* allowEndOfInput= */ false);
     sampleDataWrapper.reset(sampleData, HEADER_MAX_LENGTH);
     return WebvttParserUtil.isWebvttHeaderLine(sampleDataWrapper);
   }

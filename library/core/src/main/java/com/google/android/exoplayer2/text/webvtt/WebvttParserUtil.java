@@ -28,8 +28,6 @@ public final class WebvttParserUtil {
 
   private static final Pattern COMMENT = Pattern.compile("^NOTE((\u0020|\u0009).*)?$");
   private static final String WEBVTT_HEADER = "WEBVTT";
-  private static final int WEBVTT_BOM_BE = 0xfeff;
-  private static final int WEBVTT_BOM_LE = 0xfffe;
 
   private WebvttParserUtil() {}
 
@@ -53,15 +51,6 @@ public final class WebvttParserUtil {
    * @param input The input from which the line should be read.
    */
   public static boolean isWebvttHeaderLine(ParsableByteArray input) {
-    if (input.bytesLeft() < 2) {
-      return false;
-    }
-    int startPosition = input.getPosition();
-    int firstTwoBytes = input.readUnsignedShort();
-    if (firstTwoBytes != WEBVTT_BOM_BE && firstTwoBytes != WEBVTT_BOM_LE) {
-      // Not the BOM, should not be discarded.
-      input.setPosition(startPosition);
-    }
     String line = input.readLine();
     return line != null && line.startsWith(WEBVTT_HEADER);
   }
