@@ -524,6 +524,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
+     * See {@link Parameters#maxFrameRate}.
+     *
+     * @return This builder.
+     */
+    public ParametersBuilder setMaxFrameRate(int maxFrameRate) {
+      this.maxFrameRate = maxFrameRate;
+      return this;
+    }
+
+    /**
      * Builds a {@link Parameters} instance with the selected values.
      */
     public Parameters build() {
