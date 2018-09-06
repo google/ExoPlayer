@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -447,6 +448,13 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       addMediaSourcesInternal(0, mediaSourcesPublic);
       scheduleListenerNotification(/* actionOnCompletion= */ null);
     }
+  }
+
+  @Override
+  @SuppressWarnings("MissingSuperCall")
+  public void maybeThrowSourceInfoRefreshError() throws IOException {
+    // Do nothing. Source info refresh errors of the individual sources will be thrown when calling
+    // DeferredMediaPeriod.maybeThrowPrepareError.
   }
 
   @Override

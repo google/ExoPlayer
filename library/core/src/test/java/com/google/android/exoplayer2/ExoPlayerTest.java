@@ -2296,6 +2296,129 @@ public final class ExoPlayerTest {
     assertThat(trackGroupsList.get(2).get(0).getFormat(0)).isEqualTo(Builder.AUDIO_FORMAT);
   }
 
+  @Test
+  public void testSecondMediaSourceInPlaylistOnlyThrowsWhenPreviousPeriodIsFullyRead()
+      throws Exception {
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND));
+    MediaSource workingMediaSource =
+        new FakeMediaSource(fakeTimeline, /* manifest= */ null, Builder.VIDEO_FORMAT);
+    MediaSource failingMediaSource =
+        new FakeMediaSource(/* timeline= */ null, /* manifest= */ null, Builder.VIDEO_FORMAT) {
+          @Override
+          public void maybeThrowSourceInfoRefreshError() throws IOException {
+            throw new IOException();
+          }
+        };
+    ConcatenatingMediaSource concatenatingMediaSource =
+        new ConcatenatingMediaSource(workingMediaSource, failingMediaSource);
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setMediaSource(concatenatingMediaSource)
+            .setRenderers(renderer)
+            .build(context);
+    try {
+      testRunner.start().blockUntilEnded(TIMEOUT_MS);
+      fail();
+    } catch (ExoPlaybackException e) {
+      // Expected exception.
+    }
+    assertThat(renderer.sampleBufferReadCount).isAtLeast(1);
+    assertThat(renderer.hasReadStreamToEnd()).isTrue();
+  }
+
+  @Test
+  public void
+      testDynamicallyAddedSecondMediaSourceInPlaylistOnlyThrowsWhenPreviousPeriodIsFullyRead()
+          throws Exception {
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND));
+    MediaSource workingMediaSource =
+        new FakeMediaSource(fakeTimeline, /* manifest= */ null, Builder.VIDEO_FORMAT);
+    MediaSource failingMediaSource =
+        new FakeMediaSource(/* timeline= */ null, /* manifest= */ null, Builder.VIDEO_FORMAT) {
+          @Override
+          public void maybeThrowSourceInfoRefreshError() throws IOException {
+            throw new IOException();
+          }
+        };
+    ConcatenatingMediaSource concatenatingMediaSource =
+        new ConcatenatingMediaSource(workingMediaSource);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testFailingSecondMediaSourceInPlaylistOnlyThrowsLater")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(() -> concatenatingMediaSource.addMediaSource(failingMediaSource))
+            .play()
+            .build();
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setMediaSource(concatenatingMediaSource)
+            .setActionSchedule(actionSchedule)
+            .setRenderers(renderer)
+            .build(context);
+    try {
+      testRunner.start().blockUntilEnded(TIMEOUT_MS);
+      fail();
+    } catch (ExoPlaybackException e) {
+      // Expected exception.
+    }
+    assertThat(renderer.sampleBufferReadCount).isAtLeast(1);
+    assertThat(renderer.hasReadStreamToEnd()).isTrue();
+  }
+
+  @Test
+  public void failingDynamicUpdateOnlyThrowsWhenAvailablePeriodHasBeenFullyRead() throws Exception {
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND));
+    AtomicReference<Boolean> wasReadyOnce = new AtomicReference<>(false);
+    MediaSource mediaSource =
+        new FakeMediaSource(fakeTimeline, /* manifest= */ null, Builder.VIDEO_FORMAT) {
+          @Override
+          public void maybeThrowSourceInfoRefreshError() throws IOException {
+            if (wasReadyOnce.get()) {
+              throw new IOException();
+            }
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testFailingDynamicMediaSourceInTimelineOnlyThrowsLater")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(() -> wasReadyOnce.set(true))
+            .play()
+            .build();
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setMediaSource(mediaSource)
+            .setActionSchedule(actionSchedule)
+            .setRenderers(renderer)
+            .build(context);
+    try {
+      testRunner.start().blockUntilEnded(TIMEOUT_MS);
+      fail();
+    } catch (ExoPlaybackException e) {
+      // Expected exception.
+    }
+    assertThat(renderer.sampleBufferReadCount).isAtLeast(1);
+    assertThat(renderer.hasReadStreamToEnd()).isTrue();
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
