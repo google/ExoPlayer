@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+### 2.9.0 ###
+
 * Turn on Java 8 compiler support for the ExoPlayer library. Apps that depend
   on ExoPlayer via its source code rather than an AAR may need to add
   `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to their
