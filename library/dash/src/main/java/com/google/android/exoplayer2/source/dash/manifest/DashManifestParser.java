@@ -838,8 +838,15 @@ public class DashManifestParser extends DefaultHandler
     long durationMs = Util.scaleLargeTimestamp(duration, 1000, timescale);
     long presentationTimesUs = Util.scaleLargeTimestamp(presentationTime, C.MICROS_PER_SECOND,
         timescale);
+    String messageData = parseString(xpp, "messageData", null);
     byte[] eventObject = parseEventObject(xpp, scratchOutputStream);
-    return buildEvent(schemeIdUri, value, id, durationMs, eventObject, presentationTimesUs);
+    return buildEvent(
+        schemeIdUri,
+        value,
+        id,
+        durationMs,
+        messageData == null ? eventObject : Util.getUtf8Bytes(messageData),
+        presentationTimesUs);
   }
 
   /**
