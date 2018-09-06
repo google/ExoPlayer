@@ -114,6 +114,8 @@
 * Fix bugs reporting events for multi-period media sources
   ([#4492](https://github.com/google/ExoPlayer/issues/4492) and
   [#4634](https://github.com/google/ExoPlayer/issues/4634)).
+* Fix issue where errors of upcoming playlist items are thrown too early
+  ([#4661](https://github.com/google/ExoPlayer/issues/4661)).
 * IMA extension:
   * Refine the previous fix for empty ad groups to avoid discarding ad breaks
     unnecessarily ([#4030](https://github.com/google/ExoPlayer/issues/4030)),

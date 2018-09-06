@@ -1122,6 +1122,19 @@ import java.util.Collections;
             && (playingPeriodHolder.next.prepared || playingPeriodHolder.next.info.id.isAd()));
   }
 
+  private void maybeThrowSourceInfoRefreshError() throws IOException {
+    MediaPeriodHolder loadingPeriodHolder = queue.getLoadingPeriod();
+    if (loadingPeriodHolder != null) {
+      // Defer throwing until we read all available media periods.
+      for (Renderer renderer : enabledRenderers) {
+        if (!renderer.hasReadStreamToEnd()) {
+          return;
+        }
+      }
+    }
+    mediaSource.maybeThrowSourceInfoRefreshError();
+  }
+
   private void maybeThrowPeriodPrepareError() throws IOException {
     MediaPeriodHolder loadingPeriodHolder = queue.getLoadingPeriod();
     MediaPeriodHolder readingPeriodHolder = queue.getReadingPeriod();
@@ -1435,7 +1448,7 @@ import java.util.Collections;
     }
 
     // Advance the reading period if necessary.
-    if (readingPeriodHolder.next == null || !readingPeriodHolder.next.prepared) {
+    if (readingPeriodHolder.next == null) {
       // We don't have a successor to advance the reading period to.
       return;
     }
@@ -1448,6 +1461,12 @@ import java.util.Collections;
         // The current reading period is still being read by at least one renderer.
         return;
       }
+    }
+
+    if (!readingPeriodHolder.next.prepared) {
+      // The successor is not prepared yet.
+      maybeThrowPeriodPrepareError();
+      return;
     }
 
     TrackSelectorResult oldTrackSelectorResult = readingPeriodHolder.trackSelectorResult;
@@ -1498,7 +1517,7 @@ import java.util.Collections;
     if (queue.shouldLoadNextMediaPeriod()) {
       MediaPeriodInfo info = queue.getNextMediaPeriodInfo(rendererPositionUs, playbackInfo);
       if (info == null) {
-        mediaSource.maybeThrowSourceInfoRefreshError();
+        maybeThrowSourceInfoRefreshError();
       } else {
         MediaPeriod mediaPeriod =
             queue.enqueueNextMediaPeriod(
