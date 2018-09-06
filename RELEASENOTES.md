@@ -38,6 +38,8 @@
     ([#4422](https://github.com/google/ExoPlayer/issues/4422)).
   * Fix the bitrate being unset on primary track sample formats
     ([#3297](https://github.com/google/ExoPlayer/issues/3297)).
+* DASH:
+  * Support messageData attribute of in-manifest events.
 * Improve seeking support for progressive streams:
   * Support seeking in MPEG-TS
     ([#966](https://github.com/google/ExoPlayer/issues/966)).
