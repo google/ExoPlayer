@@ -111,6 +111,9 @@ public final class Util {
   public static final String DEVICE_DEBUG_INFO = DEVICE + ", " + MODEL + ", " + MANUFACTURER + ", "
       + SDK_INT;
 
+  /** An empty byte array. */
+  public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+
   private static final String TAG = "Util";
   private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
       "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"

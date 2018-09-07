@@ -44,7 +44,7 @@ import java.nio.ByteOrder;
     outputBuffer = EMPTY_BUFFER;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
-    endBuffer = new byte[0];
+    endBuffer = Util.EMPTY_BYTE_ARRAY;
   }
 
   /**
@@ -180,7 +180,7 @@ import java.nio.ByteOrder;
     buffer = EMPTY_BUFFER;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
-    endBuffer = new byte[0];
+    endBuffer = Util.EMPTY_BYTE_ARRAY;
   }
 
 }

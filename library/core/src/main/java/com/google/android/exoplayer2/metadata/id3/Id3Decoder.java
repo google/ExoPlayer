@@ -759,7 +759,7 @@ public final class Id3Decoder implements MetadataDecoder {
   private static byte[] copyOfRangeIfValid(byte[] data, int from, int to) {
     if (to <= from) {
       // Invalid or zero length range.
-      return new byte[0];
+      return Util.EMPTY_BYTE_ARRAY;
     }
     return Arrays.copyOfRange(data, from, to);
   }
