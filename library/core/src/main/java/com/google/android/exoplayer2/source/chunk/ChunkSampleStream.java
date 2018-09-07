@@ -753,6 +753,10 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
     @Override
     public int skipData(long positionUs) {
+      if (isPendingReset()) {
+        return 0;
+      }
+      maybeNotifyTrackFormatChanged();
       int skipCount;
       if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
         skipCount = sampleQueue.advanceToEnd();
@@ -761,9 +765,6 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         if (skipCount == SampleQueue.ADVANCE_FAILED) {
           skipCount = 0;
         }
-      }
-      if (skipCount > 0) {
-        maybeNotifyTrackFormatChanged();
       }
       return skipCount;
     }
@@ -779,13 +780,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       if (isPendingReset()) {
         return C.RESULT_NOTHING_READ;
       }
-      int result =
-          sampleQueue.read(
-              formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilPositionUs);
-      if (result == C.RESULT_BUFFER_READ) {
-        maybeNotifyTrackFormatChanged();
-      }
-      return result;
+      maybeNotifyTrackFormatChanged();
+      return sampleQueue.read(
+          formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilPositionUs);
     }
 
     public void release() {
