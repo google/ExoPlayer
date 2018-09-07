@@ -291,7 +291,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
 
   private static long getManifestPublishTimeMsInEmsg(EventMessage eventMessage) {
     try {
-      return parseXsDateTime(new String(eventMessage.messageData));
+      return parseXsDateTime(Util.fromUtf8Bytes(eventMessage.messageData));
     } catch (ParserException ignored) {
       // if we can't parse this event, ignore
       return C.TIME_UNSET;
