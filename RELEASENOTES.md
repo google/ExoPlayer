@@ -32,6 +32,8 @@
     [VR180](https://github.com/google/spatial-media/blob/master/docs/vr180.md).
 * HLS:
   * Support PlayReady.
+  * Add container format sniffing
+    ([#2025](https://github.com/google/ExoPlayer/issues/2025)).
   * Support alternative `EXT-X-KEY` tags.
   * Support `EXT-X-INDEPENDENT-SEGMENTS` in the master playlist.
   * Support variable substitution
