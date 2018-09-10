@@ -42,6 +42,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /** Logs events from {@link Player} and other core components using {@link Log}. */
+@SuppressWarnings("UngroupedOverloads")
 public class EventLogger implements AnalyticsListener {
 
   private static final String DEFAULT_TAG = "EventLogger";
@@ -435,7 +436,7 @@ public class EventLogger implements AnalyticsListener {
    * @param msg The message to log.
    * @param tr The exception to log.
    */
-  protected void loge(String msg, Throwable tr) {
+  protected void loge(String msg, @Nullable Throwable tr) {
     Log.e(tag, msg, tr);
   }
 
@@ -449,12 +450,15 @@ public class EventLogger implements AnalyticsListener {
     logd(getEventString(eventTime, eventName, eventDescription));
   }
 
-  private void loge(EventTime eventTime, String eventName, Throwable throwable) {
+  private void loge(EventTime eventTime, String eventName, @Nullable Throwable throwable) {
     loge(getEventString(eventTime, eventName), throwable);
   }
 
   private void loge(
-      EventTime eventTime, String eventName, String eventDescription, Throwable throwable) {
+      EventTime eventTime,
+      String eventName,
+      String eventDescription,
+      @Nullable Throwable throwable) {
     loge(getEventString(eventTime, eventName, eventDescription), throwable);
   }
 
@@ -548,8 +552,8 @@ public class EventLogger implements AnalyticsListener {
   // Suppressing reference equality warning because the track group stored in the track selection
   // must point to the exact track group object to be considered part of it.
   @SuppressWarnings("ReferenceEquality")
-  private static String getTrackStatusString(TrackSelection selection, TrackGroup group,
-      int trackIndex) {
+  private static String getTrackStatusString(
+      @Nullable TrackSelection selection, TrackGroup group, int trackIndex) {
     return getTrackStatusString(selection != null && selection.getTrackGroup() == group
         && selection.indexOf(trackIndex) != C.INDEX_UNSET);
   }

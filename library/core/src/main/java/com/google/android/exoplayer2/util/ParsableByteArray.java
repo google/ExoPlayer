@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -30,10 +31,10 @@ public final class ParsableByteArray {
   private int position;
   private int limit;
 
-  /**
-   * Creates a new instance that initially has no backing data.
-   */
-  public ParsableByteArray() {}
+  /** Creates a new instance that initially has no backing data. */
+  public ParsableByteArray() {
+    data = Util.EMPTY_BYTE_ARRAY;
+  }
 
   /**
    * Creates a new instance with {@code limit} bytes and sets the limit.
@@ -131,7 +132,7 @@ public final class ParsableByteArray {
    * Returns the capacity of the array, which may be larger than the limit.
    */
   public int capacity() {
-    return data == null ? 0 : data.length;
+    return data.length;
   }
 
   /**
@@ -481,7 +482,7 @@ public final class ParsableByteArray {
    * @return The string not including any terminating NUL byte, or null if the end of the data has
    *     already been reached.
    */
-  public String readNullTerminatedString() {
+  public @Nullable String readNullTerminatedString() {
     if (bytesLeft() == 0) {
       return null;
     }
@@ -507,7 +508,7 @@ public final class ParsableByteArray {
    * @return The line not including any line-termination characters, or null if the end of the data
    *     has already been reached.
    */
-  public String readLine() {
+  public @Nullable String readLine() {
     if (bytesLeft() == 0) {
       return null;
     }

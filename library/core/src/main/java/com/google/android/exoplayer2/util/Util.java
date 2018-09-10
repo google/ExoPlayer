@@ -1678,9 +1678,9 @@ public final class Util {
    *
    * @param input Wraps the compressed input data.
    * @param output Wraps an output buffer to be used to store the uncompressed data. If {@code
-   *     output.data} is null or it isn't big enough to hold the uncompressed data, a new array is
-   *     created. If {@code true} is returned then the output's position will be set to 0 and its
-   *     limit will be set to the length of the uncompressed data.
+   *     output.data} isn't big enough to hold the uncompressed data, a new array is created. If
+   *     {@code true} is returned then the output's position will be set to 0 and its limit will be
+   *     set to the length of the uncompressed data.
    * @param inflater If not null, used to uncompressed the input. Otherwise a new {@link Inflater}
    *     is created.
    * @return Whether the input is uncompressed successfully.
@@ -1691,8 +1691,8 @@ public final class Util {
       return false;
     }
     byte[] outputData = output.data;
-    if (outputData == null) {
-      outputData = new byte[input.bytesLeft()];
+    if (outputData.length < input.bytesLeft()) {
+      outputData = new byte[2 * input.bytesLeft()];
     }
     if (inflater == null) {
       inflater = new Inflater();
