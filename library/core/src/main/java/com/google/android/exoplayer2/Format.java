@@ -1409,10 +1409,8 @@ public final class Format implements Parcelable {
 
   // Utility methods
 
-  /**
-   * Returns a prettier {@link String} than {@link #toString()}, intended for logging.
-   */
-  public static String toLogString(Format format) {
+  /** Returns a prettier {@link String} than {@link #toString()}, intended for logging. */
+  public static String toLogString(@Nullable Format format) {
     if (format == null) {
       return "null";
     }
