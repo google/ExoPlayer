@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
@@ -164,7 +163,6 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
 
     @Override
     public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-        Assertions.checkArgument(id.periodIndex == 0);
         eventDispatcher = createEventDispatcher(id);
         return new RtspMediaPeriod(client.session(), minLoadableRetryCount, allocator);
     }
@@ -177,8 +175,8 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     @Override
     protected void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource,
                                          @Nullable TransferListener mediaTransferListener) {
-//        Player.VideoComponent videoComponent = player.getVideoComponent();
-//        Assertions.checkNotNull(videoComponent, "VideoComponent is null");
+        Player.VideoComponent videoComponent = player.getVideoComponent();
+        Assertions.checkNotNull(videoComponent, "VideoComponent is null");
 
         client = new Client.Builder(factory).setUri(uri).setListener(this).build();
         EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
@@ -186,11 +184,13 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
         try {
 
             client.open();
-//            videoComponent.addVideoListener(client.session());
+            videoComponent.addVideoListener(client.session());
 
         } catch (IOException e) {
-            eventDispatcher.loadError(new DataSpec(uri), uri, C.DATA_TYPE_MEDIA_INITIALIZATION, 0, 0,
-                    0, new IOException("Client open failed.", e.getCause()), false);
+            eventDispatcher.loadError(
+                new DataSpec(uri), uri, null, C.DATA_TYPE_MEDIA_INITIALIZATION,
+                0, 0, 0,
+                new IOException("Client open failed.", e.getCause()), false);
         }
     }
 
@@ -214,17 +214,19 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     @Override
     public void onMediaDescriptionTypeUnSupported(MediaType mediaType) {
         if (eventDispatcher != null) {
-            eventDispatcher.loadError(new DataSpec(uri), uri, C.DATA_TYPE_MEDIA, 0, 0,
-                    0, new IOException("Media Description Type [" + mediaType +
-                            "] is not supported"), false);
+            eventDispatcher.loadError(
+                new DataSpec(uri), uri, null, C.DATA_TYPE_MEDIA,
+                0, 0, 0,
+                new IOException("Media Description Type [" + mediaType + "] is not supported"),
+                false);
         }
     }
 
     @Override
     public void onClientError(Throwable throwable) {
         if (eventDispatcher != null) {
-            eventDispatcher.loadError(new DataSpec(uri), uri, C.DATA_TYPE_MEDIA, 0, 0,
-                    0, null, false);
+            eventDispatcher.loadError(new DataSpec(uri), uri, null, C.DATA_TYPE_MEDIA,
+                0, 0, 0, null, false);
         }
     }
 }
