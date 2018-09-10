@@ -124,20 +124,25 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
       byte[] scope,
       @Nullable List<DrmInitData.SchemeData> schemeDatas,
       int keyType,
-      HashMap<String, String> optionalParameters)
+      @Nullable HashMap<String, String> optionalParameters)
       throws NotProvisionedException {
-    SchemeData schemeData = getSchemeData(uuid, schemeDatas);
-
-    byte[] initData = adjustRequestInitData(uuid, schemeData.data);
-    String mimeType = adjustRequestMimeType(uuid, schemeData.mimeType);
-
+    SchemeData schemeData = null;
+    byte[] initData = null;
+    String mimeType = null;
+    if (schemeDatas != null) {
+      schemeData = getSchemeData(uuid, schemeDatas);
+      initData = adjustRequestInitData(uuid, schemeData.data);
+      mimeType = adjustRequestMimeType(uuid, schemeData.mimeType);
+    }
     MediaDrm.KeyRequest request =
         mediaDrm.getKeyRequest(scope, initData, mimeType, keyType, optionalParameters);
 
     byte[] requestData = adjustRequestData(uuid, request.getData());
 
     String licenseServerUrl = request.getDefaultUrl();
-    if (TextUtils.isEmpty(licenseServerUrl) && !TextUtils.isEmpty(schemeData.licenseServerUrl)) {
+    if (TextUtils.isEmpty(licenseServerUrl)
+        && schemeData != null
+        && !TextUtils.isEmpty(schemeData.licenseServerUrl)) {
       licenseServerUrl = schemeData.licenseServerUrl;
     }
 
