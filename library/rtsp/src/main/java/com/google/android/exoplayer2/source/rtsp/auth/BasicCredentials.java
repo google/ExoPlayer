@@ -20,8 +20,11 @@ import com.google.android.exoplayer2.source.rtsp.core.Request;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class BasicCredentials extends Credentials {
+    private static final Pattern REGEX_REALM = Pattern.compile("(?:(\\\"[\\w]+\\\")?)");
 
     public static final String REALM = "realm";
 
@@ -61,11 +64,10 @@ public final class BasicCredentials extends Credentials {
 
         BasicCredentials.Builder builder = new BasicCredentials.Builder();
 
-        String[] attrs = credentials.split(",");
-
-        for (String attr : attrs) {
-            String[] params = attr.split(",");
-            builder.setParam(params[0], params[1]);
+        Matcher matcher = REGEX_REALM.matcher(credentials);
+        if (matcher.find()) {
+            String value = matcher.group(1).replaceAll("^\"+|\"+$", "");
+            builder.setParam(REALM, value);
         }
 
         return (BasicCredentials) builder.build();

@@ -191,9 +191,9 @@ public final class DigestCredentials extends Credentials {
             String[] params = attr.split("=");
 
             String name = params[0].trim();
-            String value = params[1].trim();
+            String value = params[1].trim().replaceAll("^\"+|\"+$", "");;
 
-            builder.setParam(name, value.substring(1, value.length()-1));
+            builder.setParam(name, value);
         }
 
         return (DigestCredentials) builder.build();
