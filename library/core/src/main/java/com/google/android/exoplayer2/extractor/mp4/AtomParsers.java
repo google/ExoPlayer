@@ -382,19 +382,29 @@ import java.util.List;
     int editedSampleCount = 0;
     int nextSampleIndex = 0;
     boolean copyMetadata = false;
+    int[] startIndices = new int[track.editListDurations.length];
+    int[] endIndices = new int[track.editListDurations.length];
     for (int i = 0; i < track.editListDurations.length; i++) {
       long editMediaTime = track.editListMediaTimes[i];
       if (editMediaTime != -1) {
         long editDuration =
             Util.scaleLargeTimestamp(
                 track.editListDurations[i], track.timescale, track.movieTimescale);
-        int startIndex = Util.binarySearchCeil(timestamps, editMediaTime, true, true);
-        int endIndex =
+        startIndices[i] = Util.binarySearchCeil(timestamps, editMediaTime, true, true);
+        endIndices[i] =
             Util.binarySearchCeil(
                 timestamps, editMediaTime + editDuration, omitClippedSample, false);
-        editedSampleCount += endIndex - startIndex;
-        copyMetadata |= nextSampleIndex != startIndex;
-        nextSampleIndex = endIndex;
+        while (startIndices[i] < endIndices[i]
+            && (flags[startIndices[i]] & C.BUFFER_FLAG_KEY_FRAME) == 0) {
+          // Applying the edit correctly would require prerolling from the previous sync sample. In
+          // the current implementation we advance to the next sync sample instead. Only other
+          // tracks (i.e. audio) will be rendered until the time of the first sync sample.
+          // See https://github.com/google/ExoPlayer/issues/1659.
+          startIndices[i]++;
+        }
+        editedSampleCount += endIndices[i] - startIndices[i];
+        copyMetadata |= nextSampleIndex != startIndices[i];
+        nextSampleIndex = endIndices[i];
       }
     }
     copyMetadata |= editedSampleCount != sampleCount;
@@ -409,37 +419,26 @@ import java.util.List;
     int sampleIndex = 0;
     for (int i = 0; i < track.editListDurations.length; i++) {
       long editMediaTime = track.editListMediaTimes[i];
-      long editDuration = track.editListDurations[i];
-      if (editMediaTime != -1) {
-        long endMediaTime =
-            editMediaTime
-                + Util.scaleLargeTimestamp(editDuration, track.timescale, track.movieTimescale);
-        int startIndex = Util.binarySearchCeil(timestamps, editMediaTime, true, true);
-        int endIndex = Util.binarySearchCeil(timestamps, endMediaTime, omitClippedSample, false);
-        if (copyMetadata) {
-          int count = endIndex - startIndex;
-          System.arraycopy(offsets, startIndex, editedOffsets, sampleIndex, count);
-          System.arraycopy(sizes, startIndex, editedSizes, sampleIndex, count);
-          System.arraycopy(flags, startIndex, editedFlags, sampleIndex, count);
-        }
-        if (startIndex < endIndex && (editedFlags[sampleIndex] & C.BUFFER_FLAG_KEY_FRAME) == 0) {
-          // Applying the edit list would require prerolling from a sync sample.
-          Log.w(TAG, "Ignoring edit list: edit does not start with a sync sample.");
-          throw new UnhandledEditListException();
-        }
-        for (int j = startIndex; j < endIndex; j++) {
-          long ptsUs = Util.scaleLargeTimestamp(pts, C.MICROS_PER_SECOND, track.movieTimescale);
-          long timeInSegmentUs =
-              Util.scaleLargeTimestamp(
-                  timestamps[j] - editMediaTime, C.MICROS_PER_SECOND, track.timescale);
-          editedTimestamps[sampleIndex] = ptsUs + timeInSegmentUs;
-          if (copyMetadata && editedSizes[sampleIndex] > editedMaximumSize) {
-            editedMaximumSize = sizes[j];
-          }
-          sampleIndex++;
-        }
+      int startIndex = startIndices[i];
+      int endIndex = endIndices[i];
+      if (copyMetadata) {
+        int count = endIndex - startIndex;
+        System.arraycopy(offsets, startIndex, editedOffsets, sampleIndex, count);
+        System.arraycopy(sizes, startIndex, editedSizes, sampleIndex, count);
+        System.arraycopy(flags, startIndex, editedFlags, sampleIndex, count);
       }
-      pts += editDuration;
+      for (int j = startIndex; j < endIndex; j++) {
+        long ptsUs = Util.scaleLargeTimestamp(pts, C.MICROS_PER_SECOND, track.movieTimescale);
+        long timeInSegmentUs =
+            Util.scaleLargeTimestamp(
+                timestamps[j] - editMediaTime, C.MICROS_PER_SECOND, track.timescale);
+        editedTimestamps[sampleIndex] = ptsUs + timeInSegmentUs;
+        if (copyMetadata && editedSizes[sampleIndex] > editedMaximumSize) {
+          editedMaximumSize = sizes[j];
+        }
+        sampleIndex++;
+      }
+      pts += track.editListDurations[i];
     }
     long editedDurationUs = Util.scaleLargeTimestamp(pts, C.MICROS_PER_SECOND, track.timescale);
     return new TrackSampleTable(
