@@ -20,7 +20,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -37,6 +37,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
 
   private @Nullable ExoPlayer player;
   private @Nullable Handler eventHandler;
+  private @Nullable TransferListener mediaTransferListener;
 
   /** Create composite media source without child sources. */
   protected CompositeMediaSource() {
@@ -45,8 +46,12 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
 
   @Override
   @CallSuper
-  public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource) {
+  public void prepareSourceInternal(
+      ExoPlayer player,
+      boolean isTopLevelSource,
+      @Nullable TransferListener mediaTransferListener) {
     this.player = player;
+    this.mediaTransferListener = mediaTransferListener;
     eventHandler = new Handler();
   }
 
@@ -96,18 +101,15 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   protected final void prepareChildSource(final T id, MediaSource mediaSource) {
     Assertions.checkArgument(!childSources.containsKey(id));
     SourceInfoRefreshListener sourceListener =
-        new SourceInfoRefreshListener() {
-          @Override
-          public void onSourceInfoRefreshed(
-              MediaSource source, Timeline timeline, @Nullable Object manifest) {
-            onChildSourceInfoRefreshed(id, source, timeline, manifest);
-          }
-        };
+        (source, timeline, manifest) -> onChildSourceInfoRefreshed(id, source, timeline, manifest);
     MediaSourceEventListener eventListener = new ForwardingEventListener(id);
     childSources.put(id, new MediaSourceAndListener(mediaSource, sourceListener, eventListener));
     mediaSource.addEventListener(Assertions.checkNotNull(eventHandler), eventListener);
     mediaSource.prepareSource(
-        Assertions.checkNotNull(player), /* isTopLevelSource= */ false, sourceListener);
+        Assertions.checkNotNull(player),
+        /* isTopLevelSource= */ false,
+        sourceListener,
+        mediaTransferListener);
   }
 
   /**

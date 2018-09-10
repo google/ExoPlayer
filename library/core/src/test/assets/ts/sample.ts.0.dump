@@ -1,8 +1,8 @@
 seekMap:
-  isSeekable = false
-  duration = UNSET TIME
+  isSeekable = true
+  duration = 66733
   getPosition(0) = [[timeUs=0, position=0]]
-numberOfTracks = 2
+numberOfTracks = 3
 track 256:
   format:
     bitrate = -1
@@ -76,4 +76,28 @@ track 257:
     time = 100822
     flags = 1
     data = length 1254, hash 73FB07B8
+track 8448:
+  format:
+    bitrate = -1
+    id = 1/8448
+    containerMimeType = null
+    sampleMimeType = application/cea-608
+    maxInputSize = -1
+    width = -1
+    height = -1
+    frameRate = -1.0
+    rotationDegrees = 0
+    pixelWidthHeightRatio = 1.0
+    channelCount = -1
+    sampleRate = -1
+    pcmEncoding = -1
+    encoderDelay = 0
+    encoderPadding = 0
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 0
+    language = null
+    drmInitData = -
+    initializationData:
+  total output bytes = 0
+  sample count = 0
 tracksEnded = true

@@ -63,6 +63,7 @@ public final class AdaptiveTrackSelectionTest {
     BandwidthMeter initialBandwidthMeter = mock(BandwidthMeter.class);
     BandwidthMeter injectedBandwidthMeter = mock(BandwidthMeter.class);
     Format format = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
+    @SuppressWarnings("deprecation")
     AdaptiveTrackSelection adaptiveTrackSelection =
         new AdaptiveTrackSelection.Factory(initialBandwidthMeter)
             .createTrackSelection(new TrackGroup(format), injectedBandwidthMeter, /* tracks= */ 0);
@@ -420,11 +421,6 @@ public final class AdaptiveTrackSelectionTest {
     @Override
     public boolean isLoadCompleted() {
       return true;
-    }
-
-    @Override
-    public long bytesLoaded() {
-      return 0;
     }
   }
 }

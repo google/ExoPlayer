@@ -27,11 +27,16 @@ import java.nio.ByteBuffer;
 public class DecoderInputBuffer extends Buffer {
 
   /**
-   * The buffer replacement mode, which may disable replacement.
+   * The buffer replacement mode, which may disable replacement. One of {@link
+   * #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} or {@link
+   * #BUFFER_REPLACEMENT_MODE_DIRECT}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({BUFFER_REPLACEMENT_MODE_DISABLED, BUFFER_REPLACEMENT_MODE_NORMAL,
-      BUFFER_REPLACEMENT_MODE_DIRECT})
+  @IntDef({
+    BUFFER_REPLACEMENT_MODE_DISABLED,
+    BUFFER_REPLACEMENT_MODE_NORMAL,
+    BUFFER_REPLACEMENT_MODE_DIRECT
+  })
   public @interface BufferReplacementMode {}
   /**
    * Disallows buffer replacement.
@@ -85,8 +90,8 @@ public class DecoderInputBuffer extends Buffer {
   /**
    * Ensures that {@link #data} is large enough to accommodate a write of a given length at its
    * current position.
-   * <p>
-   * If the capacity of {@link #data} is sufficient this method does nothing. If the capacity is
+   *
+   * <p>If the capacity of {@link #data} is sufficient this method does nothing. If the capacity is
    * insufficient then an attempt is made to replace {@link #data} with a new {@link ByteBuffer}
    * whose capacity is sufficient. Data up to the current position is copied to the new buffer.
    *
@@ -94,7 +99,7 @@ public class DecoderInputBuffer extends Buffer {
    * @throws IllegalStateException If there is insufficient capacity to accommodate the write and
    *     the buffer replacement mode of the holder is {@link #BUFFER_REPLACEMENT_MODE_DISABLED}.
    */
-  public void ensureSpaceForWrite(int length) throws IllegalStateException {
+  public void ensureSpaceForWrite(int length) {
     if (data == null) {
       data = createReplacementByteBuffer(length);
       return;

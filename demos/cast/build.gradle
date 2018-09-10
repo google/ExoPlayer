@@ -62,3 +62,5 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:' + supportLibraryVersion
     implementation 'com.android.support:recyclerview-v7:' + supportLibraryVersion
 }
+
+apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'

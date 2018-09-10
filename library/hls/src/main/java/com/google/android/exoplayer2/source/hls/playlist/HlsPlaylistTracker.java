@@ -59,10 +59,11 @@ public interface HlsPlaylistTracker {
      * Called if an error is encountered while loading a playlist.
      *
      * @param url The loaded url that caused the error.
-     * @param shouldBlacklist Whether the playlist should be blacklisted.
+     * @param blacklistDurationMs The duration for which the playlist should be blacklisted. Or
+     *     {@link C#TIME_UNSET} if the playlist should not be blacklisted.
      * @return True if blacklisting did not encounter errors. False otherwise.
      */
-    boolean onPlaylistError(HlsUrl url, boolean shouldBlacklist);
+    boolean onPlaylistError(HlsUrl url, long blacklistDurationMs);
   }
 
   /** Thrown when a playlist is considered to be stuck due to a server side error. */
@@ -100,8 +101,8 @@ public interface HlsPlaylistTracker {
   /**
    * Starts the playlist tracker.
    *
-   * <p>Must be called from the playback thread. A tracker may be restarted after a {@link
-   * #release()} call.
+   * <p>Must be called from the playback thread. A tracker may be restarted after a {@link #stop()}
+   * call.
    *
    * @param initialPlaylistUri Uri of the HLS stream. Can point to a media playlist or a master
    *     playlist.
@@ -111,8 +112,12 @@ public interface HlsPlaylistTracker {
   void start(
       Uri initialPlaylistUri, EventDispatcher eventDispatcher, PrimaryPlaylistListener listener);
 
-  /** Releases all acquired resources. Must be called once per {@link #start} call. */
-  void release();
+  /**
+   * Stops the playlist tracker and releases any acquired resources.
+   *
+   * <p>Must be called once per {@link #start} call.
+   */
+  void stop();
 
   /**
    * Registers a listener to receive events from the playlist tracker.

@@ -38,7 +38,7 @@ public class UdpDataSinkSource extends UdpDataSource {
      * @param maxPacketSize The maximum datagram packet size, in bytes.
      */
     public UdpDataSinkSource(TransferListener<? super UdpDataSource> listener, int maxPacketSize) {
-        this(listener, maxPacketSize, DEAFULT_SOCKET_TIMEOUT_MILLIS);
+        this(listener, maxPacketSize, DEFAULT_SOCKET_TIMEOUT_MILLIS);
     }
 
     /**

@@ -101,8 +101,15 @@ import com.google.android.gms.cast.MediaTrack;
    * @return The equivalent {@link Format}.
    */
   public static Format mediaTrackToFormat(MediaTrack mediaTrack) {
-    return Format.createContainerFormat(mediaTrack.getContentId(), mediaTrack.getContentType(),
-        null, null, Format.NO_VALUE, 0, mediaTrack.getLanguage());
+    return Format.createContainerFormat(
+        mediaTrack.getContentId(),
+        /* label= */ null,
+        mediaTrack.getContentType(),
+        /* sampleMimeType= */ null,
+        /* codecs= */ null,
+        /* bitrate= */ Format.NO_VALUE,
+        /* selectionFlags= */ 0,
+        mediaTrack.getLanguage());
   }
 
   private CastUtils() {}

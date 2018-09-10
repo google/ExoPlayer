@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
@@ -32,9 +33,11 @@ import java.io.IOException;
  */
 public final class InitializationChunk extends Chunk {
 
+  private static final PositionHolder DUMMY_POSITION_HOLDER = new PositionHolder();
+
   private final ChunkExtractorWrapper extractorWrapper;
 
-  private volatile int bytesLoaded;
+  private long nextLoadPosition;
   private volatile boolean loadCanceled;
 
   /**
@@ -57,11 +60,6 @@ public final class InitializationChunk extends Chunk {
     this.extractorWrapper = extractorWrapper;
   }
 
-  @Override
-  public long bytesLoaded() {
-    return bytesLoaded;
-  }
-
   // Loadable implementation.
 
   @Override
@@ -72,12 +70,12 @@ public final class InitializationChunk extends Chunk {
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
   public void load() throws IOException, InterruptedException {
-    DataSpec loadDataSpec = dataSpec.subrange(bytesLoaded);
+    DataSpec loadDataSpec = dataSpec.subrange(nextLoadPosition);
     try {
       // Create and open the input.
       ExtractorInput input = new DefaultExtractorInput(dataSource,
           loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
-      if (bytesLoaded == 0) {
+      if (nextLoadPosition == 0) {
         extractorWrapper.init(/* trackOutputProvider= */ null, C.TIME_UNSET);
       }
       // Load and decode the initialization data.
@@ -85,11 +83,11 @@ public final class InitializationChunk extends Chunk {
         Extractor extractor = extractorWrapper.extractor;
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-          result = extractor.read(input, null);
+          result = extractor.read(input, DUMMY_POSITION_HOLDER);
         }
         Assertions.checkState(result != Extractor.RESULT_SEEK);
       } finally {
-        bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
+        nextLoadPosition = input.getPosition() - dataSpec.absoluteStreamPosition;
       }
     } finally {
       Util.closeQuietly(dataSource);

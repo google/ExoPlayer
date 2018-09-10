@@ -452,8 +452,9 @@ public final class RtspSampleStreamWrapper implements
     }
 
     @Override
-    public int onLoadError(MediaStreamLoadable loadable, long elapsedRealtimeMs, long loadDurationMs,
-                           IOException error) {
+    public Loader.LoadErrorAction onLoadError(MediaStreamLoadable loadable, long elapsedRealtimeMs,
+                                              long loadDurationMs, IOException error,
+                                              int errorCount) {
         loadingFinished = true;
         return Loader.DONT_RETRY;
     }

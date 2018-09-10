@@ -248,8 +248,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     surfaceHolderGlueHost.setSurfaceHolderCallback(null);
   }
 
-  private final class ComponentListener extends Player.DefaultEventListener
-      implements SurfaceHolder.Callback, VideoListener {
+  private final class ComponentListener
+      implements Player.EventListener, SurfaceHolder.Callback, VideoListener {
 
     // SurfaceHolder.Callback implementation.
 
@@ -288,8 +288,8 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest,
-        @TimelineChangeReason int reason) {
+    public void onTimelineChanged(
+        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
       Callback callback = getCallback();
       callback.onDurationChanged(LeanbackPlayerAdapter.this);
       callback.onCurrentPositionChanged(LeanbackPlayerAdapter.this);

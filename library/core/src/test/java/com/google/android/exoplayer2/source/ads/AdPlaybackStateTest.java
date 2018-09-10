@@ -90,6 +90,19 @@ public final class AdPlaybackStateTest {
   }
 
   @Test
+  public void testGetFirstAdIndexToPlaySkipsSkippedAd() {
+    state = state.withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 3);
+    state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI);
+    state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 2, TEST_URI);
+
+    state = state.withSkippedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+
+    assertThat(state.adGroups[0].getFirstAdIndexToPlay()).isEqualTo(1);
+    assertThat(state.adGroups[0].states[1]).isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
+    assertThat(state.adGroups[0].states[2]).isEqualTo(AdPlaybackState.AD_STATE_AVAILABLE);
+  }
+
+  @Test
   public void testGetFirstAdIndexToPlaySkipsErrorAds() {
     state = state.withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 3);
     state = state.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI);

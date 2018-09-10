@@ -210,8 +210,8 @@ public final class SilenceSkippingAudioProcessorTest {
         process(silenceSkippingAudioProcessor, inputBufferProvider, INPUT_BUFFER_SIZE);
 
     // The right number of frames are skipped/output.
-    assertThat(totalOutputFrames).isEqualTo(53990);
-    assertThat(silenceSkippingAudioProcessor.getSkippedFrames()).isEqualTo(46010);
+    assertThat(totalOutputFrames).isEqualTo(57980);
+    assertThat(silenceSkippingAudioProcessor.getSkippedFrames()).isEqualTo(42020);
   }
 
   @Test
@@ -240,8 +240,8 @@ public final class SilenceSkippingAudioProcessorTest {
         process(silenceSkippingAudioProcessor, inputBufferProvider, /* inputBufferSize= */ 80);
 
     // The right number of frames are skipped/output.
-    assertThat(totalOutputFrames).isEqualTo(53990);
-    assertThat(silenceSkippingAudioProcessor.getSkippedFrames()).isEqualTo(46010);
+    assertThat(totalOutputFrames).isEqualTo(57980);
+    assertThat(silenceSkippingAudioProcessor.getSkippedFrames()).isEqualTo(42020);
   }
 
   @Test
@@ -270,8 +270,8 @@ public final class SilenceSkippingAudioProcessorTest {
         process(silenceSkippingAudioProcessor, inputBufferProvider, /* inputBufferSize= */ 120);
 
     // The right number of frames are skipped/output.
-    assertThat(totalOutputFrames).isEqualTo(53990);
-    assertThat(silenceSkippingAudioProcessor.getSkippedFrames()).isEqualTo(46010);
+    assertThat(totalOutputFrames).isEqualTo(57980);
+    assertThat(silenceSkippingAudioProcessor.getSkippedFrames()).isEqualTo(42020);
   }
 
   @Test
@@ -401,8 +401,8 @@ public final class SilenceSkippingAudioProcessorTest {
     public void appendFrames(int count, short... channelLevels) {
       Assertions.checkState(!built);
       for (int i = 0; i < count; i += channelCount) {
-        for (int j = 0; j < channelLevels.length; j++) {
-          buffer.put(channelLevels[j]);
+        for (short channelLevel : channelLevels) {
+          buffer.put(channelLevel);
         }
       }
     }

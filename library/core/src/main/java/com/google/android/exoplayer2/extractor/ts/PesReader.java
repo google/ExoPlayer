@@ -101,6 +101,8 @@ public final class PesReader implements TsPayloadReader {
           // Either way, notify the reader that it has now finished.
           reader.packetFinished();
           break;
+        default:
+          throw new IllegalStateException();
       }
       setState(STATE_READING_HEADER);
     }
@@ -141,6 +143,8 @@ public final class PesReader implements TsPayloadReader {
             }
           }
           break;
+        default:
+          throw new IllegalStateException();
       }
     }
   }

@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.util.Assertions;
 
 /**
  * The component of an {@link ExoPlayer} responsible for selecting tracks to be consumed by each of
@@ -103,10 +104,9 @@ public abstract class TrackSelector {
    *
    * @param listener An invalidation listener that the selector can call to indicate that selections
    *     it has previously made are no longer valid.
-   * @param bandwidthMeter A bandwidth meter which can be used by track selections to select tracks,
-   *     or null if no such bandwidth meter is available.
+   * @param bandwidthMeter A bandwidth meter which can be used by track selections to select tracks.
    */
-  public final void init(InvalidationListener listener, @Nullable BandwidthMeter bandwidthMeter) {
+  public final void init(InvalidationListener listener, BandwidthMeter bandwidthMeter) {
     this.listener = listener;
     this.bandwidthMeter = bandwidthMeter;
   }
@@ -142,10 +142,10 @@ public abstract class TrackSelector {
   }
 
   /**
-   * Returns a bandwidth meter which can be used by track selections to select tracks, or null if no
-   * such bandwidth meter is available.
+   * Returns a bandwidth meter which can be used by track selections to select tracks. Must only be
+   * called after {@link #init(InvalidationListener, BandwidthMeter)} has been called.
    */
-  protected final @Nullable BandwidthMeter getBandwidthMeter() {
-    return bandwidthMeter;
+  protected final BandwidthMeter getBandwidthMeter() {
+    return Assertions.checkNotNull(bandwidthMeter);
   }
 }

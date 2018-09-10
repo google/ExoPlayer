@@ -157,6 +157,14 @@ public final class PlayerMessage {
   }
 
   /**
+   * Returns position in window at {@link #getWindowIndex()} at which the message will be delivered,
+   * in milliseconds. If {@link C#TIME_UNSET}, the message will be delivered immediately.
+   */
+  public long getPositionMs() {
+    return positionMs;
+  }
+
+  /**
    * Sets a position in the current window at which the message will be delivered.
    *
    * @param positionMs The position in the current window at which the message will be sent, in
@@ -168,14 +176,6 @@ public final class PlayerMessage {
     Assertions.checkState(!isSent);
     this.positionMs = positionMs;
     return this;
-  }
-
-  /**
-   * Returns position in window at {@link #getWindowIndex()} at which the message will be delivered,
-   * in milliseconds. If {@link C#TIME_UNSET}, the message will be delivered immediately.
-   */
-  public long getPositionMs() {
-    return positionMs;
   }
 
   /**
@@ -231,7 +231,7 @@ public final class PlayerMessage {
    * Player.EventListener#onPlayerError(ExoPlaybackException)}.
    *
    * @return This message.
-   * @throws IllegalStateException If {@link #send()} has already been called.
+   * @throws IllegalStateException If this message has already been sent.
    */
   public PlayerMessage send() {
     Assertions.checkState(!isSent);

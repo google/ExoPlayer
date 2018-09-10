@@ -27,8 +27,10 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.zip.Deflater;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -245,6 +247,23 @@ public class UtilTest {
       String string = TestUtil.buildTestString(1000, random);
       assertEscapeUnescapeFileName(string);
     }
+  }
+
+  @Test
+  public void testInflate() {
+    byte[] testData = TestUtil.buildTestData(/*arbitrary test data size*/ 256 * 1024);
+    byte[] compressedData = new byte[testData.length * 2];
+    Deflater compresser = new Deflater(9);
+    compresser.setInput(testData);
+    compresser.finish();
+    int compressedDataLength = compresser.deflate(compressedData);
+    compresser.end();
+
+    ParsableByteArray input = new ParsableByteArray(compressedData, compressedDataLength);
+    ParsableByteArray output = new ParsableByteArray();
+    assertThat(Util.inflate(input, output, /* inflater= */ null)).isTrue();
+    assertThat(output.limit()).isEqualTo(testData.length);
+    assertThat(Arrays.copyOf(output.data, output.limit())).isEqualTo(testData);
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {

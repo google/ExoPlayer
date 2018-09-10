@@ -16,19 +16,13 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Application;
-import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.offline.ProgressiveDownloadAction;
-import com.google.android.exoplayer2.source.dash.offline.DashDownloadAction;
-import com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction;
-import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
@@ -46,13 +40,6 @@ public class DemoApplication extends Application {
   private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
   private static final int MAX_SIMULTANEOUS_DOWNLOADS = 2;
-  private static final Deserializer[] DOWNLOAD_DESERIALIZERS =
-      new Deserializer[] {
-        DashDownloadAction.DESERIALIZER,
-        HlsDownloadAction.DESERIALIZER,
-        SsDownloadAction.DESERIALIZER,
-        ProgressiveDownloadAction.DESERIALIZER
-      };
 
   protected String userAgent;
 
@@ -68,16 +55,15 @@ public class DemoApplication extends Application {
   }
 
   /** Returns a {@link DataSource.Factory}. */
-  public DataSource.Factory buildDataSourceFactory(TransferListener<? super DataSource> listener) {
+  public DataSource.Factory buildDataSourceFactory() {
     DefaultDataSourceFactory upstreamFactory =
-        new DefaultDataSourceFactory(this, listener, buildHttpDataSourceFactory(listener));
+        new DefaultDataSourceFactory(this, buildHttpDataSourceFactory());
     return buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache());
   }
 
   /** Returns a {@link HttpDataSource.Factory}. */
-  public HttpDataSource.Factory buildHttpDataSourceFactory(
-      TransferListener<? super DataSource> listener) {
-    return new DefaultHttpDataSourceFactory(userAgent, listener);
+  public HttpDataSource.Factory buildHttpDataSourceFactory() {
+    return new DefaultHttpDataSourceFactory(userAgent);
   }
 
   /** Returns whether extension renderers should be used. */
@@ -98,21 +84,18 @@ public class DemoApplication extends Application {
   private synchronized void initDownloadManager() {
     if (downloadManager == null) {
       DownloaderConstructorHelper downloaderConstructorHelper =
-          new DownloaderConstructorHelper(
-              getDownloadCache(), buildHttpDataSourceFactory(/* listener= */ null));
+          new DownloaderConstructorHelper(getDownloadCache(), buildHttpDataSourceFactory());
       downloadManager =
           new DownloadManager(
               downloaderConstructorHelper,
               MAX_SIMULTANEOUS_DOWNLOADS,
               DownloadManager.DEFAULT_MIN_RETRY_COUNT,
-              new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE),
-              DOWNLOAD_DESERIALIZERS);
+              new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE));
       downloadTracker =
           new DownloadTracker(
               /* context= */ this,
-              buildDataSourceFactory(/* listener= */ null),
-              new File(getDownloadDirectory(), DOWNLOAD_TRACKER_ACTION_FILE),
-              DOWNLOAD_DESERIALIZERS);
+              buildDataSourceFactory(),
+              new File(getDownloadDirectory(), DOWNLOAD_TRACKER_ACTION_FILE));
       downloadManager.addListener(downloadTracker);
     }
   }

@@ -100,6 +100,8 @@ public final class MpegAudioReader implements ElementaryStreamReader {
         case STATE_READING_FRAME:
           readFrameRemainder(data);
           break;
+        default:
+          throw new IllegalStateException();
       }
     }
   }

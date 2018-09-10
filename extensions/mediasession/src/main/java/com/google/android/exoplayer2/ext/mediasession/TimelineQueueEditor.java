@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -184,16 +184,11 @@ public final class TimelineQueueEditor
     List<MediaSessionCompat.QueueItem> queue = mediaController.getQueue();
     for (int i = 0; i < queue.size(); i++) {
       if (equalityChecker.equals(queue.get(i).getDescription(), description)) {
-        onRemoveQueueItemAt(player, i);
+        queueDataAdapter.remove(i);
+        queueMediaSource.removeMediaSource(i);
         return;
       }
     }
-  }
-
-  @Override
-  public void onRemoveQueueItemAt(Player player, int index) {
-    queueDataAdapter.remove(index);
-    queueMediaSource.removeMediaSource(index);
   }
 
   // CommandReceiver implementation.

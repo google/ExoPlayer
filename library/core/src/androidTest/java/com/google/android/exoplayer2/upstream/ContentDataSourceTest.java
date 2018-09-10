@@ -28,8 +28,8 @@ import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.FileNotFoundException;
@@ -87,7 +87,7 @@ public final class ContentDataSourceTest {
       fail();
     } catch (ContentDataSource.ContentDataSourceException e) {
       // Expected.
-      assertThat(e.getCause()).isInstanceOf(FileNotFoundException.class);
+      assertThat(e).hasCauseThat().isInstanceOf(FileNotFoundException.class);
     } finally {
       dataSource.close();
     }

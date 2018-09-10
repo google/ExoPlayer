@@ -35,7 +35,10 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class Requirements {
 
-  /** Network types. */
+  /**
+   * Network types. One of {@link #NETWORK_TYPE_NONE}, {@link #NETWORK_TYPE_ANY}, {@link
+   * #NETWORK_TYPE_UNMETERED}, {@link #NETWORK_TYPE_NOT_ROAMING} or {@link #NETWORK_TYPE_METERED}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     NETWORK_TYPE_NONE,

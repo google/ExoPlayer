@@ -81,15 +81,20 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
     }
 
     @Override
-    protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
-        MediaCrypto crypto) throws DecoderQueryException {
+    protected void configureCodec(
+        MediaCodecInfo codecInfo,
+        MediaCodec codec,
+        Format format,
+        MediaCrypto crypto,
+        float operatingRate)
+        throws DecoderQueryException {
       // If the codec is being initialized whilst the renderer is started, default behavior is to
       // render the first frame (i.e. the keyframe before the current position), then drop frames up
       // to the current playback position. For test runs that place a maximum limit on the number of
       // dropped frames allowed, this is not desired behavior. Hence we skip (rather than drop)
       // frames up to the current playback position [Internal: b/66494991].
       skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
-      super.configureCodec(codecInfo, codec, format, crypto);
+      super.configureCodec(codecInfo, codec, format, crypto, operatingRate);
     }
 
     @Override
@@ -121,17 +126,33 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
     }
 
     @Override
-    protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
-        ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
-        boolean shouldSkip) throws ExoPlaybackException {
+    protected boolean processOutputBuffer(
+        long positionUs,
+        long elapsedRealtimeUs,
+        MediaCodec codec,
+        ByteBuffer buffer,
+        int bufferIndex,
+        int bufferFlags,
+        long bufferPresentationTimeUs,
+        boolean shouldSkip,
+        Format format)
+        throws ExoPlaybackException {
       if (skipToPositionBeforeRenderingFirstFrame && bufferPresentationTimeUs < positionUs) {
         // After the codec has been initialized, don't render the first frame until we've caught up
         // to the playback position. Else test runs on devices that do not support dummy surface
         // will drop frames between rendering the first one and catching up [Internal: b/66494991].
         shouldSkip = true;
       }
-      return super.processOutputBuffer(positionUs, elapsedRealtimeUs, codec, buffer, bufferIndex,
-          bufferFlags, bufferPresentationTimeUs, shouldSkip);
+      return super.processOutputBuffer(
+          positionUs,
+          elapsedRealtimeUs,
+          codec,
+          buffer,
+          bufferIndex,
+          bufferFlags,
+          bufferPresentationTimeUs,
+          shouldSkip,
+          format);
     }
 
     @Override

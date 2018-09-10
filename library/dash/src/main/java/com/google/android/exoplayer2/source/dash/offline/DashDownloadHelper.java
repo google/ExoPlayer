@@ -17,8 +17,10 @@ package com.google.android.exoplayer2.source.dash.offline;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.offline.DownloadHelper;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.offline.TrackKey;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -26,13 +28,11 @@ import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -51,9 +51,9 @@ public final class DashDownloadHelper extends DownloadHelper {
 
   @Override
   protected void prepareInternal() throws IOException {
+    DataSource dataSource = manifestDataSourceFactory.createDataSource();
     manifest =
-        ParsingLoadable.load(
-            manifestDataSourceFactory.createDataSource(), new DashManifestParser(), uri);
+        ParsingLoadable.load(dataSource, new DashManifestParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
   /** Returns the DASH manifest. Must not be called until after preparation completes. */
@@ -87,23 +87,20 @@ public final class DashDownloadHelper extends DownloadHelper {
 
   @Override
   public DashDownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
-    return new DashDownloadAction(
-        uri, /* isRemoveAction= */ false, data, toRepresentationKeys(trackKeys));
+    return DashDownloadAction.createDownloadAction(uri, data, toStreamKeys(trackKeys));
   }
 
   @Override
   public DashDownloadAction getRemoveAction(@Nullable byte[] data) {
-    return new DashDownloadAction(
-        uri, /* isRemoveAction= */ true, data, Collections.<RepresentationKey>emptyList());
+    return DashDownloadAction.createRemoveAction(uri, data);
   }
 
-  private static List<RepresentationKey> toRepresentationKeys(List<TrackKey> trackKeys) {
-    List<RepresentationKey> representationKeys = new ArrayList<>(trackKeys.size());
+  private static List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
+    List<StreamKey> streamKeys = new ArrayList<>(trackKeys.size());
     for (int i = 0; i < trackKeys.size(); i++) {
       TrackKey trackKey = trackKeys.get(i);
-      representationKeys.add(
-          new RepresentationKey(trackKey.periodIndex, trackKey.groupIndex, trackKey.trackIndex));
+      streamKeys.add(new StreamKey(trackKey.periodIndex, trackKey.groupIndex, trackKey.trackIndex));
     }
-    return representationKeys;
+    return streamKeys;
   }
 }

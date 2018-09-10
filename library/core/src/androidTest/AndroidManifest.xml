@@ -29,6 +29,6 @@
 
   <instrumentation
       android:targetPackage="com.google.android.exoplayer2.core.test"
-      android:name="android.test.InstrumentationTestRunner"/>
+      android:name="androidx.test.runner.AndroidJUnitRunner"/>
 
 </manifest>

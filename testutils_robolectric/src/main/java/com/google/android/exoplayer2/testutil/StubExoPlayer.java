@@ -35,6 +35,11 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
+  public AudioComponent getAudioComponent() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public VideoComponent getVideoComponent() {
     throw new UnsupportedOperationException();
   }
@@ -46,6 +51,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
   public Looper getPlaybackLooper() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Looper getApplicationLooper() {
     throw new UnsupportedOperationException();
   }
 
@@ -150,6 +160,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public SeekParameters getSeekParameters() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public @Nullable Object getCurrentTag() {
     throw new UnsupportedOperationException();
   }
@@ -175,11 +190,15 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public void sendMessages(ExoPlayerMessage... messages) {
     throw new UnsupportedOperationException();
   }
 
   @Override
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public void blockingSendMessages(ExoPlayerMessage... messages) {
     throw new UnsupportedOperationException();
   }
@@ -255,6 +274,11 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public long getTotalBufferedDuration() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public boolean isCurrentWindowDynamic() {
     throw new UnsupportedOperationException();
   }
@@ -280,7 +304,17 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
+  public long getContentDuration() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public long getContentPosition() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long getContentBufferedPosition() {
     throw new UnsupportedOperationException();
   }
 }

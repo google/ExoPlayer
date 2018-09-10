@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
 import android.media.MediaCrypto;
@@ -23,10 +24,10 @@ import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +40,8 @@ import java.util.UUID;
  */
 @TargetApi(23)
 public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto> {
+
+  private static final String CENC_SCHEME_MIME_TYPE = "cenc";
 
   private final UUID uuid;
   private final MediaDrm mediaDrm;
@@ -63,22 +66,23 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   private FrameworkMediaDrm(UUID uuid) throws UnsupportedSchemeException {
     Assertions.checkNotNull(uuid);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
-    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
-    uuid = Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid;
     this.uuid = uuid;
-    this.mediaDrm = new MediaDrm(uuid);
+    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
+    this.mediaDrm =
+        new MediaDrm(Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid);
+    if (C.WIDEVINE_UUID.equals(uuid) && needsForceWidevineL3Workaround()) {
+      forceWidevineL3(mediaDrm);
+    }
   }
 
   @Override
   public void setOnEventListener(
       final ExoMediaDrm.OnEventListener<? super FrameworkMediaCrypto> listener) {
-    mediaDrm.setOnEventListener(listener == null ? null : new MediaDrm.OnEventListener() {
-      @Override
-      public void onEvent(@NonNull MediaDrm md, @Nullable byte[] sessionId, int event, int extra,
-          byte[] data) {
-        listener.onEvent(FrameworkMediaDrm.this, sessionId, event, extra, data);
-      }
-    });
+    mediaDrm.setOnEventListener(
+        listener == null
+            ? null
+            : (mediaDrm, sessionId, event, extra, data) ->
+                listener.onEvent(FrameworkMediaDrm.this, sessionId, event, extra, data));
   }
 
   @Override
@@ -87,20 +91,19 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     if (Util.SDK_INT < 23) {
       throw new UnsupportedOperationException();
     }
-    
-    mediaDrm.setOnKeyStatusChangeListener(listener == null ? null
-        : new MediaDrm.OnKeyStatusChangeListener() {
-          @Override
-          public void onKeyStatusChange(@NonNull MediaDrm md, @NonNull byte[] sessionId,
-              @NonNull List<MediaDrm.KeyStatus> keyInfo, boolean hasNewUsableKey) {
-            List<KeyStatus> exoKeyInfo = new ArrayList<>();
-            for (MediaDrm.KeyStatus keyStatus : keyInfo) {
-              exoKeyInfo.add(new DefaultKeyStatus(keyStatus.getStatusCode(), keyStatus.getKeyId()));
-            }
-            listener.onKeyStatusChange(FrameworkMediaDrm.this, sessionId, exoKeyInfo,
-                hasNewUsableKey);
-          }
-        }, null);
+
+    mediaDrm.setOnKeyStatusChangeListener(
+        listener == null
+            ? null
+            : (mediaDrm, sessionId, keyInfo, hasNewUsableKey) -> {
+              List<KeyStatus> exoKeyInfo = new ArrayList<>();
+              for (MediaDrm.KeyStatus keyStatus : keyInfo) {
+                exoKeyInfo.add(new KeyStatus(keyStatus.getStatusCode(), keyStatus.getKeyId()));
+              }
+              listener.onKeyStatusChange(
+                  FrameworkMediaDrm.this, sessionId, exoKeyInfo, hasNewUsableKey);
+            },
+        null);
   }
 
   @Override
@@ -114,23 +117,63 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
-  public KeyRequest getKeyRequest(byte[] scope, byte[] init, String mimeType, int keyType,
-      HashMap<String, String> optionalParameters) throws NotProvisionedException {
+  public KeyRequest getKeyRequest(
+      byte[] scope,
+      byte[] init,
+      String mimeType,
+      int keyType,
+      HashMap<String, String> optionalParameters)
+      throws NotProvisionedException {
+
+    // Prior to L the Widevine CDM required data to be extracted from the PSSH atom. Some Amazon
+    // devices also required data to be extracted from the PSSH atom for PlayReady.
+    if ((Util.SDK_INT < 21 && C.WIDEVINE_UUID.equals(uuid))
+        || (C.PLAYREADY_UUID.equals(uuid)
+            && "Amazon".equals(Util.MANUFACTURER)
+            && ("AFTB".equals(Util.MODEL) // Fire TV Gen 1
+                || "AFTS".equals(Util.MODEL) // Fire TV Gen 2
+                || "AFTM".equals(Util.MODEL)))) { // Fire TV Stick Gen 1
+      byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(init, uuid);
+      if (psshData == null) {
+        // Extraction failed. schemeData isn't a PSSH atom, so leave it unchanged.
+      } else {
+        init = psshData;
+      }
+    }
+
+    // Prior to API level 26 the ClearKey CDM only accepted "cenc" as the scheme for MP4.
+    if (Util.SDK_INT < 26
+        && C.CLEARKEY_UUID.equals(uuid)
+        && (MimeTypes.VIDEO_MP4.equals(mimeType) || MimeTypes.AUDIO_MP4.equals(mimeType))) {
+      mimeType = CENC_SCHEME_MIME_TYPE;
+    }
+
     final MediaDrm.KeyRequest request = mediaDrm.getKeyRequest(scope, init, mimeType, keyType,
         optionalParameters);
-    return new DefaultKeyRequest(request.getData(), request.getDefaultUrl());
+
+    byte[] requestData = request.getData();
+    if (C.CLEARKEY_UUID.equals(uuid)) {
+      requestData = ClearKeyUtil.adjustRequestData(requestData);
+    }
+
+    return new KeyRequest(requestData, request.getDefaultUrl());
   }
 
   @Override
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException {
+
+    if (C.CLEARKEY_UUID.equals(uuid)) {
+      response = ClearKeyUtil.adjustResponseData(response);
+    }
+
     return mediaDrm.provideKeyResponse(scope, response);
   }
 
   @Override
   public ProvisionRequest getProvisionRequest() {
     final MediaDrm.ProvisionRequest request = mediaDrm.getProvisionRequest();
-    return new DefaultProvisionRequest(request.getData(), request.getDefaultUrl());
+    return new ProvisionRequest(request.getData(), request.getDefaultUrl());
   }
 
   @Override
@@ -183,4 +226,17 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         forceAllowInsecureDecoderComponents);
   }
 
+  @SuppressLint("WrongConstant") // Suppress spurious lint error [Internal ref: b/32137960]
+  private static void forceWidevineL3(MediaDrm mediaDrm) {
+    mediaDrm.setPropertyString("securityLevel", "L3");
+  }
+
+  /**
+   * Returns whether the device codec is known to fail if security level L1 is used.
+   *
+   * <p>See <a href="https://github.com/google/ExoPlayer/issues/4413">GitHub issue #4413</a>.
+   */
+  private static boolean needsForceWidevineL3Workaround() {
+    return "ASUS_Z00AD".equals(Util.MODEL);
+  }
 }

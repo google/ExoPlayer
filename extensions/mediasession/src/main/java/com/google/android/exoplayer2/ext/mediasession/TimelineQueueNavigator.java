@@ -175,7 +175,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
 
   private void publishFloatingQueueWindow(Player player) {
     if (player.getCurrentTimeline().isEmpty()) {
-      mediaSession.setQueue(Collections.<MediaSessionCompat.QueueItem>emptyList());
+      mediaSession.setQueue(Collections.emptyList());
       activeQueueItemId = MediaSessionCompat.QueueItem.UNKNOWN_ID;
       return;
     }

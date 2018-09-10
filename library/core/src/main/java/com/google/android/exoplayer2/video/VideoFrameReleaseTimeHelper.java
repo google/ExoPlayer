@@ -291,7 +291,7 @@ public final class VideoFrameReleaseTimeHelper {
       sampledVsyncTimeNs = C.TIME_UNSET;
       choreographerOwnerThread = new HandlerThread("ChoreographerOwner:Handler");
       choreographerOwnerThread.start();
-      handler = new Handler(choreographerOwnerThread.getLooper(), this);
+      handler = Util.createHandler(choreographerOwnerThread.getLooper(), /* callback= */ this);
       handler.sendEmptyMessage(CREATE_CHOREOGRAPHER);
     }
 

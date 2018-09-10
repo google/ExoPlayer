@@ -69,19 +69,22 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final boolean hasGapTag;
   private final TimestampAdjuster timestampAdjuster;
   private final boolean shouldSpliceIn;
-  private final Extractor extractor;
-  private final boolean isPackedAudioExtractor;
-  private final boolean reusingExtractor;
-  private final Id3Decoder id3Decoder;
-  private final ParsableByteArray id3Data;
+  private final HlsExtractorFactory extractorFactory;
+  private final List<Format> muxedCaptionFormats;
+  private final DrmInitData drmInitData;
+  private final Extractor previousExtractor;
 
+  private Extractor extractor;
+  private boolean isPackedAudioExtractor;
+  private Id3Decoder id3Decoder;
+  private ParsableByteArray id3Data;
   private HlsSampleStreamWrapper output;
   private int initSegmentBytesLoaded;
-  private int bytesLoaded;
+  private int nextLoadPosition;
   private boolean id3TimestampPeeked;
   private boolean initLoadCompleted;
   private volatile boolean loadCanceled;
-  private volatile boolean loadCompleted;
+  private boolean loadCompleted;
 
   /**
    * @param extractorFactory A {@link HlsExtractorFactory} from which the HLS media chunk extractor
@@ -142,35 +145,22 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.hlsUrl = hlsUrl;
     this.isMasterTimestampSource = isMasterTimestampSource;
     this.timestampAdjuster = timestampAdjuster;
-    // Note: this.dataSource and dataSource may be different.
-    this.isEncrypted = this.dataSource instanceof Aes128DataSource;
+    this.isEncrypted = fullSegmentEncryptionKey != null;
     this.hasGapTag = hasGapTag;
+    this.extractorFactory = extractorFactory;
+    this.muxedCaptionFormats = muxedCaptionFormats;
+    this.drmInitData = drmInitData;
     Extractor previousExtractor = null;
     if (previousChunk != null) {
+      id3Decoder = previousChunk.id3Decoder;
+      id3Data = previousChunk.id3Data;
       shouldSpliceIn = previousChunk.hlsUrl != hlsUrl;
       previousExtractor = previousChunk.discontinuitySequenceNumber != discontinuitySequenceNumber
           || shouldSpliceIn ? null : previousChunk.extractor;
     } else {
       shouldSpliceIn = false;
     }
-    Pair<Extractor, Boolean> extractorData = extractorFactory.createExtractor(previousExtractor,
-        dataSpec.uri, trackFormat, muxedCaptionFormats, drmInitData, timestampAdjuster);
-    extractor = extractorData.first;
-    isPackedAudioExtractor = extractorData.second;
-    reusingExtractor = extractor == previousExtractor;
-    initLoadCompleted = reusingExtractor && initDataSpec != null;
-    if (isPackedAudioExtractor) {
-      if (previousChunk != null && previousChunk.id3Data != null) {
-        id3Decoder = previousChunk.id3Decoder;
-        id3Data = previousChunk.id3Data;
-      } else {
-        id3Decoder = new Id3Decoder();
-        id3Data = new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
-      }
-    } else {
-      id3Decoder = null;
-      id3Data = null;
-    }
+    this.previousExtractor = previousExtractor;
     initDataSource = dataSource;
     uid = uidSource.getAndIncrement();
   }
@@ -183,20 +173,11 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public void init(HlsSampleStreamWrapper output) {
     this.output = output;
-    output.init(uid, shouldSpliceIn, reusingExtractor);
-    if (!reusingExtractor) {
-      extractor.init(output);
-    }
   }
 
   @Override
   public boolean isLoadCompleted() {
     return loadCompleted;
-  }
-
-  @Override
-  public long bytesLoaded() {
-    return bytesLoaded;
   }
 
   // Loadable implementation
@@ -217,7 +198,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
   }
 
-  // Internal loading methods.
+  // Internal methods.
 
   private void maybeLoadInitData() throws IOException, InterruptedException {
     if (initLoadCompleted || initDataSpec == null) {
@@ -226,8 +207,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
     DataSpec initSegmentDataSpec = initDataSpec.subrange(initSegmentBytesLoaded);
     try {
-      ExtractorInput input = new DefaultExtractorInput(initDataSource,
-          initSegmentDataSpec.absoluteStreamPosition, initDataSource.open(initSegmentDataSpec));
+      DefaultExtractorInput input = prepareExtraction(initDataSource, initSegmentDataSpec);
       try {
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
@@ -251,9 +231,9 @@ import java.util.concurrent.atomic.AtomicInteger;
     boolean skipLoadedBytes;
     if (isEncrypted) {
       loadDataSpec = dataSpec;
-      skipLoadedBytes = bytesLoaded != 0;
+      skipLoadedBytes = nextLoadPosition != 0;
     } else {
-      loadDataSpec = dataSpec.subrange(bytesLoaded);
+      loadDataSpec = dataSpec.subrange(nextLoadPosition);
       skipLoadedBytes = false;
     }
     if (!isMasterTimestampSource) {
@@ -263,8 +243,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       timestampAdjuster.setFirstSampleTimestampUs(startTimeUs);
     }
     try {
-      ExtractorInput input = new DefaultExtractorInput(dataSource,
-          loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
+      ExtractorInput input = prepareExtraction(dataSource, loadDataSpec);
       if (isPackedAudioExtractor && !id3TimestampPeeked) {
         long id3Timestamp = peekId3PrivTimestamp(input);
         id3TimestampPeeked = true;
@@ -272,7 +251,7 @@ import java.util.concurrent.atomic.AtomicInteger;
             ? timestampAdjuster.adjustTsTimestamp(id3Timestamp) : startTimeUs);
       }
       if (skipLoadedBytes) {
-        input.skipFully(bytesLoaded);
+        input.skipFully(nextLoadPosition);
       }
       try {
         int result = Extractor.RESULT_CONTINUE;
@@ -280,11 +259,42 @@ import java.util.concurrent.atomic.AtomicInteger;
           result = extractor.read(input, null);
         }
       } finally {
-        bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
+        nextLoadPosition = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
       Util.closeQuietly(dataSource);
     }
+  }
+
+  private DefaultExtractorInput prepareExtraction(DataSource dataSource, DataSpec dataSpec)
+      throws IOException {
+    long bytesToRead = dataSource.open(dataSpec);
+
+    if (extractor == null) {
+      Pair<Extractor, Boolean> extractorData =
+          extractorFactory.createExtractor(
+              previousExtractor,
+              dataSpec.uri,
+              trackFormat,
+              muxedCaptionFormats,
+              drmInitData,
+              timestampAdjuster,
+              dataSource.getResponseHeaders());
+      extractor = extractorData.first;
+      isPackedAudioExtractor = extractorData.second;
+      boolean reusingExtractor = extractor == previousExtractor;
+      initLoadCompleted = reusingExtractor && initDataSpec != null;
+      if (isPackedAudioExtractor && id3Data == null) {
+        id3Decoder = new Id3Decoder();
+        id3Data = new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
+      }
+      output.init(uid, shouldSpliceIn, reusingExtractor);
+      if (!reusingExtractor) {
+        extractor.init(output);
+      }
+    }
+
+    return new DefaultExtractorInput(dataSource, dataSpec.absoluteStreamPosition, bytesToRead);
   }
 
   /**

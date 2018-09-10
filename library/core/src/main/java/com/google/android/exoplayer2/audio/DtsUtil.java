@@ -74,13 +74,13 @@ public final class DtsUtil {
    * subsections 5.3/5.4.
    *
    * @param frame The DTS frame to parse.
-   * @param trackId The track identifier to set on the format, or null.
+   * @param trackId The track identifier to set on the format.
    * @param language The language to set on the format.
    * @param drmInitData {@link DrmInitData} to be included in the format.
    * @return The DTS format parsed from data in the header.
    */
-  public static Format parseDtsFormat(byte[] frame, String trackId, String language,
-      DrmInitData drmInitData) {
+  public static Format parseDtsFormat(
+      byte[] frame, String trackId, String language, DrmInitData drmInitData) {
     ParsableBitArray frameBits = getNormalizedFrameHeader(frame);
     frameBits.skipBits(32 + 1 + 5 + 1 + 7 + 14); // SYNC, FTYPE, SHORT, CPF, NBLKS, FSIZE
     int amode = frameBits.readBits(6);

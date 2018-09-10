@@ -104,12 +104,7 @@ public interface AudioRendererEventListener {
      */
     public void enabled(final DecoderCounters decoderCounters) {
       if (listener != null) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            listener.onAudioEnabled(decoderCounters);
-          }
-        });
+        handler.post(() -> listener.onAudioEnabled(decoderCounters));
       }
     }
 
@@ -119,13 +114,10 @@ public interface AudioRendererEventListener {
     public void decoderInitialized(final String decoderName,
         final long initializedTimestampMs, final long initializationDurationMs) {
       if (listener != null) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            listener.onAudioDecoderInitialized(decoderName, initializedTimestampMs,
-                initializationDurationMs);
-          }
-        });
+        handler.post(
+            () ->
+                listener.onAudioDecoderInitialized(
+                    decoderName, initializedTimestampMs, initializationDurationMs));
       }
     }
 
@@ -134,12 +126,7 @@ public interface AudioRendererEventListener {
      */
     public void inputFormatChanged(final Format format) {
       if (listener != null) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            listener.onAudioInputFormatChanged(format);
-          }
-        });
+        handler.post(() -> listener.onAudioInputFormatChanged(format));
       }
     }
 
@@ -149,12 +136,8 @@ public interface AudioRendererEventListener {
     public void audioTrackUnderrun(final int bufferSize, final long bufferSizeMs,
         final long elapsedSinceLastFeedMs) {
       if (listener != null) {
-        handler.post(new Runnable()  {
-          @Override
-          public void run() {
-            listener.onAudioSinkUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
-          }
-        });
+        handler.post(
+            () -> listener.onAudioSinkUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs));
       }
     }
 
@@ -163,13 +146,11 @@ public interface AudioRendererEventListener {
      */
     public void disabled(final DecoderCounters counters) {
       if (listener != null) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            counters.ensureUpdated();
-            listener.onAudioDisabled(counters);
-          }
-        });
+        handler.post(
+            () -> {
+              counters.ensureUpdated();
+              listener.onAudioDisabled(counters);
+            });
       }
     }
 
@@ -178,12 +159,7 @@ public interface AudioRendererEventListener {
      */
     public void audioSessionId(final int audioSessionId) {
       if (listener != null) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            listener.onAudioSessionId(audioSessionId);
-          }
-        });
+        handler.post(() -> listener.onAudioSessionId(audioSessionId));
       }
     }
 

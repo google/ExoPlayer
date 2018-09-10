@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
-import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
@@ -50,41 +49,32 @@ public final class TsExtractorTest {
 
   @Test
   public void testSample() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new TsExtractor();
-          }
-        },
-        "ts/sample.ts");
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample.ts");
   }
 
   @Test
-  public void testIncompleteSample() throws Exception {
+  public void testStreamWithJunkData() throws Exception {
     Random random = new Random(0);
     byte[] fileData = TestUtil.getByteArray(RuntimeEnvironment.application, "ts/sample.ts");
     ByteArrayOutputStream out = new ByteArrayOutputStream(fileData.length * 2);
+    int bytesLeft = fileData.length;
+
     writeJunkData(out, random.nextInt(TS_PACKET_SIZE - 1) + 1);
     out.write(fileData, 0, TS_PACKET_SIZE * 5);
-    for (int i = TS_PACKET_SIZE * 5; i < fileData.length; i += TS_PACKET_SIZE) {
+    bytesLeft -= TS_PACKET_SIZE * 5;
+
+    for (int i = TS_PACKET_SIZE * 5; i < fileData.length; i += 5 * TS_PACKET_SIZE) {
       writeJunkData(out, random.nextInt(TS_PACKET_SIZE));
-      out.write(fileData, i, TS_PACKET_SIZE);
+      int length = Math.min(5 * TS_PACKET_SIZE, bytesLeft);
+      out.write(fileData, i, length);
+      bytesLeft -= length;
     }
     out.write(TS_SYNC_BYTE);
     writeJunkData(out, random.nextInt(TS_PACKET_SIZE - 1) + 1);
     fileData = out.toByteArray();
 
     ExtractorAsserts.assertOutput(
-        new ExtractorFactory() {
-          @Override
-          public Extractor create() {
-            return new TsExtractor();
-          }
-        },
-        "ts/sample.ts",
-        fileData,
-        RuntimeEnvironment.application);
+        TsExtractor::new, "ts/sample.ts", fileData, RuntimeEnvironment.application);
   }
 
   @Test
@@ -105,6 +95,9 @@ public final class TsExtractorTest {
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
       readResult = tsExtractor.read(input, seekPositionHolder);
+      if (readResult == Extractor.RESULT_SEEK) {
+        input.setPosition((int) seekPositionHolder.position);
+      }
     }
     CustomEsReader reader = factory.esReader;
     assertThat(reader.packetsRead).isEqualTo(2);
@@ -131,8 +124,11 @@ public final class TsExtractorTest {
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
       readResult = tsExtractor.read(input, seekPositionHolder);
+      if (readResult == Extractor.RESULT_SEEK) {
+        input.setPosition((int) seekPositionHolder.position);
+      }
     }
-    assertThat(factory.sdtReader.consumedSdts).isEqualTo(1);
+    assertThat(factory.sdtReader.consumedSdts).isEqualTo(2);
   }
 
   private static void writeJunkData(ByteArrayOutputStream out, int length) {

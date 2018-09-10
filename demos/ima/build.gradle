@@ -56,3 +56,5 @@ dependencies {
     implementation project(modulePrefix + 'extension-ima')
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
 }
+
+apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'
