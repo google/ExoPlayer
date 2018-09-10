@@ -120,6 +120,8 @@
   [#4634](https://github.com/google/ExoPlayer/issues/4634)).
 * Fix issue where errors of upcoming playlist items are thrown too early
   ([#4661](https://github.com/google/ExoPlayer/issues/4661)).
+* Allow edit lists which do not start with a sync sample.
+  ([#4774](https://github.com/google/ExoPlayer/issues/4774)).
 * IMA extension:
   * Refine the previous fix for empty ad groups to avoid discarding ad breaks
     unnecessarily ([#4030](https://github.com/google/ExoPlayer/issues/4030)),
