@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class BasicCredentials extends Credentials {
-    private static final Pattern REGEX_REALM = Pattern.compile("(?:(\\\"[\\w]+\\\")?)");
+    private static final Pattern REGEX_REALM = Pattern.compile("realm=(?:(\\\"[\\w]+\\\")?)");
 
     public static final String REALM = "realm";
 
