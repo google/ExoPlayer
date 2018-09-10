@@ -30,5 +30,10 @@
   <init>();
 }
 
+# Constructors accessed via reflection in DownloadAction
+-dontnote com.google.android.exoplayer2.source.dash.offline.DashDownloadAction
+-dontnote com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction
+-dontnote com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction
+
 # Don't warn about checkerframework
 -dontwarn org.checkerframework.**
