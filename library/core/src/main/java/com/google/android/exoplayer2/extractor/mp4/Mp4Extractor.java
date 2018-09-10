@@ -386,15 +386,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
 
     boolean ignoreEditLists = (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0;
-    ArrayList<TrackSampleTable> trackSampleTables;
-    try {
-      trackSampleTables = getTrackSampleTables(moov, gaplessInfoHolder, ignoreEditLists);
-    } catch (AtomParsers.UnhandledEditListException e) {
-      // Discard gapless info as we aren't able to handle corresponding edits.
-      gaplessInfoHolder = new GaplessInfoHolder();
-      trackSampleTables =
-          getTrackSampleTables(moov, gaplessInfoHolder, /* ignoreEditLists= */ true);
-    }
+    ArrayList<TrackSampleTable> trackSampleTables =
+        getTrackSampleTables(moov, gaplessInfoHolder, ignoreEditLists);
 
     int trackCount = trackSampleTables.size();
     for (int i = 0; i < trackCount; i++) {

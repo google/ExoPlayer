@@ -42,9 +42,6 @@ import java.util.List;
 @SuppressWarnings("ConstantField")
 /* package */ final class AtomParsers {
 
-  /** Thrown if an edit list couldn't be applied. */
-  public static final class UnhandledEditListException extends ParserException {}
-
   private static final String TAG = "AtomParsers";
 
   private static final int TYPE_vide = Util.getIntegerCodeForString("vide");
@@ -119,7 +116,6 @@ import java.util.List;
    * @param stblAtom stbl (sample table) atom to decode.
    * @param gaplessInfoHolder Holder to populate with gapless playback information.
    * @return Sample table described by the stbl atom.
-   * @throws UnhandledEditListException Thrown if the edit list can't be applied.
    * @throws ParserException Thrown if the stbl atom can't be parsed.
    */
   public static TrackSampleTable parseStbl(
