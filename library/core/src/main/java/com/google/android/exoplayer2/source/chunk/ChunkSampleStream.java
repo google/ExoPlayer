@@ -188,6 +188,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    *     the specified position, rather than any sample before or at that position.
    */
   public void discardBuffer(long positionUs, boolean toKeyframe) {
+    if (isPendingReset()) {
+      return;
+    }
     int oldFirstIndex = primarySampleQueue.getFirstIndex();
     primarySampleQueue.discardTo(positionUs, toKeyframe, true);
     int newFirstIndex = primarySampleQueue.getFirstIndex();
