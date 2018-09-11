@@ -98,6 +98,8 @@
     ([#3972](https://github.com/google/ExoPlayer/issues/3972)).
   * Support range removal with `removeMediaSourceRange` methods
     ([#4542](https://github.com/google/ExoPlayer/issues/4542)).
+  * Support setting a new shuffle order with `setShuffleOrder`
+    ([#4791](https://github.com/google/ExoPlayer/issues/4791)).
 * MPEG-TS: Support CEA-608/708 in H262
   ([#2565](https://github.com/google/ExoPlayer/issues/2565)).
 * Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
