@@ -293,7 +293,7 @@ import java.util.Arrays;
     private static final int STREAM_STATE_END_OF_STREAM = 2;
 
     private int streamState;
-    private boolean formatSent;
+    private boolean notifiedDownstreamFormat;
 
     public void reset() {
       if (streamState == STREAM_STATE_END_OF_STREAM) {
@@ -316,6 +316,7 @@ import java.util.Arrays;
     @Override
     public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
         boolean requireFormat) {
+      maybeNotifyDownstreamFormat();
       if (streamState == STREAM_STATE_END_OF_STREAM) {
         buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
@@ -329,7 +330,6 @@ import java.util.Arrays;
           buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
           buffer.ensureSpaceForWrite(sampleSize);
           buffer.data.put(sampleData, 0, sampleSize);
-          sendFormat();
         } else {
           buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
         }
@@ -341,23 +341,23 @@ import java.util.Arrays;
 
     @Override
     public int skipData(long positionUs) {
+      maybeNotifyDownstreamFormat();
       if (positionUs > 0 && streamState != STREAM_STATE_END_OF_STREAM) {
         streamState = STREAM_STATE_END_OF_STREAM;
-        sendFormat();
         return 1;
       }
       return 0;
     }
 
-    private void sendFormat() {
-      if (!formatSent) {
+    private void maybeNotifyDownstreamFormat() {
+      if (!notifiedDownstreamFormat) {
         eventDispatcher.downstreamFormatChanged(
             MimeTypes.getTrackType(format.sampleMimeType),
             format,
             C.SELECTION_REASON_UNKNOWN,
             /* trackSelectionData= */ null,
             /* mediaTimeUs= */ 0);
-        formatSent = true;
+        notifiedDownstreamFormat = true;
       }
     }
   }

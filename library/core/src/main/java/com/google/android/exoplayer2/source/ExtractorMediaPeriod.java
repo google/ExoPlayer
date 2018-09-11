@@ -424,12 +424,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (suppressRead()) {
       return C.RESULT_NOTHING_READ;
     }
+    maybeNotifyDownstreamFormat(track);
     int result =
         sampleQueues[track].read(
             formatHolder, buffer, formatRequired, loadingFinished, lastSeekPositionUs);
-    if (result == C.RESULT_BUFFER_READ) {
-      maybeNotifyTrackFormat(track);
-    } else if (result == C.RESULT_NOTHING_READ) {
+    if (result == C.RESULT_NOTHING_READ) {
       maybeStartDeferredRetry(track);
     }
     return result;
@@ -439,6 +438,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (suppressRead()) {
       return 0;
     }
+    maybeNotifyDownstreamFormat(track);
     SampleQueue sampleQueue = sampleQueues[track];
     int skipCount;
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
@@ -449,27 +449,24 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         skipCount = 0;
       }
     }
-    if (skipCount > 0) {
-      maybeNotifyTrackFormat(track);
-    } else {
+    if (skipCount == 0) {
       maybeStartDeferredRetry(track);
     }
     return skipCount;
   }
 
-  private void maybeNotifyTrackFormat(int track) {
+  private void maybeNotifyDownstreamFormat(int track) {
     PreparedState preparedState = getPreparedState();
-    boolean[] trackFormatNotificationSent = preparedState.trackFormatNotificationSent;
-    TrackGroupArray tracks = preparedState.tracks;
-    if (!trackFormatNotificationSent[track]) {
-      Format trackFormat = tracks.get(track).getFormat(0);
+    boolean[] trackNotifiedDownstreamFormats = preparedState.trackNotifiedDownstreamFormats;
+    if (!trackNotifiedDownstreamFormats[track]) {
+      Format trackFormat = preparedState.tracks.get(track).getFormat(/* index= */ 0);
       eventDispatcher.downstreamFormatChanged(
           MimeTypes.getTrackType(trackFormat.sampleMimeType),
           trackFormat,
           C.SELECTION_REASON_UNKNOWN,
           /* trackSelectionData= */ null,
           lastSeekPositionUs);
-      trackFormatNotificationSent[track] = true;
+      trackNotifiedDownstreamFormats[track] = true;
     }
   }
 
@@ -664,12 +661,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             ? C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE
             : C.DATA_TYPE_MEDIA;
     preparedState =
-        new PreparedState(
-            new TrackGroupArray(trackArray),
-            /* trackEnabledStates= */ new boolean[trackCount],
-            trackIsAudioVideoFlags,
-            /* trackFormatNotificationSent= */ new boolean[trackCount],
-            seekMap);
+        new PreparedState(seekMap, new TrackGroupArray(trackArray), trackIsAudioVideoFlags);
     prepared = true;
     listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable());
     Assertions.checkNotNull(callback).onPrepared(this);
@@ -991,23 +983,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /** Stores state that is initialized when preparation completes. */
   private static final class PreparedState {
-    public final TrackGroupArray tracks;
-    public final boolean[] trackEnabledStates;
-    public final boolean[] trackIsAudioVideoFlags;
-    public final boolean[] trackFormatNotificationSent;
+
     public final SeekMap seekMap;
+    public final TrackGroupArray tracks;
+    public final boolean[] trackIsAudioVideoFlags;
+    public final boolean[] trackEnabledStates;
+    public final boolean[] trackNotifiedDownstreamFormats;
 
     public PreparedState(
-        TrackGroupArray tracks,
-        boolean[] trackEnabledStates,
-        boolean[] trackIsAudioVideoFlags,
-        boolean[] trackFormatNotificationSent,
-        SeekMap seekMap) {
-      this.tracks = tracks;
-      this.trackEnabledStates = trackEnabledStates;
-      this.trackIsAudioVideoFlags = trackIsAudioVideoFlags;
-      this.trackFormatNotificationSent = trackFormatNotificationSent;
+        SeekMap seekMap, TrackGroupArray tracks, boolean[] trackIsAudioVideoFlags) {
       this.seekMap = seekMap;
+      this.tracks = tracks;
+      this.trackIsAudioVideoFlags = trackIsAudioVideoFlags;
+      this.trackEnabledStates = new boolean[tracks.length];
+      this.trackNotifiedDownstreamFormats = new boolean[tracks.length];
     }
   }
 }
