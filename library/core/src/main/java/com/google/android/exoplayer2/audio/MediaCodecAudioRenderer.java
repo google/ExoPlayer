@@ -363,7 +363,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected @KeepCodecResult int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
     if (getCodecMaxInputSize(codecInfo, newFormat) <= codecMaxInputSize
-        && codecInfo.isSeamlessAdaptationSupported(oldFormat, newFormat)
+        && codecInfo.isSeamlessAdaptationSupported(
+            oldFormat, newFormat, /* isNewFormatComplete= */ true)
         && oldFormat.encoderDelay == 0
         && oldFormat.encoderPadding == 0
         && newFormat.encoderDelay == 0
@@ -681,7 +682,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return maxInputSize;
     }
     for (Format streamFormat : streamFormats) {
-      if (codecInfo.isSeamlessAdaptationSupported(format, streamFormat)) {
+      if (codecInfo.isSeamlessAdaptationSupported(
+          format, streamFormat, /* isNewFormatComplete= */ false)) {
         maxInputSize = Math.max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
       }
     }
