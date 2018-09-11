@@ -53,8 +53,9 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private static final int MSG_REMOVE_RANGE = 3;
   private static final int MSG_MOVE = 4;
   private static final int MSG_CLEAR = 5;
-  private static final int MSG_NOTIFY_LISTENER = 6;
-  private static final int MSG_ON_COMPLETION = 7;
+  private static final int MSG_SET_SHUFFLE_ORDER = 6;
+  private static final int MSG_NOTIFY_LISTENER = 7;
+  private static final int MSG_ON_COMPLETION = 8;
 
   // Accessed on the app thread.
   private final List<MediaSourceHolder> mediaSourcesPublic;
@@ -433,6 +434,47 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     return mediaSourcesPublic.get(index).mediaSource;
   }
 
+  /**
+   * Sets a new shuffle order to use when shuffling the child media sources.
+   *
+   * @param shuffleOrder A {@link ShuffleOrder}.
+   */
+  public final synchronized void setShuffleOrder(ShuffleOrder shuffleOrder) {
+    setShuffleOrder(shuffleOrder, /* actionOnCompletion= */ null);
+  }
+
+  /**
+   * Sets a new shuffle order to use when shuffling the child media sources.
+   *
+   * @param shuffleOrder A {@link ShuffleOrder}.
+   * @param actionOnCompletion A {@link Runnable} which is executed immediately after the shuffle
+   *     order has been changed.
+   */
+  public final synchronized void setShuffleOrder(
+      ShuffleOrder shuffleOrder, @Nullable Runnable actionOnCompletion) {
+    ExoPlayer player = this.player;
+    if (player != null) {
+      int size = getSize();
+      if (shuffleOrder.getLength() != size) {
+        shuffleOrder =
+            shuffleOrder
+                .cloneAndClear()
+                .cloneAndInsert(/* insertionIndex= */ 0, /* insertionCount= */ size);
+      }
+      player
+          .createMessage(this)
+          .setType(MSG_SET_SHUFFLE_ORDER)
+          .setPayload(new MessageData<>(/* index= */ 0, shuffleOrder, actionOnCompletion))
+          .send();
+    } else {
+      this.shuffleOrder =
+          shuffleOrder.getLength() > 0 ? shuffleOrder.cloneAndClear() : shuffleOrder;
+      if (actionOnCompletion != null) {
+        actionOnCompletion.run();
+      }
+    }
+  }
+
   @Override
   public final synchronized void prepareSourceInternal(
       ExoPlayer player,
@@ -578,6 +620,11 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       case MSG_CLEAR:
         clearInternal();
         scheduleListenerNotification((Runnable) message);
+        break;
+      case MSG_SET_SHUFFLE_ORDER:
+        MessageData<ShuffleOrder> shuffleOrderMessage = (MessageData<ShuffleOrder>) message;
+        shuffleOrder = shuffleOrderMessage.customData;
+        scheduleListenerNotification(shuffleOrderMessage.actionOnCompletion);
         break;
       case MSG_NOTIFY_LISTENER:
         notifyListener();

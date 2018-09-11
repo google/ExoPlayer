@@ -925,6 +925,54 @@ public final class ConcatenatingMediaSourceTest {
     testRunner.createPeriod(mediaPeriodId);
   }
 
+  @Test
+  public void testSetShuffleOrderBeforePreparation() throws Exception {
+    mediaSource.setShuffleOrder(new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0));
+    mediaSource.addMediaSources(
+        Arrays.asList(createFakeMediaSource(), createFakeMediaSource(), createFakeMediaSource()));
+    Timeline timeline = testRunner.prepareSource();
+
+    assertThat(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true)).isEqualTo(0);
+  }
+
+  @Test
+  public void testSetShuffleOrderAfterPreparation() throws Exception {
+    mediaSource.addMediaSources(
+        Arrays.asList(createFakeMediaSource(), createFakeMediaSource(), createFakeMediaSource()));
+    testRunner.prepareSource();
+    mediaSource.setShuffleOrder(new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 3));
+    Timeline timeline = testRunner.assertTimelineChangeBlocking();
+
+    assertThat(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true)).isEqualTo(0);
+  }
+
+  @Test
+  public void testCustomCallbackBeforePreparationSetShuffleOrder() throws Exception {
+    Runnable runnable = Mockito.mock(Runnable.class);
+    mediaSource.setShuffleOrder(new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0), runnable);
+
+    verify(runnable).run();
+  }
+
+  @Test
+  public void testCustomCallbackAfterPreparationSetShuffleOrder() throws Exception {
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    try {
+      mediaSource.addMediaSources(
+          Arrays.asList(createFakeMediaSource(), createFakeMediaSource(), createFakeMediaSource()));
+      testRunner.prepareSource();
+      TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
+      dummyMainThread.runOnMainThread(
+          () ->
+              mediaSource.setShuffleOrder(
+                  new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 3), timelineGrabber));
+      Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
+      assertThat(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true)).isEqualTo(0);
+    } finally {
+      dummyMainThread.release();
+    }
+  }
+
   private void assertCompletedAllMediaPeriodLoads(Timeline timeline) {
     Timeline.Period period = new Timeline.Period();
     Timeline.Window window = new Timeline.Window();
