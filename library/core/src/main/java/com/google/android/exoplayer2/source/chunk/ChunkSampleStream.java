@@ -274,52 +274,54 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    */
   public void seekToUs(long positionUs) {
     lastSeekPositionUs = positionUs;
-    primarySampleQueue.rewind();
-
-    // See if we can seek within the primary sample queue.
-    boolean seekInsideBuffer;
     if (isPendingReset()) {
-      seekInsideBuffer = false;
-    } else {
-      // Detect whether the seek is to the start of a chunk that's at least partially buffered.
-      BaseMediaChunk seekToMediaChunk = null;
-      for (int i = 0; i < mediaChunks.size(); i++) {
-        BaseMediaChunk mediaChunk = mediaChunks.get(i);
-        long mediaChunkStartTimeUs = mediaChunk.startTimeUs;
-        if (mediaChunkStartTimeUs == positionUs && mediaChunk.seekTimeUs == C.TIME_UNSET) {
-          seekToMediaChunk = mediaChunk;
-          break;
-        } else if (mediaChunkStartTimeUs > positionUs) {
-          // We're not going to find a chunk with a matching start time.
-          break;
-        }
-      }
-      if (seekToMediaChunk != null) {
-        // When seeking to the start of a chunk we use the index of the first sample in the chunk
-        // rather than the seek position. This ensures we seek to the keyframe at the start of the
-        // chunk even if the sample timestamps are slightly offset from the chunk start times.
-        seekInsideBuffer =
-            primarySampleQueue.setReadPosition(seekToMediaChunk.getFirstSampleIndex(0));
-        decodeOnlyUntilPositionUs = Long.MIN_VALUE;
-      } else {
-        seekInsideBuffer =
-            primarySampleQueue.advanceTo(
-                    positionUs,
-                    /* toKeyframe= */ true,
-                    /* allowTimeBeyondBuffer= */ positionUs < getNextLoadPositionUs())
-                != SampleQueue.ADVANCE_FAILED;
-        decodeOnlyUntilPositionUs = lastSeekPositionUs;
+      // A reset is already pending. We only need to update its position.
+      pendingResetPositionUs = positionUs;
+      return;
+    }
+
+    // Detect whether the seek is to the start of a chunk that's at least partially buffered.
+    BaseMediaChunk seekToMediaChunk = null;
+    for (int i = 0; i < mediaChunks.size(); i++) {
+      BaseMediaChunk mediaChunk = mediaChunks.get(i);
+      long mediaChunkStartTimeUs = mediaChunk.startTimeUs;
+      if (mediaChunkStartTimeUs == positionUs && mediaChunk.seekTimeUs == C.TIME_UNSET) {
+        seekToMediaChunk = mediaChunk;
+        break;
+      } else if (mediaChunkStartTimeUs > positionUs) {
+        // We're not going to find a chunk with a matching start time.
+        break;
       }
     }
 
+    // See if we can seek inside the primary sample queue.
+    boolean seekInsideBuffer;
+    primarySampleQueue.rewind();
+    if (seekToMediaChunk != null) {
+      // When seeking to the start of a chunk we use the index of the first sample in the chunk
+      // rather than the seek position. This ensures we seek to the keyframe at the start of the
+      // chunk even if the sample timestamps are slightly offset from the chunk start times.
+      seekInsideBuffer =
+          primarySampleQueue.setReadPosition(seekToMediaChunk.getFirstSampleIndex(0));
+      decodeOnlyUntilPositionUs = Long.MIN_VALUE;
+    } else {
+      seekInsideBuffer =
+          primarySampleQueue.advanceTo(
+                  positionUs,
+                  /* toKeyframe= */ true,
+                  /* allowTimeBeyondBuffer= */ positionUs < getNextLoadPositionUs())
+              != SampleQueue.ADVANCE_FAILED;
+      decodeOnlyUntilPositionUs = lastSeekPositionUs;
+    }
+
     if (seekInsideBuffer) {
-      // We succeeded. Advance the embedded sample queues to the seek position.
+      // We can seek inside the buffer. Advance the embedded sample queues to the seek position.
       for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
         embeddedSampleQueue.rewind();
         embeddedSampleQueue.advanceTo(positionUs, true, false);
       }
     } else {
-      // We failed, and need to restart.
+      // We can't seek inside the buffer, and so need to reset.
       pendingResetPositionUs = positionUs;
       loadingFinished = false;
       mediaChunks.clear();
