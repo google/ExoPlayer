@@ -386,11 +386,18 @@ import java.util.List;
    */
   public boolean seekToUs(long positionUs, boolean forceReset) {
     lastSeekPositionUs = positionUs;
-    // If we're not forced to reset nor have a pending reset, see if we can seek within the buffer.
-    if (sampleQueuesBuilt && !forceReset && !isPendingReset() && seekInsideBufferUs(positionUs)) {
+    if (isPendingReset()) {
+      // A reset is already pending. We only need to update its position.
+      pendingResetPositionUs = positionUs;
+      return true;
+    }
+
+    // If we're not forced to reset, try and seek within the buffer.
+    if (sampleQueuesBuilt && !forceReset && seekInsideBufferUs(positionUs)) {
       return false;
     }
-    // We were unable to seek within the buffer, so need to reset.
+
+    // We can't seek inside the buffer, and so need to reset.
     pendingResetPositionUs = positionUs;
     loadingFinished = false;
     mediaChunks.clear();
