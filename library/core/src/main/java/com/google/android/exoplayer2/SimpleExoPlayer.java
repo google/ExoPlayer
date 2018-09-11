@@ -226,7 +226,7 @@ public class SimpleExoPlayer
 
     // Build the player and associated objects.
     player =
-        new ExoPlayerImpl(renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
+        new ExoPlayerImpl(renderers, trackSelector, loadControl, bandwidthMeter, clock, looper, this);
     analyticsCollector = analyticsCollectorFactory.createAnalyticsCollector(player, clock);
     addListener(analyticsCollector);
     videoDebugListeners.add(analyticsCollector);
