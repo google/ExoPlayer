@@ -367,7 +367,7 @@ import java.util.List;
   }
 
   public void discardBuffer(long positionUs, boolean toKeyframe) {
-    if (!sampleQueuesBuilt) {
+    if (!sampleQueuesBuilt || isPendingReset()) {
       return;
     }
     int sampleQueueCount = sampleQueues.length;

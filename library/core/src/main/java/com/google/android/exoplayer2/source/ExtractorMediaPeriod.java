@@ -291,6 +291,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void discardBuffer(long positionUs, boolean toKeyframe) {
+    if (isPendingReset()) {
+      return;
+    }
     boolean[] trackEnabledStates = getPreparedState().trackEnabledStates;
     int trackCount = sampleQueues.length;
     for (int i = 0; i < trackCount; i++) {
