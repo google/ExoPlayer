@@ -25,6 +25,7 @@ import android.media.MediaFormat;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -68,9 +69,19 @@ import java.util.List;
 @TargetApi(16)
 public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock {
 
+  /**
+   * Maximum number of tracked pending stream change times. Generally there is zero or one pending
+   * stream change. We track more to allow for pending changes that have fewer samples than the
+   * codec latency.
+   */
+  private static final int MAX_PENDING_STREAM_CHANGE_COUNT = 10;
+
+  private static final String TAG = "MediaCodecAudioRenderer";
+
   private final Context context;
   private final EventDispatcher eventDispatcher;
   private final AudioSink audioSink;
+  private final long[] pendingStreamChangeTimesUs;
 
   private int codecMaxInputSize;
   private boolean passthroughEnabled;
@@ -83,6 +94,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private long currentPositionUs;
   private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
+  private long lastInputTimeUs;
+  private int pendingStreamChangeCount;
 
   /**
    * @param context A context.
@@ -241,6 +254,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         /* assumedMinimumCodecOperatingRate= */ 44100);
     this.context = context.getApplicationContext();
     this.audioSink = audioSink;
+    lastInputTimeUs = C.TIME_UNSET;
+    pendingStreamChangeTimesUs = new long[MAX_PENDING_STREAM_CHANGE_COUNT];
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSink.setListener(new AudioSinkListener());
   }
@@ -470,12 +485,30 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
+  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+    super.onStreamChanged(formats, offsetUs);
+    if (lastInputTimeUs != C.TIME_UNSET) {
+      if (pendingStreamChangeCount == pendingStreamChangeTimesUs.length) {
+        Log.w(
+            TAG,
+            "Too many stream changes, so dropping change at "
+                + pendingStreamChangeTimesUs[pendingStreamChangeCount - 1]);
+      } else {
+        pendingStreamChangeCount++;
+      }
+      pendingStreamChangeTimesUs[pendingStreamChangeCount - 1] = lastInputTimeUs;
+    }
+  }
+
+  @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
     audioSink.reset();
     currentPositionUs = positionUs;
     allowFirstBufferPositionDiscontinuity = true;
     allowPositionDiscontinuity = true;
+    lastInputTimeUs = C.TIME_UNSET;
+    pendingStreamChangeCount = 0;
   }
 
   @Override
@@ -494,6 +527,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onDisabled() {
     try {
+      lastInputTimeUs = C.TIME_UNSET;
+      pendingStreamChangeCount = 0;
       audioSink.release();
     } finally {
       try {
@@ -543,6 +578,22 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         currentPositionUs = buffer.timeUs;
       }
       allowFirstBufferPositionDiscontinuity = false;
+    }
+    lastInputTimeUs = Math.max(buffer.timeUs, lastInputTimeUs);
+  }
+
+  @Override
+  protected void onProcessedOutputBuffer(long presentationTimeUs) {
+    super.onProcessedOutputBuffer(presentationTimeUs);
+    while (pendingStreamChangeCount != 0 && presentationTimeUs >= pendingStreamChangeTimesUs[0]) {
+      audioSink.handleDiscontinuity();
+      pendingStreamChangeCount--;
+      System.arraycopy(
+          pendingStreamChangeTimesUs,
+          /* srcPos= */ 1,
+          pendingStreamChangeTimesUs,
+          /* destPos= */ 0,
+          pendingStreamChangeCount);
     }
   }
 
