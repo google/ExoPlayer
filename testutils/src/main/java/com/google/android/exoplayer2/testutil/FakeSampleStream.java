@@ -33,6 +33,7 @@ public final class FakeSampleStream implements SampleStream {
   private final Format format;
   private final @Nullable EventDispatcher eventDispatcher;
 
+  private boolean notifiedDownstreamFormat;
   private boolean readFormat;
   private boolean readSample;
 
@@ -59,6 +60,15 @@ public final class FakeSampleStream implements SampleStream {
   @Override
   public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
       boolean formatRequired) {
+    if (eventDispatcher != null && !notifiedDownstreamFormat) {
+      eventDispatcher.downstreamFormatChanged(
+          C.TRACK_TYPE_UNKNOWN,
+          format,
+          C.SELECTION_REASON_UNKNOWN,
+          /* trackSelectionData= */ null,
+          /* mediaTimeUs= */ 0);
+      notifiedDownstreamFormat = true;
+    }
     if (formatRequired || !readFormat) {
       formatHolder.format = format;
       readFormat = true;
@@ -69,14 +79,6 @@ public final class FakeSampleStream implements SampleStream {
       buffer.data.put((byte) 0);
       buffer.flip();
       readSample = true;
-      if (eventDispatcher != null) {
-        eventDispatcher.downstreamFormatChanged(
-            C.TRACK_TYPE_UNKNOWN,
-            format,
-            C.SELECTION_REASON_UNKNOWN,
-            /* trackSelectionData= */ null,
-            /* mediaTimeUs= */ 0);
-      }
       return C.RESULT_BUFFER_READ;
     } else {
       buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);

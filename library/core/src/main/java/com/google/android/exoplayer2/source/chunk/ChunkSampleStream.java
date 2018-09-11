@@ -740,7 +740,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     private final SampleQueue sampleQueue;
     private final int index;
 
-    private boolean formatNotificationSent;
+    private boolean notifiedDownstreamFormat;
 
     public EmbeddedSampleStream(ChunkSampleStream<T> parent, SampleQueue sampleQueue, int index) {
       this.parent = parent;
@@ -758,7 +758,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       if (isPendingReset()) {
         return 0;
       }
-      maybeNotifyTrackFormatChanged();
+      maybeNotifyDownstreamFormat();
       int skipCount;
       if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
         skipCount = sampleQueue.advanceToEnd();
@@ -782,7 +782,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       if (isPendingReset()) {
         return C.RESULT_NOTHING_READ;
       }
-      maybeNotifyTrackFormatChanged();
+      maybeNotifyDownstreamFormat();
       return sampleQueue.read(
           formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilPositionUs);
     }
@@ -792,15 +792,15 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       embeddedTracksSelected[index] = false;
     }
 
-    private void maybeNotifyTrackFormatChanged() {
-      if (!formatNotificationSent) {
+    private void maybeNotifyDownstreamFormat() {
+      if (!notifiedDownstreamFormat) {
         eventDispatcher.downstreamFormatChanged(
             embeddedTrackTypes[index],
             embeddedTrackFormats[index],
             C.SELECTION_REASON_UNKNOWN,
             /* trackSelectionData= */ null,
             lastSeekPositionUs);
-        formatNotificationSent = true;
+        notifiedDownstreamFormat = true;
       }
     }
   }
