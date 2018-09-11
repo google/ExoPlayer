@@ -436,7 +436,8 @@ import java.util.List;
       }
       pts += track.editListDurations[i];
     }
-    long editedDurationUs = Util.scaleLargeTimestamp(pts, C.MICROS_PER_SECOND, track.timescale);
+    long editedDurationUs =
+        Util.scaleLargeTimestamp(pts, C.MICROS_PER_SECOND, track.movieTimescale);
     return new TrackSampleTable(
         track,
         editedOffsets,
