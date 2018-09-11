@@ -122,6 +122,8 @@
   ([#4661](https://github.com/google/ExoPlayer/issues/4661)).
 * Allow edit lists which do not start with a sync sample.
   ([#4774](https://github.com/google/ExoPlayer/issues/4774)).
+* Fix issue with audio discontinuities at period transitions, e.g. when
+  looping ([#3829](https://github.com/google/ExoPlayer/issues/3829)).
 * IMA extension:
   * Refine the previous fix for empty ad groups to avoid discarding ad breaks
     unnecessarily ([#4030](https://github.com/google/ExoPlayer/issues/4030)),

@@ -642,9 +642,10 @@ public final class DefaultAudioSink implements AudioSink {
         if (startMediaTimeState == START_NEED_SYNC) {
           // Adjust startMediaTimeUs to be consistent with the current buffer's start time and the
           // number of bytes submitted.
-          startMediaTimeUs += (presentationTimeUs - expectedPresentationTimeUs);
+          long adjustmentUs = presentationTimeUs - expectedPresentationTimeUs;
+          startMediaTimeUs += adjustmentUs;
           startMediaTimeState = START_IN_SYNC;
-          if (listener != null) {
+          if (listener != null && adjustmentUs != 0) {
             listener.onPositionDiscontinuity();
           }
         }

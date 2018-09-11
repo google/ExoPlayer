@@ -215,9 +215,7 @@ public interface AudioSink {
    */
   void play();
 
-  /**
-   * Signals to the sink that the next buffer is discontinuous with the previous buffer.
-   */
+  /** Signals to the sink that the next buffer may be discontinuous with the previous buffer. */
   void handleDiscontinuity();
 
   /**
