@@ -485,7 +485,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected @KeepCodecResult int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
-    if (codecInfo.isSeamlessAdaptationSupported(oldFormat, newFormat)
+    if (codecInfo.isSeamlessAdaptationSupported(
+            oldFormat, newFormat, /* isNewFormatComplete= */ true)
         && newFormat.width <= codecMaxValues.width
         && newFormat.height <= codecMaxValues.height
         && getMaxInputSize(codecInfo, newFormat) <= codecMaxValues.inputSize) {
@@ -1081,7 +1082,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     boolean haveUnknownDimensions = false;
     for (Format streamFormat : streamFormats) {
-      if (codecInfo.isSeamlessAdaptationSupported(format, streamFormat)) {
+      if (codecInfo.isSeamlessAdaptationSupported(
+          format, streamFormat, /* isNewFormatComplete= */ false)) {
         haveUnknownDimensions |=
             (streamFormat.width == Format.NO_VALUE || streamFormat.height == Format.NO_VALUE);
         maxWidth = Math.max(maxWidth, streamFormat.width);

@@ -262,8 +262,8 @@ public final class MediaCodecInfo {
    * Returns whether it may be possible to adapt to playing a different format when the codec is
    * configured to play media in the specified {@code format}. For adaptation to succeed, the codec
    * must also be configured with appropriate maximum values and {@link
-   * #isSeamlessAdaptationSupported(Format, Format)} must return {@code true} for the old/new
-   * formats.
+   * #isSeamlessAdaptationSupported(Format, Format, boolean)} must return {@code true} for the
+   * old/new formats.
    *
    * @param format The format of media for which the decoder will be configured.
    * @return Whether adaptation may be possible
@@ -280,19 +280,24 @@ public final class MediaCodecInfo {
 
   /**
    * Returns whether it is possible to adapt the decoder seamlessly from {@code oldFormat} to {@code
-   * newFormat}.
+   * newFormat}. If {@code newFormat} may not be completely populated, pass {@code false} for {@code
+   * isNewFormatComplete}.
    *
    * @param oldFormat The format being decoded.
    * @param newFormat The new format.
+   * @param isNewFormatComplete Whether {@code newFormat} is populated with format-specific
+   *     metadata.
    * @return Whether it is possible to adapt the decoder seamlessly.
    */
-  public boolean isSeamlessAdaptationSupported(Format oldFormat, Format newFormat) {
+  public boolean isSeamlessAdaptationSupported(
+      Format oldFormat, Format newFormat, boolean isNewFormatComplete) {
     if (isVideo) {
       return oldFormat.sampleMimeType.equals(newFormat.sampleMimeType)
           && oldFormat.rotationDegrees == newFormat.rotationDegrees
           && (adaptive
               || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height))
-          && Util.areEqual(oldFormat.colorInfo, newFormat.colorInfo);
+          && ((!isNewFormatComplete && newFormat.colorInfo == null)
+              || Util.areEqual(oldFormat.colorInfo, newFormat.colorInfo));
     } else {
       if (!MimeTypes.AUDIO_AAC.equals(mimeType)
           || !oldFormat.sampleMimeType.equals(newFormat.sampleMimeType)
