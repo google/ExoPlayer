@@ -290,7 +290,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     for (int i = 0; i < mediaChunks.size(); i++) {
       BaseMediaChunk mediaChunk = mediaChunks.get(i);
       long mediaChunkStartTimeUs = mediaChunk.startTimeUs;
-      if (mediaChunkStartTimeUs == positionUs && mediaChunk.seekTimeUs == C.TIME_UNSET) {
+      if (mediaChunkStartTimeUs == positionUs && mediaChunk.clippedStartTimeUs == C.TIME_UNSET) {
         seekToMediaChunk = mediaChunk;
         break;
       } else if (mediaChunkStartTimeUs > positionUs) {
