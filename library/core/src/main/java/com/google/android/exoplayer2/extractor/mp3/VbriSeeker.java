@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
@@ -42,8 +43,8 @@ import com.google.android.exoplayer2.util.Util;
    * @return A {@link VbriSeeker} for seeking in the stream, or {@code null} if the required
    *     information is not present.
    */
-  public static VbriSeeker create(long inputLength, long position, MpegAudioHeader mpegAudioHeader,
-      ParsableByteArray frame) {
+  public static @Nullable VbriSeeker create(
+      long inputLength, long position, MpegAudioHeader mpegAudioHeader, ParsableByteArray frame) {
     frame.skipBytes(10);
     int numFrames = frame.readInt();
     if (numFrames <= 0) {
