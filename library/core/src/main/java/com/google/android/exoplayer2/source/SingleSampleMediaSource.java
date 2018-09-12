@@ -287,7 +287,8 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     this.durationUs = durationUs;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
-    dataSpec = new DataSpec(uri);
+    dataSpec =
+        new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP | DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
     timeline =
         new SinglePeriodTimeline(durationUs, /* isSeekable= */ true, /* isDynamic= */ false, tag);
   }

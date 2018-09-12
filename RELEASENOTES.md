@@ -113,6 +113,8 @@
   `MediaCodecRenderer`, and provide an (optional) `MediaCodecSelector` that
   falls back to less preferred decoders like `MediaCodec.createDecoderByType`
   ([#273](https://github.com/google/ExoPlayer/issues/273)).
+* Enable gzip for requests made by `SingleSampleMediaSource`
+  ([#4771](https://github.com/google/ExoPlayer/issues/4771)).
 * Fix bug reporting buffered position for multi-period windows, and add
   convenience methods `Player.getTotalBufferedDuration` and
   `Player.getContentBufferedDuration`
