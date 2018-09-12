@@ -345,13 +345,32 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
     if (segmentNum > lastAvailableSegmentNum
         || (missingLastSegment && segmentNum >= lastAvailableSegmentNum)) {
-      // This is beyond the last chunk in the current manifest.
+      // The segment is beyond the end of the period. We know the period will not be extended if the
+      // manifest is static, or if there's a period after this one.
       out.endOfStream = !manifest.dynamic || (periodIndex < manifest.getPeriodCount() - 1);
+      return;
+    }
+
+    long periodDurationUs = representationHolder.periodDurationUs;
+    if (periodDurationUs != C.TIME_UNSET
+        && representationHolder.getSegmentStartTimeUs(segmentNum) >= periodDurationUs) {
+      // The period duration clips the period to a position before the segment.
+      out.endOfStream = true;
       return;
     }
 
     int maxSegmentCount =
         (int) Math.min(maxSegmentsPerLoad, lastAvailableSegmentNum - segmentNum + 1);
+    if (periodDurationUs != C.TIME_UNSET) {
+      while (maxSegmentCount > 1
+          && representationHolder.getSegmentStartTimeUs(segmentNum + maxSegmentCount - 1)
+              >= periodDurationUs) {
+        // The period duration clips the period to a position before the last segment in the range
+        // [segmentNum, segmentNum + maxSegmentCount - 1]. Reduce maxSegmentCount.
+        maxSegmentCount--;
+      }
+    }
+
     long seekTimeUs = queue.isEmpty() ? loadPositionUs : C.TIME_UNSET;
     out.chunk =
         newMediaChunk(
@@ -523,6 +542,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
         segmentCount++;
       }
       long endTimeUs = representationHolder.getSegmentEndTimeUs(firstSegmentNum + segmentCount - 1);
+      long periodDurationUs = representationHolder.periodDurationUs;
+      long clippedEndTimeUs =
+          periodDurationUs != C.TIME_UNSET && periodDurationUs < endTimeUs
+              ? periodDurationUs
+              : C.TIME_UNSET;
       DataSpec dataSpec = new DataSpec(segmentUri.resolveUri(baseUrl),
           segmentUri.start, segmentUri.length, representation.getCacheKey());
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
@@ -535,6 +559,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           startTimeUs,
           endTimeUs,
           seekTimeUs,
+          clippedEndTimeUs,
           firstSegmentNum,
           segmentCount,
           sampleOffsetUs,

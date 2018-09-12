@@ -288,6 +288,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
         chunkStartTimeUs,
         chunkEndTimeUs,
         chunkSeekTimeUs,
+        /* clippedEndTimeUs= */ C.TIME_UNSET,
         chunkIndex,
         /* chunkCount= */ 1,
         sampleOffsetUs,

@@ -4,13 +4,11 @@
     "samples": [
       {
         "name": "Google Glass (MP4,H264)",
-        "uri": "https://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7.8506521BFC350652163895D4C26DEE124209AA9E&key=ik0",
-        "extension": "mpd"
+        "uri": "https://s3-eu-west-1.amazonaws.com/worm-bucket-prod/videos/5b6c35c32aee110004d40559/3DA76C26-A84A-4A53-8AD1-55EBCF5A9A09-ffr.MP4"
       },
       {
         "name": "Google Play (MP4,H264)",
-        "uri": "https://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=A2716F75795F5D2AF0E88962FFCD10DB79384F29.84308FF04844498CE6FBCE4731507882B8307798&key=ik0",
-        "extension": "mpd"
+        "uri": "https://s3.amazonaws.com/worm-streaming/test/playlist.m3u8"
       },
       {
         "name": "Google Glass (WebM,VP9)",
