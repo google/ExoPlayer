@@ -124,6 +124,9 @@
 * Fix bugs reporting events for multi-period media sources
   ([#4492](https://github.com/google/ExoPlayer/issues/4492) and
   [#4634](https://github.com/google/ExoPlayer/issues/4634)).
+* Fix issue where the preferred audio or text track would not be selected if
+  mapped onto a secondary renderer of the corresponding type
+  ([#4711](http://github.com/google/ExoPlayer/issues/4711)).
 * Fix issue where errors of upcoming playlist items are thrown too early
   ([#4661](https://github.com/google/ExoPlayer/issues/4661)).
 * Allow edit lists which do not start with a sync sample.
