@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.trackselection;
 
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES;
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
+import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE;
 import static com.google.android.exoplayer2.RendererConfiguration.DEFAULT;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
@@ -76,31 +77,8 @@ public final class DefaultTrackSelectorTest {
   private static final RendererCapabilities[] RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER =
       new RendererCapabilities[] {VIDEO_CAPABILITIES, NO_SAMPLE_CAPABILITIES};
 
-  private static final Format VIDEO_FORMAT =
-      Format.createVideoSampleFormat(
-          "video",
-          MimeTypes.VIDEO_H264,
-          null,
-          Format.NO_VALUE,
-          Format.NO_VALUE,
-          1024,
-          768,
-          Format.NO_VALUE,
-          null,
-          null);
-  private static final Format AUDIO_FORMAT =
-      Format.createAudioSampleFormat(
-          "audio",
-          MimeTypes.AUDIO_AAC,
-          null,
-          Format.NO_VALUE,
-          Format.NO_VALUE,
-          2,
-          44100,
-          null,
-          null,
-          0,
-          null);
+  private static final Format VIDEO_FORMAT = buildVideoFormat("video");
+  private static final Format AUDIO_FORMAT = buildAudioFormat("audio");
   private static final TrackGroup VIDEO_TRACK_GROUP = new TrackGroup(VIDEO_FORMAT);
   private static final TrackGroup AUDIO_TRACK_GROUP = new TrackGroup(AUDIO_FORMAT);
   private static final TrackGroupArray TRACK_GROUPS =
@@ -339,12 +317,9 @@ public final class DefaultTrackSelectorTest {
    */
   @Test
   public void testSelectTracksSelectTrackWithSelectionFlag() throws Exception {
-    Format audioFormat =
-        Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
+    Format audioFormat = buildAudioFormat("audio", /* language= */ null, /* selectionFlags= */ 0);
     Format formatWithSelectionFlag =
-        Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, null);
+        buildAudioFormat("audio", /* language= */ null, C.SELECTION_FLAG_DEFAULT);
 
     TrackSelectorResult result = trackSelector.selectTracks(
         new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
@@ -405,12 +380,8 @@ public final class DefaultTrackSelectorTest {
    */
   @Test
   public void testSelectTracksPreferTrackWithinCapabilities() throws Exception {
-    Format supportedFormat =
-        Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
-    Format exceededFormat =
-        Format.createAudioSampleFormat("exceededFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
+    Format supportedFormat = buildAudioFormat("supportedFormat");
+    Format exceededFormat = buildAudioFormat("exceededFormat");
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
     mappedCapabilities.put(supportedFormat.id, FORMAT_HANDLED);
@@ -781,10 +752,8 @@ public final class DefaultTrackSelectorTest {
     RendererCapabilities[] textRendererCapabilities =
         new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES};
 
-    TrackSelectorResult result;
-
     // There is no text language preference, the first track flagged as default should be selected.
-    result =
+    TrackSelectorResult result =
         trackSelector.selectTracks(
             textRendererCapabilities, wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag));
     assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedDefault);
@@ -878,10 +847,10 @@ public final class DefaultTrackSelectorTest {
     RendererCapabilities[] textRendererCapabilites =
         new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES};
 
-    TrackSelectorResult result;
-
-    result = trackSelector.selectTracks(textRendererCapabilites,
-        wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            textRendererCapabilites,
+            wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0)).isNull();
 
     trackSelector.setParameters(
@@ -911,6 +880,48 @@ public final class DefaultTrackSelectorTest {
 
     result = trackSelector.selectTracks(textRendererCapabilites, wrapFormats(german));
     assertThat(result.selections.get(0)).isNull();
+  }
+
+  /** Tests audio track selection when there are multiple audio renderers. */
+  @Test
+  public void testSelectPreferredTextTrackMultipleRenderers() throws Exception {
+    Format english = buildTextFormat("en", "en");
+    Format german = buildTextFormat("de", "de");
+
+    // First renderer handles english.
+    Map<String, Integer> firstRendererMappedCapabilities = new HashMap<>();
+    firstRendererMappedCapabilities.put(english.id, FORMAT_HANDLED);
+    firstRendererMappedCapabilities.put(german.id, FORMAT_UNSUPPORTED_SUBTYPE);
+    RendererCapabilities firstRendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_TEXT, firstRendererMappedCapabilities);
+
+    // Second renderer handles german.
+    Map<String, Integer> secondRendererMappedCapabilities = new HashMap<>();
+    secondRendererMappedCapabilities.put(english.id, FORMAT_UNSUPPORTED_SUBTYPE);
+    secondRendererMappedCapabilities.put(german.id, FORMAT_HANDLED);
+    RendererCapabilities secondRendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_TEXT, secondRendererMappedCapabilities);
+
+    RendererCapabilities[] rendererCapabilities =
+        new RendererCapabilities[] {firstRendererCapabilities, secondRendererCapabilities};
+
+    // Without an explicit language preference, nothing should be selected.
+    TrackSelectorResult result =
+        trackSelector.selectTracks(rendererCapabilities, wrapFormats(english, german));
+    assertThat(result.selections.get(0)).isNull();
+    assertThat(result.selections.get(1)).isNull();
+
+    // Explicit language preference for english. First renderer should be used.
+    trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredTextLanguage("en"));
+    result = trackSelector.selectTracks(rendererCapabilities, wrapFormats(english, german));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(english);
+    assertThat(result.selections.get(1)).isNull();
+
+    // Explicit language preference for German. Second renderer should be used.
+    trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredTextLanguage("de"));
+    result = trackSelector.selectTracks(rendererCapabilities, wrapFormats(english, german));
+    assertThat(result.selections.get(0)).isNull();
+    assertThat(result.selections.get(1).getFormat(0)).isSameAs(german);
   }
 
   /**
@@ -987,6 +998,50 @@ public final class DefaultTrackSelectorTest {
         .createTrackSelection(trackGroupArray.get(0), bandwidthMeter, 1, 2);
   }
 
+  /** Tests audio track selection when there are multiple audio renderers. */
+  @Test
+  public void testSelectPreferredAudioTrackMultipleRenderers() throws Exception {
+    Format english = buildAudioFormat("en", "en");
+    Format german = buildAudioFormat("de", "de");
+
+    // First renderer handles english.
+    Map<String, Integer> firstRendererMappedCapabilities = new HashMap<>();
+    firstRendererMappedCapabilities.put(english.id, FORMAT_HANDLED);
+    firstRendererMappedCapabilities.put(german.id, FORMAT_UNSUPPORTED_SUBTYPE);
+    RendererCapabilities firstRendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, firstRendererMappedCapabilities);
+
+    // Second renderer handles german.
+    Map<String, Integer> secondRendererMappedCapabilities = new HashMap<>();
+    secondRendererMappedCapabilities.put(english.id, FORMAT_UNSUPPORTED_SUBTYPE);
+    secondRendererMappedCapabilities.put(german.id, FORMAT_HANDLED);
+    RendererCapabilities secondRendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, secondRendererMappedCapabilities);
+
+    RendererCapabilities[] rendererCapabilities =
+        new RendererCapabilities[] {firstRendererCapabilities, secondRendererCapabilities};
+
+    // Without an explicit language preference, prefer the first renderer.
+    TrackSelectorResult result =
+        trackSelector.selectTracks(rendererCapabilities, wrapFormats(english, german));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(english);
+    assertThat(result.selections.get(1)).isNull();
+
+    // Explicit language preference for english. First renderer should be used.
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setPreferredAudioLanguage("en"));
+    result = trackSelector.selectTracks(rendererCapabilities, wrapFormats(english, german));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(english);
+    assertThat(result.selections.get(1)).isNull();
+
+    // Explicit language preference for German. Second renderer should be used.
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setPreferredAudioLanguage("de"));
+    result = trackSelector.selectTracks(rendererCapabilities, wrapFormats(english, german));
+    assertThat(result.selections.get(0)).isNull();
+    assertThat(result.selections.get(1).getFormat(0)).isSameAs(german);
+  }
+
   @Test
   public void testSelectTracksWithMultipleVideoTracksReturnsAdaptiveTrackSelection()
       throws Exception {
@@ -1055,6 +1110,43 @@ public final class DefaultTrackSelectorTest {
       trackGroups[i] = new TrackGroup(formats[i]);
     }
     return new TrackGroupArray(trackGroups);
+  }
+
+  private static Format buildVideoFormat(String id) {
+    return Format.createVideoSampleFormat(
+        id,
+        MimeTypes.VIDEO_H264,
+        null,
+        Format.NO_VALUE,
+        Format.NO_VALUE,
+        1024,
+        768,
+        Format.NO_VALUE,
+        null,
+        null);
+  }
+
+  private static Format buildAudioFormat(String id) {
+    return buildAudioFormat(id, /* language= */ null);
+  }
+
+  private static Format buildAudioFormat(String id, String language) {
+    return buildAudioFormat(id, language, /* selectionFlags= */ 0);
+  }
+
+  private static Format buildAudioFormat(String id, String language, int selectionFlags) {
+    return Format.createAudioSampleFormat(
+        id,
+        MimeTypes.AUDIO_AAC,
+        /* codecs= */ null,
+        /* bitrate= */ Format.NO_VALUE,
+        /* maxInputSize= */ Format.NO_VALUE,
+        /* channelCount= */ 2,
+        /* sampleRate= */ 44100,
+        /* initializationData= */ null,
+        /* drmInitData= */ null,
+        selectionFlags,
+        language);
   }
 
   private static Format buildTextFormat(String id, String language) {
