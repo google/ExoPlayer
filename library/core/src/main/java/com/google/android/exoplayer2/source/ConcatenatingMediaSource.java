@@ -48,14 +48,11 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     implements PlayerMessage.Target {
 
   private static final int MSG_ADD = 0;
-  private static final int MSG_ADD_MULTIPLE = 1;
-  private static final int MSG_REMOVE = 2;
-  private static final int MSG_REMOVE_RANGE = 3;
-  private static final int MSG_MOVE = 4;
-  private static final int MSG_CLEAR = 5;
-  private static final int MSG_SET_SHUFFLE_ORDER = 6;
-  private static final int MSG_NOTIFY_LISTENER = 7;
-  private static final int MSG_ON_COMPLETION = 8;
+  private static final int MSG_REMOVE = 1;
+  private static final int MSG_MOVE = 2;
+  private static final int MSG_SET_SHUFFLE_ORDER = 3;
+  private static final int MSG_NOTIFY_LISTENER = 4;
+  private static final int MSG_ON_COMPLETION = 5;
 
   // Accessed on the app thread.
   private final List<MediaSourceHolder> mediaSourcesPublic;
@@ -180,18 +177,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    */
   public final synchronized void addMediaSource(
       int index, MediaSource mediaSource, @Nullable Runnable actionOnCompletion) {
-    Assertions.checkNotNull(mediaSource);
-    MediaSourceHolder mediaSourceHolder = new MediaSourceHolder(mediaSource);
-    mediaSourcesPublic.add(index, mediaSourceHolder);
-    if (player != null) {
-      player
-          .createMessage(this)
-          .setType(MSG_ADD)
-          .setPayload(new MessageData<>(index, mediaSourceHolder, actionOnCompletion))
-          .send();
-    } else if (actionOnCompletion != null) {
-      actionOnCompletion.run();
-    }
+    addMediaSources(index, Collections.singletonList(mediaSource), actionOnCompletion);
   }
 
   /**
@@ -253,7 +239,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     if (player != null && !mediaSources.isEmpty()) {
       player
           .createMessage(this)
-          .setType(MSG_ADD_MULTIPLE)
+          .setType(MSG_ADD)
           .setPayload(new MessageData<>(index, mediaSourceHolders, actionOnCompletion))
           .send();
     } else if (actionOnCompletion != null) {
@@ -293,16 +279,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    */
   public final synchronized void removeMediaSource(
       int index, @Nullable Runnable actionOnCompletion) {
-    mediaSourcesPublic.remove(index);
-    if (player != null) {
-      player
-          .createMessage(this)
-          .setType(MSG_REMOVE)
-          .setPayload(new MessageData<Void>(index, null, actionOnCompletion))
-          .send();
-    } else if (actionOnCompletion != null) {
-      actionOnCompletion.run();
-    }
+    removeMediaSourceRange(index, index + 1, actionOnCompletion);
   }
 
   /**
@@ -351,7 +328,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     if (player != null) {
       player
           .createMessage(this)
-          .setType(MSG_REMOVE_RANGE)
+          .setType(MSG_REMOVE)
           .setPayload(new MessageData<>(fromIndex, toIndex, actionOnCompletion))
           .send();
     } else if (actionOnCompletion != null) {
@@ -411,12 +388,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *     has been cleared.
    */
   public final synchronized void clear(@Nullable Runnable actionOnCompletion) {
-    mediaSourcesPublic.clear();
-    if (player != null) {
-      player.createMessage(this).setType(MSG_CLEAR).setPayload(actionOnCompletion).send();
-    } else if (actionOnCompletion != null) {
-      actionOnCompletion.run();
-    }
+    removeMediaSourceRange(0, getSize(), actionOnCompletion);
   }
 
   /** Returns the number of media sources in the playlist. */
@@ -578,37 +550,27 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     }
     switch (messageType) {
       case MSG_ADD:
-        MessageData<MediaSourceHolder> addMessage = (MessageData<MediaSourceHolder>) message;
-        shuffleOrder = shuffleOrder.cloneAndInsert(addMessage.index, 1);
-        addMediaSourceInternal(addMessage.index, addMessage.customData);
+        MessageData<Collection<MediaSourceHolder>> addMessage =
+            (MessageData<Collection<MediaSourceHolder>>) message;
+        shuffleOrder = shuffleOrder.cloneAndInsert(addMessage.index, addMessage.customData.size());
+        addMediaSourcesInternal(addMessage.index, addMessage.customData);
         scheduleListenerNotification(addMessage.actionOnCompletion);
         break;
-      case MSG_ADD_MULTIPLE:
-        MessageData<Collection<MediaSourceHolder>> addMultipleMessage =
-            (MessageData<Collection<MediaSourceHolder>>) message;
-        shuffleOrder =
-            shuffleOrder.cloneAndInsert(
-                addMultipleMessage.index, addMultipleMessage.customData.size());
-        addMediaSourcesInternal(addMultipleMessage.index, addMultipleMessage.customData);
-        scheduleListenerNotification(addMultipleMessage.actionOnCompletion);
-        break;
       case MSG_REMOVE:
-        MessageData<Void> removeMessage = (MessageData<Void>) message;
-        shuffleOrder = shuffleOrder.cloneAndRemove(removeMessage.index);
-        removeMediaSourceInternal(removeMessage.index);
-        scheduleListenerNotification(removeMessage.actionOnCompletion);
-        break;
-      case MSG_REMOVE_RANGE:
-        MessageData<Integer> removeRangeMessage = (MessageData<Integer>) message;
-        int fromIndex = removeRangeMessage.index;
-        int toIndex = removeRangeMessage.customData;
-        for (int index = toIndex - 1; index >= fromIndex; index--) {
-          shuffleOrder = shuffleOrder.cloneAndRemove(index);
+        MessageData<Integer> removeMessage = (MessageData<Integer>) message;
+        int fromIndex = removeMessage.index;
+        int toIndex = removeMessage.customData;
+        if (fromIndex == 0 && toIndex == shuffleOrder.getLength()) {
+          shuffleOrder = shuffleOrder.cloneAndClear();
+        } else {
+          for (int index = toIndex - 1; index >= fromIndex; index--) {
+            shuffleOrder = shuffleOrder.cloneAndRemove(index);
+          }
         }
         for (int index = toIndex - 1; index >= fromIndex; index--) {
           removeMediaSourceInternal(index);
         }
-        scheduleListenerNotification(removeRangeMessage.actionOnCompletion);
+        scheduleListenerNotification(removeMessage.actionOnCompletion);
         break;
       case MSG_MOVE:
         MessageData<Integer> moveMessage = (MessageData<Integer>) message;
@@ -616,10 +578,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         shuffleOrder = shuffleOrder.cloneAndInsert(moveMessage.customData, 1);
         moveMediaSourceInternal(moveMessage.index, moveMessage.customData);
         scheduleListenerNotification(moveMessage.actionOnCompletion);
-        break;
-      case MSG_CLEAR:
-        clearInternal();
-        scheduleListenerNotification((Runnable) message);
         break;
       case MSG_SET_SHUFFLE_ORDER:
         MessageData<ShuffleOrder> shuffleOrderMessage = (MessageData<ShuffleOrder>) message;
@@ -671,6 +629,13 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     }
   }
 
+  private void addMediaSourcesInternal(
+      int index, Collection<MediaSourceHolder> mediaSourceHolders) {
+    for (MediaSourceHolder mediaSourceHolder : mediaSourceHolders) {
+      addMediaSourceInternal(index++, mediaSourceHolder);
+    }
+  }
+
   private void addMediaSourceInternal(int newIndex, MediaSourceHolder newMediaSourceHolder) {
     if (newIndex > 0) {
       MediaSourceHolder previousHolder = mediaSourceHolders.get(newIndex - 1);
@@ -692,13 +657,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     if (!useLazyPreparation) {
       newMediaSourceHolder.hasStartedPreparing = true;
       prepareChildSource(newMediaSourceHolder, newMediaSourceHolder.mediaSource);
-    }
-  }
-
-  private void addMediaSourcesInternal(
-      int index, Collection<MediaSourceHolder> mediaSourceHolders) {
-    for (MediaSourceHolder mediaSourceHolder : mediaSourceHolders) {
-      addMediaSourceInternal(index++, mediaSourceHolder);
     }
   }
 
@@ -735,12 +693,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       mediaSourceHolder.isPrepared = true;
     }
     scheduleListenerNotification(/* actionOnCompletion= */ null);
-  }
-
-  private void clearInternal() {
-    for (int index = mediaSourceHolders.size() - 1; index >= 0; index--) {
-      removeMediaSourceInternal(index);
-    }
   }
 
   private void removeMediaSourceInternal(int index) {
