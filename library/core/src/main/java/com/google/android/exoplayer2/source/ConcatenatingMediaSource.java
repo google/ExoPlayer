@@ -543,7 +543,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
   @Override
   @SuppressWarnings("unchecked")
-  public final void handleMessage(int messageType, Object message) throws ExoPlaybackException {
+  public final void handleMessage(int messageType, @Nullable Object message)
+      throws ExoPlaybackException {
     if (player == null) {
       // Stale event.
       return;
@@ -551,13 +552,13 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     switch (messageType) {
       case MSG_ADD:
         MessageData<Collection<MediaSourceHolder>> addMessage =
-            (MessageData<Collection<MediaSourceHolder>>) message;
+            (MessageData<Collection<MediaSourceHolder>>) Util.castNonNull(message);
         shuffleOrder = shuffleOrder.cloneAndInsert(addMessage.index, addMessage.customData.size());
         addMediaSourcesInternal(addMessage.index, addMessage.customData);
         scheduleListenerNotification(addMessage.actionOnCompletion);
         break;
       case MSG_REMOVE:
-        MessageData<Integer> removeMessage = (MessageData<Integer>) message;
+        MessageData<Integer> removeMessage = (MessageData<Integer>) Util.castNonNull(message);
         int fromIndex = removeMessage.index;
         int toIndex = removeMessage.customData;
         if (fromIndex == 0 && toIndex == shuffleOrder.getLength()) {
@@ -573,14 +574,15 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         scheduleListenerNotification(removeMessage.actionOnCompletion);
         break;
       case MSG_MOVE:
-        MessageData<Integer> moveMessage = (MessageData<Integer>) message;
+        MessageData<Integer> moveMessage = (MessageData<Integer>) Util.castNonNull(message);
         shuffleOrder = shuffleOrder.cloneAndRemove(moveMessage.index);
         shuffleOrder = shuffleOrder.cloneAndInsert(moveMessage.customData, 1);
         moveMediaSourceInternal(moveMessage.index, moveMessage.customData);
         scheduleListenerNotification(moveMessage.actionOnCompletion);
         break;
       case MSG_SET_SHUFFLE_ORDER:
-        MessageData<ShuffleOrder> shuffleOrderMessage = (MessageData<ShuffleOrder>) message;
+        MessageData<ShuffleOrder> shuffleOrderMessage =
+            (MessageData<ShuffleOrder>) Util.castNonNull(message);
         shuffleOrder = shuffleOrderMessage.customData;
         scheduleListenerNotification(shuffleOrderMessage.actionOnCompletion);
         break;
@@ -588,7 +590,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         notifyListener();
         break;
       case MSG_ON_COMPLETION:
-        List<Runnable> actionsOnCompletion = ((List<Runnable>) message);
+        List<Runnable> actionsOnCompletion = (List<Runnable>) Util.castNonNull(message);
         Handler handler = Assertions.checkNotNull(playerApplicationHandler);
         for (int i = 0; i < actionsOnCompletion.size(); i++) {
           handler.post(actionsOnCompletion.get(i));

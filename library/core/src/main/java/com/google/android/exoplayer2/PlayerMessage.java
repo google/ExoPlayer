@@ -36,7 +36,7 @@ public final class PlayerMessage {
      * @throws ExoPlaybackException If an error occurred whilst handling the message. Should only be
      *     thrown by targets that handle messages on the playback thread.
      */
-    void handleMessage(int messageType, Object payload) throws ExoPlaybackException;
+    void handleMessage(int messageType, @Nullable Object payload) throws ExoPlaybackException;
   }
 
   /** A sender for messages. */
@@ -55,7 +55,7 @@ public final class PlayerMessage {
   private final Timeline timeline;
 
   private int type;
-  private Object payload;
+  private @Nullable Object payload;
   private Handler handler;
   private int windowIndex;
   private long positionMs;
@@ -134,7 +134,7 @@ public final class PlayerMessage {
   }
 
   /** Returns the message payload forwarded to {@link Target#handleMessage(int, Object)}. */
-  public Object getPayload() {
+  public @Nullable Object getPayload() {
     return payload;
   }
 
