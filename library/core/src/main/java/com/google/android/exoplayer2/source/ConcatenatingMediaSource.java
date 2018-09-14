@@ -313,7 +313,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *     untouched. This index must be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
    *     source range has been removed from the playlist.
-   * @throws IndexOutOfBoundsException When the range is malformed, i.e. {@code fromIndex} &lt; 0,
+   * @throws IllegalArgumentException When the range is malformed, i.e. {@code fromIndex} &lt; 0,
    *     {@code toIndex} &gt; {@link #getSize()}, {@code fromIndex} &gt; {@code toIndex}
    */
   public final synchronized void removeMediaSourceRange(
