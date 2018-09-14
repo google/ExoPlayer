@@ -584,7 +584,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   }
 
   @Override
-  public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
+  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     switch (messageType) {
       case C.MSG_SET_VOLUME:
         audioSink.setVolume((Float) message);

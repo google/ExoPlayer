@@ -1964,7 +1964,7 @@ public final class ExoPlayerTest {
     Renderer videoRenderer =
         new FakeRenderer(Builder.VIDEO_FORMAT) {
           @Override
-          public void handleMessage(int what, Object object) throws ExoPlaybackException {
+          public void handleMessage(int what, @Nullable Object object) throws ExoPlaybackException {
             super.handleMessage(what, object);
             rendererMessages.add(what);
           }
@@ -2455,7 +2455,7 @@ public final class ExoPlayerTest {
     }
 
     @Override
-    public void handleMessage(SimpleExoPlayer player, int messageType, Object message) {
+    public void handleMessage(SimpleExoPlayer player, int messageType, @Nullable Object message) {
       if (player != null) {
         windowIndex = player.getCurrentWindowIndex();
         positionMs = player.getCurrentPosition();

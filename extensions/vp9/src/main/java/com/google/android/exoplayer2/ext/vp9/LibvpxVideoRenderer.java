@@ -640,7 +640,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   // PlayerMessage.Target implementation.
 
   @Override
-  public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
+  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_SURFACE) {
       setOutput((Surface) message, null);
     } else if (messageType == MSG_SET_OUTPUT_BUFFER_RENDERER) {
