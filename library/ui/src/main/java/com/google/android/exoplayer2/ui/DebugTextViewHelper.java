@@ -27,7 +27,7 @@ import java.util.Locale;
  * A helper class for periodically updating a {@link TextView} with debug information obtained from
  * a {@link SimpleExoPlayer}.
  */
-public final class DebugTextViewHelper extends Player.DefaultEventListener implements Runnable {
+public class DebugTextViewHelper extends Player.DefaultEventListener implements Runnable {
 
   private static final int REFRESH_INTERVAL_MS = 1000;
 
@@ -49,7 +49,7 @@ public final class DebugTextViewHelper extends Player.DefaultEventListener imple
    * Starts periodic updates of the {@link TextView}. Must be called from the application's main
    * thread.
    */
-  public void start() {
+  public final void start() {
     if (started) {
       return;
     }
@@ -62,7 +62,7 @@ public final class DebugTextViewHelper extends Player.DefaultEventListener imple
    * Stops periodic updates of the {@link TextView}. Must be called from the application's main
    * thread.
    */
-  public void stop() {
+  public final void stop() {
     if (!started) {
       return;
     }
@@ -74,59 +74,63 @@ public final class DebugTextViewHelper extends Player.DefaultEventListener imple
   // Player.EventListener implementation.
 
   @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public final void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
     updateAndPost();
   }
 
   @Override
-  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+  public final void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
     updateAndPost();
   }
 
   // Runnable implementation.
 
   @Override
-  public void run() {
+  public final void run() {
     updateAndPost();
   }
 
-  // Private methods.
+  // Protected methods.
 
   @SuppressLint("SetTextI18n")
-  private void updateAndPost() {
-    textView.setText(getPlayerStateString() + getPlayerWindowIndexString() + getVideoString()
-        + getAudioString());
+  protected final void updateAndPost() {
+    textView.setText(getDebugString());
     textView.removeCallbacks(this);
     textView.postDelayed(this, REFRESH_INTERVAL_MS);
   }
 
-  private String getPlayerStateString() {
-    String text = "playWhenReady:" + player.getPlayWhenReady() + " playbackState:";
+  /** Returns the debugging information string to be shown by the target {@link TextView}. */
+  protected String getDebugString() {
+    return getPlayerStateString() + getVideoString() + getAudioString();
+  }
+
+  /** Returns a string containing player state debugging information. */
+  protected String getPlayerStateString() {
+    String playbackStateString;
     switch (player.getPlaybackState()) {
       case Player.STATE_BUFFERING:
-        text += "buffering";
+        playbackStateString = "buffering";
         break;
       case Player.STATE_ENDED:
-        text += "ended";
+        playbackStateString = "ended";
         break;
       case Player.STATE_IDLE:
-        text += "idle";
+        playbackStateString = "idle";
         break;
       case Player.STATE_READY:
-        text += "ready";
+        playbackStateString = "ready";
         break;
       default:
-        text += "unknown";
+        playbackStateString = "unknown";
         break;
     }
-    return text;
+    return String.format(
+        "playWhenReady:%s playbackState:%s window:%s",
+        player.getPlayWhenReady(), playbackStateString, player.getCurrentWindowIndex());
   }
 
-  private String getPlayerWindowIndexString() {
-    return " window:" + player.getCurrentWindowIndex();
-  }
-
-  private String getVideoString() {
+  /** Returns a string containing video debugging information. */
+  protected String getVideoString() {
     Format format = player.getVideoFormat();
     if (format == null) {
       return "";
@@ -136,7 +140,8 @@ public final class DebugTextViewHelper extends Player.DefaultEventListener imple
         + getDecoderCountersBufferCountString(player.getVideoDecoderCounters()) + ")";
   }
 
-  private String getAudioString() {
+  /** Returns a string containing audio debugging information. */
+  protected String getAudioString() {
     Format format = player.getAudioFormat();
     if (format == null) {
       return "";

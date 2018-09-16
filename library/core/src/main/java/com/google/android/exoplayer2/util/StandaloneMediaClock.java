@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.os.SystemClock;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
 
@@ -25,16 +24,21 @@ import com.google.android.exoplayer2.PlaybackParameters;
  */
 public final class StandaloneMediaClock implements MediaClock {
 
+  private final Clock clock;
+
   private boolean started;
   private long baseUs;
   private long baseElapsedMs;
   private PlaybackParameters playbackParameters;
 
   /**
-   * Creates a new standalone media clock.
+   * Creates a new standalone media clock using the given {@link Clock} implementation.
+   *
+   * @param clock A {@link Clock}.
    */
-  public StandaloneMediaClock() {
-    playbackParameters = PlaybackParameters.DEFAULT;
+  public StandaloneMediaClock(Clock clock) {
+    this.clock = clock;
+    this.playbackParameters = PlaybackParameters.DEFAULT;
   }
 
   /**
@@ -42,7 +46,7 @@ public final class StandaloneMediaClock implements MediaClock {
    */
   public void start() {
     if (!started) {
-      baseElapsedMs = SystemClock.elapsedRealtime();
+      baseElapsedMs = clock.elapsedRealtime();
       started = true;
     }
   }
@@ -52,20 +56,20 @@ public final class StandaloneMediaClock implements MediaClock {
    */
   public void stop() {
     if (started) {
-      setPositionUs(getPositionUs());
+      resetPosition(getPositionUs());
       started = false;
     }
   }
 
   /**
-   * Sets the clock's position.
+   * Resets the clock's position.
    *
    * @param positionUs The position to set in microseconds.
    */
-  public void setPositionUs(long positionUs) {
+  public void resetPosition(long positionUs) {
     baseUs = positionUs;
     if (started) {
-      baseElapsedMs = SystemClock.elapsedRealtime();
+      baseElapsedMs = clock.elapsedRealtime();
     }
   }
 
@@ -73,11 +77,11 @@ public final class StandaloneMediaClock implements MediaClock {
   public long getPositionUs() {
     long positionUs = baseUs;
     if (started) {
-      long elapsedSinceBaseMs = SystemClock.elapsedRealtime() - baseElapsedMs;
+      long elapsedSinceBaseMs = clock.elapsedRealtime() - baseElapsedMs;
       if (playbackParameters.speed == 1f) {
         positionUs += C.msToUs(elapsedSinceBaseMs);
       } else {
-        positionUs += playbackParameters.getSpeedAdjustedDurationUs(elapsedSinceBaseMs);
+        positionUs += playbackParameters.getMediaTimeUsForPlayoutTimeMs(elapsedSinceBaseMs);
       }
     }
     return positionUs;
@@ -87,7 +91,7 @@ public final class StandaloneMediaClock implements MediaClock {
   public PlaybackParameters setPlaybackParameters(PlaybackParameters playbackParameters) {
     // Store the current position as the new base, in case the playback speed has changed.
     if (started) {
-      setPositionUs(getPositionUs());
+      resetPosition(getPositionUs());
     }
     this.playbackParameters = playbackParameters;
     return playbackParameters;

@@ -60,4 +60,15 @@ public interface SequenceableLoader {
    */
   boolean continueLoading(long positionUs);
 
+  /**
+   * Re-evaluates the buffer given the playback position.
+   *
+   * <p>Re-evaluation may discard buffered media so that it can be re-buffered in a different
+   * quality.
+   *
+   * @param positionUs The current playback position in microseconds. If playback of this period has
+   *     not yet started, the value will be the starting position in this period minus the duration
+   *     of any media in previous periods still to be played.
+   */
+  void reevaluateBuffer(long positionUs);
 }

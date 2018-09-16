@@ -21,7 +21,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -90,10 +89,12 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
    *     instantiated.
    * @see DefaultDrmSessionManager#DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-   *     MediaDrmCallback, HashMap, Handler, EventListener)
+   *     MediaDrmCallback, HashMap, Handler, DefaultDrmSessionEventListener)
    */
   public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
-      String defaultLicenseUrl, boolean forceDefaultLicenseUrl, Factory httpDataSourceFactory,
+      String defaultLicenseUrl,
+      boolean forceDefaultLicenseUrl,
+      Factory httpDataSourceFactory,
       HashMap<String, String> optionalKeyRequestParameters)
       throws UnsupportedDrmException {
     return new OfflineLicenseHelper<>(C.WIDEVINE_UUID,
@@ -111,36 +112,41 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
    * @see DefaultDrmSessionManager#DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-   *     MediaDrmCallback, HashMap, Handler, EventListener)
+   *     MediaDrmCallback, HashMap, Handler, DefaultDrmSessionEventListener)
    */
-  public OfflineLicenseHelper(UUID uuid, ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
+  public OfflineLicenseHelper(
+      UUID uuid,
+      ExoMediaDrm<T> mediaDrm,
+      MediaDrmCallback callback,
       HashMap<String, String> optionalKeyRequestParameters) {
     handlerThread = new HandlerThread("OfflineLicenseHelper");
     handlerThread.start();
     conditionVariable = new ConditionVariable();
-    EventListener eventListener = new EventListener() {
-      @Override
-      public void onDrmKeysLoaded() {
-        conditionVariable.open();
-      }
+    DefaultDrmSessionEventListener eventListener =
+        new DefaultDrmSessionEventListener() {
+          @Override
+          public void onDrmKeysLoaded() {
+            conditionVariable.open();
+          }
 
-      @Override
-      public void onDrmSessionManagerError(Exception e) {
-        conditionVariable.open();
-      }
+          @Override
+          public void onDrmSessionManagerError(Exception e) {
+            conditionVariable.open();
+          }
 
-      @Override
-      public void onDrmKeysRestored() {
-        conditionVariable.open();
-      }
+          @Override
+          public void onDrmKeysRestored() {
+            conditionVariable.open();
+          }
 
-      @Override
-      public void onDrmKeysRemoved() {
-        conditionVariable.open();
-      }
-    };
-    drmSessionManager = new DefaultDrmSessionManager<>(uuid, mediaDrm, callback,
-        optionalKeyRequestParameters, new Handler(handlerThread.getLooper()), eventListener);
+          @Override
+          public void onDrmKeysRemoved() {
+            conditionVariable.open();
+          }
+        };
+    drmSessionManager =
+        new DefaultDrmSessionManager<>(uuid, mediaDrm, callback, optionalKeyRequestParameters);
+    drmSessionManager.addListener(new Handler(handlerThread.getLooper()), eventListener);
   }
 
   /**

@@ -78,7 +78,8 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
       int boxType = sampleData.readInt();
       remainingCueBoxBytes -= BOX_HEADER_SIZE;
       int payloadLength = boxSize - BOX_HEADER_SIZE;
-      String boxPayload = new String(sampleData.data, sampleData.getPosition(), payloadLength);
+      String boxPayload =
+          Util.fromUtf8Bytes(sampleData.data, sampleData.getPosition(), payloadLength);
       sampleData.skipBytes(payloadLength);
       remainingCueBoxBytes -= payloadLength;
       if (boxType == TYPE_sttg) {

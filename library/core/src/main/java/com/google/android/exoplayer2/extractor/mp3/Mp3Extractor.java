@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
+import com.google.android.exoplayer2.extractor.Id3Peeker;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
@@ -99,6 +100,7 @@ public final class Mp3Extractor implements Extractor {
   private final ParsableByteArray scratch;
   private final MpegAudioHeader synchronizedHeader;
   private final GaplessInfoHolder gaplessInfoHolder;
+  private final Id3Peeker id3Peeker;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
@@ -135,6 +137,7 @@ public final class Mp3Extractor implements Extractor {
     synchronizedHeader = new MpegAudioHeader();
     gaplessInfoHolder = new GaplessInfoHolder();
     basisTimeUs = C.TIME_UNSET;
+    id3Peeker = new Id3Peeker();
   }
 
   // Extractor implementation.
@@ -181,11 +184,23 @@ public final class Mp3Extractor implements Extractor {
         seeker = getConstantBitrateSeeker(input);
       }
       extractorOutput.seekMap(seeker);
-      trackOutput.format(Format.createAudioSampleFormat(null, synchronizedHeader.mimeType, null,
-          Format.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, synchronizedHeader.channels,
-          synchronizedHeader.sampleRate, Format.NO_VALUE, gaplessInfoHolder.encoderDelay,
-          gaplessInfoHolder.encoderPadding, null, null, 0, null,
-          (flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata));
+      trackOutput.format(
+          Format.createAudioSampleFormat(
+              /* id= */ null,
+              synchronizedHeader.mimeType,
+              /* codecs= */ null,
+              /* bitrate= */ Format.NO_VALUE,
+              MpegAudioHeader.MAX_FRAME_SIZE_BYTES,
+              synchronizedHeader.channels,
+              synchronizedHeader.sampleRate,
+              /* pcmEncoding= */ Format.NO_VALUE,
+              gaplessInfoHolder.encoderDelay,
+              gaplessInfoHolder.encoderPadding,
+              /* initializationData= */ null,
+              /* drmInitData= */ null,
+              /* selectionFlags= */ 0,
+              /* language= */ null,
+              (flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata));
     }
     return readSample(input);
   }
@@ -242,7 +257,15 @@ public final class Mp3Extractor implements Extractor {
     int searchLimitBytes = sniffing ? MAX_SNIFF_BYTES : MAX_SYNC_BYTES;
     input.resetPeekPosition();
     if (input.getPosition() == 0) {
-      peekId3Data(input);
+      // We need to parse enough ID3 metadata to retrieve any gapless playback information even
+      // if ID3 metadata parsing is disabled.
+      boolean onlyDecodeGaplessInfoFrames = (flags & FLAG_DISABLE_ID3_METADATA) != 0;
+      Id3Decoder.FramePredicate id3FramePredicate =
+          onlyDecodeGaplessInfoFrames ? GaplessInfoHolder.GAPLESS_INFO_ID3_FRAME_PREDICATE : null;
+      metadata = id3Peeker.peekId3Data(input, id3FramePredicate);
+      if (metadata != null) {
+        gaplessInfoHolder.setFromMetadata(metadata);
+      }
       peekedId3Bytes = (int) input.getPeekPosition();
       if (!sniffing) {
         input.skipFully(peekedId3Bytes);
@@ -294,49 +317,6 @@ public final class Mp3Extractor implements Extractor {
     }
     synchronizedHeaderData = candidateSynchronizedHeaderData;
     return true;
-  }
-
-  /**
-   * Peeks ID3 data from the input, including gapless playback information.
-   *
-   * @param input The {@link ExtractorInput} from which data should be peeked.
-   * @throws IOException If an error occurred peeking from the input.
-   * @throws InterruptedException If the thread was interrupted.
-   */
-  private void peekId3Data(ExtractorInput input) throws IOException, InterruptedException {
-    int peekedId3Bytes = 0;
-    while (true) {
-      input.peekFully(scratch.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
-      scratch.setPosition(0);
-      if (scratch.readUnsignedInt24() != Id3Decoder.ID3_TAG) {
-        // Not an ID3 tag.
-        break;
-      }
-      scratch.skipBytes(3); // Skip major version, minor version and flags.
-      int framesLength = scratch.readSynchSafeInt();
-      int tagLength = Id3Decoder.ID3_HEADER_LENGTH + framesLength;
-
-      if (metadata == null) {
-        byte[] id3Data = new byte[tagLength];
-        System.arraycopy(scratch.data, 0, id3Data, 0, Id3Decoder.ID3_HEADER_LENGTH);
-        input.peekFully(id3Data, Id3Decoder.ID3_HEADER_LENGTH, framesLength);
-        // We need to parse enough ID3 metadata to retrieve any gapless playback information even
-        // if ID3 metadata parsing is disabled.
-        Id3Decoder.FramePredicate id3FramePredicate = (flags & FLAG_DISABLE_ID3_METADATA) != 0
-            ? GaplessInfoHolder.GAPLESS_INFO_ID3_FRAME_PREDICATE : null;
-        metadata = new Id3Decoder(id3FramePredicate).decode(id3Data, tagLength);
-        if (metadata != null) {
-          gaplessInfoHolder.setFromMetadata(metadata);
-        }
-      } else {
-        input.advancePeekPosition(framesLength);
-      }
-
-      peekedId3Bytes += tagLength;
-    }
-
-    input.resetPeekPosition();
-    input.advancePeekPosition(peekedId3Bytes);
   }
 
   /**

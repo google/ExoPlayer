@@ -25,8 +25,9 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile 'net.butterflytv.utils:rtmp-client:3.0.0'
+    implementation project(modulePrefix + 'library-core')
+    implementation 'net.butterflytv.utils:rtmp-client:3.0.1'
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
 }
 
 ext {

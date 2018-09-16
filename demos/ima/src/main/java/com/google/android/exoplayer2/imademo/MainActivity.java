@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.imademo;
 import android.app.Activity;
 import android.os.Bundle;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.ui.PlayerView;
 
 /**
  * Main Activity for the IMA plugin demo. {@link ExoPlayer} objects are created by
@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
  */
 public final class MainActivity extends Activity {
 
-  private SimpleExoPlayerView playerView;
+  private PlayerView playerView;
   private PlayerManager player;
 
   @Override

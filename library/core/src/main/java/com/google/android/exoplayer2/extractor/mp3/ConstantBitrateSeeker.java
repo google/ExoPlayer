@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.mp3;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
+import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -57,16 +58,25 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   @Override
-  public long getPosition(long timeUs) {
+  public SeekPoints getSeekPoints(long timeUs) {
     if (dataSize == C.LENGTH_UNSET) {
-      return firstFramePosition;
+      return new SeekPoints(new SeekPoint(0, firstFramePosition));
     }
     long positionOffset = (timeUs * bitrate) / (C.MICROS_PER_SECOND * BITS_PER_BYTE);
     // Constrain to nearest preceding frame offset.
     positionOffset = (positionOffset / frameSize) * frameSize;
     positionOffset = Util.constrainValue(positionOffset, 0, dataSize - frameSize);
-    // Add data start position.
-    return firstFramePosition + positionOffset;
+    long seekPosition = firstFramePosition + positionOffset;
+    long seekTimeUs = getTimeUs(seekPosition);
+    SeekPoint seekPoint = new SeekPoint(seekTimeUs, seekPosition);
+    if (seekTimeUs >= timeUs || positionOffset == dataSize - frameSize) {
+      return new SeekPoints(seekPoint);
+    } else {
+      long secondSeekPosition = seekPosition + frameSize;
+      long secondSeekTimeUs = getTimeUs(secondSeekPosition);
+      SeekPoint secondSeekPoint = new SeekPoint(secondSeekTimeUs, secondSeekPosition);
+      return new SeekPoints(seekPoint, secondSeekPoint);
+    }
   }
 
   @Override

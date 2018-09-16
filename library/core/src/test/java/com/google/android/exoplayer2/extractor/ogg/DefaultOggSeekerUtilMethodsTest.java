@@ -28,13 +28,11 @@ import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Unit test for {@link DefaultOggSeeker} utility methods.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class DefaultOggSeekerUtilMethodsTest {
 
   private final Random random = new Random(0);

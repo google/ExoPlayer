@@ -18,10 +18,8 @@ package com.google.android.exoplayer2.drm;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.Map;
 
-/**
- * A {@link DrmSession} that's in a terminal error state.
- */
-/* package */ final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements DrmSession<T> {
+/** A {@link DrmSession} that's in a terminal error state. */
+public final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements DrmSession<T> {
 
   private final DrmSessionException error;
 

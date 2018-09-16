@@ -46,7 +46,6 @@ import org.robolectric.annotation.Config;
  * Unit test for {@link SimpleDecoderAudioRenderer}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public class SimpleDecoderAudioRendererTest {
 
   private static final Format FORMAT = Format.createSampleFormat(null, MimeTypes.AUDIO_RAW, 0);
@@ -90,8 +89,13 @@ public class SimpleDecoderAudioRendererTest {
 
   @Test
   public void testImmediatelyReadEndOfStreamPlaysAudioSinkToEndOfStream() throws Exception {
-    audioRenderer.enable(RendererConfiguration.DEFAULT, new Format[] {FORMAT},
-        new FakeSampleStream(FORMAT), 0, false, 0);
+    audioRenderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {FORMAT},
+        new FakeSampleStream(FORMAT, /* eventDispatcher= */ null, /* shouldOutputSample= */ false),
+        0,
+        false,
+        0);
     audioRenderer.setCurrentStreamFinal();
     when(mockAudioSink.isEnded()).thenReturn(true);
     while (!audioRenderer.isEnded()) {
@@ -116,12 +120,17 @@ public class SimpleDecoderAudioRendererTest {
 
     @Override
     protected DecoderInputBuffer createInputBuffer() {
-      return new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
+      return new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     }
 
     @Override
     protected SimpleOutputBuffer createOutputBuffer() {
       return new SimpleOutputBuffer(this);
+    }
+
+    @Override
+    protected AudioDecoderException createUnexpectedDecodeException(Throwable error) {
+      return new AudioDecoderException("Unexpected decode error", error);
     }
 
     @Override

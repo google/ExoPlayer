@@ -23,13 +23,11 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Tests for {@link NalUnitUtil}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class NalUnitUtilTest {
 
   private static final int TEST_PARTIAL_NAL_POSITION = 4;

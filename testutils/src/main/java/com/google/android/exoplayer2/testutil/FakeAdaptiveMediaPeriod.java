@@ -35,7 +35,6 @@ import java.util.List;
 public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
     implements SequenceableLoader.Callback<ChunkSampleStream<FakeChunkSource>> {
 
-  private final EventDispatcher eventDispatcher;
   private final Allocator allocator;
   private final FakeChunkSource.Factory chunkSourceFactory;
   private final long durationUs;
@@ -44,31 +43,34 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   private ChunkSampleStream<FakeChunkSource>[] sampleStreams;
   private SequenceableLoader sequenceableLoader;
 
-  public FakeAdaptiveMediaPeriod(TrackGroupArray trackGroupArray, EventDispatcher eventDispatcher,
-      Allocator allocator, FakeChunkSource.Factory chunkSourceFactory, long durationUs) {
-    super(trackGroupArray);
-    this.eventDispatcher = eventDispatcher;
+  public FakeAdaptiveMediaPeriod(
+      TrackGroupArray trackGroupArray,
+      EventDispatcher eventDispatcher,
+      Allocator allocator,
+      FakeChunkSource.Factory chunkSourceFactory,
+      long durationUs) {
+    super(trackGroupArray, eventDispatcher);
     this.allocator = allocator;
     this.chunkSourceFactory = chunkSourceFactory;
     this.durationUs = durationUs;
+    this.sampleStreams = newSampleStreamArray(0);
   }
 
   @Override
   public void release() {
-    super.release();
     for (ChunkSampleStream<FakeChunkSource> sampleStream : sampleStreams) {
       sampleStream.release();
     }
+    super.release();
   }
 
   @Override
-  public void prepare(Callback callback, long positionUs) {
+  public synchronized void prepare(Callback callback, long positionUs) {
     super.prepare(callback, positionUs);
     this.callback = callback;
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
     long returnPositionUs = super.selectTracks(selections, mayRetainStreamFlags, streams,
@@ -79,9 +81,23 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
         validStreams.add((ChunkSampleStream<FakeChunkSource>) stream);
       }
     }
-    this.sampleStreams = validStreams.toArray(new ChunkSampleStream[validStreams.size()]);
+    this.sampleStreams = validStreams.toArray(newSampleStreamArray(validStreams.size()));
     this.sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
     return returnPositionUs;
+  }
+
+  @Override
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
+    super.discardBuffer(positionUs, toKeyframe);
+    for (ChunkSampleStream<FakeChunkSource> sampleStream : sampleStreams) {
+      sampleStream.discardBuffer(positionUs, toKeyframe);
+    }
+  }
+
+  @Override
+  public void reevaluateBuffer(long positionUs) {
+    super.reevaluateBuffer(positionUs);
+    sequenceableLoader.reevaluateBuffer(positionUs);
   }
 
   @Override
@@ -114,8 +130,15 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   protected SampleStream createSampleStream(TrackSelection trackSelection) {
     FakeChunkSource chunkSource = chunkSourceFactory.createChunkSource(trackSelection, durationUs);
     return new ChunkSampleStream<>(
-        MimeTypes.getTrackType(trackSelection.getSelectedFormat().sampleMimeType), null,
-        chunkSource, this, allocator, 0, 3, eventDispatcher);
+        MimeTypes.getTrackType(trackSelection.getSelectedFormat().sampleMimeType),
+        null,
+        null,
+        chunkSource,
+        this,
+        allocator,
+        0,
+        3,
+        eventDispatcher);
   }
 
   @Override
@@ -123,4 +146,8 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
     callback.onContinueLoadingRequested(this);
   }
 
+  @SuppressWarnings("unchecked")
+  private static ChunkSampleStream<FakeChunkSource>[] newSampleStreamArray(int length) {
+    return new ChunkSampleStream[length];
+  }
 }

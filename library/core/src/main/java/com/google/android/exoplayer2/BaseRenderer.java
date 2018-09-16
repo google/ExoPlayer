@@ -35,6 +35,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private int index;
   private int state;
   private SampleStream stream;
+  private Format[] streamFormats;
   private long streamOffsetUs;
   private boolean readEndOfStream;
   private boolean streamIsFinal;
@@ -98,6 +99,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
     readEndOfStream = false;
+    streamFormats = formats;
     streamOffsetUs = offsetUs;
     onStreamChanged(formats, offsetUs);
   }
@@ -146,6 +148,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     Assertions.checkState(state == STATE_ENABLED);
     state = STATE_DISABLED;
     stream = null;
+    streamFormats = null;
     streamIsFinal = false;
     onDisabled();
   }
@@ -157,7 +160,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     return ADAPTIVE_NOT_SUPPORTED;
   }
 
-  // ExoPlayerComponent implementation.
+  // PlayerMessage.Target implementation.
 
   @Override
   public void handleMessage(int what, Object object) throws ExoPlaybackException {
@@ -245,6 +248,11 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   // Methods to be called by subclasses.
+
+  /** Returns the formats of the currently enabled stream. */
+  protected final Format[] getStreamFormats() {
+    return streamFormats;
+  }
 
   /**
    * Returns the configuration set when the renderer was most recently enabled.

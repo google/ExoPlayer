@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_previous_description">Əvvəlki trek</string>
+  <string name="exo_controls_next_description">Növbəti trek</string>
+  <string name="exo_controls_pause_description">Pauza</string>
+  <string name="exo_controls_play_description">Oxudun</string>
+  <string name="exo_controls_stop_description">Dayandırın</string>
+  <string name="exo_controls_rewind_description">Geri çəkin</string>
+  <string name="exo_controls_fastforward_description">İrəli çəkin</string>
+  <string name="exo_controls_repeat_off_description">Heç biri təkrarlanmasın</string>
+  <string name="exo_controls_repeat_one_description">Biri təkrarlansın</string>
+  <string name="exo_controls_repeat_all_description">Hamısı təkrarlansın</string>
+  <string name="exo_controls_shuffle_description">Qarışdırın</string>
+  <string name="exo_controls_fullscreen_description">Tam ekran rejimi</string>
+  <string name="exo_download_description">Endirin</string>
+  <string name="exo_download_notification_channel_name">Endirmələr</string>
+  <string name="exo_download_downloading">Endirilir</string>
+  <string name="exo_download_completed">Endirmə tamamlandı</string>
+  <string name="exo_download_failed">Endirmə alınmadı</string>
+  <string name="exo_download_removing">Endirilənlər silinir</string>
+  <string name="exo_track_selection_title_video">Video</string>
+  <string name="exo_track_selection_title_audio">Audio</string>
+  <string name="exo_track_selection_title_text">Mətn</string>
+  <string name="exo_track_selection_none">Yoxdur</string>
+  <string name="exo_track_selection_auto">Avtomatik</string>
+  <string name="exo_track_unknown">Naməlum</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">Mono</string>
+  <string name="exo_track_stereo">Stereo</string>
+  <string name="exo_track_surround">Yüksək səs</string>
+  <string name="exo_track_surround_5_point_1">5.1 yüksək səs</string>
+  <string name="exo_track_surround_7_point_1">7.1 yüksək səs</string>
+  <string name="exo_track_bitrate">%1$.2f Mbps</string>
+  <string name="exo_item_list">%1$s, %2$s</string>
+</resources>

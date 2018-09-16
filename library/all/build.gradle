@@ -25,11 +25,11 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile project(modulePrefix + 'library-dash')
-    compile project(modulePrefix + 'library-hls')
-    compile project(modulePrefix + 'library-smoothstreaming')
-    compile project(modulePrefix + 'library-ui')
+    api project(modulePrefix + 'library-core')
+    api project(modulePrefix + 'library-dash')
+    api project(modulePrefix + 'library-hls')
+    api project(modulePrefix + 'library-smoothstreaming')
+    api project(modulePrefix + 'library-ui')
 }
 
 ext {

@@ -70,35 +70,36 @@ import java.util.List;
   }
 
   @Override
-  public DecoderInputBuffer createInputBuffer() {
+  protected DecoderInputBuffer createInputBuffer() {
     return new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
 
   @Override
-  public SimpleOutputBuffer createOutputBuffer() {
+  protected SimpleOutputBuffer createOutputBuffer() {
     return new SimpleOutputBuffer(this);
   }
 
   @Override
-  public FlacDecoderException decode(DecoderInputBuffer inputBuffer,
-      SimpleOutputBuffer outputBuffer, boolean reset) {
+  protected FlacDecoderException createUnexpectedDecodeException(Throwable error) {
+    return new FlacDecoderException("Unexpected decode error", error);
+  }
+
+  @Override
+  protected FlacDecoderException decode(
+      DecoderInputBuffer inputBuffer, SimpleOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
       decoderJni.flush();
     }
     decoderJni.setData(inputBuffer.data);
     ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, maxOutputBufferSize);
-    int result;
     try {
-      result = decoderJni.decodeSample(outputData);
+      decoderJni.decodeSample(outputData);
+    } catch (FlacDecoderJni.FlacFrameDecodeException e) {
+      return new FlacDecoderException("Frame decoding failed", e);
     } catch (IOException | InterruptedException e) {
       // Never happens.
       throw new IllegalStateException(e);
     }
-    if (result < 0) {
-      return new FlacDecoderException("Frame decoding failed");
-    }
-    outputData.position(0);
-    outputData.limit(result);
     return null;
   }
 

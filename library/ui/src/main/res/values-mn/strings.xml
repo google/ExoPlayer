@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_previous_description">Өмнөх бичлэг</string>
+  <string name="exo_controls_next_description">Дараагийн бичлэг</string>
+  <string name="exo_controls_pause_description">Түр зогсоох</string>
+  <string name="exo_controls_play_description">Тоглуулах</string>
+  <string name="exo_controls_stop_description">Зогсоох</string>
+  <string name="exo_controls_rewind_description">Ухраах</string>
+  <string name="exo_controls_fastforward_description">Хурдан урагшлуулах</string>
+  <string name="exo_controls_repeat_off_description">Алийг нь ч дахин тоглуулахгүй</string>
+  <string name="exo_controls_repeat_one_description">Одоогийн тоглуулж буй медиаг дахин тоглуулах</string>
+  <string name="exo_controls_repeat_all_description">Бүгдийг нь дахин тоглуулах</string>
+  <string name="exo_controls_shuffle_description">Холих</string>
+  <string name="exo_controls_fullscreen_description">Бүтэн дэлгэцийн горим</string>
+  <string name="exo_download_description">Татах</string>
+  <string name="exo_download_notification_channel_name">Татaлт</string>
+  <string name="exo_download_downloading">Татаж байна</string>
+  <string name="exo_download_completed">Татаж дууссан</string>
+  <string name="exo_download_failed">Татаж чадсангүй</string>
+  <string name="exo_download_removing">Татаж авсан файлыг хасаж байна</string>
+  <string name="exo_track_selection_title_video">Видео</string>
+  <string name="exo_track_selection_title_audio">Дуу</string>
+  <string name="exo_track_selection_title_text">Текст</string>
+  <string name="exo_track_selection_none">Байхгүй</string>
+  <string name="exo_track_selection_auto">Автомат</string>
+  <string name="exo_track_unknown">Үл мэдэгдэх</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">Моно</string>
+  <string name="exo_track_stereo">Стерео</string>
+  <string name="exo_track_surround">Орчин тойрны дуу</string>
+  <string name="exo_track_surround_5_point_1">5.1 орчин тойрны дуу</string>
+  <string name="exo_track_surround_7_point_1">7.1 орчин тойрны дуу</string>
+  <string name="exo_track_bitrate">%1$.2f Mbps</string>
+  <string name="exo_item_list">%1$s, %2$s</string>
+</resources>

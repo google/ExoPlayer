@@ -72,8 +72,12 @@ public final class VideoFrameReleaseTimeHelper {
    * @param context A context from which information about the default display can be retrieved.
    */
   public VideoFrameReleaseTimeHelper(@Nullable Context context) {
-    windowManager = context == null ? null
-        : (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    if (context != null) {
+      context = context.getApplicationContext();
+      windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    } else {
+      windowManager = null;
+    }
     if (windowManager != null) {
       displayListener = Util.SDK_INT >= 17 ? maybeBuildDefaultDisplayListenerV17(context) : null;
       vsyncSampler = VSyncSampler.getInstance();

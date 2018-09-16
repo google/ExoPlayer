@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.util.Base64;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.net.URLDecoder;
 
@@ -41,8 +42,8 @@ public final class DataSchemeDataSource implements DataSource {
     if (!SCHEME_DATA.equals(scheme)) {
       throw new ParserException("Unsupported scheme: " + scheme);
     }
-    String[] uriParts = uri.getSchemeSpecificPart().split(",");
-    if (uriParts.length > 2) {
+    String[] uriParts = Util.split(uri.getSchemeSpecificPart(), ",");
+    if (uriParts.length != 2) {
       throw new ParserException("Unexpected URI format: " + uri);
     }
     String dataString = uriParts[1];

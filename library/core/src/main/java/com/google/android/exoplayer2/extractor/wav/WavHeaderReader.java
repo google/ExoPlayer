@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /** Reads a {@code WavHeader} from an input stream; supports resuming from input failures. */
-/*package*/ final class WavHeaderReader {
+/* package */ final class WavHeaderReader {
 
   private static final String TAG = "WavHeaderReader";
 
@@ -156,6 +156,10 @@ import java.io.IOException;
     input.skipFully(ChunkHeader.SIZE_IN_BYTES);
 
     wavHeader.setDataBounds(input.getPosition(), chunkHeader.size);
+  }
+
+  private WavHeaderReader() {
+    // Prevent instantiation.
   }
 
   /** Container for a WAV chunk header. */

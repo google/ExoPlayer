@@ -14,12 +14,10 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.exoplayer2.imademo"
-    android:versionCode="2601"
-    android:versionName="2.6.1">
+    package="com.google.android.exoplayer2.imademo">
 
   <uses-permission android:name="android.permission.INTERNET"/>
-  <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="27"/>
+  <uses-sdk/>
 
   <application android:label="@string/application_name" android:icon="@mipmap/ic_launcher"
       android:largeHeap="true" android:allowBackup="false">

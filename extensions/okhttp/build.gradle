@@ -21,19 +21,14 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-    }
-
-    lintOptions {
-        // See: https://github.com/square/okio/issues/58
-        warning 'InvalidPackage'
+        consumerProguardFiles 'proguard-rules.txt'
     }
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile('com.squareup.okhttp3:okhttp:3.9.0') {
-        exclude group: 'org.json'
-    }
+    implementation project(modulePrefix + 'library-core')
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    api 'com.squareup.okhttp3:okhttp:3.10.0'
 }
 
 ext {

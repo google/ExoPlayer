@@ -96,18 +96,23 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
   }
 
   /**
-   * Initializes the wrapper to output to {@link TrackOutput}s provided by the specified
-   * {@link TrackOutputProvider}, and configures the extractor to receive data from a new chunk.
+   * Initializes the wrapper to output to {@link TrackOutput}s provided by the specified {@link
+   * TrackOutputProvider}, and configures the extractor to receive data from a new chunk.
    *
    * @param trackOutputProvider The provider of {@link TrackOutput}s that will receive sample data.
+   * @param seekTimeUs The seek position within the new chunk, or {@link C#TIME_UNSET} to output the
+   *     whole chunk.
    */
-  public void init(TrackOutputProvider trackOutputProvider) {
+  public void init(TrackOutputProvider trackOutputProvider, long seekTimeUs) {
     this.trackOutputProvider = trackOutputProvider;
     if (!extractorInitialized) {
       extractor.init(this);
+      if (seekTimeUs != C.TIME_UNSET) {
+        extractor.seek(/* position= */ 0, seekTimeUs);
+      }
       extractorInitialized = true;
     } else {
-      extractor.seek(0, 0);
+      extractor.seek(/* position= */ 0, seekTimeUs == C.TIME_UNSET ? 0 : seekTimeUs);
       for (int i = 0; i < bindingTrackOutputs.size(); i++) {
         bindingTrackOutputs.valueAt(i).bind(trackOutputProvider);
       }

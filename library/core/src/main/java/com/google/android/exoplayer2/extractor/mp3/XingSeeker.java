@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.mp3;
 import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
+import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 
@@ -107,10 +108,11 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   @Override
-  public long getPosition(long timeUs) {
+  public SeekPoints getSeekPoints(long timeUs) {
     if (!isSeekable()) {
-      return dataStartPosition + xingFrameSize;
+      return new SeekPoints(new SeekPoint(0, dataStartPosition + xingFrameSize));
     }
+    timeUs = Util.constrainValue(timeUs, 0, durationUs);
     double percent = (timeUs * 100d) / durationUs;
     double scaledPosition;
     if (percent <= 0) {
@@ -129,7 +131,7 @@ import com.google.android.exoplayer2.util.Util;
     long positionOffset = Math.round((scaledPosition / 256) * dataSize);
     // Ensure returned positions skip the frame containing the XING header.
     positionOffset = Util.constrainValue(positionOffset, xingFrameSize, dataSize - 1);
-    return dataStartPosition + positionOffset;
+    return new SeekPoints(new SeekPoint(timeUs, dataStartPosition + positionOffset));
   }
 
   @Override

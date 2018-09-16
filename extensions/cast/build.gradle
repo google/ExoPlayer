@@ -1,0 +1,57 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+apply from: '../../constants.gradle'
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion project.ext.compileSdkVersion
+    buildToolsVersion project.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion project.ext.targetSdkVersion
+        consumerProguardFiles 'proguard-rules.txt'
+    }
+}
+
+dependencies {
+    api 'com.google.android.gms:play-services-cast-framework:' + playServicesLibraryVersion
+    implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-ui')
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'junit:junit:' + junitVersion
+    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation project(modulePrefix + 'testutils-robolectric')
+    // These dependencies are necessary to force the supportLibraryVersion of
+    // com.android.support:support-v4, com.android.support:appcompat-v7 and
+    // com.android.support:mediarouter-v7 to be used. Else older versions are
+    // used, for example via:
+    // com.google.android.gms:play-services-cast-framework:15.0.1
+    // |-- com.android.support:mediarouter-v7:26.1.0
+    api 'com.android.support:support-v4:' + supportLibraryVersion
+    api 'com.android.support:mediarouter-v7:' + supportLibraryVersion
+    api 'com.android.support:recyclerview-v7:' + supportLibraryVersion
+}
+
+ext {
+    javadocTitle = 'Cast extension'
+}
+apply from: '../../javadoc_library.gradle'
+
+ext {
+    releaseArtifact = 'extension-cast'
+    releaseDescription = 'Cast extension for ExoPlayer.'
+}
+apply from: '../../publish.gradle'

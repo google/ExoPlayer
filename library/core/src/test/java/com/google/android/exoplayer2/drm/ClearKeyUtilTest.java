@@ -17,9 +17,7 @@ package com.google.android.exoplayer2.drm;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.android.exoplayer2.C;
-import java.nio.charset.Charset;
-import java.util.Arrays;
+import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -28,37 +26,115 @@ import org.robolectric.annotation.Config;
 /**
  * Unit test for {@link ClearKeyUtil}.
  */
-// TODO: When API level 27 is supported, add tests that check the adjust methods are no-ops.
 @RunWith(RobolectricTestRunner.class)
 public final class ClearKeyUtilTest {
 
-  @Config(sdk = 26, manifest = Config.NONE)
+  private static final byte[] SINGLE_KEY_RESPONSE =
+      Util.getUtf8Bytes(
+          "{"
+              + "\"keys\":["
+              + "{"
+              + "\"k\":\"abc_def-\","
+              + "\"kid\":\"ab_cde-f\","
+              + "\"kty\":\"o_c-t\","
+              + "\"ignored\":\"ignored\""
+              + "}"
+              + "],"
+              + "\"ignored\":\"ignored\""
+              + "}");
+  private static final byte[] MULTI_KEY_RESPONSE =
+      Util.getUtf8Bytes(
+          "{"
+              + "\"keys\":["
+              + "{"
+              + "\"k\":\"abc_def-\","
+              + "\"kid\":\"ab_cde-f\","
+              + "\"kty\":\"oct\","
+              + "\"ignored\":\"ignored\""
+              + "},{"
+              + "\"k\":\"ghi_jkl-\","
+              + "\"kid\":\"gh_ijk-l\","
+              + "\"kty\":\"oct\""
+              + "}"
+              + "],"
+              + "\"ignored\":\"ignored\""
+              + "}");
+  private static final byte[] KEY_REQUEST =
+      Util.getUtf8Bytes(
+          "{"
+              + "\"kids\":["
+              + "\"abc+def/\","
+              + "\"ab+cde/f\""
+              + "],"
+              + "\"type\":\"temporary\""
+              + "}");
+
+  @Config(sdk = 26)
   @Test
-  public void testAdjustResponseDataV26() {
-    byte[] data = ("{\"keys\":[{"
-        + "\"k\":\"abc_def-\","
-        + "\"kid\":\"ab_cde-f\"}],"
-        + "\"type\":\"abc_def-"
-        + "\"}").getBytes(Charset.forName(C.UTF8_NAME));
-    // We expect "-" and "_" to be replaced with "+" and "\/" (forward slashes need to be escaped in
-    // JSON respectively, for "k" and "kid" only.
-    byte[] expected = ("{\"keys\":[{"
-        + "\"k\":\"abc\\/def+\","
-        + "\"kid\":\"ab\\/cde+f\"}],"
-        + "\"type\":\"abc_def-"
-        + "\"}").getBytes(Charset.forName(C.UTF8_NAME));
-    assertThat(Arrays.equals(expected, ClearKeyUtil.adjustResponseData(data))).isTrue();
+  public void testAdjustSingleKeyResponseDataV26() {
+    // Everything but the keys should be removed. Within each key only the k, kid and kty parameters
+    // should remain. Any "-" and "_" characters in the k and kid values should be replaced with "+"
+    // and "/".
+    byte[] expected =
+        Util.getUtf8Bytes(
+            "{"
+                + "\"keys\":["
+                + "{"
+                + "\"k\":\"abc/def+\",\"kid\":\"ab/cde+f\",\"kty\":\"o_c-t\""
+                + "}"
+                + "]"
+                + "}");
+    assertThat(ClearKeyUtil.adjustResponseData(SINGLE_KEY_RESPONSE)).isEqualTo(expected);
   }
 
-  @Config(sdk = 26, manifest = Config.NONE)
+  @Config(sdk = 26)
+  @Test
+  public void testAdjustMultiKeyResponseDataV26() {
+    // Everything but the keys should be removed. Within each key only the k, kid and kty parameters
+    // should remain. Any "-" and "_" characters in the k and kid values should be replaced with "+"
+    // and "/".
+    byte[] expected =
+        Util.getUtf8Bytes(
+            "{"
+                + "\"keys\":["
+                + "{"
+                + "\"k\":\"abc/def+\",\"kid\":\"ab/cde+f\",\"kty\":\"oct\""
+                + "},{"
+                + "\"k\":\"ghi/jkl+\",\"kid\":\"gh/ijk+l\",\"kty\":\"oct\""
+                + "}"
+                + "]"
+                + "}");
+    assertThat(ClearKeyUtil.adjustResponseData(MULTI_KEY_RESPONSE)).isEqualTo(expected);
+  }
+
+  @Config(sdk = 27)
+  @Test
+  public void testAdjustResponseDataV27() {
+    // Response should be unchanged.
+    assertThat(ClearKeyUtil.adjustResponseData(SINGLE_KEY_RESPONSE)).isEqualTo(SINGLE_KEY_RESPONSE);
+  }
+
+  @Config(sdk = 26)
   @Test
   public void testAdjustRequestDataV26() {
-    byte[] data = "{\"kids\":[\"abc+def/\",\"ab+cde/f\"],\"type\":\"abc+def/\"}"
-        .getBytes(Charset.forName(C.UTF8_NAME));
     // We expect "+" and "/" to be replaced with "-" and "_" respectively, for "kids".
-    byte[] expected = "{\"kids\":[\"abc-def_\",\"ab-cde_f\"],\"type\":\"abc+def/\"}"
-        .getBytes(Charset.forName(C.UTF8_NAME));
-    assertThat(Arrays.equals(expected, ClearKeyUtil.adjustRequestData(data))).isTrue();
+    byte[] expected =
+        Util.getUtf8Bytes(
+            "{"
+                + "\"kids\":["
+                + "\"abc-def_\","
+                + "\"ab-cde_f\""
+                + "],"
+                + "\"type\":\"temporary\""
+                + "}");
+    assertThat(ClearKeyUtil.adjustRequestData(KEY_REQUEST)).isEqualTo(expected);
+  }
+
+  @Config(sdk = 27)
+  @Test
+  public void testAdjustRequestDataV27() {
+    // Request should be unchanged.
+    assertThat(ClearKeyUtil.adjustRequestData(KEY_REQUEST)).isEqualTo(KEY_REQUEST);
   }
 
 }

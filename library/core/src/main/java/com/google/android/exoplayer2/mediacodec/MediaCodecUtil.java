@@ -158,8 +158,8 @@ public final class MediaCodecUtil {
             + ". Assuming: " + decoderInfos.get(0).name);
       }
     }
-    if (MimeTypes.AUDIO_ATMOS.equals(mimeType)) {
-      // E-AC3 decoders can decode Atmos streams, but in 2-D rather than 3-D.
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
+      // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
       CodecKey eac3Key = new CodecKey(MimeTypes.AUDIO_E_AC3, key.secure);
       ArrayList<MediaCodecInfo> eac3DecoderInfos =
           getDecoderInfosInternal(eac3Key, mediaCodecList, mimeType);
@@ -354,15 +354,15 @@ public final class MediaCodecUtil {
     // Work around https://github.com/google/ExoPlayer/issues/3249.
     if (Util.SDK_INT < 24
         && ("OMX.SEC.aac.dec".equals(name) || "OMX.Exynos.AAC.Decoder".equals(name))
-        && Util.MANUFACTURER.equals("samsung")
+        && "samsung".equals(Util.MANUFACTURER)
         && (Util.DEVICE.startsWith("zeroflte") // Galaxy S6
             || Util.DEVICE.startsWith("zerolte") // Galaxy S6 Edge
             || Util.DEVICE.startsWith("zenlte") // Galaxy S6 Edge+
-            || Util.DEVICE.equals("SC-05G") // Galaxy S6
-            || Util.DEVICE.equals("marinelteatt") // Galaxy S6 Active
-            || Util.DEVICE.equals("404SC") // Galaxy S6 Edge
-            || Util.DEVICE.equals("SC-04G")
-            || Util.DEVICE.equals("SCV31"))) {
+            || "SC-05G".equals(Util.DEVICE) // Galaxy S6
+            || "marinelteatt".equals(Util.DEVICE) // Galaxy S6 Active
+            || "404SC".equals(Util.DEVICE) // Galaxy S6 Edge
+            || "SC-04G".equals(Util.DEVICE)
+            || "SCV31".equals(Util.DEVICE))) {
       return false;
     }
 
@@ -382,8 +382,8 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // MTK E-AC3 decoder doesn't support decoding Atmos streams in 2-D. See [Internal: b/69400041].
-    if (MimeTypes.AUDIO_ATMOS.equals(requestedMimeType)
+    // MTK E-AC3 decoder doesn't support decoding JOC streams in 2-D. See [Internal: b/69400041].
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(requestedMimeType)
         && "OMX.MTK.AUDIO.DECODER.DSPAC3".equals(name)) {
       return false;
     }
@@ -421,7 +421,7 @@ public final class MediaCodecUtil {
    */
   private static boolean codecNeedsDisableAdaptationWorkaround(String name) {
     return Util.SDK_INT <= 22
-        && (Util.MODEL.equals("ODROID-XU3") || Util.MODEL.equals("Nexus 10"))
+        && ("ODROID-XU3".equals(Util.MODEL) || "Nexus 10".equals(Util.MODEL))
         && ("OMX.Exynos.AVC.Decoder".equals(name) || "OMX.Exynos.AVC.Decoder.secure".equals(name));
   }
 
@@ -482,13 +482,13 @@ public final class MediaCodecUtil {
       return null;
     }
 
-    Integer profile = AVC_PROFILE_NUMBER_TO_CONST.get(profileInteger);
-    if (profile == null) {
+    int profile = AVC_PROFILE_NUMBER_TO_CONST.get(profileInteger, -1);
+    if (profile == -1) {
       Log.w(TAG, "Unknown AVC profile: " + profileInteger);
       return null;
     }
-    Integer level = AVC_LEVEL_NUMBER_TO_CONST.get(levelInteger);
-    if (level == null) {
+    int level = AVC_LEVEL_NUMBER_TO_CONST.get(levelInteger, -1);
+    if (level == -1) {
       Log.w(TAG, "Unknown AVC level: " + levelInteger);
       return null;
     }
@@ -639,7 +639,7 @@ public final class MediaCodecUtil {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
       if (this == obj) {
         return true;
       }

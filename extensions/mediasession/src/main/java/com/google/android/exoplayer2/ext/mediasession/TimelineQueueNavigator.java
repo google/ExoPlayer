@@ -73,10 +73,11 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   /**
    * Gets the {@link MediaDescriptionCompat} for a given timeline window index.
    *
+   * @param player The current player.
    * @param windowIndex The timeline window index for which to provide a description.
    * @return A {@link MediaDescriptionCompat}.
    */
-  public abstract MediaDescriptionCompat getMediaDescription(int windowIndex);
+  public abstract MediaDescriptionCompat getMediaDescription(Player player, int windowIndex);
 
   @Override
   public long getSupportedQueueNavigatorActions(Player player) {
@@ -185,7 +186,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
         windowCount - queueSize);
     List<MediaSessionCompat.QueueItem> queue = new ArrayList<>();
     for (int i = startIndex; i < startIndex + queueSize; i++) {
-      queue.add(new MediaSessionCompat.QueueItem(getMediaDescription(i), i));
+      queue.add(new MediaSessionCompat.QueueItem(getMediaDescription(player, i), i));
     }
     mediaSession.setQueue(queue);
     activeQueueItemId = currentWindowIndex;

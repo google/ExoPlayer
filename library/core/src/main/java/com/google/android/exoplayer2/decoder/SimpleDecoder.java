@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.decoder;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 
 /**
  * Base class for {@link Decoder}s that use their own decode thread.
@@ -28,8 +28,8 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
   private final Thread decodeThread;
 
   private final Object lock;
-  private final LinkedList<I> queuedInputBuffers;
-  private final LinkedList<O> queuedOutputBuffers;
+  private final ArrayDeque<I> queuedInputBuffers;
+  private final ArrayDeque<O> queuedOutputBuffers;
   private final I[] availableInputBuffers;
   private final O[] availableOutputBuffers;
 
@@ -48,8 +48,8 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
    */
   protected SimpleDecoder(I[] inputBuffers, O[] outputBuffers) {
     lock = new Object();
-    queuedInputBuffers = new LinkedList<>();
-    queuedOutputBuffers = new LinkedList<>();
+    queuedInputBuffers = new ArrayDeque<>();
+    queuedOutputBuffers = new ArrayDeque<>();
     availableInputBuffers = inputBuffers;
     availableInputBufferCount = inputBuffers.length;
     for (int i = 0; i < availableInputBufferCount; i++) {
@@ -219,7 +219,18 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
       if (inputBuffer.isDecodeOnly()) {
         outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
-      exception = decode(inputBuffer, outputBuffer, resetDecoder);
+      try {
+        exception = decode(inputBuffer, outputBuffer, resetDecoder);
+      } catch (RuntimeException e) {
+        // This can occur if a sample is malformed in a way that the decoder is not robust against.
+        // We don't want the process to die in this case, but we do want to propagate the error.
+        exception = createUnexpectedDecodeException(e);
+      } catch (OutOfMemoryError e) {
+        // This can occur if a sample is malformed in a way that causes the decoder to think it
+        // needs to allocate a large amount of memory. We don't want the process to die in this
+        // case, but we do want to propagate the error.
+        exception = createUnexpectedDecodeException(e);
+      }
       if (exception != null) {
         // Memory barrier to ensure that the decoder exception is visible from the playback thread.
         synchronized (lock) {}
@@ -268,6 +279,14 @@ public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends Outp
    * Creates a new output buffer.
    */
   protected abstract O createOutputBuffer();
+
+  /**
+   * Creates an exception to propagate for an unexpected decode error.
+   *
+   * @param error The unexpected decode error.
+   * @return The exception to propagate.
+   */
+  protected abstract E createUnexpectedDecodeException(Throwable error);
 
   /**
    * Decodes the {@code inputBuffer} and stores any decoded output in {@code outputBuffer}.

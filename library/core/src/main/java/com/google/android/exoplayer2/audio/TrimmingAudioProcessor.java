@@ -22,14 +22,12 @@ import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-/**
- * Audio processor for trimming samples from the start/end of data.
- */
+/** Audio processor for trimming samples from the start/end of data. */
 /* package */ final class TrimmingAudioProcessor implements AudioProcessor {
 
   private boolean isActive;
-  private int trimStartSamples;
-  private int trimEndSamples;
+  private int trimStartFrames;
+  private int trimEndFrames;
   private int channelCount;
   private int sampleRateHz;
 
@@ -40,27 +38,27 @@ import java.nio.ByteOrder;
   private int endBufferSize;
   private boolean inputEnded;
 
-  /**
-   * Creates a new audio processor for trimming samples from the start/end of data.
-   */
+  /** Creates a new audio processor for trimming samples from the start/end of data. */
   public TrimmingAudioProcessor() {
     buffer = EMPTY_BUFFER;
     outputBuffer = EMPTY_BUFFER;
     channelCount = Format.NO_VALUE;
+    sampleRateHz = Format.NO_VALUE;
+    endBuffer = new byte[0];
   }
 
   /**
-   * Sets the number of audio samples to trim from the start and end of audio passed to this
+   * Sets the number of audio frames to trim from the start and end of audio passed to this
    * processor. After calling this method, call {@link #configure(int, int, int)} to apply the new
-   * trimming sample counts.
+   * trimming frame counts.
    *
-   * @param trimStartSamples The number of audio samples to trim from the start of audio.
-   * @param trimEndSamples The number of audio samples to trim from the end of audio.
+   * @param trimStartFrames The number of audio frames to trim from the start of audio.
+   * @param trimEndFrames The number of audio frames to trim from the end of audio.
    * @see AudioSink#configure(int, int, int, int, int[], int, int)
    */
-  public void setTrimSampleCount(int trimStartSamples, int trimEndSamples) {
-    this.trimStartSamples = trimStartSamples;
-    this.trimEndSamples = trimEndSamples;
+  public void setTrimFrameCount(int trimStartFrames, int trimEndFrames) {
+    this.trimStartFrames = trimStartFrames;
+    this.trimEndFrames = trimEndFrames;
   }
 
   @Override
@@ -71,11 +69,11 @@ import java.nio.ByteOrder;
     }
     this.channelCount = channelCount;
     this.sampleRateHz = sampleRateHz;
-    endBuffer = new byte[trimEndSamples * channelCount * 2];
+    endBuffer = new byte[trimEndFrames * channelCount * 2];
     endBufferSize = 0;
-    pendingTrimStartBytes = trimStartSamples * channelCount * 2;
+    pendingTrimStartBytes = trimStartFrames * channelCount * 2;
     boolean wasActive = isActive;
-    isActive = trimStartSamples != 0 || trimEndSamples != 0;
+    isActive = trimStartFrames != 0 || trimEndFrames != 0;
     return wasActive != isActive;
   }
 
@@ -182,7 +180,7 @@ import java.nio.ByteOrder;
     buffer = EMPTY_BUFFER;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
-    endBuffer = null;
+    endBuffer = new byte[0];
   }
 
 }

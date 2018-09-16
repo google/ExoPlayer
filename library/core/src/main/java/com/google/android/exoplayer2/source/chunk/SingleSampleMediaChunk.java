@@ -34,7 +34,6 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
   private final Format sampleFormat;
 
   private volatile int bytesLoaded;
-  private volatile boolean loadCanceled;
   private volatile boolean loadCompleted;
 
   /**
@@ -45,16 +44,32 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
-   * @param chunkIndex The index of the chunk.
+   * @param chunkIndex The index of the chunk, or {@link C#INDEX_UNSET} if it is not known.
    * @param trackType The type of the chunk. Typically one of the {@link C} {@code TRACK_TYPE_*}
    *     constants.
    * @param sampleFormat The {@link Format} of the sample in the chunk.
    */
-  public SingleSampleMediaChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
-      int trackSelectionReason, Object trackSelectionData, long startTimeUs, long endTimeUs,
-      int chunkIndex, int trackType, Format sampleFormat) {
-    super(dataSource, dataSpec, trackFormat, trackSelectionReason, trackSelectionData, startTimeUs,
-        endTimeUs, chunkIndex);
+  public SingleSampleMediaChunk(
+      DataSource dataSource,
+      DataSpec dataSpec,
+      Format trackFormat,
+      int trackSelectionReason,
+      Object trackSelectionData,
+      long startTimeUs,
+      long endTimeUs,
+      long chunkIndex,
+      int trackType,
+      Format sampleFormat) {
+    super(
+        dataSource,
+        dataSpec,
+        trackFormat,
+        trackSelectionReason,
+        trackSelectionData,
+        startTimeUs,
+        endTimeUs,
+        C.TIME_UNSET,
+        chunkIndex);
     this.trackType = trackType;
     this.sampleFormat = sampleFormat;
   }
@@ -74,12 +89,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
 
   @Override
   public void cancelLoad() {
-    loadCanceled = true;
-  }
-
-  @Override
-  public boolean isLoadCanceled() {
-    return loadCanceled;
+    // Do nothing.
   }
 
   @SuppressWarnings("NonAtomicVolatileUpdate")

@@ -21,6 +21,14 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
+        consumerProguardFiles 'proguard-rules.txt'
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        // The following argument makes the Android Test Orchestrator run its
+        // "pm clear" command after each test invocation. This command ensures
+        // that the app's state is completely cleared between tests.
+        testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 
     // Workaround to prevent circular dependency on project :testutils.
@@ -30,6 +38,7 @@ android {
         }
         test {
             java.srcDirs += "../../testutils/src/main/java/"
+            java.srcDirs += "../../testutils_robolectric/src/main/java/"
         }
     }
 
@@ -43,14 +52,20 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-annotations:' + supportLibraryVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
-    testCompile 'com.google.truth:truth:' + truthVersion
-    testCompile 'junit:junit:' + junitVersion
-    testCompile 'org.mockito:mockito-core:' + mockitoVersion
-    testCompile 'org.robolectric:robolectric:' + robolectricVersion
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    androidTestImplementation 'com.google.dexmaker:dexmaker:' + dexmakerVersion
+    androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
+    androidTestImplementation 'com.google.truth:truth:' + truthVersion
+    androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    androidTestImplementation 'com.android.support.test:runner:' + testRunnerVersion
+    androidTestUtil 'com.android.support.test:orchestrator:' + testRunnerVersion
+    testImplementation 'com.google.truth:truth:' + truthVersion
+    testImplementation 'junit:junit:' + junitVersion
+    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
+    testAnnotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
 }
 
 ext {

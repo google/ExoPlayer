@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.fail;
 
 import android.app.Activity;
 import android.content.Context;

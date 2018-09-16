@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -28,19 +31,69 @@ import java.io.IOException;
  */
 public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
-  public final MediaSource mediaSource;
+  /** Listener for preparation errors. */
+  public interface PrepareErrorListener {
 
-  private final MediaPeriodId id;
+    /**
+     * Called the first time an error occurs while refreshing source info or preparing the period.
+     */
+    void onPrepareError(MediaPeriodId mediaPeriodId, IOException exception);
+  }
+
+  public final MediaSource mediaSource;
+  public final MediaPeriodId id;
+
   private final Allocator allocator;
 
   private MediaPeriod mediaPeriod;
   private Callback callback;
   private long preparePositionUs;
+  private @Nullable PrepareErrorListener listener;
+  private boolean notifiedPrepareError;
+  private long preparePositionOverrideUs;
 
+  /**
+   * Creates a new deferred media period.
+   *
+   * @param mediaSource The media source to wrap.
+   * @param id The identifier for the media period to create when {@link #createPeriod()} is called.
+   * @param allocator The allocator used to create the media period.
+   */
   public DeferredMediaPeriod(MediaSource mediaSource, MediaPeriodId id, Allocator allocator) {
     this.id = id;
     this.allocator = allocator;
     this.mediaSource = mediaSource;
+    preparePositionOverrideUs = C.TIME_UNSET;
+  }
+
+  /**
+   * Sets a listener for preparation errors.
+   *
+   * @param listener An listener to be notified of media period preparation errors. If a listener is
+   *     set, {@link #maybeThrowPrepareError()} will not throw but will instead pass the first
+   *     preparation error (if any) to the listener.
+   */
+  public void setPrepareErrorListener(PrepareErrorListener listener) {
+    this.listener = listener;
+  }
+
+  /**
+   * Sets the default prepare position at which to prepare the media period. This value is only used
+   * if the call to {@link MediaPeriod#prepare(Callback, long)} is being deferred and the call was
+   * made with a (presumably default) prepare position of 0.
+   *
+   * <p>Note that this will override an intentional seek to zero in the corresponding non-seekable
+   * timeline window. This is unlikely to be a problem as a non-zero default position usually only
+   * occurs for live playbacks and seeking to zero in a live window would cause
+   * BehindLiveWindowExceptions anyway.
+   *
+   * @param defaultPreparePositionUs The actual default prepare position, in microseconds.
+   */
+  public void setDefaultPreparePositionUs(long defaultPreparePositionUs) {
+    if (preparePositionUs == 0 && defaultPreparePositionUs != 0) {
+      preparePositionOverrideUs = defaultPreparePositionUs;
+      preparePositionUs = defaultPreparePositionUs;
+    }
   }
 
   /**
@@ -75,10 +128,20 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
 
   @Override
   public void maybeThrowPrepareError() throws IOException {
-    if (mediaPeriod != null) {
-      mediaPeriod.maybeThrowPrepareError();
-    } else {
-      mediaSource.maybeThrowSourceInfoRefreshError();
+    try {
+      if (mediaPeriod != null) {
+        mediaPeriod.maybeThrowPrepareError();
+      } else {
+        mediaSource.maybeThrowSourceInfoRefreshError();
+      }
+    } catch (final IOException e) {
+      if (listener == null) {
+        throw e;
+      }
+      if (!notifiedPrepareError) {
+        notifiedPrepareError = true;
+        listener.onPrepareError(id, e);
+      }
     }
   }
 
@@ -90,13 +153,17 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   @Override
   public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+    if (preparePositionOverrideUs != C.TIME_UNSET && positionUs == 0) {
+      positionUs = preparePositionOverrideUs;
+      preparePositionOverrideUs = C.TIME_UNSET;
+    }
     return mediaPeriod.selectTracks(selections, mayRetainStreamFlags, streams, streamResetFlags,
         positionUs);
   }
 
   @Override
-  public void discardBuffer(long positionUs) {
-    mediaPeriod.discardBuffer(positionUs);
+  public void discardBuffer(long positionUs, boolean toKeyframe) {
+    mediaPeriod.discardBuffer(positionUs, toKeyframe);
   }
 
   @Override
@@ -115,8 +182,18 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   @Override
+  public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+    return mediaPeriod.getAdjustedSeekPositionUs(positionUs, seekParameters);
+  }
+
+  @Override
   public long getNextLoadPositionUs() {
     return mediaPeriod.getNextLoadPositionUs();
+  }
+
+  @Override
+  public void reevaluateBuffer(long positionUs) {
+    mediaPeriod.reevaluateBuffer(positionUs);
   }
 
   @Override

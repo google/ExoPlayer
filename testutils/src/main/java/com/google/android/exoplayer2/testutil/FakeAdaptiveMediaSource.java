@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.upstream.Allocator;
  */
 public class FakeAdaptiveMediaSource extends FakeMediaSource {
 
-  private final EventDispatcher eventDispatcher;
   private final FakeChunkSource.Factory chunkSourceFactory;
 
   public FakeAdaptiveMediaSource(
@@ -41,16 +40,19 @@ public class FakeAdaptiveMediaSource extends FakeMediaSource {
       MediaSourceEventListener eventListener,
       FakeChunkSource.Factory chunkSourceFactory) {
     super(timeline, manifest, trackGroupArray);
-    this.eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     this.chunkSourceFactory = chunkSourceFactory;
+    addEventListener(eventHandler, eventListener);
   }
 
   @Override
-  protected FakeMediaPeriod createFakeMediaPeriod(MediaPeriodId id, TrackGroupArray trackGroupArray,
-      Allocator allocator) {
+  protected FakeMediaPeriod createFakeMediaPeriod(
+      MediaPeriodId id,
+      TrackGroupArray trackGroupArray,
+      Allocator allocator,
+      EventDispatcher eventDispatcher) {
     Period period = timeline.getPeriod(id.periodIndex, new Period());
-    return new FakeAdaptiveMediaPeriod(trackGroupArray, eventDispatcher, allocator,
-        chunkSourceFactory, period.durationUs);
+    return new FakeAdaptiveMediaPeriod(
+        trackGroupArray, eventDispatcher, allocator, chunkSourceFactory, period.durationUs);
   }
 
 }

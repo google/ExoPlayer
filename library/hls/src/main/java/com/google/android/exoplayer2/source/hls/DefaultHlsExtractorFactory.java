@@ -52,6 +52,9 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       Format format, List<Format> muxedCaptionFormats, DrmInitData drmInitData,
       TimestampAdjuster timestampAdjuster) {
     String lastPathSegment = uri.getLastPathSegment();
+    if (lastPathSegment == null) {
+      lastPathSegment = "";
+    }
     boolean isPackedAudioExtractor = false;
     Extractor extractor;
     if (MimeTypes.TEXT_VTT.equals(format.sampleMimeType)

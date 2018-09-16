@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ogg;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.FlacStreamInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -192,10 +193,20 @@ import java.util.List;
     }
 
     @Override
-    public long getPosition(long timeUs) {
+    public SeekPoints getSeekPoints(long timeUs) {
       long granule = convertTimeToGranule(timeUs);
       int index = Util.binarySearchFloor(seekPointGranules, granule, true, true);
-      return firstFrameOffset + seekPointOffsets[index];
+      long seekTimeUs = convertGranuleToTime(seekPointGranules[index]);
+      long seekPosition = firstFrameOffset + seekPointOffsets[index];
+      SeekPoint seekPoint = new SeekPoint(seekTimeUs, seekPosition);
+      if (seekTimeUs >= timeUs || index == seekPointGranules.length - 1) {
+        return new SeekPoints(seekPoint);
+      } else {
+        long secondSeekTimeUs = convertGranuleToTime(seekPointGranules[index + 1]);
+        long secondSeekPosition = firstFrameOffset + seekPointOffsets[index + 1];
+        SeekPoint secondSeekPoint = new SeekPoint(secondSeekTimeUs, secondSeekPosition);
+        return new SeekPoints(seekPoint, secondSeekPoint);
+      }
     }
 
     @Override

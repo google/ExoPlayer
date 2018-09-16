@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.test.ActivityInstrumentationTestCase2;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
@@ -603,8 +605,8 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
       return;
     }
     MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_H264, false);
-    assertNotNull(decoderInfo);
-    assertTrue(Util.SDK_INT < 21 || decoderInfo.adaptive);
+    assertThat(decoderInfo).isNotNull();
+    assertThat(Util.SDK_INT < 21 || decoderInfo.adaptive).isTrue();
   }
 
   public void testDecoderInfoH265V24() throws DecoderQueryException {
@@ -612,7 +614,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
       // Pass.
       return;
     }
-    assertTrue(MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_H265, false).adaptive);
+    assertThat(MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_H265, false).adaptive).isTrue();
   }
 
   public void testDecoderInfoVP9V24() throws DecoderQueryException {
@@ -620,7 +622,7 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
       // Pass.
       return;
     }
-    assertTrue(MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, false).adaptive);
+    assertThat(MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, false).adaptive).isTrue();
   }
 
   // Internal.

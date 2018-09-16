@@ -28,12 +28,32 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class AspectRatioFrameLayout extends FrameLayout {
 
-  /**
-   * Resize modes for {@link AspectRatioFrameLayout}.
-   */
+  /** Listener to be notified about changes of the aspect ratios of this view. */
+  public interface AspectRatioListener {
+
+    /**
+     * Called when either the target aspect ratio or the view aspect ratio is updated.
+     *
+     * @param targetAspectRatio The aspect ratio that has been set in {@link #setAspectRatio(float)}
+     * @param naturalAspectRatio The natural aspect ratio of this view (before its width and height
+     *     are modified to satisfy the target aspect ratio).
+     * @param aspectRatioMismatch Whether the target and natural aspect ratios differ enough for
+     *     changing the resize mode to have an effect.
+     */
+    void onAspectRatioUpdated(
+        float targetAspectRatio, float naturalAspectRatio, boolean aspectRatioMismatch);
+  }
+
+  // LINT.IfChange
+  /** Resize modes for {@link AspectRatioFrameLayout}. */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({RESIZE_MODE_FIT, RESIZE_MODE_FIXED_WIDTH, RESIZE_MODE_FIXED_HEIGHT, RESIZE_MODE_FILL,
-      RESIZE_MODE_ZOOM})
+  @IntDef({
+    RESIZE_MODE_FIT,
+    RESIZE_MODE_FIXED_WIDTH,
+    RESIZE_MODE_FIXED_HEIGHT,
+    RESIZE_MODE_FILL,
+    RESIZE_MODE_ZOOM
+  })
   public @interface ResizeMode {}
 
   /**
@@ -56,20 +76,25 @@ public final class AspectRatioFrameLayout extends FrameLayout {
    * Either the width or height is increased to obtain the desired aspect ratio.
    */
   public static final int RESIZE_MODE_ZOOM = 4;
+  // LINT.ThenChange(../../../../../../res/values/attrs.xml)
 
   /**
    * The {@link FrameLayout} will not resize itself if the fractional difference between its natural
    * aspect ratio and the requested aspect ratio falls below this threshold.
-   * <p>
-   * This tolerance allows the view to occupy the whole of the screen when the requested aspect
+   *
+   * <p>This tolerance allows the view to occupy the whole of the screen when the requested aspect
    * ratio is very close, but not exactly equal to, the aspect ratio of the screen. This may reduce
    * the number of view layers that need to be composited by the underlying system, which can help
    * to reduce power consumption.
    */
   private static final float MAX_ASPECT_RATIO_DEFORMATION_FRACTION = 0.01f;
 
+  private final AspectRatioUpdateDispatcher aspectRatioUpdateDispatcher;
+
+  private AspectRatioListener aspectRatioListener;
+
   private float videoAspectRatio;
-  private int resizeMode;
+  private @ResizeMode int resizeMode;
 
   public AspectRatioFrameLayout(Context context) {
     this(context, null);
@@ -87,6 +112,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
         a.recycle();
       }
     }
+    aspectRatioUpdateDispatcher = new AspectRatioUpdateDispatcher();
   }
 
   /**
@@ -99,6 +125,15 @@ public final class AspectRatioFrameLayout extends FrameLayout {
       this.videoAspectRatio = widthHeightRatio;
       requestLayout();
     }
+  }
+
+  /**
+   * Sets the {@link AspectRatioListener}.
+   *
+   * @param listener The listener to be notified about aspect ratios changes.
+   */
+  public void setAspectRatioListener(AspectRatioListener listener) {
+    this.aspectRatioListener = listener;
   }
 
   /**
@@ -123,7 +158,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    if (resizeMode == RESIZE_MODE_FILL || videoAspectRatio <= 0) {
+    if (videoAspectRatio <= 0) {
       // Aspect ratio not set.
       return;
     }
@@ -134,6 +169,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
     float aspectDeformation = videoAspectRatio / viewAspectRatio - 1;
     if (Math.abs(aspectDeformation) <= MAX_ASPECT_RATIO_DEFORMATION_FRACTION) {
       // We're within the allowed tolerance.
+      aspectRatioUpdateDispatcher.scheduleUpdate(videoAspectRatio, viewAspectRatio, false);
       return;
     }
 
@@ -151,16 +187,51 @@ public final class AspectRatioFrameLayout extends FrameLayout {
           height = (int) (width / videoAspectRatio);
         }
         break;
-      default:
+      case RESIZE_MODE_FIT:
         if (aspectDeformation > 0) {
           height = (int) (width / videoAspectRatio);
         } else {
           width = (int) (height * videoAspectRatio);
         }
         break;
+      case RESIZE_MODE_FILL:
+      default:
+        // Ignore target aspect ratio
+        break;
     }
+    aspectRatioUpdateDispatcher.scheduleUpdate(videoAspectRatio, viewAspectRatio, true);
     super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
         MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
   }
 
+  /** Dispatches updates to {@link AspectRatioListener}. */
+  private final class AspectRatioUpdateDispatcher implements Runnable {
+
+    private float targetAspectRatio;
+    private float naturalAspectRatio;
+    private boolean aspectRatioMismatch;
+    private boolean isScheduled;
+
+    public void scheduleUpdate(
+        float targetAspectRatio, float naturalAspectRatio, boolean aspectRatioMismatch) {
+      this.targetAspectRatio = targetAspectRatio;
+      this.naturalAspectRatio = naturalAspectRatio;
+      this.aspectRatioMismatch = aspectRatioMismatch;
+
+      if (!isScheduled) {
+        isScheduled = true;
+        post(this);
+      }
+    }
+
+    @Override
+    public void run() {
+      isScheduled = false;
+      if (aspectRatioListener == null) {
+        return;
+      }
+      aspectRatioListener.onAspectRatioUpdated(
+          targetAspectRatio, naturalAspectRatio, aspectRatioMismatch);
+    }
+  }
 }

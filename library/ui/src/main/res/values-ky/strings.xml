@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_previous_description">Мурунку трек</string>
+  <string name="exo_controls_next_description">Кийинки трек</string>
+  <string name="exo_controls_pause_description">Тындыруу</string>
+  <string name="exo_controls_play_description">Ойнотуу</string>
+  <string name="exo_controls_stop_description">Токтотуу</string>
+  <string name="exo_controls_rewind_description">Артка түрүү</string>
+  <string name="exo_controls_fastforward_description">Алдыга түрүү</string>
+  <string name="exo_controls_repeat_off_description">Кайталанбасын</string>
+  <string name="exo_controls_repeat_one_description">Бирөөнү кайталоо</string>
+  <string name="exo_controls_repeat_all_description">Баарын кайталоо</string>
+  <string name="exo_controls_shuffle_description">Аралаштыруу</string>
+  <string name="exo_controls_fullscreen_description">Толук экран режими</string>
+  <string name="exo_download_description">Жүктөп алуу</string>
+  <string name="exo_download_notification_channel_name">Жүктөлүп алынгандар</string>
+  <string name="exo_download_downloading">Жүктөлүп алынууда</string>
+  <string name="exo_download_completed">Жүктөп алуу аяктады</string>
+  <string name="exo_download_failed">Жүктөлүп алынбай калды</string>
+  <string name="exo_download_removing">Жүктөлүп алынгандар өчүрүлүүдө</string>
+  <string name="exo_track_selection_title_video">Видео</string>
+  <string name="exo_track_selection_title_audio">Аудио</string>
+  <string name="exo_track_selection_title_text">Текст</string>
+  <string name="exo_track_selection_none">Жок</string>
+  <string name="exo_track_selection_auto">Авто</string>
+  <string name="exo_track_unknown">Белгисиз</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">Моно</string>
+  <string name="exo_track_stereo">Стерео</string>
+  <string name="exo_track_surround">Көлөмдүү добуш</string>
+  <string name="exo_track_surround_5_point_1">5.1 көлөмдүү добуш</string>
+  <string name="exo_track_surround_7_point_1">7.1 көлөмдүү добуш</string>
+  <string name="exo_track_bitrate">%1$.2f Мб/сек.</string>
+  <string name="exo_item_list">%1$s, %2$s</string>
+</resources>

@@ -217,6 +217,11 @@ public class FakeDataSource implements DataSource {
     return dataSpecs;
   }
 
+  /** Returns whether the data source is currently opened. */
+  public final boolean isOpened() {
+    return opened;
+  }
+
   protected void onDataRead(int bytesRead) throws IOException {
     // Do nothing. Can be overridden.
   }

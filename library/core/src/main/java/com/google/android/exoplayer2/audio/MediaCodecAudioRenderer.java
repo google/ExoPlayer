@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
@@ -24,9 +27,12 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -34,6 +40,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -41,13 +48,26 @@ import java.nio.ByteBuffer;
 
 /**
  * Decodes and renders audio using {@link MediaCodec} and an {@link AudioSink}.
+ *
+ * <p>This renderer accepts the following messages sent via {@link ExoPlayer#createMessage(Target)}
+ * on the playback thread:
+ *
+ * <ul>
+ *   <li>Message with type {@link C#MSG_SET_VOLUME} to set the volume. The message payload should be
+ *       a {@link Float} with 0 being silence and 1 being unity gain.
+ *   <li>Message with type {@link C#MSG_SET_AUDIO_ATTRIBUTES} to set the audio attributes. The
+ *       message payload should be an {@link com.google.android.exoplayer2.audio.AudioAttributes}
+ *       instance that will configure the underlying audio track.
+ * </ul>
  */
 @TargetApi(16)
 public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock {
 
+  private final Context context;
   private final EventDispatcher eventDispatcher;
   private final AudioSink audioSink;
 
+  private int codecMaxInputSize;
   private boolean passthroughEnabled;
   private boolean codecNeedsDiscardChannelsWorkaround;
   private android.media.MediaFormat passthroughMediaFormat;
@@ -57,16 +77,23 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private int encoderDelay;
   private int encoderPadding;
   private long currentPositionUs;
+  private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
 
   /**
+   * @param context A context.
    * @param mediaCodecSelector A decoder selector.
    */
-  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector) {
-    this(mediaCodecSelector, null, true);
+  public MediaCodecAudioRenderer(Context context, MediaCodecSelector mediaCodecSelector) {
+    this(
+        context,
+        mediaCodecSelector,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false);
   }
 
   /**
+   * @param context A context.
    * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
    *     content is not required.
@@ -76,24 +103,43 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
-  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
+  public MediaCodecAudioRenderer(
+      Context context,
+      MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys) {
-    this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, null, null);
+    this(
+        context,
+        mediaCodecSelector,
+        drmSessionManager,
+        playClearSamplesWithoutKeys,
+        /* eventHandler= */ null,
+        /* eventListener= */ null);
   }
 
   /**
+   * @param context A context.
    * @param mediaCodecSelector A decoder selector.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      @Nullable Handler eventHandler, @Nullable AudioRendererEventListener eventListener) {
-    this(mediaCodecSelector, null, true, eventHandler, eventListener);
+  public MediaCodecAudioRenderer(
+      Context context,
+      MediaCodecSelector mediaCodecSelector,
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener) {
+    this(
+        context,
+        mediaCodecSelector,
+        /* drmSessionManager= */ null,
+        /* playClearSamplesWithoutKeys= */ false,
+        eventHandler,
+        eventListener);
   }
 
   /**
+   * @param context A context.
    * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
    *     content is not required.
@@ -106,15 +152,25 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
+  public MediaCodecAudioRenderer(
+      Context context,
+      MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
+      boolean playClearSamplesWithoutKeys,
+      @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener) {
-    this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
-        eventListener, (AudioCapabilities) null);
+    this(
+        context,
+        mediaCodecSelector,
+        drmSessionManager,
+        playClearSamplesWithoutKeys,
+        eventHandler,
+        eventListener,
+        (AudioCapabilities) null);
   }
 
   /**
+   * @param context A context.
    * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
    *     content is not required.
@@ -131,16 +187,27 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param audioProcessors Optional {@link AudioProcessor}s that will process PCM audio before
    *     output.
    */
-  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
+  public MediaCodecAudioRenderer(
+      Context context,
+      MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
+      boolean playClearSamplesWithoutKeys,
+      @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
-      @Nullable AudioCapabilities audioCapabilities, AudioProcessor... audioProcessors) {
-    this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys,
-        eventHandler, eventListener, new DefaultAudioSink(audioCapabilities, audioProcessors));
+      @Nullable AudioCapabilities audioCapabilities,
+      AudioProcessor... audioProcessors) {
+    this(
+        context,
+        mediaCodecSelector,
+        drmSessionManager,
+        playClearSamplesWithoutKeys,
+        eventHandler,
+        eventListener,
+        new DefaultAudioSink(audioCapabilities, audioProcessors));
   }
 
   /**
+   * @param context A context.
    * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
    *     content is not required.
@@ -154,13 +221,18 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioSink The sink to which audio will be output.
    */
-  public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
+  public MediaCodecAudioRenderer(
+      Context context,
+      MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys, @Nullable Handler eventHandler,
-      @Nullable AudioRendererEventListener eventListener, AudioSink audioSink) {
+      boolean playClearSamplesWithoutKeys,
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      AudioSink audioSink) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
-    eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    this.context = context.getApplicationContext();
     this.audioSink = audioSink;
+    eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSink.setListener(new AudioSinkListener());
   }
 
@@ -215,11 +287,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (allowPassthrough(format.sampleMimeType)) {
       MediaCodecInfo passthroughDecoderInfo = mediaCodecSelector.getPassthroughDecoderInfo();
       if (passthroughDecoderInfo != null) {
-        passthroughEnabled = true;
         return passthroughDecoderInfo;
       }
     }
-    passthroughEnabled = false;
     return super.getDecoderInfo(mediaCodecSelector, format, requiresSecureDecoder);
   }
 
@@ -239,17 +309,31 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
       MediaCrypto crypto) {
+    codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
+    passthroughEnabled = codecInfo.passthrough;
+    String codecMimeType = codecInfo.mimeType == null ? MimeTypes.AUDIO_RAW : codecInfo.mimeType;
+    MediaFormat mediaFormat = getMediaFormat(format, codecMimeType, codecMaxInputSize);
+    codec.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
     if (passthroughEnabled) {
-      // Override the MIME type used to configure the codec if we are using a passthrough decoder.
-      passthroughMediaFormat = format.getFrameworkMediaFormatV16();
-      passthroughMediaFormat.setString(MediaFormat.KEY_MIME, MimeTypes.AUDIO_RAW);
-      codec.configure(passthroughMediaFormat, null, crypto, 0);
+      // Store the input MIME type if we're using the passthrough codec.
+      passthroughMediaFormat = mediaFormat;
       passthroughMediaFormat.setString(MediaFormat.KEY_MIME, format.sampleMimeType);
     } else {
-      codec.configure(format.getFrameworkMediaFormatV16(), null, crypto, 0);
       passthroughMediaFormat = null;
     }
+  }
+
+  @Override
+  protected @KeepCodecResult int canKeepCodec(
+      MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
+    return KEEP_CODEC_RESULT_NO;
+    // TODO: Determine when codecs can be safely kept. When doing so, also uncomment the commented
+    // out code in getCodecMaxInputSize.
+    // return getCodecMaxInputSize(codecInfo, newFormat) <= codecMaxInputSize
+    //         && areAdaptationCompatible(oldFormat, newFormat)
+    //     ? KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
+    //     : KEEP_CODEC_RESULT_NO;
   }
 
   @Override
@@ -272,8 +356,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     pcmEncoding = MimeTypes.AUDIO_RAW.equals(newFormat.sampleMimeType) ? newFormat.pcmEncoding
         : C.ENCODING_PCM_16BIT;
     channelCount = newFormat.channelCount;
-    encoderDelay = newFormat.encoderDelay != Format.NO_VALUE ? newFormat.encoderDelay : 0;
-    encoderPadding = newFormat.encoderPadding != Format.NO_VALUE ? newFormat.encoderPadding : 0;
+    encoderDelay = newFormat.encoderDelay;
+    encoderPadding = newFormat.encoderPadding;
   }
 
   @Override
@@ -352,6 +436,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     super.onPositionReset(positionUs, joining);
     audioSink.reset();
     currentPositionUs = positionUs;
+    allowFirstBufferPositionDiscontinuity = true;
     allowPositionDiscontinuity = true;
   }
 
@@ -363,6 +448,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected void onStopped() {
+    updateCurrentPosition();
     audioSink.pause();
     super.onStopped();
   }
@@ -393,11 +479,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   public long getPositionUs() {
-    long newCurrentPositionUs = audioSink.getCurrentPositionUs(isEnded());
-    if (newCurrentPositionUs != AudioSink.CURRENT_POSITION_NOT_SET) {
-      currentPositionUs = allowPositionDiscontinuity ? newCurrentPositionUs
-          : Math.max(currentPositionUs, newCurrentPositionUs);
-      allowPositionDiscontinuity = false;
+    if (getState() == STATE_STARTED) {
+      updateCurrentPosition();
     }
     return currentPositionUs;
   }
@@ -410,6 +493,19 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   public PlaybackParameters getPlaybackParameters() {
     return audioSink.getPlaybackParameters();
+  }
+
+  @Override
+  protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
+    if (allowFirstBufferPositionDiscontinuity && !buffer.isDecodeOnly()) {
+      // TODO: Remove this hack once we have a proper fix for [Internal: b/71876314].
+      // Allow the position to jump if the first presentable input buffer has a timestamp that
+      // differs significantly from what was expected.
+      if (Math.abs(buffer.timeUs - currentPositionUs) > 500000) {
+        currentPositionUs = buffer.timeUs;
+      }
+      allowFirstBufferPositionDiscontinuity = false;
+    }
   }
 
   @Override
@@ -464,6 +560,117 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         super.handleMessage(messageType, message);
         break;
     }
+  }
+
+  /**
+   * Returns a maximum input size suitable for configuring a codec for {@code format} in a way that
+   * will allow possible adaptation to other compatible formats in {@code streamFormats}.
+   *
+   * @param codecInfo A {@link MediaCodecInfo} describing the decoder.
+   * @param format The format for which the codec is being configured.
+   * @param streamFormats The possible stream formats.
+   * @return A suitable maximum input size.
+   */
+  protected int getCodecMaxInputSize(
+      MediaCodecInfo codecInfo, Format format, Format[] streamFormats) {
+    int maxInputSize = getCodecMaxInputSize(codecInfo, format);
+    // if (streamFormats.length == 1) {
+    //   // The single entry in streamFormats must correspond to the format for which the codec is
+    //   // being configured.
+    //   return maxInputSize;
+    // }
+    // for (Format streamFormat : streamFormats) {
+    //   if (areAdaptationCompatible(format, streamFormat)) {
+    //     maxInputSize = Math.max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
+    //   }
+    // }
+    return maxInputSize;
+  }
+
+  /**
+   * Returns a maximum input buffer size for a given format.
+   *
+   * @param codecInfo A {@link MediaCodecInfo} describing the decoder.
+   * @param format The format.
+   * @return A maximum input buffer size in bytes, or {@link Format#NO_VALUE} if a maximum could not
+   *     be determined.
+   */
+  private int getCodecMaxInputSize(MediaCodecInfo codecInfo, Format format) {
+    if (Util.SDK_INT < 24 && "OMX.google.raw.decoder".equals(codecInfo.name)) {
+      // OMX.google.raw.decoder didn't resize its output buffers correctly prior to N, so there's no
+      // point requesting a non-default input size. Doing so may cause a native crash, where-as not
+      // doing so will cause a more controlled failure when attempting to fill an input buffer. See:
+      // https://github.com/google/ExoPlayer/issues/4057.
+      boolean needsRawDecoderWorkaround = true;
+      if (Util.SDK_INT == 23) {
+        PackageManager packageManager = context.getPackageManager();
+        if (packageManager != null
+            && packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
+          // The workaround is not required for AndroidTV devices running M.
+          needsRawDecoderWorkaround = false;
+        }
+      }
+      if (needsRawDecoderWorkaround) {
+        return Format.NO_VALUE;
+      }
+    }
+    return format.maxInputSize;
+  }
+
+  /**
+   * Returns the framework {@link MediaFormat} that can be used to configure a {@link MediaCodec}
+   * for decoding the given {@link Format} for playback.
+   *
+   * @param format The format of the media.
+   * @param codecMimeType The MIME type handled by the codec.
+   * @param codecMaxInputSize The maximum input size supported by the codec.
+   * @return The framework media format.
+   */
+  @SuppressLint("InlinedApi")
+  protected MediaFormat getMediaFormat(Format format, String codecMimeType, int codecMaxInputSize) {
+    MediaFormat mediaFormat = new MediaFormat();
+    // Set format parameters that should always be set.
+    mediaFormat.setString(MediaFormat.KEY_MIME, codecMimeType);
+    mediaFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, format.channelCount);
+    mediaFormat.setInteger(MediaFormat.KEY_SAMPLE_RATE, format.sampleRate);
+    MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
+    // Set codec max values.
+    MediaFormatUtil.maybeSetInteger(mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, codecMaxInputSize);
+    // Set codec configuration values.
+    if (Util.SDK_INT >= 23) {
+      mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, 0 /* realtime priority */);
+    }
+    return mediaFormat;
+  }
+
+  private void updateCurrentPosition() {
+    long newCurrentPositionUs = audioSink.getCurrentPositionUs(isEnded());
+    if (newCurrentPositionUs != AudioSink.CURRENT_POSITION_NOT_SET) {
+      currentPositionUs =
+          allowPositionDiscontinuity
+              ? newCurrentPositionUs
+              : Math.max(currentPositionUs, newCurrentPositionUs);
+      allowPositionDiscontinuity = false;
+    }
+  }
+
+  /**
+   * Returns whether a codec with suitable maximum input size will support adaptation between two
+   * {@link Format}s.
+   *
+   * @param first The first format.
+   * @param second The second format.
+   * @return Whether the codec will support adaptation between the two {@link Format}s.
+   */
+  private static boolean areAdaptationCompatible(Format first, Format second) {
+    return first.sampleMimeType.equals(second.sampleMimeType)
+        && first.channelCount == second.channelCount
+        && first.sampleRate == second.sampleRate
+        && first.encoderDelay == 0
+        && first.encoderPadding == 0
+        && second.encoderDelay == 0
+        && second.encoderPadding == 0
+        && first.initializationDataEquals(second);
   }
 
   /**

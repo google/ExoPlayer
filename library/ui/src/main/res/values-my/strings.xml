@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_previous_description">ယခင် တစ်ပုဒ်</string>
+  <string name="exo_controls_next_description">နောက် တစ်ပုဒ်</string>
+  <string name="exo_controls_pause_description">ခဏရပ်ရန်</string>
+  <string name="exo_controls_play_description">ဖွင့်ရန်</string>
+  <string name="exo_controls_stop_description">ရပ်ရန်</string>
+  <string name="exo_controls_rewind_description">ပြန်ရစ်ရန်</string>
+  <string name="exo_controls_fastforward_description">ရှေ့သို့ အမြန်သွားရန်</string>
+  <string name="exo_controls_repeat_off_description">မည်သည်ကိုမျှ ပြန်မကျော့ရန်</string>
+  <string name="exo_controls_repeat_one_description">တစ်ခုကို ပြန်ကျော့ရန်</string>
+  <string name="exo_controls_repeat_all_description">အားလုံး ပြန်ကျော့ရန်</string>
+  <string name="exo_controls_shuffle_description">ရောသမမွှေ</string>
+  <string name="exo_controls_fullscreen_description">မျက်နှာပြင်အပြည့် မုဒ်</string>
+  <string name="exo_download_description">ဒေါင်းလုဒ် လုပ်ရန်</string>
+  <string name="exo_download_notification_channel_name">ဒေါင်းလုဒ်များ</string>
+  <string name="exo_download_downloading">ဒေါင်းလုဒ်လုပ်နေသည်</string>
+  <string name="exo_download_completed">ဒေါင်းလုဒ်လုပ်ပြီးပါပြီ</string>
+  <string name="exo_download_failed">ဒေါင်းလုဒ်လုပ်၍ မရပါ</string>
+  <string name="exo_download_removing">ဒေါင်းလုဒ်များ ဖယ်ရှားနေသည်</string>
+  <string name="exo_track_selection_title_video">ဗီဒီယို</string>
+  <string name="exo_track_selection_title_audio">အသံ</string>
+  <string name="exo_track_selection_title_text">စာသား</string>
+  <string name="exo_track_selection_none">မရှိ</string>
+  <string name="exo_track_selection_auto">အလိုအလျောက်</string>
+  <string name="exo_track_unknown">အမည်မသိ</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">မိုနို</string>
+  <string name="exo_track_stereo">စတီရီယို</string>
+  <string name="exo_track_surround">ပတ်လည် အသံစနစ်</string>
+  <string name="exo_track_surround_5_point_1">5.1 ပတ်လည် အသံစနစ်</string>
+  <string name="exo_track_surround_7_point_1">7.1 ပတ်လည် အသံစနစ်</string>
+  <string name="exo_track_bitrate">%1$.2f Mbps</string>
+  <string name="exo_item_list">%1$s၊ %2$s</string>
+</resources>

@@ -1,20 +1,42 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES;
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
+import static com.google.android.exoplayer2.RendererConfiguration.DEFAULT;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import android.os.Parcel;
+import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.HashMap;
@@ -24,22 +46,67 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Unit tests for {@link DefaultTrackSelector}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class DefaultTrackSelectorTest {
 
-  private static final Parameters DEFAULT_PARAMETERS = new Parameters();
   private static final RendererCapabilities ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_AUDIO);
   private static final RendererCapabilities ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_TEXT);
   private static final RendererCapabilities ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_AUDIO, FORMAT_EXCEEDS_CAPABILITIES);
+
+  private static final RendererCapabilities VIDEO_CAPABILITIES =
+      new FakeRendererCapabilities(C.TRACK_TYPE_VIDEO);
+  private static final RendererCapabilities AUDIO_CAPABILITIES =
+      new FakeRendererCapabilities(C.TRACK_TYPE_AUDIO);
+  private static final RendererCapabilities NO_SAMPLE_CAPABILITIES =
+      new FakeRendererCapabilities(C.TRACK_TYPE_NONE);
+  private static final RendererCapabilities[] RENDERER_CAPABILITIES =
+      new RendererCapabilities[] {VIDEO_CAPABILITIES, AUDIO_CAPABILITIES};
+  private static final RendererCapabilities[] RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER =
+      new RendererCapabilities[] {VIDEO_CAPABILITIES, NO_SAMPLE_CAPABILITIES};
+
+  private static final TrackGroup VIDEO_TRACK_GROUP =
+      new TrackGroup(
+          Format.createVideoSampleFormat(
+              "video",
+              MimeTypes.VIDEO_H264,
+              null,
+              Format.NO_VALUE,
+              Format.NO_VALUE,
+              1024,
+              768,
+              Format.NO_VALUE,
+              null,
+              null));
+  private static final TrackGroup AUDIO_TRACK_GROUP =
+      new TrackGroup(
+          Format.createAudioSampleFormat(
+              "audio",
+              MimeTypes.AUDIO_AAC,
+              null,
+              Format.NO_VALUE,
+              Format.NO_VALUE,
+              2,
+              44100,
+              null,
+              null,
+              0,
+              null));
+  private static final TrackGroupArray TRACK_GROUPS =
+      new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP);
+
+  private static final TrackSelection[] TRACK_SELECTIONS =
+      new TrackSelection[] {
+        new FixedTrackSelection(VIDEO_TRACK_GROUP, 0), new FixedTrackSelection(AUDIO_TRACK_GROUP, 0)
+      };
+  private static final TrackSelection[] TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER =
+      new TrackSelection[] {new FixedTrackSelection(VIDEO_TRACK_GROUP, 0), null};
 
   @Mock
   private InvalidationListener invalidationListener;
@@ -52,6 +119,161 @@ public final class DefaultTrackSelectorTest {
     trackSelector = new DefaultTrackSelector();
   }
 
+  /** Tests {@link Parameters} {@link android.os.Parcelable} implementation. */
+  @Test
+  public void testParametersParcelable() {
+    SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides = new SparseArray<>();
+    Map<TrackGroupArray, SelectionOverride> videoOverrides = new HashMap<>();
+    videoOverrides.put(new TrackGroupArray(VIDEO_TRACK_GROUP), new SelectionOverride(0, 1));
+    selectionOverrides.put(2, videoOverrides);
+
+    SparseBooleanArray rendererDisabledFlags = new SparseBooleanArray();
+    rendererDisabledFlags.put(3, true);
+
+    Parameters parametersToParcel =
+        new Parameters(
+            selectionOverrides,
+            rendererDisabledFlags,
+            /* preferredAudioLanguage= */ "en",
+            /* preferredTextLanguage= */ "de",
+            /* selectUndeterminedTextLanguage= */ false,
+            /* disabledTextTrackSelectionFlags= */ 0,
+            /* forceLowestBitrate= */ true,
+            /* allowMixedMimeAdaptiveness= */ false,
+            /* allowNonSeamlessAdaptiveness= */ true,
+            /* maxVideoWidth= */ 1,
+            /* maxVideoHeight= */ 2,
+            /* maxVideoBitrate= */ 3,
+            /* exceedVideoConstraintsIfNecessary= */ false,
+            /* exceedRendererCapabilitiesIfNecessary= */ true,
+            /* viewportWidth= */ 4,
+            /* viewportHeight= */ 5,
+            /* viewportOrientationMayChange= */ false,
+            /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET);
+
+    Parcel parcel = Parcel.obtain();
+    parametersToParcel.writeToParcel(parcel, 0);
+    parcel.setDataPosition(0);
+
+    Parameters parametersFromParcel = Parameters.CREATOR.createFromParcel(parcel);
+    assertThat(parametersFromParcel).isEqualTo(parametersToParcel);
+
+    parcel.recycle();
+  }
+
+  /** Tests {@link SelectionOverride}'s {@link android.os.Parcelable} implementation. */
+  @Test
+  public void testSelectionOverrideParcelable() {
+    int[] tracks = new int[] {2, 3};
+    SelectionOverride selectionOverrideToParcel =
+        new SelectionOverride(/* groupIndex= */ 1, tracks);
+
+    Parcel parcel = Parcel.obtain();
+    selectionOverrideToParcel.writeToParcel(parcel, 0);
+    parcel.setDataPosition(0);
+
+    SelectionOverride selectionOverrideFromParcel =
+        SelectionOverride.CREATOR.createFromParcel(parcel);
+    assertThat(selectionOverrideFromParcel).isEqualTo(selectionOverrideToParcel);
+
+    parcel.recycle();
+  }
+
+  /** Tests that a null override clears a track selection. */
+  @Test
+  public void testSelectTracksWithNullOverride() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null));
+    TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
+    assertTrackSelections(result, new TrackSelection[] {null, TRACK_SELECTIONS[1]});
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {null, DEFAULT});
+  }
+
+  /** Tests that a null override can be cleared. */
+  @Test
+  public void testSelectTracksWithClearedNullOverride() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null)
+            .clearSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP)));
+    TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
+    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
+  }
+
+  /** Tests that an override is not applied for a different set of available track groups. */
+  @Test
+  public void testSelectTracksWithNullOverrideForDifferentTracks() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setSelectionOverride(0, new TrackGroupArray(VIDEO_TRACK_GROUP), null));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            RENDERER_CAPABILITIES,
+            new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP, VIDEO_TRACK_GROUP));
+    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertThat(result.rendererConfigurations)
+        .isEqualTo(new RendererConfiguration[] {DEFAULT, DEFAULT});
+  }
+
+  /** Tests disabling a renderer. */
+  @Test
+  public void testSelectTracksWithDisabledRenderer() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setParameters(trackSelector.buildUponParameters().setRendererDisabled(1, true));
+    TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
+    assertTrackSelections(result, new TrackSelection[] {TRACK_SELECTIONS[0], null});
+    assertThat(new RendererConfiguration[] {DEFAULT, null})
+        .isEqualTo(result.rendererConfigurations);
+  }
+
+  /** Tests that a disabled renderer can be enabled again. */
+  @Test
+  public void testSelectTracksWithClearedDisabledRenderer() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setRendererDisabled(1, true)
+            .setRendererDisabled(1, false));
+    TrackSelectorResult result = trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
+    assertTrackSelections(result, TRACK_SELECTIONS);
+    assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT})
+        .isEqualTo(result.rendererConfigurations);
+  }
+
+  /** Tests a no-sample renderer is enabled without a track selection by default. */
+  @Test
+  public void testSelectTracksWithNoSampleRenderer() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    TrackSelectorResult result =
+        trackSelector.selectTracks(RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER, TRACK_GROUPS);
+    assertTrackSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
+    assertThat(new RendererConfiguration[] {DEFAULT, DEFAULT})
+        .isEqualTo(result.rendererConfigurations);
+  }
+
+  /** Tests disabling a no-sample renderer. */
+  @Test
+  public void testSelectTracksWithDisabledNoSampleRenderer() throws ExoPlaybackException {
+    DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+    trackSelector.setParameters(trackSelector.buildUponParameters().setRendererDisabled(1, true));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(RENDERER_CAPABILITIES_WITH_NO_SAMPLE_RENDERER, TRACK_GROUPS);
+    assertTrackSelections(result, TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER);
+    assertThat(new RendererConfiguration[] {DEFAULT, null})
+        .isEqualTo(result.rendererConfigurations);
+  }
+
   /**
    * Tests that track selector will not call
    * {@link InvalidationListener#onTrackSelectionsInvalidated()} when it's set with default
@@ -61,7 +283,6 @@ public final class DefaultTrackSelectorTest {
   public void testSetParameterWithDefaultParametersDoesNotNotifyInvalidationListener()
       throws Exception {
     trackSelector.init(invalidationListener);
-    trackSelector.setParameters(DEFAULT_PARAMETERS);
 
     verify(invalidationListener, never()).onTrackSelectionsInvalidated();
   }
@@ -73,7 +294,7 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSetParameterWithNonDefaultParameterNotifyInvalidationListener()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
+    Parameters parameters = new ParametersBuilder().setPreferredAudioLanguage("eng").build();
     trackSelector.init(invalidationListener);
     trackSelector.setParameters(parameters);
 
@@ -88,10 +309,10 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSetParameterWithSameParametersDoesNotNotifyInvalidationListenerAgain()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
+    ParametersBuilder builder = new ParametersBuilder().setPreferredAudioLanguage("eng");
     trackSelector.init(invalidationListener);
-    trackSelector.setParameters(parameters);
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(builder.build());
+    trackSelector.setParameters(builder.build());
 
     verify(invalidationListener, times(1)).onTrackSelectionsInvalidated();
   }
@@ -122,15 +343,14 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksSelectPreferredAudioLanguage()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
 
     Format frAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, "fr");
+            Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
     Format enAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, "en");
+            Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
 
     TrackSelectorResult result = trackSelector.selectTracks(
         new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
@@ -146,19 +366,18 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksSelectPreferredAudioLanguageOverSelectionFlag()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
 
     Format frAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "fr");
+            Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "fra");
     Format enAudioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
-            Format.NO_VALUE, 2, 44100, null, null, 0, "en");
+            Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
 
     TrackSelectorResult result = trackSelector.selectTracks(
         new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-        singleTrackGroup(frAudioFormat, enAudioFormat));
+        wrapFormats(frAudioFormat, enAudioFormat));
 
     assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(enAudioFormat);
   }
@@ -168,8 +387,7 @@ public final class DefaultTrackSelectorTest {
    * track that exceed renderer's capabilities.
    */
   @Test
-  public void testSelectTracksPreferTrackWithinCapabilities()
-      throws Exception {
+  public void testSelectTracksPreferTrackWithinCapabilities() throws Exception {
     Format supportedFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
             Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, null);
@@ -197,7 +415,6 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithNoTrackWithinCapabilitiesSelectExceededCapabilityTrack()
       throws Exception {
-
     Format audioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
@@ -216,8 +433,8 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithNoTrackWithinCapabilitiesAndSetByParamsReturnNoSelection()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withExceedRendererCapabilitiesIfNecessary(false);
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(
+        new ParametersBuilder().setExceedRendererCapabilitiesIfNecessary(false).build());
 
     Format audioFormat =
         Format.createAudioSampleFormat("audio", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
@@ -264,15 +481,14 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksPreferTrackWithinCapabilitiesOverPreferredLanguage()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
 
     Format supportedFrFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fr");
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
     Format exceededEnFormat =
         Format.createAudioSampleFormat("exceededFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "en");
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "eng");
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
     mappedCapabilities.put(exceededEnFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
@@ -295,15 +511,14 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksPreferTrackWithinCapabilitiesOverSelectionFlagAndPreferredLanguage()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withPreferredAudioLanguage("en");
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(new ParametersBuilder().setPreferredAudioLanguage("eng").build());
 
     Format supportedFrFormat =
         Format.createAudioSampleFormat("supportedFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fr");
+            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, 0, "fra");
     Format exceededDefaultSelectionEnFormat =
-        Format.createAudioSampleFormat("exceededFormat", MimeTypes.AUDIO_AAC, null,
-            Format.NO_VALUE, Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "en");
+        Format.createAudioSampleFormat("exceededFormat", MimeTypes.AUDIO_AAC, null, Format.NO_VALUE,
+            Format.NO_VALUE, 2, 44100, null, null, C.SELECTION_FLAG_DEFAULT, "eng");
 
     Map<String, Integer> mappedCapabilities = new HashMap<>();
     mappedCapabilities.put(exceededDefaultSelectionEnFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
@@ -536,6 +751,134 @@ public final class DefaultTrackSelectorTest {
         .isEqualTo(lowerSampleRateHigherBitrateFormat);
   }
 
+  /** Tests text track selection flags. */
+  @Test
+  public void testsTextTrackSelectionFlags() throws ExoPlaybackException {
+    Format forcedOnly =
+        Format.createTextContainerFormat(
+            "forcedOnly",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_FORCED,
+            "eng");
+    Format forcedDefault =
+        Format.createTextContainerFormat(
+            "forcedDefault",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_FORCED | C.SELECTION_FLAG_DEFAULT,
+            "eng");
+    Format defaultOnly =
+        Format.createTextContainerFormat(
+            "defaultOnly",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_DEFAULT,
+            "eng");
+    Format forcedOnlySpanish =
+        Format.createTextContainerFormat(
+            "forcedOnlySpanish",
+            null,
+            MimeTypes.TEXT_VTT,
+            null,
+            Format.NO_VALUE,
+            C.SELECTION_FLAG_FORCED,
+            "spa");
+    Format noFlag =
+        Format.createTextContainerFormat(
+            "noFlag", null, MimeTypes.TEXT_VTT, null, Format.NO_VALUE, 0, "eng");
+
+    RendererCapabilities[] textRendererCapabilities =
+        new RendererCapabilities[] {ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES};
+
+    TrackSelectorResult result;
+
+    // There is no text language preference, the first track flagged as default should be selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedDefault);
+
+    // Ditto.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, noFlag, defaultOnly));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(defaultOnly);
+
+    // With no language preference and no text track flagged as default, the first forced should be
+    // selected.
+    result = trackSelector.selectTracks(textRendererCapabilities, wrapFormats(forcedOnly, noFlag));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnly);
+
+    trackSelector.setParameters(
+        Parameters.DEFAULT
+            .buildUpon()
+            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+            .build());
+
+    // Default flags are disabled, so the first track flagged as forced should be selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(defaultOnly, noFlag, forcedOnly, forcedDefault));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnly);
+
+    trackSelector.setParameters(
+        trackSelector.getParameters().buildUpon().setPreferredAudioLanguage("spa").build());
+
+    // Default flags are disabled, but there is a text track flagged as forced whose language
+    // matches the preferred audio language.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities,
+            wrapFormats(forcedDefault, forcedOnly, defaultOnly, noFlag, forcedOnlySpanish));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedOnlySpanish);
+
+    trackSelector.setParameters(
+        trackSelector
+            .getParameters()
+            .buildUpon()
+            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT | C.SELECTION_FLAG_FORCED)
+            .build());
+
+    // All selection flags are disabled and there is no language preference, so nothing should be
+    // selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag));
+    assertThat(result.selections.get(0)).isNull();
+
+    trackSelector.setParameters(
+        Parameters.DEFAULT.buildUpon().setPreferredTextLanguage("eng").build());
+
+    // There is a preferred language, so the first language-matching track flagged as default should
+    // be selected.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(forcedOnly, forcedDefault, defaultOnly, noFlag));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(forcedDefault);
+
+    trackSelector.setParameters(
+        trackSelector
+            .getParameters()
+            .buildUpon()
+            .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+            .build());
+
+    // Same as above, but the default flag is disabled. If multiple tracks match the preferred
+    // language, those not flagged as forced are preferred, as they likely include the contents of
+    // forced subtitles.
+    result =
+        trackSelector.selectTracks(
+            textRendererCapabilities, wrapFormats(noFlag, forcedOnly, forcedDefault, defaultOnly));
+    assertThat(result.selections.get(0).getFormat(0)).isSameAs(noFlag);
+  }
+
   /**
    * Tests that the default track selector will select a text track with undetermined language if no
    * text track with the preferred language is available but
@@ -561,12 +904,14 @@ public final class DefaultTrackSelectorTest {
         wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0)).isNull();
 
-    trackSelector.setParameters(DEFAULT_PARAMETERS.withSelectUndeterminedTextLanguage(true));
+    trackSelector.setParameters(
+        new ParametersBuilder().setSelectUndeterminedTextLanguage(true).build());
     result = trackSelector.selectTracks(textRendererCapabilites,
         wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedUnd);
 
-    trackSelector.setParameters(DEFAULT_PARAMETERS.withPreferredTextLanguage("spa"));
+    ParametersBuilder builder = new ParametersBuilder().setPreferredTextLanguage("spa");
+    trackSelector.setParameters(builder.build());
     result = trackSelector.selectTracks(textRendererCapabilites,
         wrapFormats(spanish, german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0).getFormat(0)).isSameAs(spanish);
@@ -575,8 +920,7 @@ public final class DefaultTrackSelectorTest {
         wrapFormats(german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0)).isNull();
 
-    trackSelector.setParameters(
-        trackSelector.getParameters().withSelectUndeterminedTextLanguage(true));
+    trackSelector.setParameters(builder.setSelectUndeterminedTextLanguage(true).build());
     result = trackSelector.selectTracks(textRendererCapabilites,
         wrapFormats(german, undeterminedUnd, undeterminedNull));
     assertThat(result.selections.get(0).getFormat(0)).isSameAs(undeterminedUnd);
@@ -596,8 +940,7 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void testSelectTracksWithinCapabilitiesAndForceLowestBitrateSelectLowerBitrate()
       throws Exception {
-    Parameters parameters = DEFAULT_PARAMETERS.withForceLowestBitrate(true);
-    trackSelector.setParameters(parameters);
+    trackSelector.setParameters(new ParametersBuilder().setForceLowestBitrate(true).build());
 
     Format lowerBitrateFormat =
         Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 15000,
@@ -611,6 +954,13 @@ public final class DefaultTrackSelectorTest {
         singleTrackGroup(lowerBitrateFormat, higherBitrateFormat));
 
     assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(lowerBitrateFormat);
+  }
+
+  private static void assertTrackSelections(TrackSelectorResult result, TrackSelection[] expected) {
+    assertThat(result.length).isEqualTo(expected.length);
+    for (int i = 0; i < expected.length; i++) {
+      assertThat(result.selections.get(i)).isEqualTo(expected[i]);
+    }
   }
 
   private static TrackGroupArray singleTrackGroup(Format... formats) {

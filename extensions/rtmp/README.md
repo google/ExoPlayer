@@ -20,10 +20,10 @@ Android, which is licensed separately.
 The easiest way to use the extension is to add it as a gradle dependency:
 
 ```gradle
-compile 'com.google.android.exoplayer:extension-rtmp:rX.X.X'
+implementation 'com.google.android.exoplayer:extension-rtmp:2.X.X'
 ```
 
-where `rX.X.X` is the version, which must match the version of the ExoPlayer
+where `2.X.X` is the version, which must match the version of the ExoPlayer
 library being used.
 
 Alternatively, you can clone the ExoPlayer repository and depend on the module

@@ -12,10 +12,10 @@ of surround sound and ambisonic soundfields.
 The easiest way to use the extension is to add it as a gradle dependency:
 
 ```gradle
-compile 'com.google.android.exoplayer:extension-gvr:rX.X.X'
+implementation 'com.google.android.exoplayer:extension-gvr:2.X.X'
 ```
 
-where `rX.X.X` is the version, which must match the version of the ExoPlayer
+where `2.X.X` is the version, which must match the version of the ExoPlayer
 library being used.
 
 Alternatively, you can clone the ExoPlayer repository and depend on the module

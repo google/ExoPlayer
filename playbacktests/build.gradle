@@ -25,8 +25,8 @@ android {
 }
 
 dependencies {
-    androidTestCompile project(modulePrefix + 'library-core')
-    androidTestCompile project(modulePrefix + 'library-dash')
-    androidTestCompile project(modulePrefix + 'library-hls')
-    androidTestCompile project(modulePrefix + 'testutils')
+    androidTestImplementation project(modulePrefix + 'library-core')
+    androidTestImplementation project(modulePrefix + 'library-dash')
+    androidTestImplementation project(modulePrefix + 'library-hls')
+    androidTestImplementation project(modulePrefix + 'testutils')
 }

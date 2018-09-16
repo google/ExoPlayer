@@ -15,19 +15,19 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.android.exoplayer2.util.UriUtil.removeQueryParameter;
 import static com.google.android.exoplayer2.util.UriUtil.resolve;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.net.Uri;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Unit tests for {@link UriUtil}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = Config.TARGET_SDK, manifest = Config.NONE)
 public final class UriUtilTest {
 
   /**
@@ -106,4 +106,36 @@ public final class UriUtilTest {
     assertThat(resolve("a:b", "../c")).isEqualTo("a:c");
   }
 
+  @Test
+  public void removeOnlyQueryParameter() {
+    Uri uri = Uri.parse("http://uri?query=value");
+    assertThat(removeQueryParameter(uri, "query").toString()).isEqualTo("http://uri");
+  }
+
+  @Test
+  public void removeFirstQueryParameter() {
+    Uri uri = Uri.parse("http://uri?query=value&second=value2");
+    assertThat(removeQueryParameter(uri, "query").toString()).isEqualTo("http://uri?second=value2");
+  }
+
+  @Test
+  public void removeMiddleQueryParameter() {
+    Uri uri = Uri.parse("http://uri?first=value1&query=value&last=value2");
+    assertThat(removeQueryParameter(uri, "query").toString())
+        .isEqualTo("http://uri?first=value1&last=value2");
+  }
+
+  @Test
+  public void removeLastQueryParameter() {
+    Uri uri = Uri.parse("http://uri?first=value1&query=value");
+    assertThat(removeQueryParameter(uri, "query").toString()).isEqualTo("http://uri?first=value1");
+  }
+
+  @Test
+  public void removeNonExistentQueryParameter() {
+    Uri uri = Uri.parse("http://uri");
+    assertThat(removeQueryParameter(uri, "foo").toString()).isEqualTo("http://uri");
+    uri = Uri.parse("http://uri?query=value");
+    assertThat(removeQueryParameter(uri, "foo").toString()).isEqualTo("http://uri?query=value");
+  }
 }

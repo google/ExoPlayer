@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.app.Instrumentation;
+import static com.google.common.truth.Truth.assertThat;
+
+import android.content.Context;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -25,13 +27,29 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
-import junit.framework.Assert;
 
 /**
  * Assertion methods for {@link Extractor}.
  */
 public final class ExtractorAsserts {
+
+  private static Context robolectricContext;
+
+  static {
+    try {
+      Class<?> runtimeEnvironmentClass = Class.forName("org.robolectric.RuntimeEnvironment");
+      Field applicationField = runtimeEnvironmentClass.getDeclaredField("application");
+      robolectricContext = (Context) applicationField.get(null);
+    } catch (ClassNotFoundException e) {
+      // Keep Robolectric context at null if not found.
+    } catch (NoSuchFieldException e) {
+      // Keep Robolectric context at null if not found.
+    } catch (IllegalAccessException e) {
+      // Keep Robolectric context at null if not found.
+    }
+  }
 
   /**
    * A factory for {@link Extractor} instances.
@@ -44,57 +62,87 @@ public final class ExtractorAsserts {
   private static final String UNKNOWN_LENGTH_EXTENSION = ".unklen" + DUMP_EXTENSION;
 
   /**
-   * Asserts that an extractor behaves correctly given valid input data:
+   * Asserts that an extractor behaves correctly given valid input data. Can only be used from
+   * Robolectric tests.
+   *
    * <ul>
    *   <li>Calls {@link Extractor#seek(long, long)} and {@link Extractor#release()} without calling
-   *   {@link Extractor#init(ExtractorOutput)} to check these calls do not fail.</li>
-   *   <li>Calls {@link #assertOutput(Extractor, String, byte[], Instrumentation, boolean, boolean,
-   *   boolean, boolean)} with all possible combinations of "simulate" parameters.</li>
+   *       {@link Extractor#init(ExtractorOutput)} to check these calls do not fail.
+   *   <li>Calls {@link #assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
+   *       boolean)} with all possible combinations of "simulate" parameters.
    * </ul>
    *
    * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
    *     class which is to be tested.
    * @param file The path to the input sample.
-   * @param instrumentation To be used to load the sample file.
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from the input.
    */
-  public static void assertBehavior(ExtractorFactory factory, String file,
-      Instrumentation instrumentation) throws IOException, InterruptedException {
+  public static void assertBehavior(ExtractorFactory factory, String file)
+      throws IOException, InterruptedException {
     // Check behavior prior to initialization.
     Extractor extractor = factory.create();
     extractor.seek(0, 0);
     extractor.release();
     // Assert output.
-    byte[] fileData = TestUtil.getByteArray(instrumentation, file);
-    assertOutput(factory, file, fileData, instrumentation);
+    byte[] fileData = TestUtil.getByteArray(robolectricContext, file);
+    assertOutput(factory, file, fileData, robolectricContext);
   }
 
   /**
-   * Calls {@link #assertOutput(Extractor, String, byte[], Instrumentation, boolean, boolean,
-   * boolean, boolean)} with all possible combinations of "simulate" parameters with
-   * {@code sniffFirst} set to true, and makes one additional call with the "simulate" and
-   * {@code sniffFirst} parameters all set to false.
+   * Asserts that an extractor behaves correctly given valid input data:
+   *
+   * <ul>
+   *   <li>Calls {@link Extractor#seek(long, long)} and {@link Extractor#release()} without calling
+   *       {@link Extractor#init(ExtractorOutput)} to check these calls do not fail.
+   *   <li>Calls {@link #assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
+   *       boolean)} with all possible combinations of "simulate" parameters.
+   * </ul>
+   *
+   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
+   *     class which is to be tested.
+   * @param file The path to the input sample.
+   * @param context To be used to load the sample file.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   */
+  public static void assertBehavior(ExtractorFactory factory, String file, Context context)
+      throws IOException, InterruptedException {
+    // Check behavior prior to initialization.
+    Extractor extractor = factory.create();
+    extractor.seek(0, 0);
+    extractor.release();
+    // Assert output.
+    byte[] fileData = TestUtil.getByteArray(context, file);
+    assertOutput(factory, file, fileData, context);
+  }
+
+  /**
+   * Calls {@link #assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
+   * boolean)} with all possible combinations of "simulate" parameters with {@code sniffFirst} set
+   * to true, and makes one additional call with the "simulate" and {@code sniffFirst} parameters
+   * all set to false.
    *
    * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
    *     class which is to be tested.
    * @param file The path to the input sample.
    * @param data Content of the input file.
-   * @param instrumentation To be used to load the sample file.
+   * @param context To be used to load the sample file.
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from the input.
    */
-  public static void assertOutput(ExtractorFactory factory, String file, byte[] data,
-      Instrumentation instrumentation) throws IOException, InterruptedException {
-    assertOutput(factory.create(), file, data, instrumentation,  true, false, false, false);
-    assertOutput(factory.create(), file, data, instrumentation,  true, false, false,  true);
-    assertOutput(factory.create(), file, data, instrumentation,  true, false,  true, false);
-    assertOutput(factory.create(), file, data, instrumentation,  true, false,  true,  true);
-    assertOutput(factory.create(), file, data, instrumentation,  true,  true, false, false);
-    assertOutput(factory.create(), file, data, instrumentation,  true,  true, false,  true);
-    assertOutput(factory.create(), file, data, instrumentation,  true,  true,  true, false);
-    assertOutput(factory.create(), file, data, instrumentation,  true,  true,  true,  true);
-    assertOutput(factory.create(), file, data, instrumentation, false, false, false, false);
+  public static void assertOutput(
+      ExtractorFactory factory, String file, byte[] data, Context context)
+      throws IOException, InterruptedException {
+    assertOutput(factory.create(), file, data, context, true, false, false, false);
+    assertOutput(factory.create(), file, data, context, true, false, false, true);
+    assertOutput(factory.create(), file, data, context, true, false, true, false);
+    assertOutput(factory.create(), file, data, context, true, false, true, true);
+    assertOutput(factory.create(), file, data, context, true, true, false, false);
+    assertOutput(factory.create(), file, data, context, true, true, false, true);
+    assertOutput(factory.create(), file, data, context, true, true, true, false);
+    assertOutput(factory.create(), file, data, context, true, true, true, true);
+    assertOutput(factory.create(), file, data, context, false, false, false, false);
   }
 
   /**
@@ -106,7 +154,7 @@ public final class ExtractorAsserts {
    * @param extractor The {@link Extractor} to be tested.
    * @param file The path to the input sample.
    * @param data Content of the input file.
-   * @param instrumentation To be used to load the sample file.
+   * @param context To be used to load the sample file.
    * @param sniffFirst Whether to sniff the data by calling {@link Extractor#sniff(ExtractorInput)}
    *     prior to consuming it.
    * @param simulateIOErrors Whether to simulate IO errors.
@@ -116,26 +164,31 @@ public final class ExtractorAsserts {
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from the input.
    */
-  public static FakeExtractorOutput assertOutput(Extractor extractor, String file, byte[] data,
-      Instrumentation instrumentation, boolean sniffFirst, boolean simulateIOErrors,
-      boolean simulateUnknownLength, boolean simulatePartialReads) throws IOException,
-      InterruptedException {
+  private static FakeExtractorOutput assertOutput(
+      Extractor extractor,
+      String file,
+      byte[] data,
+      Context context,
+      boolean sniffFirst,
+      boolean simulateIOErrors,
+      boolean simulateUnknownLength,
+      boolean simulatePartialReads)
+      throws IOException, InterruptedException {
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data)
         .setSimulateIOErrors(simulateIOErrors)
         .setSimulateUnknownLength(simulateUnknownLength)
         .setSimulatePartialReads(simulatePartialReads).build();
 
     if (sniffFirst) {
-      Assert.assertTrue(TestUtil.sniffTestData(extractor, input));
+      assertThat(TestUtil.sniffTestData(extractor, input)).isTrue();
       input.resetPeekPosition();
     }
 
     FakeExtractorOutput extractorOutput = consumeTestData(extractor, input, 0, true);
-    if (simulateUnknownLength
-        && assetExists(instrumentation, file + UNKNOWN_LENGTH_EXTENSION)) {
-      extractorOutput.assertOutput(instrumentation, file + UNKNOWN_LENGTH_EXTENSION);
+    if (simulateUnknownLength && assetExists(context, file + UNKNOWN_LENGTH_EXTENSION)) {
+      extractorOutput.assertOutput(context, file + UNKNOWN_LENGTH_EXTENSION);
     } else {
-      extractorOutput.assertOutput(instrumentation, file + ".0" + DUMP_EXTENSION);
+      extractorOutput.assertOutput(context, file + ".0" + DUMP_EXTENSION);
     }
 
     SeekMap seekMap = extractorOutput.seekMap;
@@ -143,14 +196,14 @@ public final class ExtractorAsserts {
       long durationUs = seekMap.getDurationUs();
       for (int j = 0; j < 4; j++) {
         long timeUs = (durationUs * j) / 3;
-        long position = seekMap.getPosition(timeUs);
+        long position = seekMap.getSeekPoints(timeUs).first.position;
         input.setPosition((int) position);
         for (int i = 0; i < extractorOutput.numberOfTracks; i++) {
           extractorOutput.trackOutputs.valueAt(i).clear();
         }
 
         consumeTestData(extractor, input, timeUs, extractorOutput, false);
-        extractorOutput.assertOutput(instrumentation, file + '.' + j + DUMP_EXTENSION);
+        extractorOutput.assertOutput(context, file + '.' + j + DUMP_EXTENSION);
       }
     }
 
@@ -164,16 +217,19 @@ public final class ExtractorAsserts {
    * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
    *     class which is to be tested.
    * @param sampleFile The path to the input sample.
-   * @param instrumentation To be used to load the sample file.
+   * @param context To be used to load the sample file.
    * @param expectedThrowable Expected {@link Throwable} class.
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from the input.
    * @see #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)
    */
-  public static void assertThrows(ExtractorFactory factory, String sampleFile,
-      Instrumentation instrumentation, Class<? extends Throwable> expectedThrowable)
+  public static void assertThrows(
+      ExtractorFactory factory,
+      String sampleFile,
+      Context context,
+      Class<? extends Throwable> expectedThrowable)
       throws IOException, InterruptedException {
-    byte[] fileData = TestUtil.getByteArray(instrumentation, sampleFile);
+    byte[] fileData = TestUtil.getByteArray(context, sampleFile);
     assertThrows(factory, fileData, expectedThrowable);
   }
 
@@ -189,8 +245,9 @@ public final class ExtractorAsserts {
    * @throws InterruptedException If interrupted while reading from the input.
    * @see #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)
    */
-  public static void assertThrows(ExtractorFactory factory, byte[] fileData,
-      Class<? extends Throwable> expectedThrowable) throws IOException, InterruptedException {
+  private static void assertThrows(
+      ExtractorFactory factory, byte[] fileData, Class<? extends Throwable> expectedThrowable)
+      throws IOException, InterruptedException {
     assertThrows(factory.create(), fileData, expectedThrowable, false, false, false);
     assertThrows(factory.create(), fileData, expectedThrowable,  true, false, false);
     assertThrows(factory.create(), fileData, expectedThrowable, false,  true, false);
@@ -213,10 +270,14 @@ public final class ExtractorAsserts {
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from the input.
    */
-  public static void assertThrows(Extractor extractor, byte[] fileData,
-      Class<? extends Throwable> expectedThrowable, boolean simulateIOErrors,
-      boolean simulateUnknownLength, boolean simulatePartialReads) throws IOException,
-      InterruptedException {
+  private static void assertThrows(
+      Extractor extractor,
+      byte[] fileData,
+      Class<? extends Throwable> expectedThrowable,
+      boolean simulateIOErrors,
+      boolean simulateUnknownLength,
+      boolean simulatePartialReads)
+      throws IOException, InterruptedException {
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(fileData)
         .setSimulateIOErrors(simulateIOErrors)
         .setSimulateUnknownLength(simulateUnknownLength)
@@ -277,13 +338,11 @@ public final class ExtractorAsserts {
     }
   }
 
-  private static boolean assetExists(Instrumentation instrumentation, String fileName)
-      throws IOException {
+  private static boolean assetExists(Context context, String fileName) throws IOException {
     int i = fileName.lastIndexOf('/');
     String path = i >= 0 ? fileName.substring(0, i) : "";
     String file = i >= 0 ? fileName.substring(i + 1) : fileName;
-    return Arrays.asList(instrumentation.getContext().getResources().getAssets().list(path))
-        .contains(file);
+    return Arrays.asList(context.getResources().getAssets().list(path)).contains(file);
   }
 
 }
