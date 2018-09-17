@@ -323,8 +323,8 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onRenderedFirstFrame(EventTime eventTime, Surface surface) {
-    logd(eventTime, "renderedFirstFrame", surface.toString());
+  public void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {
+    logd(eventTime, "renderedFirstFrame", String.valueOf(surface));
   }
 
   @Override
