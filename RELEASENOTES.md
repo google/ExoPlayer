@@ -25,7 +25,7 @@
   and `DataSource.Factory`. The `BandwidthMeter` is passed to the components
   that need it internally. The `BandwidthMeter` may also be omitted, in which
   case a default instance will be used.
-* Spherical video
+* Spherical video:
   * Support for spherical video by setting `surface_type="spherical_view"` on
     `PlayerView`.
   * Support for
@@ -137,12 +137,12 @@
   ([#4822](https://github.com/google/ExoPlayer/issues/4822)).
 * IMA extension:
   * Refine the previous fix for empty ad groups to avoid discarding ad breaks
-    unnecessarily ([#4030](https://github.com/google/ExoPlayer/issues/4030)),
-    ([#4280](https://github.com/google/ExoPlayer/issues/4280)).
+    unnecessarily ([#4030](https://github.com/google/ExoPlayer/issues/4030) and
+    [#4280](https://github.com/google/ExoPlayer/issues/4280)).
   * Fix handling of empty postrolls
-    ([#4681](https://github.com/google/ExoPlayer/issues/4681).
+    ([#4681](https://github.com/google/ExoPlayer/issues/4681)).
   * Fix handling of postrolls with multiple ads
-    ([#4710](https://github.com/google/ExoPlayer/issues/4710).
+    ([#4710](https://github.com/google/ExoPlayer/issues/4710)).
 * MediaSession extension:
   * Add `MediaSessionConnector.setCustomErrorMessage` to support setting custom
     error messages.
