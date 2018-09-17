@@ -448,7 +448,7 @@ public interface AnalyticsListener {
    * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
    *     the renderer renders to something that isn't a {@link Surface}.
    */
-  default void onRenderedFirstFrame(EventTime eventTime, Surface surface) {}
+  default void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {}
 
   /**
    * Called each time a drm session is acquired.

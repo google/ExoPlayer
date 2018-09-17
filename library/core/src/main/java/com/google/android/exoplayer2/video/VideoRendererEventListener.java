@@ -96,7 +96,7 @@ public interface VideoRendererEventListener {
    * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
    *     the renderer renders to something that isn't a {@link Surface}.
    */
-  void onRenderedFirstFrame(Surface surface);
+  void onRenderedFirstFrame(@Nullable Surface surface);
 
   /**
    * Called when the renderer is disabled.
@@ -124,20 +124,16 @@ public interface VideoRendererEventListener {
       this.listener = listener;
     }
 
-    /**
-     * Invokes {@link VideoRendererEventListener#onVideoEnabled(DecoderCounters)}.
-     */
-    public void enabled(final DecoderCounters decoderCounters) {
+    /** Invokes {@link VideoRendererEventListener#onVideoEnabled(DecoderCounters)}. */
+    public void enabled(DecoderCounters decoderCounters) {
       if (listener != null) {
         handler.post(() -> listener.onVideoEnabled(decoderCounters));
       }
     }
 
-    /**
-     * Invokes {@link VideoRendererEventListener#onVideoDecoderInitialized(String, long, long)}.
-     */
-    public void decoderInitialized(final String decoderName,
-        final long initializedTimestampMs, final long initializationDurationMs) {
+    /** Invokes {@link VideoRendererEventListener#onVideoDecoderInitialized(String, long, long)}. */
+    public void decoderInitialized(
+        String decoderName, long initializedTimestampMs, long initializationDurationMs) {
       if (listener != null) {
         handler.post(
             () ->
@@ -146,29 +142,26 @@ public interface VideoRendererEventListener {
       }
     }
 
-    /**
-     * Invokes {@link VideoRendererEventListener#onVideoInputFormatChanged(Format)}.
-     */
-    public void inputFormatChanged(final Format format) {
+    /** Invokes {@link VideoRendererEventListener#onVideoInputFormatChanged(Format)}. */
+    public void inputFormatChanged(Format format) {
       if (listener != null) {
         handler.post(() -> listener.onVideoInputFormatChanged(format));
       }
     }
 
-    /**
-     * Invokes {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
-     */
-    public void droppedFrames(final int droppedFrameCount, final long elapsedMs) {
+    /** Invokes {@link VideoRendererEventListener#onDroppedFrames(int, long)}. */
+    public void droppedFrames(int droppedFrameCount, long elapsedMs) {
       if (listener != null) {
         handler.post(() -> listener.onDroppedFrames(droppedFrameCount, elapsedMs));
       }
     }
 
-    /**
-     * Invokes {@link VideoRendererEventListener#onVideoSizeChanged(int, int, int, float)}.
-     */
-    public void videoSizeChanged(final int width, final int height,
-        final int unappliedRotationDegrees, final float pixelWidthHeightRatio) {
+    /** Invokes {@link VideoRendererEventListener#onVideoSizeChanged(int, int, int, float)}. */
+    public void videoSizeChanged(
+        int width,
+        int height,
+        final int unappliedRotationDegrees,
+        final float pixelWidthHeightRatio) {
       if (listener != null) {
         handler.post(
             () ->
@@ -177,19 +170,15 @@ public interface VideoRendererEventListener {
       }
     }
 
-    /**
-     * Invokes {@link VideoRendererEventListener#onRenderedFirstFrame(Surface)}.
-     */
-    public void renderedFirstFrame(final Surface surface) {
+    /** Invokes {@link VideoRendererEventListener#onRenderedFirstFrame(Surface)}. */
+    public void renderedFirstFrame(@Nullable Surface surface) {
       if (listener != null) {
         handler.post(() -> listener.onRenderedFirstFrame(surface));
       }
     }
 
-    /**
-     * Invokes {@link VideoRendererEventListener#onVideoDisabled(DecoderCounters)}.
-     */
-    public void disabled(final DecoderCounters counters) {
+    /** Invokes {@link VideoRendererEventListener#onVideoDisabled(DecoderCounters)}. */
+    public void disabled(DecoderCounters counters) {
       if (listener != null) {
         handler.post(
             () -> {

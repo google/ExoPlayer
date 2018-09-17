@@ -296,7 +296,7 @@ public class SimpleExoPlayer
   }
 
   @Override
-  public void setVideoSurface(Surface surface) {
+  public void setVideoSurface(@Nullable Surface surface) {
     removeSurfaceCallbacks();
     setVideoSurfaceInternal(surface, false);
     int newSurfaceSize = surface == null ? 0 : C.LENGTH_UNSET;
@@ -828,7 +828,7 @@ public class SimpleExoPlayer
   }
 
   @Override
-  public ExoPlaybackException getPlaybackError() {
+  public @Nullable ExoPlaybackException getPlaybackError() {
     return player.getPlaybackError();
   }
 
@@ -1028,7 +1028,7 @@ public class SimpleExoPlayer
   }
 
   @Override
-  public Object getCurrentManifest() {
+  public @Nullable Object getCurrentManifest() {
     return player.getCurrentManifest();
   }
 
@@ -1134,7 +1134,7 @@ public class SimpleExoPlayer
     }
   }
 
-  private void setVideoSurfaceInternal(Surface surface, boolean ownsSurface) {
+  private void setVideoSurfaceInternal(@Nullable Surface surface, boolean ownsSurface) {
     // Note: We don't turn this method into a no-op if the surface is being replaced with itself
     // so as to ensure onRenderedFirstFrame callbacks are still called in this case.
     List<PlayerMessage> messages = new ArrayList<>();
