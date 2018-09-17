@@ -433,8 +433,15 @@ public class PlayerNotificationManager {
    *
    * <p>If the player is released it must be removed from the manager by calling {@code
    * setPlayer(null)}. This will cancel the notification.
+   *
+   * @param player The {@link Player} to use, or {@code null} to remove the current player. Only
+   *     players which are accessed on the main thread are supported ({@code
+   *     player.getApplicationLooper() == Looper.getMainLooper()}).
    */
   public final void setPlayer(@Nullable Player player) {
+    Assertions.checkState(Looper.myLooper() == Looper.getMainLooper());
+    Assertions.checkArgument(
+        player == null || player.getApplicationLooper() == Looper.getMainLooper());
     if (this.player == player) {
       return;
     }

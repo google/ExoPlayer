@@ -530,6 +530,12 @@ public interface Player {
   TextComponent getTextComponent();
 
   /**
+   * Returns the {@link Looper} associated with the application thread that's used to access the
+   * player and on which player events are received.
+   */
+  Looper getApplicationLooper();
+
+  /**
    * Register a listener to receive events from the player. The listener's methods will be called on
    * the thread that was used to construct the player. However, if the thread used to construct the
    * player does not have a {@link Looper}, then the listener will be called on the main thread.

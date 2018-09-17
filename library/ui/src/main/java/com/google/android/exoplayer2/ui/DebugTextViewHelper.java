@@ -16,11 +16,13 @@
 package com.google.android.exoplayer2.ui;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 import android.widget.TextView;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.util.Assertions;
 import java.util.Locale;
 
 /**
@@ -37,10 +39,13 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
   private boolean started;
 
   /**
-   * @param player The {@link SimpleExoPlayer} from which debug information should be obtained.
+   * @param player The {@link SimpleExoPlayer} from which debug information should be obtained. Only
+   *     players which are accessed on the main thread are supported ({@code
+   *     player.getApplicationLooper() == Looper.getMainLooper()}).
    * @param textView The {@link TextView} that should be updated to display the information.
    */
   public DebugTextViewHelper(SimpleExoPlayer player, TextView textView) {
+    Assertions.checkArgument(player.getApplicationLooper() == Looper.getMainLooper());
     this.player = player;
     this.textView = textView;
   }
