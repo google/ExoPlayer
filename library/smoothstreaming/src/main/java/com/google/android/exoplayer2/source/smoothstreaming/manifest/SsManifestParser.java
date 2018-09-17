@@ -715,7 +715,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
       } else if (fourCC.equalsIgnoreCase("AAC") || fourCC.equalsIgnoreCase("AACL")
           || fourCC.equalsIgnoreCase("AACH") || fourCC.equalsIgnoreCase("AACP")) {
         return MimeTypes.AUDIO_AAC;
-      } else if (fourCC.equalsIgnoreCase("TTML")) {
+      } else if (fourCC.equalsIgnoreCase("TTML") || fourCC.equalsIgnoreCase("DFXP")) {
         return MimeTypes.APPLICATION_TTML;
       } else if (fourCC.equalsIgnoreCase("ac-3") || fourCC.equalsIgnoreCase("dac3")) {
         return MimeTypes.AUDIO_AC3;
