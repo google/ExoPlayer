@@ -187,6 +187,7 @@ public final class Cea608Decoder extends CeaDecoder {
   private CueBuilder currentCueBuilder;
   private List<Cue> cues;
   private List<Cue> lastCues;
+  private long inputTimestampUs;
 
   private int captionMode;
   private int captionRowCount;
@@ -253,6 +254,7 @@ public final class Cea608Decoder extends CeaDecoder {
   @SuppressWarnings("ByteBufferBackingArray")
   @Override
   protected void decode(SubtitleInputBuffer inputBuffer) {
+    inputTimestampUs = inputBuffer.timeUs;
     ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());
     boolean captionDataProcessed = false;
     boolean isRepeatableControl = false;
@@ -330,6 +332,7 @@ public final class Cea608Decoder extends CeaDecoder {
       }
       if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
         cues = getDisplayCues();
+        onNewSubtitleDataAvailable(inputTimestampUs);  // update screen
       }
     }
   }
@@ -455,12 +458,14 @@ public final class Cea608Decoder extends CeaDecoder {
         if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
           resetCueBuilders();
         }
+        onNewSubtitleDataAvailable(inputTimestampUs);  // update screen
         break;
       case CTRL_ERASE_NON_DISPLAYED_MEMORY:
         resetCueBuilders();
         break;
       case CTRL_END_OF_CAPTION:
         cues = getDisplayCues();
+        onNewSubtitleDataAvailable(inputTimestampUs);  // update screen
         resetCueBuilders();
         break;
       case CTRL_CARRIAGE_RETURN:
@@ -507,6 +512,7 @@ public final class Cea608Decoder extends CeaDecoder {
         || captionMode == CC_MODE_UNKNOWN) {
       // When switching from paint-on or to roll-up or unknown, we also need to clear the caption.
       cues = null;
+      onNewSubtitleDataAvailable(inputTimestampUs);  // update screen
     }
   }
 
