@@ -40,6 +40,8 @@
     ([#4422](https://github.com/google/ExoPlayer/issues/4422)).
   * Fix the bitrate being unset on primary track sample formats
     ([#3297](https://github.com/google/ExoPlayer/issues/3297)).
+  * Make `HlsMediaSource.Factory` take a factory of trackers instead of a
+    tracker instance ([#4814](https://github.com/google/ExoPlayer/issues/4814)).
 * DASH:
   * Support `messageData` attribute for in-manifest event streams.
   * Clip periods to their specified durations
