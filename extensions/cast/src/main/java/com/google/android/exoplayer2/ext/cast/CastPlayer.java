@@ -495,7 +495,7 @@ public final class CastPlayer implements Player {
   @Override
   public @Nullable Object getCurrentTag() {
     int windowIndex = getCurrentWindowIndex();
-    return windowIndex > currentTimeline.getWindowCount()
+    return windowIndex >= currentTimeline.getWindowCount()
         ? null
         : currentTimeline.getWindow(windowIndex, window, /* setTag= */ true).tag;
   }
