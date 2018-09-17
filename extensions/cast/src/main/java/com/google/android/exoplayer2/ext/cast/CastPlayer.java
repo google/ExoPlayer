@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -296,6 +297,11 @@ public final class CastPlayer implements Player {
   @Override
   public TextComponent getTextComponent() {
     return null;
+  }
+
+  @Override
+  public Looper getApplicationLooper() {
+    return Looper.getMainLooper();
   }
 
   @Override

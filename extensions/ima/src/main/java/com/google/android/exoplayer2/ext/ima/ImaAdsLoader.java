@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.ima;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
@@ -478,6 +479,7 @@ public final class ImaAdsLoader
 
   @Override
   public void attachPlayer(ExoPlayer player, EventListener eventListener, ViewGroup adUiViewGroup) {
+    Assertions.checkArgument(player.getApplicationLooper() == Looper.getMainLooper());
     this.player = player;
     this.eventListener = eventListener;
     lastVolumePercentage = 0;

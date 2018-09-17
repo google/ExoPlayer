@@ -27,6 +27,7 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -499,9 +500,14 @@ public class PlayerView extends FrameLayout {
    * calling {@code setPlayer(null)} to detach it from the old one. This ordering is significantly
    * more efficient and may allow for more seamless transitions.
    *
-   * @param player The {@link Player} to use.
+   * @param player The {@link Player} to use, or {@code null} to detach the current player. Only
+   *     players which are accessed on the main thread are supported ({@code
+   *     player.getApplicationLooper() == Looper.getMainLooper()}).
    */
-  public void setPlayer(Player player) {
+  public void setPlayer(@Nullable Player player) {
+    Assertions.checkState(Looper.myLooper() == Looper.getMainLooper());
+    Assertions.checkArgument(
+        player == null || player.getApplicationLooper() == Looper.getMainLooper());
     if (this.player == player) {
       return;
     }
