@@ -133,6 +133,8 @@
   ([#4774](https://github.com/google/ExoPlayer/issues/4774)).
 * Fix issue with audio discontinuities at period transitions, e.g. when
   looping ([#3829](https://github.com/google/ExoPlayer/issues/3829)).
+* Fix issue where `player.getCurrentTag()` throws an `IndexOutOfBoundsException`
+  ([#4822](https://github.com/google/ExoPlayer/issues/4822)).
 * IMA extension:
   * Refine the previous fix for empty ad groups to avoid discarding ad breaks
     unnecessarily ([#4030](https://github.com/google/ExoPlayer/issues/4030)),
