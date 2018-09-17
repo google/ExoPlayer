@@ -63,8 +63,8 @@ public final class HlsMediaSource extends BaseMediaSource
     private final HlsDataSourceFactory hlsDataSourceFactory;
 
     private HlsExtractorFactory extractorFactory;
-    private @Nullable HlsPlaylistParserFactory playlistParserFactory;
-    private @Nullable HlsPlaylistTracker playlistTracker;
+    private HlsPlaylistParserFactory playlistParserFactory;
+    private HlsPlaylistTracker.Factory playlistTrackerFactory;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean allowChunklessPreparation;
@@ -90,6 +90,8 @@ public final class HlsMediaSource extends BaseMediaSource
      */
     public Factory(HlsDataSourceFactory hlsDataSourceFactory) {
       this.hlsDataSourceFactory = Assertions.checkNotNull(hlsDataSourceFactory);
+      playlistParserFactory = new DefaultHlsPlaylistParserFactory();
+      playlistTrackerFactory = DefaultHlsPlaylistTracker.FACTORY;
       extractorFactory = HlsExtractorFactory.DEFAULT;
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
@@ -131,9 +133,6 @@ public final class HlsMediaSource extends BaseMediaSource
      *
      * <p>Calling this method overrides any calls to {@link #setMinLoadableRetryCount(int)}.
      *
-     * <p>If {@link #setPlaylistTracker} is not called on this builder, {@code
-     * loadErrorHandlingPolicy} is used for creating the used {@link DefaultHlsPlaylistTracker}.
-     *
      * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
@@ -168,35 +167,27 @@ public final class HlsMediaSource extends BaseMediaSource
      * Sets the factory from which playlist parsers will be obtained. The default value is created
      * by calling {@link DefaultHlsPlaylistParserFactory#DefaultHlsPlaylistParserFactory()}.
      *
-     * <p>Must not be called after calling {@link #setPlaylistTracker} on the same builder.
-     *
      * @param playlistParserFactory An {@link HlsPlaylistParserFactory}.
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
     public Factory setPlaylistParserFactory(HlsPlaylistParserFactory playlistParserFactory) {
       Assertions.checkState(!isCreateCalled);
-      Assertions.checkState(playlistTracker == null, "A playlist tracker has already been set.");
       this.playlistParserFactory = Assertions.checkNotNull(playlistParserFactory);
       return this;
     }
 
     /**
-     * Sets the HLS playlist tracker. The default is an instance of {@link
-     * DefaultHlsPlaylistTracker}. Playlist trackers must not be shared by {@link HlsMediaSource}
-     * instances.
+     * Sets the {@link HlsPlaylistTracker} factory. The default value is {@link
+     * DefaultHlsPlaylistTracker#FACTORY}.
      *
-     * <p>Must not be called after calling {@link #setPlaylistParserFactory} on the same builder.
-     *
-     * @param playlistTracker A tracker for HLS playlists.
+     * @param playlistTrackerFactory A factory for {@link HlsPlaylistTracker} instances.
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Factory setPlaylistTracker(HlsPlaylistTracker playlistTracker) {
+    public Factory setPlaylistTrackerFactory(HlsPlaylistTracker.Factory playlistTrackerFactory) {
       Assertions.checkState(!isCreateCalled);
-      Assertions.checkState(
-          playlistParserFactory == null, "A playlist parser factory has already been set.");
-      this.playlistTracker = Assertions.checkNotNull(playlistTracker);
+      this.playlistTrackerFactory = Assertions.checkNotNull(playlistTrackerFactory);
       return this;
     }
 
@@ -241,26 +232,14 @@ public final class HlsMediaSource extends BaseMediaSource
     @Override
     public HlsMediaSource createMediaSource(Uri playlistUri) {
       isCreateCalled = true;
-      if (playlistTracker == null) {
-        if (playlistParserFactory == null) {
-          playlistTracker =
-              new DefaultHlsPlaylistTracker(
-                  hlsDataSourceFactory,
-                  loadErrorHandlingPolicy,
-                  new DefaultHlsPlaylistParserFactory());
-        } else {
-          playlistTracker =
-              new DefaultHlsPlaylistTracker(
-                  hlsDataSourceFactory, loadErrorHandlingPolicy, playlistParserFactory);
-        }
-      }
       return new HlsMediaSource(
           playlistUri,
           hlsDataSourceFactory,
           extractorFactory,
           compositeSequenceableLoaderFactory,
           loadErrorHandlingPolicy,
-          playlistTracker,
+          playlistTrackerFactory.createTracker(
+              hlsDataSourceFactory, loadErrorHandlingPolicy, playlistParserFactory),
           allowChunklessPreparation,
           tag);
     }

@@ -19,7 +19,9 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import java.io.IOException;
 
 /**
@@ -35,6 +37,22 @@ import java.io.IOException;
  * primary playlist is always available.
  */
 public interface HlsPlaylistTracker {
+
+  /** Factory for {@link HlsPlaylistTracker} instances. */
+  interface Factory {
+
+    /**
+     * Creates a new tracker instance.
+     *
+     * @param dataSourceFactory The {@link HlsDataSourceFactory} to use for playlist loading.
+     * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy} for playlist load errors.
+     * @param playlistParserFactory The {@link HlsPlaylistParserFactory} for playlist parsing.
+     */
+    HlsPlaylistTracker createTracker(
+        HlsDataSourceFactory dataSourceFactory,
+        LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+        HlsPlaylistParserFactory playlistParserFactory);
+  }
 
   /** Listener for primary playlist changes. */
   interface PrimaryPlaylistListener {
