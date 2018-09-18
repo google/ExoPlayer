@@ -88,7 +88,7 @@ public final class MediaCodecInfo {
    * True : Codec is Hardware accelerated.
    * False : Codec is not Hardware accelerated.
    */
-  public boolean isHardwareSupported;
+  public final boolean isHardwareSupported;
 
   /** Whether this instance describes a passthrough codec. */
   public final boolean passthrough;
