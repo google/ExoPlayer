@@ -219,7 +219,6 @@ through the ["Threading model" section of the ExoPlayer Javadoc][].
 [Should I use SurfaceView or TextureView?]: #should-i-use-surfaceview-or-textureview
 [Does ExoPlayer support emulators?]: #does-exoplayer-support-emulators
 [What do "Player is accessed on the wrong thread" warnings mean?]: #what-do-player-is-accessed-on-the-wrong-thread-warnings-mean
-
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
 [setPlaybackParameters]: {{ site.exo_sdk }}/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-
 [FLAG_ENABLE_CONSTANT_BITRATE_SEEKING]: {{ site.exo_sdk }}/extractor/mp3/Mp3Extractor.html#FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
