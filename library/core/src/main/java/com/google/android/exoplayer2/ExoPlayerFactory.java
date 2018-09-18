@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -129,6 +130,15 @@ public final class ExoPlayerFactory {
         new DefaultRenderersFactory(context, extensionRendererMode, allowedVideoJoiningTimeMs);
     return newSimpleInstance(
         context, renderersFactory, trackSelector, loadControl, drmSessionManager);
+  }
+
+  /**
+   * Creates a {@link SimpleExoPlayer} instance.
+   *
+   * @param context A {@link Context}.
+   */
+  public static SimpleExoPlayer newSimpleInstance(Context context) {
+    return newSimpleInstance(context, new DefaultTrackSelector());
   }
 
   /**
