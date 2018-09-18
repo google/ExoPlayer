@@ -16,6 +16,7 @@ weight: 6
 * [How do I get smooth animation/scrolling of video?][]
 * [Should I use SurfaceView or TextureView?][]
 * [Does ExoPlayer support emulators?][]
+* [What do "Player is accessed on the wrong thread" warnings mean?][]
 
 ---
 
@@ -197,6 +198,14 @@ you should report this to the developer of the emulator rather than to the
 ExoPlayer team. Where possible, we recommend testing media applications on
 physical devices rather than emulators.
 
+#### What do "Player is accessed on the wrong thread" warnings mean? ####
+
+If you are seeing this warning, some code in your app is accessing
+`SimpleExoPlayer` on the wrong thread (check the reported stack trace!).
+ExoPlayer instances need to be accessed from a single thread only. In most
+cases, this should be the application's main thread. For details, please read
+through the ["Threading model" section of the ExoPlayer Javadoc][].
+
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support
 [Why doesn't setPlaybackParameters work properly on some devices?]: #why-doesnt-setplaybackparameters-work-properly-on-some-devices
 [Why are some media files not seekable?]: #why-are-some-media-files-not-seekable
@@ -209,6 +218,7 @@ physical devices rather than emulators.
 [How do I get smooth animation/scrolling of video?]: #how-do-i-get-smooth-animationscrolling-of-video
 [Should I use SurfaceView or TextureView?]: #should-i-use-surfaceview-or-textureview
 [Does ExoPlayer support emulators?]: #does-exoplayer-support-emulators
+[What do "Player is accessed on the wrong thread" warnings mean?]: #what-do-player-is-accessed-on-the-wrong-thread-warnings-mean
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
 [setPlaybackParameters]: {{ site.exo_sdk }}/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-
@@ -231,3 +241,4 @@ physical devices rather than emulators.
 [WifiLock]: {{ site.android_sdk }}/android/net/wifi/WifiManager.WifiLock.html
 [WakeLock]: {{ site.android_sdk }}/android/os/PowerManager.WakeLock.html
 [`SDK_INT`]: {{ site.android_sdk }}/android/os/Build.VERSION.html#SDK_INT
+["Threading model" section of the ExoPlayer Javadoc]: {{ site.exo_sdk }}/ExoPlayer.html
