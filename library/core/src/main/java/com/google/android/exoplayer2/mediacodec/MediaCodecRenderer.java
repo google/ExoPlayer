@@ -290,6 +290,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private @Nullable DecoderInitializationException preferredDecoderInitializationException;
   private @Nullable MediaCodecInfo codecInfo;
   private @AdaptationWorkaroundMode int codecAdaptationWorkaroundMode;
+  private boolean codecNeedsReconfigureWorkaround;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
   private boolean codecNeedsEosFlushWorkaround;
@@ -466,6 +467,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     String codecName = codecInfo.name;
     codecAdaptationWorkaroundMode = codecAdaptationWorkaroundMode(codecName);
+    codecNeedsReconfigureWorkaround = codecNeedsReconfigureWorkaround(codecName);
     codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
@@ -562,6 +564,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecNeedsDiscardToSpsWorkaround = false;
     codecNeedsFlushWorkaround = false;
     codecAdaptationWorkaroundMode = ADAPTATION_WORKAROUND_MODE_NEVER;
+    codecNeedsReconfigureWorkaround = false;
     codecNeedsEosFlushWorkaround = false;
     codecNeedsMonoChannelCountWorkaround = false;
     codecNeedsAdaptationWorkaroundBuffer = false;
@@ -1060,14 +1063,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           keepingCodec = true;
           break;
         case KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION:
-          keepingCodec = true;
-          codecReconfigured = true;
-          codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
-          codecNeedsAdaptationWorkaroundBuffer =
-              codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_ALWAYS
-                  || (codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION
-                      && format.width == oldFormat.width
-                      && format.height == oldFormat.height);
+          if (!codecNeedsReconfigureWorkaround) {
+            keepingCodec = true;
+            codecReconfigured = true;
+            codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+            codecNeedsAdaptationWorkaroundBuffer =
+                codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_ALWAYS
+                    || (codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION
+                        && format.width == oldFormat.width
+                        && format.height == oldFormat.height);
+          }
           break;
         default:
           throw new IllegalStateException(); // Never happens.
@@ -1501,13 +1506,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /**
    * Returns a mode that specifies when the adaptation workaround should be enabled.
-   * <p>
-   * When enabled, the workaround queues and discards a blank frame with a resolution whose width
-   * and height both equal {@link #ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT}, to reset the codec's
+   *
+   * <p>When enabled, the workaround queues and discards a blank frame with a resolution whose width
+   * and height both equal {@link #ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT}, to reset the decoder's
    * internal state when a format change occurs.
-   * <p>
-   * See [Internal: b/27807182].
-   * See <a href="https://github.com/google/ExoPlayer/issues/3257">GitHub issue #3257</a>.
+   *
+   * <p>See [Internal: b/27807182]. See <a
+   * href="https://github.com/google/ExoPlayer/issues/3257">GitHub issue #3257</a>.
    *
    * @param name The name of the decoder.
    * @return The mode specifying when the adaptation workaround should be enabled.
@@ -1525,6 +1530,21 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     } else {
       return ADAPTATION_WORKAROUND_MODE_NEVER;
     }
+  }
+
+  /**
+   * Returns whether the decoder is known to fail when an attempt is made to reconfigure it with a
+   * new format's configuration data.
+   *
+   * <p>When enabled, the workaround will always release and recreate the decoder, rather than
+   * attempting to reconfigure the existing instance.
+   *
+   * @param name The name of the decoder.
+   * @return True if the decoder is known to fail when an attempt is made to reconfigure it with a
+   *     new format's configuration data.
+   */
+  private static boolean codecNeedsReconfigureWorkaround(String name) {
+    return Util.MODEL.startsWith("SM-T230") && "OMX.MARVELL.VIDEO.HW.CODA7542DECODER".equals(name);
   }
 
   /**
