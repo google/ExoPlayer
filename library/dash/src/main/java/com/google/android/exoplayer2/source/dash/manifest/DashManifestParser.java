@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source.dash.manifest;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.util.Pair;
 import android.util.Xml;
 import com.google.android.exoplayer2.C;
@@ -34,6 +33,7 @@ import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTim
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;

@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released) ###
 
+* Allow setting log level for ExoPlayer logcat output
+  ([#4665](https://github.com/google/ExoPlayer/issues/4665)).
+
 ### 2.9.0 ###
 
 * Turn on Java 8 compiler support for the ExoPlayer library. Apps that depend
