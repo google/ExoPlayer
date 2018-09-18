@@ -84,6 +84,12 @@ public final class MediaCodecInfo {
    */
   public final boolean secure;
 
+  /**
+   * True : Codec is Hardware accelerated.
+   * False : Codec is not Hardware accelerated.
+   */
+  public final boolean isHardwareSupported;
+
   /** Whether this instance describes a passthrough codec. */
   public final boolean passthrough;
 
@@ -158,6 +164,11 @@ public final class MediaCodecInfo {
     adaptive = !forceDisableAdaptive && capabilities != null && isAdaptive(capabilities);
     tunneling = capabilities != null && isTunneling(capabilities);
     secure = forceSecure || (capabilities != null && isSecure(capabilities));
+    if (!name.toLowerCase().startsWith("omx.google.")) {
+      isHardwareSupported = true;
+    } else {
+      isHardwareSupported = false;
+    }
     isVideo = MimeTypes.isVideo(mimeType);
   }
 
