@@ -460,9 +460,7 @@ import java.util.List;
           && finishedReadingChunk(mediaChunks.get(discardToMediaChunkIndex))) {
         discardToMediaChunkIndex++;
       }
-      if (discardToMediaChunkIndex > 0) {
-        Util.removeRange(mediaChunks, 0, discardToMediaChunkIndex);
-      }
+      Util.removeRange(mediaChunks, 0, discardToMediaChunkIndex);
       HlsMediaChunk currentChunk = mediaChunks.get(0);
       Format trackFormat = currentChunk.trackFormat;
       if (!trackFormat.equals(downstreamTrackFormat)) {
@@ -554,7 +552,11 @@ import java.util.List;
       loadPositionUs = pendingResetPositionUs;
     } else {
       chunkQueue = readOnlyMediaChunks;
-      loadPositionUs = getLastMediaChunk().endTimeUs;
+      HlsMediaChunk lastMediaChunk = getLastMediaChunk();
+      loadPositionUs =
+          lastMediaChunk.isLoadCompleted()
+              ? lastMediaChunk.endTimeUs
+              : Math.max(lastSeekPositionUs, lastMediaChunk.startTimeUs);
     }
     chunkSource.getNextChunk(positionUs, loadPositionUs, chunkQueue, nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
@@ -666,17 +668,15 @@ import java.util.List;
     boolean blacklistSucceeded = false;
     LoadErrorAction loadErrorAction;
 
-    if (!isMediaChunk || bytesLoaded == 0) {
-      long blacklistDurationMs =
-          loadErrorHandlingPolicy.getBlacklistDurationMsFor(
-              loadable.type, loadDurationMs, error, errorCount);
-      if (blacklistDurationMs != C.TIME_UNSET) {
-        blacklistSucceeded = chunkSource.maybeBlacklistTrack(loadable, blacklistDurationMs);
-      }
+    long blacklistDurationMs =
+        loadErrorHandlingPolicy.getBlacklistDurationMsFor(
+            loadable.type, loadDurationMs, error, errorCount);
+    if (blacklistDurationMs != C.TIME_UNSET) {
+      blacklistSucceeded = chunkSource.maybeBlacklistTrack(loadable, blacklistDurationMs);
     }
 
     if (blacklistSucceeded) {
-      if (isMediaChunk) {
+      if (isMediaChunk && bytesLoaded == 0) {
         HlsMediaChunk removed = mediaChunks.remove(mediaChunks.size() - 1);
         Assertions.checkState(removed == loadable);
         if (mediaChunks.isEmpty()) {
@@ -707,7 +707,7 @@ import java.util.List;
         loadable.endTimeUs,
         elapsedRealtimeMs,
         loadDurationMs,
-        loadable.bytesLoaded(),
+        bytesLoaded,
         error,
         /* wasCanceled= */ !loadErrorAction.isRetry());
 

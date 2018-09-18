@@ -152,7 +152,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     if (previousChunk != null) {
       id3Decoder = previousChunk.id3Decoder;
       id3Data = previousChunk.id3Data;
-      shouldSpliceIn = previousChunk.hlsUrl != hlsUrl;
+      shouldSpliceIn = previousChunk.hlsUrl != hlsUrl || !previousChunk.loadCompleted;
       previousExtractor = previousChunk.discontinuitySequenceNumber != discontinuitySequenceNumber
           || shouldSpliceIn ? null : previousChunk.extractor;
     } else {
