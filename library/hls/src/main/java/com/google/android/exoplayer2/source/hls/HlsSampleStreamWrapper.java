@@ -792,7 +792,6 @@ import java.util.List;
       }
     }
     SampleQueue trackOutput = new SampleQueue(allocator);
-    trackOutput.sourceId(chunkUid);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.sourceId(chunkUid);
     trackOutput.setUpstreamFormatChangeListener(this);
