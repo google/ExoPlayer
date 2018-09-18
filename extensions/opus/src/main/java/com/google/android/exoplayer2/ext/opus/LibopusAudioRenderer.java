@@ -30,8 +30,10 @@ import com.google.android.exoplayer2.util.MimeTypes;
  */
 public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
 
+  /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
-  private static final int INITIAL_INPUT_BUFFER_SIZE = 960 * 6;
+  /** The default input buffer size. */
+  private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
 
   private OpusDecoder decoder;
 
@@ -88,8 +90,15 @@ public final class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   protected OpusDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
       throws OpusDecoderException {
-    decoder = new OpusDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
-        format.initializationData, mediaCrypto);
+    int initialInputBufferSize =
+        format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
+    decoder =
+        new OpusDecoder(
+            NUM_BUFFERS,
+            NUM_BUFFERS,
+            initialInputBufferSize,
+            format.initializationData,
+            mediaCrypto);
     return decoder;
   }
 

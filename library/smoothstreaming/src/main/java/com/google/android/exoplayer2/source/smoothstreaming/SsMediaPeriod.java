@@ -32,7 +32,9 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -45,8 +47,9 @@ import java.util.ArrayList;
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
   private final SsChunkSource.Factory chunkSourceFactory;
+  private final @Nullable TransferListener transferListener;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
-  private final int minLoadableRetryCount;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
   private final Allocator allocator;
   private final TrackGroupArray trackGroups;
@@ -59,13 +62,19 @@ import java.util.ArrayList;
   private SequenceableLoader compositeSequenceableLoader;
   private boolean notifiedReadingStarted;
 
-  public SsMediaPeriod(SsManifest manifest, SsChunkSource.Factory chunkSourceFactory,
+  public SsMediaPeriod(
+      SsManifest manifest,
+      SsChunkSource.Factory chunkSourceFactory,
+      @Nullable TransferListener transferListener,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
-      int minLoadableRetryCount, EventDispatcher eventDispatcher,
-      LoaderErrorThrower manifestLoaderErrorThrower, Allocator allocator) {
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+      EventDispatcher eventDispatcher,
+      LoaderErrorThrower manifestLoaderErrorThrower,
+      Allocator allocator) {
     this.chunkSourceFactory = chunkSourceFactory;
+    this.transferListener = transferListener;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
-    this.minLoadableRetryCount = minLoadableRetryCount;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
     this.allocator = allocator;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
@@ -214,8 +223,14 @@ import java.util.ArrayList;
   private ChunkSampleStream<SsChunkSource> buildSampleStream(TrackSelection selection,
       long positionUs) {
     int streamElementIndex = trackGroups.indexOf(selection.getTrackGroup());
-    SsChunkSource chunkSource = chunkSourceFactory.createChunkSource(manifestLoaderErrorThrower,
-        manifest, streamElementIndex, selection, trackEncryptionBoxes);
+    SsChunkSource chunkSource =
+        chunkSourceFactory.createChunkSource(
+            manifestLoaderErrorThrower,
+            manifest,
+            streamElementIndex,
+            selection,
+            trackEncryptionBoxes,
+            transferListener);
     return new ChunkSampleStream<>(
         manifest.streamElements[streamElementIndex].type,
         null,
@@ -224,7 +239,7 @@ import java.util.ArrayList;
         this,
         allocator,
         positionUs,
-        minLoadableRetryCount,
+        loadErrorHandlingPolicy,
         eventDispatcher);
   }
 

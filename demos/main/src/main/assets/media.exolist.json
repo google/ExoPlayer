@@ -4,22 +4,22 @@
     "samples": [
       {
         "name": "Google Glass (MP4,H264)",
-        "uri": "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7.8506521BFC350652163895D4C26DEE124209AA9E&key=ik0",
+        "uri": "https://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7.8506521BFC350652163895D4C26DEE124209AA9E&key=ik0",
         "extension": "mpd"
       },
       {
         "name": "Google Play (MP4,H264)",
-        "uri": "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=A2716F75795F5D2AF0E88962FFCD10DB79384F29.84308FF04844498CE6FBCE4731507882B8307798&key=ik0",
+        "uri": "https://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=A2716F75795F5D2AF0E88962FFCD10DB79384F29.84308FF04844498CE6FBCE4731507882B8307798&key=ik0",
         "extension": "mpd"
       },
       {
         "name": "Google Glass (WebM,VP9)",
-        "uri": "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=249B04F79E984D7F86B4D8DB48AE6FAF41C17AB3.7B9F0EC0505E1566E59B8E488E9419F253DDF413&key=ik0",
+        "uri": "https://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=249B04F79E984D7F86B4D8DB48AE6FAF41C17AB3.7B9F0EC0505E1566E59B8E488E9419F253DDF413&key=ik0",
         "extension": "mpd"
       },
       {
         "name": "Google Play (WebM,VP9)",
-        "uri": "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=B1C2A74783AC1CC4865EB312D7DD2D48230CC9FD.BD153B9882175F1F94BFE5141A5482313EA38E8D&key=ik0",
+        "uri": "https://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=B1C2A74783AC1CC4865EB312D7DD2D48230CC9FD.BD153B9882175F1F94BFE5141A5482313EA38E8D&key=ik0",
         "extension": "mpd"
       }
     ]
@@ -330,11 +330,11 @@
     "samples": [
       {
         "name": "Super speed",
-        "uri": "http://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism"
+        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism"
       },
       {
         "name": "Super speed (PlayReady)",
-        "uri": "http://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism",
+        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism",
         "drm_scheme": "playready"
       }
     ]
@@ -352,11 +352,11 @@
       },
       {
         "name": "Apple master playlist advanced (TS)",
-        "uri": "https://tungsten.aaplimg.com/VOD/bipbop_adv_example_v2/master.m3u8"
+        "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/master.m3u8"
       },
       {
         "name": "Apple master playlist advanced (fMP4)",
-        "uri": "https://tungsten.aaplimg.com/VOD/bipbop_adv_fmp4_example/master.m3u8"
+        "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8"
       },
       {
         "name": "Apple TS media playlist",
@@ -365,10 +365,6 @@
       {
         "name": "Apple AAC media playlist",
         "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear0/prog_index.m3u8"
-      },
-      {
-        "name": "Apple ID3 metadata",
-        "uri": "http://devimages.apple.com/samplecode/adDemo/ad.m3u8"
       }
     ]
   },
@@ -376,7 +372,7 @@
     "name": "Misc",
     "samples": [
       {
-        "name": "Dizzy",
+        "name": "Dizzy (MP4)",
         "uri": "https://html5demos.com/assets/dizzy.mp4"
       },
       {
@@ -390,10 +386,6 @@
       {
         "name": "Android screens (Matroska)",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
-      },
-      {
-        "name": "Big Buck Bunny (MP4 Video)",
-        "uri": "http://redirector.c.youtube.com/videoplayback?id=604ed5ce52eda7ee&itag=22&source=youtube&sparams=ip,ipbits,expire,source,id&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=513F28C7FDCBEC60A66C86C9A393556C99DC47FB.04C88036EEE12565A1ED864A875A58F15D8B5300&key=ik0"
       },
       {
         "name": "Screens 360P (WebM,VP9,No Audio)",
@@ -420,20 +412,8 @@
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/ogg/play.ogg"
       },
       {
-        "name": "Google Glass (WebM Video with Vorbis Audio)",
-        "uri": "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm"
-      },
-      {
-        "name": "Google Glass (VP9 in MP4/ISO-BMFF)",
-        "uri": "http://demos.webmproject.org/exoplayer/glass.mp4"
-      },
-      {
-        "name": "Google Glass DASH - VP9 and Opus",
-        "uri": "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_opus.mpd"
-      },
-      {
         "name": "Big Buck Bunny (FLV Video)",
-        "uri": "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
+        "uri": "https://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
       }
     ]
   },
@@ -570,23 +550,32 @@
       {
         "name": "VMAP empty midroll",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv",
-        "ad_tag_uri": "http://vastsynthesizer.appspot.com/empty-midroll"
+        "ad_tag_uri": "https://vastsynthesizer.appspot.com/empty-midroll"
       },
       {
         "name": "VMAP full, empty, full midrolls",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv",
-        "ad_tag_uri": "http://vastsynthesizer.appspot.com/empty-midroll-2"
+        "ad_tag_uri": "https://vastsynthesizer.appspot.com/empty-midroll-2"
       }
     ]
   },
   {
-    "name": "ABR",
+    "name": "360",
     "samples": [
       {
-        "name": "Random ABR - Google Glass (MP4,H264)",
-        "uri": "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7.8506521BFC350652163895D4C26DEE124209AA9E&key=ik0",
-        "extension": "mpd",
-        "abr_algorithm": "random"
+        "name": "Congo (360 top-bottom stereo)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/360/congo.mp4",
+        "spherical_stereo_mode": "top_bottom"
+      },
+      {
+        "name": "Sphericalv2 (180 top-bottom stereo)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/360/sphericalv2.mp4",
+        "spherical_stereo_mode": "top_bottom"
+      },
+      {
+        "name": "Iceland (360 top-bottom stereo ts)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/360/iceland0.ts",
+        "spherical_stereo_mode": "top_bottom"
       }
     ]
   }

@@ -29,11 +29,11 @@ public final class ExoPlayerLibraryInfo {
 
   /** The version of the library expressed as a string, for example "1.2.3". */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION_INT) or vice versa.
-  public static final String VERSION = "2.8.4";
+  public static final String VERSION = "2.9.0";
 
   /** The version of the library expressed as {@code "ExoPlayerLib/" + VERSION}. */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final String VERSION_SLASHY = "ExoPlayerLib/2.8.4";
+  public static final String VERSION_SLASHY = "ExoPlayerLib/2.9.0";
 
   /**
    * The version of the library expressed as an integer, for example 1002003.
@@ -43,13 +43,16 @@ public final class ExoPlayerLibraryInfo {
    * integer version 123045006 (123-045-006).
    */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final int VERSION_INT = 2008004;
+  public static final int VERSION_INT = 2009000;
 
   /**
    * Whether the library was compiled with {@link com.google.android.exoplayer2.util.Assertions}
    * checks enabled.
    */
   public static final boolean ASSERTIONS_ENABLED = true;
+
+  /** Whether an exception should be thrown in case of an OpenGl error. */
+  public static final boolean GL_ASSERTIONS_ENABLED = false;
 
   /**
    * Whether the library was compiled with {@link com.google.android.exoplayer2.util.TraceUtil}

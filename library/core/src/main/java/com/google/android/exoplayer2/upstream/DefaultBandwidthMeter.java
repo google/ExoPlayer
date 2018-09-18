@@ -19,13 +19,14 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.SlidingPercentile;
 
 /**
- * Estimates bandwidth by listening to data transfers. The bandwidth estimate is calculated using
- * a {@link SlidingPercentile} and is updated each time a transfer ends.
+ * Estimates bandwidth by listening to data transfers. The bandwidth estimate is calculated using a
+ * {@link SlidingPercentile} and is updated each time a transfer ends.
  */
-public final class DefaultBandwidthMeter implements BandwidthMeter, TransferListener<Object> {
+public final class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
 
   /** Default initial bitrate estimate in bits per second. */
   public static final long DEFAULT_INITIAL_BITRATE_ESTIMATE = 1_000_000;
@@ -105,16 +106,19 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
      * @return A bandwidth meter with the configured properties.
      */
     public DefaultBandwidthMeter build() {
-      return new DefaultBandwidthMeter(
-          eventHandler, eventListener, initialBitrateEstimate, slidingWindowMaxWeight, clock);
+      DefaultBandwidthMeter bandwidthMeter =
+          new DefaultBandwidthMeter(initialBitrateEstimate, slidingWindowMaxWeight, clock);
+      if (eventHandler != null && eventListener != null) {
+        bandwidthMeter.addEventListener(eventHandler, eventListener);
+      }
+      return bandwidthMeter;
     }
   }
 
   private static final int ELAPSED_MILLIS_FOR_ESTIMATE = 2000;
   private static final int BYTES_TRANSFERRED_FOR_ESTIMATE = 512 * 1024;
 
-  private final @Nullable Handler eventHandler;
-  private final @Nullable EventListener eventListener;
+  private final EventDispatcher<EventListener> eventDispatcher;
   private final SlidingPercentile slidingPercentile;
   private final Clock clock;
 
@@ -128,39 +132,32 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
   /** Creates a bandwidth meter with default parameters. */
   public DefaultBandwidthMeter() {
-    this(
-        /* eventHandler= */ null,
-        /* eventListener= */ null,
-        DEFAULT_INITIAL_BITRATE_ESTIMATE,
-        DEFAULT_SLIDING_WINDOW_MAX_WEIGHT,
-        Clock.DEFAULT);
+    this(DEFAULT_INITIAL_BITRATE_ESTIMATE, DEFAULT_SLIDING_WINDOW_MAX_WEIGHT, Clock.DEFAULT);
   }
 
   /** @deprecated Use {@link Builder} instead. */
   @Deprecated
   public DefaultBandwidthMeter(Handler eventHandler, EventListener eventListener) {
-    this(
-        eventHandler,
-        eventListener,
-        DEFAULT_INITIAL_BITRATE_ESTIMATE,
-        DEFAULT_SLIDING_WINDOW_MAX_WEIGHT,
-        Clock.DEFAULT);
+    this(DEFAULT_INITIAL_BITRATE_ESTIMATE, DEFAULT_SLIDING_WINDOW_MAX_WEIGHT, Clock.DEFAULT);
+    if (eventHandler != null && eventListener != null) {
+      addEventListener(eventHandler, eventListener);
+    }
   }
 
   /** @deprecated Use {@link Builder} instead. */
   @Deprecated
   public DefaultBandwidthMeter(Handler eventHandler, EventListener eventListener, int maxWeight) {
-    this(eventHandler, eventListener, DEFAULT_INITIAL_BITRATE_ESTIMATE, maxWeight, Clock.DEFAULT);
+    this(DEFAULT_INITIAL_BITRATE_ESTIMATE, maxWeight, Clock.DEFAULT);
+    if (eventHandler != null && eventListener != null) {
+      addEventListener(eventHandler, eventListener);
+    }
   }
 
   private DefaultBandwidthMeter(
-      @Nullable Handler eventHandler,
-      @Nullable EventListener eventListener,
       long initialBitrateEstimate,
       int maxWeight,
       Clock clock) {
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
+    this.eventDispatcher = new EventDispatcher<>();
     this.slidingPercentile = new SlidingPercentile(maxWeight);
     this.clock = clock;
     bitrateEstimate = initialBitrateEstimate;
@@ -172,7 +169,31 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
-  public synchronized void onTransferStart(Object source, DataSpec dataSpec) {
+  public @Nullable TransferListener getTransferListener() {
+    return this;
+  }
+
+  @Override
+  public void addEventListener(Handler eventHandler, EventListener eventListener) {
+    eventDispatcher.addListener(eventHandler, eventListener);
+  }
+
+  @Override
+  public void removeEventListener(EventListener eventListener) {
+    eventDispatcher.removeListener(eventListener);
+  }
+
+  @Override
+  public void onTransferInitializing(DataSource source, DataSpec dataSpec, boolean isNetwork) {
+    // Do nothing.
+  }
+
+  @Override
+  public synchronized void onTransferStart(
+      DataSource source, DataSpec dataSpec, boolean isNetwork) {
+    if (!isNetwork) {
+      return;
+    }
     if (streamCount == 0) {
       sampleStartTimeMs = clock.elapsedRealtime();
     }
@@ -180,12 +201,19 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   @Override
-  public synchronized void onBytesTransferred(Object source, int bytes) {
+  public synchronized void onBytesTransferred(
+      DataSource source, DataSpec dataSpec, boolean isNetwork, int bytes) {
+    if (!isNetwork) {
+      return;
+    }
     sampleBytesTransferred += bytes;
   }
 
   @Override
-  public synchronized void onTransferEnd(Object source) {
+  public synchronized void onTransferEnd(DataSource source, DataSpec dataSpec, boolean isNetwork) {
+    if (!isNetwork) {
+      return;
+    }
     Assertions.checkState(streamCount > 0);
     long nowMs = clock.elapsedRealtime();
     int sampleElapsedTimeMs = (int) (nowMs - sampleStartTimeMs);
@@ -206,14 +234,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     sampleBytesTransferred = 0;
   }
 
-  private void notifyBandwidthSample(final int elapsedMs, final long bytes, final long bitrate) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onBandwidthSample(elapsedMs, bytes, bitrate);
-        }
-      });
-    }
+  private void notifyBandwidthSample(int elapsedMs, long bytes, long bitrate) {
+    eventDispatcher.dispatch(listener -> listener.onBandwidthSample(elapsedMs, bytes, bitrate));
   }
 }

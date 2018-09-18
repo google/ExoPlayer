@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.util.List;
 
@@ -119,7 +120,11 @@ public final class FakeTrackSelection implements TrackSelection {
 
   @Override
   public void updateSelectedTrack(
-      long playbackPositionUs, long bufferedDurationUs, long availableDurationUs) {
+      long playbackPositionUs,
+      long bufferedDurationUs,
+      long availableDurationUs,
+      List<? extends MediaChunk> queue,
+      MediaChunkIterator[] mediaChunkIterators) {
     assertThat(isEnabled).isTrue();
   }
 

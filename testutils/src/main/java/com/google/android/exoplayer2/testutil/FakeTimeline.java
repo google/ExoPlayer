@@ -19,6 +19,7 @@ import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
@@ -206,13 +207,23 @@ public final class FakeTimeline extends Timeline {
 
   @Override
   public int getIndexOfPeriod(Object uid) {
-    Period period = new Period();
     for (int i = 0; i < getPeriodCount(); i++) {
-      if (getPeriod(i, period, true).uid.equals(uid)) {
+      if (getUidOfPeriod(i).equals(uid)) {
         return i;
       }
     }
     return C.INDEX_UNSET;
+  }
+
+  @Override
+  public Object getUidOfPeriod(int periodIndex) {
+    Assertions.checkIndex(periodIndex, 0, getPeriodCount());
+    int windowIndex =
+        Util.binarySearchFloor(
+            periodOffsets, periodIndex, /* inclusive= */ true, /* stayInBounds= */ false);
+    int windowPeriodIndex = periodIndex - periodOffsets[windowIndex];
+    TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
+    return Pair.create(windowDefinition.id, windowPeriodIndex);
   }
 
   private static TimelineWindowDefinition[] createDefaultWindowDefinitions(int windowCount) {

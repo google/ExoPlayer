@@ -95,12 +95,24 @@ public class AdtsReaderTest {
             TestUtil.joinByteArrays(
                 ADTS_HEADER,
                 ADTS_CONTENT,
+                ADTS_HEADER,
+                ADTS_CONTENT,
                 // Adts sample missing the first sync byte
+                // The Reader should be able to read the next sample.
                 Arrays.copyOfRange(ADTS_HEADER, 1, ADTS_HEADER.length),
+                ADTS_CONTENT,
+                ADTS_HEADER,
                 ADTS_CONTENT));
     feed();
-    assertSampleCounts(0, 1);
-    adtsOutput.assertSample(0, ADTS_CONTENT, 0, C.BUFFER_FLAG_KEY_FRAME, null);
+    assertSampleCounts(0, 3);
+    for (int i = 0; i < 3; i++) {
+      adtsOutput.assertSample(
+          /* index= */ i,
+          /* data= */ ADTS_CONTENT,
+          /* timeUs= */ ADTS_SAMPLE_DURATION * i,
+          /* flags= */ C.BUFFER_FLAG_KEY_FRAME,
+          /* cryptoData= */ null);
+    }
   }
 
   @Test

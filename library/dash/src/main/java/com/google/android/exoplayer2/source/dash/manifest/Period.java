@@ -51,7 +51,7 @@ public class Period {
    * @param adaptationSets The adaptation sets belonging to the period.
    */
   public Period(@Nullable String id, long startMs, List<AdaptationSet> adaptationSets) {
-    this(id, startMs, adaptationSets, Collections.<EventStream>emptyList());
+    this(id, startMs, adaptationSets, Collections.emptyList());
   }
 
   /**

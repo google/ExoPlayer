@@ -15,10 +15,13 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
+import static androidx.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.fail;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
-import android.test.InstrumentationTestCase;
+import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -29,43 +32,40 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-/**
- * Playback tests using {@link LibflacAudioRenderer}.
- */
-public class FlacPlaybackTest extends InstrumentationTestCase {
+/** Playback tests using {@link LibflacAudioRenderer}. */
+@RunWith(AndroidJUnit4.class)
+public class FlacPlaybackTest {
 
   private static final String BEAR_FLAC_URI = "asset:///bear-flac.mka";
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
+  @Before
+  public void setUp() {
     if (!FlacLibrary.isAvailable()) {
       fail("Flac library not available.");
     }
   }
 
-  public void testBasicPlayback() throws ExoPlaybackException {
+  @Test
+  public void testBasicPlayback() throws Exception {
     playUri(BEAR_FLAC_URI);
   }
 
-  private void playUri(String uri) throws ExoPlaybackException {
-    TestPlaybackRunnable testPlaybackRunnable = new TestPlaybackRunnable(Uri.parse(uri),
-        getInstrumentation().getContext());
+  private void playUri(String uri) throws Exception {
+    TestPlaybackRunnable testPlaybackRunnable =
+        new TestPlaybackRunnable(Uri.parse(uri), getContext());
     Thread thread = new Thread(testPlaybackRunnable);
     thread.start();
-    try {
-      thread.join();
-    } catch (InterruptedException e) {
-      fail(); // Should never happen.
-    }
+    thread.join();
     if (testPlaybackRunnable.playbackException != null) {
       throw testPlaybackRunnable.playbackException;
     }
   }
 
-  private static class TestPlaybackRunnable extends Player.DefaultEventListener
-      implements Runnable {
+  private static class TestPlaybackRunnable implements Player.EventListener, Runnable {
 
     private final Context context;
     private final Uri uri;

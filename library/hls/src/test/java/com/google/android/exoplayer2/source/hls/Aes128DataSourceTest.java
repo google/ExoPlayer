@@ -21,9 +21,11 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
-
-import org.junit.Ignore;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -32,11 +34,10 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class Aes128DataSourceTest {
 
-  @Ignore
   @Test
   public void test_OpenCallsUpstreamOpen_CloseCallsUpstreamClose() throws IOException {
     UpstreamDataSource upstream = new UpstreamDataSource();
-    Aes128DataSource testInstance = new Aes128DataSource(upstream, new byte[16], new byte[16]);
+    Aes128DataSource testInstance = new TestAes123DataSource(upstream, new byte[16], new byte[16]);
     assertThat(upstream.opened).isFalse();
 
     Uri uri = Uri.parse("http.abc.com/def");
@@ -47,7 +48,6 @@ public class Aes128DataSourceTest {
     assertThat(upstream.opened).isFalse();
   }
 
-  @Ignore
   @Test
   public void test_OpenCallsUpstreamThrowingOpen_CloseCallsUpstreamClose() throws IOException {
     UpstreamDataSource upstream =
@@ -57,7 +57,7 @@ public class Aes128DataSourceTest {
             throw new IOException();
           }
         };
-    Aes128DataSource testInstance = new Aes128DataSource(upstream, new byte[16], new byte[16]);
+    Aes128DataSource testInstance = new TestAes123DataSource(upstream, new byte[16], new byte[16]);
     assertThat(upstream.opened).isFalse();
 
     Uri uri = Uri.parse("http.abc.com/def");
@@ -75,10 +75,32 @@ public class Aes128DataSourceTest {
     assertThat(upstream.closedCalled).isTrue();
   }
 
+  private static class TestAes123DataSource extends Aes128DataSource {
+
+    public TestAes123DataSource(DataSource upstream, byte[] encryptionKey, byte[] encryptionIv) {
+      super(upstream, encryptionKey, encryptionIv);
+    }
+
+    @Override
+    protected Cipher getCipherInstance() throws NoSuchPaddingException, NoSuchAlgorithmException {
+      try {
+        return super.getCipherInstance();
+      } catch (NoSuchAlgorithmException e) {
+        // Some host machines may not provide an algorithm for "AES/CBC/PKCS7Padding", however on
+        // such machines it's possible to get a functionally identical algorithm by requesting
+        // "AES/CBC/PKCS5Padding".
+        return Cipher.getInstance("AES/CBC/PKCS5Padding");
+      }
+    }
+  }
+
   private static class UpstreamDataSource implements DataSource {
 
     public boolean opened;
     public boolean closedCalled;
+
+    @Override
+    public void addTransferListener(TransferListener transferListener) {}
 
     @Override
     public long open(DataSpec dataSpec) throws IOException {

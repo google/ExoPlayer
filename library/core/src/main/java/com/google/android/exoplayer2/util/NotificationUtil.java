@@ -31,7 +31,11 @@ import java.lang.annotation.RetentionPolicy;
 @SuppressLint("InlinedApi")
 public final class NotificationUtil {
 
-  /** Notification channel importance levels. */
+  /**
+   * Notification channel importance levels. One of {@link #IMPORTANCE_UNSPECIFIED}, {@link
+   * #IMPORTANCE_NONE}, {@link #IMPORTANCE_MIN}, {@link #IMPORTANCE_LOW}, {@link
+   * #IMPORTANCE_DEFAULT} or {@link #IMPORTANCE_HIGH}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     IMPORTANCE_UNSPECIFIED,

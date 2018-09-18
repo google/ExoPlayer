@@ -65,7 +65,8 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   protected FlacDecoder createDecoder(Format format, ExoMediaCrypto mediaCrypto)
       throws FlacDecoderException {
-    return new FlacDecoder(NUM_BUFFERS, NUM_BUFFERS, format.initializationData);
+    return new FlacDecoder(
+        NUM_BUFFERS, NUM_BUFFERS, format.maxInputSize, format.initializationData);
   }
 
 }

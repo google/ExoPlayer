@@ -17,19 +17,19 @@ package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadHelper;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.offline.TrackKey;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.StreamKey;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -49,7 +49,7 @@ public final class SsDownloadHelper extends DownloadHelper {
   @Override
   protected void prepareInternal() throws IOException {
     DataSource dataSource = manifestDataSourceFactory.createDataSource();
-    manifest = ParsingLoadable.load(dataSource, new SsManifestParser(), uri);
+    manifest = ParsingLoadable.load(dataSource, new SsManifestParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
   /** Returns the SmoothStreaming manifest. Must not be called until after preparation completes. */
@@ -77,13 +77,12 @@ public final class SsDownloadHelper extends DownloadHelper {
 
   @Override
   public SsDownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
-    return new SsDownloadAction(uri, /* isRemoveAction= */ false, data, toStreamKeys(trackKeys));
+    return SsDownloadAction.createDownloadAction(uri, data, toStreamKeys(trackKeys));
   }
 
   @Override
   public SsDownloadAction getRemoveAction(@Nullable byte[] data) {
-    return new SsDownloadAction(
-        uri, /* isRemoveAction= */ true, data, Collections.<StreamKey>emptyList());
+    return SsDownloadAction.createRemoveAction(uri, data);
   }
 
   private static List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {

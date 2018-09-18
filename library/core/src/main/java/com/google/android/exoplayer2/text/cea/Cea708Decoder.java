@@ -152,10 +152,10 @@ public final class Cea708Decoder extends CeaDecoder {
   private DtvCcPacket currentDtvCcPacket;
   private int currentWindow;
 
-  public Cea708Decoder(int accessibilityChannel) {
+  public Cea708Decoder(int accessibilityChannel, List<byte[]> initializationData) {
     ccData = new ParsableByteArray();
     serviceBlockPacket = new ParsableBitArray();
-    selectedServiceNumber = (accessibilityChannel == Format.NO_VALUE) ? 1 : accessibilityChannel;
+    selectedServiceNumber = accessibilityChannel == Format.NO_VALUE ? 1 : accessibilityChannel;
 
     cueBuilders = new CueBuilder[NUM_WINDOWS];
     for (int i = 0; i < NUM_WINDOWS; i++) {
@@ -743,7 +743,7 @@ public final class Cea708Decoder extends CeaDecoder {
       }
     }
     Collections.sort(displayCues);
-    return Collections.<Cue>unmodifiableList(displayCues);
+    return Collections.unmodifiableList(displayCues);
   }
 
   private void resetCueBuilders() {

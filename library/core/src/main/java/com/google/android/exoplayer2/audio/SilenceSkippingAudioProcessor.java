@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.audio;
 import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
@@ -102,8 +103,8 @@ public final class SilenceSkippingAudioProcessor implements AudioProcessor {
     outputBuffer = EMPTY_BUFFER;
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
-    maybeSilenceBuffer = new byte[0];
-    paddingBuffer = new byte[0];
+    maybeSilenceBuffer = Util.EMPTY_BYTE_ARRAY;
+    paddingBuffer = Util.EMPTY_BYTE_ARRAY;
   }
 
   /**
@@ -234,8 +235,8 @@ public final class SilenceSkippingAudioProcessor implements AudioProcessor {
     channelCount = Format.NO_VALUE;
     sampleRateHz = Format.NO_VALUE;
     paddingSize = 0;
-    maybeSilenceBuffer = new byte[0];
-    paddingBuffer = new byte[0];
+    maybeSilenceBuffer = Util.EMPTY_BYTE_ARRAY;
+    paddingBuffer = Util.EMPTY_BYTE_ARRAY;
   }
 
   // Internal methods.

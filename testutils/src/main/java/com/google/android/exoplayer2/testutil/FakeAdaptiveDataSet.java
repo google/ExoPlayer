@@ -15,9 +15,14 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
+import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import java.util.Random;
 
 /**
@@ -61,6 +66,49 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
           bitratePercentStdDev, random);
     }
 
+  }
+
+  /** {@link MediaChunkIterator} for the chunks defined by a fake adaptive data set. */
+  public static final class Iterator extends BaseMediaChunkIterator {
+
+    private final FakeAdaptiveDataSet dataSet;
+    private final int trackGroupIndex;
+
+    /**
+     * Create iterator.
+     *
+     * @param dataSet The data set to iterate over.
+     * @param trackGroupIndex The index of the track group to iterate over.
+     * @param chunkIndex The chunk index to which the iterator points initially.
+     */
+    public Iterator(FakeAdaptiveDataSet dataSet, int trackGroupIndex, int chunkIndex) {
+      super(/* fromIndex= */ chunkIndex, /* toIndex= */ dataSet.getChunkCount() - 1);
+      this.dataSet = dataSet;
+      this.trackGroupIndex = trackGroupIndex;
+    }
+
+    @Override
+    public DataSpec getDataSpec() {
+      checkInBounds();
+      String uri = dataSet.getUri(trackGroupIndex);
+      int chunkIndex = (int) getCurrentIndex();
+      Segment fakeDataChunk = dataSet.getData(uri).getSegments().get(chunkIndex);
+      return new DataSpec(
+          Uri.parse(uri), fakeDataChunk.byteOffset, fakeDataChunk.length, /* key= */ null);
+    }
+
+    @Override
+    public long getChunkStartTimeUs() {
+      checkInBounds();
+      return dataSet.getStartTime((int) getCurrentIndex());
+    }
+
+    @Override
+    public long getChunkEndTimeUs() {
+      checkInBounds();
+      int chunkIndex = (int) getCurrentIndex();
+      return dataSet.getStartTime(chunkIndex) + dataSet.getChunkDuration(chunkIndex);
+    }
   }
 
   private final int chunkCount;
@@ -124,5 +172,4 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
   public int getChunkIndexByPosition(long positionUs) {
     return (int) (positionUs / chunkDurationUs);
   }
-
 }

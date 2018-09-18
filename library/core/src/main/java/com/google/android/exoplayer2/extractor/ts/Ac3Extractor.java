@@ -33,17 +33,8 @@ import java.io.IOException;
  */
 public final class Ac3Extractor implements Extractor {
 
-  /**
-   * Factory for {@link Ac3Extractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new Ac3Extractor()};
-    }
-
-  };
+  /** Factory for {@link Ac3Extractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new Ac3Extractor()};
 
   /**
    * The maximum number of bytes to search when sniffing, excluding ID3 information, before giving

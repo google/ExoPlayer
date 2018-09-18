@@ -32,37 +32,30 @@ public class RepresentationTest {
   public void testGetCacheKey() {
     String uri = "http://www.google.com";
     SegmentBase base = new SingleSegmentBase(new RangedUri(null, 0, 1), 1, 0, 1, 1);
-    Format format =
-        Format.createVideoContainerFormat(
-            "0",
-            MimeTypes.APPLICATION_MP4,
-            null,
-            MimeTypes.VIDEO_H264,
-            2500000,
-            1920,
-            1080,
-            Format.NO_VALUE,
-            null,
-            0);
+    Format format = createVideoContainerFormat("0");
     Representation representation =
         Representation.newInstance("test_stream_1", 3, format, uri, base);
     assertThat(representation.getCacheKey()).isEqualTo("test_stream_1.0.3");
 
-    format =
-        Format.createVideoContainerFormat(
-            "150",
-            MimeTypes.APPLICATION_MP4,
-            null,
-            MimeTypes.VIDEO_H264,
-            2500000,
-            1920,
-            1080,
-            Format.NO_VALUE,
-            null,
-            0);
+    format = createVideoContainerFormat("150");
     representation =
         Representation.newInstance(
             "test_stream_1", Representation.REVISION_ID_DEFAULT, format, uri, base);
     assertThat(representation.getCacheKey()).isEqualTo("test_stream_1.150.-1");
+  }
+
+  private static Format createVideoContainerFormat(String id) {
+    return Format.createVideoContainerFormat(
+        id,
+        "label",
+        /* containerMimeType= */ MimeTypes.APPLICATION_MP4,
+        /* sampleMimeType= */ MimeTypes.VIDEO_H264,
+        /* codecs= */ null,
+        /* bitrate= */ 2500000,
+        /* width= */ 1920,
+        /* height= */ 1080,
+        /* frameRate= */ Format.NO_VALUE,
+        /* initializationData= */ null,
+        /* selectionFlags= */ 0);
   }
 }

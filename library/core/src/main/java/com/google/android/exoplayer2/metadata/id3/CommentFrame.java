@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -40,9 +42,9 @@ public final class CommentFrame extends Id3Frame {
 
   /* package */ CommentFrame(Parcel in) {
     super(ID);
-    language = in.readString();
-    description = in.readString();
-    text = in.readString();
+    language = castNonNull(in.readString());
+    description = castNonNull(in.readString());
+    text = castNonNull(in.readString());
   }
 
   @Override

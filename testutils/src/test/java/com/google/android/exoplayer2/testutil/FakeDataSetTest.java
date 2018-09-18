@@ -65,11 +65,8 @@ public final class FakeDataSetTest {
   public void testSegmentTypes() {
     byte[] testData = TestUtil.buildTestData(3);
     Runnable runnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            // Do nothing.
-          }
+        () -> {
+          // Do nothing.
         };
     IOException exception = new IOException();
     FakeDataSet fakeDataSet =

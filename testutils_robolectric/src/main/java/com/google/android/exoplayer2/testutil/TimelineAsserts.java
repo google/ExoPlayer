@@ -141,6 +141,7 @@ public final class TimelineAsserts {
       }
       assertThat(period.windowIndex).isEqualTo(expectedWindowIndex);
       assertThat(timeline.getIndexOfPeriod(period.uid)).isEqualTo(i);
+      assertThat(timeline.getUidOfPeriod(i)).isEqualTo(period.uid);
       for (int repeatMode : REPEAT_MODES) {
         if (i < accumulatedPeriodCounts[expectedWindowIndex + 1] - 1) {
           assertThat(timeline.getNextPeriodIndex(i, period, window, repeatMode, false))

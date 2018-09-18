@@ -19,12 +19,8 @@ android {
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
+        minSdkVersion 16
         targetSdkVersion project.ext.targetSdkVersion
-    }
-
-    sourceSets.main {
-        jniLibs.srcDirs = ['jniLibs']
     }
 
     compileOptions {
@@ -34,9 +30,7 @@ android {
 }
 
 dependencies {
-    api files('libs/cronet_api.jar')
-    implementation files('libs/cronet_impl_common_java.jar')
-    implementation files('libs/cronet_impl_native_java.jar')
+    api 'org.chromium.net:cronet-embedded:66.3359.158'
     implementation project(modulePrefix + 'library-core')
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     testImplementation project(modulePrefix + 'library')
@@ -47,3 +41,9 @@ ext {
     javadocTitle = 'Cronet extension'
 }
 apply from: '../../javadoc_library.gradle'
+
+ext {
+    releaseArtifact = 'extension-cronet'
+    releaseDescription = 'Cronet extension for ExoPlayer.'
+}
+apply from: '../../publish.gradle'

@@ -25,9 +25,10 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.ConditionVariable;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
@@ -62,8 +63,8 @@ public class DownloadManagerDashTest {
   private File tempFolder;
   private FakeDataSet fakeDataSet;
   private DownloadManager downloadManager;
-  private RepresentationKey fakeRepresentationKey1;
-  private RepresentationKey fakeRepresentationKey2;
+  private StreamKey fakeStreamKey1;
+  private StreamKey fakeStreamKey2;
   private TestDownloadManagerListener downloadManagerListener;
   private File actionFile;
   private DummyMainThread dummyMainThread;
@@ -88,8 +89,8 @@ public class DownloadManagerDashTest {
             .setRandomData("text_segment_2", 2)
             .setRandomData("text_segment_3", 3);
 
-    fakeRepresentationKey1 = new RepresentationKey(0, 0, 0);
-    fakeRepresentationKey2 = new RepresentationKey(0, 1, 0);
+    fakeStreamKey1 = new StreamKey(0, 0, 0);
+    fakeStreamKey2 = new StreamKey(0, 1, 0);
     actionFile = new File(tempFolder, "actionFile");
     createDownloadManager();
   }
@@ -109,18 +110,14 @@ public class DownloadManagerDashTest {
     fakeDataSet
         .newData(TEST_MPD_URI)
         .appendReadAction(
-            new Runnable() {
-              @SuppressWarnings("InfiniteLoopStatement")
-              @Override
-              public void run() {
-                try {
-                  // Wait until interrupted.
-                  while (true) {
-                    Thread.sleep(100000);
-                  }
-                } catch (InterruptedException ignored) {
-                  Thread.currentThread().interrupt();
+            () -> {
+              try {
+                // Wait until interrupted.
+                while (true) {
+                  Thread.sleep(100000);
                 }
+              } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
               }
             })
         .appendReadData(TEST_MPD)
@@ -129,13 +126,10 @@ public class DownloadManagerDashTest {
     // Run DM accessing code on UI/main thread as it should be. Also not to block handling of loaded
     // actions.
     dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            // Setup an Action and immediately release the DM.
-            handleDownloadAction(fakeRepresentationKey1, fakeRepresentationKey2);
-            downloadManager.release();
-          }
+        () -> {
+          // Setup an Action and immediately release the DM.
+          handleDownloadAction(fakeStreamKey1, fakeStreamKey2);
+          downloadManager.release();
         });
 
     assertThat(actionFile.exists()).isTrue();
@@ -145,13 +139,7 @@ public class DownloadManagerDashTest {
     // Revert fakeDataSet to normal.
     fakeDataSet.setData(TEST_MPD_URI, TEST_MPD);
 
-    dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            createDownloadManager();
-          }
-        });
+    dummyMainThread.runOnMainThread(this::createDownloadManager);
 
     // Block on the test thread.
     blockUntilTasksCompleteAndThrowAnyDownloadError();
@@ -160,15 +148,15 @@ public class DownloadManagerDashTest {
 
   @Test
   public void testHandleDownloadAction() throws Throwable {
-    handleDownloadAction(fakeRepresentationKey1, fakeRepresentationKey2);
+    handleDownloadAction(fakeStreamKey1, fakeStreamKey2);
     blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertCachedData(cache, fakeDataSet);
   }
 
   @Test
   public void testHandleMultipleDownloadAction() throws Throwable {
-    handleDownloadAction(fakeRepresentationKey1);
-    handleDownloadAction(fakeRepresentationKey2);
+    handleDownloadAction(fakeStreamKey1);
+    handleDownloadAction(fakeStreamKey2);
     blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertCachedData(cache, fakeDataSet);
   }
@@ -177,17 +165,11 @@ public class DownloadManagerDashTest {
   public void testHandleInterferingDownloadAction() throws Throwable {
     fakeDataSet
         .newData("audio_segment_2")
-        .appendReadAction(
-            new Runnable() {
-              @Override
-              public void run() {
-                handleDownloadAction(fakeRepresentationKey2);
-              }
-            })
+        .appendReadAction(() -> handleDownloadAction(fakeStreamKey2))
         .appendReadData(TestUtil.buildTestData(5))
         .endData();
 
-    handleDownloadAction(fakeRepresentationKey1);
+    handleDownloadAction(fakeStreamKey1);
 
     blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertCachedData(cache, fakeDataSet);
@@ -195,7 +177,7 @@ public class DownloadManagerDashTest {
 
   @Test
   public void testHandleRemoveAction() throws Throwable {
-    handleDownloadAction(fakeRepresentationKey1);
+    handleDownloadAction(fakeStreamKey1);
 
     blockUntilTasksCompleteAndThrowAnyDownloadError();
 
@@ -210,7 +192,7 @@ public class DownloadManagerDashTest {
   @Ignore
   @Test
   public void testHandleRemoveActionBeforeDownloadFinish() throws Throwable {
-    handleDownloadAction(fakeRepresentationKey1);
+    handleDownloadAction(fakeStreamKey1);
     handleRemoveAction();
 
     blockUntilTasksCompleteAndThrowAnyDownloadError();
@@ -223,17 +205,11 @@ public class DownloadManagerDashTest {
     final ConditionVariable downloadInProgressCondition = new ConditionVariable();
     fakeDataSet
         .newData("audio_segment_2")
-        .appendReadAction(
-            new Runnable() {
-              @Override
-              public void run() {
-                downloadInProgressCondition.open();
-              }
-            })
+        .appendReadAction(downloadInProgressCondition::open)
         .appendReadData(TestUtil.buildTestData(5))
         .endData();
 
-    handleDownloadAction(fakeRepresentationKey1);
+    handleDownloadAction(fakeStreamKey1);
 
     assertThat(downloadInProgressCondition.block(ASSERT_TRUE_TIMEOUT)).isTrue();
 
@@ -248,7 +224,7 @@ public class DownloadManagerDashTest {
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
-  private void handleDownloadAction(RepresentationKey... keys) {
+  private void handleDownloadAction(StreamKey... keys) {
     downloadManager.handleAction(newAction(TEST_MPD_URI, false, null, keys));
   }
 
@@ -258,31 +234,33 @@ public class DownloadManagerDashTest {
 
   private void createDownloadManager() {
     dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            Factory fakeDataSourceFactory =
-                new FakeDataSource.Factory(null).setFakeDataSet(fakeDataSet);
-            downloadManager =
-                new DownloadManager(
-                    new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
-                    /* maxSimultaneousDownloads= */ 1,
-                    /* minRetryCount= */ 3,
-                    actionFile,
-                    DashDownloadAction.DESERIALIZER);
+        () -> {
+          Factory fakeDataSourceFactory = new FakeDataSource.Factory().setFakeDataSet(fakeDataSet);
+          downloadManager =
+              new DownloadManager(
+                  new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
+                  /* maxSimultaneousDownloads= */ 1,
+                  /* minRetryCount= */ 3,
+                  actionFile,
+                  DashDownloadAction.DESERIALIZER);
 
-            downloadManagerListener =
-                new TestDownloadManagerListener(downloadManager, dummyMainThread);
-            downloadManager.addListener(downloadManagerListener);
-            downloadManager.startDownloads();
-          }
+          downloadManagerListener =
+              new TestDownloadManagerListener(downloadManager, dummyMainThread);
+          downloadManager.addListener(downloadManagerListener);
+          downloadManager.startDownloads();
         });
   }
 
-  private static DashDownloadAction newAction(
-      Uri uri, boolean isRemoveAction, @Nullable byte[] data, RepresentationKey... keys) {
-    ArrayList<RepresentationKey> keysList = new ArrayList<>();
+  private static DownloadAction newAction(
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, StreamKey... keys) {
+    ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    return new DashDownloadAction(uri, isRemoveAction, data, keysList);
+    DownloadAction result;
+    if (isRemoveAction) {
+      result = DashDownloadAction.createRemoveAction(uri, data);
+    } else {
+      result = DashDownloadAction.createDownloadAction(uri, data, keysList);
+    }
+    return result;
   }
 }

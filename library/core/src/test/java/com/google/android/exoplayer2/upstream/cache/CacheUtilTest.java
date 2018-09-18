@@ -132,6 +132,22 @@ public final class CacheUtilTest {
   }
 
   @Test
+  public void testDefaultCacheKeyFactory_buildCacheKey() throws Exception {
+    Uri testUri = Uri.parse("test");
+    String key = "key";
+    // If DataSpec.key is present, returns it
+    assertThat(
+            CacheUtil.DEFAULT_CACHE_KEY_FACTORY.buildCacheKey(
+                new DataSpec(testUri, 0, LENGTH_UNSET, key)))
+        .isEqualTo(key);
+    // If not generates a new one using DataSpec.uri
+    assertThat(
+            CacheUtil.DEFAULT_CACHE_KEY_FACTORY.buildCacheKey(
+                new DataSpec(testUri, 0, LENGTH_UNSET, null)))
+        .isEqualTo(generateKey(testUri));
+  }
+
+  @Test
   public void testGetCachedNoData() throws Exception {
     CachingCounters counters = new CachingCounters();
     CacheUtil.getCached(new DataSpec(Uri.parse("test")), mockCache, counters);
@@ -276,22 +292,15 @@ public final class CacheUtilTest {
   @Test
   public void testCachePolling() throws Exception {
     final CachingCounters counters = new CachingCounters();
-    FakeDataSet fakeDataSet = new FakeDataSet().newData("test_data")
-        .appendReadData(TestUtil.buildTestData(100))
-        .appendReadAction(new Runnable() {
-          @Override
-          public void run() {
-            assertCounters(counters, 0, 100, 300);
-          }
-        })
-        .appendReadData(TestUtil.buildTestData(100))
-        .appendReadAction(new Runnable() {
-          @Override
-          public void run() {
-            assertCounters(counters, 0, 200, 300);
-          }
-        })
-        .appendReadData(TestUtil.buildTestData(100)).endData();
+    FakeDataSet fakeDataSet =
+        new FakeDataSet()
+            .newData("test_data")
+            .appendReadData(TestUtil.buildTestData(100))
+            .appendReadAction(() -> assertCounters(counters, 0, 100, 300))
+            .appendReadData(TestUtil.buildTestData(100))
+            .appendReadAction(() -> assertCounters(counters, 0, 200, 300))
+            .appendReadData(TestUtil.buildTestData(100))
+            .endData();
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     CacheUtil.cache(

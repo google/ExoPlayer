@@ -15,13 +15,16 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static org.junit.Assert.fail;
 
 import android.media.MediaDrm.MediaDrmStateException;
 import android.net.Uri;
-import android.test.ActivityInstrumentationTestCase2;
 import android.util.Pair;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
@@ -36,11 +39,15 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-/**
- * Tests Widevine encrypted DASH playbacks using offline keys.
- */
-public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCase2<HostActivity> {
+/** Tests Widevine encrypted DASH playbacks using offline keys. */
+@RunWith(AndroidJUnit4.class)
+public final class DashWidevineOfflineTest {
 
   private static final String TAG = "DashWidevineOfflineTest";
   private static final String USER_AGENT = "ExoPlayerPlaybackTests";
@@ -50,21 +57,20 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
   private OfflineLicenseHelper<FrameworkMediaCrypto> offlineLicenseHelper;
   private byte[] offlineLicenseKeySetId;
 
-  public DashWidevineOfflineTest() {
-    super(HostActivity.class);
-  }
+  @Rule public ActivityTestRule<HostActivity> testRule = new ActivityTestRule<>(HostActivity.class);
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    testRunner = new DashTestRunner(TAG, getActivity(), getInstrumentation())
-        .setStreamName("test_widevine_h264_fixed_offline")
-        .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
-        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
-        .setFullPlaybackNoSeeking(true)
-        .setCanIncludeAdditionalVideoFormats(false)
-        .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
-            DashTestData.WIDEVINE_H264_CDD_FIXED);
+  @Before
+  public void setUp() throws Exception {
+    testRunner =
+        new DashTestRunner(TAG, testRule.getActivity(), getInstrumentation())
+            .setStreamName("test_widevine_h264_fixed_offline")
+            .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
+            .setWidevineInfo(MimeTypes.VIDEO_H264, true)
+            .setFullPlaybackNoSeeking(true)
+            .setCanIncludeAdditionalVideoFormats(false)
+            .setAudioVideoFormats(
+                DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
+                DashTestData.WIDEVINE_H264_CDD_FIXED);
 
     boolean useL1Widevine = DashTestRunner.isL1WidevineAvailable(MimeTypes.VIDEO_H264);
     String widevineLicenseUrl = DashTestData.getWidevineLicenseUrl(true, useL1Widevine);
@@ -75,8 +81,8 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     }
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() throws Exception {
     testRunner = null;
     if (offlineLicenseKeySetId != null) {
       releaseLicense();
@@ -86,11 +92,11 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     }
     offlineLicenseHelper = null;
     httpDataSourceFactory = null;
-    super.tearDown();
   }
 
   // Offline license tests
 
+  @Test
   public void testWidevineOfflineLicenseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
@@ -103,6 +109,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     assertThat(offlineLicenseKeySetId).isNotNull();
   }
 
+  @Test
   public void testWidevineOfflineReleasedLicenseV22() throws Throwable {
     if (Util.SDK_INT < 22) {
       return; // Pass.
@@ -129,6 +136,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     }
   }
 
+  @Test
   public void testWidevineOfflineExpiredLicenseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
@@ -158,6 +166,7 @@ public final class DashWidevineOfflineTest extends ActivityInstrumentationTestCa
     testRunner.run();
   }
 
+  @Test
   public void testWidevineOfflineLicenseExpiresOnPauseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
