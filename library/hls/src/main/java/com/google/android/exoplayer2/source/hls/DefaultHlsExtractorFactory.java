@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
-import com.google.android.exoplayer2.source.UnrecognizedInputFormatException;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.EOFException;
@@ -145,8 +144,8 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       }
     }
 
-    throw new UnrecognizedInputFormatException(
-        "The segment does not seem to conform to any of the known HLS segment formats", uri);
+    // Fall back on the extractor created by file extension.
+    return buildResult(extractorByFileExtension);
   }
 
   private Extractor createExtractorByFileExtension(
