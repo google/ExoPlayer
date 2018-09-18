@@ -223,9 +223,6 @@ import java.util.List;
    *     started, the value will be the starting position in the period minus the duration of any
    *     media in previous periods still to be played.
    * @param loadPositionUs The current load position relative to the period start in microseconds.
-   *     If {@code queue} is empty, this is the starting position from which chunks should be
-   *     provided. Else it's equal to {@link HlsMediaChunk#endTimeUs} of the last chunk in the
-   *     {@code queue}.
    * @param queue The queue of buffered {@link HlsMediaChunk}s.
    * @param out A holder to populate.
    */
@@ -237,12 +234,12 @@ import java.util.List;
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
     if (previous != null && !independentSegments) {
-      // Unless segments are known to be independent, switching variant will require downloading
-      // overlapping segments. Hence we will subtract previous chunk's duration from buffered
+      // Unless segments are known to be independent, switching variant requires downloading
+      // overlapping segments. Hence we subtract the previous segment's duration from the buffered
       // duration.
-      // This may affect the live-streaming adaptive track selection logic, when we are comparing
-      // buffered duration to time to live edge to decide whether to switch. Therefore,
-      // we will subtract this same amount from timeToLiveEdgeUs as well.
+      // This may affect the live-streaming adaptive track selection logic, when we compare the
+      // buffered duration to time-to-live-edge to decide whether to switch. Therefore, we subtract
+      // the duration of the last loaded segment from timeToLiveEdgeUs as well.
       long subtractedDurationUs = previous.getDurationUs();
       bufferedDurationUs = Math.max(0, bufferedDurationUs - subtractedDurationUs);
       if (timeToLiveEdgeUs != C.TIME_UNSET) {
@@ -420,7 +417,7 @@ import java.util.List;
   }
 
   /**
-   * Returns list of {@link MediaChunkIterator}s for upcoming media chunks.
+   * Returns an array of {@link MediaChunkIterator}s for upcoming media chunks.
    *
    * @param previous The previous media chunk. May be null.
    * @param loadPositionUs The position at which the iterators will start.
@@ -458,6 +455,18 @@ import java.util.List;
 
   // Private methods.
 
+  /**
+   * Returns the media sequence number of the segment to load next in {@code mediaPlaylist}.
+   *
+   * @param previous The last (at least partially) loaded segment.
+   * @param switchingVariant Whether the segment to load is not preceded by a segment in the same
+   *     variant.
+   * @param mediaPlaylist The media playlist to which the segment to load belongs.
+   * @param startOfPlaylistInPeriodUs The start of {@code mediaPlaylist} relative to the period
+   *     start in microseconds.
+   * @param loadPositionUs The current load position relative to the period start in microseconds.
+   * @return The media sequence of the segment to load.
+   */
   private long getChunkMediaSequence(
       @Nullable HlsMediaChunk previous,
       boolean switchingVariant,
@@ -480,6 +489,8 @@ import java.util.List;
               /* stayInBounds= */ !playlistTracker.isLive() || previous == null)
           + mediaPlaylist.mediaSequence;
     }
+    // We ignore the case of previous not having loaded completely, in which case we load the next
+    // segment.
     return previous.getNextChunkIndex();
   }
 
