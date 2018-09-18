@@ -160,7 +160,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         allowedJoiningTimeMs,
         /* eventHandler= */ null,
         /* eventListener= */ null,
-        -1);
+        /* maxDroppedFramesToNotify= */ -1);
   }
 
   /**
@@ -171,12 +171,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
+   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-      long allowedJoiningTimeMs, @Nullable Handler eventHandler,
-      @Nullable VideoRendererEventListener eventListener, int maxDroppedFrameCountToNotify) {
+  public MediaCodecVideoRenderer(
+      Context context,
+      MediaCodecSelector mediaCodecSelector,
+      long allowedJoiningTimeMs,
+      @Nullable Handler eventHandler,
+      @Nullable VideoRendererEventListener eventListener,
+      int maxDroppedFramesToNotify) {
     this(
         context,
         mediaCodecSelector,
@@ -185,7 +189,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         /* playClearSamplesWithoutKeys= */ false,
         eventHandler,
         eventListener,
-        maxDroppedFrameCountToNotify);
+        maxDroppedFramesToNotify);
   }
 
   /**
@@ -850,7 +854,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     consecutiveDroppedFrameCount += droppedBufferCount;
     decoderCounters.maxConsecutiveDroppedBufferCount = Math.max(consecutiveDroppedFrameCount,
         decoderCounters.maxConsecutiveDroppedBufferCount);
-    if (droppedFrames >= maxDroppedFramesToNotify) {
+    if (maxDroppedFramesToNotify > 0 && droppedFrames >= maxDroppedFramesToNotify) {
       maybeNotifyDroppedFrames();
     }
   }
