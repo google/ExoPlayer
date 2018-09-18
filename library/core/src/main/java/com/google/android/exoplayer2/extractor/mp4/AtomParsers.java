@@ -349,8 +349,11 @@ import java.util.List;
           gaplessInfoHolder.encoderDelay = (int) encoderDelay;
           gaplessInfoHolder.encoderPadding = (int) encoderPadding;
           Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
+          long editedDurationUs =
+              Util.scaleLargeTimestamp(
+                  track.editListDurations[0], C.MICROS_PER_SECOND, track.movieTimescale);
           return new TrackSampleTable(
-              track, offsets, sizes, maximumSize, timestamps, flags, durationUs);
+              track, offsets, sizes, maximumSize, timestamps, flags, editedDurationUs);
         }
       }
     }
