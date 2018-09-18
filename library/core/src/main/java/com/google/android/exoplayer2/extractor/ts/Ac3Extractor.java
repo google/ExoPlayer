@@ -85,7 +85,7 @@ public final class Ac3Extractor implements Extractor {
     int headerPosition = startPosition;
     int validFramesCount = 0;
     while (true) {
-      input.peekFully(scratch.data, 0, 5);
+      input.peekFully(scratch.data, 0, 6);
       scratch.setPosition(0);
       int syncBytes = scratch.readUnsignedShort();
       if (syncBytes != AC3_SYNC_WORD) {
@@ -103,7 +103,7 @@ public final class Ac3Extractor implements Extractor {
         if (frameSize == C.LENGTH_UNSET) {
           return false;
         }
-        input.advancePeekPosition(frameSize - 5);
+        input.advancePeekPosition(frameSize - 6);
       }
     }
   }
