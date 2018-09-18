@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.util;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

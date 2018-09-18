@@ -38,7 +38,6 @@ import android.security.NetworkSecurityPolicy;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 import com.google.android.exoplayer2.C;
