@@ -25,7 +25,12 @@ import org.robolectric.RobolectricTestRunner;
 public final class Ac3ExtractorTest {
 
   @Test
-  public void testSample() throws Exception {
+  public void testAc3Sample() throws Exception {
     ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.ac3");
+  }
+
+  @Test
+  public void testEAc3Sample() throws Exception {
+    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.eac3");
   }
 }
