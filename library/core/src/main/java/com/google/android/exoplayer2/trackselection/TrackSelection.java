@@ -150,7 +150,7 @@ public interface TrackSelection {
   void onPlaybackSpeed(float speed);
 
   /**
-   * @deprecated Use and implement {@link #updateSelectedTrack(long, long, long, float, List,
+   * @deprecated Use and implement {@link #updateSelectedTrack(long, long, long, List,
    *     MediaChunkIterator[])} instead.
    */
   @Deprecated
