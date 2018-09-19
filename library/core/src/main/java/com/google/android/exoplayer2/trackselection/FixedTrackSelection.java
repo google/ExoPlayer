@@ -18,8 +18,11 @@ package com.google.android.exoplayer2.trackselection;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
+import java.util.List;
 
 /**
  * A {@link TrackSelection} consisting of a single track.
@@ -84,8 +87,12 @@ public final class FixedTrackSelection extends BaseTrackSelection {
   }
 
   @Override
-  public void updateSelectedTrack(long playbackPositionUs, long bufferedDurationUs,
-      long availableDurationUs) {
+  public void updateSelectedTrack(
+      long playbackPositionUs,
+      long bufferedDurationUs,
+      long availableDurationUs,
+      List<? extends MediaChunk> queue,
+      MediaChunkIterator[] mediaChunkIterators) {
     // Do nothing.
   }
 
