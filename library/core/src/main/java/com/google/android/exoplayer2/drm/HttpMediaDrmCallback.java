@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.drm;
 
 import android.annotation.TargetApi;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
@@ -135,8 +136,12 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
     return executePost(dataSourceFactory, url, request.getData(), requestProperties);
   }
 
-  private static byte[] executePost(HttpDataSource.Factory dataSourceFactory, String url,
-      byte[] data, Map<String, String> requestProperties) throws IOException {
+  private static byte[] executePost(
+      HttpDataSource.Factory dataSourceFactory,
+      String url,
+      byte[] data,
+      @Nullable Map<String, String> requestProperties)
+      throws IOException {
     HttpDataSource dataSource = dataSourceFactory.createDataSource();
     if (requestProperties != null) {
       for (Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
@@ -164,17 +169,18 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
         boolean manuallyRedirect =
             (e.responseCode == 307 || e.responseCode == 308)
                 && manualRedirectCount++ < MAX_MANUAL_REDIRECTS;
-        url = manuallyRedirect ? getRedirectUrl(e) : null;
-        if (url == null) {
+        String redirectUrl = manuallyRedirect ? getRedirectUrl(e) : null;
+        if (redirectUrl == null) {
           throw e;
         }
+        url = redirectUrl;
       } finally {
         Util.closeQuietly(inputStream);
       }
     }
   }
 
-  private static String getRedirectUrl(InvalidResponseCodeException exception) {
+  private static @Nullable String getRedirectUrl(InvalidResponseCodeException exception) {
     Map<String, List<String>> headerFields = exception.headerFields;
     if (headerFields != null) {
       List<String> locationHeaders = headerFields.get("Location");

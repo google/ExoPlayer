@@ -131,7 +131,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     String mimeType = null;
     if (schemeDatas != null) {
       schemeData = getSchemeData(uuid, schemeDatas);
-      initData = adjustRequestInitData(uuid, schemeData.data);
+      initData = adjustRequestInitData(uuid, Assertions.checkNotNull(schemeData.data));
       mimeType = adjustRequestMimeType(uuid, schemeData.mimeType);
     }
     MediaDrm.KeyRequest request =
@@ -229,11 +229,12 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
       boolean canConcatenateData = true;
       for (int i = 0; i < schemeDatas.size(); i++) {
         SchemeData schemeData = schemeDatas.get(i);
+        byte[] schemeDataData = Util.castNonNull(schemeData.data);
         if (schemeData.requiresSecureDecryption == firstSchemeData.requiresSecureDecryption
             && Util.areEqual(schemeData.mimeType, firstSchemeData.mimeType)
             && Util.areEqual(schemeData.licenseServerUrl, firstSchemeData.licenseServerUrl)
-            && PsshAtomUtil.isPsshAtom(schemeData.data)) {
-          concatenatedDataLength += schemeData.data.length;
+            && PsshAtomUtil.isPsshAtom(schemeDataData)) {
+          concatenatedDataLength += schemeDataData.length;
         } else {
           canConcatenateData = false;
           break;
@@ -244,9 +245,10 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
         int concatenatedDataPosition = 0;
         for (int i = 0; i < schemeDatas.size(); i++) {
           SchemeData schemeData = schemeDatas.get(i);
-          int schemeDataLength = schemeData.data.length;
+          byte[] schemeDataData = Util.castNonNull(schemeData.data);
+          int schemeDataLength = schemeDataData.length;
           System.arraycopy(
-              schemeData.data, 0, concatenatedData, concatenatedDataPosition, schemeDataLength);
+              schemeDataData, 0, concatenatedData, concatenatedDataPosition, schemeDataLength);
           concatenatedDataPosition += schemeDataLength;
         }
         return firstSchemeData.copyWithData(concatenatedData);
@@ -257,7 +259,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     // the first V0 box.
     for (int i = 0; i < schemeDatas.size(); i++) {
       SchemeData schemeData = schemeDatas.get(i);
-      int version = PsshAtomUtil.parseVersion(schemeData.data);
+      int version = PsshAtomUtil.parseVersion(Util.castNonNull(schemeData.data));
       if (Util.SDK_INT < 23 && version == 0) {
         return schemeData;
       } else if (Util.SDK_INT >= 23 && version == 1) {
