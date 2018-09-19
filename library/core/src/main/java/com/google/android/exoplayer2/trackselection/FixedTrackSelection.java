@@ -27,8 +27,12 @@ import com.google.android.exoplayer2.util.Assertions;
 public final class FixedTrackSelection extends BaseTrackSelection {
 
   /**
-   * Factory for {@link FixedTrackSelection} instances.
+   * @deprecated Don't use as adaptive track selection factory as it will throw when multiple tracks
+   *     are selected. If you would like to disable adaptive selection in {@link
+   *     DefaultTrackSelector}, enable the {@link
+   *     DefaultTrackSelector.Parameters#forceHighestSupportedBitrate} flag instead.
    */
+  @Deprecated
   public static final class Factory implements TrackSelection.Factory {
 
     private final int reason;
