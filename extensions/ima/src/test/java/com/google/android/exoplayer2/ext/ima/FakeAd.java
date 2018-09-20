@@ -64,6 +64,18 @@ import java.util.Set;
         };
   }
 
+  public int getVastMediaWidth() {
+    throw new UnsupportedOperationException();
+  }
+
+  public int getVastMediaHeight() {
+    throw new UnsupportedOperationException();
+  }
+
+  public int getVastMediaBitrate() {
+    throw new UnsupportedOperationException();
+  }
+
   @Override
   public boolean isSkippable() {
     return skippable;
