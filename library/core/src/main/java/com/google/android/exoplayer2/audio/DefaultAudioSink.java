@@ -632,7 +632,9 @@ public final class DefaultAudioSink implements AudioSink {
       } else {
         // Sanity check that presentationTimeUs is consistent with the expected value.
         long expectedPresentationTimeUs =
-            startMediaTimeUs + inputFramesToDurationUs(getSubmittedFrames());
+            startMediaTimeUs
+                + inputFramesToDurationUs(
+                    getSubmittedFrames() - trimmingAudioProcessor.getTrimmedFrameCount());
         if (startMediaTimeState == START_IN_SYNC
             && Math.abs(expectedPresentationTimeUs - presentationTimeUs) > 200000) {
           Log.e(TAG, "Discontinuity detected [expected " + expectedPresentationTimeUs + ", got "
@@ -955,6 +957,7 @@ public final class DefaultAudioSink implements AudioSink {
       playbackParametersCheckpoints.clear();
       playbackParametersOffsetUs = 0;
       playbackParametersPositionUs = 0;
+      trimmingAudioProcessor.resetTrimmedFrameCount();
       inputBuffer = null;
       outputBuffer = null;
       flushAudioProcessors();
