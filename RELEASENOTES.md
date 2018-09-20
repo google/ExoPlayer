@@ -4,6 +4,9 @@
 
 * Allow setting log level for ExoPlayer logcat output
   ([#4665](https://github.com/google/ExoPlayer/issues/4665)).
+* Fix an issue where audio and video would desynchronize when playing
+  concatenations of gapless content
+  ([#4559](https://github.com/google/ExoPlayer/issues/4559)).
 
 ### 2.9.0 ###
 
