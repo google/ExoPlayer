@@ -33,6 +33,7 @@ import java.nio.ByteOrder;
   private int channelCount;
   private int sampleRateHz;
   private int bytesPerFrame;
+  private boolean receivedInputSinceConfigure;
 
   private int pendingTrimStartBytes;
   private ByteBuffer buffer;
@@ -95,6 +96,7 @@ import java.nio.ByteOrder;
     pendingTrimStartBytes = trimStartFrames * bytesPerFrame;
     boolean wasActive = isActive;
     isActive = trimStartFrames != 0 || trimEndFrames != 0;
+    receivedInputSinceConfigure = false;
     return wasActive != isActive;
   }
 
@@ -127,6 +129,7 @@ import java.nio.ByteOrder;
     if (remaining == 0) {
       return;
     }
+    receivedInputSinceConfigure = true;
 
     // Trim any pending start bytes from the input buffer.
     int trimBytes = Math.min(remaining, pendingTrimStartBytes);
@@ -211,9 +214,14 @@ import java.nio.ByteOrder;
   public void flush() {
     outputBuffer = EMPTY_BUFFER;
     inputEnded = false;
-    // It's no longer necessary to trim any media from the start, but it is necessary to clear the
-    // end buffer and refill it.
-    pendingTrimStartBytes = 0;
+    if (receivedInputSinceConfigure) {
+      // Audio processors are flushed after initial configuration, so we leave the pending trim
+      // start byte count unmodified if the processor was just configured. Otherwise we (possibly
+      // incorrectly) assume that this is a seek to a non-zero position. We should instead check the
+      // timestamp of the first input buffer queued after flushing to decide whether to trim (see
+      // also [Internal: b/77292509]).
+      pendingTrimStartBytes = 0;
+    }
     endBufferSize = 0;
   }
 
