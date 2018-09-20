@@ -174,6 +174,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private boolean allowNonSeamlessAdaptiveness;
     private int maxVideoWidth;
     private int maxVideoHeight;
+    private int maxVideoFrameRate;
     private int maxVideoBitrate;
     private boolean exceedVideoConstraintsIfNecessary;
     private boolean exceedRendererCapabilitiesIfNecessary;
@@ -181,7 +182,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private int viewportHeight;
     private boolean viewportOrientationMayChange;
     private int tunnelingAudioSessionId;
-    private int maxFrameRate;
 
     /** Creates a builder with default initial values. */
     public ParametersBuilder() {
@@ -205,6 +205,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       allowNonSeamlessAdaptiveness = initialValues.allowNonSeamlessAdaptiveness;
       maxVideoWidth = initialValues.maxVideoWidth;
       maxVideoHeight = initialValues.maxVideoHeight;
+      maxVideoFrameRate = initialValues.maxVideoFrameRate;
       maxVideoBitrate = initialValues.maxVideoBitrate;
       exceedVideoConstraintsIfNecessary = initialValues.exceedVideoConstraintsIfNecessary;
       exceedRendererCapabilitiesIfNecessary = initialValues.exceedRendererCapabilitiesIfNecessary;
@@ -212,7 +213,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       viewportHeight = initialValues.viewportHeight;
       viewportOrientationMayChange = initialValues.viewportOrientationMayChange;
       tunnelingAudioSessionId = initialValues.tunnelingAudioSessionId;
-      maxFrameRate = initialValues.maxFrameRate;
     }
 
     /**
@@ -323,6 +323,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public ParametersBuilder setMaxVideoSize(int maxVideoWidth, int maxVideoHeight) {
       this.maxVideoWidth = maxVideoWidth;
       this.maxVideoHeight = maxVideoHeight;
+      return this;
+    }
+
+    /**
+     * See {@link Parameters#maxVideoFrameRate}.
+     *
+     * @return This builder.
+     */
+    public ParametersBuilder setMaxVideoFrameRate(int maxVideoFrameRate) {
+      this.maxVideoFrameRate = maxVideoFrameRate;
       return this;
     }
 
@@ -524,16 +534,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * See {@link Parameters#maxFrameRate}.
-     *
-     * @return This builder.
-     */
-    public ParametersBuilder setMaxFrameRate(int maxFrameRate) {
-      this.maxFrameRate = maxFrameRate;
-      return this;
-    }
-
-    /**
      * Builds a {@link Parameters} instance with the selected values.
      */
     public Parameters build() {
@@ -550,14 +550,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           allowNonSeamlessAdaptiveness,
           maxVideoWidth,
           maxVideoHeight,
+          maxVideoFrameRate,
           maxVideoBitrate,
           exceedVideoConstraintsIfNecessary,
           exceedRendererCapabilitiesIfNecessary,
           viewportWidth,
           viewportHeight,
           viewportOrientationMayChange,
-          tunnelingAudioSessionId,
-          maxFrameRate);
+          tunnelingAudioSessionId);
     }
 
     private static SparseArray<Map<TrackGroupArray, SelectionOverride>> cloneSelectionOverrides(
@@ -627,6 +627,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public final int maxVideoHeight;
     /**
+     * Maximum allowed video frame rate. The default value is {@link Integer#MAX_VALUE} (i.e. no
+     * constraint).
+     */
+    public final int maxVideoFrameRate;
+    /**
      * Maximum video bitrate. The default value is {@link Integer#MAX_VALUE} (i.e. no constraint).
      */
     public final int maxVideoBitrate;
@@ -654,10 +659,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * The default value is {@code true}.
      */
     public final boolean viewportOrientationMayChange;
-    /**
-     * Maximum video frame rate. The default value is {@link Integer#MAX_VALUE} (i.e. no constraint).
-     */
-    public final int maxFrameRate;
 
     // General
     /**
@@ -711,14 +712,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           /* allowNonSeamlessAdaptiveness= */ true,
           /* maxVideoWidth= */ Integer.MAX_VALUE,
           /* maxVideoHeight= */ Integer.MAX_VALUE,
+          /* maxVideoFrameRate= */ Integer.MAX_VALUE,
           /* maxVideoBitrate= */ Integer.MAX_VALUE,
           /* exceedVideoConstraintsIfNecessary= */ true,
           /* exceedRendererCapabilitiesIfNecessary= */ true,
           /* viewportWidth= */ Integer.MAX_VALUE,
           /* viewportHeight= */ Integer.MAX_VALUE,
           /* viewportOrientationMayChange= */ true,
-          /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET,
-          /* maxFrameRate= */ Integer.MAX_VALUE);
+          /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET);
     }
 
     /* package */ Parameters(
@@ -734,14 +735,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         boolean allowNonSeamlessAdaptiveness,
         int maxVideoWidth,
         int maxVideoHeight,
+        int maxVideoFrameRate,
         int maxVideoBitrate,
         boolean exceedVideoConstraintsIfNecessary,
         boolean exceedRendererCapabilitiesIfNecessary,
         int viewportWidth,
         int viewportHeight,
         boolean viewportOrientationMayChange,
-        int tunnelingAudioSessionId,
-        int maxFrameRate) {
+        int tunnelingAudioSessionId) {
       this.selectionOverrides = selectionOverrides;
       this.rendererDisabledFlags = rendererDisabledFlags;
       this.preferredAudioLanguage = Util.normalizeLanguageCode(preferredAudioLanguage);
@@ -754,6 +755,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.allowNonSeamlessAdaptiveness = allowNonSeamlessAdaptiveness;
       this.maxVideoWidth = maxVideoWidth;
       this.maxVideoHeight = maxVideoHeight;
+      this.maxVideoFrameRate = maxVideoFrameRate;
       this.maxVideoBitrate = maxVideoBitrate;
       this.exceedVideoConstraintsIfNecessary = exceedVideoConstraintsIfNecessary;
       this.exceedRendererCapabilitiesIfNecessary = exceedRendererCapabilitiesIfNecessary;
@@ -761,7 +763,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.viewportHeight = viewportHeight;
       this.viewportOrientationMayChange = viewportOrientationMayChange;
       this.tunnelingAudioSessionId = tunnelingAudioSessionId;
-      this.maxFrameRate = maxFrameRate;
     }
 
     /* package */ Parameters(Parcel in) {
@@ -777,6 +778,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.allowNonSeamlessAdaptiveness = Util.readBoolean(in);
       this.maxVideoWidth = in.readInt();
       this.maxVideoHeight = in.readInt();
+      this.maxVideoFrameRate = in.readInt();
       this.maxVideoBitrate = in.readInt();
       this.exceedVideoConstraintsIfNecessary = Util.readBoolean(in);
       this.exceedRendererCapabilitiesIfNecessary = Util.readBoolean(in);
@@ -784,7 +786,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.viewportHeight = in.readInt();
       this.viewportOrientationMayChange = Util.readBoolean(in);
       this.tunnelingAudioSessionId = in.readInt();
-      this.maxFrameRate = in.readInt();
     }
 
     /**
@@ -846,6 +847,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && allowNonSeamlessAdaptiveness == other.allowNonSeamlessAdaptiveness
           && maxVideoWidth == other.maxVideoWidth
           && maxVideoHeight == other.maxVideoHeight
+          && maxVideoFrameRate == other.maxVideoFrameRate
           && exceedVideoConstraintsIfNecessary == other.exceedVideoConstraintsIfNecessary
           && exceedRendererCapabilitiesIfNecessary == other.exceedRendererCapabilitiesIfNecessary
           && viewportOrientationMayChange == other.viewportOrientationMayChange
@@ -853,7 +855,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && viewportHeight == other.viewportHeight
           && maxVideoBitrate == other.maxVideoBitrate
           && tunnelingAudioSessionId == other.tunnelingAudioSessionId
-          && maxFrameRate == other.maxFrameRate
           && TextUtils.equals(preferredAudioLanguage, other.preferredAudioLanguage)
           && TextUtils.equals(preferredTextLanguage, other.preferredTextLanguage)
           && areRendererDisabledFlagsEqual(rendererDisabledFlags, other.rendererDisabledFlags)
@@ -870,6 +871,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       result = 31 * result + (allowNonSeamlessAdaptiveness ? 1 : 0);
       result = 31 * result + maxVideoWidth;
       result = 31 * result + maxVideoHeight;
+      result = 31 * result + maxVideoFrameRate;
       result = 31 * result + (exceedVideoConstraintsIfNecessary ? 1 : 0);
       result = 31 * result + (exceedRendererCapabilitiesIfNecessary ? 1 : 0);
       result = 31 * result + (viewportOrientationMayChange ? 1 : 0);
@@ -877,7 +879,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       result = 31 * result + viewportHeight;
       result = 31 * result + maxVideoBitrate;
       result = 31 * result + tunnelingAudioSessionId;
-      result = 31 * result + maxFrameRate;
       result =
           31 * result + (preferredAudioLanguage == null ? 0 : preferredAudioLanguage.hashCode());
       result = 31 * result + (preferredTextLanguage == null ? 0 : preferredTextLanguage.hashCode());
@@ -905,6 +906,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       Util.writeBoolean(dest, allowNonSeamlessAdaptiveness);
       dest.writeInt(maxVideoWidth);
       dest.writeInt(maxVideoHeight);
+      dest.writeInt(maxVideoFrameRate);
       dest.writeInt(maxVideoBitrate);
       Util.writeBoolean(dest, exceedVideoConstraintsIfNecessary);
       Util.writeBoolean(dest, exceedRendererCapabilitiesIfNecessary);
@@ -912,7 +914,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       dest.writeInt(viewportHeight);
       Util.writeBoolean(dest, viewportOrientationMayChange);
       dest.writeInt(tunnelingAudioSessionId);
-      dest.writeInt(maxFrameRate);
     }
 
     public static final Parcelable.Creator<Parameters> CREATOR =
@@ -1457,10 +1458,19 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             && (mixedMimeTypeAdaptationSupports & requiredAdaptiveSupport) != 0;
     for (int i = 0; i < groups.length; i++) {
       TrackGroup group = groups.get(i);
-      int[] adaptiveTracks = getAdaptiveVideoTracksForGroup(group, formatSupport[i],
-          allowMixedMimeTypes, requiredAdaptiveSupport, params.maxVideoWidth, params.maxVideoHeight,
-          params.maxVideoBitrate, params.maxFrameRate, params.viewportWidth, params.viewportHeight,
-          params.viewportOrientationMayChange);
+      int[] adaptiveTracks =
+          getAdaptiveVideoTracksForGroup(
+              group,
+              formatSupport[i],
+              allowMixedMimeTypes,
+              requiredAdaptiveSupport,
+              params.maxVideoWidth,
+              params.maxVideoHeight,
+              params.maxVideoFrameRate,
+              params.maxVideoBitrate,
+              params.viewportWidth,
+              params.viewportHeight,
+              params.viewportOrientationMayChange);
       if (adaptiveTracks.length > 0) {
         return Assertions.checkNotNull(adaptiveTrackSelectionFactory)
             .createTrackSelection(group, bandwidthMeter, adaptiveTracks);
@@ -1469,10 +1479,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     return null;
   }
 
-  private static int[] getAdaptiveVideoTracksForGroup(TrackGroup group, int[] formatSupport,
-      boolean allowMixedMimeTypes, int requiredAdaptiveSupport, int maxVideoWidth,
-      int maxVideoHeight, int maxVideoBitrate, int maxFrameRate, int viewportWidth,
-      int viewportHeight, boolean viewportOrientationMayChange) {
+  private static int[] getAdaptiveVideoTracksForGroup(
+      TrackGroup group,
+      int[] formatSupport,
+      boolean allowMixedMimeTypes,
+      int requiredAdaptiveSupport,
+      int maxVideoWidth,
+      int maxVideoHeight,
+      int maxVideoFrameRate,
+      int maxVideoBitrate,
+      int viewportWidth,
+      int viewportHeight,
+      boolean viewportOrientationMayChange) {
     if (group.length < 2) {
       return NO_TRACKS;
     }
@@ -1492,9 +1510,17 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         int trackIndex = selectedTrackIndices.get(i);
         String sampleMimeType = group.getFormat(trackIndex).sampleMimeType;
         if (seenMimeTypes.add(sampleMimeType)) {
-          int countForMimeType = getAdaptiveVideoTrackCountForMimeType(group, formatSupport,
-              requiredAdaptiveSupport, sampleMimeType, maxVideoWidth, maxVideoHeight,
-              maxVideoBitrate, maxFrameRate, selectedTrackIndices);
+          int countForMimeType =
+              getAdaptiveVideoTrackCountForMimeType(
+                  group,
+                  formatSupport,
+                  requiredAdaptiveSupport,
+                  sampleMimeType,
+                  maxVideoWidth,
+                  maxVideoHeight,
+                  maxVideoFrameRate,
+                  maxVideoBitrate,
+                  selectedTrackIndices);
           if (countForMimeType > selectedMimeTypeTrackCount) {
             selectedMimeType = sampleMimeType;
             selectedMimeTypeTrackCount = countForMimeType;
@@ -1504,8 +1530,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     // Filter by the selected mime type.
-    filterAdaptiveVideoTrackCountForMimeType(group, formatSupport, requiredAdaptiveSupport,
-        selectedMimeType, maxVideoWidth, maxVideoHeight, maxVideoBitrate, maxFrameRate,
+    filterAdaptiveVideoTrackCountForMimeType(
+        group,
+        formatSupport,
+        requiredAdaptiveSupport,
+        selectedMimeType,
+        maxVideoWidth,
+        maxVideoHeight,
+        maxVideoFrameRate,
+        maxVideoBitrate,
         selectedTrackIndices);
 
     return selectedTrackIndices.size() < 2 ? NO_TRACKS : Util.toArray(selectedTrackIndices);
@@ -1518,15 +1551,21 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       @Nullable String mimeType,
       int maxVideoWidth,
       int maxVideoHeight,
+      int maxVideoFrameRate,
       int maxVideoBitrate,
-      int maxFrameRate,
       List<Integer> selectedTrackIndices) {
     int adaptiveTrackCount = 0;
     for (int i = 0; i < selectedTrackIndices.size(); i++) {
       int trackIndex = selectedTrackIndices.get(i);
-      if (isSupportedAdaptiveVideoTrack(group.getFormat(trackIndex), mimeType,
-          formatSupport[trackIndex], requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, maxFrameRate)) {
+      if (isSupportedAdaptiveVideoTrack(
+          group.getFormat(trackIndex),
+          mimeType,
+          formatSupport[trackIndex],
+          requiredAdaptiveSupport,
+          maxVideoWidth,
+          maxVideoHeight,
+          maxVideoFrameRate,
+          maxVideoBitrate)) {
         adaptiveTrackCount++;
       }
     }
@@ -1540,14 +1579,20 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       @Nullable String mimeType,
       int maxVideoWidth,
       int maxVideoHeight,
+      int maxVideoFrameRate,
       int maxVideoBitrate,
-      int maxFrameRate,
       List<Integer> selectedTrackIndices) {
     for (int i = selectedTrackIndices.size() - 1; i >= 0; i--) {
       int trackIndex = selectedTrackIndices.get(i);
-      if (!isSupportedAdaptiveVideoTrack(group.getFormat(trackIndex), mimeType,
-          formatSupport[trackIndex], requiredAdaptiveSupport, maxVideoWidth, maxVideoHeight,
-          maxVideoBitrate, maxFrameRate)) {
+      if (!isSupportedAdaptiveVideoTrack(
+          group.getFormat(trackIndex),
+          mimeType,
+          formatSupport[trackIndex],
+          requiredAdaptiveSupport,
+          maxVideoWidth,
+          maxVideoHeight,
+          maxVideoFrameRate,
+          maxVideoBitrate)) {
         selectedTrackIndices.remove(i);
       }
     }
@@ -1560,14 +1605,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int requiredAdaptiveSupport,
       int maxVideoWidth,
       int maxVideoHeight,
-      int maxVideoBitrate,
-      int maxFrameRate) {
-    return isSupported(formatSupport, false) && ((formatSupport & requiredAdaptiveSupport) != 0)
+      int maxVideoFrameRate,
+      int maxVideoBitrate) {
+    return isSupported(formatSupport, false)
+        && ((formatSupport & requiredAdaptiveSupport) != 0)
         && (mimeType == null || Util.areEqual(format.sampleMimeType, mimeType))
         && (format.width == Format.NO_VALUE || format.width <= maxVideoWidth)
         && (format.height == Format.NO_VALUE || format.height <= maxVideoHeight)
-        && (format.bitrate == Format.NO_VALUE || format.bitrate <= maxVideoBitrate)
-        && (format.frameRate == Format.NO_VALUE || format.frameRate <= maxFrameRate);
+        && (format.frameRate == Format.NO_VALUE || format.frameRate <= maxVideoFrameRate)
+        && (format.bitrate == Format.NO_VALUE || format.bitrate <= maxVideoBitrate);
   }
 
   private static @Nullable TrackSelection selectFixedVideoTrack(
@@ -1586,11 +1632,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         if (isSupported(trackFormatSupport[trackIndex],
             params.exceedRendererCapabilitiesIfNecessary)) {
           Format format = trackGroup.getFormat(trackIndex);
-          boolean isWithinConstraints = selectedTrackIndices.contains(trackIndex)
-              && (format.width == Format.NO_VALUE || format.width <= params.maxVideoWidth)
-              && (format.height == Format.NO_VALUE || format.height <= params.maxVideoHeight)
-              && (format.bitrate == Format.NO_VALUE || format.bitrate <= params.maxVideoBitrate)
-              && (format.frameRate == Format.NO_VALUE || format.frameRate <= params.maxFrameRate);
+          boolean isWithinConstraints =
+              selectedTrackIndices.contains(trackIndex)
+                  && (format.width == Format.NO_VALUE || format.width <= params.maxVideoWidth)
+                  && (format.height == Format.NO_VALUE || format.height <= params.maxVideoHeight)
+                  && (format.frameRate == Format.NO_VALUE
+                      || format.frameRate <= params.maxVideoFrameRate)
+                  && (format.bitrate == Format.NO_VALUE
+                      || format.bitrate <= params.maxVideoBitrate);
           if (!isWithinConstraints && !params.exceedVideoConstraintsIfNecessary) {
             // Track should not be selected.
             continue;
