@@ -497,6 +497,20 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return false;
   }
 
+  /**
+   * Polls the pending output format queue for a given buffer timestamp. If a format is present, it
+   * is removed and returned. Otherwise returns {@code null}. Subclasses should only call this
+   * method if they are taking over responsibility for output format propagation (e.g., when using
+   * video tunneling).
+   */
+  protected final @Nullable Format updateOutputFormatForTime(long presentationTimeUs) {
+    Format format = formatQueue.pollFloor(presentationTimeUs);
+    if (format != null) {
+      outputFormat = format;
+    }
+    return format;
+  }
+
   protected final MediaCodec getCodec() {
     return codec;
   }
@@ -1297,10 +1311,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
       }
       shouldSkipOutputBuffer = shouldSkipOutputBuffer(outputBufferInfo.presentationTimeUs);
-      Format format = formatQueue.pollFloor(outputBufferInfo.presentationTimeUs);
-      if (format != null) {
-        outputFormat = format;
-      }
+      updateOutputFormatForTime(outputBufferInfo.presentationTimeUs);
     }
 
     boolean processedOutputBuffer;
