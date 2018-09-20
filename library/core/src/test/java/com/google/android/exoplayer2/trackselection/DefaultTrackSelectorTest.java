@@ -130,14 +130,14 @@ public final class DefaultTrackSelectorTest {
             /* allowNonSeamlessAdaptiveness= */ true,
             /* maxVideoWidth= */ 1,
             /* maxVideoHeight= */ 2,
-            /* maxVideoBitrate= */ 3,
+            /* maxVideoFrameRate= */ 3,
+            /* maxVideoBitrate= */ 4,
             /* exceedVideoConstraintsIfNecessary= */ false,
             /* exceedRendererCapabilitiesIfNecessary= */ true,
-            /* viewportWidth= */ 4,
-            /* viewportHeight= */ 5,
+            /* viewportWidth= */ 5,
+            /* viewportHeight= */ 6,
             /* viewportOrientationMayChange= */ false,
-            /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET,
-            /* maxFrameRate= */ 6);
+            /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET);
 
     Parcel parcel = Parcel.obtain();
     parametersToParcel.writeToParcel(parcel, 0);
