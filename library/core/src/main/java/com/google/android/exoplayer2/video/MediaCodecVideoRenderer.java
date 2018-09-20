@@ -566,7 +566,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     buffersInCodecCount++;
     lastInputTimeUs = Math.max(buffer.timeUs, lastInputTimeUs);
     if (Util.SDK_INT < 23 && tunneling) {
-      maybeNotifyRenderedFirstFrame();
+      // In tunneled mode before API 23 we don't have a way to know when the buffer is output, so
+      // treat it as if it were output immediately.
+      onProcessedTunneledBuffer(buffer.timeUs);
     }
   }
 
@@ -575,29 +577,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     boolean hasCrop = outputFormat.containsKey(KEY_CROP_RIGHT)
         && outputFormat.containsKey(KEY_CROP_LEFT) && outputFormat.containsKey(KEY_CROP_BOTTOM)
         && outputFormat.containsKey(KEY_CROP_TOP);
-    currentWidth = hasCrop
-        ? outputFormat.getInteger(KEY_CROP_RIGHT) - outputFormat.getInteger(KEY_CROP_LEFT) + 1
-        : outputFormat.getInteger(MediaFormat.KEY_WIDTH);
-    currentHeight = hasCrop
-        ? outputFormat.getInteger(KEY_CROP_BOTTOM) - outputFormat.getInteger(KEY_CROP_TOP) + 1
-        : outputFormat.getInteger(MediaFormat.KEY_HEIGHT);
-    currentPixelWidthHeightRatio = pendingPixelWidthHeightRatio;
-    if (Util.SDK_INT >= 21) {
-      // On API level 21 and above the decoder applies the rotation when rendering to the surface.
-      // Hence currentUnappliedRotation should always be 0. For 90 and 270 degree rotations, we need
-      // to flip the width, height and pixel aspect ratio to reflect the rotation that was applied.
-      if (pendingRotationDegrees == 90 || pendingRotationDegrees == 270) {
-        int rotatedHeight = currentWidth;
-        currentWidth = currentHeight;
-        currentHeight = rotatedHeight;
-        currentPixelWidthHeightRatio = 1 / currentPixelWidthHeightRatio;
-      }
-    } else {
-      // On API level 20 and below the decoder does not apply the rotation.
-      currentUnappliedRotationDegrees = pendingRotationDegrees;
-    }
-    // Must be applied each time the output format changes.
-    codec.setVideoScalingMode(scalingMode);
+    int width =
+        hasCrop
+            ? outputFormat.getInteger(KEY_CROP_RIGHT) - outputFormat.getInteger(KEY_CROP_LEFT) + 1
+            : outputFormat.getInteger(MediaFormat.KEY_WIDTH);
+    int height =
+        hasCrop
+            ? outputFormat.getInteger(KEY_CROP_BOTTOM) - outputFormat.getInteger(KEY_CROP_TOP) + 1
+            : outputFormat.getInteger(MediaFormat.KEY_HEIGHT);
+    processOutputFormat(codec, width, height);
   }
 
   @Override
@@ -705,6 +693,28 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return false;
   }
 
+  private void processOutputFormat(MediaCodec codec, int width, int height) {
+    currentWidth = width;
+    currentHeight = height;
+    currentPixelWidthHeightRatio = pendingPixelWidthHeightRatio;
+    if (Util.SDK_INT >= 21) {
+      // On API level 21 and above the decoder applies the rotation when rendering to the surface.
+      // Hence currentUnappliedRotation should always be 0. For 90 and 270 degree rotations, we need
+      // to flip the width, height and pixel aspect ratio to reflect the rotation that was applied.
+      if (pendingRotationDegrees == 90 || pendingRotationDegrees == 270) {
+        int rotatedHeight = currentWidth;
+        currentWidth = currentHeight;
+        currentHeight = rotatedHeight;
+        currentPixelWidthHeightRatio = 1 / currentPixelWidthHeightRatio;
+      }
+    } else {
+      // On API level 20 and below the decoder does not apply the rotation.
+      currentUnappliedRotationDegrees = pendingRotationDegrees;
+    }
+    // Must be applied each time the output format changes.
+    codec.setVideoScalingMode(scalingMode);
+  }
+
   private void notifyFrameMetadataListener(
       long presentationTimeUs, long releaseTimeNs, Format format) {
     if (frameMetadataListener != null) {
@@ -720,6 +730,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    */
   protected long getOutputStreamOffsetUs() {
     return outputStreamOffsetUs;
+  }
+
+  /** Called when a buffer was processed in tunneling mode. */
+  protected void onProcessedTunneledBuffer(long presentationTimeUs) {
+    @Nullable Format format = updateOutputFormatForTime(presentationTimeUs);
+    if (format != null) {
+      processOutputFormat(getCodec(), format.width, format.height);
+    }
+    maybeNotifyVideoSizeChanged();
+    maybeNotifyRenderedFirstFrame();
+    onProcessedOutputBuffer(presentationTimeUs);
   }
 
   /**
@@ -1463,7 +1484,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         // Stale event.
         return;
       }
-      maybeNotifyRenderedFirstFrame();
+      onProcessedTunneledBuffer(presentationTimeUs);
     }
 
   }
