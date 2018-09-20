@@ -136,7 +136,8 @@ public final class DefaultTrackSelectorTest {
             /* viewportWidth= */ 4,
             /* viewportHeight= */ 5,
             /* viewportOrientationMayChange= */ false,
-            /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET);
+            /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET,
+            /* maxFrameRate= */ 6);
 
     Parcel parcel = Parcel.obtain();
     parametersToParcel.writeToParcel(parcel, 0);
