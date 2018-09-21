@@ -428,7 +428,7 @@ import java.util.Collections;
     if (!queue.updateRepeatMode(repeatMode)) {
       seekToCurrentPosition(/* sendDiscontinuity= */ true);
     }
-    updateLoadingMediaPeriodId();
+    handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
   }
 
   private void setShuffleModeEnabledInternal(boolean shuffleModeEnabled)
@@ -437,7 +437,7 @@ import java.util.Collections;
     if (!queue.updateShuffleModeEnabled(shuffleModeEnabled)) {
       seekToCurrentPosition(/* sendDiscontinuity= */ true);
     }
-    updateLoadingMediaPeriodId();
+    handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
   }
 
   private void seekToCurrentPosition(boolean sendDiscontinuity) throws ExoPlaybackException {
@@ -706,7 +706,7 @@ import java.util.Collections;
       resetRendererPosition(periodPositionUs);
     }
 
-    updateLoadingMediaPeriodId();
+    handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     return periodPositionUs;
   }
@@ -1018,8 +1018,6 @@ import java.util.Collections;
       long periodPositionUs =
           playingPeriodHolder.applyTrackSelection(
               playbackInfo.positionUs, recreateStreams, streamResetFlags);
-      updateLoadControlTrackSelection(
-          playingPeriodHolder.trackGroups, playingPeriodHolder.trackSelectorResult);
       if (playbackInfo.playbackState != Player.STATE_ENDED
           && periodPositionUs != playbackInfo.positionUs) {
         playbackInfo = playbackInfo.fromNewPosition(playbackInfo.periodId, periodPositionUs,
@@ -1059,20 +1057,14 @@ import java.util.Collections;
             Math.max(
                 periodHolder.info.startPositionUs, periodHolder.toPeriodTime(rendererPositionUs));
         periodHolder.applyTrackSelection(loadingPeriodPositionUs, false);
-        updateLoadControlTrackSelection(periodHolder.trackGroups, periodHolder.trackSelectorResult);
       }
     }
-    updateLoadingMediaPeriodId();
+    handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ true);
     if (playbackInfo.playbackState != Player.STATE_ENDED) {
       maybeContinueLoading();
       updatePlaybackPositions();
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     }
-  }
-
-  private void updateLoadControlTrackSelection(
-      TrackGroupArray trackGroups, TrackSelectorResult trackSelectorResult) {
-    loadControl.onTracksSelected(renderers, trackGroups, trackSelectorResult.selections);
   }
 
   private void updateTrackSelectionPlaybackSpeed(float playbackSpeed) {
@@ -1278,7 +1270,7 @@ import java.util.Collections;
     if (!queue.updateQueuedPeriods(playingPeriodId, rendererPositionUs)) {
       seekToCurrentPosition(/* sendDiscontinuity= */ false);
     }
-    updateLoadingMediaPeriodId();
+    handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
   }
 
   private void handleSourceInfoRefreshEndedPlayback() {
@@ -1528,7 +1520,7 @@ import java.util.Collections;
                 info);
         mediaPeriod.prepare(this, info.startPositionUs);
         setIsLoading(true);
-        updateLoadingMediaPeriodId();
+        handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
       }
     }
   }
@@ -1666,14 +1658,28 @@ import java.util.Collections;
         && renderer.hasReadStreamToEnd();
   }
 
-  private void updateLoadingMediaPeriodId() {
+  private void handleLoadingMediaPeriodChanged(boolean loadingTrackSelectionChanged) {
     MediaPeriodHolder loadingMediaPeriodHolder = queue.getLoadingPeriod();
     MediaPeriodId loadingMediaPeriodId =
         loadingMediaPeriodHolder == null ? playbackInfo.periodId : loadingMediaPeriodHolder.info.id;
-    playbackInfo = playbackInfo.copyWithLoadingMediaPeriodId(loadingMediaPeriodId);
+    boolean loadingMediaPeriodChanged =
+        !playbackInfo.loadingMediaPeriodId.equals(loadingMediaPeriodId);
+    if (loadingMediaPeriodChanged) {
+      playbackInfo = playbackInfo.copyWithLoadingMediaPeriodId(loadingMediaPeriodId);
+    }
+    if ((loadingMediaPeriodChanged || loadingTrackSelectionChanged)
+        && loadingMediaPeriodHolder != null
+        && loadingMediaPeriodHolder.prepared) {
+      updateLoadControlTrackSelection(
+          loadingMediaPeriodHolder.trackGroups, loadingMediaPeriodHolder.trackSelectorResult);
+    }
   }
 
-  @NonNull
+  private void updateLoadControlTrackSelection(
+      TrackGroupArray trackGroups, TrackSelectorResult trackSelectorResult) {
+    loadControl.onTracksSelected(renderers, trackGroups, trackSelectorResult.selections);
+  }
+
   private static Format[] getFormats(TrackSelection newSelection) {
     // Build an array of formats contained by the selection.
     int length = newSelection != null ? newSelection.length() : 0;
