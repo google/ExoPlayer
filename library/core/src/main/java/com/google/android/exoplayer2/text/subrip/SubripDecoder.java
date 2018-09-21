@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,6 +80,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
   @Override
   protected SubripSubtitle decode(byte[] bytes, int length, boolean reset) {
     ArrayList<Cue> cues = new ArrayList<>();
+    ArrayList<String> tags = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
     ParsableByteArray subripData = new ParsableByteArray(bytes, length);
     String currentLine;
@@ -125,34 +125,25 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
         if (textBuilder.length() > 0) {
           textBuilder.append("<br>");
         }
-        textBuilder.append(currentLine.trim());
+        textBuilder.append(processLine(currentLine, tags));
       }
 
-      // Extract tags
-      SubtitleTagResult tagResult = extractTags(textBuilder);
-      Spanned text = Html.fromHtml(tagResult.cue);
-
+      Spanned text = Html.fromHtml(textBuilder.toString());
       Cue cue = null;
 
-      // Check if tags are present
-      if (tagResult.tags.length > 0) {
+      boolean alignTagFound = false;
 
-        boolean alignTagFound = false;
+      // At end of this loop the clue must be created with the applied tags
+      for (String tag : tags) {
 
-        // At end of this loop the clue must be created with the applied tags
-        for (String tag : tagResult.tags) {
+        // Check if the tag is an alignment tag
+        if (tag.matches(SUBRIP_ALIGNMENT_TAG)) {
 
-          // Check if the tag is an alignment tag
-          if (tag.matches(SUBRIP_ALIGNMENT_TAG)) {
+          // Based on the specs, in case of the alignment tags only the first appearance counts
+          if (alignTagFound) continue;
+          alignTagFound = true;
 
-            // Based on the specs, in case of the alignment tags only the first appearance counts
-            if (alignTagFound) continue;
-            alignTagFound = true;
-
-            AlignmentResult alignmentResult = getAlignmentValues(tag);
-            cue = new Cue(text, Layout.Alignment.ALIGN_NORMAL, alignmentResult.line, Cue.LINE_TYPE_FRACTION,
-                alignmentResult.lineAnchor, alignmentResult.position, alignmentResult.positionAnchor, Cue.DIMEN_UNSET);
-          }
+          cue = buildCue(text, tag);
         }
       }
 
@@ -170,51 +161,57 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
   }
 
   /**
-   * Extracts the tags from the given {@code cue}
+   * Process the given line by first trimming it then extracting the tags from it
+   * <p>
    * The pattern that is used to extract the tags is specified in SSA v4+ specs and
    * has the following form: "{\...}".
    * <p>
    * "All override codes appear within braces {}"
    * "All override codes are always preceded by a backslash \"
    *
-   * @param cue Cue text
-   * @return {@link SubtitleTagResult} that holds new cue and also the extracted tags
+   * @param currentLine Current line
+   * @param tags        Extracted tags will be stored in this array list
+   * @return Processed line
    */
-  private SubtitleTagResult extractTags(StringBuilder cue) {
-    StringBuilder cueCopy = new StringBuilder(cue.toString());
-    List<String> tags = new ArrayList<>();
+  private String processLine(String currentLine, ArrayList<String> tags) {
+    // Trim line
+    String trimmedLine = currentLine.trim();
 
+    // Extract tags
     int replacedCharacters = 0;
+    StringBuilder processedLine = new StringBuilder(trimmedLine);
+    Matcher matcher = SUBRIP_TAG_PATTERN.matcher(processedLine);
 
-    Matcher matcher = SUBRIP_TAG_PATTERN.matcher(cue.toString());
     while (matcher.find()) {
       String tag = matcher.group();
       tags.add(tag);
-      cueCopy.replace(matcher.start() - replacedCharacters, matcher.end() - replacedCharacters, "");
+      processedLine.replace(matcher.start() - replacedCharacters, matcher.end() - replacedCharacters, "");
       replacedCharacters += tag.length();
     }
 
-    return new SubtitleTagResult(tags.toArray(new String[tags.size()]), cueCopy.toString());
+    return processedLine.toString();
   }
 
   /**
+   * Build a {@link Cue} based on the given text and tag
+   * <p>
    * Match the alignment tag and calculate the line, position, position anchor accordingly
-   *
+   * <p>
    * Based on SSA v4+ specs the alignment tag can have the following form: {\an[1-9},
    * where the number specifies the direction (based on the numpad layout).
    * Note. older SSA scripts may contain tags like {\a1[1-9]} but these are based on
    * other direction rules, but multiple sources says that these are deprecated, so no support here either
    *
-   * @param tag Alignment tag
-   * @return {@link AlignmentResult} that holds the line, position, position anchor values
+   * @param alignmentTag Alignment tag
+   * @return Built cue
    */
-  private AlignmentResult getAlignmentValues(String tag) {
+  private Cue buildCue(Spanned text, String alignmentTag) {
     // Default values used for positioning the subtitle in case of align tags
     float line = DEFAULT_END_FRACTION, position = DEFAULT_MID_FRACTION;
     @Cue.AnchorType int positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
     @Cue.AnchorType int lineAnchor = Cue.ANCHOR_TYPE_END;
 
-    switch (tag) {
+    switch (alignmentTag) {
       case ALIGN_BOTTOM_LEFT:
         line = DEFAULT_END_FRACTION;
         position = DEFAULT_START_FRACTION;
@@ -271,7 +268,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
         break;
     }
 
-    return new AlignmentResult(positionAnchor, position, lineAnchor, line);
+    return new Cue(text, Layout.Alignment.ALIGN_NORMAL, line, Cue.LINE_TYPE_FRACTION, lineAnchor, position, positionAnchor, Cue.DIMEN_UNSET);
   }
 
   private static long parseTimecode(Matcher matcher, int groupOffset) {
@@ -281,36 +278,4 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
     timestampMs += Long.parseLong(matcher.group(groupOffset + 4));
     return timestampMs * 1000;
   }
-
-  /**
-   * Class that holds the tags, new clue after the tag extraction
-   */
-  private static final class SubtitleTagResult {
-    public final String[] tags;
-    public final String cue;
-
-    public SubtitleTagResult(String[] tags, String cue) {
-      this.tags = tags;
-      this.cue = cue;
-    }
-  }
-
-  /**
-   * Class that holds the parsed and mapped alignment values (such as line,
-   * position and anchor type of line)
-   */
-  private static final class AlignmentResult {
-
-    public @Cue.AnchorType int positionAnchor;
-    public @Cue.AnchorType int lineAnchor;
-    public float position, line;
-
-    public AlignmentResult(@Cue.AnchorType int positionAnchor, float position, @Cue.AnchorType int lineAnchor, float line) {
-      this.positionAnchor = positionAnchor;
-      this.position = position;
-      this.line = line;
-      this.lineAnchor = lineAnchor;
-    }
-  }
-
 }
