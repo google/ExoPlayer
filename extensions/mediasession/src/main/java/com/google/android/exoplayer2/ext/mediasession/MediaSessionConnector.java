@@ -401,7 +401,7 @@ public final class MediaSessionConnector {
    * <p>The order in which any {@link CustomActionProvider}s are passed determines the order of the
    * actions published with the playback state of the session.
    *
-   * @param player The player to be connected to the {@code MediaSession}, or {@link null} to
+   * @param player The player to be connected to the {@code MediaSession}, or {@code null} to
    *     disconnect the current player.
    * @param playbackPreparer An optional {@link PlaybackPreparer} for preparing the player.
    * @param customActionProviders Optional {@link CustomActionProvider}s to publish and handle
