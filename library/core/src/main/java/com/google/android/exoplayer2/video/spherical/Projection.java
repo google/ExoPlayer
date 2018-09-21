@@ -59,9 +59,9 @@ public final class Projection {
   /**
    * Generates an equirectangular projection.
    *
-   * @param radius Size of the sphere. Must be > 0.
-   * @param latitudes Number of rows that make up the sphere. Must be >= 1.
-   * @param longitudes Number of columns that make up the sphere. Must be >= 1.
+   * @param radius Size of the sphere. Must be &gt; 0.
+   * @param latitudes Number of rows that make up the sphere. Must be &gt;= 1.
+   * @param longitudes Number of columns that make up the sphere. Must be &gt;= 1.
    * @param verticalFovDegrees Total latitudinal degrees that are covered by the sphere. Must be in
    *     (0, 180].
    * @param horizontalFovDegrees Total longitudinal degrees that are covered by the sphere.Must be

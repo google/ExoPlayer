@@ -75,14 +75,14 @@ public final class Log {
     Log.logStackTraces = logStackTraces;
   }
 
-  /** @see android.util.Log#d(String, String). */
+  /** @see android.util.Log#d(String, String) */
   public static void d(String tag, String message) {
     if (logLevel == LOG_LEVEL_ALL) {
       android.util.Log.d(tag, message);
     }
   }
 
-  /** @see android.util.Log#d(String, String, Throwable). */
+  /** @see android.util.Log#d(String, String, Throwable) */
   public static void d(String tag, String message, @Nullable Throwable throwable) {
     if (!logStackTraces) {
       d(tag, appendThrowableMessage(message, throwable));
@@ -92,14 +92,14 @@ public final class Log {
     }
   }
 
-  /** @see android.util.Log#i(String, String). */
+  /** @see android.util.Log#i(String, String) */
   public static void i(String tag, String message) {
     if (logLevel <= LOG_LEVEL_INFO) {
       android.util.Log.i(tag, message);
     }
   }
 
-  /** @see android.util.Log#i(String, String, Throwable). */
+  /** @see android.util.Log#i(String, String, Throwable) */
   public static void i(String tag, String message, @Nullable Throwable throwable) {
     if (!logStackTraces) {
       i(tag, appendThrowableMessage(message, throwable));
@@ -109,14 +109,14 @@ public final class Log {
     }
   }
 
-  /** @see android.util.Log#w(String, String). */
+  /** @see android.util.Log#w(String, String) */
   public static void w(String tag, String message) {
     if (logLevel <= LOG_LEVEL_WARNING) {
       android.util.Log.w(tag, message);
     }
   }
 
-  /** @see android.util.Log#w(String, String, Throwable). */
+  /** @see android.util.Log#w(String, String, Throwable) */
   public static void w(String tag, String message, @Nullable Throwable throwable) {
     if (!logStackTraces) {
       w(tag, appendThrowableMessage(message, throwable));
@@ -126,14 +126,14 @@ public final class Log {
     }
   }
 
-  /** @see android.util.Log#e(String, String). */
+  /** @see android.util.Log#e(String, String) */
   public static void e(String tag, String message) {
     if (logLevel <= LOG_LEVEL_ERROR) {
       android.util.Log.e(tag, message);
     }
   }
 
-  /** @see android.util.Log#e(String, String, Throwable). */
+  /** @see android.util.Log#e(String, String, Throwable) */
   public static void e(String tag, String message, @Nullable Throwable throwable) {
     if (!logStackTraces) {
       e(tag, appendThrowableMessage(message, throwable));
