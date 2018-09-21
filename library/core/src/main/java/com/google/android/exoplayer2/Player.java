@@ -144,13 +144,13 @@ public interface Player {
   interface VideoComponent {
 
     /**
-     * Sets the {@link @VideoScalingMode}.
+     * Sets the {@link VideoScalingMode}.
      *
-     * @param videoScalingMode The {@link @VideoScalingMode}.
+     * @param videoScalingMode The {@link VideoScalingMode}.
      */
     void setVideoScalingMode(@VideoScalingMode int videoScalingMode);
 
-    /** Returns the {@link @VideoScalingMode}. */
+    /** Returns the {@link VideoScalingMode}. */
     @VideoScalingMode
     int getVideoScalingMode();
 
