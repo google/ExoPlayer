@@ -112,6 +112,8 @@
     ([#4791](https://github.com/google/ExoPlayer/issues/4791)).
 * MPEG-TS: Support CEA-608/708 in H262
   ([#2565](https://github.com/google/ExoPlayer/issues/2565)).
+* Allow configuration of the back buffer in `DefaultLoadControl.Builder`
+  ([#4857](https://github.com/google/ExoPlayer/issues/4857)).
 * Allow apps to pass a `CacheKeyFactory` for setting custom cache keys when
   creating a `CacheDataSource`.
 * Provide additional information for adaptive track selection.
