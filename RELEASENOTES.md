@@ -2,6 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
+* Do not retry failed loads whose error is `FileNotFoundException`.
 * Allow setting log level for ExoPlayer logcat output
   ([#4665](https://github.com/google/ExoPlayer/issues/4665)).
 * Fix an issue where audio and video would desynchronize when playing
