@@ -61,7 +61,7 @@ public final class FrameRotationQueue {
    * timestamp to {@code matrix}. Removes all older rotations and the returned one from the queue.
    * Does nothing if there is no such rotation.
    *
-   * @param matrix A float array to hold the rotation matrix.
+   * @param matrix The rotation matrix.
    * @param timestampUs The time in microseconds to query the rotation.
    * @return Whether a rotation matrix is copied to {@code matrix}.
    */
@@ -83,8 +83,11 @@ public final class FrameRotationQueue {
   /**
    * Computes a recentering matrix from the given angle-axis rotation only accounting for yaw. Roll
    * and tilt will not be compensated.
+   *
+   * @param recenterMatrix The recenter matrix.
+   * @param rotationMatrix The rotation matrix.
    */
-  private static void computeRecenterMatrix(float[] recenterMatrix, float[] rotationMatrix) {
+  public static void computeRecenterMatrix(float[] recenterMatrix, float[] rotationMatrix) {
     // The re-centering matrix is computed as follows:
     // recenter.row(2) = temp.col(2).transpose();
     // recenter.row(0) = recenter.row(1).cross(recenter.row(2)).normalized();

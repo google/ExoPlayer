@@ -30,7 +30,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 /** GL utility methods. */
-/*package*/ final class GlUtil {
+/* package */ final class GlUtil {
   private static final String TAG = "Spherical.Utils";
 
   /** Class only contains static methods. */
@@ -79,7 +79,9 @@ import java.nio.IntBuffer;
 
     int program = GLES20.glCreateProgram();
     GLES20.glAttachShader(program, vertexShader);
+    GLES20.glDeleteShader(vertexShader);
     GLES20.glAttachShader(program, fragmentShader);
+    GLES20.glDeleteShader(fragmentShader);
 
     // Link and check for errors.
     GLES20.glLinkProgram(program);
