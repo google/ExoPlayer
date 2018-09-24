@@ -49,7 +49,7 @@ git clone https://chromium.googlesource.com/libyuv/libyuv libyuv
 
 ```
 cd "${VP9_EXT_PATH}/jni/libvpx" && \
-git checkout tags/v1.6.1 -b v1.6.1 && \
+git checkout tags/v1.7.0 -b v1.7.0 && \
 cd "${VP9_EXT_PATH}/jni/libyuv" && \
 git checkout 996a2bbd
 ```
