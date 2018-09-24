@@ -145,6 +145,9 @@
   looping ([#3829](https://github.com/google/ExoPlayer/issues/3829)).
 * Fix issue where `player.getCurrentTag()` throws an `IndexOutOfBoundsException`
   ([#4822](https://github.com/google/ExoPlayer/issues/4822)).
+* Fix bug preventing use of multiple key session support (`multiSession=true`)
+  for non-Widevine `DefaultDrmSessionManager` instances
+  ([#4834](https://github.com/google/ExoPlayer/issues/4834)).
 * IMA extension:
   * Refine the previous fix for empty ad groups to avoid discarding ad breaks
     unnecessarily ([#4030](https://github.com/google/ExoPlayer/issues/4030) and
