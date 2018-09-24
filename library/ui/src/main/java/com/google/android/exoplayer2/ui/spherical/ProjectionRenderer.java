@@ -30,10 +30,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * thread when ready.
  */
 @TargetApi(15)
-/*package*/ final class ProjectionRenderer {
+/* package */ final class ProjectionRenderer {
 
   /** Defines the constants identifying the current eye type. */
-  /*package*/ interface EyeType {
+  /* package */ interface EyeType {
     /** Single eye in monocular rendering. */
     int MONOCULAR = 0;
 

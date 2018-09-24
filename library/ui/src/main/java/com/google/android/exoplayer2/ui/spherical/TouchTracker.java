@@ -45,16 +45,16 @@ import android.view.View;
  * Mesh as the user moves their finger. However, that requires quaternion interpolation.
  */
 // @VisibleForTesting
-/*package*/ class TouchTracker extends GestureDetector.SimpleOnGestureListener
-    implements View.OnTouchListener {
+/* package */ class TouchTracker extends GestureDetector.SimpleOnGestureListener
+    implements View.OnTouchListener, OrientationListener.Listener {
 
-  /*package*/ interface Listener {
+  /* package */ interface Listener {
     void onScrollChange(PointF scrollOffsetDegrees);
   }
 
   // Touch input won't change the pitch beyond +/- 45 degrees. This reduces awkward situations
   // where the touch-based pitch and gyro-based pitch interact badly near the poles.
-  /*package*/ static final float MAX_PITCH_DEGREES = 45;
+  /* package */ static final float MAX_PITCH_DEGREES = 45;
 
   // With every touch event, update the accumulated degrees offset by the new pixel amount.
   private final PointF previousTouchPointPx = new PointF();
@@ -132,8 +132,9 @@ import android.view.View;
     return false;
   }
 
+  @Override
   @BinderThread
-  public void setRoll(float roll) {
+  public void onOrientationChange(float[] deviceOrientationMatrix, float roll) {
     // We compensate for roll by rotating in the opposite direction.
     this.roll = -roll;
   }
