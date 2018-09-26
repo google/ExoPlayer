@@ -8,6 +8,9 @@
 * Fix an issue where audio and video would desynchronize when playing
   concatenations of gapless content
   ([#4559](https://github.com/google/ExoPlayer/issues/4559)).
+* Add convenience methods `Player.next`, `Player.previous`, `Player.hasNext`
+  and `Player.hasPrevious`
+  ([#4863](https://github.com/google/ExoPlayer/issues/4863)).
 
 ### 2.9.0 ###
 
