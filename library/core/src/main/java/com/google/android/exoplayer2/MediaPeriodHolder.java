@@ -162,7 +162,7 @@ import com.google.android.exoplayer2.util.Log;
 
   public boolean selectTracks(float playbackSpeed) throws ExoPlaybackException {
     TrackSelectorResult selectorResult =
-        trackSelector.selectTracks(rendererCapabilities, trackGroups);
+        trackSelector.selectTracks(rendererCapabilities, trackGroups, info.id);
     if (selectorResult.isEquivalent(periodTrackSelectorResult)) {
       return false;
     }
