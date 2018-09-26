@@ -22,7 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /** Default implementation of {@link LoadErrorHandlingPolicy}. */
-public final class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
+public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
 
   /** The default minimum number of times to retry loading data prior to propagating the error. */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
