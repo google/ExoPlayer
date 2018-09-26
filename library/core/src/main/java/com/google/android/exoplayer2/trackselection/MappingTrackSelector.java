@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -330,7 +331,8 @@ public abstract class MappingTrackSelector extends TrackSelector {
   public final TrackSelectorResult selectTracks(
       RendererCapabilities[] rendererCapabilities,
       TrackGroupArray trackGroups,
-      MediaPeriodId periodId)
+      MediaPeriodId periodId,
+      Timeline timeline)
       throws ExoPlaybackException {
     // Structures into which data will be written during the selection. The extra item at the end
     // of each array is to store data associated with track groups that cannot be associated with

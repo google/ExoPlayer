@@ -51,7 +51,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
    * This empty track selector result can only be used for {@link PlaybackInfo#trackSelectorResult}
    * when the player does not have any track selection made (such as when player is reset, or when
    * player seeks to an unprepared period). It will not be used as result of any {@link
-   * TrackSelector#selectTracks(RendererCapabilities[], TrackGroupArray, MediaPeriodId)} operation.
+   * TrackSelector#selectTracks(RendererCapabilities[], TrackGroupArray, MediaPeriodId, Timeline)}
+   * operation.
    */
   /* package */ final TrackSelectorResult emptyTrackSelectorResult;
 

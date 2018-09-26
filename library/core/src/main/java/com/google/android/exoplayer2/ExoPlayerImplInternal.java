@@ -998,7 +998,7 @@ import java.util.Collections;
         // The reselection did not change any prepared periods.
         return;
       }
-      if (periodHolder.selectTracks(playbackSpeed)) {
+      if (periodHolder.selectTracks(playbackSpeed, playbackInfo.timeline)) {
         // Selected tracks have changed for this period.
         break;
       }
@@ -1531,7 +1531,8 @@ import java.util.Collections;
       return;
     }
     MediaPeriodHolder loadingPeriodHolder = queue.getLoadingPeriod();
-    loadingPeriodHolder.handlePrepared(mediaClock.getPlaybackParameters().speed);
+    loadingPeriodHolder.handlePrepared(
+        mediaClock.getPlaybackParameters().speed, playbackInfo.timeline);
     updateLoadControlTrackSelection(
         loadingPeriodHolder.trackGroups, loadingPeriodHolder.trackSelectorResult);
     if (!queue.hasPlayingPeriod()) {

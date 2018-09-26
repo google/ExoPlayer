@@ -140,10 +140,10 @@ import com.google.android.exoplayer2.util.Log;
     return !prepared ? 0 : mediaPeriod.getNextLoadPositionUs();
   }
 
-  public void handlePrepared(float playbackSpeed) throws ExoPlaybackException {
+  public void handlePrepared(float playbackSpeed, Timeline timeline) throws ExoPlaybackException {
     prepared = true;
     trackGroups = mediaPeriod.getTrackGroups();
-    selectTracks(playbackSpeed);
+    selectTracks(playbackSpeed, timeline);
     long newStartPositionUs = applyTrackSelection(info.startPositionUs, false);
     rendererPositionOffsetUs += info.startPositionUs - newStartPositionUs;
     info = info.copyWithStartPositionUs(newStartPositionUs);
@@ -160,9 +160,9 @@ import com.google.android.exoplayer2.util.Log;
     mediaPeriod.continueLoading(loadingPeriodPositionUs);
   }
 
-  public boolean selectTracks(float playbackSpeed) throws ExoPlaybackException {
+  public boolean selectTracks(float playbackSpeed, Timeline timeline) throws ExoPlaybackException {
     TrackSelectorResult selectorResult =
-        trackSelector.selectTracks(rendererCapabilities, trackGroups, info.id);
+        trackSelector.selectTracks(rendererCapabilities, trackGroups, info.id, timeline);
     if (selectorResult.isEquivalent(periodTrackSelectorResult)) {
       return false;
     }
