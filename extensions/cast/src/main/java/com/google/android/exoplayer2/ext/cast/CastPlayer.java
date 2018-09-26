@@ -52,34 +52,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * {@link Player} implementation that communicates with a Cast receiver app.
  *
  * <p>The behavior of this class depends on the underlying Cast session, which is obtained from the
- * Cast context passed to {@link #CastPlayer}. To keep track of the session,
- * {@link #isCastSessionAvailable()} can be queried and {@link SessionAvailabilityListener} can be
- * implemented and attached to the player.</p>
+ * Cast context passed to {@link #CastPlayer}. To keep track of the session, {@link
+ * #isCastSessionAvailable()} can be queried and {@link RemotePlayer.SessionAvailabilityListener}
+ * can be implemented and attached to the player.
  *
- * <p> If no session is available, the player state will remain unchanged and calls to methods that
+ * <p>If no session is available, the player state will remain unchanged and calls to methods that
  * alter it will be ignored. Querying the player state is possible even when no session is
- * available, in which case, the last observed receiver app state is reported.</p>
+ * available, in which case, the last observed receiver app state is reported.
  *
- * <p>Methods should be called on the application's main thread.</p>
+ * <p>Methods should be called on the application's main thread.
  */
 public final class CastPlayer implements Player {
-
-  /**
-   * Listener of changes in the cast session availability.
-   */
-  public interface SessionAvailabilityListener {
-
-    /**
-     * Called when a cast session becomes available to the player.
-     */
-    void onCastSessionAvailable();
-
-    /**
-     * Called when the cast session becomes unavailable.
-     */
-    void onCastSessionUnavailable();
-
-  }
 
   private static final String TAG = "CastPlayer";
 
@@ -106,7 +89,7 @@ public final class CastPlayer implements Player {
 
   // Listeners.
   private final CopyOnWriteArraySet<EventListener> listeners;
-  private SessionAvailabilityListener sessionAvailabilityListener;
+  private RemotePlayer.SessionAvailabilityListener sessionAvailabilityListener;
 
   // Internal state.
   private CastTimeline currentTimeline;
@@ -276,9 +259,9 @@ public final class CastPlayer implements Player {
   /**
    * Sets a listener for updates on the cast session availability.
    *
-   * @param listener The {@link SessionAvailabilityListener}.
+   * @param listener The {@link RemotePlayer.SessionAvailabilityListener}.
    */
-  public void setSessionAvailabilityListener(SessionAvailabilityListener listener) {
+  public void setSessionAvailabilityListener(RemotePlayer.SessionAvailabilityListener listener) {
     sessionAvailabilityListener = listener;
   }
 
