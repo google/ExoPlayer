@@ -135,6 +135,26 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public boolean hasPrevious() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void previous() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean hasNext() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void next() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     throw new UnsupportedOperationException();
   }

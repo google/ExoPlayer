@@ -935,6 +935,36 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public boolean hasPrevious() {
+    verifyApplicationThread();
+    return getPreviousWindowIndex() != C.INDEX_UNSET;
+  }
+
+  @Override
+  public void previous() {
+    verifyApplicationThread();
+    if (hasPrevious()) {
+      analyticsCollector.notifySeekStarted();
+      player.previous();
+    }
+  }
+
+  @Override
+  public boolean hasNext() {
+    verifyApplicationThread();
+    return getNextWindowIndex() != C.INDEX_UNSET;
+  }
+
+  @Override
+  public void next() {
+    verifyApplicationThread();
+    if (hasNext()) {
+      analyticsCollector.notifySeekStarted();
+      player.next();
+    }
+  }
+
+  @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     verifyApplicationThread();
     player.setPlaybackParameters(playbackParameters);
