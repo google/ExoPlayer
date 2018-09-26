@@ -2,11 +2,14 @@
 
 ### 2.9.1 ###
 
+* Add convenience methods `Player.next`, `Player.previous`, `Player.hasNext`
+  and `Player.hasPrevious`
+  ([#4863](https://github.com/google/ExoPlayer/issues/4863)).
 * Improve initial bandwidth meter estimates using the current country and
   network type.
 * IMA extension:
-  * For preroll to live stream transitions, project forward the
-    loading position to avoid being behind the live window.
+  * For preroll to live stream transitions, project forward the loading position
+    to avoid being behind the live window.
   * Let apps specify whether to focus the skip button on ATV
     ([#5019](https://github.com/google/ExoPlayer/issues/5019)).
 * MP3:
