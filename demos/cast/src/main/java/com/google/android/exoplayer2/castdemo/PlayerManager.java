@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.castdemo.DemoUtil.Sample;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
+import com.google.android.exoplayer2.ext.cast.RemotePlayer;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -51,7 +52,7 @@ import java.util.ArrayList;
 
 /** Manages players and an internal media queue for the ExoPlayer/Cast demo app. */
 /* package */ final class PlayerManager
-    implements EventListener, CastPlayer.SessionAvailabilityListener {
+    implements EventListener, RemotePlayer.SessionAvailabilityListener {
 
   /**
    * Listener for changes in the media queue playback position.

@@ -32,6 +32,8 @@ android {
 
 dependencies {
     api 'com.google.android.gms:play-services-cast-framework:16.0.1'
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-ui')
     testImplementation project(modulePrefix + 'testutils')
