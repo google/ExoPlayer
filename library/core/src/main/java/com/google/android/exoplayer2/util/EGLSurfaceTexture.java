@@ -305,9 +305,6 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
 
   private static void generateTextureIds(int[] textureIdHolder) {
     GLES20.glGenTextures(/* n= */ 1, textureIdHolder, /* offset= */ 0);
-    int errorCode = GLES20.glGetError();
-    if (errorCode != GLES20.GL_NO_ERROR) {
-      throw new GlException("glGenTextures failed. Error: " + Integer.toHexString(errorCode));
-    }
+    GlUtil.checkGlError();
   }
 }

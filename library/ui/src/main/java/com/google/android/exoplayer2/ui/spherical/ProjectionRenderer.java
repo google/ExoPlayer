@@ -15,12 +15,13 @@
  */
 package com.google.android.exoplayer2.ui.spherical;
 
-import static com.google.android.exoplayer2.ui.spherical.GlUtil.checkGlError;
+import static com.google.android.exoplayer2.util.GlUtil.checkGlError;
 
 import android.annotation.TargetApi;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.video.spherical.Projection;
 import java.nio.FloatBuffer;
 import org.checkerframework.checker.nullness.qual.Nullable;
