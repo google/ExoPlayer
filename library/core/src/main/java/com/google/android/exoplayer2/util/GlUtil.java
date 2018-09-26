@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.ui.spherical;
+package com.google.android.exoplayer2.util;
 
 import static android.opengl.GLU.gluErrorString;
 
@@ -23,15 +23,14 @@ import android.opengl.GLES20;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 /** GL utility methods. */
-/* package */ final class GlUtil {
-  private static final String TAG = "Spherical.Utils";
+public final class GlUtil {
+  private static final String TAG = "GlUtil";
 
   /** Class only contains static methods. */
   private GlUtil() {}
@@ -57,42 +56,39 @@ import java.nio.IntBuffer;
   }
 
   /**
-   * Builds a GL shader program from vertex & fragment shader code. The vertex and fragment shaders
-   * are passed as arrays of strings in order to make debugging compilation issues easier.
+   * Builds a GL shader program from vertex & fragment shader code.
+   *
+   * @param vertexCode GLES20 vertex shader program as arrays of strings. Strings are joined by
+   *     adding a new line character in between each of them.
+   * @param fragmentCode GLES20 fragment shader program as arrays of strings. Strings are joined by
+   *     adding a new line character in between each of them.
+   * @return GLES20 program id.
+   */
+  public static int compileProgram(String[] vertexCode, String[] fragmentCode) {
+    return compileProgram(TextUtils.join("\n", vertexCode), TextUtils.join("\n", fragmentCode));
+  }
+
+  /**
+   * Builds a GL shader program from vertex & fragment shader code.
    *
    * @param vertexCode GLES20 vertex shader program.
    * @param fragmentCode GLES20 fragment shader program.
    * @return GLES20 program id.
    */
-  public static int compileProgram(String[] vertexCode, String[] fragmentCode) {
-    checkGlError();
-    // prepare shaders and OpenGL program
-    int vertexShader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
-    GLES20.glShaderSource(vertexShader, TextUtils.join("\n", vertexCode));
-    GLES20.glCompileShader(vertexShader);
-    checkGlError();
-
-    int fragmentShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
-    GLES20.glShaderSource(fragmentShader, TextUtils.join("\n", fragmentCode));
-    GLES20.glCompileShader(fragmentShader);
-    checkGlError();
-
+  public static int compileProgram(String vertexCode, String fragmentCode) {
     int program = GLES20.glCreateProgram();
-    GLES20.glAttachShader(program, vertexShader);
-    GLES20.glDeleteShader(vertexShader);
-    GLES20.glAttachShader(program, fragmentShader);
-    GLES20.glDeleteShader(fragmentShader);
+    checkGlError();
+
+    // Add the vertex and fragment shaders.
+    addShader(GLES20.GL_VERTEX_SHADER, vertexCode, program);
+    addShader(GLES20.GL_FRAGMENT_SHADER, fragmentCode, program);
 
     // Link and check for errors.
     GLES20.glLinkProgram(program);
-    int[] linkStatus = new int[1];
+    int[] linkStatus = new int[] {GLES20.GL_FALSE};
     GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0);
     if (linkStatus[0] != GLES20.GL_TRUE) {
-      String errorMsg = "Unable to link shader program: \n" + GLES20.glGetProgramInfoLog(program);
-      Log.e(TAG, errorMsg);
-      if (ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED) {
-        throw new RuntimeException(errorMsg);
-      }
+      throwGlError("Unable to link shader program: \n" + GLES20.glGetProgramInfoLog(program));
     }
     checkGlError();
 
@@ -101,12 +97,11 @@ import java.nio.IntBuffer;
 
   /** Allocates a FloatBuffer with the given data. */
   public static FloatBuffer createBuffer(float[] data) {
-    ByteBuffer bb = ByteBuffer.allocateDirect(data.length * C.BYTES_PER_FLOAT);
-    bb.order(ByteOrder.nativeOrder());
-    FloatBuffer buffer = bb.asFloatBuffer();
+    ByteBuffer byteBuffer = ByteBuffer.allocateDirect(data.length * C.BYTES_PER_FLOAT);
+    byteBuffer.order(ByteOrder.nativeOrder());
+    FloatBuffer buffer = byteBuffer.asFloatBuffer();
     buffer.put(data);
-    buffer.position(0);
-
+    buffer.flip();
     return buffer;
   }
 
@@ -129,5 +124,28 @@ import java.nio.IntBuffer;
         GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
     checkGlError();
     return texId[0];
+  }
+
+  private static void addShader(int type, String source, int program) {
+    int shader = GLES20.glCreateShader(type);
+    GLES20.glShaderSource(shader, source);
+    GLES20.glCompileShader(shader);
+
+    int[] result = new int[] {GLES20.GL_FALSE};
+    GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, 0);
+    if (result[0] != GLES20.GL_TRUE) {
+      throwGlError(GLES20.glGetShaderInfoLog(shader) + ", source: " + source);
+    }
+
+    GLES20.glAttachShader(program, shader);
+    GLES20.glDeleteShader(shader);
+    checkGlError();
+  }
+
+  private static void throwGlError(String errorMsg) {
+    Log.e(TAG, errorMsg);
+    if (ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED) {
+      throw new RuntimeException(errorMsg);
+    }
   }
 }
