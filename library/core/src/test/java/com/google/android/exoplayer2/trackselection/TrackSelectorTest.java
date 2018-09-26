@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
@@ -44,7 +45,8 @@ public class TrackSelectorTest {
           public TrackSelectorResult selectTracks(
               RendererCapabilities[] rendererCapabilities,
               TrackGroupArray trackGroups,
-              MediaPeriodId periodId)
+              MediaPeriodId periodId,
+              Timeline timeline)
               throws ExoPlaybackException {
             throw new UnsupportedOperationException();
           }
