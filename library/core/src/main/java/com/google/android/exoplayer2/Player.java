@@ -656,6 +656,32 @@ public interface Player {
   void seekTo(int windowIndex, long positionMs);
 
   /**
+   * Returns whether a previous window exists, which may depend on the current repeat mode and
+   * whether shuffle mode is enabled.
+   */
+  boolean hasPrevious();
+
+  /**
+   * Seeks to the default position of the previous window in the timeline, which may depend on the
+   * current repeat mode and whether shuffle mode is enabled. Does nothing if {@link #hasPrevious()}
+   * is {@code false}.
+   */
+  void previous();
+
+  /**
+   * Returns whether a next window exists, which may depend on the current repeat mode and whether
+   * shuffle mode is enabled.
+   */
+  boolean hasNext();
+
+  /**
+   * Seeks to the default position of the next window in the timeline, which may depend on the
+   * current repeat mode and whether shuffle mode is enabled. Does nothing if {@link #hasNext()} is
+   * {@code false}.
+   */
+  void next();
+
+  /**
    * Attempts to set the playback parameters. Passing {@code null} sets the parameters to the
    * default, {@link PlaybackParameters#DEFAULT}, which means there is no speed or pitch adjustment.
    * <p>
