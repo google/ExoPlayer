@@ -134,7 +134,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#dataSpec">dataSpec</a></span></code>
-<div class="block">Defines the data being loaded.</div>
+<div class="block">Defines the requested data.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -147,6 +147,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#loadDurationMs">loadDurationMs</a></span></code>
 <div class="block">The duration of the load up to the event time.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#responseHeaders">responseHeaders</a></span></code>
+<div class="block">The response headers associated with the load, or an empty map if unavailable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#uri">uri</a></span></code>
+<div class="block">The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data is being read.</div>
 </td>
 </tr>
 </table>
@@ -164,7 +176,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#LoadEventInfo-com.google.android.exoplayer2.upstream.DataSpec-long-long-long-">LoadEventInfo</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#LoadEventInfo-com.google.android.exoplayer2.upstream.DataSpec-android.net.Uri-java.util.Map-long-long-long-">LoadEventInfo</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+             <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;&nbsp;responseHeaders,
              long&nbsp;elapsedRealtimeMs,
              long&nbsp;loadDurationMs,
              long&nbsp;bytesLoaded)</code>
@@ -208,7 +222,28 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>dataSpec</h4>
 <pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a> dataSpec</pre>
-<div class="block">Defines the data being loaded.</div>
+<div class="block">Defines the requested data.</div>
+</li>
+</ul>
+<a name="uri">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>uri</h4>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a> uri</pre>
+<div class="block">The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data is being read. The uri will be identical to the one in <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#dataSpec"><code>dataSpec</code></a>.uri unless redirection has occurred. If redirection has occurred, this is the uri
+ after redirection.</div>
+</li>
+</ul>
+<a name="responseHeaders">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>responseHeaders</h4>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt; responseHeaders</pre>
+<div class="block">The response headers associated with the load, or an empty map if unavailable.</div>
 </li>
 </ul>
 <a name="elapsedRealtimeMs">
@@ -249,24 +284,32 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="LoadEventInfo-com.google.android.exoplayer2.upstream.DataSpec-long-long-long-">
+<a name="LoadEventInfo-com.google.android.exoplayer2.upstream.DataSpec-android.net.Uri-java.util.Map-long-long-long-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>LoadEventInfo</h4>
 <pre>public&nbsp;LoadEventInfo(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                     <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;&nbsp;responseHeaders,
                      long&nbsp;elapsedRealtimeMs,
                      long&nbsp;loadDurationMs,
                      long&nbsp;bytesLoaded)</pre>
 <div class="block">Creates load event info.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataSpec</code> - Defines the data being loaded.</dd>
+<dd><code>dataSpec</code> - Defines the requested data.</dd>
+<dd><code>uri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data is being read. The uri must be identical to the
+     one in <code>dataSpec.uri</code> unless redirection has occurred. If redirection has occurred,
+     this is the uri after redirection.</dd>
+<dd><code>responseHeaders</code> - The response headers associated with the load, or an empty map if
+     unavailable.</dd>
 <dd><code>elapsedRealtimeMs</code> - The value of <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> at the time of the
      load event.</dd>
 <dd><code>loadDurationMs</code> - The duration of the load up to the event time.</dd>
-<dd><code>bytesLoaded</code> - The number of bytes that were loaded up to the event time.</dd>
+<dd><code>bytesLoaded</code> - The number of bytes that were loaded up to the event time. For compressed
+     network responses, this is the decompressed size.</dd>
 </dl>
 </li>
 </ul>

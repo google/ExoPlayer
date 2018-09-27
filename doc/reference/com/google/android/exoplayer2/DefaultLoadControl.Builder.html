@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -164,6 +164,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html#setBackBuffer-int-boolean-">setBackBuffer</a></span>(int&nbsp;backBufferDurationMs,
+             boolean&nbsp;retainBackBufferFromKeyframe)</code>
+<div class="block">Sets the back buffer duration, and whether the back buffer is retained from the previous
+ keyframe.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html#setBufferDurationsMs-int-int-int-int-">setBufferDurationsMs</a></span>(int&nbsp;minBufferMs,
                     int&nbsp;maxBufferMs,
                     int&nbsp;bufferForPlaybackMs,
@@ -171,20 +179,20 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Sets the buffer duration parameters.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html#setPrioritizeTimeOverSizeThresholds-boolean-">setPrioritizeTimeOverSizeThresholds</a></span>(boolean&nbsp;prioritizeTimeOverSizeThresholds)</code>
 <div class="block">Sets whether the load control prioritizes buffer time constraints over buffer size
  constraints.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html#setPriorityTaskManager-com.google.android.exoplayer2.util.PriorityTaskManager-">setPriorityTaskManager</a></span>(<a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</code>
 <div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> to use.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html#setTargetBufferBytes-int-">setTargetBufferBytes</a></span>(int&nbsp;targetBufferBytes)</code>
 <div class="block">Sets the target buffer size in bytes.</div>
@@ -281,8 +289,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>setTargetBufferBytes</h4>
 <pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setTargetBufferBytes(int&nbsp;targetBufferBytes)</pre>
 <div class="block">Sets the target buffer size in bytes. If set to <a href="../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>, the target buffer
- size will be calculated using <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#calculateTargetBufferSize-com.google.android.exoplayer2.Renderer:A-com.google.android.exoplayer2.trackselection.TrackSelectionArray-"><code>DefaultLoadControl.calculateTargetBufferSize(Renderer[],
- TrackSelectionArray)</code></a>.</div>
+ size will be calculated based on the selected tracks.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>targetBufferBytes</code> - The target buffer size in bytes.</dd>
@@ -317,6 +324,32 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>setPriorityTaskManager</h4>
 <pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setPriorityTaskManager(<a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</pre>
 <div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> to use.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>priorityTaskManager</code> - The <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> to use.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a name="setBackBuffer-int-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setBackBuffer</h4>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a>&nbsp;setBackBuffer(int&nbsp;backBufferDurationMs,
+                                                boolean&nbsp;retainBackBufferFromKeyframe)</pre>
+<div class="block">Sets the back buffer duration, and whether the back buffer is retained from the previous
+ keyframe.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>backBufferDurationMs</code> - The back buffer duration in milliseconds.</dd>
+<dd><code>retainBackBufferFromKeyframe</code> - Whether the back buffer is retained from the previous
+     keyframe.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+</dl>
 </li>
 </ul>
 <a name="createDefaultLoadControl--">

@@ -193,15 +193,28 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#forceHighestSupportedBitrate">forceHighestSupportedBitrate</a></span></code>
+<div class="block">Whether to force selection of the highest bitrate audio and video tracks that comply with all
+ other constraints.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#forceLowestBitrate">forceLowestBitrate</a></span></code>
 <div class="block">Whether to force selection of the single lowest bitrate audio and video tracks that comply
  with all other constraints.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoBitrate">maxVideoBitrate</a></span></code>
 <div class="block">Maximum video bitrate.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#maxVideoFrameRate">maxVideoFrameRate</a></span></code>
+<div class="block">Maximum allowed video frame rate.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -430,6 +443,17 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
  region of the display within which video will be played), use (<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportWidth"><code>viewportWidth</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportHeight"><code>viewportHeight</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#viewportOrientationMayChange"><code>viewportOrientationMayChange</code></a>) instead.</div>
 </li>
 </ul>
+<a name="maxVideoFrameRate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maxVideoFrameRate</h4>
+<pre>public final&nbsp;int maxVideoFrameRate</pre>
+<div class="block">Maximum allowed video frame rate. The default value is <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true#MAX_VALUE" title="class or interface in java.lang"><code>Integer.MAX_VALUE</code></a> (i.e. no
+ constraint).</div>
+</li>
+</ul>
 <a name="maxVideoBitrate">
 <!--   -->
 </a>
@@ -495,6 +519,17 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <pre>public final&nbsp;boolean forceLowestBitrate</pre>
 <div class="block">Whether to force selection of the single lowest bitrate audio and video tracks that comply
  with all other constraints. The default value is <code>false</code>.</div>
+</li>
+</ul>
+<a name="forceHighestSupportedBitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forceHighestSupportedBitrate</h4>
+<pre>public final&nbsp;boolean forceHighestSupportedBitrate</pre>
+<div class="block">Whether to force selection of the highest bitrate audio and video tracks that comply with all
+ other constraints. The default value is <code>false</code>.</div>
 </li>
 </ul>
 <a name="allowMixedMimeAdaptiveness">

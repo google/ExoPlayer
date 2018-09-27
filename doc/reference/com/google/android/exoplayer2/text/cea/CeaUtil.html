@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9};
+var methods = {"i0":9,"i1":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/text/cea/Cea708Decoder.html" title="class in com.google.android.exoplayer2.text.cea"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/text/cea/Cea708InitializationData.html" title="class in com.google.android.exoplayer2.text.cea"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li>Next&nbsp;Class</li>
 </ul>
 <ul class="navList">
@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -115,6 +115,29 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/cea/CeaUtil.html#USER_DATA_IDENTIFIER_GA94">USER_DATA_IDENTIFIER_GA94</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/cea/CeaUtil.html#USER_DATA_TYPE_CODE_MPEG_CC">USER_DATA_TYPE_CODE_MPEG_CC</a></span></code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.summary">
@@ -136,6 +159,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
  as samples to all of the provided outputs.</div>
 </td>
 </tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/cea/CeaUtil.html#consumeCcData-long-com.google.android.exoplayer2.util.ParsableByteArray-com.google.android.exoplayer2.extractor.TrackOutput:A-">consumeCcData</a></span>(long&nbsp;presentationTimeUs,
+             <a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;ccDataBuffer,
+             <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>[]&nbsp;outputs)</code>
+<div class="block">Consumes caption data (cc_data), writing the content as samples to all of the provided outputs.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -152,6 +183,36 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="USER_DATA_IDENTIFIER_GA94">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>USER_DATA_IDENTIFIER_GA94</h4>
+<pre>public static final&nbsp;int USER_DATA_IDENTIFIER_GA94</pre>
+</li>
+</ul>
+<a name="USER_DATA_TYPE_CODE_MPEG_CC">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>USER_DATA_TYPE_CODE_MPEG_CC</h4>
+<pre>public static final&nbsp;int USER_DATA_TYPE_CODE_MPEG_CC</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.text.cea.CeaUtil.USER_DATA_TYPE_CODE_MPEG_CC">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ============ METHOD DETAIL ========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.detail">
@@ -161,7 +222,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <a name="consume-long-com.google.android.exoplayer2.util.ParsableByteArray-com.google.android.exoplayer2.extractor.TrackOutput:A-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>consume</h4>
 <pre>public static&nbsp;void&nbsp;consume(long&nbsp;presentationTimeUs,
@@ -173,6 +234,24 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>presentationTimeUs</code> - The presentation time in microseconds for any samples.</dd>
 <dd><code>seiBuffer</code> - The unescaped SEI NAL unit data, excluding the NAL unit start code and type.</dd>
+<dd><code>outputs</code> - The outputs to which any samples should be written.</dd>
+</dl>
+</li>
+</ul>
+<a name="consumeCcData-long-com.google.android.exoplayer2.util.ParsableByteArray-com.google.android.exoplayer2.extractor.TrackOutput:A-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>consumeCcData</h4>
+<pre>public static&nbsp;void&nbsp;consumeCcData(long&nbsp;presentationTimeUs,
+                                 <a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;ccDataBuffer,
+                                 <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>[]&nbsp;outputs)</pre>
+<div class="block">Consumes caption data (cc_data), writing the content as samples to all of the provided outputs.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>presentationTimeUs</code> - The presentation time in microseconds for any samples.</dd>
+<dd><code>ccDataBuffer</code> - The buffer containing the caption data.</dd>
 <dd><code>outputs</code> - The outputs to which any samples should be written.</dd>
 </dl>
 </li>
@@ -204,7 +283,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/text/cea/Cea708Decoder.html" title="class in com.google.android.exoplayer2.text.cea"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/text/cea/Cea708InitializationData.html" title="class in com.google.android.exoplayer2.text.cea"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li>Next&nbsp;Class</li>
 </ul>
 <ul class="navList">
@@ -230,13 +309,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

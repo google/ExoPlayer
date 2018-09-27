@@ -132,20 +132,20 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#defaultInitializationVector">defaultInitializationVector</a></span></code>
-<div class="block">If <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#initializationVectorSize"><code>initializationVectorSize</code></a> is 0, holds the default initialization vector as defined
- in the track encryption box or sample group description box.</div>
+<div class="block">If <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#perSampleIvSize"><code>perSampleIvSize</code></a> is 0, holds the default initialization vector as defined in the
+ track encryption box or sample group description box.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#initializationVectorSize">initializationVectorSize</a></span></code>
-<div class="block">The initialization vector size in bytes for the samples in the corresponding sample group.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#isEncrypted">isEncrypted</a></span></code>
 <div class="block">Indicates the encryption state of the samples in the sample group.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#perSampleIvSize">perSampleIvSize</a></span></code>
+<div class="block">The initialization vector size in bytes for the samples in the corresponding sample group.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -171,7 +171,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#TrackEncryptionBox-boolean-java.lang.String-int-byte:A-int-int-byte:A-">TrackEncryptionBox</a></span>(boolean&nbsp;isEncrypted,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;schemeType,
-                  int&nbsp;initializationVectorSize,
+                  int&nbsp;perSampleIvSize,
                   byte[]&nbsp;keyId,
                   int&nbsp;defaultEncryptedBlocks,
                   int&nbsp;defaultClearBlocks,
@@ -239,13 +239,13 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
  <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>TrackEncryptionBox</code></a>.</div>
 </li>
 </ul>
-<a name="initializationVectorSize">
+<a name="perSampleIvSize">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>initializationVectorSize</h4>
-<pre>public final&nbsp;int initializationVectorSize</pre>
+<h4>perSampleIvSize</h4>
+<pre>public final&nbsp;int perSampleIvSize</pre>
 <div class="block">The initialization vector size in bytes for the samples in the corresponding sample group.</div>
 </li>
 </ul>
@@ -256,8 +256,8 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <li class="blockList">
 <h4>defaultInitializationVector</h4>
 <pre>public final&nbsp;byte[] defaultInitializationVector</pre>
-<div class="block">If <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#initializationVectorSize"><code>initializationVectorSize</code></a> is 0, holds the default initialization vector as defined
- in the track encryption box or sample group description box. Null otherwise.</div>
+<div class="block">If <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#perSampleIvSize"><code>perSampleIvSize</code></a> is 0, holds the default initialization vector as defined in the
+ track encryption box or sample group description box. Null otherwise.</div>
 </li>
 </ul>
 </li>
@@ -277,7 +277,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <pre>public&nbsp;TrackEncryptionBox(boolean&nbsp;isEncrypted,
                           <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;schemeType,
-                          int&nbsp;initializationVectorSize,
+                          int&nbsp;perSampleIvSize,
                           byte[]&nbsp;keyId,
                           int&nbsp;defaultEncryptedBlocks,
                           int&nbsp;defaultClearBlocks,
@@ -287,7 +287,7 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>isEncrypted</code> - See <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#isEncrypted"><code>isEncrypted</code></a>.</dd>
 <dd><code>schemeType</code> - See <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#schemeType"><code>schemeType</code></a>.</dd>
-<dd><code>initializationVectorSize</code> - See <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#initializationVectorSize"><code>initializationVectorSize</code></a>.</dd>
+<dd><code>perSampleIvSize</code> - See <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#perSampleIvSize"><code>perSampleIvSize</code></a>.</dd>
 <dd><code>keyId</code> - See <code>TrackOutput.CryptoData#encryptionKey</code>.</dd>
 <dd><code>defaultEncryptedBlocks</code> - See <code>TrackOutput.CryptoData#encryptedBlocks</code>.</dd>
 <dd><code>defaultClearBlocks</code> - See <code>TrackOutput.CryptoData#clearBlocks</code>.</dd>

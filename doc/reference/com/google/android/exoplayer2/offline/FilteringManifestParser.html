@@ -90,14 +90,14 @@ var activeTableTab = "activeTableTab";
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="subTitle">com.google.android.exoplayer2.offline</div>
-<h2 title="Class FilteringManifestParser" class="title">Class FilteringManifestParser&lt;T extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T,K&gt;,K&gt;</h2>
+<h2 title="Class FilteringManifestParser" class="title">Class FilteringManifestParser&lt;T extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T&gt;&gt;</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.offline.FilteringManifestParser&lt;T,K&gt;</li>
+<li>com.google.android.exoplayer2.offline.FilteringManifestParser&lt;T&gt;</li>
 </ul>
 </li>
 </ul>
@@ -110,10 +110,10 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>public final class <span class="typeNameLabel">FilteringManifestParser&lt;T extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T,K&gt;,K&gt;</span>
+<pre>public final class <span class="typeNameLabel">FilteringManifestParser&lt;T extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T&gt;&gt;</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;T&gt;</pre>
-<div class="block">A manifest parser that includes only the tracks identified by the given track keys.</div>
+<div class="block">A manifest parser that includes only the streams identified by the given stream keys.</div>
 </li>
 </ul>
 </div>
@@ -133,7 +133,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Parsin
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html#FilteringManifestParser-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-java.util.List-">FilteringManifestParser</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&gt;&nbsp;parser,
-                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">K</a>&gt;&nbsp;trackKeys)</code>&nbsp;</td>
+                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -186,11 +186,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Parsin
 <li class="blockList">
 <h4>FilteringManifestParser</h4>
 <pre>public&nbsp;FilteringManifestParser(<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&gt;&nbsp;parser,
-                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">K</a>&gt;&nbsp;trackKeys)</pre>
+                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>parser</code> - A parser for the manifest that will be filtered.</dd>
-<dd><code>trackKeys</code> - The track keys. If null or empty then filtering will not occur.</dd>
+<dd><code>streamKeys</code> - The stream keys. If null or empty then filtering will not occur.</dd>
 </dl>
 </li>
 </ul>
@@ -215,7 +215,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Parsin
 <div class="block">Parses an object from a response.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html#parse-android.net.Uri-java.io.InputStream-">parse</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a> extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>,<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">K</a>&gt;&gt;</code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html#parse-android.net.Uri-java.io.InputStream-">parse</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a> extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&gt;&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - The source <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> of the response, after any redirection.</dd>
 <dd><code>inputStream</code> - An <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/InputStream.html" target="_top" title="class or interface in java.io"><code>InputStream</code></a> from which the response data can be read.</dd>

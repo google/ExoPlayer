@@ -338,7 +338,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaSou
 <dd><code>windowIndex</code> - The window index in the timeline of the media source this load belongs to.</dd>
 <dd><code>mediaPeriodId</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> this load belongs to. Null if the load does not
      belong to a specific media period.</dd>
-<dd><code>loadEventInfo</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.LoadEventInfo</code></a> defining the load event.</dd>
+<dd><code>loadEventInfo</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.LoadEventInfo</code></a> corresponding to the event. The value of <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#uri"><code>MediaSourceEventListener.LoadEventInfo.uri</code></a> won't reflect potential redirection yet and <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#responseHeaders"><code>MediaSourceEventListener.LoadEventInfo.responseHeaders</code></a> will be empty.</dd>
 <dd><code>mediaLoadData</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.MediaLoadData</code></a> defining the data being loaded.</dd>
 </dl>
 </li>
@@ -363,7 +363,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaSou
 <dd><code>windowIndex</code> - The window index in the timeline of the media source this load belongs to.</dd>
 <dd><code>mediaPeriodId</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> this load belongs to. Null if the load does not
      belong to a specific media period.</dd>
-<dd><code>loadEventInfo</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.LoadEventInfo</code></a> defining the load event.</dd>
+<dd><code>loadEventInfo</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.LoadEventInfo</code></a> corresponding to the event. The values of <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#elapsedRealtimeMs"><code>MediaSourceEventListener.LoadEventInfo.elapsedRealtimeMs</code></a> and <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#bytesLoaded"><code>MediaSourceEventListener.LoadEventInfo.bytesLoaded</code></a> are relative to the
+     corresponding <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>
+     event.</dd>
 <dd><code>mediaLoadData</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.MediaLoadData</code></a> defining the data being loaded.</dd>
 </dl>
 </li>
@@ -388,7 +390,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaSou
 <dd><code>windowIndex</code> - The window index in the timeline of the media source this load belongs to.</dd>
 <dd><code>mediaPeriodId</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> this load belongs to. Null if the load does not
      belong to a specific media period.</dd>
-<dd><code>loadEventInfo</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.LoadEventInfo</code></a> defining the load event.</dd>
+<dd><code>loadEventInfo</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.LoadEventInfo</code></a> corresponding to the event. The values of <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#elapsedRealtimeMs"><code>MediaSourceEventListener.LoadEventInfo.elapsedRealtimeMs</code></a> and <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#bytesLoaded"><code>MediaSourceEventListener.LoadEventInfo.bytesLoaded</code></a> are relative to the
+     corresponding <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>
+     event.</dd>
 <dd><code>mediaLoadData</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.MediaLoadData</code></a> defining the data being loaded.</dd>
 </dl>
 </li>
@@ -426,7 +430,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaSou
 <dd><code>windowIndex</code> - The window index in the timeline of the media source this load belongs to.</dd>
 <dd><code>mediaPeriodId</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> this load belongs to. Null if the load does not
      belong to a specific media period.</dd>
-<dd><code>loadEventInfo</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.LoadEventInfo</code></a> defining the load event.</dd>
+<dd><code>loadEventInfo</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.LoadEventInfo</code></a> corresponding to the event. The values of <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#elapsedRealtimeMs"><code>MediaSourceEventListener.LoadEventInfo.elapsedRealtimeMs</code></a> and <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.LoadEventInfo.html#bytesLoaded"><code>MediaSourceEventListener.LoadEventInfo.bytesLoaded</code></a> are relative to the
+     corresponding <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>
+     event.</dd>
 <dd><code>mediaLoadData</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.MediaLoadData.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.MediaLoadData</code></a> defining the data being loaded.</dd>
 <dd><code>error</code> - The load error.</dd>
 <dd><code>wasCanceled</code> - Whether the load was canceled as a result of the error.</dd>

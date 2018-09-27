@@ -100,7 +100,7 @@
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/RenditionKey.html" title="class in com.google.android.exoplayer2.source.hls.playlist">RenditionKey</a>&gt;</dd>
+<dd><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</dd>
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
@@ -110,7 +110,7 @@
 <br>
 <pre>public abstract class <span class="typeNameLabel">HlsPlaylist</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
-implements <a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/RenditionKey.html" title="class in com.google.android.exoplayer2.source.hls.playlist">RenditionKey</a>&gt;</pre>
+implements <a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</pre>
 <div class="block">Represents an HLS playlist.</div>
 </li>
 </ul>
@@ -137,6 +137,13 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#hasIndependentSegments">hasIndependentSegments</a></span></code>
+<div class="block">Whether the media is formed of independent segments, as defined by the
+ #EXT-X-INDEPENDENT-SEGMENTS tag.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#tags">tags</a></span></code>
 <div class="block">The list of tags in the playlist.</div>
@@ -159,8 +166,9 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#HlsPlaylist-java.lang.String-java.util.List-">HlsPlaylist</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUri,
-           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;tags)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#HlsPlaylist-java.lang.String-java.util.List-boolean-">HlsPlaylist</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUri,
+           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;tags,
+           boolean&nbsp;hasIndependentSegments)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -212,11 +220,22 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
 <a name="tags">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>tags</h4>
 <pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt; tags</pre>
 <div class="block">The list of tags in the playlist.</div>
+</li>
+</ul>
+<a name="hasIndependentSegments">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>hasIndependentSegments</h4>
+<pre>public final&nbsp;boolean hasIndependentSegments</pre>
+<div class="block">Whether the media is formed of independent segments, as defined by the
+ #EXT-X-INDEPENDENT-SEGMENTS tag.</div>
 </li>
 </ul>
 </li>
@@ -227,18 +246,20 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="HlsPlaylist-java.lang.String-java.util.List-">
+<a name="HlsPlaylist-java.lang.String-java.util.List-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>HlsPlaylist</h4>
 <pre>protected&nbsp;HlsPlaylist(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUri,
-                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;tags)</pre>
+                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;tags,
+                      boolean&nbsp;hasIndependentSegments)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>baseUri</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#baseUri"><code>baseUri</code></a>.</dd>
 <dd><code>tags</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#tags"><code>tags</code></a>.</dd>
+<dd><code>hasIndependentSegments</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#hasIndependentSegments"><code>hasIndependentSegments</code></a>.</dd>
 </dl>
 </li>
 </ul>

@@ -172,7 +172,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/ColorInfo.html#hdrStaticInfo">hdrStaticInfo</a></span></code>
-<div class="block">HdrStaticInfo as defined in CTA-861.3.</div>
+<div class="block">HdrStaticInfo as defined in CTA-861.3, or null if none specified.</div>
 </td>
 </tr>
 </table>
@@ -268,7 +268,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>colorSpace</h4>
-<pre>public final&nbsp;int colorSpace</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/C.ColorSpace.html" title="annotation in com.google.android.exoplayer2">@C.ColorSpace</a>
+public final&nbsp;int colorSpace</pre>
 <div class="block">The color space of the video. Valid values are <a href="../../../../../com/google/android/exoplayer2/C.html#COLOR_SPACE_BT601"><code>C.COLOR_SPACE_BT601</code></a>, <a href="../../../../../com/google/android/exoplayer2/C.html#COLOR_SPACE_BT709"><code>C.COLOR_SPACE_BT709</code></a>, <a href="../../../../../com/google/android/exoplayer2/C.html#COLOR_SPACE_BT2020"><code>C.COLOR_SPACE_BT2020</code></a> or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown.</div>
 </li>
 </ul>
@@ -278,7 +279,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>colorRange</h4>
-<pre>public final&nbsp;int colorRange</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/C.ColorRange.html" title="annotation in com.google.android.exoplayer2">@C.ColorRange</a>
+public final&nbsp;int colorRange</pre>
 <div class="block">The color range of the video. Valid values are <a href="../../../../../com/google/android/exoplayer2/C.html#COLOR_RANGE_LIMITED"><code>C.COLOR_RANGE_LIMITED</code></a>, <a href="../../../../../com/google/android/exoplayer2/C.html#COLOR_RANGE_FULL"><code>C.COLOR_RANGE_FULL</code></a> or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown.</div>
 </li>
 </ul>
@@ -288,7 +290,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>colorTransfer</h4>
-<pre>public final&nbsp;int colorTransfer</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/C.ColorTransfer.html" title="annotation in com.google.android.exoplayer2">@C.ColorTransfer</a>
+public final&nbsp;int colorTransfer</pre>
 <div class="block">The color transfer characteristicks of the video. Valid values are <a href="../../../../../com/google/android/exoplayer2/C.html#COLOR_TRANSFER_HLG"><code>C.COLOR_TRANSFER_HLG</code></a>, <a href="../../../../../com/google/android/exoplayer2/C.html#COLOR_TRANSFER_ST2084"><code>C.COLOR_TRANSFER_ST2084</code></a>, <a href="../../../../../com/google/android/exoplayer2/C.html#COLOR_TRANSFER_SDR"><code>C.COLOR_TRANSFER_SDR</code></a> or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if unknown.</div>
 </li>
 </ul>
@@ -298,8 +301,9 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockList">
 <li class="blockList">
 <h4>hdrStaticInfo</h4>
-<pre>public final&nbsp;byte[] hdrStaticInfo</pre>
-<div class="block">HdrStaticInfo as defined in CTA-861.3.</div>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;byte[] hdrStaticInfo</pre>
+<div class="block">HdrStaticInfo as defined in CTA-861.3, or null if none specified.</div>
 </li>
 </ul>
 <a name="CREATOR">
@@ -325,9 +329,13 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ColorInfo</h4>
-<pre>public&nbsp;ColorInfo(int&nbsp;colorSpace,
+<pre>public&nbsp;ColorInfo(<a href="../../../../../com/google/android/exoplayer2/C.ColorSpace.html" title="annotation in com.google.android.exoplayer2">@C.ColorSpace</a>
+                 int&nbsp;colorSpace,
+                 <a href="../../../../../com/google/android/exoplayer2/C.ColorRange.html" title="annotation in com.google.android.exoplayer2">@C.ColorRange</a>
                  int&nbsp;colorRange,
+                 <a href="../../../../../com/google/android/exoplayer2/C.ColorTransfer.html" title="annotation in com.google.android.exoplayer2">@C.ColorTransfer</a>
                  int&nbsp;colorTransfer,
+                 <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                  byte[]&nbsp;hdrStaticInfo)</pre>
 <div class="block">Constructs the ColorInfo.</div>
 <dl>
@@ -335,7 +343,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <dd><code>colorSpace</code> - The color space of the video.</dd>
 <dd><code>colorRange</code> - The color range of the video.</dd>
 <dd><code>colorTransfer</code> - The color transfer characteristics of the video.</dd>
-<dd><code>hdrStaticInfo</code> - HdrStaticInfo as defined in CTA-861.3.</dd>
+<dd><code>hdrStaticInfo</code> - HdrStaticInfo as defined in CTA-861.3, or null if none specified.</dd>
 </dl>
 </li>
 </ul>

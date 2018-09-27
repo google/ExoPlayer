@@ -385,6 +385,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <h4>DefaultPlaybackController</h4>
 <pre>public&nbsp;DefaultPlaybackController(long&nbsp;rewindIncrementMs,
                                  long&nbsp;fastForwardIncrementMs,
+                                 <a href="../../../../../../com/google/android/exoplayer2/util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatModeUtil.RepeatToggleModes</a>
                                  int&nbsp;repeatToggleModes)</pre>
 <div class="block">Creates a new instance with the given fast forward and rewind increments.</div>
 <dl>
@@ -413,12 +414,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <pre>public&nbsp;long&nbsp;getSupportedPlaybackActions(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackController.html#getSupportedPlaybackActions-com.google.android.exoplayer2.Player-">MediaSessionConnector.PlaybackController</a></code></span></div>
 <div class="block">Returns the actions which are supported by the controller. The supported actions must be a
- bitmask combined out of <code>PlaybackStateCompat.ACTION_PLAY_PAUSE</code>,
- <code>PlaybackStateCompat.ACTION_PLAY</code>, <code>PlaybackStateCompat.ACTION_PAUSE</code>,
- <code>PlaybackStateCompat.ACTION_SEEK_TO</code>, <code>PlaybackStateCompat.ACTION_FAST_FORWARD</code>,
- <code>PlaybackStateCompat.ACTION_REWIND</code>, <code>PlaybackStateCompat.ACTION_STOP</code>,
- <code>PlaybackStateCompat.ACTION_SET_REPEAT_MODE</code> and
- <code>PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE</code>.</div>
+ bitmask combined out of <code>PlaybackStateCompat.ACTION_PLAY_PAUSE</code>, <code>PlaybackStateCompat.ACTION_PLAY</code>, <code>PlaybackStateCompat.ACTION_PAUSE</code>, <code>PlaybackStateCompat.ACTION_SEEK_TO</code>, <code>PlaybackStateCompat.ACTION_FAST_FORWARD</code>, <code>PlaybackStateCompat.ACTION_REWIND</code>, <code>PlaybackStateCompat.ACTION_STOP</code>, <code>PlaybackStateCompat.ACTION_SET_REPEAT_MODE</code> and <code>PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackController.html#getSupportedPlaybackActions-com.google.android.exoplayer2.Player-">getSupportedPlaybackActions</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.PlaybackController.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackController</a></code></dd>

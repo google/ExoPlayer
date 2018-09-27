@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":38,"i1":6,"i2":6,"i3":6,"i4":6,"i5":38,"i6":6};
+var methods = {"i0":38,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":38,"i8":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -160,12 +160,17 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
  model">
 
  <ul>
-   <li>ExoPlayer instances must be accessed from a single application thread. This must be the
-       thread the player is created on if that thread has a <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os"><code>Looper</code></a>, or the application's
-       main thread otherwise.
-   <li>Registered listeners are called on the thread the player is created on if that thread has a
-       <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os"><code>Looper</code></a>, or the application's main thread otherwise. Note that this means registered
-       listeners are called on the same thread which must be used to access the player.
+   <li>ExoPlayer instances must be accessed from a single application thread. For the vast
+       majority of cases this should be the application's main thread. Using the application's
+       main thread is also a requirement when using ExoPlayer's UI components or the IMA
+       extension. The thread on which an ExoPlayer instance must be accessed can be explicitly
+       specified by passing a `Looper` when creating the player. If no `Looper` is specified, then
+       the `Looper` of the thread that the player is created on is used, or if that thread does
+       not have a `Looper`, the `Looper` of the application's main thread is used. In all cases
+       the `Looper` of the thread from which the player must be accessed can be queried using
+       <a href="../../../../com/google/android/exoplayer2/Player.html#getApplicationLooper--"><code>Player.getApplicationLooper()</code></a>.
+   <li>Registered listeners are called on the thread associated with <a href="../../../../com/google/android/exoplayer2/Player.html#getApplicationLooper--"><code>Player.getApplicationLooper()</code></a>. Note that this means registered listeners are called on the same
+       thread which must be used to access the player.
    <li>An internal playback thread is responsible for playback. Injected player components such as
        Renderers, MediaSources, TrackSelectors and LoadControls are called by the player on this
        thread.
@@ -227,7 +232,7 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></h3>
-<code><a href="../../../../com/google/android/exoplayer2/Player.DefaultEventListener.html" title="class in com.google.android.exoplayer2">Player.DefaultEventListener</a>, <a href="../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">Player.DiscontinuityReason</a>, <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">Player.RepeatMode</a>, <a href="../../../../com/google/android/exoplayer2/Player.TextComponent.html" title="interface in com.google.android.exoplayer2">Player.TextComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">Player.TimelineChangeReason</a>, <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html" title="interface in com.google.android.exoplayer2">Player.VideoComponent</a></code></li>
+<code><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html" title="interface in com.google.android.exoplayer2">Player.AudioComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.DefaultEventListener.html" title="class in com.google.android.exoplayer2">Player.DefaultEventListener</a>, <a href="../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">Player.DiscontinuityReason</a>, <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">Player.RepeatMode</a>, <a href="../../../../com/google/android/exoplayer2/Player.TextComponent.html" title="interface in com.google.android.exoplayer2">Player.TextComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">Player.TimelineChangeReason</a>, <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html" title="interface in com.google.android.exoplayer2">Player.VideoComponent</a></code></li>
 </ul>
 </li>
 </ul>
@@ -338,16 +343,22 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os">Looper</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#getPlaybackLooper--">getPlaybackLooper</a></span>()</code>
-<div class="block">Gets the <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os"><code>Looper</code></a> associated with the playback thread.</div>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os"><code>Looper</code></a> associated with the playback thread.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#getSeekParameters--">getSeekParameters</a></span>()</code>
+<div class="block">Returns the currently active <a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a> of the player.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-">prepare</a></span>(<a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code>
 <div class="block">Prepares the player to play the provided <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-">prepare</a></span>(<a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
        boolean&nbsp;resetPosition,
@@ -356,7 +367,13 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
  position the default position in the first <a href="../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#retry--">retry</a></span>()</code>
+<div class="block">Retries a failed or stopped playback.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#sendMessages-com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage...-">sendMessages</a></span>(<a href="../../../../com/google/android/exoplayer2/ExoPlayer.ExoPlayerMessage.html" title="class in com.google.android.exoplayer2">ExoPlayer.ExoPlayerMessage</a>...&nbsp;messages)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -364,7 +381,7 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
 </div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#setSeekParameters-com.google.android.exoplayer2.SeekParameters-">setSeekParameters</a></span>(<a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code>
 <div class="block">Sets the parameters that control how seek operations are performed.</div>
@@ -376,7 +393,7 @@ extends <a href="../../../../com/google/android/exoplayer2/Player.html" title="i
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></h3>
-<code><a href="../../../../com/google/android/exoplayer2/Player.html#addListener-com.google.android.exoplayer2.Player.EventListener-">addListener</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getBufferedPercentage--">getBufferedPercentage</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getBufferedPosition--">getBufferedPosition</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getContentPosition--">getContentPosition</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentAdGroupIndex--">getCurrentAdGroupIndex</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentAdIndexInAdGroup--">getCurrentAdIndexInAdGroup</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentManifest--">getCurrentManifest</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentPeriodIndex--">getCurrentPeriodIndex</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentPosition--">getCurrentPosition</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTag--">getCurrentTag</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--">getCurrentTimeline</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTrackGroups--">getCurrentTrackGroups</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTrackSelections--">getCurrentTrackSelections</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentWindowIndex--">getCurrentWindowIndex</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getDuration--">getDuration</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getNextWindowIndex--">getNextWindowIndex</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackError--">getPlaybackError</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackParameters--">getPlaybackParameters</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--">getPlaybackState</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--">getPlayWhenReady</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getPreviousWindowIndex--">getPreviousWindowIndex</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getRendererCount--">getRendererCount</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getRendererType-int-">getRendererType</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getRepeatMode--">getRepeatMode</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getShuffleModeEnabled--">getShuffleModeEnabled</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getTextComponent--">getTextComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getVideoComponent--">getVideoComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#isCurrentWindowDynamic--">isCurrentWindowDynamic</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#isCurrentWindowSeekable--">isCurrentWindowSeekable</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#isLoading--">isLoading</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--">isPlayingAd</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#release--">release</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#removeListener-com.google.android.exoplayer2.Player.EventListener-">removeListener</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#seekTo-int-long-">seekTo</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#seekTo-long-">seekTo</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#seekToDefaultPosition--">seekToDefaultPosition</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#seekToDefaultPosition-int-">seekToDefaultPosition</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#setPlayWhenReady-boolean-">setPlayWhenReady</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#setRepeatMode-int-">setRepeatMode</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#setShuffleModeEnabled-boolean-">setShuffleModeEnabled</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#stop--">stop</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#stop-boolean-">stop</a></code></li>
+<code><a href="../../../../com/google/android/exoplayer2/Player.html#addListener-com.google.android.exoplayer2.Player.EventListener-">addListener</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getApplicationLooper--">getApplicationLooper</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getAudioComponent--">getAudioComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getBufferedPercentage--">getBufferedPercentage</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getBufferedPosition--">getBufferedPosition</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getContentBufferedPosition--">getContentBufferedPosition</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getContentDuration--">getContentDuration</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getContentPosition--">getContentPosition</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentAdGroupIndex--">getCurrentAdGroupIndex</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentAdIndexInAdGroup--">getCurrentAdIndexInAdGroup</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentManifest--">getCurrentManifest</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentPeriodIndex--">getCurrentPeriodIndex</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentPosition--">getCurrentPosition</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTag--">getCurrentTag</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--">getCurrentTimeline</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTrackGroups--">getCurrentTrackGroups</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTrackSelections--">getCurrentTrackSelections</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentWindowIndex--">getCurrentWindowIndex</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getDuration--">getDuration</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getNextWindowIndex--">getNextWindowIndex</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackError--">getPlaybackError</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackParameters--">getPlaybackParameters</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--">getPlaybackState</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--">getPlayWhenReady</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getPreviousWindowIndex--">getPreviousWindowIndex</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getRendererCount--">getRendererCount</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getRendererType-int-">getRendererType</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getRepeatMode--">getRepeatMode</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getShuffleModeEnabled--">getShuffleModeEnabled</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getTextComponent--">getTextComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getTotalBufferedDuration--">getTotalBufferedDuration</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#getVideoComponent--">getVideoComponent</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#isCurrentWindowDynamic--">isCurrentWindowDynamic</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#isCurrentWindowSeekable--">isCurrentWindowSeekable</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#isLoading--">isLoading</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--">isPlayingAd</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#release--">release</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#removeListener-com.google.android.exoplayer2.Player.EventListener-">removeListener</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#seekTo-int-long-">seekTo</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#seekTo-long-">seekTo</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#seekToDefaultPosition--">seekToDefaultPosition</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#seekToDefaultPosition-int-">seekToDefaultPosition</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#setPlayWhenReady-boolean-">setPlayWhenReady</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#setRepeatMode-int-">setRepeatMode</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#setShuffleModeEnabled-boolean-">setShuffleModeEnabled</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#stop--">stop</a>, <a href="../../../../com/google/android/exoplayer2/Player.html#stop-boolean-">stop</a></code></li>
 </ul>
 </li>
 </ul>
@@ -459,6 +476,7 @@ static final&nbsp;int STATE_ENDED</pre>
 <li class="blockList">
 <h4>REPEAT_MODE_OFF</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+ <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@Player.RepeatMode</a>
 static final&nbsp;int REPEAT_MODE_OFF</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a> instead.</span></div>
 <dl>
@@ -474,6 +492,7 @@ static final&nbsp;int REPEAT_MODE_OFF</pre>
 <li class="blockList">
 <h4>REPEAT_MODE_ONE</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+ <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@Player.RepeatMode</a>
 static final&nbsp;int REPEAT_MODE_ONE</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> instead.</span></div>
 <dl>
@@ -489,6 +508,7 @@ static final&nbsp;int REPEAT_MODE_ONE</pre>
 <li class="blockList">
 <h4>REPEAT_MODE_ALL</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+ <a href="../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@Player.RepeatMode</a>
 static final&nbsp;int REPEAT_MODE_ALL</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ALL"><code>Player.REPEAT_MODE_ALL</code></a> instead.</span></div>
 <dl>
@@ -512,11 +532,18 @@ static final&nbsp;int REPEAT_MODE_ALL</pre>
 <li class="blockList">
 <h4>getPlaybackLooper</h4>
 <pre><a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os">Looper</a>&nbsp;getPlaybackLooper()</pre>
-<div class="block">Gets the <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os"><code>Looper</code></a> associated with the playback thread.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os"><code>Looper</code></a> associated with the playback thread.</dd>
-</dl>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os"><code>Looper</code></a> associated with the playback thread.</div>
+</li>
+</ul>
+<a name="retry--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>retry</h4>
+<pre>void&nbsp;retry()</pre>
+<div class="block">Retries a failed or stopped playback. Does nothing if the player has been reset, or if playback
+ has not failed or been stopped.</div>
 </li>
 </ul>
 <a name="prepare-com.google.android.exoplayer2.source.MediaSource-">
@@ -598,7 +625,7 @@ void&nbsp;blockingSendMessages(<a href="../../../../com/google/android/exoplayer
 <a name="setSeekParameters-com.google.android.exoplayer2.SeekParameters-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>setSeekParameters</h4>
 <pre>void&nbsp;setSeekParameters(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
@@ -608,6 +635,16 @@ void&nbsp;blockingSendMessages(<a href="../../../../com/google/android/exoplayer
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>seekParameters</code> - The seek parameters, or <code>null</code> to use the defaults.</dd>
 </dl>
+</li>
+</ul>
+<a name="getSeekParameters--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getSeekParameters</h4>
+<pre><a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;getSeekParameters()</pre>
+<div class="block">Returns the currently active <a href="../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a> of the player.</div>
 </li>
 </ul>
 </li>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationSegmentIterator.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" target="_top">Frames</a></li>
@@ -112,7 +112,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>protected static final class <span class="typeNameLabel">DefaultDashChunkSource.RepresentationHolder</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></pre>
-<div class="block">Holds information about a single <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
+<div class="block">Holds information about a snapshot of a single <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -156,25 +156,37 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getFirstSegmentNum--">getFirstSegmentNum</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getFirstAvailableSegmentNum-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-long-">getFirstAvailableSegmentNum</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                           int&nbsp;periodIndex,
+                           long&nbsp;nowUnixTimeUs)</code>&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getSegmentCount--">getSegmentCount</a></span>()</code>&nbsp;</td>
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getFirstSegmentNum--">getFirstSegmentNum</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getSegmentEndTimeUs-long-">getSegmentEndTimeUs</a></span>(long&nbsp;segmentNum)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getLastAvailableSegmentNum-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-long-">getLastAvailableSegmentNum</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                          int&nbsp;periodIndex,
+                          long&nbsp;nowUnixTimeUs)</code>&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getSegmentNum-long-">getSegmentNum</a></span>(long&nbsp;positionUs)</code>&nbsp;</td>
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getSegmentCount--">getSegmentCount</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getSegmentStartTimeUs-long-">getSegmentStartTimeUs</a></span>(long&nbsp;segmentNum)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getSegmentEndTimeUs-long-">getSegmentEndTimeUs</a></span>(long&nbsp;segmentNum)</code>&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getSegmentNum-long-">getSegmentNum</a></span>(long&nbsp;positionUs)</code>&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getSegmentStartTimeUs-long-">getSegmentStartTimeUs</a></span>(long&nbsp;segmentNum)</code>&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html#getSegmentUrl-long-">getSegmentUrl</a></span>(long&nbsp;segmentNum)</code>&nbsp;</td>
 </tr>
@@ -206,7 +218,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>representation</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a> representation</pre>
+<pre>public final&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a> representation</pre>
 </li>
 </ul>
 <a name="segmentIndex">
@@ -215,7 +227,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>segmentIndex</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a> segmentIndex</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a> segmentIndex</pre>
 </li>
 </ul>
 </li>
@@ -274,10 +287,32 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <a name="getSegmentUrl-long-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getSegmentUrl</h4>
 <pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;getSegmentUrl(long&nbsp;segmentNum)</pre>
+</li>
+</ul>
+<a name="getFirstAvailableSegmentNum-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFirstAvailableSegmentNum</h4>
+<pre>public&nbsp;long&nbsp;getFirstAvailableSegmentNum(<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                                        int&nbsp;periodIndex,
+                                        long&nbsp;nowUnixTimeUs)</pre>
+</li>
+</ul>
+<a name="getLastAvailableSegmentNum-com.google.android.exoplayer2.source.dash.manifest.DashManifest-int-long-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getLastAvailableSegmentNum</h4>
+<pre>public&nbsp;long&nbsp;getLastAvailableSegmentNum(<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                                       int&nbsp;periodIndex,
+                                       long&nbsp;nowUnixTimeUs)</pre>
 </li>
 </ul>
 </li>
@@ -308,7 +343,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationSegmentIterator.html" title="class in com.google.android.exoplayer2.source.dash"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" target="_top">Frames</a></li>

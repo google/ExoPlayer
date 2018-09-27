@@ -112,8 +112,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public static interface <span class="typeNameLabel">MediaSessionConnector.QueueNavigator</span>
 extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></pre>
-<div class="block">Handles queue navigation actions, and updates the media session queue by calling
- <code>MediaSessionCompat.setQueue()</code>.</div>
+<div class="block">Handles queue navigation actions, and updates the media session queue by calling <code>MediaSessionCompat.setQueue()</code>.</div>
 </li>
 </ul>
 </div>
@@ -154,8 +153,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html#getActiveQueueItemId-com.google.android.exoplayer2.Player-">getActiveQueueItemId</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
-<div class="block">Gets the id of the currently active queue item, or
- <code>MediaSessionCompat.QueueItem#UNKNOWN_ID</code> if the active item is unknown.</div>
+<div class="block">Gets the id of the currently active queue item, or <code>MediaSessionCompat.QueueItem#UNKNOWN_ID</code> if the active item is unknown.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -247,9 +245,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 <pre>long&nbsp;getSupportedQueueNavigatorActions(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                        <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block">Returns the actions which are supported by the navigator. The supported actions must be a
- bitmask combined out of <code>PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM</code>,
- <code>PlaybackStateCompat.ACTION_SKIP_TO_NEXT</code>,
- <code>PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS</code>.</div>
+ bitmask combined out of <code>PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM</code>, <code>PlaybackStateCompat.ACTION_SKIP_TO_NEXT</code>, <code>PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</dd>
@@ -294,12 +290,10 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 <h4>getActiveQueueItemId</h4>
 <pre>long&nbsp;getActiveQueueItemId(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                           <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
-<div class="block">Gets the id of the currently active queue item, or
- <code>MediaSessionCompat.QueueItem#UNKNOWN_ID</code> if the active item is unknown.
- <p>
- To let the connector publish metadata for the active queue item, the queue item with the
- returned id must be available in the list of items returned by
- <code>MediaControllerCompat.getQueue()</code>.</div>
+<div class="block">Gets the id of the currently active queue item, or <code>MediaSessionCompat.QueueItem#UNKNOWN_ID</code> if the active item is unknown.
+
+ <p>To let the connector publish metadata for the active queue item, the queue item with the
+ returned id must be available in the list of items returned by <code>MediaControllerCompat.getQueue()</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player connected to the media session.</dd>

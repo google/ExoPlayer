@@ -4,6 +4,7 @@ com.google.android.exoplayer2.audio
 com.google.android.exoplayer2.decoder
 com.google.android.exoplayer2.drm
 com.google.android.exoplayer2.ext.cast
+com.google.android.exoplayer2.ext.cronet
 com.google.android.exoplayer2.ext.ffmpeg
 com.google.android.exoplayer2.ext.flac
 com.google.android.exoplayer2.ext.gvr
@@ -55,8 +56,10 @@ com.google.android.exoplayer2.text.tx3g
 com.google.android.exoplayer2.text.webvtt
 com.google.android.exoplayer2.trackselection
 com.google.android.exoplayer2.ui
+com.google.android.exoplayer2.ui.spherical
 com.google.android.exoplayer2.upstream
 com.google.android.exoplayer2.upstream.cache
 com.google.android.exoplayer2.upstream.crypto
 com.google.android.exoplayer2.util
 com.google.android.exoplayer2.video
+com.google.android.exoplayer2.video.spherical

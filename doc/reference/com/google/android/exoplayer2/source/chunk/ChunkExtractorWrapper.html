@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkedTrackBlacklistUtil.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -215,8 +215,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.html#init-com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider-long-">init</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a>&nbsp;trackOutputProvider,
-    long&nbsp;seekTimeUs)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.html#init-com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider-long-long-">init</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a>&nbsp;trackOutputProvider,
+    long&nbsp;startTimeUs,
+    long&nbsp;endTimeUs)</code>
 <div class="block">Initializes the wrapper to output to <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>s provided by the specified <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractorWrapper.TrackOutputProvider</code></a>, and configures the extractor to receive data from a new chunk.</div>
 </td>
 </tr>
@@ -319,20 +320,24 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <div class="block">Returns the sample <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s most recently output by the extractor, or null.</div>
 </li>
 </ul>
-<a name="init-com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider-long-">
+<a name="init-com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider-long-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>init</h4>
-<pre>public&nbsp;void&nbsp;init(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a>&nbsp;trackOutputProvider,
-                 long&nbsp;seekTimeUs)</pre>
+<pre>public&nbsp;void&nbsp;init(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                 <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a>&nbsp;trackOutputProvider,
+                 long&nbsp;startTimeUs,
+                 long&nbsp;endTimeUs)</pre>
 <div class="block">Initializes the wrapper to output to <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>s provided by the specified <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractorWrapper.TrackOutputProvider</code></a>, and configures the extractor to receive data from a new chunk.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackOutputProvider</code> - The provider of <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>s that will receive sample data.</dd>
-<dd><code>seekTimeUs</code> - The seek position within the new chunk, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to output the
-     whole chunk.</dd>
+<dd><code>startTimeUs</code> - The start position in the new chunk, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to output
+     samples from the start of the chunk.</dd>
+<dd><code>endTimeUs</code> - The end position in the new chunk, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to output samples
+     to the end of the chunk.</dd>
 </dl>
 </li>
 </ul>
@@ -420,7 +425,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkedTrackBlacklistUtil.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

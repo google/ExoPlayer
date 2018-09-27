@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":18,"i1":18,"i2":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -100,6 +100,10 @@ var activeTableTab = "activeTableTab";
 <dt>All Known Subinterfaces:</dt>
 <dd><a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.VideoListener.html" title="interface in com.google.android.exoplayer2">SimpleExoPlayer.VideoListener</a></dd>
 </dl>
+<dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></dd>
+</dl>
 <hr>
 <br>
 <pre>public interface <span class="typeNameLabel">VideoListener</span></pre>
@@ -117,20 +121,28 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoListener.html#onRenderedFirstFrame--">onRenderedFirstFrame</a></span>()</code>
 <div class="block">Called when a frame is rendered for the first time since setting the surface, and when a frame
  is rendered for the first time since a video track was selected.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoListener.html#onSurfaceSizeChanged-int-int-">onSurfaceSizeChanged</a></span>(int&nbsp;width,
+                    int&nbsp;height)</code>
+<div class="block">Called each time there's a change in the size of the surface onto which the video is being
+ rendered.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoListener.html#onVideoSizeChanged-int-int-int-float-">onVideoSizeChanged</a></span>(int&nbsp;width,
                   int&nbsp;height,
                   int&nbsp;unappliedRotationDegrees,
@@ -159,10 +171,10 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onVideoSizeChanged</h4>
-<pre>void&nbsp;onVideoSizeChanged(int&nbsp;width,
-                        int&nbsp;height,
-                        int&nbsp;unappliedRotationDegrees,
-                        float&nbsp;pixelWidthHeightRatio)</pre>
+<pre>default&nbsp;void&nbsp;onVideoSizeChanged(int&nbsp;width,
+                                int&nbsp;height,
+                                int&nbsp;unappliedRotationDegrees,
+                                float&nbsp;pixelWidthHeightRatio)</pre>
 <div class="block">Called each time there's a change in the size of the video being rendered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -181,13 +193,32 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
+<a name="onSurfaceSizeChanged-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onSurfaceSizeChanged</h4>
+<pre>default&nbsp;void&nbsp;onSurfaceSizeChanged(int&nbsp;width,
+                                  int&nbsp;height)</pre>
+<div class="block">Called each time there's a change in the size of the surface onto which the video is being
+ rendered.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>width</code> - The surface width in pixels. May be <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown, or 0 if the video is not rendered
+     onto a surface.</dd>
+<dd><code>height</code> - The surface height in pixels. May be <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unknown, or 0 if the video is not rendered
+     onto a surface.</dd>
+</dl>
+</li>
+</ul>
 <a name="onRenderedFirstFrame--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onRenderedFirstFrame</h4>
-<pre>void&nbsp;onRenderedFirstFrame()</pre>
+<pre>default&nbsp;void&nbsp;onRenderedFirstFrame()</pre>
 <div class="block">Called when a frame is rendered for the first time since setting the surface, and when a frame
  is rendered for the first time since a video track was selected.</div>
 </li>

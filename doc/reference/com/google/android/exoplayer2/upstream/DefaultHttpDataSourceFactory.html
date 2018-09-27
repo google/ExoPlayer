@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DummyDataSource.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html" target="_top">Frames</a></li>
@@ -141,14 +141,20 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-int-int-boolean-">DefaultHttpDataSourceFactory</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
+                            int&nbsp;connectTimeoutMillis,
+                            int&nbsp;readTimeoutMillis,
+                            boolean&nbsp;allowCrossProtocolRedirects)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-com.google.android.exoplayer2.upstream.TransferListener-">DefaultHttpDataSourceFactory</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                            <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&lt;? super <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&gt;&nbsp;listener)</code>
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</code>
 <div class="block">Constructs a DefaultHttpDataSourceFactory.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-com.google.android.exoplayer2.upstream.TransferListener-int-int-boolean-">DefaultHttpDataSourceFactory</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                            <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&lt;? super <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&gt;&nbsp;listener,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
                             int&nbsp;connectTimeoutMillis,
                             int&nbsp;readTimeoutMillis,
                             boolean&nbsp;allowCrossProtocolRedirects)</code>&nbsp;</td>
@@ -225,7 +231,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <li class="blockList">
 <h4>DefaultHttpDataSourceFactory</h4>
 <pre>public&nbsp;DefaultHttpDataSourceFactory(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                                    <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&lt;? super <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&gt;&nbsp;listener)</pre>
+                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                    <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</pre>
 <div class="block">Constructs a DefaultHttpDataSourceFactory. Sets <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the connection timeout, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read timeout and disables
  cross-protocol redirects.</div>
 <dl>
@@ -237,6 +244,28 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 </dl>
 </li>
 </ul>
+<a name="DefaultHttpDataSourceFactory-java.lang.String-int-int-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultHttpDataSourceFactory</h4>
+<pre>public&nbsp;DefaultHttpDataSourceFactory(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
+                                    int&nbsp;connectTimeoutMillis,
+                                    int&nbsp;readTimeoutMillis,
+                                    boolean&nbsp;allowCrossProtocolRedirects)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>userAgent</code> - The User-Agent string that should be used.</dd>
+<dd><code>connectTimeoutMillis</code> - The connection timeout that should be used when requesting remote
+     data, in milliseconds. A timeout of zero is interpreted as an infinite timeout.</dd>
+<dd><code>readTimeoutMillis</code> - The read timeout that should be used when requesting remote data, in
+     milliseconds. A timeout of zero is interpreted as an infinite timeout.</dd>
+<dd><code>allowCrossProtocolRedirects</code> - Whether cross-protocol redirects (i.e. redirects from HTTP
+     to HTTPS and vice versa) are enabled.</dd>
+</dl>
+</li>
+</ul>
 <a name="DefaultHttpDataSourceFactory-java.lang.String-com.google.android.exoplayer2.upstream.TransferListener-int-int-boolean-">
 <!--   -->
 </a>
@@ -244,7 +273,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <li class="blockList">
 <h4>DefaultHttpDataSourceFactory</h4>
 <pre>public&nbsp;DefaultHttpDataSourceFactory(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;userAgent,
-                                    <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&lt;? super <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&gt;&nbsp;listener,
+                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                    <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
                                     int&nbsp;connectTimeoutMillis,
                                     int&nbsp;readTimeoutMillis,
                                     boolean&nbsp;allowCrossProtocolRedirects)</pre>
@@ -317,7 +347,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DummyDataSource.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html" target="_top">Frames</a></li>

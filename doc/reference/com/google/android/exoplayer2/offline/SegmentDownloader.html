@@ -90,14 +90,14 @@ var activeTableTab = "activeTableTab";
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="subTitle">com.google.android.exoplayer2.offline</div>
-<h2 title="Class SegmentDownloader" class="title">Class SegmentDownloader&lt;M extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;M,K&gt;,K&gt;</h2>
+<h2 title="Class SegmentDownloader" class="title">Class SegmentDownloader&lt;M extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;M&gt;&gt;</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.offline.SegmentDownloader&lt;M,K&gt;</li>
+<li>com.google.android.exoplayer2.offline.SegmentDownloader&lt;M&gt;</li>
 </ul>
 </li>
 </ul>
@@ -107,7 +107,6 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt><span class="paramLabel">Type Parameters:</span></dt>
 <dd><code>M</code> - The type of the manifest object.</dd>
-<dd><code>K</code> - The type of the streams key object.</dd>
 </dl>
 <dl>
 <dt>All Implemented Interfaces:</dt>
@@ -119,7 +118,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>public abstract class <span class="typeNameLabel">SegmentDownloader&lt;M extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;M,K&gt;,K&gt;</span>
+<pre>public abstract class <span class="typeNameLabel">SegmentDownloader&lt;M extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;M&gt;&gt;</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></pre>
 <div class="block">Base class for multi segment stream downloaders.</div>
@@ -163,7 +162,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#SegmentDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">SegmentDownloader</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="type parameter in SegmentDownloader">K</a>&gt;&nbsp;streamKeys,
+                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys,
                  <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</code>&nbsp;</td>
 </tr>
 </table>
@@ -256,7 +255,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <li class="blockList">
 <h4>SegmentDownloader</h4>
 <pre>public&nbsp;SegmentDownloader(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri,
-                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="type parameter in SegmentDownloader">K</a>&gt;&nbsp;streamKeys,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys,
                          <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

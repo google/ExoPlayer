@@ -90,7 +90,7 @@ var activeTableTab = "activeTableTab";
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="subTitle">com.google.android.exoplayer2.offline</div>
-<h2 title="Interface FilterableManifest" class="title">Interface FilterableManifest&lt;T,K&gt;</h2>
+<h2 title="Interface FilterableManifest" class="title">Interface FilterableManifest&lt;T&gt;</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
@@ -99,7 +99,6 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt><span class="paramLabel">Type Parameters:</span></dt>
 <dd><code>T</code> - The manifest type.</dd>
-<dd><code>K</code> - The stream key type.</dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
@@ -107,7 +106,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>public interface <span class="typeNameLabel">FilterableManifest&lt;T,K&gt;</span></pre>
+<pre>public interface <span class="typeNameLabel">FilterableManifest&lt;T&gt;</span></pre>
 <div class="block">A manifest that can generate copies of itself including only the streams specified by the given
  keys.</div>
 </li>
@@ -130,7 +129,7 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="type parameter in FilterableManifest">T</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html#copy-java.util.List-">copy</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="type parameter in FilterableManifest">K</a>&gt;&nbsp;streamKeys)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html#copy-java.util.List-">copy</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys)</code>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys.</div>
 </td>
 </tr>
@@ -155,7 +154,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>copy</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="type parameter in FilterableManifest">T</a>&nbsp;copy(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="type parameter in FilterableManifest">K</a>&gt;&nbsp;streamKeys)</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="type parameter in FilterableManifest">T</a>&nbsp;copy(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys. If the
  manifest is unchanged then the instance may return itself.</div>
 <dl>

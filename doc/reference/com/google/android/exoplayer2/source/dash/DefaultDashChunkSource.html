@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":9,"i5":9,"i6":10,"i7":10,"i8":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -139,7 +139,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <tr class="rowColor">
 <td class="colFirst"><code>protected static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a></span></code>
-<div class="block">Holds information about a single <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
+<div class="block">Holds information about a snapshot of a single <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationSegmentIterator.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationSegmentIterator</a></span></code>
+<div class="block"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a> wrapping a <a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash"><code>DefaultDashChunkSource.RepresentationHolder</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -199,7 +205,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -213,9 +219,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#getNextChunk-com.google.android.exoplayer2.source.chunk.MediaChunk-long-long-com.google.android.exoplayer2.source.chunk.ChunkHolder-">getNextChunk</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&nbsp;previous,
-            long&nbsp;playbackPositionUs,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#getNextChunk-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.ChunkHolder-">getNextChunk</a></span>(long&nbsp;playbackPositionUs,
             long&nbsp;loadPositionUs,
+            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&gt;&nbsp;queue,
             <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkHolder.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkHolder</a>&nbsp;out)</code>
 <div class="block">Returns the next chunk to load.</div>
 </td>
@@ -235,7 +241,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>protected static <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code></td>
+<td class="colFirst"><code>protected <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#newInitializationChunk-com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.Format-int-java.lang.Object-com.google.android.exoplayer2.source.dash.manifest.RangedUri-com.google.android.exoplayer2.source.dash.manifest.RangedUri-">newInitializationChunk</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                       <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
@@ -245,7 +251,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
                       <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri)</code>&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>protected static <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code></td>
+<td class="colFirst"><code>protected <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#newMediaChunk-com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder-com.google.android.exoplayer2.upstream.DataSource-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-int-long-">newMediaChunk</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
              <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
              int&nbsp;trackType,
@@ -265,9 +271,10 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#onChunkLoadError-com.google.android.exoplayer2.source.chunk.Chunk-boolean-java.lang.Exception-">onChunkLoadError</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.html#onChunkLoadError-com.google.android.exoplayer2.source.chunk.Chunk-boolean-java.lang.Exception-long-">onChunkLoadError</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
                 boolean&nbsp;cancelable,
-                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;e)</code>
+                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;e,
+                long&nbsp;blacklistDurationMs)</code>
 <div class="block">Called when the <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
  this source.</div>
 </td>
@@ -454,34 +461,34 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </dl>
 </li>
 </ul>
-<a name="getNextChunk-com.google.android.exoplayer2.source.chunk.MediaChunk-long-long-com.google.android.exoplayer2.source.chunk.ChunkHolder-">
+<a name="getNextChunk-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.ChunkHolder-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getNextChunk</h4>
-<pre>public&nbsp;void&nbsp;getNextChunk(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&nbsp;previous,
-                         long&nbsp;playbackPositionUs,
+<pre>public&nbsp;void&nbsp;getNextChunk(long&nbsp;playbackPositionUs,
                          long&nbsp;loadPositionUs,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&gt;&nbsp;queue,
                          <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkHolder.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkHolder</a>&nbsp;out)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#getNextChunk-com.google.android.exoplayer2.source.chunk.MediaChunk-long-long-com.google.android.exoplayer2.source.chunk.ChunkHolder-">ChunkSource</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#getNextChunk-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.ChunkHolder-">ChunkSource</a></code></span></div>
 <div class="block">Returns the next chunk to load.
- <p>
- If a chunk is available then <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkHolder.html#chunk"><code>ChunkHolder.chunk</code></a> is set. If the end of the stream has
+
+ <p>If a chunk is available then <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkHolder.html#chunk"><code>ChunkHolder.chunk</code></a> is set. If the end of the stream has
  been reached then <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkHolder.html#endOfStream"><code>ChunkHolder.endOfStream</code></a> is set. If a chunk is not available but the
  end of the stream has not been reached, the <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkHolder.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkHolder</code></a> is not modified.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#getNextChunk-com.google.android.exoplayer2.source.chunk.MediaChunk-long-long-com.google.android.exoplayer2.source.chunk.ChunkHolder-">getNextChunk</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#getNextChunk-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.ChunkHolder-">getNextChunk</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>previous</code> - The most recently loaded media chunk.</dd>
 <dd><code>playbackPositionUs</code> - The current playback position in microseconds. If playback of the
      period to which this chunk source belongs has not yet started, the value will be the
      starting position in the period minus the duration of any media in previous periods still
      to be played.</dd>
-<dd><code>loadPositionUs</code> - The current load position in microseconds. If <code>previous</code> is null,
+<dd><code>loadPositionUs</code> - The current load position in microseconds. If <code>queue</code> is empty,
      this is the starting position from which chunks should be provided. Else it's equal to
-     <code>previous.endTimeUs</code>.</dd>
+     <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#endTimeUs"><code>Chunk.endTimeUs</code></a> of the last chunk in the <code>queue</code>.</dd>
+<dd><code>queue</code> - The queue of buffered <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.</dd>
 <dd><code>out</code> - A holder to populate.</dd>
 </dl>
 </li>
@@ -496,8 +503,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#onChunkLoadCompleted-com.google.android.exoplayer2.source.chunk.Chunk-">ChunkSource</a></code></span></div>
 <div class="block">Called when the <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> has finished loading a chunk obtained from this
  source.
- <p>
- This method should only be called when the source is enabled.</div>
+
+ <p>This method should only be called when the source is enabled.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#onChunkLoadCompleted-com.google.android.exoplayer2.source.chunk.Chunk-">onChunkLoadCompleted</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
@@ -506,7 +513,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 </dl>
 </li>
 </ul>
-<a name="onChunkLoadError-com.google.android.exoplayer2.source.chunk.Chunk-boolean-java.lang.Exception-">
+<a name="onChunkLoadError-com.google.android.exoplayer2.source.chunk.Chunk-boolean-java.lang.Exception-long-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -514,22 +521,24 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <h4>onChunkLoadError</h4>
 <pre>public&nbsp;boolean&nbsp;onChunkLoadError(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
                                 boolean&nbsp;cancelable,
-                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;e)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#onChunkLoadError-com.google.android.exoplayer2.source.chunk.Chunk-boolean-java.lang.Exception-">ChunkSource</a></code></span></div>
+                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a>&nbsp;e,
+                                long&nbsp;blacklistDurationMs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#onChunkLoadError-com.google.android.exoplayer2.source.chunk.Chunk-boolean-java.lang.Exception-long-">ChunkSource</a></code></span></div>
 <div class="block">Called when the <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
  this source.
- <p>
- This method should only be called when the source is enabled.</div>
+
+ <p>This method should only be called when the source is enabled.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#onChunkLoadError-com.google.android.exoplayer2.source.chunk.Chunk-boolean-java.lang.Exception-">onChunkLoadError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#onChunkLoadError-com.google.android.exoplayer2.source.chunk.Chunk-boolean-java.lang.Exception-long-">onChunkLoadError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>chunk</code> - The chunk whose load encountered the error.</dd>
 <dd><code>cancelable</code> - Whether the load can be canceled.</dd>
 <dd><code>e</code> - The error.</dd>
+<dd><code>blacklistDurationMs</code> - The duration for which the associated track may be blacklisted, or
+     <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the track may not be blacklisted.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the load should be canceled. Should always be false if <code>cancelable</code> is
-     false.</dd>
+<dd>Whether the load should be canceled. Must be false if <code>cancelable</code> is false.</dd>
 </dl>
 </li>
 </ul>
@@ -539,13 +548,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <ul class="blockList">
 <li class="blockList">
 <h4>newInitializationChunk</h4>
-<pre>protected static&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;newInitializationChunk(<a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
-                                              <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-                                              <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
-                                              int&nbsp;trackSelectionReason,
-                                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
-                                              <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initializationUri,
-                                              <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri)</pre>
+<pre>protected&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;newInitializationChunk(<a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
+                                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                                       <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
+                                       int&nbsp;trackSelectionReason,
+                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
+                                       <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initializationUri,
+                                       <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri)</pre>
 </li>
 </ul>
 <a name="newMediaChunk-com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder-com.google.android.exoplayer2.upstream.DataSource-int-com.google.android.exoplayer2.Format-int-java.lang.Object-long-int-long-">
@@ -554,15 +563,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>newMediaChunk</h4>
-<pre>protected static&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;newMediaChunk(<a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
-                                     <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-                                     int&nbsp;trackType,
-                                     <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
-                                     int&nbsp;trackSelectionReason,
-                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
-                                     long&nbsp;firstSegmentNum,
-                                     int&nbsp;maxSegmentCount,
-                                     long&nbsp;seekTimeUs)</pre>
+<pre>protected&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;newMediaChunk(<a href="../../../../../../com/google/android/exoplayer2/source/dash/DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
+                              <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                              int&nbsp;trackType,
+                              <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
+                              int&nbsp;trackSelectionReason,
+                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;trackSelectionData,
+                              long&nbsp;firstSegmentNum,
+                              int&nbsp;maxSegmentCount,
+                              long&nbsp;seekTimeUs)</pre>
 </li>
 </ul>
 </li>

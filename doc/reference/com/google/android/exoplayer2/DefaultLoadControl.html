@@ -155,35 +155,47 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_BACK_BUFFER_DURATION_MS">DEFAULT_BACK_BUFFER_DURATION_MS</a></span></code>
+<div class="block">The default back buffer duration in milliseconds.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS">DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS</a></span></code>
 <div class="block">The default duration of media that must be buffered for playback to resume after a rebuffer, in
  milliseconds.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_BUFFER_FOR_PLAYBACK_MS">DEFAULT_BUFFER_FOR_PLAYBACK_MS</a></span></code>
 <div class="block">The default duration of media that must be buffered for playback to start or resume following a
  user action such as a seek, in milliseconds.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_MAX_BUFFER_MS">DEFAULT_MAX_BUFFER_MS</a></span></code>
 <div class="block">The default maximum duration of media that the player will attempt to buffer, in milliseconds.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_MIN_BUFFER_MS">DEFAULT_MIN_BUFFER_MS</a></span></code>
 <div class="block">The default minimum duration of media that the player will attempt to ensure is buffered at all
  times, in milliseconds.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS">DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS</a></span></code>
 <div class="block">The default prioritization of buffer time constraints over size constraints.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME">DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME</a></span></code>
+<div class="block">The default for whether the back buffer is retained from the previous keyframe.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -204,22 +216,26 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colOne" scope="col">Constructor and Description</th>
+<th class="colFirst" scope="col">Modifier</th>
+<th class="colLast" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl--">DefaultLoadControl</a></span>()</code>
+<td class="colFirst"><code>&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl--">DefaultLoadControl</a></span>()</code>
 <div class="block">Constructs a new instance, using the <code>DEFAULT_*</code> constants defined in this class.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-">DefaultLoadControl</a></span>(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator)</code>
+<td class="colFirst"><code>&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-">DefaultLoadControl</a></span>(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
 <div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
 </div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-">DefaultLoadControl</a></span>(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
+<td class="colFirst"><code>&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-">DefaultLoadControl</a></span>(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
                   int&nbsp;minBufferMs,
                   int&nbsp;maxBufferMs,
                   int&nbsp;bufferForPlaybackMs,
@@ -232,7 +248,8 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-com.google.android.exoplayer2.util.PriorityTaskManager-">DefaultLoadControl</a></span>(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
+<td class="colFirst"><code>&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-com.google.android.exoplayer2.util.PriorityTaskManager-">DefaultLoadControl</a></span>(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
                   int&nbsp;minBufferMs,
                   int&nbsp;maxBufferMs,
                   int&nbsp;bufferForPlaybackMs,
@@ -244,6 +261,19 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
 </div>
 </td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected </code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-com.google.android.exoplayer2.util.PriorityTaskManager-int-boolean-">DefaultLoadControl</a></span>(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
+                  int&nbsp;minBufferMs,
+                  int&nbsp;maxBufferMs,
+                  int&nbsp;bufferForPlaybackMs,
+                  int&nbsp;bufferForPlaybackAfterRebufferMs,
+                  int&nbsp;targetBufferBytes,
+                  boolean&nbsp;prioritizeTimeOverSizeThresholds,
+                  <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager,
+                  int&nbsp;backBufferDurationMs,
+                  boolean&nbsp;retainBackBufferFromKeyframe)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -417,8 +447,8 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <li class="blockList">
 <h4>DEFAULT_TARGET_BUFFER_BYTES</h4>
 <pre>public static final&nbsp;int DEFAULT_TARGET_BUFFER_BYTES</pre>
-<div class="block">The default target buffer size in bytes. When set to <a href="../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>, the load control
- automatically determines its target buffer size.</div>
+<div class="block">The default target buffer size in bytes. The value (<a href="../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>) means that the load
+ control will calculate the target buffer size based on the selected tracks.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_TARGET_BUFFER_BYTES">Constant Field Values</a></dd>
@@ -428,7 +458,7 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <a name="DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS</h4>
 <pre>public static final&nbsp;boolean DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS</pre>
@@ -436,6 +466,34 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_BACK_BUFFER_DURATION_MS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_BACK_BUFFER_DURATION_MS</h4>
+<pre>public static final&nbsp;int DEFAULT_BACK_BUFFER_DURATION_MS</pre>
+<div class="block">The default back buffer duration in milliseconds.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_BACK_BUFFER_DURATION_MS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME</h4>
+<pre>public static final&nbsp;boolean DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME</pre>
+<div class="block">The default for whether the back buffer is retained from the previous keyframe.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -488,7 +546,7 @@ public&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer
 <a name="DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-com.google.android.exoplayer2.util.PriorityTaskManager-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DefaultLoadControl</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
@@ -501,6 +559,24 @@ public&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer
                                       boolean&nbsp;prioritizeTimeOverSizeThresholds,
                                       <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-com.google.android.exoplayer2.util.PriorityTaskManager-int-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DefaultLoadControl</h4>
+<pre>protected&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
+                             int&nbsp;minBufferMs,
+                             int&nbsp;maxBufferMs,
+                             int&nbsp;bufferForPlaybackMs,
+                             int&nbsp;bufferForPlaybackAfterRebufferMs,
+                             int&nbsp;targetBufferBytes,
+                             boolean&nbsp;prioritizeTimeOverSizeThresholds,
+                             <a href="../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util">PriorityTaskManager</a>&nbsp;priorityTaskManager,
+                             int&nbsp;backBufferDurationMs,
+                             boolean&nbsp;retainBackBufferFromKeyframe)</pre>
 </li>
 </ul>
 </li>

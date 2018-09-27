@@ -171,12 +171,6 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Loa
 <div class="block">The default presentation delay for live streams.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#DEFAULT_MIN_LOADABLE_RETRY_COUNT">DEFAULT_MIN_LOADABLE_RETRY_COUNT</a></span></code>
-<div class="block">The default minimum number of times to retry loading data prior to failing.</div>
-</td>
-</tr>
 </table>
 </li>
 </ul>
@@ -296,18 +290,20 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Loa
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#onLoadError-com.google.android.exoplayer2.upstream.ParsingLoadable-long-long-java.io.IOException-">onLoadError</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&nbsp;loadable,
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#onLoadError-com.google.android.exoplayer2.upstream.ParsingLoadable-long-long-java.io.IOException-int-">onLoadError</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&nbsp;loadable,
            long&nbsp;elapsedRealtimeMs,
            long&nbsp;loadDurationMs,
-           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error)</code>
+           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
+           int&nbsp;errorCount)</code>
 <div class="block">Called when a load encounters an error.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">prepareSourceInternal</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                     boolean&nbsp;isTopLevelSource)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
+                     boolean&nbsp;isTopLevelSource,
+                     <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code>
 <div class="block">Starts source preparation.</div>
 </td>
 </tr>
@@ -329,7 +325,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Loa
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">refreshSourceInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">releaseSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-com.google.android.exoplayer2.upstream.TransferListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">refreshSourceInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">releaseSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -352,20 +348,6 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Loa
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="DEFAULT_MIN_LOADABLE_RETRY_COUNT">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DEFAULT_MIN_LOADABLE_RETRY_COUNT</h4>
-<pre>public static final&nbsp;int DEFAULT_MIN_LOADABLE_RETRY_COUNT</pre>
-<div class="block">The default minimum number of times to retry loading data prior to failing.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource.DEFAULT_MIN_LOADABLE_RETRY_COUNT">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
 <a name="DEFAULT_LIVE_PRESENTATION_DELAY_MS">
 <!--   -->
 </a>
@@ -533,23 +515,29 @@ public&nbsp;SsMediaSource(<a href="https://developer.android.com/reference/andro
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">
+<a name="prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>prepareSourceInternal</h4>
 <pre>public&nbsp;void&nbsp;prepareSourceInternal(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                                  boolean&nbsp;isTopLevelSource)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">BaseMediaSource</a></code></span></div>
+                                  boolean&nbsp;isTopLevelSource,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">BaseMediaSource</a></code></span></div>
 <div class="block">Starts source preparation. This method is called at most once until the next call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--"><code>BaseMediaSource.releaseSourceInternal()</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">prepareSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player for which this source is being prepared.</dd>
 <dd><code>isTopLevelSource</code> - Whether this source has been passed directly to <a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-"><code>ExoPlayer.prepare(MediaSource)</code></a> or <a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-"><code>ExoPlayer.prepare(MediaSource, boolean,
      boolean)</code></a>.</dd>
+<dd><code>mediaTransferListener</code> - The transfer listener which should be informed of any media data
+     transfers. May be null if no listener is available. Note that this listener should usually
+     be only informed of transfers related to the media loads and not of auxiliary loads for
+     manifests and other data.</dd>
 </dl>
 </li>
 </ul>
@@ -583,10 +571,9 @@ public&nbsp;SsMediaSource(<a href="https://developer.android.com/reference/andro
                                 <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">MediaSource</a></code></span></div>
 <div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> identified by <code>periodId</code>. This method may be called
- multiple times with the same period identifier without an intervening call to
- <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#releasePeriod-com.google.android.exoplayer2.source.MediaPeriod-"><code>MediaSource.releasePeriod(MediaPeriod)</code></a>.
- <p>
- Should not be called directly from application code.</div>
+ multiple times without an intervening call to <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#releasePeriod-com.google.android.exoplayer2.source.MediaPeriod-"><code>MediaSource.releasePeriod(MediaPeriod)</code></a>.
+
+ <p>Should not be called directly from application code.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
@@ -625,7 +612,7 @@ public&nbsp;SsMediaSource(<a href="https://developer.android.com/reference/andro
 <h4>releaseSourceInternal</h4>
 <pre>public&nbsp;void&nbsp;releaseSourceInternal()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--">BaseMediaSource</a></code></span></div>
-<div class="block">Releases the source. This method is called exactly once after each call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-"><code>BaseMediaSource.prepareSourceInternal(ExoPlayer, boolean)</code></a>.</div>
+<div class="block">Releases the source. This method is called exactly once after each call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseMediaSource.prepareSourceInternal(ExoPlayer, boolean, TransferListener)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--">releaseSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></code></dd>
@@ -643,16 +630,17 @@ public&nbsp;SsMediaSource(<a href="https://developer.android.com/reference/andro
                             long&nbsp;loadDurationMs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html#onLoadCompleted-T-long-long-">Loader.Callback</a></code></span></div>
 <div class="block">Called when a load has completed.
- <p>
- Note: There is guaranteed to be a memory barrier between <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting and
- this callback being called.</div>
+
+ <p>Note: There is guaranteed to be a memory barrier between <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting
+ and this callback being called.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html#onLoadCompleted-T-long-long-">onLoadCompleted</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Callback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadable</code> - The loadable whose load has completed.</dd>
 <dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when the load ended.</dd>
-<dd><code>loadDurationMs</code> - The duration of the load.</dd>
+<dd><code>loadDurationMs</code> - The duration in milliseconds of the load since <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-"><code>Loader.startLoading(T, com.google.android.exoplayer2.upstream.Loader.Callback&lt;T&gt;, int)</code></a>
+     was called.</dd>
 </dl>
 </li>
 </ul>
@@ -668,48 +656,51 @@ public&nbsp;SsMediaSource(<a href="https://developer.android.com/reference/andro
                            boolean&nbsp;released)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html#onLoadCanceled-T-long-long-boolean-">Loader.Callback</a></code></span></div>
 <div class="block">Called when a load has been canceled.
- <p>
- Note: If the <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has not been released then there is guaranteed to be a memory
- barrier between <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting and this callback being called. If the
- <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has been released then this callback may be called before
- <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exits.</div>
+
+ <p>Note: If the <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has not been released then there is guaranteed to be a memory
+ barrier between <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting and this callback being called. If the <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has been released then this callback may be called before <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a>
+ exits.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html#onLoadCanceled-T-long-long-boolean-">onLoadCanceled</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Callback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadable</code> - The loadable whose load has been canceled.</dd>
 <dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when the load was canceled.</dd>
-<dd><code>loadDurationMs</code> - The duration of the load up to the point at which it was canceled.</dd>
+<dd><code>loadDurationMs</code> - The duration in milliseconds of the load since <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-"><code>Loader.startLoading(T, com.google.android.exoplayer2.upstream.Loader.Callback&lt;T&gt;, int)</code></a>
+     was called up to the point at which it was canceled.</dd>
 <dd><code>released</code> - True if the load was canceled because the <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> was released. False
      otherwise.</dd>
 </dl>
 </li>
 </ul>
-<a name="onLoadError-com.google.android.exoplayer2.upstream.ParsingLoadable-long-long-java.io.IOException-">
+<a name="onLoadError-com.google.android.exoplayer2.upstream.ParsingLoadable-long-long-java.io.IOException-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onLoadError</h4>
-<pre>public&nbsp;int&nbsp;onLoadError(<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&nbsp;loadable,
-                       long&nbsp;elapsedRealtimeMs,
-                       long&nbsp;loadDurationMs,
-                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html#onLoadError-T-long-long-java.io.IOException-">Loader.Callback</a></code></span></div>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a>&nbsp;onLoadError(<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&nbsp;loadable,
+                                          long&nbsp;elapsedRealtimeMs,
+                                          long&nbsp;loadDurationMs,
+                                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
+                                          int&nbsp;errorCount)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html#onLoadError-T-long-long-java.io.IOException-int-">Loader.Callback</a></code></span></div>
 <div class="block">Called when a load encounters an error.
 
  <p>Note: There is guaranteed to be a memory barrier between <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting
  and this callback being called.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html#onLoadError-T-long-long-java.io.IOException-">onLoadError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Callback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&gt;</code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html#onLoadError-T-long-long-java.io.IOException-int-">onLoadError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Callback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadable</code> - The loadable whose load has encountered an error.</dd>
 <dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when the error occurred.</dd>
-<dd><code>loadDurationMs</code> - The duration of the load up to the point at which the error occurred.</dd>
+<dd><code>loadDurationMs</code> - The duration in milliseconds of the load since <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-"><code>Loader.startLoading(T, com.google.android.exoplayer2.upstream.Loader.Callback&lt;T&gt;, int)</code></a>
+     was called up to the point at which the error occurred.</dd>
 <dd><code>error</code> - The load error.</dd>
+<dd><code>errorCount</code> - The number of errors this load has encountered, including this one.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The desired retry action. One of <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY"><code>Loader.RETRY</code></a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY_RESET_ERROR_COUNT"><code>Loader.RETRY_RESET_ERROR_COUNT</code></a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY"><code>Loader.DONT_RETRY</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY_FATAL"><code>Loader.DONT_RETRY_FATAL</code></a>.</dd>
+<dd>The desired error handling action. One of <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY"><code>Loader.RETRY</code></a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY_RESET_ERROR_COUNT"><code>Loader.RETRY_RESET_ERROR_COUNT</code></a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY"><code>Loader.DONT_RETRY</code></a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY_FATAL"><code>Loader.DONT_RETRY_FATAL</code></a> or a retry action created by <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.html#createRetryAction-boolean-long-"><code>Loader.createRetryAction(boolean, long)</code></a>.</dd>
 </dl>
 </li>
 </ul>

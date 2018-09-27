@@ -144,11 +144,12 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html#onLoadError-T-long-long-java.io.IOException-">onLoadError</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="type parameter in Loader.Callback">T</a>&nbsp;loadable,
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html#onLoadError-T-long-long-java.io.IOException-int-">onLoadError</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="type parameter in Loader.Callback">T</a>&nbsp;loadable,
            long&nbsp;elapsedRealtimeMs,
            long&nbsp;loadDurationMs,
-           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error)</code>
+           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
+           int&nbsp;errorCount)</code>
 <div class="block">Called when a load encounters an error.</div>
 </td>
 </tr>
@@ -179,14 +180,15 @@ var activeTableTab = "activeTableTab";
                      long&nbsp;elapsedRealtimeMs,
                      long&nbsp;loadDurationMs)</pre>
 <div class="block">Called when a load has completed.
- <p>
- Note: There is guaranteed to be a memory barrier between <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting and
- this callback being called.</div>
+
+ <p>Note: There is guaranteed to be a memory barrier between <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting
+ and this callback being called.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadable</code> - The loadable whose load has completed.</dd>
 <dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when the load ended.</dd>
-<dd><code>loadDurationMs</code> - The duration of the load.</dd>
+<dd><code>loadDurationMs</code> - The duration in milliseconds of the load since <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-"><code>Loader.startLoading(T, com.google.android.exoplayer2.upstream.Loader.Callback&lt;T&gt;, int)</code></a>
+     was called.</dd>
 </dl>
 </li>
 </ul>
@@ -203,33 +205,34 @@ var activeTableTab = "activeTableTab";
                     long&nbsp;loadDurationMs,
                     boolean&nbsp;released)</pre>
 <div class="block">Called when a load has been canceled.
- <p>
- Note: If the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has not been released then there is guaranteed to be a memory
- barrier between <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting and this callback being called. If the
- <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has been released then this callback may be called before
- <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exits.</div>
+
+ <p>Note: If the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has not been released then there is guaranteed to be a memory
+ barrier between <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting and this callback being called. If the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has been released then this callback may be called before <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a>
+ exits.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadable</code> - The loadable whose load has been canceled.</dd>
 <dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when the load was canceled.</dd>
-<dd><code>loadDurationMs</code> - The duration of the load up to the point at which it was canceled.</dd>
+<dd><code>loadDurationMs</code> - The duration in milliseconds of the load since <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-"><code>Loader.startLoading(T, com.google.android.exoplayer2.upstream.Loader.Callback&lt;T&gt;, int)</code></a>
+     was called up to the point at which it was canceled.</dd>
 <dd><code>released</code> - True if the load was canceled because the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> was released. False
      otherwise.</dd>
 </dl>
 </li>
 </ul>
-<a name="onLoadError-com.google.android.exoplayer2.upstream.Loader.Loadable-long-long-java.io.IOException-">
+<a name="onLoadError-com.google.android.exoplayer2.upstream.Loader.Loadable-long-long-java.io.IOException-int-">
 <!--   -->
-</a><a name="onLoadError-T-long-long-java.io.IOException-">
+</a><a name="onLoadError-T-long-long-java.io.IOException-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onLoadError</h4>
-<pre>int&nbsp;onLoadError(<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="type parameter in Loader.Callback">T</a>&nbsp;loadable,
-                long&nbsp;elapsedRealtimeMs,
-                long&nbsp;loadDurationMs,
-                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error)</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a>&nbsp;onLoadError(<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="type parameter in Loader.Callback">T</a>&nbsp;loadable,
+                                   long&nbsp;elapsedRealtimeMs,
+                                   long&nbsp;loadDurationMs,
+                                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
+                                   int&nbsp;errorCount)</pre>
 <div class="block">Called when a load encounters an error.
 
  <p>Note: There is guaranteed to be a memory barrier between <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> exiting
@@ -238,10 +241,12 @@ var activeTableTab = "activeTableTab";
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadable</code> - The loadable whose load has encountered an error.</dd>
 <dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when the error occurred.</dd>
-<dd><code>loadDurationMs</code> - The duration of the load up to the point at which the error occurred.</dd>
+<dd><code>loadDurationMs</code> - The duration in milliseconds of the load since <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-"><code>Loader.startLoading(T, com.google.android.exoplayer2.upstream.Loader.Callback&lt;T&gt;, int)</code></a>
+     was called up to the point at which the error occurred.</dd>
 <dd><code>error</code> - The load error.</dd>
+<dd><code>errorCount</code> - The number of errors this load has encountered, including this one.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The desired retry action. One of <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY"><code>Loader.RETRY</code></a>, <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY_RESET_ERROR_COUNT"><code>Loader.RETRY_RESET_ERROR_COUNT</code></a>, <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY"><code>Loader.DONT_RETRY</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY_FATAL"><code>Loader.DONT_RETRY_FATAL</code></a>.</dd>
+<dd>The desired error handling action. One of <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY"><code>Loader.RETRY</code></a>, <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY_RESET_ERROR_COUNT"><code>Loader.RETRY_RESET_ERROR_COUNT</code></a>, <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY"><code>Loader.DONT_RETRY</code></a>, <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY_FATAL"><code>Loader.DONT_RETRY_FATAL</code></a> or a retry action created by <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#createRetryAction-boolean-long-"><code>Loader.createRetryAction(boolean, long)</code></a>.</dd>
 </dl>
 </li>
 </ul>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":10,"i2":6};
+var methods = {"i0":6,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -90,7 +90,7 @@ var activeTableTab = "activeTableTab";
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="subTitle">com.google.android.exoplayer2.offline</div>
-<h2 title="Class SegmentDownloadAction.SegmentDownloadActionDeserializer" class="title">Class SegmentDownloadAction.SegmentDownloadActionDeserializer&lt;K&gt;</h2>
+<h2 title="Class SegmentDownloadAction.SegmentDownloadActionDeserializer" class="title">Class SegmentDownloadAction.SegmentDownloadActionDeserializer</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
@@ -100,7 +100,7 @@ var activeTableTab = "activeTableTab";
 <li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">com.google.android.exoplayer2.offline.DownloadAction.Deserializer</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.offline.SegmentDownloadAction.SegmentDownloadActionDeserializer&lt;K&gt;</li>
+<li>com.google.android.exoplayer2.offline.SegmentDownloadAction.SegmentDownloadActionDeserializer</li>
 </ul>
 </li>
 </ul>
@@ -110,16 +110,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>K</code> - The type of the representation key object.</dd>
-</dl>
-<dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloadAction</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="type parameter in SegmentDownloadAction">K</a> extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Comparable.html" target="_top" title="class or interface in java.lang">Comparable</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="type parameter in SegmentDownloadAction">K</a>&gt;&gt;</dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloadAction</a></dd>
 </dl>
 <hr>
 <br>
-<pre>protected abstract static class <span class="typeNameLabel">SegmentDownloadAction.SegmentDownloadActionDeserializer&lt;K&gt;</span>
+<pre>protected abstract static class <span class="typeNameLabel">SegmentDownloadAction.SegmentDownloadActionDeserializer</span>
 extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a></pre>
 <div class="block">Base class for <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloadAction</code></a> <code>Deserializer</code>s.</div>
 </li>
@@ -178,7 +174,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.SegmentDownloadActionDeserializer.html#createDownloadAction-android.net.Uri-boolean-byte:A-java.util.List-">createDownloadAction</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri,
                     boolean&nbsp;isRemoveAction,
                     byte[]&nbsp;data,
-                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.SegmentDownloadActionDeserializer.html" title="type parameter in SegmentDownloadAction.SegmentDownloadActionDeserializer">K</a>&gt;&nbsp;keys)</code>
+                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;keys)</code>
 <div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a>.</div>
 </td>
 </tr>
@@ -190,8 +186,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>protected abstract <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.SegmentDownloadActionDeserializer.html" title="type parameter in SegmentDownloadAction.SegmentDownloadActionDeserializer">K</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.SegmentDownloadActionDeserializer.html#readKey-java.io.DataInputStream-">readKey</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/DataInputStream.html" target="_top" title="class or interface in java.io">DataInputStream</a>&nbsp;input)</code>
+<td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.SegmentDownloadActionDeserializer.html#readKey-int-java.io.DataInputStream-">readKey</a></span>(int&nbsp;version,
+       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/DataInputStream.html" target="_top" title="class or interface in java.io">DataInputStream</a>&nbsp;input)</code>
 <div class="block">Deserializes a key from the <code>input</code>.</div>
 </td>
 </tr>
@@ -259,14 +256,15 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 </dl>
 </li>
 </ul>
-<a name="readKey-java.io.DataInputStream-">
+<a name="readKey-int-java.io.DataInputStream-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>readKey</h4>
-<pre>protected abstract&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.SegmentDownloadActionDeserializer.html" title="type parameter in SegmentDownloadAction.SegmentDownloadActionDeserializer">K</a>&nbsp;readKey(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/DataInputStream.html" target="_top" title="class or interface in java.io">DataInputStream</a>&nbsp;input)
-                      throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&nbsp;readKey(int&nbsp;version,
+                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/DataInputStream.html" target="_top" title="class or interface in java.io">DataInputStream</a>&nbsp;input)
+                     throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Deserializes a key from the <code>input</code>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -283,7 +281,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <pre>protected abstract&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a>&nbsp;createDownloadAction(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;manifestUri,
                                                        boolean&nbsp;isRemoveAction,
                                                        byte[]&nbsp;data,
-                                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.SegmentDownloadActionDeserializer.html" title="type parameter in SegmentDownloadAction.SegmentDownloadActionDeserializer">K</a>&gt;&nbsp;keys)</pre>
+                                                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;keys)</pre>
 <div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a>.</div>
 </li>
 </ul>

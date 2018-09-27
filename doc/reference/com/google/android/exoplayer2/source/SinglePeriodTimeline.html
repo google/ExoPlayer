@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -239,6 +239,12 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#getUidOfPeriod-int-">getUidOfPeriod</a></span>(int&nbsp;periodIndex)</code>
+<div class="block">Returns the unique id of the period identified by its index in the timeline.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-long-">getWindow</a></span>(int&nbsp;windowIndex,
          <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
@@ -247,7 +253,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <div class="block">Populates a <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#getWindowCount--">getWindowCount</a></span>()</code>
 <div class="block">Returns the number of windows in the timeline.</div>
@@ -259,7 +265,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getFirstWindowIndex-boolean-">getFirstWindowIndex</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getLastWindowIndex-boolean-">getLastWindowIndex</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getNextPeriodIndex-int-com.google.android.exoplayer2.Timeline.Period-com.google.android.exoplayer2.Timeline.Window-int-boolean-">getNextPeriodIndex</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getNextWindowIndex-int-int-boolean-">getNextWindowIndex</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getPeriod-int-com.google.android.exoplayer2.Timeline.Period-">getPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getPeriodPosition-com.google.android.exoplayer2.Timeline.Window-com.google.android.exoplayer2.Timeline.Period-int-long-">getPeriodPosition</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getPeriodPosition-com.google.android.exoplayer2.Timeline.Window-com.google.android.exoplayer2.Timeline.Period-int-long-long-">getPeriodPosition</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getPreviousWindowIndex-int-int-boolean-">getPreviousWindowIndex</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-">getWindow</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-">getWindow</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#isEmpty--">isEmpty</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#isLastPeriod-int-com.google.android.exoplayer2.Timeline.Period-com.google.android.exoplayer2.Timeline.Window-int-boolean-">isLastPeriod</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getFirstWindowIndex-boolean-">getFirstWindowIndex</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getLastWindowIndex-boolean-">getLastWindowIndex</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getNextPeriodIndex-int-com.google.android.exoplayer2.Timeline.Period-com.google.android.exoplayer2.Timeline.Window-int-boolean-">getNextPeriodIndex</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getNextWindowIndex-int-int-boolean-">getNextWindowIndex</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getPeriod-int-com.google.android.exoplayer2.Timeline.Period-">getPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getPeriodByUid-java.lang.Object-com.google.android.exoplayer2.Timeline.Period-">getPeriodByUid</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getPeriodPosition-com.google.android.exoplayer2.Timeline.Window-com.google.android.exoplayer2.Timeline.Period-int-long-">getPeriodPosition</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getPeriodPosition-com.google.android.exoplayer2.Timeline.Window-com.google.android.exoplayer2.Timeline.Period-int-long-long-">getPeriodPosition</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getPreviousWindowIndex-int-int-boolean-">getPreviousWindowIndex</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-">getWindow</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-boolean-">getWindow</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#isEmpty--">isEmpty</a>, <a href="../../../../../com/google/android/exoplayer2/Timeline.html#isLastPeriod-int-com.google.android.exoplayer2.Timeline.Period-com.google.android.exoplayer2.Timeline.Window-int-boolean-">isLastPeriod</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -479,7 +485,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <a name="getIndexOfPeriod-java.lang.Object-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getIndexOfPeriod</h4>
 <pre>public&nbsp;int&nbsp;getIndexOfPeriod(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;uid)</pre>
@@ -493,6 +499,25 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <dd><code>uid</code> - A unique identifier for a period.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The index of the period, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period was not found.</dd>
+</dl>
+</li>
+</ul>
+<a name="getUidOfPeriod-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getUidOfPeriod</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;getUidOfPeriod(int&nbsp;periodIndex)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getUidOfPeriod-int-">Timeline</a></code></span></div>
+<div class="block">Returns the unique id of the period identified by its index in the timeline.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/Timeline.html#getUidOfPeriod-int-">getUidOfPeriod</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>periodIndex</code> - The index of the period.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The unique id of the period.</dd>
 </dl>
 </li>
 </ul>

@@ -40,7 +40,7 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/ui/package-summary.html">Prev&nbsp;Package</a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/ui/spherical/package-summary.html">Prev&nbsp;Package</a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/cache/package-summary.html">Next&nbsp;Package</a></li>
 </ul>
 <ul class="navList">
@@ -158,13 +158,19 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a></td>
+<td class="colLast">
+<div class="block">Defines how errors encountered by <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loaders</code></a> are handled.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;T&gt;</td>
 <td class="colLast">
 <div class="block">Parses an object from loaded data.</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&lt;S&gt;</td>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></td>
 <td class="colLast">
 <div class="block">A listener of data transfer events.</div>
 </td>
@@ -193,83 +199,95 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html" title="class in com.google.android.exoplayer2.upstream">BaseDataSource</a></td>
+<td class="colLast">
+<div class="block">Base <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> implementation to keep a list of <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a>s.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/ByteArrayDataSink.html" title="class in com.google.android.exoplayer2.upstream">ByteArrayDataSink</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> for writing to a byte array.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/ByteArrayDataSource.html" title="class in com.google.android.exoplayer2.upstream">ByteArrayDataSource</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading from a byte array.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/ContentDataSource.html" title="class in com.google.android.exoplayer2.upstream">ContentDataSource</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading from a content URI.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSchemeDataSource.html" title="class in com.google.android.exoplayer2.upstream">DataSchemeDataSource</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data URLs, as defined by RFC 2397.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceInputStream.html" title="class in com.google.android.exoplayer2.upstream">DataSourceInputStream</a></td>
 <td class="colLast">
 <div class="block">Allows data corresponding to a given <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> to be read from a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and
  consumed through an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/InputStream.html" target="_top" title="class or interface in java.io"><code>InputStream</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></td>
 <td class="colLast">
 <div class="block">Defines a region of data.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a></td>
 <td class="colLast">
 <div class="block">Default implementation of <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter</a></td>
 <td class="colLast">
 <div class="block">Estimates bandwidth by listening to data transfers.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></td>
 <td class="colLast">
 <div class="block">Builder for a bandwidth meter.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultDataSource</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> that supports multiple URI schemes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">DefaultDataSourceFactory</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> that produces <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultDataSource</code></a> instances that delegate to
  <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource</code></a>s for non-file/asset/content URIs.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a></td>
 <td class="colLast">
 <div class="block">An <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> that uses Android's <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/net/HttpURLConnection.html" target="_top" title="class or interface in java.net"><code>HttpURLConnection</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSourceFactory</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource.Factory</code></a> that produces <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSource</code></a> instances.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream">DefaultLoadErrorHandlingPolicy</a></td>
+<td class="colLast">
+<div class="block">Default implementation of <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -311,34 +329,48 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></td>
+<td class="colLast">
+<div class="block">Action that can be taken in response to <code>Callback#onLoadError(Loadable, long, long,
+ IOException, int)</code>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.Dummy.html" title="class in com.google.android.exoplayer2.upstream">LoaderErrorThrower.Dummy</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoaderErrorThrower</code></a> that never throws.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;T&gt;</td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> for objects that can be parsed from binary data using a <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream"><code>ParsingLoadable.Parser</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSource</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> that can be used as part of a task registered with a
  <a href="../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/PriorityDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSourceFactory</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> that produces <a href="../../../../../com/google/android/exoplayer2/upstream/PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream"><code>PriorityDataSource</code></a> instances.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/RawResourceDataSource.html" title="class in com.google.android.exoplayer2.upstream">RawResourceDataSource</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading a raw resource inside the APK.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/StatsDataSource.html" title="class in com.google.android.exoplayer2.upstream">StatsDataSource</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> wrapper which keeps track of bytes transferred, redirected uris, and response
+ headers.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -442,14 +474,14 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException.Type</a></td>
-<td class="colLast">&nbsp;</td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream">DataSpec.HttpMethod</a></td>
+<td class="colLast">
+<div class="block">The set of HTTP methods that are supported by ExoPlayer <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a>s.</div>
+</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.RetryAction.html" title="annotation in com.google.android.exoplayer2.upstream">Loader.RetryAction</a></td>
-<td class="colLast">
-<div class="block">Actions that can be taken in response to a load error.</div>
-</td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.Type.html" title="annotation in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException.Type</a></td>
+<td class="colLast">&nbsp;</td>
 </tr>
 </tbody>
 </table>
@@ -476,7 +508,7 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/ui/package-summary.html">Prev&nbsp;Package</a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/ui/spherical/package-summary.html">Prev&nbsp;Package</a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/cache/package-summary.html">Next&nbsp;Package</a></li>
 </ul>
 <ul class="navList">

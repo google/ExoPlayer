@@ -133,6 +133,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
    <li>Message with type <a href="../../../../../com/google/android/exoplayer2/C.html#MSG_SET_AUDIO_ATTRIBUTES"><code>C.MSG_SET_AUDIO_ATTRIBUTES</code></a> to set the audio attributes. The
        message payload should be an <a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>
        instance that will configure the underlying audio track.
+   <li>Message with type <a href="../../../../../com/google/android/exoplayer2/C.html#MSG_SET_AUX_EFFECT_INFO"><code>C.MSG_SET_AUX_EFFECT_INFO</code></a> to set the auxiliary effect. The
+       message payload should be an <a href="../../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio"><code>AuxEffectInfo</code></a> instance that will configure the
+       underlying audio track.
  </ul></div>
 </li>
 </ul>
@@ -354,8 +357,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 <td class="colFirst"><code>protected abstract int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormatInternal-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.Format-">supportsFormatInternal</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                       <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK"><code>RendererCapabilities.FORMAT_SUPPORT_MASK</code></a> component of the return value for
- <a href="../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>supportsFormat(Format)</code></a>.</div>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK"><code>RendererCapabilities.FORMAT_SUPPORT_MASK</code></a> component of the return value for <a href="../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>supportsFormat(Format)</code></a>.</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
@@ -378,6 +380,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></h3>
 <code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.Renderer">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/Renderer.html#setOperatingRate-float-">setOperatingRate</a></code></li>
 </ul>
 </li>
 </ul>
@@ -408,7 +417,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleDecoderAudioRenderer</h4>
-<pre>public&nbsp;SimpleDecoderAudioRenderer(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+<pre>public&nbsp;SimpleDecoderAudioRenderer(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                   <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
                                   <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>...&nbsp;audioProcessors)</pre>
 <dl>
@@ -426,8 +437,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleDecoderAudioRenderer</h4>
-<pre>public&nbsp;SimpleDecoderAudioRenderer(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+<pre>public&nbsp;SimpleDecoderAudioRenderer(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                   <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                   <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -445,9 +459,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleDecoderAudioRenderer</h4>
-<pre>public&nbsp;SimpleDecoderAudioRenderer(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+<pre>public&nbsp;SimpleDecoderAudioRenderer(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                   <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                   <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                   <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                   boolean&nbsp;playClearSamplesWithoutKeys,
                                   <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>...&nbsp;audioProcessors)</pre>
@@ -475,8 +493,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SimpleDecoderAudioRenderer</h4>
-<pre>public&nbsp;SimpleDecoderAudioRenderer(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+<pre>public&nbsp;SimpleDecoderAudioRenderer(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                   <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                   <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                   boolean&nbsp;playClearSamplesWithoutKeys,
                                   <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink)</pre>
@@ -569,12 +590,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 <h4>supportsFormatInternal</h4>
 <pre>protected abstract&nbsp;int&nbsp;supportsFormatInternal(<a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                               <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
-<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK"><code>RendererCapabilities.FORMAT_SUPPORT_MASK</code></a> component of the return value for
- <a href="../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>supportsFormat(Format)</code></a>.</div>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK"><code>RendererCapabilities.FORMAT_SUPPORT_MASK</code></a> component of the return value for <a href="../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>supportsFormat(Format)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>drmSessionManager</code> - The renderer's <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>.</dd>
-<dd><code>format</code> - The format.</dd>
+<dd><code>format</code> - The format, which has an audio <a href="../../../../../com/google/android/exoplayer2/Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The extent to which the renderer supports the format itself.</dd>
 </dl>
@@ -586,7 +606,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 <ul class="blockList">
 <li class="blockList">
 <h4>supportsOutputEncoding</h4>
-<pre>protected final&nbsp;boolean&nbsp;supportsOutputEncoding(int&nbsp;encoding)</pre>
+<pre>protected final&nbsp;boolean&nbsp;supportsOutputEncoding(<a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2">@C.Encoding</a>
+                                               int&nbsp;encoding)</pre>
 <div class="block">Returns whether the audio sink can accept audio in the specified encoding.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -921,6 +942,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 <li class="blockList">
 <h4>handleMessage</h4>
 <pre>public&nbsp;void&nbsp;handleMessage(int&nbsp;messageType,
+                          <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;message)
                    throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html#handleMessage-int-java.lang.Object-">PlayerMessage.Target</a></code></span></div>

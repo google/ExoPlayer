@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
+var methods = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -192,6 +192,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#equals-java.lang.Object-">equals</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</code>&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/AudioAttributes.html" target="_top" title="class or interface in android.media">AudioAttributes</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#getAudioAttributesV21--">getAudioAttributesV21</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
 </tr>
@@ -232,7 +236,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>contentType</h4>
-<pre>public final&nbsp;int contentType</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/C.AudioContentType.html" title="annotation in com.google.android.exoplayer2">@C.AudioContentType</a>
+public final&nbsp;int contentType</pre>
 </li>
 </ul>
 <a name="flags">
@@ -241,7 +246,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>flags</h4>
-<pre>public final&nbsp;int flags</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/C.AudioFlags.html" title="annotation in com.google.android.exoplayer2">@C.AudioFlags</a>
+public final&nbsp;int flags</pre>
 </li>
 </ul>
 <a name="usage">
@@ -250,7 +256,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>usage</h4>
-<pre>public final&nbsp;int usage</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/C.AudioUsage.html" title="annotation in com.google.android.exoplayer2">@C.AudioUsage</a>
+public final&nbsp;int usage</pre>
 </li>
 </ul>
 </li>
@@ -261,6 +268,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getAudioAttributesV21--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAudioAttributesV21</h4>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/android/media/AudioAttributes.html" target="_top" title="class or interface in android.media">AudioAttributes</a>&nbsp;getAudioAttributesV21()</pre>
+</li>
+</ul>
 <a name="equals-java.lang.Object-">
 <!--   -->
 </a>

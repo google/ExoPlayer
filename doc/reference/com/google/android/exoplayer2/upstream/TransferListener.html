@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -90,7 +90,7 @@ var activeTableTab = "activeTableTab";
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="subTitle">com.google.android.exoplayer2.upstream</div>
-<h2 title="Interface TransferListener" class="title">Interface TransferListener&lt;S&gt;</h2>
+<h2 title="Interface TransferListener" class="title">Interface TransferListener</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
@@ -102,8 +102,23 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>public interface <span class="typeNameLabel">TransferListener&lt;S&gt;</span></pre>
-<div class="block">A listener of data transfer events.</div>
+<pre>public interface <span class="typeNameLabel">TransferListener</span></pre>
+<div class="block">A listener of data transfer events.
+
+ <p>A transfer usually progresses through multiple steps:
+
+ <ol>
+   <li>Initializing the underlying resource (e.g. opening a HTTP connection). <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferInitializing-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-"><code>onTransferInitializing(DataSource, DataSpec, boolean)</code></a> is called before the initialization
+       starts.
+   <li>Starting the transfer after successfully initializing the resource. <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferStart-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-"><code>onTransferStart(DataSource, DataSpec, boolean)</code></a> is called. Note that this only happens if
+       the initialization was successful.
+   <li>Transferring data. <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onBytesTransferred-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-int-"><code>onBytesTransferred(DataSource, DataSpec, boolean, int)</code></a> is
+       called frequently during the transfer to indicate progress.
+   <li>Closing the transfer and the underlying resource. <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferEnd-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-"><code>onTransferEnd(DataSource,
+       DataSpec, boolean)</code></a> is called. Note that each <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferStart-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-"><code>onTransferStart(DataSource, DataSpec,
+       boolean)</code></a> will have exactly one corresponding call to <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferEnd-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-"><code>onTransferEnd(DataSource,
+       DataSpec, boolean)</code></a>.
+ </ol></div>
 </li>
 </ul>
 </div>
@@ -124,21 +139,34 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onBytesTransferred-S-int-">onBytesTransferred</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="type parameter in TransferListener">S</a>&nbsp;source,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onBytesTransferred-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-int-">onBytesTransferred</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                  <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                  boolean&nbsp;isNetwork,
                   int&nbsp;bytesTransferred)</code>
 <div class="block">Called incrementally during a transfer.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferEnd-S-">onTransferEnd</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="type parameter in TransferListener">S</a>&nbsp;source)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferEnd-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferEnd</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+             <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+             boolean&nbsp;isNetwork)</code>
 <div class="block">Called when a transfer ends.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferStart-S-com.google.android.exoplayer2.upstream.DataSpec-">onTransferStart</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="type parameter in TransferListener">S</a>&nbsp;source,
-               <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferInitializing-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferInitializing</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                      <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                      boolean&nbsp;isNetwork)</code>
+<div class="block">Called when a transfer is being initialized.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferStart-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferStart</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+               <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+               boolean&nbsp;isNetwork)</code>
 <div class="block">Called when a transfer starts.</div>
 </td>
 </tr>
@@ -157,56 +185,77 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="onTransferStart-java.lang.Object-com.google.android.exoplayer2.upstream.DataSpec-">
+<a name="onTransferInitializing-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">
 <!--   -->
-</a><a name="onTransferStart-S-com.google.android.exoplayer2.upstream.DataSpec-">
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onTransferInitializing</h4>
+<pre>void&nbsp;onTransferInitializing(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                            boolean&nbsp;isNetwork)</pre>
+<div class="block">Called when a transfer is being initialized.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>source</code> - The source performing the transfer.</dd>
+<dd><code>dataSpec</code> - Describes the data for which the transfer is initialized.</dd>
+<dd><code>isNetwork</code> - Whether the data is transferred through a network.</dd>
+</dl>
+</li>
+</ul>
+<a name="onTransferStart-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onTransferStart</h4>
-<pre>void&nbsp;onTransferStart(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="type parameter in TransferListener">S</a>&nbsp;source,
-                     <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
+<pre>void&nbsp;onTransferStart(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                     <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                     boolean&nbsp;isNetwork)</pre>
 <div class="block">Called when a transfer starts.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>source</code> - The source performing the transfer.</dd>
 <dd><code>dataSpec</code> - Describes the data being transferred.</dd>
+<dd><code>isNetwork</code> - Whether the data is transferred through a network.</dd>
 </dl>
 </li>
 </ul>
-<a name="onBytesTransferred-java.lang.Object-int-">
-<!--   -->
-</a><a name="onBytesTransferred-S-int-">
+<a name="onBytesTransferred-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onBytesTransferred</h4>
-<pre>void&nbsp;onBytesTransferred(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="type parameter in TransferListener">S</a>&nbsp;source,
+<pre>void&nbsp;onBytesTransferred(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                        <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                        boolean&nbsp;isNetwork,
                         int&nbsp;bytesTransferred)</pre>
 <div class="block">Called incrementally during a transfer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>source</code> - The source performing the transfer.</dd>
-<dd><code>bytesTransferred</code> - The number of bytes transferred since the previous call to this
-     method (or if the first call, since the transfer was started).</dd>
+<dd><code>dataSpec</code> - Describes the data being transferred.</dd>
+<dd><code>isNetwork</code> - Whether the data is transferred through a network.</dd>
+<dd><code>bytesTransferred</code> - The number of bytes transferred since the previous call to this method</dd>
 </dl>
 </li>
 </ul>
-<a name="onTransferEnd-java.lang.Object-">
-<!--   -->
-</a><a name="onTransferEnd-S-">
+<a name="onTransferEnd-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onTransferEnd</h4>
-<pre>void&nbsp;onTransferEnd(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="type parameter in TransferListener">S</a>&nbsp;source)</pre>
+<pre>void&nbsp;onTransferEnd(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                   <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                   boolean&nbsp;isNetwork)</pre>
 <div class="block">Called when a transfer ends.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>source</code> - The source performing the transfer.</dd>
+<dd><code>dataSpec</code> - Describes the data being transferred.</dd>
+<dd><code>isNetwork</code> - Whether the data is transferred through a network.</dd>
 </dl>
 </li>
 </ul>

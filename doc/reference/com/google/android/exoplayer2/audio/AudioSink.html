@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":6,"i20":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -253,7 +253,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleDiscontinuity--">handleDiscontinuity</a></span>()</code>
-<div class="block">Signals to the sink that the next buffer is discontinuous with the previous buffer.</div>
+<div class="block">Signals to the sink that the next buffer may be discontinuous with the previous buffer.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
@@ -318,18 +318,24 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAuxEffectInfo-com.google.android.exoplayer2.audio.AuxEffectInfo-">setAuxEffectInfo</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</code>
+<div class="block">Sets the auxiliary effect.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setListener-com.google.android.exoplayer2.audio.AudioSink.Listener-">setListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a>&nbsp;listener)</code>
 <div class="block">Sets the listener for sink events, which should be the audio renderer.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code>
 <div class="block">Attempts to set the playback parameters and returns the active playback parameters, which may
  differ from those passed in.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setVolume-float-">setVolume</a></span>(float&nbsp;volume)</code>
 <div class="block">Sets the playback volume.</div>
@@ -392,7 +398,8 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>isEncodingSupported</h4>
-<pre>boolean&nbsp;isEncodingSupported(int&nbsp;encoding)</pre>
+<pre>boolean&nbsp;isEncodingSupported(<a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2">@C.Encoding</a>
+                            int&nbsp;encoding)</pre>
 <div class="block">Returns whether it's possible to play audio in the specified encoding.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -425,7 +432,8 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>configure</h4>
-<pre>void&nbsp;configure(int&nbsp;inputEncoding,
+<pre>void&nbsp;configure(<a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2">@C.Encoding</a>
+               int&nbsp;inputEncoding,
                int&nbsp;inputChannelCount,
                int&nbsp;inputSampleRate,
                int&nbsp;specifiedBufferSize,
@@ -473,7 +481,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>handleDiscontinuity</h4>
 <pre>void&nbsp;handleDiscontinuity()</pre>
-<div class="block">Signals to the sink that the next buffer is discontinuous with the previous buffer.</div>
+<div class="block">Signals to the sink that the next buffer may be discontinuous with the previous buffer.</div>
 </li>
 </ul>
 <a name="handleBuffer-java.nio.ByteBuffer-long-">
@@ -596,6 +604,16 @@ var activeTableTab = "activeTableTab";
 <h4>setAudioSessionId</h4>
 <pre>void&nbsp;setAudioSessionId(int&nbsp;audioSessionId)</pre>
 <div class="block">Sets the audio session id.</div>
+</li>
+</ul>
+<a name="setAuxEffectInfo-com.google.android.exoplayer2.audio.AuxEffectInfo-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAuxEffectInfo</h4>
+<pre>void&nbsp;setAuxEffectInfo(<a href="../../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</pre>
+<div class="block">Sets the auxiliary effect.</div>
 </li>
 </ul>
 <a name="enableTunnelingV21-int-">

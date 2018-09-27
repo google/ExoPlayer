@@ -378,7 +378,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DecoderInputBuffer</h4>
-<pre>public&nbsp;DecoderInputBuffer(int&nbsp;bufferReplacementMode)</pre>
+<pre>public&nbsp;DecoderInputBuffer(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder">@DecoderInputBuffer.BufferReplacementMode</a>
+                          int&nbsp;bufferReplacementMode)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>bufferReplacementMode</code> - Determines the behavior of <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#ensureSpaceForWrite-int-"><code>ensureSpaceForWrite(int)</code></a>. One
@@ -415,12 +416,11 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>ensureSpaceForWrite</h4>
-<pre>public&nbsp;void&nbsp;ensureSpaceForWrite(int&nbsp;length)
-                         throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></pre>
+<pre>public&nbsp;void&nbsp;ensureSpaceForWrite(int&nbsp;length)</pre>
 <div class="block">Ensures that <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> is large enough to accommodate a write of a given length at its
  current position.
- <p>
- If the capacity of <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> is sufficient this method does nothing. If the capacity is
+
+ <p>If the capacity of <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> is sufficient this method does nothing. If the capacity is
  insufficient then an attempt is made to replace <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> with a new <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a>
  whose capacity is sufficient. Data up to the current position is copied to the new buffer.</div>
 <dl>

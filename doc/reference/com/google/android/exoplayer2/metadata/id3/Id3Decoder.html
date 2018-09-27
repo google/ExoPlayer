@@ -298,7 +298,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Id3Decoder</h4>
-<pre>public&nbsp;Id3Decoder(<a href="../../../../../../com/google/android/exoplayer2/metadata/id3/Id3Decoder.FramePredicate.html" title="interface in com.google.android.exoplayer2.metadata.id3">Id3Decoder.FramePredicate</a>&nbsp;framePredicate)</pre>
+<pre>public&nbsp;Id3Decoder(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                  <a href="../../../../../../com/google/android/exoplayer2/metadata/id3/Id3Decoder.FramePredicate.html" title="interface in com.google.android.exoplayer2.metadata.id3">Id3Decoder.FramePredicate</a>&nbsp;framePredicate)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>framePredicate</code> - Determines which frames are decoded. May be null to decode all frames.</dd>
@@ -319,7 +320,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 <ul class="blockList">
 <li class="blockList">
 <h4>decode</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode(<a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer)</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode(<a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-">MetadataDecoder</a></code></span></div>
 <div class="block">Decodes a <a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> element from the provided input buffer.</div>
 <dl>
@@ -328,7 +330,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The input buffer to decode.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The decoded metadata object.</dd>
+<dd>The decoded metadata object, or null if the metadata could not be decoded.</dd>
 </dl>
 </li>
 </ul>
@@ -338,15 +340,17 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 <ul class="blockListLast">
 <li class="blockList">
 <h4>decode</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode(byte[]&nbsp;data,
-                       int&nbsp;size)</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode(byte[]&nbsp;data,
+                                 int&nbsp;size)</pre>
 <div class="block">Decodes ID3 tags.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - The bytes to decode ID3 tags from.</dd>
 <dd><code>size</code> - Amount of bytes in <code>data</code> to read.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> object containing the decoded ID3 tags.</dd>
+<dd>A <a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> object containing the decoded ID3 tags, or null if the data could
+     not be decoded.</dd>
 </dl>
 </li>
 </ul>

@@ -150,47 +150,60 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#drmInitData">drmInitData</a></span></code>
+<div class="block">DRM initialization data for sample decryption, or null if the segment does not use CDM-DRM
+ protection.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#durationUs">durationUs</a></span></code>
 <div class="block">The duration of the segment in microseconds, as defined by #EXTINF.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#encryptionIV">encryptionIV</a></span></code>
 <div class="block">The encryption initialization vector as defined by #EXT-X-KEY, or null if the segment is not
  encrypted.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#fullSegmentEncryptionKeyUri">fullSegmentEncryptionKeyUri</a></span></code>
 <div class="block">The encryption identity key uri as defined by #EXT-X-KEY, or null if the segment does not use
  full segment encryption with identity key.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#hasGapTag">hasGapTag</a></span></code>
 <div class="block">Whether the segment is tagged with #EXT-X-GAP.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#initializationSegment">initializationSegment</a></span></code>
 <div class="block">The media initialization section for this segment, as defined by #EXT-X-MAP.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#relativeDiscontinuitySequence">relativeDiscontinuitySequence</a></span></code>
 <div class="block">The number of #EXT-X-DISCONTINUITY tags in the playlist before the segment.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#relativeStartTimeUs">relativeStartTimeUs</a></span></code>
 <div class="block">The start time of the segment in microseconds, relative to the start of the playlist.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#title">title</a></span></code>
+<div class="block">The human readable title of the segment.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -214,11 +227,13 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/la
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#Segment-java.lang.String-com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment-long-int-long-java.lang.String-java.lang.String-long-long-boolean-">Segment</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;url,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#Segment-java.lang.String-com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment-java.lang.String-long-int-long-com.google.android.exoplayer2.drm.DrmInitData-java.lang.String-java.lang.String-long-long-boolean-">Segment</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;url,
        <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a>&nbsp;initializationSegment,
+       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;title,
        long&nbsp;durationUs,
        int&nbsp;relativeDiscontinuitySequence,
        long&nbsp;relativeStartTimeUs,
+       <a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;fullSegmentEncryptionKeyUri,
        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;encryptionIV,
        long&nbsp;byterangeOffset,
@@ -304,6 +319,16 @@ public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/so
 <div class="block">The duration of the segment in microseconds, as defined by #EXTINF.</div>
 </li>
 </ul>
+<a name="title">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>title</h4>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> title</pre>
+<div class="block">The human readable title of the segment.</div>
+</li>
+</ul>
 <a name="relativeDiscontinuitySequence">
 <!--   -->
 </a>
@@ -324,13 +349,26 @@ public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/so
 <div class="block">The start time of the segment in microseconds, relative to the start of the playlist.</div>
 </li>
 </ul>
+<a name="drmInitData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>drmInitData</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a> drmInitData</pre>
+<div class="block">DRM initialization data for sample decryption, or null if the segment does not use CDM-DRM
+ protection.</div>
+</li>
+</ul>
 <a name="fullSegmentEncryptionKeyUri">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>fullSegmentEncryptionKeyUri</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> fullSegmentEncryptionKeyUri</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> fullSegmentEncryptionKeyUri</pre>
 <div class="block">The encryption identity key uri as defined by #EXT-X-KEY, or null if the segment does not use
  full segment encryption with identity key.</div>
 </li>
@@ -341,7 +379,8 @@ public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/so
 <ul class="blockList">
 <li class="blockList">
 <h4>encryptionIV</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> encryptionIV</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> encryptionIV</pre>
 <div class="block">The encryption initialization vector as defined by #EXT-X-KEY, or null if the segment is not
  encrypted.</div>
 </li>
@@ -402,18 +441,24 @@ public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/so
 </dl>
 </li>
 </ul>
-<a name="Segment-java.lang.String-com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment-long-int-long-java.lang.String-java.lang.String-long-long-boolean-">
+<a name="Segment-java.lang.String-com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment-java.lang.String-long-int-long-com.google.android.exoplayer2.drm.DrmInitData-java.lang.String-java.lang.String-long-long-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Segment</h4>
 <pre>public&nbsp;Segment(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;url,
+               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a>&nbsp;initializationSegment,
+               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;title,
                long&nbsp;durationUs,
                int&nbsp;relativeDiscontinuitySequence,
                long&nbsp;relativeStartTimeUs,
+               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+               <a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
+               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;fullSegmentEncryptionKeyUri,
+               <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;encryptionIV,
                long&nbsp;byterangeOffset,
                long&nbsp;byterangeLength,
@@ -422,9 +467,11 @@ public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/so
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>url</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#url"><code>url</code></a>.</dd>
 <dd><code>initializationSegment</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#initializationSegment"><code>initializationSegment</code></a>.</dd>
+<dd><code>title</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#title"><code>title</code></a>.</dd>
 <dd><code>durationUs</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#durationUs"><code>durationUs</code></a>.</dd>
 <dd><code>relativeDiscontinuitySequence</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#relativeDiscontinuitySequence"><code>relativeDiscontinuitySequence</code></a>.</dd>
 <dd><code>relativeStartTimeUs</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#relativeStartTimeUs"><code>relativeStartTimeUs</code></a>.</dd>
+<dd><code>drmInitData</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#drmInitData"><code>drmInitData</code></a>.</dd>
 <dd><code>fullSegmentEncryptionKeyUri</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#fullSegmentEncryptionKeyUri"><code>fullSegmentEncryptionKeyUri</code></a>.</dd>
 <dd><code>encryptionIV</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#encryptionIV"><code>encryptionIV</code></a>.</dd>
 <dd><code>byterangeOffset</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byterangeOffset"><code>byterangeOffset</code></a>.</dd>

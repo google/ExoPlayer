@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":18,"i18":6,"i19":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -102,7 +102,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/ffmpeg/FfmpegAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.ffmpeg">FfmpegAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/flac/LibflacAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.flac">LibflacAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.opus">LibopusAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html" title="class in com.google.android.exoplayer2.ext.vp9">LibvpxVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/metadata/MetadataRenderer.html" title="class in com.google.android.exoplayer2.metadata">MetadataRenderer</a>, <a href="../../../../com/google/android/exoplayer2/NoSampleRenderer.html" title="class in com.google.android.exoplayer2">NoSampleRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/text/TextRenderer.html" title="class in com.google.android.exoplayer2.text">TextRenderer</a></dd>
+<dd><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionRenderer.html" title="class in com.google.android.exoplayer2.video.spherical">CameraMotionRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/ffmpeg/FfmpegAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.ffmpeg">FfmpegAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/flac/LibflacAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.flac">LibflacAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.opus">LibopusAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html" title="class in com.google.android.exoplayer2.ext.vp9">LibvpxVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/metadata/MetadataRenderer.html" title="class in com.google.android.exoplayer2.metadata">MetadataRenderer</a>, <a href="../../../../com/google/android/exoplayer2/NoSampleRenderer.html" title="class in com.google.android.exoplayer2">NoSampleRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/text/TextRenderer.html" title="class in com.google.android.exoplayer2.text">TextRenderer</a></dd>
 </dl>
 <hr>
 <br>
@@ -183,7 +183,7 @@ extends <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -303,13 +303,20 @@ extends <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.
 </td>
 </tr>
 <tr id="i17" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#setOperatingRate-float-">setOperatingRate</a></span>(float&nbsp;operatingRate)</code>
+<div class="block">Sets the operating rate of this renderer, where 1 is the default rate, 2 is twice the default
+ rate, 0.5 is half the default rate and so on.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#start--">start</a></span>()</code>
 <div class="block">Starts the renderer, meaning that calls to <a href="../../../../com/google/android/exoplayer2/Renderer.html#render-long-long-"><code>render(long, long)</code></a> will cause media to be
  rendered.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Renderer.html#stop--">stop</a></span>()</code>
 <div class="block">Stops the renderer, transitioning it to the <a href="../../../../com/google/android/exoplayer2/Renderer.html#STATE_ENABLED"><code>STATE_ENABLED</code></a> state.</div>
@@ -455,7 +462,8 @@ extends <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.
 <ul class="blockList">
 <li class="blockList">
 <h4>getState</h4>
-<pre>int&nbsp;getState()</pre>
+<pre><a href="../../../../com/google/android/exoplayer2/Renderer.State.html" title="annotation in com.google.android.exoplayer2">@Renderer.State</a>
+int&nbsp;getState()</pre>
 <div class="block">Returns the current state of the renderer.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -626,6 +634,27 @@ extends <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.
 <dd><code>positionUs</code> - The new playback position in microseconds.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurs handling the reset.</dd>
+</dl>
+</li>
+</ul>
+<a name="setOperatingRate-float-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setOperatingRate</h4>
+<pre>default&nbsp;void&nbsp;setOperatingRate(float&nbsp;operatingRate)
+                       throws <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="block">Sets the operating rate of this renderer, where 1 is the default rate, 2 is twice the default
+ rate, 0.5 is half the default rate and so on. The operating rate is a hint to the renderer of
+ the speed at which playback will proceed, and may be used for resource planning.
+
+ <p>The default implementation is a no-op.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>operatingRate</code> - The operating rate.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurs handling the operating rate.</dd>
 </dl>
 </li>
 </ul>

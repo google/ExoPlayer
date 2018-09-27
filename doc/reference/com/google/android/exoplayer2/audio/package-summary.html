@@ -86,6 +86,18 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioFocusManager.PlayerControl.html" title="interface in com.google.android.exoplayer2.audio">AudioFocusManager.PlayerControl</a></td>
+<td class="colLast">
+<div class="block">Interface to allow AudioFocusManager to give commands to a player.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a></td>
+<td class="colLast">
+<div class="block">A listener for changes in audio configuration.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></td>
 <td class="colLast">
 <div class="block">Interface for audio processors, which take audio data as input and transform it, potentially
@@ -117,6 +129,12 @@
  applying playback parameters (if supported).</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.AudioBufferSink.html" title="interface in com.google.android.exoplayer2.audio">TeeAudioProcessor.AudioBufferSink</a></td>
+<td class="colLast">
+<div class="block">A sink for audio buffers handled by the audio processor.</div>
+</td>
+</tr>
 </tbody>
 </table>
 </li>
@@ -131,7 +149,7 @@
 <tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html" title="class in com.google.android.exoplayer2.audio">Ac3Util</a></td>
 <td class="colLast">
-<div class="block">Utility methods for parsing Dolby TrueHD and (E-)AC3 syncframes.</div>
+<div class="block">Utility methods for parsing Dolby TrueHD and (E-)AC-3 syncframes.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -167,9 +185,22 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioFocusManager.html" title="class in com.google.android.exoplayer2.audio">AudioFocusManager</a></td>
+<td class="colLast">
+<div class="block">Manages requesting and responding to changes in audio focus.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.audio">AudioRendererEventListener.EventDispatcher</a></td>
 <td class="colLast">
 <div class="block">Dispatches events to a <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioRendererEventListener</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a></td>
+<td class="colLast">
+<div class="block">Represents auxiliary effect information, which can be used to attach an auxiliary effect to an
+ underlying <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -213,6 +244,24 @@
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SonicAudioProcessor</a></td>
 <td class="colLast">
 <div class="block">An <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a> that uses the Sonic library to modify audio speed/pitch/sample rate.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor</a></td>
+<td class="colLast">
+<div class="block">Audio processor that outputs its input unmodified and also outputs its input to a given sink.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.WavFileAudioBufferSink.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor.WavFileAudioBufferSink</a></td>
+<td class="colLast">
+<div class="block">A sink for audio buffers that writes output audio as .wav files with a given path prefix.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html" title="class in com.google.android.exoplayer2.audio">WavUtil</a></td>
+<td class="colLast">
+<div class="block">Utilities for handling WAVE files.</div>
 </td>
 </tr>
 </tbody>
@@ -277,6 +326,12 @@
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.SyncFrameInfo.StreamType.html" title="annotation in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo.StreamType</a></td>
 <td class="colLast">
 <div class="block">AC3 stream types.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioFocusManager.PlayerCommand.html" title="annotation in com.google.android.exoplayer2.audio">AudioFocusManager.PlayerCommand</a></td>
+<td class="colLast">
+<div class="block">Player commands.</div>
 </td>
 </tr>
 </tbody>

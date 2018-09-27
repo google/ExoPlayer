@@ -97,7 +97,7 @@ var activeTableTab = "activeTableTab";
 <li><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">com.google.android.exoplayer2.offline.SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/RenditionKey.html" title="class in com.google.android.exoplayer2.source.hls.playlist">RenditionKey</a>&gt;</li>
+<li><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">com.google.android.exoplayer2.offline.SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.source.hls.offline.HlsDownloader</li>
@@ -116,7 +116,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public final class <span class="typeNameLabel">HlsDownloader</span>
-extends <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/RenditionKey.html" title="class in com.google.android.exoplayer2.source.hls.playlist">RenditionKey</a>&gt;</pre>
+extends <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</pre>
 <div class="block">A downloader for HLS streams.
 
  <p>Example usage:
@@ -130,7 +130,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
  HlsDownloader hlsDownloader =
      new HlsDownloader(
          playlistUri,
-         Collections.singletonList(new RenditionKey(RenditionKey.TYPE_VARIANT, 0)),
+         Collections.singletonList(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, 0)),
          constructorHelper);
  // Perform the download.
  hlsDownloader.download();
@@ -172,7 +172,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/offline/HlsDownloader.html#HlsDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">HlsDownloader</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;playlistUri,
-             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/RenditionKey.html" title="class in com.google.android.exoplayer2.source.hls.playlist">RenditionKey</a>&gt;&nbsp;renditionKeys,
+             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys,
              <a href="../../../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</code>&nbsp;</td>
 </tr>
 </table>
@@ -241,12 +241,12 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <li class="blockList">
 <h4>HlsDownloader</h4>
 <pre>public&nbsp;HlsDownloader(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;playlistUri,
-                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/RenditionKey.html" title="class in com.google.android.exoplayer2.source.hls.playlist">RenditionKey</a>&gt;&nbsp;renditionKeys,
+                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys,
                      <a href="../../../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playlistUri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> of the playlist to be downloaded.</dd>
-<dd><code>renditionKeys</code> - Keys defining which renditions in the playlist should be selected for
+<dd><code>streamKeys</code> - Keys defining which renditions in the playlist should be selected for
      download. If empty, all renditions are downloaded.</dd>
 <dd><code>constructorHelper</code> - A <a href="../../../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloaderConstructorHelper</code></a> instance.</dd>
 </dl>
@@ -273,7 +273,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <div class="block">Loads and parses the manifest.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-android.net.Uri-">getManifest</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/RenditionKey.html" title="class in com.google.android.exoplayer2.source.hls.playlist">RenditionKey</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-android.net.Uri-">getManifest</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> through which to load.</dd>
 <dd><code>uri</code> - The manifest uri.</dd>
@@ -298,7 +298,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <div class="block">Returns a list of all downloadable <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for a given manifest.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-M-boolean-">getSegments</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/RenditionKey.html" title="class in com.google.android.exoplayer2.source.hls.playlist">RenditionKey</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-M-boolean-">getSegments</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> through which to load any required data.</dd>
 <dd><code>playlist</code> - The manifest containing the segments.</dd>

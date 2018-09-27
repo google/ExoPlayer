@@ -106,13 +106,13 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;</dd>
+<dd><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</dd>
 </dl>
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">DashManifest</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
-implements <a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;</pre>
+implements <a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</pre>
 <div class="block">Represents a DASH media presentation description (mpd), as defined by ISO/IEC 23009-1:2014
  Section 5.3.1.2.</div>
 </li>
@@ -242,7 +242,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#copy-java.util.List-">copy</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;&nbsp;streamKeys)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#copy-java.util.List-">copy</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys)</code>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys.</div>
 </td>
 </tr>
@@ -467,13 +467,13 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
 <ul class="blockListLast">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;copy(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;&nbsp;streamKeys)</pre>
+<pre>public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;copy(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html#copy-java.util.List-">FilterableManifest</a></code></span></div>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys. If the
  manifest is unchanged then the instance may return itself.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html#copy-java.util.List-">copy</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RepresentationKey.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RepresentationKey</a>&gt;</code></dd>
+<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html#copy-java.util.List-">copy</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>streamKeys</code> - A non-empty list of stream keys.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

@@ -139,7 +139,10 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/FixedTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection">FixedTrackSelection.Factory</a></span></code>
-<div class="block">Factory for <a href="../../../../../com/google/android/exoplayer2/trackselection/FixedTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><code>FixedTrackSelection</code></a> instances.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Don't use as adaptive track selection factory as it will throw when multiple tracks
+     are selected. If you would like to disable adaptive selection in <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a>, enable the <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#forceHighestSupportedBitrate"><code>DefaultTrackSelector.Parameters.forceHighestSupportedBitrate</code></a> flag instead.</span></div>
+</div>
 </td>
 </tr>
 </table>
@@ -216,10 +219,12 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/FixedTrackSelection.html#updateSelectedTrack-long-long-long-">updateSelectedTrack</a></span>(long&nbsp;playbackPositionUs,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/FixedTrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">updateSelectedTrack</a></span>(long&nbsp;playbackPositionUs,
                    long&nbsp;bufferedDurationUs,
-                   long&nbsp;availableDurationUs)</code>
-<div class="block">Updates the selected track.</div>
+                   long&nbsp;availableDurationUs,
+                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&gt;&nbsp;queue,
+                   <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</code>
+<div class="block">Updates the selected track for sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.</div>
 </td>
 </tr>
 </table>
@@ -236,6 +241,13 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></h3>
 <code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.trackselection.TrackSelection">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.trackselection.<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-">updateSelectedTrack</a></code></li>
 </ul>
 </li>
 </ul>
@@ -294,7 +306,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="updateSelectedTrack-long-long-long-">
+<a name="updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -302,11 +314,13 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <h4>updateSelectedTrack</h4>
 <pre>public&nbsp;void&nbsp;updateSelectedTrack(long&nbsp;playbackPositionUs,
                                 long&nbsp;bufferedDurationUs,
-                                long&nbsp;availableDurationUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-">TrackSelection</a></code></span></div>
-<div class="block">Updates the selected track.
- <p>
- This method may only be called when the selection is enabled.</div>
+                                long&nbsp;availableDurationUs,
+                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&gt;&nbsp;queue,
+                                <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">TrackSelection</a></code></span></div>
+<div class="block">Updates the selected track for sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.
+
+ <p>This method may only be called when the selection is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playbackPositionUs</code> - The current playback position in microseconds. If playback of the
@@ -314,13 +328,18 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
      starting position in the period minus the duration of any media in previous periods still
      to be played.</dd>
 <dd><code>bufferedDurationUs</code> - The duration of media currently buffered from the current playback
-     position, in microseconds. Note that the next load position can be calculated as
-     <code>(playbackPositionUs + bufferedDurationUs)</code>.</dd>
+     position, in microseconds. Note that the next load position can be calculated as <code>(playbackPositionUs + bufferedDurationUs)</code>.</dd>
 <dd><code>availableDurationUs</code> - The duration of media available for buffering from the current
-     playback position, in microseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if media can be buffered
-     to the end of the current period. Note that if not set to <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the
-     position up to which media is available for buffering can be calculated as
-     <code>(playbackPositionUs + availableDurationUs)</code>.</dd>
+     playback position, in microseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if media can be buffered to the
+     end of the current period. Note that if not set to <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the position up to
+     which media is available for buffering can be calculated as <code>(playbackPositionUs +
+     availableDurationUs)</code>.</dd>
+<dd><code>queue</code> - The queue of already buffered <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s. Must not be modified.</dd>
+<dd><code>mediaChunkIterators</code> - An array of <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a>s providing information about
+     the sequence of upcoming media chunks for each track in the selection. All iterators start
+     from the media chunk which will be loaded next if the respective track is selected. Note
+     that this information may not be available for all tracks, and so some iterators may be
+     empty.</dd>
 </dl>
 </li>
 </ul>

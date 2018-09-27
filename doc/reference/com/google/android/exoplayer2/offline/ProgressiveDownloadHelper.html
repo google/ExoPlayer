@@ -169,7 +169,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadHe
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a></code></td>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloadAction</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadHelper.html#getDownloadAction-byte:A-java.util.List-">getDownloadAction</a></span>(byte[]&nbsp;data,
                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/TrackKey.html" title="class in com.google.android.exoplayer2.offline">TrackKey</a>&gt;&nbsp;trackKeys)</code>
 <div class="block">Builds a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a> for downloading the specified tracks.</div>
@@ -182,7 +182,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadHe
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a></code></td>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloadAction</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadHelper.html#getRemoveAction-byte:A-">getRemoveAction</a></span>(byte[]&nbsp;data)</code>
 <div class="block">Builds a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a> for removing the media.</div>
 </td>
@@ -314,9 +314,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadHe
 <ul class="blockList">
 <li class="blockList">
 <h4>getDownloadAction</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a>&nbsp;getDownloadAction(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                        byte[]&nbsp;data,
-                                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/TrackKey.html" title="class in com.google.android.exoplayer2.offline">TrackKey</a>&gt;&nbsp;trackKeys)</pre>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloadAction</a>&nbsp;getDownloadAction(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                   byte[]&nbsp;data,
+                                                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/TrackKey.html" title="class in com.google.android.exoplayer2.offline">TrackKey</a>&gt;&nbsp;trackKeys)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.html#getDownloadAction-byte:A-java.util.List-">DownloadHelper</a></code></span></div>
 <div class="block">Builds a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a> for downloading the specified tracks. Must not be called until
  after preparation completes.</div>
@@ -337,8 +337,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadHe
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getRemoveAction</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a>&nbsp;getRemoveAction(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                      byte[]&nbsp;data)</pre>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloadAction</a>&nbsp;getRemoveAction(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                 byte[]&nbsp;data)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.html#getRemoveAction-byte:A-">DownloadHelper</a></code></span></div>
 <div class="block">Builds a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a> for removing the media. May be called in any state.</div>
 <dl>

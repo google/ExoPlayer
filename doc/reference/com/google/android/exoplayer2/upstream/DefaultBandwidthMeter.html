@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -106,15 +106,15 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&gt;</dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public final class <span class="typeNameLabel">DefaultBandwidthMeter</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
-implements <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&gt;</pre>
-<div class="block">Estimates bandwidth by listening to data transfers. The bandwidth estimate is calculated using
- a <a href="../../../../../com/google/android/exoplayer2/util/SlidingPercentile.html" title="class in com.google.android.exoplayer2.util"><code>SlidingPercentile</code></a> and is updated each time a transfer ends.</div>
+implements <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></pre>
+<div class="block">Estimates bandwidth by listening to data transfers. The bandwidth estimate is calculated using a
+ <a href="../../../../../com/google/android/exoplayer2/util/SlidingPercentile.html" title="class in com.google.android.exoplayer2.util"><code>SlidingPercentile</code></a> and is updated each time a transfer ends.</div>
 </li>
 </ul>
 </div>
@@ -225,29 +225,62 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Bandwi
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">addEventListener</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</code>
+<div class="block">Adds an <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a> to be informed of bandwidth samples.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#getBitrateEstimate--">getBitrateEstimate</a></span>()</code>
 <div class="block">Returns the estimated bandwidth in bits/sec.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#onBytesTransferred-java.lang.Object-int-">onBytesTransferred</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;source,
-                  int&nbsp;bytes)</code>
-<div class="block">Called incrementally during a transfer.</div>
-</td>
-</tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#onTransferEnd-java.lang.Object-">onTransferEnd</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;source)</code>
-<div class="block">Called when a transfer ends.</div>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#getTransferListener--">getTransferListener</a></span>()</code>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> that this instance uses to gather bandwidth information
+ from data transfers.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#onTransferStart-java.lang.Object-com.google.android.exoplayer2.upstream.DataSpec-">onTransferStart</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;source,
-               <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#onBytesTransferred-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-int-">onBytesTransferred</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                  <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                  boolean&nbsp;isNetwork,
+                  int&nbsp;bytes)</code>
+<div class="block">Called incrementally during a transfer.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#onTransferEnd-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferEnd</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+             <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+             boolean&nbsp;isNetwork)</code>
+<div class="block">Called when a transfer ends.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#onTransferInitializing-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferInitializing</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                      <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                      boolean&nbsp;isNetwork)</code>
+<div class="block">Called when a transfer is being initialized.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#onTransferStart-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferStart</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+               <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+               boolean&nbsp;isNetwork)</code>
 <div class="block">Called when a transfer starts.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html#removeEventListener-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">removeEventListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</code>
+<div class="block">Removes an <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -366,59 +399,142 @@ public&nbsp;DefaultBandwidthMeter(<a href="https://developer.android.com/referen
 </dl>
 </li>
 </ul>
-<a name="onTransferStart-java.lang.Object-com.google.android.exoplayer2.upstream.DataSpec-">
+<a name="getTransferListener--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTransferListener</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;getTransferListener()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#getTransferListener--">BandwidthMeter</a></code></span></div>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> that this instance uses to gather bandwidth information
+ from data transfers. May be null, if no transfer listener is used.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#getTransferListener--">getTransferListener</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="addEventListener-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addEventListener</h4>
+<pre>public&nbsp;void&nbsp;addEventListener(<a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                             <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">BandwidthMeter</a></code></span></div>
+<div class="block">Adds an <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a> to be informed of bandwidth samples.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">addEventListener</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventHandler</code> - A handler for events.</dd>
+<dd><code>eventListener</code> - A listener of events.</dd>
+</dl>
+</li>
+</ul>
+<a name="removeEventListener-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeEventListener</h4>
+<pre>public&nbsp;void&nbsp;removeEventListener(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#removeEventListener-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">BandwidthMeter</a></code></span></div>
+<div class="block">Removes an <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html#removeEventListener-com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener-">removeEventListener</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventListener</code> - The listener to be removed.</dd>
+</dl>
+</li>
+</ul>
+<a name="onTransferInitializing-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onTransferInitializing</h4>
+<pre>public&nbsp;void&nbsp;onTransferInitializing(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                                   <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                                   boolean&nbsp;isNetwork)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferInitializing-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">TransferListener</a></code></span></div>
+<div class="block">Called when a transfer is being initialized.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferInitializing-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferInitializing</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>source</code> - The source performing the transfer.</dd>
+<dd><code>dataSpec</code> - Describes the data for which the transfer is initialized.</dd>
+<dd><code>isNetwork</code> - Whether the data is transferred through a network.</dd>
+</dl>
+</li>
+</ul>
+<a name="onTransferStart-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onTransferStart</h4>
-<pre>public&nbsp;void&nbsp;onTransferStart(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;source,
-                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferStart-S-com.google.android.exoplayer2.upstream.DataSpec-">TransferListener</a></code></span></div>
+<pre>public&nbsp;void&nbsp;onTransferStart(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                            boolean&nbsp;isNetwork)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferStart-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">TransferListener</a></code></span></div>
 <div class="block">Called when a transfer starts.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferStart-S-com.google.android.exoplayer2.upstream.DataSpec-">onTransferStart</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&gt;</code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferStart-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferStart</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>source</code> - The source performing the transfer.</dd>
 <dd><code>dataSpec</code> - Describes the data being transferred.</dd>
+<dd><code>isNetwork</code> - Whether the data is transferred through a network.</dd>
 </dl>
 </li>
 </ul>
-<a name="onBytesTransferred-java.lang.Object-int-">
+<a name="onBytesTransferred-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onBytesTransferred</h4>
-<pre>public&nbsp;void&nbsp;onBytesTransferred(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;source,
+<pre>public&nbsp;void&nbsp;onBytesTransferred(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                               <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                               boolean&nbsp;isNetwork,
                                int&nbsp;bytes)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onBytesTransferred-S-int-">TransferListener</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onBytesTransferred-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-int-">TransferListener</a></code></span></div>
 <div class="block">Called incrementally during a transfer.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onBytesTransferred-S-int-">onBytesTransferred</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&gt;</code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onBytesTransferred-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-int-">onBytesTransferred</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>source</code> - The source performing the transfer.</dd>
-<dd><code>bytes</code> - The number of bytes transferred since the previous call to this
-     method (or if the first call, since the transfer was started).</dd>
+<dd><code>dataSpec</code> - Describes the data being transferred.</dd>
+<dd><code>isNetwork</code> - Whether the data is transferred through a network.</dd>
+<dd><code>bytes</code> - The number of bytes transferred since the previous call to this method</dd>
 </dl>
 </li>
 </ul>
-<a name="onTransferEnd-java.lang.Object-">
+<a name="onTransferEnd-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onTransferEnd</h4>
-<pre>public&nbsp;void&nbsp;onTransferEnd(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;source)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferEnd-S-">TransferListener</a></code></span></div>
+<pre>public&nbsp;void&nbsp;onTransferEnd(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                          <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                          boolean&nbsp;isNetwork)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferEnd-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">TransferListener</a></code></span></div>
 <div class="block">Called when a transfer ends.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferEnd-S-">onTransferEnd</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&gt;</code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html#onTransferEnd-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">onTransferEnd</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>source</code> - The source performing the transfer.</dd>
+<dd><code>dataSpec</code> - Describes the data being transferred.</dd>
+<dd><code>isNetwork</code> - Whether the data is transferred through a network.</dd>
 </dl>
 </li>
 </ul>

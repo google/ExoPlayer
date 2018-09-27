@@ -73,13 +73,13 @@ var activeTableTab = "activeTableTab";
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -131,6 +131,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html#DEFAULT_AUDIO_CAPABILITIES">DEFAULT_AUDIO_CAPABILITIES</a></span></code>
 <div class="block">The minimum audio capabilities supported by all devices.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html#AudioCapabilities-int:A-int-">AudioCapabilities</a></span>(int[]&nbsp;supportedEncodings,
+                 int&nbsp;maxChannelCount)</code>
+<div class="block">Constructs new audio capabilities based on a set of supported encodings and a maximum channel
+ count.</div>
 </td>
 </tr>
 </table>
@@ -208,6 +229,37 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>DEFAULT_AUDIO_CAPABILITIES</h4>
 <pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a> DEFAULT_AUDIO_CAPABILITIES</pre>
 <div class="block">The minimum audio capabilities supported by all devices.</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="AudioCapabilities-int:A-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>AudioCapabilities</h4>
+<pre>public&nbsp;AudioCapabilities(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                         int[]&nbsp;supportedEncodings,
+                         int&nbsp;maxChannelCount)</pre>
+<div class="block">Constructs new audio capabilities based on a set of supported encodings and a maximum channel
+ count.
+
+ <p>Applications should generally call <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html#getCapabilities-android.content.Context-"><code>getCapabilities(Context)</code></a> to obtain an instance
+ based on the capabilities advertised by the platform, rather than calling this constructor.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>supportedEncodings</code> - Supported audio encodings from <a href="https://developer.android.com/reference/android/media/AudioFormat.html" target="_top" title="class or interface in android.media"><code>AudioFormat</code></a>'s
+     <code>ENCODING_*</code> constants. Passing <code>null</code> indicates that no encodings are
+     supported.</dd>
+<dd><code>maxChannelCount</code> - The maximum number of audio channels that can be played simultaneously.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -354,13 +406,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>

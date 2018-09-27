@@ -124,16 +124,15 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html#executeKeyRequest-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest-java.lang.String-">executeKeyRequest</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-                 <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>&nbsp;request,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mediaProvidedLicenseServerUrl)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html#executeKeyRequest-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest-">executeKeyRequest</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                 <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>&nbsp;request)</code>
 <div class="block">Executes a key request.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html#executeProvisionRequest-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest-">executeProvisionRequest</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-                       <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a>&nbsp;request)</code>
+                       <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a>&nbsp;request)</code>
 <div class="block">Executes a provisioning request.</div>
 </td>
 </tr>
@@ -159,7 +158,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>executeProvisionRequest</h4>
 <pre>byte[]&nbsp;executeProvisionRequest(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-                               <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a>&nbsp;request)
+                               <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a>&nbsp;request)
                         throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a></pre>
 <div class="block">Executes a provisioning request.</div>
 <dl>
@@ -173,24 +172,20 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
-<a name="executeKeyRequest-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest-java.lang.String-">
+<a name="executeKeyRequest-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>executeKeyRequest</h4>
 <pre>byte[]&nbsp;executeKeyRequest(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-                         <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>&nbsp;request,
-                         <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mediaProvidedLicenseServerUrl)
+                         <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>&nbsp;request)
                   throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Exception.html" target="_top" title="class or interface in java.lang">Exception</a></pre>
 <div class="block">Executes a key request.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uuid</code> - The UUID of the content protection scheme.</dd>
-<dd><code>request</code> - The request generated by the content decryption module.</dd>
-<dd><code>mediaProvidedLicenseServerUrl</code> - A license server URL provided by the media, or null if the
-     media does not include any license server URL.</dd>
+<dd><code>request</code> - The request.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The response data.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

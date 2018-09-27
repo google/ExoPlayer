@@ -253,24 +253,25 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>sampleMetadata</h4>
 <pre>void&nbsp;sampleMetadata(long&nbsp;timeUs,
+                    <a href="../../../../../com/google/android/exoplayer2/C.BufferFlags.html" title="annotation in com.google.android.exoplayer2">@C.BufferFlags</a>
                     int&nbsp;flags,
                     int&nbsp;size,
                     int&nbsp;offset,
+                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                     <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>&nbsp;encryptionData)</pre>
 <div class="block">Called when metadata associated with a sample has been extracted from the stream.
- <p>
- The corresponding sample data will have already been passed to the output via calls to
- <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-"><code>sampleData(ExtractorInput, int, boolean)</code></a> or
- <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>sampleData(ParsableByteArray, int)</code></a>.</div>
+
+ <p>The corresponding sample data will have already been passed to the output via calls to
+ <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-"><code>sampleData(ExtractorInput, int, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>sampleData(ParsableByteArray,
+ int)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeUs</code> - The media timestamp associated with the sample, in microseconds.</dd>
 <dd><code>flags</code> - Flags associated with the sample. See <code>C.BUFFER_FLAG_*</code>.</dd>
 <dd><code>size</code> - The size of the sample data, in bytes.</dd>
-<dd><code>offset</code> - The number of bytes that have been passed to
-     <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-"><code>sampleData(ExtractorInput, int, boolean)</code></a> or
-     <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>sampleData(ParsableByteArray, int)</code></a> since the last byte belonging to the sample
-     whose metadata is being passed.</dd>
+<dd><code>offset</code> - The number of bytes that have been passed to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-"><code>sampleData(ExtractorInput,
+     int, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>sampleData(ParsableByteArray, int)</code></a> since the last byte belonging
+     to the sample whose metadata is being passed.</dd>
 <dd><code>encryptionData</code> - The encryption data required to decrypt the sample. May be null.</dd>
 </dl>
 </li>

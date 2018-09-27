@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":9,"i1":10,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -148,10 +148,6 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#customCacheKey">customCacheKey</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#DESERIALIZER">DESERIALIZER</a></span></code>&nbsp;</td>
 </tr>
@@ -180,7 +176,11 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#ProgressiveDownloadAction-android.net.Uri-boolean-byte:A-java.lang.String-">ProgressiveDownloadAction</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
                          boolean&nbsp;isRemoveAction,
                          byte[]&nbsp;data,
-                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customCacheKey)</code>&nbsp;</td>
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customCacheKey)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#createDownloadAction-android.net.Uri-byte:A-java.lang.String-"><code>createDownloadAction(Uri, byte[], String)</code></a> or <a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#createRemoveAction-android.net.Uri-byte:A-java.lang.String-"><code>createRemoveAction(Uri, byte[], String)</code></a>.</span></div>
+</div>
+</td>
 </tr>
 </table>
 </li>
@@ -192,32 +192,48 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloader</a></code></td>
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloadAction</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#createDownloadAction-android.net.Uri-byte:A-java.lang.String-">createDownloadAction</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+                    byte[]&nbsp;data,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customCacheKey)</code>
+<div class="block">Creates a progressive stream download action.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloader</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#createDownloader-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">createDownloader</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</code>
 <div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a> with the given parameters.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloadAction</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#createRemoveAction-android.net.Uri-byte:A-java.lang.String-">createRemoveAction</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+                  byte[]&nbsp;data,
+                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customCacheKey)</code>
+<div class="block">Creates a progressive stream remove action.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#equals-java.lang.Object-">equals</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;o)</code>&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#isSameMedia-com.google.android.exoplayer2.offline.DownloadAction-">isSameMedia</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a>&nbsp;other)</code>
 <div class="block">Returns whether this is an action for the same media as the <code>other</code>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#writeToStream-java.io.DataOutputStream-">writeToStream</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/DataOutputStream.html" target="_top" title="class or interface in java.io">DataOutputStream</a>&nbsp;output)</code>
 <div class="block">Serializes itself into the <code>output</code>.</div>
@@ -229,7 +245,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#deserializeFromStream-com.google.android.exoplayer2.offline.DownloadAction.Deserializer:A-java.io.InputStream-">deserializeFromStream</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#serializeToStream-com.google.android.exoplayer2.offline.DownloadAction-java.io.OutputStream-">serializeToStream</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#toByteArray--">toByteArray</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#deserializeFromStream-com.google.android.exoplayer2.offline.DownloadAction.Deserializer:A-java.io.InputStream-">deserializeFromStream</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#getDefaultDeserializers--">getDefaultDeserializers</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#getKeys--">getKeys</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#serializeToStream-com.google.android.exoplayer2.offline.DownloadAction-java.io.OutputStream-">serializeToStream</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#toByteArray--">toByteArray</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -255,20 +271,10 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <a name="DESERIALIZER">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>DESERIALIZER</h4>
 <pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a> DESERIALIZER</pre>
-</li>
-</ul>
-<a name="customCacheKey">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>customCacheKey</h4>
-<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> customCacheKey</pre>
 </li>
 </ul>
 </li>
@@ -285,12 +291,14 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ProgressiveDownloadAction</h4>
-<pre>public&nbsp;ProgressiveDownloadAction(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
-                                 boolean&nbsp;isRemoveAction,
-                                 <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                 byte[]&nbsp;data,
-                                 <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customCacheKey)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;ProgressiveDownloadAction(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+                                             boolean&nbsp;isRemoveAction,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                             byte[]&nbsp;data,
+                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customCacheKey)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#createDownloadAction-android.net.Uri-byte:A-java.lang.String-"><code>createDownloadAction(Uri, byte[], String)</code></a> or <a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html#createRemoveAction-android.net.Uri-byte:A-java.lang.String-"><code>createRemoveAction(Uri, byte[], String)</code></a>.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - Uri of the data to be downloaded.</dd>
@@ -309,13 +317,55 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="createDownloadAction-android.net.Uri-byte:A-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createDownloadAction</h4>
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloadAction</a>&nbsp;createDownloadAction(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+                                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                             byte[]&nbsp;data,
+                                                             <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customCacheKey)</pre>
+<div class="block">Creates a progressive stream download action.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>uri</code> - Uri of the data to be downloaded.</dd>
+<dd><code>data</code> - Optional custom data for this action.</dd>
+<dd><code>customCacheKey</code> - A custom key that uniquely identifies the original stream. If not null it
+     is used for cache indexing.</dd>
+</dl>
+</li>
+</ul>
+<a name="createRemoveAction-android.net.Uri-byte:A-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createRemoveAction</h4>
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloadAction.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloadAction</a>&nbsp;createRemoveAction(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+                                                           <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                           byte[]&nbsp;data,
+                                                           <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;customCacheKey)</pre>
+<div class="block">Creates a progressive stream remove action.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>uri</code> - Uri of the data to be removed.</dd>
+<dd><code>data</code> - Optional custom data for this action.</dd>
+<dd><code>customCacheKey</code> - A custom key that uniquely identifies the original stream. If not null it
+     is used for cache indexing.</dd>
+</dl>
+</li>
+</ul>
 <a name="createDownloader-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createDownloader</h4>
-<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloader</a>&nbsp;createDownloader(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</pre>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloader</a>&nbsp;createDownloader(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#createDownloader-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">DownloadAction</a></code></span></div>
 <div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a> with the given parameters.</div>
 <dl>

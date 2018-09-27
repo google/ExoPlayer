@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":6,"i1":6,"i2":18,"i3":6,"i4":6,"i5":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -102,7 +102,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/upstream/crypto/AesCipherDataSource.html" title="class in com.google.android.exoplayer2.upstream.crypto">AesCipherDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/AssetDataSource.html" title="class in com.google.android.exoplayer2.upstream">AssetDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/ByteArrayDataSource.html" title="class in com.google.android.exoplayer2.upstream">ByteArrayDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/ContentDataSource.html" title="class in com.google.android.exoplayer2.upstream">ContentDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DataSchemeDataSource.html" title="class in com.google.android.exoplayer2.upstream">DataSchemeDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DummyDataSource.html" title="class in com.google.android.exoplayer2.upstream">DummyDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.html" title="class in com.google.android.exoplayer2.upstream">FileDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/RawResourceDataSource.html" title="class in com.google.android.exoplayer2.upstream">RawResourceDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/ext/rtmp/RtmpDataSource.html" title="class in com.google.android.exoplayer2.ext.rtmp">RtmpDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/TeeDataSource.html" title="class in com.google.android.exoplayer2.upstream">TeeDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/UdpDataSource.html" title="class in com.google.android.exoplayer2.upstream">UdpDataSource</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/upstream/crypto/AesCipherDataSource.html" title="class in com.google.android.exoplayer2.upstream.crypto">AesCipherDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/AssetDataSource.html" title="class in com.google.android.exoplayer2.upstream">AssetDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/BaseDataSource.html" title="class in com.google.android.exoplayer2.upstream">BaseDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/ByteArrayDataSource.html" title="class in com.google.android.exoplayer2.upstream">ByteArrayDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/ContentDataSource.html" title="class in com.google.android.exoplayer2.upstream">ContentDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DataSchemeDataSource.html" title="class in com.google.android.exoplayer2.upstream">DataSchemeDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DummyDataSource.html" title="class in com.google.android.exoplayer2.upstream">DummyDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/FileDataSource.html" title="class in com.google.android.exoplayer2.upstream">FileDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/RawResourceDataSource.html" title="class in com.google.android.exoplayer2.upstream">RawResourceDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/ext/rtmp/RtmpDataSource.html" title="class in com.google.android.exoplayer2.ext.rtmp">RtmpDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/StatsDataSource.html" title="class in com.google.android.exoplayer2.upstream">StatsDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/TeeDataSource.html" title="class in com.google.android.exoplayer2.upstream">TeeDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/UdpDataSource.html" title="class in com.google.android.exoplayer2.upstream">UdpDataSource</a></dd>
 </dl>
 <hr>
 <br>
@@ -142,30 +142,43 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-">addTransferListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code>
+<div class="block">Adds a <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> to listen to data transfers.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#close--">close</a></span>()</code>
 <div class="block">Closes the source.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>default <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">getResponseHeaders</a></span>()</code>
+<div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
+ call.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getUri--">getUri</a></span>()</code>
 <div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data is being read.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
 <div class="block">Opens the source to read the specified data.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">read</a></span>(byte[]&nbsp;buffer,
     int&nbsp;offset,
@@ -189,6 +202,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addTransferListener</h4>
+<pre>void&nbsp;addTransferListener(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
+<div class="block">Adds a <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> to listen to data transfers. This method is not thread-safe.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>transferListener</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a>.</dd>
+</dl>
+</li>
+</ul>
 <a name="open-com.google.android.exoplayer2.upstream.DataSpec-">
 <!--   -->
 </a>
@@ -262,6 +289,17 @@ var activeTableTab = "activeTableTab";
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data is being read, or null if the source is not open.</dd>
 </dl>
+</li>
+</ul>
+<a name="getResponseHeaders--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getResponseHeaders</h4>
+<pre>default&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
+<div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
+ call. Otherwise, returns an empty map.</div>
 </li>
 </ul>
 <a name="close--">

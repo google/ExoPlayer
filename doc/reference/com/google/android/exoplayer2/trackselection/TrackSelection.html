@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":50,"i17":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -103,11 +103,11 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public interface <span class="typeNameLabel">TrackSelection</span></pre>
-<div class="block">A track selection consisting of a static subset of selected tracks belonging to a
- <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>, and a possibly varying individual selected track from the subset.
- <p>
- Tracks belonging to the subset are exposed in decreasing bandwidth order. The individual selected
- track may change as a result of calling <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-"><code>updateSelectedTrack(long, long, long)</code></a>.</div>
+<div class="block">A track selection consisting of a static subset of selected tracks belonging to a <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>, and a possibly varying individual selected track from the subset.
+
+ <p>Tracks belonging to the subset are exposed in decreasing bandwidth order. The individual
+ selected track may change as a result of calling <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long, long, long,
+ List, MediaChunkIterator[])</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -142,7 +142,7 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -152,8 +152,8 @@ var activeTableTab = "activeTableTab";
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#blacklist-int-long-">blacklist</a></span>(int&nbsp;index,
          long&nbsp;blacklistDurationMs)</code>
 <div class="block">Attempts to blacklist the track at the specified index in the selection, making it ineligible
- for selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-"><code>updateSelectedTrack(long, long, long)</code></a> for the specified
- period of time.</div>
+ for selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long, long, long, List,
+ MediaChunkIterator[])</code></a> for the specified period of time.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -249,11 +249,24 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i16" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-">updateSelectedTrack</a></span>(long&nbsp;playbackPositionUs,
                    long&nbsp;bufferedDurationUs,
                    long&nbsp;availableDurationUs)</code>
-<div class="block">Updates the selected track.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use and implement <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long, long, long, List,
+     MediaChunkIterator[])</code></a> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">updateSelectedTrack</a></span>(long&nbsp;playbackPositionUs,
+                   long&nbsp;bufferedDurationUs,
+                   long&nbsp;availableDurationUs,
+                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&gt;&nbsp;queue,
+                   <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</code>
+<div class="block">Updates the selected track for sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.</div>
 </td>
 </tr>
 </table>
@@ -455,12 +468,28 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>updateSelectedTrack</h4>
-<pre>void&nbsp;updateSelectedTrack(long&nbsp;playbackPositionUs,
-                         long&nbsp;bufferedDurationUs,
-                         long&nbsp;availableDurationUs)</pre>
-<div class="block">Updates the selected track.
- <p>
- This method may only be called when the selection is enabled.</div>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+default&nbsp;void&nbsp;updateSelectedTrack(long&nbsp;playbackPositionUs,
+                                             long&nbsp;bufferedDurationUs,
+                                             long&nbsp;availableDurationUs)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use and implement <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long, long, long, List,
+     MediaChunkIterator[])</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateSelectedTrack</h4>
+<pre>default&nbsp;void&nbsp;updateSelectedTrack(long&nbsp;playbackPositionUs,
+                                 long&nbsp;bufferedDurationUs,
+                                 long&nbsp;availableDurationUs,
+                                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a>&gt;&nbsp;queue,
+                                 <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</pre>
+<div class="block">Updates the selected track for sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.
+
+ <p>This method may only be called when the selection is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playbackPositionUs</code> - The current playback position in microseconds. If playback of the
@@ -468,13 +497,18 @@ var activeTableTab = "activeTableTab";
      starting position in the period minus the duration of any media in previous periods still
      to be played.</dd>
 <dd><code>bufferedDurationUs</code> - The duration of media currently buffered from the current playback
-     position, in microseconds. Note that the next load position can be calculated as
-     <code>(playbackPositionUs + bufferedDurationUs)</code>.</dd>
+     position, in microseconds. Note that the next load position can be calculated as <code>(playbackPositionUs + bufferedDurationUs)</code>.</dd>
 <dd><code>availableDurationUs</code> - The duration of media available for buffering from the current
-     playback position, in microseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if media can be buffered
-     to the end of the current period. Note that if not set to <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the
-     position up to which media is available for buffering can be calculated as
-     <code>(playbackPositionUs + availableDurationUs)</code>.</dd>
+     playback position, in microseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if media can be buffered to the
+     end of the current period. Note that if not set to <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the position up to
+     which media is available for buffering can be calculated as <code>(playbackPositionUs +
+     availableDurationUs)</code>.</dd>
+<dd><code>queue</code> - The queue of already buffered <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s. Must not be modified.</dd>
+<dd><code>mediaChunkIterators</code> - An array of <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a>s providing information about
+     the sequence of upcoming media chunks for each track in the selection. All iterators start
+     from the media chunk which will be loaded next if the respective track is selected. Note
+     that this information may not be available for all tracks, and so some iterators may be
+     empty.</dd>
 </dl>
 </li>
 </ul>
@@ -516,12 +550,13 @@ var activeTableTab = "activeTableTab";
 <pre>boolean&nbsp;blacklist(int&nbsp;index,
                   long&nbsp;blacklistDurationMs)</pre>
 <div class="block">Attempts to blacklist the track at the specified index in the selection, making it ineligible
- for selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-"><code>updateSelectedTrack(long, long, long)</code></a> for the specified
- period of time. Blacklisting will fail if all other tracks are currently blacklisted. If
- blacklisting the currently selected track, note that it will remain selected until the next
- call to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-"><code>updateSelectedTrack(long, long, long)</code></a>.
- <p>
- This method may only be called when the selection is enabled.</div>
+ for selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long, long, long, List,
+ MediaChunkIterator[])</code></a> for the specified period of time. Blacklisting will fail if all other
+ tracks are currently blacklisted. If blacklisting the currently selected track, note that it
+ will remain selected until the next call to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>updateSelectedTrack(long, long, long, List,
+ MediaChunkIterator[])</code></a>.
+
+ <p>This method may only be called when the selection is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>index</code> - The index of the track in the selection.</dd>

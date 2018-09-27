@@ -195,8 +195,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/TimelineQueueNavigator.html#getActiveQueueItemId-com.google.android.exoplayer2.Player-">getActiveQueueItemId</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
-<div class="block">Gets the id of the currently active queue item, or
- <code>MediaSessionCompat.QueueItem#UNKNOWN_ID</code> if the active item is unknown.</div>
+<div class="block">Gets the id of the currently active queue item, or <code>MediaSessionCompat.QueueItem#UNKNOWN_ID</code> if the active item is unknown.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -394,9 +393,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <pre>public&nbsp;long&nbsp;getSupportedQueueNavigatorActions(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html#getSupportedQueueNavigatorActions-com.google.android.exoplayer2.Player-">MediaSessionConnector.QueueNavigator</a></code></span></div>
 <div class="block">Returns the actions which are supported by the navigator. The supported actions must be a
- bitmask combined out of <code>PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM</code>,
- <code>PlaybackStateCompat.ACTION_SKIP_TO_NEXT</code>,
- <code>PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS</code>.</div>
+ bitmask combined out of <code>PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM</code>, <code>PlaybackStateCompat.ACTION_SKIP_TO_NEXT</code>, <code>PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html#getSupportedQueueNavigatorActions-com.google.android.exoplayer2.Player-">getSupportedQueueNavigatorActions</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>
@@ -450,12 +447,10 @@ implements <a href="../../../../../../com/google/android/exoplayer2/ext/mediases
 <pre>public final&nbsp;long&nbsp;getActiveQueueItemId(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                        <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html#getActiveQueueItemId-com.google.android.exoplayer2.Player-">MediaSessionConnector.QueueNavigator</a></code></span></div>
-<div class="block">Gets the id of the currently active queue item, or
- <code>MediaSessionCompat.QueueItem#UNKNOWN_ID</code> if the active item is unknown.
- <p>
- To let the connector publish metadata for the active queue item, the queue item with the
- returned id must be available in the list of items returned by
- <code>MediaControllerCompat.getQueue()</code>.</div>
+<div class="block">Gets the id of the currently active queue item, or <code>MediaSessionCompat.QueueItem#UNKNOWN_ID</code> if the active item is unknown.
+
+ <p>To let the connector publish metadata for the active queue item, the queue item with the
+ returned id must be available in the list of items returned by <code>MediaControllerCompat.getQueue()</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html#getActiveQueueItemId-com.google.android.exoplayer2.Player-">getActiveQueueItemId</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></code></dd>

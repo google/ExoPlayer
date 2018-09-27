@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":9};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.Dummy.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -223,22 +223,35 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html#getResponseHeaders--">getResponseHeaders</a></span>()</code>
+<div class="block">Returns the response headers associated with the load.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="type parameter in ParsingLoadable">T</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html#getResult--">getResult</a></span>()</code>
 <div class="block">Returns the loaded object, or null if an object has not been loaded.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html#getUri--">getUri</a></span>()</code>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data was read.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html#load--">load</a></span>()</code>
 <div class="block">Performs the load, returning on completion or cancellation.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static &lt;T&gt;&nbsp;T</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html#load-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-android.net.Uri-">load</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html#load-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-android.net.Uri-int-">load</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
     <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends T&gt;&nbsp;parser,
-    <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri)</code>
+    <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+    int&nbsp;type)</code>
 <div class="block">Loads a single parsable object.</div>
 </td>
 </tr>
@@ -339,7 +352,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="load-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-android.net.Uri-">
+<a name="load-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-android.net.Uri-int-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -347,13 +360,16 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <h4>load</h4>
 <pre>public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;load(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                          <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends T&gt;&nbsp;parser,
-                         <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri)
+                         <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
+                         int&nbsp;type)
                   throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Loads a single parsable object.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> through which the object should be read.</dd>
+<dd><code>parser</code> - The <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream"><code>ParsingLoadable.Parser</code></a> to parse the object from the response.</dd>
 <dd><code>uri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> of the object to read.</dd>
+<dd><code>type</code> - The type of the data. One of the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a><code>DATA_TYPE_*</code> constants.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The parsed object</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -367,7 +383,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <ul class="blockList">
 <li class="blockList">
 <h4>getResult</h4>
-<pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="type parameter in ParsingLoadable">T</a>&nbsp;getResult()</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="type parameter in ParsingLoadable">T</a>&nbsp;getResult()</pre>
 <div class="block">Returns the loaded object, or null if an object has not been loaded.</div>
 </li>
 </ul>
@@ -379,11 +396,30 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <h4>bytesLoaded</h4>
 <pre>public&nbsp;long&nbsp;bytesLoaded()</pre>
 <div class="block">Returns the number of bytes loaded. In the case that the network response was compressed, the
- value returned is the size of the data <em>after</em> decompression.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes loaded.</dd>
-</dl>
+ value returned is the size of the data <em>after</em> decompression. Must only be called after
+ the load completed, failed, or was canceled.</div>
+</li>
+</ul>
+<a name="getUri--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getUri</h4>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;getUri()</pre>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data was read. If redirection occurred, this is the
+ redirected uri. Must only be called after the load completed, failed, or was canceled.</div>
+</li>
+</ul>
+<a name="getResponseHeaders--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getResponseHeaders</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
+<div class="block">Returns the response headers associated with the load. Must only be called after the load
+ completed, failed, or was canceled.</div>
 </li>
 </ul>
 <a name="cancelLoad--">
@@ -446,7 +482,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.Dummy.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

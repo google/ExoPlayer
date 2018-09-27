@@ -281,6 +281,13 @@ implements <a href="https://developer.android.com/reference/android/os/Handler.C
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></h3>
 <code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
 </ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.Renderer">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/Renderer.html#setOperatingRate-float-">setOperatingRate</a></code></li>
+</ul>
 </li>
 </ul>
 </li>
@@ -302,15 +309,15 @@ implements <a href="https://developer.android.com/reference/android/os/Handler.C
 <li class="blockList">
 <h4>TextRenderer</h4>
 <pre>public&nbsp;TextRenderer(<a href="../../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;output,
+                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                     <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os">Looper</a>&nbsp;outputLooper)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>output</code> - The output.</dd>
-<dd><code>outputLooper</code> - The looper associated with the thread on which the output should be
-     called. If the output makes use of standard Android UI components, then this should
-     normally be the looper associated with the application's main thread, which can be obtained
-     using <a href="https://developer.android.com/reference/android/content/ContextWrapper.html?is-external=true#getMainLooper--" title="class or interface in android.content"><code>ContextWrapper.getMainLooper()</code></a>. Null may be passed if the output
-     should be called directly on the player's internal rendering thread.</dd>
+<dd><code>outputLooper</code> - The looper associated with the thread on which the output should be called.
+     If the output makes use of standard Android UI components, then this should normally be the
+     looper associated with the application's main thread, which can be obtained using <a href="https://developer.android.com/reference/android/content/ContextWrapper.html?is-external=true#getMainLooper--" title="class or interface in android.content"><code>ContextWrapper.getMainLooper()</code></a>. Null may be passed if the output should be called
+     directly on the player's internal rendering thread.</dd>
 </dl>
 </li>
 </ul>
@@ -321,16 +328,16 @@ implements <a href="https://developer.android.com/reference/android/os/Handler.C
 <li class="blockList">
 <h4>TextRenderer</h4>
 <pre>public&nbsp;TextRenderer(<a href="../../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;output,
+                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                     <a href="https://developer.android.com/reference/android/os/Looper.html" target="_top" title="class or interface in android.os">Looper</a>&nbsp;outputLooper,
                     <a href="../../../../../com/google/android/exoplayer2/text/SubtitleDecoderFactory.html" title="interface in com.google.android.exoplayer2.text">SubtitleDecoderFactory</a>&nbsp;decoderFactory)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>output</code> - The output.</dd>
-<dd><code>outputLooper</code> - The looper associated with the thread on which the output should be
-     called. If the output makes use of standard Android UI components, then this should
-     normally be the looper associated with the application's main thread, which can be obtained
-     using <a href="https://developer.android.com/reference/android/content/ContextWrapper.html?is-external=true#getMainLooper--" title="class or interface in android.content"><code>ContextWrapper.getMainLooper()</code></a>. Null may be passed if the output
-     should be called directly on the player's internal rendering thread.</dd>
+<dd><code>outputLooper</code> - The looper associated with the thread on which the output should be called.
+     If the output makes use of standard Android UI components, then this should normally be the
+     looper associated with the application's main thread, which can be obtained using <a href="https://developer.android.com/reference/android/content/ContextWrapper.html?is-external=true#getMainLooper--" title="class or interface in android.content"><code>ContextWrapper.getMainLooper()</code></a>. Null may be passed if the output should be called
+     directly on the player's internal rendering thread.</dd>
 <dd><code>decoderFactory</code> - A factory from which to obtain <a href="../../../../../com/google/android/exoplayer2/text/SubtitleDecoder.html" title="interface in com.google.android.exoplayer2.text"><code>SubtitleDecoder</code></a> instances.</dd>
 </dl>
 </li>

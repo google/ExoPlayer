@@ -102,7 +102,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a>, <a href="../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource</a></dd>
 </dl>
 <hr>
 <br>
@@ -222,8 +222,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourc
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#getResponseHeaders--">getResponseHeaders</a></span>()</code>
-<div class="block">Returns the headers provided in the response, or <code>null</code> if response headers are
- unavailable.</div>
+<div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
+ call.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -254,7 +254,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourc
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getUri--">getUri</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-">addTransferListener</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getUri--">getUri</a></code></li>
 </ul>
 </li>
 </ul>
@@ -420,8 +420,13 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourc
 <li class="blockList">
 <h4>getResponseHeaders</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
-<div class="block">Returns the headers provided in the response, or <code>null</code> if response headers are
- unavailable.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">DataSource</a></code></span></div>
+<div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
+ call. Otherwise, returns an empty map.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">getResponseHeaders</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
+</dl>
 </li>
 </ul>
 </li>

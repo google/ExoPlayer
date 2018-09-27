@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -143,19 +143,25 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/PsshAtomUtil.html#isPsshAtom-byte:A-">isPsshAtom</a></span>(byte[]&nbsp;data)</code>
+<div class="block">Returns whether the data is a valid PSSH atom.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/PsshAtomUtil.html#parseSchemeSpecificData-byte:A-java.util.UUID-">parseSchemeSpecificData</a></span>(byte[]&nbsp;atom,
                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid)</code>
 <div class="block">Parses the scheme specific data from a PSSH atom.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/PsshAtomUtil.html#parseUuid-byte:A-">parseUuid</a></span>(byte[]&nbsp;atom)</code>
 <div class="block">Parses the UUID from a PSSH atom.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/PsshAtomUtil.html#parseVersion-byte:A-">parseVersion</a></span>(byte[]&nbsp;atom)</code>
 <div class="block">Parses the version from a PSSH atom.</div>
@@ -221,6 +227,22 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><code>data</code> - The scheme specific data.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The PSSH atom.</dd>
+</dl>
+</li>
+</ul>
+<a name="isPsshAtom-byte:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isPsshAtom</h4>
+<pre>public static&nbsp;boolean&nbsp;isPsshAtom(byte[]&nbsp;data)</pre>
+<div class="block">Returns whether the data is a valid PSSH atom.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - The data to parse.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the data is a valid PSSH atom.</dd>
 </dl>
 </li>
 </ul>

@@ -422,7 +422,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>getPayload</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;getPayload()</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;getPayload()</pre>
 <div class="block">Returns the message payload forwarded to <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.html#handleMessage-int-java.lang.Object-"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
 </li>
 </ul>
@@ -454,6 +455,17 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Returns the handler the message is delivered on.</div>
 </li>
 </ul>
+<a name="getPositionMs--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPositionMs</h4>
+<pre>public&nbsp;long&nbsp;getPositionMs()</pre>
+<div class="block">Returns position in window at <a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getWindowIndex--"><code>getWindowIndex()</code></a> at which the message will be delivered,
+ in milliseconds. If <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the message will be delivered immediately.</div>
+</li>
+</ul>
 <a name="setPosition-long-">
 <!--   -->
 </a>
@@ -471,17 +483,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If <a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#send--"><code>send()</code></a> has already been called.</dd>
 </dl>
-</li>
-</ul>
-<a name="getPositionMs--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getPositionMs</h4>
-<pre>public&nbsp;long&nbsp;getPositionMs()</pre>
-<div class="block">Returns position in window at <a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getWindowIndex--"><code>getWindowIndex()</code></a> at which the message will be delivered,
- in milliseconds. If <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the message will be delivered immediately.</div>
 </li>
 </ul>
 <a name="setPosition-int-long-">
@@ -560,7 +561,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This message.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If <a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#send--"><code>send()</code></a> has already been called.</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If this message has already been sent.</dd>
 </dl>
 </li>
 </ul>

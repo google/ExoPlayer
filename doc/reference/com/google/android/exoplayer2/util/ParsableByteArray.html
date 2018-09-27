@@ -1050,7 +1050,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>readNullTerminatedString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;readNullTerminatedString()</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;readNullTerminatedString()</pre>
 <div class="block">Reads up to the next NUL byte (or the limit) as UTF-8 characters.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1065,12 +1066,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>readLine</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;readLine()</pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;readLine()</pre>
 <div class="block">Reads a line of text.
- <p>
- A line is considered to be terminated by any one of a carriage return ('\r'), a line feed
+
+ <p>A line is considered to be terminated by any one of a carriage return ('\r'), a line feed
  ('\n'), or a carriage return followed immediately by a line feed ('\r\n'). The system's default
- charset (UTF-8) is used.</div>
+ charset (UTF-8) is used. This method discards leading UTF-8 byte order marks, if present.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The line not including any line-termination characters, or null if the end of the data

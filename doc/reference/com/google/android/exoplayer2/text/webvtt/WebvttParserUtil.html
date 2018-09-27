@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -134,18 +134,24 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttParserUtil.html#isWebvttHeaderLine-com.google.android.exoplayer2.util.ParsableByteArray-">isWebvttHeaderLine</a></span>(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;input)</code>
+<div class="block">Returns whether the given input is the first line of a WebVTT file.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>static float</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttParserUtil.html#parsePercentage-java.lang.String-">parsePercentage</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;s)</code>
 <div class="block">Parses a percentage string.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttParserUtil.html#parseTimestampUs-java.lang.String-">parseTimestampUs</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;timestamp)</code>
 <div class="block">Parses a WebVTT timestamp.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/webvtt/WebvttParserUtil.html#validateWebvttHeaderLine-com.google.android.exoplayer2.util.ParsableByteArray-">validateWebvttHeaderLine</a></span>(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;input)</code>
 <div class="block">Reads and validates the first line of a WebVTT file.</div>
@@ -180,13 +186,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>validateWebvttHeaderLine</h4>
 <pre>public static&nbsp;void&nbsp;validateWebvttHeaderLine(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;input)
-                                     throws <a href="../../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a></pre>
+                                     throws <a href="../../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
 <div class="block">Reads and validates the first line of a WebVTT file.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>input</code> - The input from which the line should be read.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a></code> - If the line isn't the start of a valid WebVTT file.</dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If the line isn't the start of a valid WebVTT file.</dd>
+</dl>
+</li>
+</ul>
+<a name="isWebvttHeaderLine-com.google.android.exoplayer2.util.ParsableByteArray-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isWebvttHeaderLine</h4>
+<pre>public static&nbsp;boolean&nbsp;isWebvttHeaderLine(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;input)</pre>
+<div class="block">Returns whether the given input is the first line of a WebVTT file.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>input</code> - The input from which the line should be read.</dd>
 </dl>
 </li>
 </ul>

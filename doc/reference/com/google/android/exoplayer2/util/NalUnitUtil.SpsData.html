@@ -126,20 +126,28 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#constraintsFlagsAndReservedZero2Bits">constraintsFlagsAndReservedZero2Bits</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#deltaPicOrderAlwaysZeroFlag">deltaPicOrderAlwaysZeroFlag</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#frameMbsOnlyFlag">frameMbsOnlyFlag</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#frameNumLength">frameNumLength</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#height">height</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#levelIdc">levelIdc</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
@@ -154,14 +162,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#pixelWidthAspectRatio">pixelWidthAspectRatio</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#profileIdc">profileIdc</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#separateColorPlaneFlag">separateColorPlaneFlag</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#seqParameterSetId">seqParameterSetId</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#width">width</a></span></code>&nbsp;</td>
 </tr>
@@ -180,7 +192,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#SpsData-int-int-int-float-boolean-boolean-int-int-int-boolean-">SpsData</a></span>(int&nbsp;seqParameterSetId,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/NalUnitUtil.SpsData.html#SpsData-int-int-int-int-int-int-float-boolean-boolean-int-int-int-boolean-">SpsData</a></span>(int&nbsp;profileIdc,
+       int&nbsp;constraintsFlagsAndReservedZero2Bits,
+       int&nbsp;levelIdc,
+       int&nbsp;seqParameterSetId,
        int&nbsp;width,
        int&nbsp;height,
        float&nbsp;pixelWidthAspectRatio,
@@ -221,6 +236,33 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a name="profileIdc">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>profileIdc</h4>
+<pre>public final&nbsp;int profileIdc</pre>
+</li>
+</ul>
+<a name="constraintsFlagsAndReservedZero2Bits">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>constraintsFlagsAndReservedZero2Bits</h4>
+<pre>public final&nbsp;int constraintsFlagsAndReservedZero2Bits</pre>
+</li>
+</ul>
+<a name="levelIdc">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>levelIdc</h4>
+<pre>public final&nbsp;int levelIdc</pre>
+</li>
+</ul>
 <a name="seqParameterSetId">
 <!--   -->
 </a>
@@ -319,13 +361,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SpsData-int-int-int-float-boolean-boolean-int-int-int-boolean-">
+<a name="SpsData-int-int-int-int-int-int-float-boolean-boolean-int-int-int-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SpsData</h4>
-<pre>public&nbsp;SpsData(int&nbsp;seqParameterSetId,
+<pre>public&nbsp;SpsData(int&nbsp;profileIdc,
+               int&nbsp;constraintsFlagsAndReservedZero2Bits,
+               int&nbsp;levelIdc,
+               int&nbsp;seqParameterSetId,
                int&nbsp;width,
                int&nbsp;height,
                float&nbsp;pixelWidthAspectRatio,

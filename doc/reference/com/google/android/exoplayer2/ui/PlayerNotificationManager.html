@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
+var methods = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -267,6 +267,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">The default rewind increment, in milliseconds.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#EXTRA_INSTANCE_ID">EXTRA_INSTANCE_ID</a></span></code>
+<div class="block">The extra key of the instance id of the player notification manager.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -333,7 +339,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected int[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#getActionIndicesForCompactView-com.google.android.exoplayer2.Player-">getActionIndicesForCompactView</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#getActionIndicesForCompactView-java.util.List-com.google.android.exoplayer2.Player-">getActionIndicesForCompactView</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;actionNames,
+                              <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Gets an array with the indices of the buttons to be shown in compact mode.</div>
 </td>
 </tr>
@@ -346,107 +353,113 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#invalidate--">invalidate</a></span>()</code>
+<div class="block">Forces an update of the notification if already started.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setBadgeIconType-int-">setBadgeIconType</a></span>(int&nbsp;badgeIconType)</code>
 <div class="block">Sets the badge icon type of the notification.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setColor-int-">setColor</a></span>(int&nbsp;color)</code>
 <div class="block">Sets the accent color of the notification.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setColorized-boolean-">setColorized</a></span>(boolean&nbsp;colorized)</code>
 <div class="block">Sets whether the notification should be colorized.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-">setControlDispatcher</a></span>(<a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setDefaults-int-">setDefaults</a></span>(int&nbsp;defaults)</code>
 <div class="block">Sets the defaults.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setFastForwardIncrementMs-long-">setFastForwardIncrementMs</a></span>(long&nbsp;fastForwardMs)</code>
 <div class="block">Sets the fast forward increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setMediaSessionToken-android.support.v4.media.session.MediaSessionCompat.Token-">setMediaSessionToken</a></span>(<a href="https://developer.android.com/reference/android/support.v4.media.session.MediaSessionCompat.Token.html" target="_top" title="class or interface in android">android.support.v4.media.session.MediaSessionCompat.Token</a>&nbsp;token)</code>
 <div class="block">Sets the <code>MediaSessionCompat.Token</code>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setNotificationListener-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">setNotificationListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.NotificationListener</a>&nbsp;notificationListener)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.NotificationListener</code></a>.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setOngoing-boolean-">setOngoing</a></span>(boolean&nbsp;ongoing)</code>
 <div class="block">Sets whether the notification should be ongoing.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPriority-int-">setPriority</a></span>(int&nbsp;priority)</code>
 <div class="block">Sets the priority of the notification required for API 25 and lower.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setRewindIncrementMs-long-">setRewindIncrementMs</a></span>(long&nbsp;rewindMs)</code>
 <div class="block">Sets the rewind increment in milliseconds.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setSmallIcon-int-">setSmallIcon</a></span>(int&nbsp;smallIconResourceId)</code>
 <div class="block">Sets the small icon of the notification which is also shown in the system status bar.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setStopAction-java.lang.String-">setStopAction</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;stopAction)</code>
 <div class="block">Sets the name of the action to be used as stop action to cancel the notification.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseChronometer-boolean-">setUseChronometer</a></span>(boolean&nbsp;useChronometer)</code>
 <div class="block">Sets whether the elapsed time of the media playback should be displayed</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActions-boolean-">setUseNavigationActions</a></span>(boolean&nbsp;useNavigationActions)</code>
 <div class="block">Sets whether the navigation actions should be used.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePlayPauseActions-boolean-">setUsePlayPauseActions</a></span>(boolean&nbsp;usePlayPauseActions)</code>
 <div class="block">Sets whether the play and pause actions should be used.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setVisibility-int-">setVisibility</a></span>(int&nbsp;visibility)</code>
 <div class="block">Sets the visibility of the notification which determines whether and how the notification is
@@ -570,6 +583,20 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerNotificationManager.ACTION_STOP">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="EXTRA_INSTANCE_ID">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EXTRA_INSTANCE_ID</h4>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> EXTRA_INSTANCE_ID</pre>
+<div class="block">The extra key of the instance id of the player notification manager.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.ui.PlayerNotificationManager.EXTRA_INSTANCE_ID">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -700,6 +727,11 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
  away from being idle.
 
  <p>If the player is released it must be removed from the manager by calling <code>setPlayer(null)</code>. This will cancel the notification.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to use, or <code>null</code> to remove the current player. Only
+     players which are accessed on the main thread are supported (<code>player.getApplicationLooper() == Looper.getMainLooper()</code>).</dd>
+</dl>
 </li>
 </ul>
 <a name="setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-">
@@ -906,7 +938,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>setPriority</h4>
-<pre>public final&nbsp;void&nbsp;setPriority(int&nbsp;priority)</pre>
+<pre>public final&nbsp;void&nbsp;setPriority(<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.Priority.html" title="annotation in com.google.android.exoplayer2.ui">@PlayerNotificationManager.Priority</a>
+                              int&nbsp;priority)</pre>
 <div class="block">Sets the priority of the notification required for API 25 and lower.
 
  <p>See <code>NotificationCompat.Builder#setPriority(int)</code>.</div>
@@ -957,7 +990,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>setVisibility</h4>
-<pre>public final&nbsp;void&nbsp;setVisibility(int&nbsp;visibility)</pre>
+<pre>public final&nbsp;void&nbsp;setVisibility(<a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.Visibility.html" title="annotation in com.google.android.exoplayer2.ui">@PlayerNotificationManager.Visibility</a>
+                                int&nbsp;visibility)</pre>
 <div class="block">Sets the visibility of the notification which determines whether and how the notification is
  shown when the device is in lock screen mode.
 
@@ -967,6 +1001,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><code>visibility</code> - The visibility which must be one of <code>NotificationCompat.VISIBILITY_PUBLIC</code>, <code>NotificationCompat.VISIBILITY_PRIVATE</code> or
      <code>NotificationCompat.VISIBILITY_SECRET</code>.</dd>
 </dl>
+</li>
+</ul>
+<a name="invalidate--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>invalidate</h4>
+<pre>public&nbsp;void&nbsp;invalidate()</pre>
+<div class="block">Forces an update of the notification if already started.</div>
 </li>
 </ul>
 <a name="createNotification-com.google.android.exoplayer2.Player-android.graphics.Bitmap-">
@@ -1009,23 +1053,25 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 
  <p>This method can be safely overridden. However, the names must be of the playback actions
  <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#ACTION_PAUSE"><code>ACTION_PAUSE</code></a>, <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#ACTION_PLAY"><code>ACTION_PLAY</code></a>, <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#ACTION_FAST_FORWARD"><code>ACTION_FAST_FORWARD</code></a>, <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#ACTION_REWIND"><code>ACTION_REWIND</code></a>, <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#ACTION_NEXT"><code>ACTION_NEXT</code></a> or <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#ACTION_PREVIOUS"><code>ACTION_PREVIOUS</code></a>, or a key contained in the
- map returned by <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html#createCustomActions-android.content.Context-"><code>PlayerNotificationManager.CustomActionReceiver.createCustomActions(Context)</code></a>. Otherwise the action
- name is ignored.</div>
+ map returned by <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html#createCustomActions-android.content.Context-int-"><code>PlayerNotificationManager.CustomActionReceiver.createCustomActions(Context, int)</code></a>. Otherwise the
+ action name is ignored.</div>
 </li>
 </ul>
-<a name="getActionIndicesForCompactView-com.google.android.exoplayer2.Player-">
+<a name="getActionIndicesForCompactView-java.util.List-com.google.android.exoplayer2.Player-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getActionIndicesForCompactView</h4>
-<pre>protected&nbsp;int[]&nbsp;getActionIndicesForCompactView(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<pre>protected&nbsp;int[]&nbsp;getActionIndicesForCompactView(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;actionNames,
+                                               <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
 <div class="block">Gets an array with the indices of the buttons to be shown in compact mode.
 
- <p>This method can be overridden. The indices must refer to the list of actions returned by
- <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#getActions-com.google.android.exoplayer2.Player-"><code>getActions(Player)</code></a>.</div>
+ <p>This method can be overridden. The indices must refer to the list of actions passed as the
+ first parameter.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>actionNames</code> - The names of the actions included in the notification.</dd>
 <dd><code>player</code> - The player for which state to build a notification.</dd>
 </dl>
 </li>

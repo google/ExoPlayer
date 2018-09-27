@@ -113,10 +113,8 @@ var activeTableTab = "activeTableTab";
 <pre>public final class <span class="typeNameLabel">DeferredMediaPeriod</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a></pre>
-<div class="block">Media period that wraps a media source and defers calling its
- <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator)</code></a> method until <a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#createPeriod--"><code>createPeriod()</code></a>
- has been called. This is useful if you need to return a media period immediately but the media
- source that should create it is not yet prepared.</div>
+<div class="block">Media period that wraps a media source and defers calling its <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator)</code></a> method until <code>#createPeriod(MediaPeriodId)</code> has been called. This is useful if you need to return a media
+ period immediately but the media source that should create it is not yet prepared.</div>
 </li>
 </ul>
 </div>
@@ -165,11 +163,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#id">id</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#id">id</a></span></code>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> used to create the deferred media period.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#mediaSource">mediaSource</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#mediaSource">mediaSource</a></span></code>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> which will create the actual media period.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -215,7 +217,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#createPeriod--">createPeriod</a></span>()</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createPeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id)</code>
 <div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator)</code></a> on the wrapped source then
  prepares it if <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> has been called.</div>
 </td>
@@ -354,6 +356,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <li class="blockList">
 <h4>mediaSource</h4>
 <pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a> mediaSource</pre>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> which will create the actual media period.</div>
 </li>
 </ul>
 <a name="id">
@@ -363,6 +366,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <li class="blockList">
 <h4>id</h4>
 <pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a> id</pre>
+<div class="block">The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> used to create the deferred media period.</div>
 </li>
 </ul>
 </li>
@@ -386,7 +390,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaSource</code> - The media source to wrap.</dd>
-<dd><code>id</code> - The identifier for the media period to create when <a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#createPeriod--"><code>createPeriod()</code></a> is called.</dd>
+<dd><code>id</code> - The identifier used to create the deferred media period.</dd>
 <dd><code>allocator</code> - The allocator used to create the media period.</dd>
 </dl>
 </li>
@@ -436,16 +440,20 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 </dl>
 </li>
 </ul>
-<a name="createPeriod--">
+<a name="createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createPeriod</h4>
-<pre>public&nbsp;void&nbsp;createPeriod()</pre>
+<pre>public&nbsp;void&nbsp;createPeriod(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id)</pre>
 <div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator)</code></a> on the wrapped source then
  prepares it if <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> has been called. Call <a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#releasePeriod--"><code>releasePeriod()</code></a>
  to release the period.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>id</code> - The identifier that should be used to create the media period from the media source.</dd>
+</dl>
 </li>
 </ul>
 <a name="releasePeriod--">

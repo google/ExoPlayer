@@ -224,8 +224,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDec
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html#supportsFormatInternal-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.Format-">supportsFormatInternal</a></span>(<a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                       <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
-<div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK"><code>RendererCapabilities.FORMAT_SUPPORT_MASK</code></a> component of the return value for
- <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>SimpleDecoderAudioRenderer.supportsFormat(Format)</code></a>.</div>
+<div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK"><code>RendererCapabilities.FORMAT_SUPPORT_MASK</code></a> component of the return value for <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>SimpleDecoderAudioRenderer.supportsFormat(Format)</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -249,6 +248,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDec
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></h3>
 <code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.Renderer">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
+<code><a href="../../../../../../com/google/android/exoplayer2/Renderer.html#setOperatingRate-float-">setOperatingRate</a></code></li>
 </ul>
 </li>
 </ul>
@@ -335,14 +341,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDec
 <pre>protected&nbsp;int&nbsp;supportsFormatInternal(<a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                      <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormatInternal-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.Format-">SimpleDecoderAudioRenderer</a></code></span></div>
-<div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK"><code>RendererCapabilities.FORMAT_SUPPORT_MASK</code></a> component of the return value for
- <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>SimpleDecoderAudioRenderer.supportsFormat(Format)</code></a>.</div>
+<div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_SUPPORT_MASK"><code>RendererCapabilities.FORMAT_SUPPORT_MASK</code></a> component of the return value for <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormat-com.google.android.exoplayer2.Format-"><code>SimpleDecoderAudioRenderer.supportsFormat(Format)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormatInternal-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.Format-">supportsFormatInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>drmSessionManager</code> - The renderer's <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>.</dd>
-<dd><code>format</code> - The format.</dd>
+<dd><code>format</code> - The format, which has an audio <a href="../../../../../../com/google/android/exoplayer2/Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The extent to which the renderer supports the format itself.</dd>
 </dl>

@@ -387,11 +387,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/text/SubtitleDe
 <dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#decode-I-O-boolean-">decode</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../../../../com/google/android/exoplayer2/text/SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a>,<a href="../../../../../com/google/android/exoplayer2/text/SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>,<a href="../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The buffer to decode.</dd>
-<dd><code>outputBuffer</code> - The output buffer to store decoded data. The flag
-     <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a> will be set if the same flag is set on
-     <code>inputBuffer</code>, but may be set/unset as required. If the flag is set when the call
-     returns then the output buffer will not be made available to dequeue. The output buffer
-     may not have been populated in this case.</dd>
+<dd><code>outputBuffer</code> - The output buffer to store decoded data. The flag <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a> will be set if the same flag is set on <code>inputBuffer</code>, but
+     may be set/unset as required. If the flag is set when the call returns then the output
+     buffer will not be made available to dequeue. The output buffer may not have been populated
+     in this case.</dd>
 <dd><code>reset</code> - Whether the decoder must be reset before decoding.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A decoder exception if an error occurred, or null if decoding was successful.</dd>

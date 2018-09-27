@@ -147,14 +147,17 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-int-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-">HlsMediaPeriod</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-">HlsMediaPeriod</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory,
               <a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a>&nbsp;playlistTracker,
               <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
-              int&nbsp;minLoadableRetryCount,
+              <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener,
+              <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
               <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
               <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
               <a href="../../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory,
-              boolean&nbsp;allowChunklessPreparation)</code>&nbsp;</td>
+              boolean&nbsp;allowChunklessPreparation)</code>
+<div class="block">Creates an HLS media period.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -231,8 +234,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">onPlaylistError</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
-               boolean&nbsp;shouldBlacklist)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-long-">onPlaylistError</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
+               long&nbsp;blacklistDurationMs)</code>
 <div class="block">Called if an error is encountered while loading a playlist.</div>
 </td>
 </tr>
@@ -310,7 +313,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-int-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-">
+<a name="HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -319,11 +322,28 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <pre>public&nbsp;HlsMediaPeriod(<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory,
                       <a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a>&nbsp;playlistTracker,
                       <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
-                      int&nbsp;minLoadableRetryCount,
+                      <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                      <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener,
+                      <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
                       <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                       <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
                       <a href="../../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory,
                       boolean&nbsp;allowChunklessPreparation)</pre>
+<div class="block">Creates an HLS media period.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>extractorFactory</code> - An <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls"><code>HlsExtractorFactory</code></a> for <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>s for the segments.</dd>
+<dd><code>playlistTracker</code> - A tracker for HLS playlists.</dd>
+<dd><code>dataSourceFactory</code> - An <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls"><code>HlsDataSourceFactory</code></a> for <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s for segments
+     and keys.</dd>
+<dd><code>mediaTransferListener</code> - The transfer listener to inform of any media data transfers. May
+     be null if no listener is available.</dd>
+<dd><code>loadErrorHandlingPolicy</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
+<dd><code>eventDispatcher</code> - A dispatcher to notify of events.</dd>
+<dd><code>allocator</code> - An <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a> from which to obtain media buffer allocations.</dd>
+<dd><code>compositeSequenceableLoaderFactory</code> - A factory to create composite <a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s for when this media source loads data from multiple streams.</dd>
+<dd><code>allowChunklessPreparation</code> - Whether chunkless preparation is allowed.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -707,22 +727,23 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 </dl>
 </li>
 </ul>
-<a name="onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">
+<a name="onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-long-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onPlaylistError</h4>
 <pre>public&nbsp;boolean&nbsp;onPlaylistError(<a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist.HlsUrl</a>&nbsp;url,
-                               boolean&nbsp;shouldBlacklist)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">HlsPlaylistTracker.PlaylistEventListener</a></code></span></div>
+                               long&nbsp;blacklistDurationMs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-long-">HlsPlaylistTracker.PlaylistEventListener</a></code></span></div>
 <div class="block">Called if an error is encountered while loading a playlist.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">onPlaylistError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-long-">onPlaylistError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>url</code> - The loaded url that caused the error.</dd>
-<dd><code>shouldBlacklist</code> - Whether the playlist should be blacklisted.</dd>
+<dd><code>blacklistDurationMs</code> - The duration for which the playlist should be blacklisted. Or
+     <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the playlist should not be blacklisted.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if blacklisting did not encounter errors. False otherwise.</dd>
 </dl>

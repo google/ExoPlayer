@@ -606,7 +606,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>lineType</h4>
-<pre>public final&nbsp;int lineType</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
+public final&nbsp;int lineType</pre>
 <div class="block">The type of the <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> value.
 
  <p><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_FRACTION"><code>LINE_TYPE_FRACTION</code></a> indicates that <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is a fractional position within the
@@ -637,7 +638,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>lineAnchor</h4>
-<pre>public final&nbsp;int lineAnchor</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
+public final&nbsp;int lineAnchor</pre>
 <div class="block">The cue box anchor positioned by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a>. One of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.
 
  <p>For the normal case of horizontal text, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> correspond to the top, middle and bottom of
@@ -665,7 +667,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>positionAnchor</h4>
-<pre>public final&nbsp;int positionAnchor</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
+public final&nbsp;int positionAnchor</pre>
 <div class="block">The cue box anchor positioned by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#position"><code>position</code></a>. One of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.
 
  <p>For the normal case of horizontal text, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> correspond to the left, middle and right of
@@ -721,7 +724,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>textSizeType</h4>
-<pre>public final&nbsp;int textSizeType</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/text/Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.TextSizeType</a>
+public final&nbsp;int textSizeType</pre>
 <div class="block">The default text size type for this cue's text, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a> if this cue has no
  default text size.</div>
 </li>
@@ -753,8 +757,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>Cue</h4>
 <pre>public&nbsp;Cue(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" target="_top" title="class or interface in android.graphics">Bitmap</a>&nbsp;bitmap,
            float&nbsp;horizontalPosition,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
            int&nbsp;horizontalPositionAnchor,
            float&nbsp;verticalPosition,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
            int&nbsp;verticalPositionAnchor,
            float&nbsp;width,
            float&nbsp;height)</pre>
@@ -799,9 +805,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;Cue(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;text,
            <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;textAlignment,
            float&nbsp;line,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
            int&nbsp;lineType,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
            int&nbsp;lineAnchor,
            float&nbsp;position,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
            int&nbsp;positionAnchor,
            float&nbsp;size)</pre>
 <div class="block">Creates a text cue.</div>
@@ -827,11 +836,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;Cue(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;text,
            <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;textAlignment,
            float&nbsp;line,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
            int&nbsp;lineType,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
            int&nbsp;lineAnchor,
            float&nbsp;position,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
            int&nbsp;positionAnchor,
            float&nbsp;size,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.TextSizeType</a>
            int&nbsp;textSizeType,
            float&nbsp;textSize)</pre>
 <div class="block">Creates a text cue.</div>
@@ -859,9 +872,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <pre>public&nbsp;Cue(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/CharSequence.html" target="_top" title="class or interface in java.lang">CharSequence</a>&nbsp;text,
            <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" target="_top" title="class or interface in android.text">Layout.Alignment</a>&nbsp;textAlignment,
            float&nbsp;line,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
            int&nbsp;lineType,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
            int&nbsp;lineAnchor,
            float&nbsp;position,
+           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
            int&nbsp;positionAnchor,
            float&nbsp;size,
            boolean&nbsp;windowColorSet,

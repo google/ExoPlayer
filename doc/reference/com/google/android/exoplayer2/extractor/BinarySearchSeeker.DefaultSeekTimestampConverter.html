@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head>
-<title>ExoMediaDrm.DefaultKeyStatus (ExoPlayer library)</title>
+<title>BinarySearchSeeker.DefaultSeekTimestampConverter (ExoPlayer library)</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
 </head>
@@ -10,13 +10,13 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="ExoMediaDrm.DefaultKeyStatus (ExoPlayer library)";
+            parent.document.title="BinarySearchSeeker.DefaultSeekTimestampConverter (ExoPlayer library)";
         }
     }
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
+var methods = {"i0":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,12 +46,12 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.DefaultKeyRequest.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.DefaultProvisionRequest.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.OutputFrameHolder.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/drm/ExoMediaDrm.DefaultKeyStatus.html" target="_top">Frames</a></li>
-<li><a href="ExoMediaDrm.DefaultKeyStatus.html" target="_top">No&nbsp;Frames</a></li>
+<li><a href="../../../../../index.html?com/google/android/exoplayer2/extractor/BinarySearchSeeker.DefaultSeekTimestampConverter.html" target="_top">Frames</a></li>
+<li><a href="BinarySearchSeeker.DefaultSeekTimestampConverter.html" target="_top">No&nbsp;Frames</a></li>
 </ul>
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
@@ -73,13 +73,13 @@ var activeTableTab = "activeTableTab";
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -89,15 +89,15 @@ var activeTableTab = "activeTableTab";
 <!-- ========= END OF TOP NAVBAR ========= -->
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.drm</div>
-<h2 title="Class ExoMediaDrm.DefaultKeyStatus" class="title">Class ExoMediaDrm.DefaultKeyStatus</h2>
+<div class="subTitle">com.google.android.exoplayer2.extractor</div>
+<h2 title="Class BinarySearchSeeker.DefaultSeekTimestampConverter" class="title">Class BinarySearchSeeker.DefaultSeekTimestampConverter</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.drm.ExoMediaDrm.DefaultKeyStatus</li>
+<li>com.google.android.exoplayer2.extractor.BinarySearchSeeker.DefaultSeekTimestampConverter</li>
 </ul>
 </li>
 </ul>
@@ -106,24 +106,42 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyStatus</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.SeekTimestampConverter</a></dd>
 </dl>
 <dl>
-<dt>Enclosing interface:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</dd>
+<dt>Enclosing class:</dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker</a></dd>
 </dl>
 <hr>
 <br>
-<pre>public static final class <span class="typeNameLabel">ExoMediaDrm.DefaultKeyStatus</span>
+<pre>public static final class <span class="typeNameLabel">BinarySearchSeeker.DefaultSeekTimestampConverter</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
-implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyStatus</a></pre>
-<div class="block">Default implementation of <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm.KeyStatus</code></a>.</div>
+implements <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.SeekTimestampConverter</a></pre>
+<div class="block">A <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.SeekTimestampConverter</code></a> implementation that returns the seek time itself as the
+ timestamp for a seek time position.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.DefaultSeekTimestampConverter.html#DefaultSeekTimestampConverter--">DefaultSeekTimestampConverter</a></span>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.summary">
@@ -137,15 +155,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.DefaultKeyStatus.html#getKeyId--">getKeyId</a></span>()</code>
-<div class="block">Returns the id for the key.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.DefaultKeyStatus.html#getStatusCode--">getStatusCode</a></span>()</code>
-<div class="block">Returns the status code for the key.</div>
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.DefaultSeekTimestampConverter.html#timeUsToTargetTime-long-">timeUsToTargetTime</a></span>(long&nbsp;timeUs)</code>
+<div class="block">Converts a seek time in microseconds into target timestamp for the <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -164,39 +176,41 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="DefaultSeekTimestampConverter--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DefaultSeekTimestampConverter</h4>
+<pre>public&nbsp;DefaultSeekTimestampConverter()</pre>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ============ METHOD DETAIL ========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getStatusCode--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getStatusCode</h4>
-<pre>public&nbsp;int&nbsp;getStatusCode()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html#getStatusCode--">ExoMediaDrm.KeyStatus</a></code></span></div>
-<div class="block">Returns the status code for the key.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html#getStatusCode--">getStatusCode</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyStatus</a></code></dd>
-</dl>
-</li>
-</ul>
-<a name="getKeyId--">
+<a name="timeUsToTargetTime-long-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>getKeyId</h4>
-<pre>public&nbsp;byte[]&nbsp;getKeyId()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html#getKeyId--">ExoMediaDrm.KeyStatus</a></code></span></div>
-<div class="block">Returns the id for the key.</div>
+<h4>timeUsToTargetTime</h4>
+<pre>public&nbsp;long&nbsp;timeUsToTargetTime(long&nbsp;timeUs)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html#timeUsToTargetTime-long-">BinarySearchSeeker.SeekTimestampConverter</a></code></span></div>
+<div class="block">Converts a seek time in microseconds into target timestamp for the <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html#getKeyId--">getKeyId</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyStatus</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html#timeUsToTargetTime-long-">timeUsToTargetTime</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.SeekTimestampConverter</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -227,12 +241,12 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.DefaultKeyRequest.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.DefaultProvisionRequest.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.OutputFrameHolder.html" title="class in com.google.android.exoplayer2.extractor"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/drm/ExoMediaDrm.DefaultKeyStatus.html" target="_top">Frames</a></li>
-<li><a href="ExoMediaDrm.DefaultKeyStatus.html" target="_top">No&nbsp;Frames</a></li>
+<li><a href="../../../../../index.html?com/google/android/exoplayer2/extractor/BinarySearchSeeker.DefaultSeekTimestampConverter.html" target="_top">Frames</a></li>
+<li><a href="BinarySearchSeeker.DefaultSeekTimestampConverter.html" target="_top">No&nbsp;Frames</a></li>
 </ul>
 <ul class="navList" id="allclasses_navbar_bottom">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
@@ -254,13 +268,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>

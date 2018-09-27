@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -134,76 +134,100 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#clearCameraMotionListener-com.google.android.exoplayer2.video.spherical.CameraMotionListener-">clearCameraMotionListener</a></span>(<a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a>&nbsp;listener)</code>
+<div class="block">Clears the listener which receives camera motion events if it matches the one passed.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#clearVideoFrameMetadataListener-com.google.android.exoplayer2.video.VideoFrameMetadataListener-">clearVideoFrameMetadataListener</a></span>(<a href="../../../../com/google/android/exoplayer2/video/VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video">VideoFrameMetadataListener</a>&nbsp;listener)</code>
+<div class="block">Clears the listener which receives video frame metadata events if it matches the one passed.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#clearVideoSurface--">clearVideoSurface</a></span>()</code>
 <div class="block">Clears any <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a>, <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view"><code>SurfaceHolder</code></a>, <a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view"><code>SurfaceView</code></a> or <a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view"><code>TextureView</code></a>
  currently set on the player.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#clearVideoSurface-android.view.Surface-">clearVideoSurface</a></span>(<a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view">Surface</a>&nbsp;surface)</code>
 <div class="block">Clears the <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a> onto which video is being rendered if it matches the one passed.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#clearVideoSurfaceHolder-android.view.SurfaceHolder-">clearVideoSurfaceHolder</a></span>(<a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view">SurfaceHolder</a>&nbsp;surfaceHolder)</code>
 <div class="block">Clears the <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view"><code>SurfaceHolder</code></a> that holds the <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a> onto which video is being
  rendered if it matches the one passed.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#clearVideoSurfaceView-android.view.SurfaceView-">clearVideoSurfaceView</a></span>(<a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view">SurfaceView</a>&nbsp;surfaceView)</code>
 <div class="block">Clears the <a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view"><code>SurfaceView</code></a> onto which video is being rendered if it matches the one
  passed.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#clearVideoTextureView-android.view.TextureView-">clearVideoTextureView</a></span>(<a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view">TextureView</a>&nbsp;textureView)</code>
 <div class="block">Clears the <a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view"><code>TextureView</code></a> onto which video is being rendered if it matches the one
  passed.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#getVideoScalingMode--">getVideoScalingMode</a></span>()</code>
-<div class="block">Returns the video scaling mode.</div>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#removeVideoListener-com.google.android.exoplayer2.video.VideoListener-">removeVideoListener</a></span>(<a href="../../../../com/google/android/exoplayer2/video/VideoListener.html" title="interface in com.google.android.exoplayer2.video">VideoListener</a>&nbsp;listener)</code>
 <div class="block">Removes a listener of video events.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoScalingMode-int-">setVideoScalingMode</a></span>(int&nbsp;videoScalingMode)</code>
-<div class="block">Sets the video scaling mode.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setCameraMotionListener-com.google.android.exoplayer2.video.spherical.CameraMotionListener-">setCameraMotionListener</a></span>(<a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a>&nbsp;listener)</code>
+<div class="block">Sets a listener of camera motion events.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoFrameMetadataListener-com.google.android.exoplayer2.video.VideoFrameMetadataListener-">setVideoFrameMetadataListener</a></span>(<a href="../../../../com/google/android/exoplayer2/video/VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video">VideoFrameMetadataListener</a>&nbsp;listener)</code>
+<div class="block">Sets a listener to receive video frame metadata events.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoScalingMode-int-">setVideoScalingMode</a></span>(int&nbsp;videoScalingMode)</code>
+<div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoSurface-android.view.Surface-">setVideoSurface</a></span>(<a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view">Surface</a>&nbsp;surface)</code>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a> onto which video will be rendered.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoSurfaceHolder-android.view.SurfaceHolder-">setVideoSurfaceHolder</a></span>(<a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view">SurfaceHolder</a>&nbsp;surfaceHolder)</code>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view"><code>SurfaceHolder</code></a> that holds the <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a> onto which video will be
  rendered.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoSurfaceView-android.view.SurfaceView-">setVideoSurfaceView</a></span>(<a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view">SurfaceView</a>&nbsp;surfaceView)</code>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view"><code>SurfaceView</code></a> onto which video will be rendered.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoTextureView-android.view.TextureView-">setVideoTextureView</a></span>(<a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view">TextureView</a>&nbsp;textureView)</code>
 <div class="block">Sets the <a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view"><code>TextureView</code></a> onto which video will be rendered.</div>
@@ -230,11 +254,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>setVideoScalingMode</h4>
-<pre>void&nbsp;setVideoScalingMode(int&nbsp;videoScalingMode)</pre>
-<div class="block">Sets the video scaling mode.</div>
+<pre>void&nbsp;setVideoScalingMode(<a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@C.VideoScalingMode</a>
+                         int&nbsp;videoScalingMode)</pre>
+<div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>videoScalingMode</code> - The video scaling mode.</dd>
+<dd><code>videoScalingMode</code> - The <a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -244,8 +269,9 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getVideoScalingMode</h4>
-<pre>int&nbsp;getVideoScalingMode()</pre>
-<div class="block">Returns the video scaling mode.</div>
+<pre><a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@C.VideoScalingMode</a>
+int&nbsp;getVideoScalingMode()</pre>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</div>
 </li>
 </ul>
 <a name="addVideoListener-com.google.android.exoplayer2.video.VideoListener-">
@@ -276,6 +302,68 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
+<a name="setVideoFrameMetadataListener-com.google.android.exoplayer2.video.VideoFrameMetadataListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoFrameMetadataListener</h4>
+<pre>void&nbsp;setVideoFrameMetadataListener(<a href="../../../../com/google/android/exoplayer2/video/VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video">VideoFrameMetadataListener</a>&nbsp;listener)</pre>
+<div class="block">Sets a listener to receive video frame metadata events.
+
+ <p>This method is intended to be called by the same component that sets the <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a>
+ onto which video will be rendered. If using ExoPlayer's standard UI components, this method
+ should not be called directly from application code.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The listener.</dd>
+</dl>
+</li>
+</ul>
+<a name="clearVideoFrameMetadataListener-com.google.android.exoplayer2.video.VideoFrameMetadataListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearVideoFrameMetadataListener</h4>
+<pre>void&nbsp;clearVideoFrameMetadataListener(<a href="../../../../com/google/android/exoplayer2/video/VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video">VideoFrameMetadataListener</a>&nbsp;listener)</pre>
+<div class="block">Clears the listener which receives video frame metadata events if it matches the one passed.
+ Else does nothing.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The listener to clear.</dd>
+</dl>
+</li>
+</ul>
+<a name="setCameraMotionListener-com.google.android.exoplayer2.video.spherical.CameraMotionListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCameraMotionListener</h4>
+<pre>void&nbsp;setCameraMotionListener(<a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a>&nbsp;listener)</pre>
+<div class="block">Sets a listener of camera motion events.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The listener.</dd>
+</dl>
+</li>
+</ul>
+<a name="clearCameraMotionListener-com.google.android.exoplayer2.video.spherical.CameraMotionListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearCameraMotionListener</h4>
+<pre>void&nbsp;clearCameraMotionListener(<a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a>&nbsp;listener)</pre>
+<div class="block">Clears the listener which receives camera motion events if it matches the one passed. Else
+ does nothing.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The listener to clear.</dd>
+</dl>
+</li>
+</ul>
 <a name="clearVideoSurface--">
 <!--   -->
 </a>
@@ -285,25 +373,6 @@ var activeTableTab = "activeTableTab";
 <pre>void&nbsp;clearVideoSurface()</pre>
 <div class="block">Clears any <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a>, <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view"><code>SurfaceHolder</code></a>, <a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view"><code>SurfaceView</code></a> or <a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view"><code>TextureView</code></a>
  currently set on the player.</div>
-</li>
-</ul>
-<a name="setVideoSurface-android.view.Surface-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setVideoSurface</h4>
-<pre>void&nbsp;setVideoSurface(<a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view">Surface</a>&nbsp;surface)</pre>
-<div class="block">Sets the <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a> onto which video will be rendered. The caller is responsible for
- tracking the lifecycle of the surface, and must clear the surface by calling <code>setVideoSurface(null)</code> if the surface is destroyed.
-
- <p>If the surface is held by a <a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view"><code>SurfaceView</code></a>, <a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view"><code>TextureView</code></a> or <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view"><code>SurfaceHolder</code></a> then it's recommended to use <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoSurfaceView-android.view.SurfaceView-"><code>setVideoSurfaceView(SurfaceView)</code></a>, <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoTextureView-android.view.TextureView-"><code>setVideoTextureView(TextureView)</code></a> or <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoSurfaceHolder-android.view.SurfaceHolder-"><code>setVideoSurfaceHolder(SurfaceHolder)</code></a> rather
- than this method, since passing the holder allows the player to track the lifecycle of the
- surface automatically.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>surface</code> - The <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a>.</dd>
-</dl>
 </li>
 </ul>
 <a name="clearVideoSurface-android.view.Surface-">
@@ -318,6 +387,26 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>surface</code> - The surface to clear.</dd>
+</dl>
+</li>
+</ul>
+<a name="setVideoSurface-android.view.Surface-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoSurface</h4>
+<pre>void&nbsp;setVideoSurface(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                     <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view">Surface</a>&nbsp;surface)</pre>
+<div class="block">Sets the <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a> onto which video will be rendered. The caller is responsible for
+ tracking the lifecycle of the surface, and must clear the surface by calling <code>setVideoSurface(null)</code> if the surface is destroyed.
+
+ <p>If the surface is held by a <a href="https://developer.android.com/reference/android/view/SurfaceView.html" target="_top" title="class or interface in android.view"><code>SurfaceView</code></a>, <a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view"><code>TextureView</code></a> or <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" target="_top" title="class or interface in android.view"><code>SurfaceHolder</code></a> then it's recommended to use <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoSurfaceView-android.view.SurfaceView-"><code>setVideoSurfaceView(SurfaceView)</code></a>, <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoTextureView-android.view.TextureView-"><code>setVideoTextureView(TextureView)</code></a> or <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoSurfaceHolder-android.view.SurfaceHolder-"><code>setVideoSurfaceHolder(SurfaceHolder)</code></a> rather
+ than this method, since passing the holder allows the player to track the lifecycle of the
+ surface automatically.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>surface</code> - The <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a>.</dd>
 </dl>
 </li>
 </ul>

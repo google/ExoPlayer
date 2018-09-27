@@ -80,6 +80,18 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.SeekTimestampConverter</a></td>
+<td class="colLast">
+<div class="block">A converter that converts seek time in stream time into target timestamp for the <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSeeker</a></td>
+<td class="colLast">
+<div class="block">A seeker that looks for a given timestamp from an input.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a></td>
 <td class="colLast">
 <div class="block">Extracts media data from a container format.</div>
@@ -100,7 +112,7 @@
 <tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></td>
 <td class="colLast">
-<div class="block">Factory for arrays of <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>s.</div>
+<div class="block">Factory for arrays of <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -127,18 +139,65 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker</a></td>
+<td class="colLast">
+<div class="block">A seeker that supports seeking within a stream by searching for the target frame using binary
+ search.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.BinarySearchSeekMap</a></td>
+<td class="colLast">
+<div class="block">A <a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> implementation that returns the estimated byte location from <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekOperationParams.html#calculateNextSearchBytePosition-long-long-long-long-long-long-"><code>BinarySearchSeeker.SeekOperationParams.calculateNextSearchBytePosition(long, long, long, long, long, long)</code></a> for
+ each <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.BinarySearchSeekMap.html#getSeekPoints-long-"><code>BinarySearchSeeker.BinarySearchSeekMap.getSeekPoints(long)</code></a> query.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.DefaultSeekTimestampConverter.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.DefaultSeekTimestampConverter</a></td>
+<td class="colLast">
+<div class="block">A <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.SeekTimestampConverter</code></a> implementation that returns the seek time itself as the
+ timestamp for a seek time position.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.OutputFrameHolder.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.OutputFrameHolder</a></td>
+<td class="colLast">
+<div class="block">Holds a frame extracted from a stream, together with the time stamp of the frame in
+ microseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekOperationParams.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.SeekOperationParams</a></td>
+<td class="colLast">
+<div class="block">Contains parameters for a pending seek operation by <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></td>
+<td class="colLast">
+<div class="block">Represents possible search results for <code>TimestampSeeker#searchForTimestamp(ExtractorInput, long, OutputFrameHolder)</code>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a></td>
 <td class="colLast">
 <div class="block">Defines chunks of samples within a media stream.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/ConstantBitrateSeekMap.html" title="class in com.google.android.exoplayer2.extractor">ConstantBitrateSeekMap</a></td>
+<td class="colLast">
+<div class="block">A <a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> implementation that assumes the stream has a constant bitrate and consists of
+ multiple independent frames of the same size.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorInput</a></td>
 <td class="colLast">
 <div class="block">An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> that wraps a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></td>
 <td class="colLast">
 <div class="block">An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorsFactory</code></a> that provides an array of extractors for the following formats:
@@ -158,6 +217,12 @@
    AMR (<a href="../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a>)
    FLAC (only available if the FLAC extension is built and included)
  </div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/DummyExtractorOutput.html" title="class in com.google.android.exoplayer2.extractor">DummyExtractorOutput</a></td>
+<td class="colLast">
+<div class="block">A dummy <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> implementation.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -212,6 +277,23 @@
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a></td>
 <td class="colLast">
 <div class="block">Holds data required to decrypt a sample.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Annotation Types Summary table, listing annotation types, and an explanation">
+<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Annotation Type</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.ReadResult.html" title="annotation in com.google.android.exoplayer2.extractor">Extractor.ReadResult</a></td>
+<td class="colLast">
+<div class="block">Result values that can be returned by <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#read-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-"><code>Extractor.read(ExtractorInput, PositionHolder)</code></a>.</div>
 </td>
 </tr>
 </tbody>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -240,30 +240,36 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#copyWithData-byte:A-">copyWithData</a></span>(byte[]&nbsp;data)</code>
+<div class="block">Returns a copy of this instance with the specified data.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#describeContents--">describeContents</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#equals-java.lang.Object-">equals</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;obj)</code>&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#hasData--">hasData</a></span>()</code>
 <div class="block">Returns whether <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#data"><code>data</code></a> is non-null.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#matches-java.util.UUID-">matches</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;schemeUuid)</code>
 <div class="block">Returns whether this initialization data applies to the specified scheme.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#writeToParcel-android.os.Parcel-int-">writeToParcel</a></span>(<a href="https://developer.android.com/reference/android/os/Parcel.html" target="_top" title="class or interface in android.os">Parcel</a>&nbsp;dest,
              int&nbsp;flags)</code>&nbsp;</td>
@@ -457,6 +463,23 @@ public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?
 <h4>hasData</h4>
 <pre>public&nbsp;boolean&nbsp;hasData()</pre>
 <div class="block">Returns whether <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#data"><code>data</code></a> is non-null.</div>
+</li>
+</ul>
+<a name="copyWithData-byte:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWithData</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&nbsp;copyWithData(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                           byte[]&nbsp;data)</pre>
+<div class="block">Returns a copy of this instance with the specified data.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - The data to include in the copy.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The new instance.</dd>
+</dl>
 </li>
 </ul>
 <a name="equals-java.lang.Object-">

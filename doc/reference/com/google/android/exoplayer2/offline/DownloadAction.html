@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":9,"i2":10,"i3":10,"i4":10,"i5":9,"i6":10,"i7":6};
+var methods = {"i0":6,"i1":9,"i2":10,"i3":9,"i4":10,"i5":10,"i6":10,"i7":9,"i8":10,"i9":6};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -221,7 +221,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>protected abstract <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></td>
+<td class="colFirst"><code>abstract <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#createDownloader-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">createDownloader</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;downloaderConstructorHelper)</code>
 <div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a> with the given parameters.</div>
 </td>
@@ -240,29 +240,41 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#equals-java.lang.Object-">equals</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;o)</code>&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a>[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#getDefaultDeserializers--">getDefaultDeserializers</a></span>()</code>
+<div class="block">Returns available default <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction.Deserializer</code></a>s.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#getKeys--">getKeys</a></span>()</code>
+<div class="block">Returns keys of tracks to be downloaded.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#isSameMedia-com.google.android.exoplayer2.offline.DownloadAction-">isSameMedia</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a>&nbsp;other)</code>
 <div class="block">Returns whether this is an action for the same media as the <code>other</code>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#serializeToStream-com.google.android.exoplayer2.offline.DownloadAction-java.io.OutputStream-">serializeToStream</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a>&nbsp;action,
                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/OutputStream.html" target="_top" title="class or interface in java.io">OutputStream</a>&nbsp;output)</code>
 <div class="block">Serializes <code>action</code> type and data into the <code>output</code>.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#toByteArray--">toByteArray</a></span>()</code>
 <div class="block">Serializes itself into a byte array.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected abstract void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#writeToStream-java.io.DataOutputStream-">writeToStream</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/DataOutputStream.html" target="_top" title="class or interface in java.io">DataOutputStream</a>&nbsp;output)</code>
 <div class="block">Serializes itself into the <code>output</code>.</div>
@@ -378,6 +390,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getDefaultDeserializers--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDefaultDeserializers</h4>
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline">DownloadAction.Deserializer</a>[]&nbsp;getDefaultDeserializers()</pre>
+<div class="block">Returns available default <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.Deserializer.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction.Deserializer</code></a>s.</div>
+</li>
+</ul>
 <a name="deserializeFromStream-com.google.android.exoplayer2.offline.DownloadAction.Deserializer:A-java.io.InputStream-">
 <!--   -->
 </a>
@@ -440,6 +462,16 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div class="block">Returns whether this is an action for the same media as the <code>other</code>.</div>
 </li>
 </ul>
+<a name="getKeys--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getKeys</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;getKeys()</pre>
+<div class="block">Returns keys of tracks to be downloaded.</div>
+</li>
+</ul>
 <a name="writeToStream-java.io.DataOutputStream-">
 <!--   -->
 </a>
@@ -461,7 +493,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>createDownloader</h4>
-<pre>protected abstract&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a>&nbsp;createDownloader(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;downloaderConstructorHelper)</pre>
+<pre>public abstract&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a>&nbsp;createDownloader(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;downloaderConstructorHelper)</pre>
 <div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a> with the given parameters.</div>
 </li>
 </ul>

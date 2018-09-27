@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":6,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -90,7 +90,7 @@ var activeTableTab = "activeTableTab";
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="subTitle">com.google.android.exoplayer2.offline</div>
-<h2 title="Class SegmentDownloadAction" class="title">Class SegmentDownloadAction&lt;K extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Comparable.html" target="_top" title="class or interface in java.lang">Comparable</a>&lt;K&gt;&gt;</h2>
+<h2 title="Class SegmentDownloadAction" class="title">Class SegmentDownloadAction</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
@@ -100,7 +100,7 @@ var activeTableTab = "activeTableTab";
 <li><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">com.google.android.exoplayer2.offline.DownloadAction</a></li>
 <li>
 <ul class="inheritance">
-<li>com.google.android.exoplayer2.offline.SegmentDownloadAction&lt;K&gt;</li>
+<li>com.google.android.exoplayer2.offline.SegmentDownloadAction</li>
 </ul>
 </li>
 </ul>
@@ -110,16 +110,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>K</code> - The type of the representation key object.</dd>
-</dl>
-<dl>
 <dt>Direct Known Subclasses:</dt>
 <dd><a href="../../../../../com/google/android/exoplayer2/source/dash/offline/DashDownloadAction.html" title="class in com.google.android.exoplayer2.source.dash.offline">DashDownloadAction</a>, <a href="../../../../../com/google/android/exoplayer2/source/hls/offline/HlsDownloadAction.html" title="class in com.google.android.exoplayer2.source.hls.offline">HlsDownloadAction</a>, <a href="../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloadAction.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.offline">SsDownloadAction</a></dd>
 </dl>
 <hr>
 <br>
-<pre>public abstract class <span class="typeNameLabel">SegmentDownloadAction&lt;K extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Comparable.html" target="_top" title="class or interface in java.lang">Comparable</a>&lt;K&gt;&gt;</span>
+<pre>public abstract class <span class="typeNameLabel">SegmentDownloadAction</span>
 extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a></pre>
 <div class="block"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadAction</code></a> for <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader</code></a>s.</div>
 </li>
@@ -142,7 +138,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.SegmentDownloadActionDeserializer.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloadAction.SegmentDownloadActionDeserializer</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.SegmentDownloadActionDeserializer.html" title="type parameter in SegmentDownloadAction.SegmentDownloadActionDeserializer">K</a>&gt;</span></code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.SegmentDownloadActionDeserializer.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloadAction.SegmentDownloadActionDeserializer</a></span></code>
 <div class="block">Base class for <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloadAction</code></a> <code>Deserializer</code>s.</div>
 </td>
 </tr>
@@ -169,7 +165,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="type parameter in SegmentDownloadAction">K</a>&gt;</code></td>
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html#keys">keys</a></span></code>&nbsp;</td>
 </tr>
 </table>
@@ -201,7 +197,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
                      <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri,
                      boolean&nbsp;isRemoveAction,
                      byte[]&nbsp;data,
-                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="type parameter in SegmentDownloadAction">K</a>&gt;&nbsp;keys)</code>&nbsp;</td>
+                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;keys)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -213,7 +209,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -223,15 +219,14 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html#equals-java.lang.Object-">equals</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>&nbsp;o)</code>&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html#getKeys--">getKeys</a></span>()</code>
+<div class="block">Returns keys of tracks to be downloaded.</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>protected abstract void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html#writeKey-java.io.DataOutputStream-K-">writeKey</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/DataOutputStream.html" target="_top" title="class or interface in java.io">DataOutputStream</a>&nbsp;output,
-        <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="type parameter in SegmentDownloadAction">K</a>&nbsp;key)</code>
-<div class="block">Serializes the <code>key</code> into the <code>output</code>.</div>
-</td>
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
@@ -245,7 +240,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#createDownloader-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">createDownloader</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#deserializeFromStream-com.google.android.exoplayer2.offline.DownloadAction.Deserializer:A-java.io.InputStream-">deserializeFromStream</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#isSameMedia-com.google.android.exoplayer2.offline.DownloadAction-">isSameMedia</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#serializeToStream-com.google.android.exoplayer2.offline.DownloadAction-java.io.OutputStream-">serializeToStream</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#toByteArray--">toByteArray</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#createDownloader-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">createDownloader</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#deserializeFromStream-com.google.android.exoplayer2.offline.DownloadAction.Deserializer:A-java.io.InputStream-">deserializeFromStream</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#getDefaultDeserializers--">getDefaultDeserializers</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#isSameMedia-com.google.android.exoplayer2.offline.DownloadAction-">isSameMedia</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#serializeToStream-com.google.android.exoplayer2.offline.DownloadAction-java.io.OutputStream-">serializeToStream</a>, <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#toByteArray--">toByteArray</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -274,7 +269,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <ul class="blockListLast">
 <li class="blockList">
 <h4>keys</h4>
-<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="type parameter in SegmentDownloadAction">K</a> extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Comparable.html" target="_top" title="class or interface in java.lang">Comparable</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="type parameter in SegmentDownloadAction">K</a>&gt;&gt; keys</pre>
+<pre>public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt; keys</pre>
 </li>
 </ul>
 </li>
@@ -297,7 +292,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
                                 boolean&nbsp;isRemoveAction,
                                 <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                 byte[]&nbsp;data,
-                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="type parameter in SegmentDownloadAction">K</a>&gt;&nbsp;keys)</pre>
+                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;keys)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>type</code> - The type of the action.</dd>
@@ -317,6 +312,21 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getKeys--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getKeys</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;getKeys()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#getKeys--">DownloadAction</a></code></span></div>
+<div class="block">Returns keys of tracks to be downloaded.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#getKeys--">getKeys</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a></code></dd>
+</dl>
+</li>
+</ul>
 <a name="writeToStream-java.io.DataOutputStream-">
 <!--   -->
 </a>
@@ -330,24 +340,6 @@ extends <a href="../../../../../com/google/android/exoplayer2/offline/DownloadAc
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html#writeToStream-java.io.DataOutputStream-">writeToStream</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadAction.html" title="class in com.google.android.exoplayer2.offline">DownloadAction</a></code></dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code></dd>
-</dl>
-</li>
-</ul>
-<a name="writeKey-java.io.DataOutputStream-java.lang.Comparable-">
-<!--   -->
-</a><a name="writeKey-java.io.DataOutputStream-K-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>writeKey</h4>
-<pre>protected abstract&nbsp;void&nbsp;writeKey(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/DataOutputStream.html" target="_top" title="class or interface in java.io">DataOutputStream</a>&nbsp;output,
-                                 <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloadAction.html" title="type parameter in SegmentDownloadAction">K</a>&nbsp;key)
-                          throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
-<div class="block">Serializes the <code>key</code> into the <code>output</code>.</div>
-<dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code></dd>
 </dl>

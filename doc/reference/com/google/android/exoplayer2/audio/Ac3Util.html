@@ -108,7 +108,8 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public final class <span class="typeNameLabel">Ac3Util</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></pre>
-<div class="block">Utility methods for parsing Dolby TrueHD and (E-)AC3 syncframes.</div>
+<div class="block">Utility methods for parsing Dolby TrueHD and (E-)AC-3 syncframes. (E-)AC-3 parsing follows the
+ definition in ETSI TS 102 366 V1.2.1.</div>
 </li>
 </ul>
 </div>
@@ -194,8 +195,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;trackId,
                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                     <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>
-<div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to
- ETSI TS 102 366 Annex F.</div>
+<div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to ETSI TS
+ 102 366 Annex F.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -207,7 +208,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3SyncframeSize-byte:A-">parseAc3SyncframeSize</a></span>(byte[]&nbsp;data)</code>
-<div class="block">Returns the size in bytes of the given AC-3 syncframe.</div>
+<div class="block">Returns the size in bytes of the given (E-)AC-3 syncframe.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -216,8 +217,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;trackId,
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                      <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>
-<div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to
- ETSI TS 102 366 Annex F.</div>
+<div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to ETSI TS
+ 102 366 Annex F.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -310,12 +311,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;trackId,
                                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                                           <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
-<div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to
- ETSI TS 102 366 Annex F. The reading position of <code>data</code> will be modified.</div>
+<div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to ETSI TS
+ 102 366 Annex F. The reading position of <code>data</code> will be modified.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - The AC3SpecificBox to parse.</dd>
-<dd><code>trackId</code> - The track identifier to set on the format, or null.</dd>
+<dd><code>trackId</code> - The track identifier to set on the format.</dd>
 <dd><code>language</code> - The language to set on the format.</dd>
 <dd><code>drmInitData</code> - <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData</code></a> to be included in the format.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -333,12 +334,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;trackId,
                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                                            <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
-<div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to
- ETSI TS 102 366 Annex F. The reading position of <code>data</code> will be modified.</div>
+<div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to ETSI TS
+ 102 366 Annex F. The reading position of <code>data</code> will be modified.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - The EC3SpecificBox to parse.</dd>
-<dd><code>trackId</code> - The track identifier to set on the format, or null.</dd>
+<dd><code>trackId</code> - The track identifier to set on the format.</dd>
 <dd><code>language</code> - The language to set on the format.</dd>
 <dd><code>drmInitData</code> - <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData</code></a> to be included in the format.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -370,7 +371,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>parseAc3SyncframeSize</h4>
 <pre>public static&nbsp;int&nbsp;parseAc3SyncframeSize(byte[]&nbsp;data)</pre>
-<div class="block">Returns the size in bytes of the given AC-3 syncframe.</div>
+<div class="block">Returns the size in bytes of the given (E-)AC-3 syncframe.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - The syncframe to parse.</dd>

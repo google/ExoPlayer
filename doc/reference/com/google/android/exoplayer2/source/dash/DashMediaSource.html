@@ -167,21 +167,23 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/BaseMedi
 <tr class="altColor">
 <td class="colFirst"><code>static long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html#DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS">DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS</a></span></code>
-<div class="block">A fixed default presentation delay for live streams.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html#DEFAULT_LIVE_PRESENTATION_DELAY_MS"><code>DEFAULT_LIVE_PRESENTATION_DELAY_MS</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html#DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS">DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS</a></span></code>
-<div class="block">A constant indicating that the presentation delay for live streams should be set to
- <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#suggestedPresentationDelayMs"><code>DashManifest.suggestedPresentationDelayMs</code></a> if specified by the manifest, or
- <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html#DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS"><code>DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS</code></a> otherwise.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html#DEFAULT_LIVE_PRESENTATION_DELAY_MS">DEFAULT_LIVE_PRESENTATION_DELAY_MS</a></span></code>
+<div class="block">The default presentation delay for live streams.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html#DEFAULT_MIN_LOADABLE_RETRY_COUNT">DEFAULT_MIN_LOADABLE_RETRY_COUNT</a></span></code>
-<div class="block">The default minimum number of times to retry loading data prior to failing.</div>
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html#DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS">DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS</a></span></code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use of this parameter is no longer necessary.</span></div>
+</div>
 </td>
 </tr>
 </table>
@@ -287,8 +289,9 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/BaseMedi
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">prepareSourceInternal</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                     boolean&nbsp;isTopLevelSource)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
+                     boolean&nbsp;isTopLevelSource,
+                     <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code>
 <div class="block">Starts source preparation.</div>
 </td>
 </tr>
@@ -316,7 +319,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/BaseMedi
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">refreshSourceInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">releaseSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-com.google.android.exoplayer2.upstream.TransferListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">refreshSourceInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">releaseSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -339,49 +342,48 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/BaseMedi
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="DEFAULT_MIN_LOADABLE_RETRY_COUNT">
+<a name="DEFAULT_LIVE_PRESENTATION_DELAY_MS">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>DEFAULT_MIN_LOADABLE_RETRY_COUNT</h4>
-<pre>public static final&nbsp;int DEFAULT_MIN_LOADABLE_RETRY_COUNT</pre>
-<div class="block">The default minimum number of times to retry loading data prior to failing.</div>
+<h4>DEFAULT_LIVE_PRESENTATION_DELAY_MS</h4>
+<pre>public static final&nbsp;long DEFAULT_LIVE_PRESENTATION_DELAY_MS</pre>
+<div class="block">The default presentation delay for live streams. The presentation delay is the duration by
+ which the default start position precedes the end of the live window.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.dash.DashMediaSource.DEFAULT_MIN_LOADABLE_RETRY_COUNT">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS</h4>
-<pre>public static final&nbsp;long DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS</pre>
-<div class="block">A constant indicating that the presentation delay for live streams should be set to
- <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#suggestedPresentationDelayMs"><code>DashManifest.suggestedPresentationDelayMs</code></a> if specified by the manifest, or
- <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html#DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS"><code>DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS</code></a> otherwise. The presentation delay is the
- duration by which the default start position precedes the end of the live window.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.dash.DashMediaSource.DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS">Constant Field Values</a></dd>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.dash.DashMediaSource.DEFAULT_LIVE_PRESENTATION_DELAY_MS">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
 <a name="DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS</h4>
-<pre>public static final&nbsp;long DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS</pre>
-<div class="block">A fixed default presentation delay for live streams. The presentation delay is the duration
- by which the default start position precedes the end of the live window.</div>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public static final&nbsp;long DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html#DEFAULT_LIVE_PRESENTATION_DELAY_MS"><code>DEFAULT_LIVE_PRESENTATION_DELAY_MS</code></a>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.dash.DashMediaSource.DEFAULT_LIVE_PRESENTATION_DELAY_FIXED_MS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public static final&nbsp;long DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use of this parameter is no longer necessary.</span></div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.dash.DashMediaSource.DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -553,23 +555,29 @@ public&nbsp;DashMediaSource(<a href="https://developer.android.com/reference/and
 </dl>
 </li>
 </ul>
-<a name="prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">
+<a name="prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>prepareSourceInternal</h4>
 <pre>public&nbsp;void&nbsp;prepareSourceInternal(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                                  boolean&nbsp;isTopLevelSource)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">BaseMediaSource</a></code></span></div>
+                                  boolean&nbsp;isTopLevelSource,
+                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                  <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">BaseMediaSource</a></code></span></div>
 <div class="block">Starts source preparation. This method is called at most once until the next call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--"><code>BaseMediaSource.releaseSourceInternal()</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-">prepareSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player for which this source is being prepared.</dd>
 <dd><code>isTopLevelSource</code> - Whether this source has been passed directly to <a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-"><code>ExoPlayer.prepare(MediaSource)</code></a> or <a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-"><code>ExoPlayer.prepare(MediaSource, boolean,
      boolean)</code></a>.</dd>
+<dd><code>mediaTransferListener</code> - The transfer listener which should be informed of any media data
+     transfers. May be null if no listener is available. Note that this listener should usually
+     be only informed of transfers related to the media loads and not of auxiliary loads for
+     manifests and other data.</dd>
 </dl>
 </li>
 </ul>
@@ -601,10 +609,9 @@ public&nbsp;DashMediaSource(<a href="https://developer.android.com/reference/and
                                 <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">MediaSource</a></code></span></div>
 <div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> identified by <code>periodId</code>. This method may be called
- multiple times with the same period identifier without an intervening call to
- <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#releasePeriod-com.google.android.exoplayer2.source.MediaPeriod-"><code>MediaSource.releasePeriod(MediaPeriod)</code></a>.
- <p>
- Should not be called directly from application code.</div>
+ multiple times without an intervening call to <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html#releasePeriod-com.google.android.exoplayer2.source.MediaPeriod-"><code>MediaSource.releasePeriod(MediaPeriod)</code></a>.
+
+ <p>Should not be called directly from application code.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>periodId</code> - The identifier of the period.</dd>
@@ -639,7 +646,7 @@ public&nbsp;DashMediaSource(<a href="https://developer.android.com/reference/and
 <h4>releaseSourceInternal</h4>
 <pre>public&nbsp;void&nbsp;releaseSourceInternal()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--">BaseMediaSource</a></code></span></div>
-<div class="block">Releases the source. This method is called exactly once after each call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-"><code>BaseMediaSource.prepareSourceInternal(ExoPlayer, boolean)</code></a>.</div>
+<div class="block">Releases the source. This method is called exactly once after each call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseMediaSource.prepareSourceInternal(ExoPlayer, boolean, TransferListener)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--">releaseSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></code></dd>

@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li>Next&nbsp;Class</li>
+<li><a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.amr"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/extractor/amr/AmrExtractor.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -123,6 +123,34 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.amr">AmrExtractor.Flags</a></span></code>
+<div class="block">Flags controlling the behavior of the extractor.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.extractor.Extractor">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.extractor.<a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a></h3>
+<code><a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.ReadResult.html" title="annotation in com.google.android.exoplayer2.extractor">Extractor.ReadResult</a></code></li>
+</ul>
+</li>
+</ul>
 <!-- =========== FIELD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="field.summary">
@@ -139,6 +167,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <td class="colFirst"><code>static <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html#FACTORY">FACTORY</a></span></code>
 <div class="block">Factory for <a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html#FLAG_ENABLE_CONSTANT_BITRATE_SEEKING">FLAG_ENABLE_CONSTANT_BITRATE_SEEKING</a></span></code>
+<div class="block">Flag to force enable seeking using a constant bitrate assumption in cases where seeking would
+ otherwise not be possible.</div>
 </td>
 </tr>
 </table>
@@ -165,6 +200,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html#AmrExtractor--">AmrExtractor</a></span>()</code>&nbsp;</td>
 </tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html#AmrExtractor-int-">AmrExtractor</a></span>(int&nbsp;flags)</code>&nbsp;</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -182,7 +220,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html#init-com.google.android.exoplayer2.extractor.ExtractorOutput-">init</a></span>(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html#init-com.google.android.exoplayer2.extractor.ExtractorOutput-">init</a></span>(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput)</code>
 <div class="block">Initializes the extractor with an <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>.</div>
 </td>
 </tr>
@@ -238,11 +276,26 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <a name="FACTORY">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>FACTORY</h4>
 <pre>public static final&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a> FACTORY</pre>
 <div class="block">Factory for <a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a> instances.</div>
+</li>
+</ul>
+<a name="FLAG_ENABLE_CONSTANT_BITRATE_SEEKING">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FLAG_ENABLE_CONSTANT_BITRATE_SEEKING</h4>
+<pre>public static final&nbsp;int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING</pre>
+<div class="block">Flag to force enable seeking using a constant bitrate assumption in cases where seeking would
+ otherwise not be possible.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.amr.AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING">Constant Field Values</a></dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -256,10 +309,24 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <a name="AmrExtractor--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>AmrExtractor</h4>
 <pre>public&nbsp;AmrExtractor()</pre>
+</li>
+</ul>
+<a name="AmrExtractor-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>AmrExtractor</h4>
+<pre>public&nbsp;AmrExtractor(<a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.amr">@AmrExtractor.Flags</a>
+                    int&nbsp;flags)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>flags</code> - Flags that control the extractor's behavior.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -304,14 +371,14 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <ul class="blockList">
 <li class="blockList">
 <h4>init</h4>
-<pre>public&nbsp;void&nbsp;init(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output)</pre>
+<pre>public&nbsp;void&nbsp;init(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#init-com.google.android.exoplayer2.extractor.ExtractorOutput-">Extractor</a></code></span></div>
 <div class="block">Initializes the extractor with an <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>. Called at most once.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#init-com.google.android.exoplayer2.extractor.ExtractorOutput-">init</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>output</code> - An <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> to receive extracted data.</dd>
+<dd><code>extractorOutput</code> - An <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> to receive extracted data.</dd>
 </dl>
 </li>
 </ul>
@@ -326,14 +393,12 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
          throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#read-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-">Extractor</a></code></span></div>
-<div class="block">Extracts data read from a provided <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>. Must not be called before
- <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#init-com.google.android.exoplayer2.extractor.ExtractorOutput-"><code>Extractor.init(ExtractorOutput)</code></a>.
- <p>
- A single call to this method will block until some progress has been made, but will not block
- for longer than this. Hence each call will consume only a small amount of input data.
- <p>
- In the common case, <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#RESULT_CONTINUE"><code>Extractor.RESULT_CONTINUE</code></a> is returned to indicate that the
- <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> passed to the next read is required to provide data continuing from the
+<div class="block">Extracts data read from a provided <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>. Must not be called before <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#init-com.google.android.exoplayer2.extractor.ExtractorOutput-"><code>Extractor.init(ExtractorOutput)</code></a>.
+
+ <p>A single call to this method will block until some progress has been made, but will not
+ block for longer than this. Hence each call will consume only a small amount of input data.
+
+ <p>In the common case, <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#RESULT_CONTINUE"><code>Extractor.RESULT_CONTINUE</code></a> is returned to indicate that the <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> passed to the next read is required to provide data continuing from the
  position in the stream reached by the returning call. If the extractor requires data to be
  provided from a different position, then that position is set in <code>seekPosition</code> and
  <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#RESULT_SEEK"><code>Extractor.RESULT_SEEK</code></a> is returned. If the extractor reached the end of the data provided by the
@@ -419,7 +484,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <div class="subNav">
 <ul class="navList">
 <li>Prev&nbsp;Class</li>
-<li>Next&nbsp;Class</li>
+<li><a href="../../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.amr"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/extractor/amr/AmrExtractor.html" target="_top">Frames</a></li>
@@ -443,7 +508,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

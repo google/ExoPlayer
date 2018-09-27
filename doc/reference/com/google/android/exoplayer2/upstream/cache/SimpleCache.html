@@ -602,9 +602,10 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/u
 <ul class="blockList">
 <li class="blockList">
 <h4>startReadWriteNonBlocking</h4>
-<pre>public&nbsp;com.google.android.exoplayer2.upstream.cache.SimpleCacheSpan&nbsp;startReadWriteNonBlocking(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
-                                                                                              long&nbsp;position)
-                                                                                       throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public&nbsp;com.google.android.exoplayer2.upstream.cache.SimpleCacheSpan&nbsp;startReadWriteNonBlocking(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;key,
+                                                                                                        long&nbsp;position)
+                                                                                                 throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWriteNonBlocking-java.lang.String-long-">Cache</a></code></span></div>
 <div class="block">Same as <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-"><code>Cache.startReadWrite(String, long)</code></a>. However, if the cache entry is locked, then
  instead of blocking, this method will return null as the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>.</div>

@@ -136,16 +136,31 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-">Factory</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory--">Factory</a></span>()</code>
+<div class="block">Creates an adaptive track selection factory with default parameters.</div>
+</td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-">Factory</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>#Factory()</code> instead. Custom bandwidth meter should be directly passed
+     to the player in <a href="../../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-float-">Factory</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
        int&nbsp;minDurationForQualityIncreaseMs,
        int&nbsp;maxDurationForQualityDecreaseMs,
        int&nbsp;minDurationToRetainAfterDiscardMs,
-       float&nbsp;bandwidthFraction)</code>&nbsp;</td>
+       float&nbsp;bandwidthFraction)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>#Factory(int, int, int, float)</code> instead. Custom bandwidth meter should
+     be directly passed to the player in <a href="../../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+</div>
+</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-float-float-long-com.google.android.exoplayer2.util.Clock-">Factory</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
        int&nbsp;minDurationForQualityIncreaseMs,
        int&nbsp;maxDurationForQualityDecreaseMs,
@@ -153,7 +168,31 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
        float&nbsp;bandwidthFraction,
        float&nbsp;bufferedFractionToLiveEdgeForQualityIncrease,
        long&nbsp;minTimeBetweenBufferReevaluationMs,
-       <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>&nbsp;</td>
+       <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>#Factory(int, int, int, float, float, long, Clock)</code> instead. Custom
+     bandwidth meter should be directly passed to the player in <a href="../../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory-int-int-int-float-">Factory</a></span>(int&nbsp;minDurationForQualityIncreaseMs,
+       int&nbsp;maxDurationForQualityDecreaseMs,
+       int&nbsp;minDurationToRetainAfterDiscardMs,
+       float&nbsp;bandwidthFraction)</code>
+<div class="block">Creates an adaptive track selection factory.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#Factory-int-int-int-float-float-long-com.google.android.exoplayer2.util.Clock-">Factory</a></span>(int&nbsp;minDurationForQualityIncreaseMs,
+       int&nbsp;maxDurationForQualityDecreaseMs,
+       int&nbsp;minDurationToRetainAfterDiscardMs,
+       float&nbsp;bandwidthFraction,
+       float&nbsp;bufferedFractionToLiveEdgeForQualityIncrease,
+       long&nbsp;minTimeBetweenBufferReevaluationMs,
+       <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>
+<div class="block">Creates an adaptive track selection factory.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -172,7 +211,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int...-">createTrackSelection</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html#createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-com.google.android.exoplayer2.upstream.BandwidthMeter-int...-">createTrackSelection</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+                    <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
                     int...&nbsp;tracks)</code>
 <div class="block">Creates a new selection.</div>
 </td>
@@ -199,33 +239,41 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
+<a name="Factory--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Factory</h4>
+<pre>public&nbsp;Factory()</pre>
+<div class="block">Creates an adaptive track selection factory with default parameters.</div>
+</li>
+</ul>
 <a name="Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>Factory</h4>
-<pre>public&nbsp;Factory(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bandwidthMeter</code> - Provides an estimate of the currently available bandwidth.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;Factory(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#Factory()</code> instead. Custom bandwidth meter should be directly passed
+     to the player in <a href="../../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
 </li>
 </ul>
-<a name="Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-float-">
+<a name="Factory-int-int-int-float-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>Factory</h4>
-<pre>public&nbsp;Factory(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
-               int&nbsp;minDurationForQualityIncreaseMs,
+<pre>public&nbsp;Factory(int&nbsp;minDurationForQualityIncreaseMs,
                int&nbsp;maxDurationForQualityDecreaseMs,
                int&nbsp;minDurationToRetainAfterDiscardMs,
                float&nbsp;bandwidthFraction)</pre>
+<div class="block">Creates an adaptive track selection factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bandwidthMeter</code> - Provides an estimate of the currently available bandwidth.</dd>
 <dd><code>minDurationForQualityIncreaseMs</code> - The minimum duration of buffered data required for the
      selected track to switch to one of higher quality.</dd>
 <dd><code>maxDurationForQualityDecreaseMs</code> - The maximum duration of buffered data required for the
@@ -240,23 +288,38 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 </dl>
 </li>
 </ul>
-<a name="Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-float-float-long-com.google.android.exoplayer2.util.Clock-">
+<a name="Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-float-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>Factory</h4>
-<pre>public&nbsp;Factory(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
-               int&nbsp;minDurationForQualityIncreaseMs,
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;Factory(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
+                           int&nbsp;minDurationForQualityIncreaseMs,
+                           int&nbsp;maxDurationForQualityDecreaseMs,
+                           int&nbsp;minDurationToRetainAfterDiscardMs,
+                           float&nbsp;bandwidthFraction)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#Factory(int, int, int, float)</code> instead. Custom bandwidth meter should
+     be directly passed to the player in <a href="../../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+</li>
+</ul>
+<a name="Factory-int-int-int-float-float-long-com.google.android.exoplayer2.util.Clock-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Factory</h4>
+<pre>public&nbsp;Factory(int&nbsp;minDurationForQualityIncreaseMs,
                int&nbsp;maxDurationForQualityDecreaseMs,
                int&nbsp;minDurationToRetainAfterDiscardMs,
                float&nbsp;bandwidthFraction,
                float&nbsp;bufferedFractionToLiveEdgeForQualityIncrease,
                long&nbsp;minTimeBetweenBufferReevaluationMs,
                <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
+<div class="block">Creates an adaptive track selection factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bandwidthMeter</code> - Provides an estimate of the currently available bandwidth..</dd>
 <dd><code>minDurationForQualityIncreaseMs</code> - The minimum duration of buffered data required for the
      selected track to switch to one of higher quality.</dd>
 <dd><code>maxDurationForQualityDecreaseMs</code> - The maximum duration of buffered data required for the
@@ -281,6 +344,26 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 </dl>
 </li>
 </ul>
+<a name="Factory-com.google.android.exoplayer2.upstream.BandwidthMeter-int-int-int-float-float-long-com.google.android.exoplayer2.util.Clock-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Factory</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;Factory(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                           <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
+                           int&nbsp;minDurationForQualityIncreaseMs,
+                           int&nbsp;maxDurationForQualityDecreaseMs,
+                           int&nbsp;minDurationToRetainAfterDiscardMs,
+                           float&nbsp;bandwidthFraction,
+                           float&nbsp;bufferedFractionToLiveEdgeForQualityIncrease,
+                           long&nbsp;minTimeBetweenBufferReevaluationMs,
+                           <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#Factory(int, int, int, float, float, long, Clock)</code> instead. Custom
+     bandwidth meter should be directly passed to the player in <a href="../../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+</li>
+</ul>
 </li>
 </ul>
 <!-- ============ METHOD DETAIL ========== -->
@@ -289,21 +372,23 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int...-">
+<a name="createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-com.google.android.exoplayer2.upstream.BandwidthMeter-int...-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createTrackSelection</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection</a>&nbsp;createTrackSelection(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+                                                   <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
                                                    int...&nbsp;tracks)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html#createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int...-">TrackSelection.Factory</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html#createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-com.google.android.exoplayer2.upstream.BandwidthMeter-int...-">TrackSelection.Factory</a></code></span></div>
 <div class="block">Creates a new selection.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html#createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int...-">createTrackSelection</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html#createTrackSelection-com.google.android.exoplayer2.source.TrackGroup-com.google.android.exoplayer2.upstream.BandwidthMeter-int...-">createTrackSelection</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.Factory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection.Factory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>group</code> - The <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>. Must not be null.</dd>
+<dd><code>bandwidthMeter</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a> which can be used to select tracks.</dd>
 <dd><code>tracks</code> - The indices of the selected tracks within the <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>. Must not be
      null or empty. May be in any order.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

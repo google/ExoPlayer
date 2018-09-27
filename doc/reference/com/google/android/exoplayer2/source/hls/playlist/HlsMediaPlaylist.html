@@ -111,7 +111,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>,<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/RenditionKey.html" title="class in com.google.android.exoplayer2.source.hls.playlist">RenditionKey</a>&gt;</dd>
+<dd><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</dd>
 </dl>
 <hr>
 <br>
@@ -171,34 +171,21 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#drmInitData">drmInitData</a></span></code>
-<div class="block">DRM initialization data for sample decryption, or null if none of the segment uses sample
- encryption.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#durationUs">durationUs</a></span></code>
 <div class="block">The total duration of the playlist in microseconds.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#hasDiscontinuitySequence">hasDiscontinuitySequence</a></span></code>
 <div class="block">Whether the playlist contains the #EXT-X-DISCONTINUITY-SEQUENCE tag.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#hasEndTag">hasEndTag</a></span></code>
 <div class="block">Whether the playlist contains the #EXT-X-ENDLIST tag.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#hasIndependentSegmentsTag">hasIndependentSegmentsTag</a></span></code>
-<div class="block">Whether the playlist contains the #EXT-X-INDEPENDENT-SEGMENTS tag.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -233,30 +220,36 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#protectionSchemes">protectionSchemes</a></span></code>
+<div class="block">Contains the CDM protection schemes used by segments in this playlist.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#segments">segments</a></span></code>
 <div class="block">The list of segments in the playlist.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#startOffsetUs">startOffsetUs</a></span></code>
 <div class="block">The start offset in microseconds, as defined by #EXT-X-START.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#startTimeUs">startTimeUs</a></span></code>
 <div class="block">If <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#hasProgramDateTime"><code>hasProgramDateTime</code></a> is true, contains the datetime as microseconds since epoch.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#targetDurationUs">targetDurationUs</a></span></code>
 <div class="block">The target duration in microseconds, as defined by #EXT-X-TARGETDURATION.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#version">version</a></span></code>
 <div class="block">The compatibility version, as defined by #EXT-X-VERSION.</div>
@@ -268,7 +261,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.source.hls.playlist.<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a></h3>
-<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#baseUri">baseUri</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#tags">tags</a></code></li>
+<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#baseUri">baseUri</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#hasIndependentSegments">hasIndependentSegments</a>, <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#tags">tags</a></code></li>
 </ul>
 </li>
 </ul>
@@ -294,10 +287,10 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
                 long&nbsp;mediaSequence,
                 int&nbsp;version,
                 long&nbsp;targetDurationUs,
-                boolean&nbsp;hasIndependentSegmentsTag,
+                boolean&nbsp;hasIndependentSegments,
                 boolean&nbsp;hasEndTag,
                 boolean&nbsp;hasProgramDateTime,
-                <a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
+                <a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;protectionSchemes,
                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a>&gt;&nbsp;segments)</code>&nbsp;</td>
 </tr>
 </table>
@@ -317,7 +310,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#copy-java.util.List-">copy</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/RenditionKey.html" title="class in com.google.android.exoplayer2.source.hls.playlist">RenditionKey</a>&gt;&nbsp;renditionKeys)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#copy-java.util.List-">copy</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys)</code>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys.</div>
 </td>
 </tr>
@@ -414,7 +407,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <ul class="blockList">
 <li class="blockList">
 <h4>playlistType</h4>
-<pre>public final&nbsp;int playlistType</pre>
+<pre><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.PlaylistType.html" title="annotation in com.google.android.exoplayer2.source.hls.playlist">@HlsMediaPlaylist.PlaylistType</a>
+public final&nbsp;int playlistType</pre>
 <div class="block">The type of the playlist. See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.PlaylistType.html" title="annotation in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMediaPlaylist.PlaylistType</code></a>.</div>
 </li>
 </ul>
@@ -492,16 +486,6 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <div class="block">The target duration in microseconds, as defined by #EXT-X-TARGETDURATION.</div>
 </li>
 </ul>
-<a name="hasIndependentSegmentsTag">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>hasIndependentSegmentsTag</h4>
-<pre>public final&nbsp;boolean hasIndependentSegmentsTag</pre>
-<div class="block">Whether the playlist contains the #EXT-X-INDEPENDENT-SEGMENTS tag.</div>
-</li>
-</ul>
 <a name="hasEndTag">
 <!--   -->
 </a>
@@ -522,15 +506,16 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <div class="block">Whether the playlist contains a #EXT-X-PROGRAM-DATE-TIME tag.</div>
 </li>
 </ul>
-<a name="drmInitData">
+<a name="protectionSchemes">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>drmInitData</h4>
-<pre>public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a> drmInitData</pre>
-<div class="block">DRM initialization data for sample decryption, or null if none of the segment uses sample
- encryption.</div>
+<h4>protectionSchemes</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a> protectionSchemes</pre>
+<div class="block">Contains the CDM protection schemes used by segments in this playlist. Does not contain any key
+ acquisition data. Null if none of the segments in the playlist is CDM-encrypted.</div>
 </li>
 </ul>
 <a name="segments">
@@ -567,7 +552,8 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <ul class="blockListLast">
 <li class="blockList">
 <h4>HlsMediaPlaylist</h4>
-<pre>public&nbsp;HlsMediaPlaylist(int&nbsp;playlistType,
+<pre>public&nbsp;HlsMediaPlaylist(<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.PlaylistType.html" title="annotation in com.google.android.exoplayer2.source.hls.playlist">@HlsMediaPlaylist.PlaylistType</a>
+                        int&nbsp;playlistType,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUri,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;tags,
                         long&nbsp;startOffsetUs,
@@ -577,10 +563,11 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
                         long&nbsp;mediaSequence,
                         int&nbsp;version,
                         long&nbsp;targetDurationUs,
-                        boolean&nbsp;hasIndependentSegmentsTag,
+                        boolean&nbsp;hasIndependentSegments,
                         boolean&nbsp;hasEndTag,
                         boolean&nbsp;hasProgramDateTime,
-                        <a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
+                        <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                        <a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;protectionSchemes,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist.Segment</a>&gt;&nbsp;segments)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -594,10 +581,10 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <dd><code>mediaSequence</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#mediaSequence"><code>mediaSequence</code></a>.</dd>
 <dd><code>version</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#version"><code>version</code></a>.</dd>
 <dd><code>targetDurationUs</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#targetDurationUs"><code>targetDurationUs</code></a>.</dd>
-<dd><code>hasIndependentSegmentsTag</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#hasIndependentSegmentsTag"><code>hasIndependentSegmentsTag</code></a>.</dd>
+<dd><code>hasIndependentSegments</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylist.html#hasIndependentSegments"><code>HlsPlaylist.hasIndependentSegments</code></a>.</dd>
 <dd><code>hasEndTag</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#hasEndTag"><code>hasEndTag</code></a>.</dd>
+<dd><code>protectionSchemes</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#protectionSchemes"><code>protectionSchemes</code></a>.</dd>
 <dd><code>hasProgramDateTime</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#hasProgramDateTime"><code>hasProgramDateTime</code></a>.</dd>
-<dd><code>drmInitData</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#drmInitData"><code>drmInitData</code></a>.</dd>
 <dd><code>segments</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#segments"><code>segments</code></a>.</dd>
 </dl>
 </li>
@@ -616,13 +603,13 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;copy(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/RenditionKey.html" title="class in com.google.android.exoplayer2.source.hls.playlist">RenditionKey</a>&gt;&nbsp;renditionKeys)</pre>
+<pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;copy(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html#copy-java.util.List-">FilterableManifest</a></code></span></div>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys. If the
  manifest is unchanged then the instance may return itself.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>renditionKeys</code> - A non-empty list of stream keys.</dd>
+<dd><code>streamKeys</code> - A non-empty list of stream keys.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The filtered manifest.</dd>
 </dl>
@@ -670,7 +657,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <dd><code>startTimeUs</code> - The start time for the returned playlist.</dd>
 <dd><code>discontinuitySequence</code> - The discontinuity sequence for the returned playlist.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The playlist.</dd>
+<dd>An identical playlist including the provided discontinuity and timing information.</dd>
 </dl>
 </li>
 </ul>
@@ -683,10 +670,6 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/source/hls/p
 <pre>public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;copyWithEndTag()</pre>
 <div class="block">Returns a playlist identical to this one except that an end tag is added. If an end tag is
  already present then the playlist will return itself.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The playlist.</dd>
-</dl>
 </li>
 </ul>
 </li>

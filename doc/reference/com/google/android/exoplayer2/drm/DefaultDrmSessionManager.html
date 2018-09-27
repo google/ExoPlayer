@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -584,7 +584,7 @@ public&nbsp;DefaultDrmSessionManager(<a href="https://docs.oracle.com/javase/7/d
 <dd><code>mediaDrm</code> - An underlying <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> for use by the manager.</dd>
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
-     to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
+     to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>. May be null.</dd>
 </dl>
 </li>
 </ul>
@@ -623,7 +623,7 @@ public&nbsp;DefaultDrmSessionManager(<a href="https://docs.oracle.com/javase/7/d
 <dd><code>mediaDrm</code> - An underlying <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> for use by the manager.</dd>
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
-     to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
+     to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>. May be null.</dd>
 <dd><code>multiSession</code> - A boolean that specify whether multiple key session support is enabled.
      Default is false.</dd>
 </dl>
@@ -666,7 +666,7 @@ public&nbsp;DefaultDrmSessionManager(<a href="https://docs.oracle.com/javase/7/d
 <dd><code>mediaDrm</code> - An underlying <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> for use by the manager.</dd>
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
-     to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
+     to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>. May be null.</dd>
 <dd><code>multiSession</code> - A boolean that specify whether multiple key session support is enabled.
      Default is false.</dd>
 <dd><code>initialDrmRequestRetryCount</code> - The number of times to retry for initial provisioning and
@@ -715,7 +715,7 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/Def
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
-     to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
+     to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>. May be null.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></code> - If the specified DRM scheme is not supported.</dd>
 </dl>
@@ -798,7 +798,7 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/Def
 <dd><code>uuid</code> - The UUID of the drm scheme.</dd>
 <dd><code>callback</code> - Performs key and provisioning requests.</dd>
 <dd><code>optionalKeyRequestParameters</code> - An optional map of parameters to pass as the last argument
-     to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a>. May be null.</dd>
+     to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>. May be null.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></code> - If the specified DRM scheme is not supported.</dd>
 </dl>
@@ -912,7 +912,8 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/Def
 <ul class="blockList">
 <li class="blockList">
 <h4>setMode</h4>
-<pre>public&nbsp;void&nbsp;setMode(int&nbsp;mode,
+<pre>public&nbsp;void&nbsp;setMode(<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Mode.html" title="annotation in com.google.android.exoplayer2.drm">@DefaultDrmSessionManager.Mode</a>
+                    int&nbsp;mode,
                     byte[]&nbsp;offlineLicenseKeySetId)</pre>
 <div class="block">Sets the mode, which determines the role of sessions acquired from the instance. This must be
  called before <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#acquireSession-android.os.Looper-com.google.android.exoplayer2.drm.DrmInitData-"><code>acquireSession(Looper, DrmInitData)</code></a> is called.
@@ -1077,7 +1078,7 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/Def
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.EventListener.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

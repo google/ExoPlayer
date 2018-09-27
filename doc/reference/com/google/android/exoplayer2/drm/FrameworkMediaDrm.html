@@ -131,7 +131,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.drm.<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.DefaultKeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.DefaultKeyRequest</a>, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.DefaultKeyStatus.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.DefaultKeyStatus</a>, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.DefaultProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.DefaultProvisionRequest</a>, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyStatus</a>, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="type parameter in ExoMediaDrm.OnEventListener">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="type parameter in ExoMediaDrm.OnKeyStatusChangeListener">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyStatus</a>, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="type parameter in ExoMediaDrm.OnEventListener">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="type parameter in ExoMediaDrm.OnKeyStatusChangeListener">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></code></li>
 </ul>
 </li>
 </ul>
@@ -171,12 +171,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaDrm.html#createMediaCrypto-byte:A-">createMediaCrypto</a></span>(byte[]&nbsp;initData)</code>&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-">getKeyRequest</a></span>(byte[]&nbsp;scope,
-             byte[]&nbsp;init,
-             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-">getKeyRequest</a></span>(byte[]&nbsp;scope,
+             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas,
              int&nbsp;keyType,
-             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalParameters)</code>&nbsp;</td>
+             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalParameters)</code>
+<div class="block">Generates a key request.</div>
+</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
@@ -187,7 +188,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaDrm.html#getPropertyString-java.lang.String-">getPropertyString</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;propertyName)</code>&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></code></td>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaDrm.html#getProvisionRequest--">getProvisionRequest</a></span>()</code>&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
@@ -344,21 +345,37 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 </dl>
 </li>
 </ul>
-<a name="getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-">
+<a name="getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getKeyRequest</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>&nbsp;getKeyRequest(byte[]&nbsp;scope,
-                                            byte[]&nbsp;init,
-                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType,
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>&nbsp;getKeyRequest(byte[]&nbsp;scope,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas,
                                             int&nbsp;keyType,
+                                            <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/HashMap.html" target="_top" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;optionalParameters)
                                      throws <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" target="_top" title="class or interface in android.media">NotProvisionedException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-">ExoMediaDrm</a></code></span></div>
+<div class="block">Generates a key request.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-">getKeyRequest</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-">getKeyRequest</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>scope</code> - If <code>keyType</code> is <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#KEY_TYPE_STREAMING"><code>ExoMediaDrm.KEY_TYPE_STREAMING</code></a> or <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#KEY_TYPE_OFFLINE"><code>ExoMediaDrm.KEY_TYPE_OFFLINE</code></a>,
+     the session id that the keys will be provided to. If <code>keyType</code> is <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#KEY_TYPE_RELEASE"><code>ExoMediaDrm.KEY_TYPE_RELEASE</code></a>, the keySetId of the keys to release.</dd>
+<dd><code>schemeDatas</code> - If key type is <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#KEY_TYPE_STREAMING"><code>ExoMediaDrm.KEY_TYPE_STREAMING</code></a> or <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#KEY_TYPE_OFFLINE"><code>ExoMediaDrm.KEY_TYPE_OFFLINE</code></a>, a
+     list of <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData.SchemeData</code></a> instances extracted from the media. Null otherwise.</dd>
+<dd><code>keyType</code> - The type of the request. Either <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#KEY_TYPE_STREAMING"><code>ExoMediaDrm.KEY_TYPE_STREAMING</code></a> to acquire keys for
+     streaming, <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#KEY_TYPE_OFFLINE"><code>ExoMediaDrm.KEY_TYPE_OFFLINE</code></a> to acquire keys for offline usage, or <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#KEY_TYPE_RELEASE"><code>ExoMediaDrm.KEY_TYPE_RELEASE</code></a> to release acquired keys. Releasing keys invalidates them for all
+     sessions.</dd>
+<dd><code>optionalParameters</code> - Are included in the key request message to allow a client application
+     to provide additional message parameters to the server. This may be <code>null</code> if no
+     additional parameters are to be sent.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The generated key request.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" target="_top" title="class or interface in android.media">NotProvisionedException</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -393,7 +410,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <ul class="blockList">
 <li class="blockList">
 <h4>getProvisionRequest</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a>&nbsp;getProvisionRequest()</pre>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a>&nbsp;getProvisionRequest()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getProvisionRequest--">getProvisionRequest</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;</code></dd>

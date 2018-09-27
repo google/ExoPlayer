@@ -207,8 +207,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#blacklist-int-long-">blacklist</a></span>(int&nbsp;index,
          long&nbsp;blacklistDurationMs)</code>
 <div class="block">Attempts to blacklist the track at the specified index in the selection, making it ineligible
- for selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-"><code>TrackSelection.updateSelectedTrack(long, long, long)</code></a> for the specified
- period of time.</div>
+ for selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long, long, long, List,
+ MediaChunkIterator[])</code></a> for the specified period of time.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -313,7 +313,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.trackselection.<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#getSelectedIndex--">getSelectedIndex</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#getSelectionData--">getSelectionData</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#getSelectionReason--">getSelectionReason</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-">updateSelectedTrack</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#getSelectedIndex--">getSelectedIndex</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#getSelectionData--">getSelectionData</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#getSelectionReason--">getSelectionReason</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-">updateSelectedTrack</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">updateSelectedTrack</a></code></li>
 </ul>
 </li>
 </ul>
@@ -625,12 +625,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
                                long&nbsp;blacklistDurationMs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#blacklist-int-long-">TrackSelection</a></code></span></div>
 <div class="block">Attempts to blacklist the track at the specified index in the selection, making it ineligible
- for selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-"><code>TrackSelection.updateSelectedTrack(long, long, long)</code></a> for the specified
- period of time. Blacklisting will fail if all other tracks are currently blacklisted. If
- blacklisting the currently selected track, note that it will remain selected until the next
- call to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-"><code>TrackSelection.updateSelectedTrack(long, long, long)</code></a>.
- <p>
- This method may only be called when the selection is enabled.</div>
+ for selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long, long, long, List,
+ MediaChunkIterator[])</code></a> for the specified period of time. Blacklisting will fail if all other
+ tracks are currently blacklisted. If blacklisting the currently selected track, note that it
+ will remain selected until the next call to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long, long, long, List,
+ MediaChunkIterator[])</code></a>.
+
+ <p>This method may only be called when the selection is enabled.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#blacklist-int-long-">blacklist</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></code></dd>

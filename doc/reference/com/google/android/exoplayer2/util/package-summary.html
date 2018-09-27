@@ -86,9 +86,21 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/EGLSurfaceTexture.TextureImageListener.html" title="interface in com.google.android.exoplayer2.util">EGLSurfaceTexture.TextureImageListener</a></td>
+<td class="colLast">
+<div class="block">Listener to be called when the texture image on <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" target="_top" title="class or interface in android.graphics"><code>SurfaceTexture</code></a> has been updated.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;T extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Throwable.html" target="_top" title="class or interface in java.lang">Throwable</a>&gt;</td>
 <td class="colLast">
 <div class="block">Converts throwables into error codes and user readable error messages.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/EventDispatcher.Event.html" title="interface in com.google.android.exoplayer2.util">EventDispatcher.Event</a>&lt;T&gt;</td>
+<td class="colLast">
+<div class="block">Functional interface to send an event.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -106,7 +118,7 @@
 <tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;T&gt;</td>
 <td class="colLast">
-<div class="block">Determines a true of false value for a given input.</div>
+<div class="block">Determines a true or false value for a given input.</div>
 </td>
 </tr>
 </tbody>
@@ -159,21 +171,33 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/EventLogger.html" title="class in com.google.android.exoplayer2.util">EventLogger</a></td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/EventDispatcher.html" title="class in com.google.android.exoplayer2.util">EventDispatcher</a>&lt;T&gt;</td>
 <td class="colLast">
-<div class="block">Logs events from <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> and other core components using <a href="https://developer.android.com/reference/android/util/Log.html" target="_top" title="class or interface in android.util"><code>Log</code></a>.</div>
+<div class="block">Event dispatcher which allows listener registration.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/EventLogger.html" title="class in com.google.android.exoplayer2.util">EventLogger</a></td>
+<td class="colLast">
+<div class="block">Logs events from <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> and other core components using <a href="../../../../../com/google/android/exoplayer2/util/Log.html" title="class in com.google.android.exoplayer2.util"><code>Log</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamInfo.html" title="class in com.google.android.exoplayer2.util">FlacStreamInfo</a></td>
 <td class="colLast">
 <div class="block">Holder for FLAC stream info.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/LibraryLoader.html" title="class in com.google.android.exoplayer2.util">LibraryLoader</a></td>
 <td class="colLast">
 <div class="block">Configurable loader for native libraries.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/Log.html" title="class in com.google.android.exoplayer2.util">Log</a></td>
+<td class="colLast">
+<div class="block">Wrapper around <a href="https://developer.android.com/reference/android/util/Log.html" target="_top" title="class or interface in android.util"><code>Log</code></a> which allows to set the log level.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -263,30 +287,36 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/TimedValueQueue.html" title="class in com.google.android.exoplayer2.util">TimedValueQueue</a>&lt;V&gt;</td>
+<td class="colLast">
+<div class="block">A utility class to keep a queue of values with timestamps.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a></td>
 <td class="colLast">
 <div class="block">Offsets timestamps according to an initial sample timestamp offset.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/TraceUtil.html" title="class in com.google.android.exoplayer2.util">TraceUtil</a></td>
 <td class="colLast">
 <div class="block">Calls through to <a href="https://developer.android.com/reference/android/os/Trace.html" target="_top" title="class or interface in android.os"><code>Trace</code></a> methods on supported API levels.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/UriUtil.html" title="class in com.google.android.exoplayer2.util">UriUtil</a></td>
 <td class="colLast">
 <div class="block">Utility methods for manipulating URIs.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></td>
 <td class="colLast">
 <div class="block">Miscellaneous utility methods.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/XmlPullParserUtil.html" title="class in com.google.android.exoplayer2.util">XmlPullParserUtil</a></td>
 <td class="colLast">
 <div class="block"><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" target="_top" title="class or interface in org.xmlpull.v1"><code>XmlPullParser</code></a> utility methods.</div>

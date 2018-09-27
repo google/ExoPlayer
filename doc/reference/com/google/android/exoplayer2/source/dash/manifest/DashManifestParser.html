@@ -207,7 +207,8 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildFormat-java.lang.String-java.lang.String-int-int-float-int-int-int-java.lang.String-int-java.util.List-java.lang.String-java.util.List-">buildFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildFormat-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-int-java.lang.String-int-java.util.List-java.lang.String-java.util.List-">buildFormat</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label,
            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
            int&nbsp;width,
            int&nbsp;height,
@@ -440,8 +441,9 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </tr>
 <tr id="i38" class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.RepresentationInfo.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser.RepresentationInfo</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseRepresentation-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-java.lang.String-int-java.util.List-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">parseRepresentation</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" target="_top" title="class or interface in org.xmlpull.v1">XmlPullParser</a>&nbsp;xpp,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseRepresentation-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-java.lang.String-int-java.util.List-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">parseRepresentation</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" target="_top" title="class or interface in org.xmlpull.v1">XmlPullParser</a>&nbsp;xpp,
                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
+                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label,
                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;adaptationSetMimeType,
                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;adaptationSetCodecs,
                    int&nbsp;adaptationSetWidth,
@@ -780,7 +782,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </dl>
 </li>
 </ul>
-<a name="parseRepresentation-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-java.lang.String-int-java.util.List-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">
+<a name="parseRepresentation-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-java.lang.String-int-java.util.List-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -788,6 +790,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 <h4>parseRepresentation</h4>
 <pre>protected&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.RepresentationInfo.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser.RepresentationInfo</a>&nbsp;parseRepresentation(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" target="_top" title="class or interface in org.xmlpull.v1">XmlPullParser</a>&nbsp;xpp,
                                                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;baseUrl,
+                                                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label,
                                                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;adaptationSetMimeType,
                                                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;adaptationSetCodecs,
                                                                     int&nbsp;adaptationSetWidth,
@@ -796,6 +799,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
                                                                     int&nbsp;adaptationSetAudioChannels,
                                                                     int&nbsp;adaptationSetAudioSamplingRate,
                                                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;adaptationSetLanguage,
+                                                                    <a href="../../../../../../../com/google/android/exoplayer2/C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@C.SelectionFlags</a>
                                                                     int&nbsp;adaptationSetSelectionFlags,
                                                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&gt;&nbsp;adaptationSetAccessibilityDescriptors,
                                                                     <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase)
@@ -808,13 +812,14 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </dl>
 </li>
 </ul>
-<a name="buildFormat-java.lang.String-java.lang.String-int-int-float-int-int-int-java.lang.String-int-java.util.List-java.lang.String-java.util.List-">
+<a name="buildFormat-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-int-java.lang.String-int-java.util.List-java.lang.String-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildFormat</h4>
 <pre>protected&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;buildFormat(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;id,
+                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;label,
                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;containerMimeType,
                              int&nbsp;width,
                              int&nbsp;height,
@@ -823,6 +828,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
                              int&nbsp;audioSamplingRate,
                              int&nbsp;bitrate,
                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
+                             <a href="../../../../../../../com/google/android/exoplayer2/C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@C.SelectionFlags</a>
                              int&nbsp;selectionFlags,
                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;codecs,

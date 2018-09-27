@@ -325,7 +325,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <ul class="blockList">
 <li class="blockList">
 <h4>type</h4>
-<pre>public final&nbsp;int type</pre>
+<pre><a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2">@ExoPlaybackException.Type</a>
+public final&nbsp;int type</pre>
 <div class="block">The type of the playback failure. One of <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_SOURCE"><code>TYPE_SOURCE</code></a>, <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>TYPE_RENDERER</code></a> and
  <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</div>
 </li>
@@ -348,6 +349,22 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="createForSource-java.io.IOException-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createForSource</h4>
+<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createForSource(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;cause)</pre>
+<div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_SOURCE"><code>TYPE_SOURCE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cause</code> - The cause of the failure.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The created instance.</dd>
+</dl>
+</li>
+</ul>
 <a name="createForRenderer-java.lang.Exception-int-">
 <!--   -->
 </a>
@@ -361,22 +378,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cause</code> - The cause of the failure.</dd>
 <dd><code>rendererIndex</code> - The index of the renderer in which the failure occurred.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The created instance.</dd>
-</dl>
-</li>
-</ul>
-<a name="createForSource-java.io.IOException-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createForSource</h4>
-<pre>public static&nbsp;<a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createForSource(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;cause)</pre>
-<div class="block">Creates an instance of type <a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_SOURCE"><code>TYPE_SOURCE</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>cause</code> - The cause of the failure.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The created instance.</dd>
 </dl>

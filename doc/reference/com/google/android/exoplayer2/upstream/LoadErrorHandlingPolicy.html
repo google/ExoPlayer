@@ -1,0 +1,321 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>LoadErrorHandlingPolicy (ExoPlayer library)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="LoadErrorHandlingPolicy (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var methods = {"i0":6,"i1":6,"i2":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a name="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.Dummy.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" target="_top">Frames</a></li>
+<li><a href="LoadErrorHandlingPolicy.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a name="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">com.google.android.exoplayer2.upstream</div>
+<h2 title="Interface LoadErrorHandlingPolicy" class="title">Interface LoadErrorHandlingPolicy</h2>
+</div>
+<div class="contentContainer">
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultLoadErrorHandlingPolicy.html" title="class in com.google.android.exoplayer2.upstream">DefaultLoadErrorHandlingPolicy</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public interface <span class="typeNameLabel">LoadErrorHandlingPolicy</span></pre>
+<div class="block">Defines how errors encountered by <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loaders</code></a> are handled.
+
+ <p>Loader clients may blacklist a resource when a load error occurs. Blacklisting works around
+ load errors by loading an alternative resource. Clients do not try blacklisting when a resource
+ does not have an alternative. When a resource does have valid alternatives, <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor-int-long-java.io.IOException-int-"><code>getBlacklistDurationMsFor(int, long, IOException, int)</code></a> defines whether the resource should be
+ blacklisted. Blacklisting will succeed if any of the alternatives is not in the black list.
+
+ <p>When blacklisting does not take place, <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getRetryDelayMsFor-int-long-java.io.IOException-int-"><code>getRetryDelayMsFor(int, long, IOException,
+ int)</code></a> defines whether the load is retried. Errors whose load is not retried are propagated. Load
+ errors whose load is retried are propagated according to <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getMinimumLoadableRetryCount-int-"><code>getMinimumLoadableRetryCount(int)</code></a>.
+
+ <p>Methods are invoked on the playback thread.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor-int-long-java.io.IOException-int-">getBlacklistDurationMsFor</a></span>(int&nbsp;dataType,
+                         long&nbsp;loadDurationMs,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;exception,
+                         int&nbsp;errorCount)</code>
+<div class="block">Returns the number of milliseconds for which a resource associated to a provided load error
+ should be blacklisted, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the resource should not be blacklisted.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getMinimumLoadableRetryCount-int-">getMinimumLoadableRetryCount</a></span>(int&nbsp;dataType)</code>
+<div class="block">Returns the minimum number of times to retry a load in the case of a load error, before
+ propagating the error.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getRetryDelayMsFor-int-long-java.io.IOException-int-">getRetryDelayMsFor</a></span>(int&nbsp;dataType,
+                  long&nbsp;loadDurationMs,
+                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;exception,
+                  int&nbsp;errorCount)</code>
+<div class="block">Returns the number of milliseconds to wait before attempting the load again, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the error is fatal and should not be retried.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="getBlacklistDurationMsFor-int-long-java.io.IOException-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBlacklistDurationMsFor</h4>
+<pre>long&nbsp;getBlacklistDurationMsFor(int&nbsp;dataType,
+                               long&nbsp;loadDurationMs,
+                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;exception,
+                               int&nbsp;errorCount)</pre>
+<div class="block">Returns the number of milliseconds for which a resource associated to a provided load error
+ should be blacklisted, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the resource should not be blacklisted.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dataType</code> - One of the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C.DATA_TYPE_*</code></a> constants indicating the type of data to
+     load.</dd>
+<dd><code>loadDurationMs</code> - The duration in milliseconds of the load up to the point at which the
+     error occurred, including any previous attempts.</dd>
+<dd><code>exception</code> - The load error.</dd>
+<dd><code>errorCount</code> - The number of errors this load has encountered, including this one.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The blacklist duration in milliseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the resource should
+     not be blacklisted.</dd>
+</dl>
+</li>
+</ul>
+<a name="getRetryDelayMsFor-int-long-java.io.IOException-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRetryDelayMsFor</h4>
+<pre>long&nbsp;getRetryDelayMsFor(int&nbsp;dataType,
+                        long&nbsp;loadDurationMs,
+                        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;exception,
+                        int&nbsp;errorCount)</pre>
+<div class="block">Returns the number of milliseconds to wait before attempting the load again, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the error is fatal and should not be retried.
+
+ <p><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> clients may ignore the retry delay returned by this method in order to wait
+ for a specific event before retrying. However, the load is retried if and only if this method
+ does not return <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dataType</code> - One of the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C.DATA_TYPE_*</code></a> constants indicating the type of data to
+     load.</dd>
+<dd><code>loadDurationMs</code> - The duration in milliseconds of the load up to the point at which the
+     error occurred, including any previous attempts.</dd>
+<dd><code>exception</code> - The load error.</dd>
+<dd><code>errorCount</code> - The number of errors this load has encountered, including this one.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The number of milliseconds to wait before attempting the load again, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the error is fatal and should not be retried.</dd>
+</dl>
+</li>
+</ul>
+<a name="getMinimumLoadableRetryCount-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getMinimumLoadableRetryCount</h4>
+<pre>int&nbsp;getMinimumLoadableRetryCount(int&nbsp;dataType)</pre>
+<div class="block">Returns the minimum number of times to retry a load in the case of a load error, before
+ propagating the error.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dataType</code> - One of the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C.DATA_TYPE_*</code></a> constants indicating the type of data to
+     load.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The minimum number of times to retry a load in the case of a load error, before
+     propagating the error.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-"><code>Loader.startLoading(Loadable, Callback, int)</code></a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a name="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.Dummy.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" target="_top">Frames</a></li>
+<li><a href="LoadErrorHandlingPolicy.html" target="_top">No&nbsp;Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a name="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

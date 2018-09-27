@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -145,15 +145,16 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.ReleaseCallback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.ReleaseCallback</a></span></code>
-<div class="block">A callback to be notified when a <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has finished being released.</div>
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></span></code>
+<div class="block">Action that can be taken in response to <code>Callback#onLoadError(Loadable, long, long,
+ IOException, int)</code>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.RetryAction.html" title="annotation in com.google.android.exoplayer2.upstream">Loader.RetryAction</a></span></code>
-<div class="block">Actions that can be taken in response to a load error.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.ReleaseCallback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.ReleaseCallback</a></span></code>
+<div class="block">A callback to be notified when a <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has finished being released.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -185,20 +186,28 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY">DONT_RETRY</a></span></code>&nbsp;</td>
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY">DONT_RETRY</a></span></code>
+<div class="block">Discards the failed loading task and ignores any errors that have occurred.</div>
+</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY_FATAL">DONT_RETRY_FATAL</a></span></code>&nbsp;</td>
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#DONT_RETRY_FATAL">DONT_RETRY_FATAL</a></span></code>
+<div class="block">Discards the failed load.</div>
+</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY">RETRY</a></span></code>&nbsp;</td>
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY">RETRY</a></span></code>
+<div class="block">Retries the load using the default delay.</div>
+</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY_RESET_ERROR_COUNT">RETRY_RESET_ERROR_COUNT</a></span></code>&nbsp;</td>
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#RETRY_RESET_ERROR_COUNT">RETRY_RESET_ERROR_COUNT</a></span></code>
+<div class="block">Retries the load using the default delay and resets the error count.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -227,7 +236,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -239,12 +248,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#createRetryAction-boolean-long-">createRetryAction</a></span>(boolean&nbsp;resetErrorCount,
+                 long&nbsp;retryDelayMillis)</code>
+<div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader.LoadErrorAction</code></a> for retrying with the given parameters.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#isLoading--">isLoading</a></span>()</code>
 <div class="block">Returns whether the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> is currently loading a <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#maybeThrowError--">maybeThrowError</a></span>()</code>
 <div class="block">Throws a fatal error, or a non-fatal error if loading is currently backed off and the current
@@ -252,7 +268,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
  minimum number of retries.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#maybeThrowError-int-">maybeThrowError</a></span>(int&nbsp;minRetryCount)</code>
 <div class="block">Throws a fatal error, or a non-fatal error if loading is currently backed off and the current
@@ -260,19 +276,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
  of retries.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#release--">release</a></span>()</code>
 <div class="block">Releases the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#release-com.google.android.exoplayer2.upstream.Loader.ReleaseCallback-">release</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.ReleaseCallback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.ReleaseCallback</a>&nbsp;callback)</code>
 <div class="block">Releases the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>&lt;T extends <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Loadable</a>&gt;<br>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-">startLoading</a></span>(T&nbsp;loadable,
             <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Callback</a>&lt;T&gt;&nbsp;callback,
@@ -308,11 +324,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <ul class="blockList">
 <li class="blockList">
 <h4>RETRY</h4>
-<pre>public static final&nbsp;int RETRY</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.Loader.RETRY">Constant Field Values</a></dd>
-</dl>
+<pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a> RETRY</pre>
+<div class="block">Retries the load using the default delay.</div>
 </li>
 </ul>
 <a name="RETRY_RESET_ERROR_COUNT">
@@ -321,11 +334,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <ul class="blockList">
 <li class="blockList">
 <h4>RETRY_RESET_ERROR_COUNT</h4>
-<pre>public static final&nbsp;int RETRY_RESET_ERROR_COUNT</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.Loader.RETRY_RESET_ERROR_COUNT">Constant Field Values</a></dd>
-</dl>
+<pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a> RETRY_RESET_ERROR_COUNT</pre>
+<div class="block">Retries the load using the default delay and resets the error count.</div>
 </li>
 </ul>
 <a name="DONT_RETRY">
@@ -334,11 +344,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <ul class="blockList">
 <li class="blockList">
 <h4>DONT_RETRY</h4>
-<pre>public static final&nbsp;int DONT_RETRY</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.Loader.DONT_RETRY">Constant Field Values</a></dd>
-</dl>
+<pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a> DONT_RETRY</pre>
+<div class="block">Discards the failed loading task and ignores any errors that have occurred.</div>
 </li>
 </ul>
 <a name="DONT_RETRY_FATAL">
@@ -347,11 +354,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DONT_RETRY_FATAL</h4>
-<pre>public static final&nbsp;int DONT_RETRY_FATAL</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.Loader.DONT_RETRY_FATAL">Constant Field Values</a></dd>
-</dl>
+<pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a> DONT_RETRY_FATAL</pre>
+<div class="block">Discards the failed load. The next call to <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#maybeThrowError--"><code>maybeThrowError()</code></a> will throw the last load
+ error.</div>
 </li>
 </ul>
 </li>
@@ -383,6 +388,24 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/Loader
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="createRetryAction-boolean-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createRetryAction</h4>
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a>&nbsp;createRetryAction(boolean&nbsp;resetErrorCount,
+                                                       long&nbsp;retryDelayMillis)</pre>
+<div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader.LoadErrorAction</code></a> for retrying with the given parameters.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>resetErrorCount</code> - Whether the previous error count should be set to zero.</dd>
+<dd><code>retryDelayMillis</code> - The number of milliseconds to wait before retrying.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader.LoadErrorAction</code></a> for retrying with the given parameters.</dd>
+</dl>
+</li>
+</ul>
 <a name="startLoading-com.google.android.exoplayer2.upstream.Loader.Loadable-com.google.android.exoplayer2.upstream.Loader.Callback-int-">
 <!--   -->
 </a><a name="startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-">

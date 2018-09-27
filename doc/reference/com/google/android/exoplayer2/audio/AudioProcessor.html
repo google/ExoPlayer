@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioDecoderException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledFormatException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -98,7 +98,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/ext/gvr/GvrAudioProcessor.html" title="class in com.google.android.exoplayer2.ext.gvr">GvrAudioProcessor</a>, <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SilenceSkippingAudioProcessor</a>, <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SonicAudioProcessor</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/ext/gvr/GvrAudioProcessor.html" title="class in com.google.android.exoplayer2.ext.gvr">GvrAudioProcessor</a>, <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SilenceSkippingAudioProcessor</a>, <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SonicAudioProcessor</a>, <a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor</a></dd>
 </dl>
 <hr>
 <br>
@@ -284,6 +284,7 @@ var activeTableTab = "activeTableTab";
 <h4>configure</h4>
 <pre>boolean&nbsp;configure(int&nbsp;sampleRateHz,
                   int&nbsp;channelCount,
+                  <a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2">@C.Encoding</a>
                   int&nbsp;encoding)
            throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledFormatException</a></pre>
 <div class="block">Configures the processor to process input audio with the specified format and returns whether
@@ -329,7 +330,8 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getOutputEncoding</h4>
-<pre>int&nbsp;getOutputEncoding()</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2">@C.Encoding</a>
+int&nbsp;getOutputEncoding()</pre>
 <div class="block">Returns the audio encoding used in the data output by the processor. The value may change as a
  result of calling <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#configure-int-int-int-"><code>configure(int, int, int)</code></a> and is undefined if the instance is not
  active.</div>
@@ -453,7 +455,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioDecoderException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledFormatException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
