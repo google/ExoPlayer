@@ -108,7 +108,7 @@ import java.util.Map;
   }
 
   @Override
-  public Object getUidOfPeriod(int periodIndex) {
+  public Integer getUidOfPeriod(int periodIndex) {
     return ids[periodIndex];
   }
 
