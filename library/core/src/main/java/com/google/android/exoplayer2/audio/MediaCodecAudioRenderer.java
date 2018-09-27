@@ -346,7 +346,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     passthroughEnabled = codecInfo.passthrough;
-    String codecMimeType = codecInfo.mimeType == null ? MimeTypes.AUDIO_RAW : codecInfo.mimeType;
+    String codecMimeType = passthroughEnabled ? MimeTypes.AUDIO_RAW : codecInfo.mimeType;
     MediaFormat mediaFormat =
         getMediaFormat(format, codecMimeType, codecMaxInputSize, codecOperatingRate);
     codec.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
@@ -362,14 +362,22 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected @KeepCodecResult int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
-    if (getCodecMaxInputSize(codecInfo, newFormat) <= codecMaxInputSize
-        && codecInfo.isSeamlessAdaptationSupported(
-            oldFormat, newFormat, /* isNewFormatComplete= */ true)
-        && oldFormat.encoderDelay == 0
-        && oldFormat.encoderPadding == 0
-        && newFormat.encoderDelay == 0
-        && newFormat.encoderPadding == 0) {
+    // TODO: We currently rely on recreating the codec when encoder delay or padding is non-zero.
+    // Re-creating the codec is necessary to guarantee that onOutputFormatChanged is called, which
+    // is where encoder delay and padding are propagated to the sink. We should find a better way to
+    // propagate these values, and then allow the codec to be re-used in cases where this would
+    // otherwise be possible.
+    if (getCodecMaxInputSize(codecInfo, newFormat) > codecMaxInputSize
+        || oldFormat.encoderDelay != 0
+        || oldFormat.encoderPadding != 0
+        || newFormat.encoderDelay != 0
+        || newFormat.encoderPadding != 0) {
+      return KEEP_CODEC_RESULT_NO;
+    } else if (codecInfo.isSeamlessAdaptationSupported(
+        oldFormat, newFormat, /* isNewFormatComplete= */ true)) {
       return KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION;
+    } else if (areCodecConfigurationCompatible(oldFormat, newFormat)) {
+      return KEEP_CODEC_RESULT_YES_WITH_FLUSH;
     } else {
       return KEEP_CODEC_RESULT_NO;
     }
@@ -718,6 +726,24 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
     }
     return format.maxInputSize;
+  }
+
+  /**
+   * Returns whether two {@link Format}s will cause the same codec to be configured in an identical
+   * way, excluding {@link MediaFormat#KEY_MAX_INPUT_SIZE} and configuration that does not come from
+   * the {@link Format}.
+   *
+   * @param oldFormat The first format.
+   * @param newFormat The second format.
+   * @return Whether the two formats will cause a codec to be configured in an identical way,
+   *     excluding {@link MediaFormat#KEY_MAX_INPUT_SIZE} and configuration that does not come from
+   *     the {@link Format}.
+   */
+  protected boolean areCodecConfigurationCompatible(Format oldFormat, Format newFormat) {
+    return Util.areEqual(oldFormat.sampleMimeType, newFormat.sampleMimeType)
+        && oldFormat.channelCount == newFormat.channelCount
+        && oldFormat.sampleRate == newFormat.sampleRate
+        && oldFormat.initializationDataEquals(newFormat);
   }
 
   /**
