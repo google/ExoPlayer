@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.castdemo;
 
+import com.google.android.exoplayer2.ext.cast.MediaItem;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.gms.cast.MediaInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,57 +31,45 @@ import java.util.List;
   public static final String MIME_TYPE_SS = MimeTypes.APPLICATION_SS;
   public static final String MIME_TYPE_VIDEO_MP4 = MimeTypes.VIDEO_MP4;
 
-  /**
-   * The list of samples available in the cast demo app.
-   */
-  public static final List<Sample> SAMPLES;
-
-  /**
-   * Represents a media sample.
-   */
-  public static final class Sample {
-
-    /**
-     * The uri from which the media sample is obtained.
-     */
-    public final String uri;
-    /**
-     * A descriptive name for the sample.
-     */
-    public final String name;
-    /**
-     * The mime type of the media sample, as required by {@link MediaInfo#setContentType}.
-     */
-    public final String mimeType;
-
-    /**
-     * @param uri See {@link #uri}.
-     * @param name See {@link #name}.
-     * @param mimeType See {@link #mimeType}.
-     */
-    public Sample(String uri, String name, String mimeType) {
-      this.uri = uri;
-      this.name = name;
-      this.mimeType = mimeType;
-    }
-
-    @Override
-    public String toString() {
-      return name;
-    }
-
-  }
+  /** The list of samples available in the cast demo app. */
+  public static final List<MediaItem> SAMPLES;
 
   static {
     // App samples.
-    ArrayList<Sample> samples = new ArrayList<>();
-    samples.add(new Sample("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd",
-        "DASH (clear,MP4,H264)", MIME_TYPE_DASH));
-    samples.add(new Sample("https://commondatastorage.googleapis.com/gtv-videos-bucket/CastVideos/"
-        + "hls/TearsOfSteel.m3u8", "Tears of Steel (HLS)", MIME_TYPE_HLS));
-    samples.add(new Sample("https://html5demos.com/assets/dizzy.mp4", "Dizzy (MP4)",
-        MIME_TYPE_VIDEO_MP4));
+    ArrayList<MediaItem> samples = new ArrayList<>();
+    MediaItem.Builder sampleBuilder = new MediaItem.Builder();
 
+    samples.add(
+        sampleBuilder
+            .setTitle("DASH (clear,MP4,H264)")
+            .setMimeType(MIME_TYPE_DASH)
+            .setMedia("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd")
+            .buildAndClear());
+
+    samples.add(
+        sampleBuilder
+            .setTitle("Tears of Steel (HLS)")
+            .setMimeType(MIME_TYPE_HLS)
+            .setMedia(
+                "https://commondatastorage.googleapis.com/gtv-videos-bucket/CastVideos/"
+                    + "hls/TearsOfSteel.m3u8")
+            .buildAndClear());
+
+    samples.add(
+        sampleBuilder
+            .setTitle("HLS Basic (TS)")
+            .setMimeType(MIME_TYPE_HLS)
+            .setMedia(
+                "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3"
+                    + "/bipbop_4x3_variant.m3u8")
+            .buildAndClear());
+
+    samples.add(
+        sampleBuilder
+            .setTitle("Dizzy (MP4)")
+            .setMimeType(MIME_TYPE_VIDEO_MP4)
+            .setMedia("https://html5demos.com/assets/dizzy.mp4")
+            .buildAndClear());
 
     SAMPLES = Collections.unmodifiableList(samples);
 

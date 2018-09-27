@@ -31,8 +31,8 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
-import com.google.android.exoplayer2.castdemo.DemoUtil.Sample;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
+import com.google.android.exoplayer2.ext.cast.MediaItem;
 import com.google.android.exoplayer2.ext.cast.RemotePlayer;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
@@ -74,7 +74,7 @@ import java.util.ArrayList;
   private final PlayerControlView castControlView;
   private final SimpleExoPlayer exoPlayer;
   private final CastPlayer castPlayer;
-  private final ArrayList<DemoUtil.Sample> mediaQueue;
+  private final ArrayList<MediaItem> mediaQueue;
   private final QueuePositionListener queuePositionListener;
   private final ConcatenatingMediaSource concatenatingMediaSource;
 
@@ -146,15 +146,15 @@ import java.util.ArrayList;
   }
 
   /**
-   * Appends {@code sample} to the media queue.
+   * Appends {@code item} to the media queue.
    *
-   * @param sample The {@link Sample} to append.
+   * @param item The {@link MediaItem} to append.
    */
-  public void addItem(Sample sample) {
-    mediaQueue.add(sample);
-    concatenatingMediaSource.addMediaSource(buildMediaSource(sample));
+  public void addItem(MediaItem item) {
+    mediaQueue.add(item);
+    concatenatingMediaSource.addMediaSource(buildMediaSource(item));
     if (currentPlayer == castPlayer) {
-      castPlayer.addItems(buildMediaQueueItem(sample));
+      castPlayer.addItems(buildMediaQueueItem(item));
     }
   }
 
@@ -171,7 +171,7 @@ import java.util.ArrayList;
    * @param position The index of the item.
    * @return The item at the given index in the media queue.
    */
-  public Sample getItem(int position) {
+  public MediaItem getItem(int position) {
     return mediaQueue.get(position);
   }
 
@@ -388,9 +388,9 @@ import java.util.ArrayList;
     }
   }
 
-  private static MediaSource buildMediaSource(DemoUtil.Sample sample) {
-    Uri uri = Uri.parse(sample.uri);
-    switch (sample.mimeType) {
+  private static MediaSource buildMediaSource(MediaItem item) {
+    Uri uri = item.media.uri;
+    switch (item.mimeType) {
       case DemoUtil.MIME_TYPE_SS:
         return new SsMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_DASH:
@@ -400,17 +400,20 @@ import java.util.ArrayList;
       case DemoUtil.MIME_TYPE_VIDEO_MP4:
         return new ExtractorMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       default: {
-        throw new IllegalStateException("Unsupported type: " + sample.mimeType);
+          throw new IllegalStateException("Unsupported type: " + item.mimeType);
       }
     }
   }
 
-  private static MediaQueueItem buildMediaQueueItem(DemoUtil.Sample sample) {
+  private static MediaQueueItem buildMediaQueueItem(MediaItem item) {
     MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
-    movieMetadata.putString(MediaMetadata.KEY_TITLE, sample.name);
-    MediaInfo mediaInfo = new MediaInfo.Builder(sample.uri)
-        .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED).setContentType(sample.mimeType)
-        .setMetadata(movieMetadata).build();
+    movieMetadata.putString(MediaMetadata.KEY_TITLE, item.title);
+    MediaInfo mediaInfo =
+        new MediaInfo.Builder(item.media.uri.toString())
+            .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+            .setContentType(item.mimeType)
+            .setMetadata(movieMetadata)
+            .build();
     return new MediaQueueItem.Builder(mediaInfo).build();
   }
 

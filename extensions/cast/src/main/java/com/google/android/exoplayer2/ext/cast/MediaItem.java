@@ -67,9 +67,9 @@ public final class MediaItem {
       return this;
     }
 
-    /** Equivalent to {@link #setMedia(UriBundle) setMedia(new UriBundle(uri))}. */
+    /** Equivalent to {@link #setMedia(UriBundle) setMedia(new UriBundle(Uri.parse(uri)))}. */
     public Builder setMedia(String uri) {
-      return setMedia(new UriBundle(uri));
+      return setMedia(new UriBundle(Uri.parse(uri)));
     }
 
     /** See {@link MediaItem#media}. */
@@ -162,7 +162,7 @@ public final class MediaItem {
   public static final class UriBundle {
 
     /** An empty {@link UriBundle}. */
-    public static final UriBundle EMPTY = new UriBundle("");
+    public static final UriBundle EMPTY = new UriBundle(Uri.EMPTY);
 
     /** A URI. */
     public final Uri uri;
@@ -171,12 +171,12 @@ public final class MediaItem {
     public final Map<String, String> requestHeaders;
 
     /**
-     * Creates an instance from the given string with no request headers.
+     * Creates an instance with no request headers.
      *
-     * @param uriString See {@link #uri}.
+     * @param uri See {@link #uri}.
      */
-    public UriBundle(String uriString) {
-      this(Uri.parse(uriString), Collections.emptyMap());
+    public UriBundle(Uri uri) {
+      this(uri, Collections.emptyMap());
     }
 
     /**
