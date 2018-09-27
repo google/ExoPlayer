@@ -138,6 +138,8 @@
 * Fix bugs reporting events for multi-period media sources
   ([#4492](https://github.com/google/ExoPlayer/issues/4492) and
   [#4634](https://github.com/google/ExoPlayer/issues/4634)).
+* Fix issue where removing looping media from a playlist throws an exception
+  ([#4871](https://github.com/google/ExoPlayer/issues/4871).
 * Fix issue where the preferred audio or text track would not be selected if
   mapped onto a secondary renderer of the corresponding type
   ([#4711](http://github.com/google/ExoPlayer/issues/4711)).

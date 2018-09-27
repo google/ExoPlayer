@@ -2419,6 +2419,33 @@ public final class ExoPlayerTest {
     assertThat(renderer.hasReadStreamToEnd()).isTrue();
   }
 
+  @Test
+  public void removingLoopingLastPeriodFromPlaylistDoesNotThrow() throws Exception {
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true, /* isDynamic= */ true, /* durationUs= */ 100_000));
+    MediaSource mediaSource = new FakeMediaSource(timeline, /* manifest= */ null);
+    ConcatenatingMediaSource concatenatingMediaSource = new ConcatenatingMediaSource(mediaSource);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("removingLoopingLastPeriodFromPlaylistDoesNotThrow")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            // Play almost to end to ensure the current period is fully buffered.
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 90)
+            // Enable repeat mode to trigger the creation of new media periods.
+            .setRepeatMode(Player.REPEAT_MODE_ALL)
+            // Remove the media source.
+            .executeRunnable(concatenatingMediaSource::clear)
+            .build();
+    new Builder()
+        .setMediaSource(concatenatingMediaSource)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {

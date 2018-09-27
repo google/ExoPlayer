@@ -474,7 +474,12 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   @Override
   public final MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
     Object mediaSourceHolderUid = getMediaSourceHolderUid(id.periodUid);
-    MediaSourceHolder holder = Assertions.checkNotNull(mediaSourceByUid.get(mediaSourceHolderUid));
+    MediaSourceHolder holder = mediaSourceByUid.get(mediaSourceHolderUid);
+    if (holder == null) {
+      // Stale event. The media source has already been removed.
+      holder = new MediaSourceHolder(new DummyMediaSource());
+      holder.hasStartedPreparing = true;
+    }
     DeferredMediaPeriod mediaPeriod = new DeferredMediaPeriod(holder.mediaSource, id, allocator);
     mediaSourceByMediaPeriod.put(mediaPeriod, holder);
     holder.activeMediaPeriods.add(mediaPeriod);
@@ -992,6 +997,38 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     @Override
     public Object getUidOfPeriod(int periodIndex) {
       return DeferredTimeline.DUMMY_ID;
+    }
+  }
+
+  /** Dummy media source which does nothing and does not support creating periods. */
+  private static final class DummyMediaSource extends BaseMediaSource {
+
+    @Override
+    protected void prepareSourceInternal(
+        ExoPlayer player,
+        boolean isTopLevelSource,
+        @Nullable TransferListener mediaTransferListener) {
+      // Do nothing.
+    }
+
+    @Override
+    protected void releaseSourceInternal() {
+      // Do nothing.
+    }
+
+    @Override
+    public void maybeThrowSourceInfoRefreshError() throws IOException {
+      // Do nothing.
+    }
+
+    @Override
+    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void releasePeriod(MediaPeriod mediaPeriod) {
+      // Do nothing.
     }
   }
 }
