@@ -169,22 +169,21 @@ player functionality. The code below is an example of creating a
 `SimpleExoPlayer`.
 
 {% highlight java %}
-// 1. Create a default TrackSelector
-Handler mainHandler = new Handler();
-BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-TrackSelection.Factory videoTrackSelectionFactory =
-    new AdaptiveTrackSelection.Factory(bandwidthMeter);
-DefaultTrackSelector trackSelector =
-    new DefaultTrackSelector(videoTrackSelectionFactory);
-
-// 2. Create the player
-SimpleExoPlayer player =
-    ExoPlayerFactory.newSimpleInstance(context, trackSelector);
+SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(context);
 {% endhighlight %}
 
-ExoPlayer instances must be accessed from a single application thread. This must
-be the thread the player is created on if that thread has a {@link Looper}, or
-the application's main thread otherwise.
+ExoPlayer instances must be accessed from a single application thread. For the
+vast majority of cases this should be the application's main thread. Using the
+application's main thread is also a requirement when using ExoPlayer's UI
+components or the IMA extension.
+
+The thread on which an ExoPlayer instance must be accessed can be explicitly
+specified by passing a `Looper` when creating the player. If no `Looper` is
+specified, then the `Looper` of the thread that the player is created on is
+used, or if that thread does not have a `Looper`, the `Looper` of the
+application's main thread is used. In all cases the `Looper` of the thread from
+which the player must be accessed can be queried using
+`Player.getApplicationLooper`.
 
 ### Attaching the player to a view ###
 
@@ -214,16 +213,13 @@ piece of media you must first create a corresponding `MediaSource` and then
 pass this object to `ExoPlayer.prepare`. The ExoPlayer library provides
 `MediaSource` implementations for DASH (`DashMediaSource`), SmoothStreaming
 (`SsMediaSource`), HLS (`HlsMediaSource`) and regular media files
-(`ExtractorMediaSource`). These implementations are described in more detail
-later in this guide. The following code shows how to prepare the player with a
-`MediaSource` suitable for playback of an MP4 file.
+(`ExtractorMediaSource`). The following code shows how to prepare the player
+with a `MediaSource` suitable for playback of an MP4 file.
 
 {% highlight java %}
-// Measures bandwidth during playback. Can be null if not required.
-DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 // Produces DataSource instances through which media data is loaded.
 DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
-    Util.getUserAgent(context, "yourApplicationName"), bandwidthMeter);
+    Util.getUserAgent(context, "yourApplicationName"));
 // This is the MediaSource representing the media to be played.
 MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
     .createMediaSource(mp4VideoUri);
@@ -424,8 +420,14 @@ ConcatenatingMediaSource concatenatedSource =
 
 Track selection determines which of the available media tracks are played by the
 player's `Renderer`s. Track selection is the responsibility of a
-`TrackSelector`, an instance of which must be provided whenever an `ExoPlayer`
+`TrackSelector`, an instance of which can be provided whenever an `ExoPlayer`
 is built.
+
+{% highlight java %}
+DefaultTrackSelector trackSelector = new DefaultTrackSelector();
+SimpleExoPlayer player =
+    ExoPlayerFactory.newSimpleInstance(context, trackSelector);
+{% endhighlight %}
 
 `DefaultTrackSelector` is a flexible `TrackSelector` suitable for most use
 cases. When using a `DefaultTrackSelector`, it's possible to control which
@@ -528,7 +530,7 @@ Information about battery consumption when using ExoPlayer can be found on the
 Advice on minimizing the size of the ExoPlayer library can be found on the
 [Shrinking ExoPlayer page][].
 
-[Supported formats]: {{ site.baseurl }} /supported-formats.html
+[Supported formats]: {{ site.baseurl }}/supported-formats.html
 [IMA extension]: {{ site.releasev2 }}/extensions/ima
 [Interactive Media Ads SDK]: https://developers.google.com/interactive-media-ads
 [Battery consumption page]: {{ site.baseurl }}/battery-consumption.html

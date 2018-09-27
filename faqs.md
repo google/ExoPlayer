@@ -11,6 +11,7 @@ weight: 6
 * [Why do some MP4/FMP4 files play incorrectly?][]
 * [Why do some streams fail with HTTP response code 301 or 302?][]
 * [Why do some streams fail with UnrecognizedInputFormatException?][]
+* [How can I tell when playback moves to the next item in a playlist?][]
 * [How can I query whether the stream being played is a live stream?][]
 * [How do I keep audio playing when my app is backgrounded?][]
 * [How do I get smooth animation/scrolling of video?][]
@@ -38,19 +39,20 @@ releases you provide to end users should not be affected by this issue.
 
 #### Why are some media files not seekable? ####
 
-ExoPlayer does not support seeking in media where the only method for performing
-accurate seek operations is for the player to scan and index the entire file.
-ExoPlayer considers such files as unseekable. Most modern media container
-formats include metadata for seeking (e.g., a sample index), have a well defined
-seek algorithm (e.g., interpolated bisection search for Ogg), or indicate that
-their content is constant bitrate. Efficient seek operations are possible and
-supported by ExoPlayer in these cases.
+By default ExoPlayer does not support seeking in media where the only method for
+performing accurate seek operations is for the player to scan and index the
+entire file. ExoPlayer considers such files as unseekable. Most modern media
+container formats include metadata for seeking (e.g., a sample index), have a
+well defined seek algorithm (e.g., interpolated bisection search for Ogg), or
+indicate that their content is constant bitrate. Efficient seek operations are
+possible and supported by ExoPlayer in these cases.
 
 If you require seeking but have unseekable media, we suggest converting your
-content to use a more appropriate container format. In the specific case of
-unseekable MP3 files, you can enable seeking under the assumption that the
-files have a constant bitrate using [FLAG_ENABLE_CONSTANT_BITRATE_SEEKING][].
-This can be set on a DefaultExtractorsFactory using [setMp3ExtractorFlags][].
+content to use a more appropriate container format. For MP3, ADTS and AMR files,
+you can also enable seeking under the assumption that the files have a constant
+bitrate using `FLAG_ENABLE_CONSTANT_BITRATE_SEEKING` flags. The simplest way to
+enable this functionality on all extractors that support it is to use
+`DefaultExtractorsFactory.setConstantBitrateSeekingEnabled`.
 
 #### Why do some MPEG-TS files fail to play? ####
 
@@ -138,6 +140,22 @@ working as intended, however feel free to submit a feature request to our
 [issue tracker][], including details of the container format and a test stream.
 Please search for an existing feature request before submitting a new one.
 
+#### How can I tell when playback moves to the next item in a playlist? ####
+
+When playback moves from one item to the next,
+`EventListener.onPositionDiscontinuity` will be called with
+`reason = Player.DISCONTINUITY_REASON_PERIOD_TRANSITION`.
+
+In the case of dynamic playlists, the item being played may also change due to
+a change to the playlist (e.g. if items are added, moved, or removed). In this
+case `EventListener.onTimelineChanged` will be called with
+`reason = Player.TIMELINE_CHANGE_REASON_DYNAMIC`.
+
+In both cases, when your application code receives the event, you can query the
+player to determine which item in the playlist is now being played. This can be
+done using methods such as `Player.getCurrentWindowIndex` and
+`Player.getCurrentTag`.
+
 #### How can I query whether the stream being played is a live stream? ####
 
 You can query ExoPlayer's [isCurrentWindowDynamic][] method. A dynamic window
@@ -213,6 +231,7 @@ through the ["Threading model" section of the ExoPlayer Javadoc][].
 [Why do some MP4/FMP4 files play incorrectly?]: #why-do-some-mp4fmp4-files-play-incorrectly
 [Why do some streams fail with HTTP response code 301 or 302?]: #why-do-some-streams-fail-with-http-response-code-301-or-302
 [Why do some streams fail with UnrecognizedInputFormatException?]: #why-do-some-streams-fail-with-unrecognizedinputformatexception
+[How can I tell when playback moves to the next item in a playlist?]: #how-can-i-tell-when-playback-moves-to-the-next-item-in-a-playlist
 [How can I query whether the stream being played is a live stream?]: #how-can-i-query-whether-the-stream-being-played-is-a-live-stream
 [How do I keep audio playing when my app is backgrounded?]: #how-do-i-keep-audio-playing-when-my-app-is-backgrounded
 [How do I get smooth animation/scrolling of video?]: #how-do-i-get-smooth-animationscrolling-of-video
@@ -222,7 +241,6 @@ through the ["Threading model" section of the ExoPlayer Javadoc][].
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
 [setPlaybackParameters]: {{ site.exo_sdk }}/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-
-[FLAG_ENABLE_CONSTANT_BITRATE_SEEKING]: {{ site.exo_sdk }}/extractor/mp3/Mp3Extractor.html#FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
 [setMp3ExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
 [FLAG_DETECT_ACCESS_UNITS]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
 [FLAG_ALLOW_NON_IDR_KEYFRAMES]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES

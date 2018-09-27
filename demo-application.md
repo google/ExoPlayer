@@ -68,7 +68,7 @@ be built to include and use these extensions as follows:
 {% include figure.html url="/images/demo-app-build-variants.png" index="3" caption="Selecting the demo_extDebug build variant" %}
 
 By default an extension decoder will be used only if a suitable platform decoder
-does not exist. It is possible to indicate that extension decoders should be
+does not exist. It is possible to specify that extension decoders should be
 preferred, as described in the sections below.
 
 ## Playing your own content ##
@@ -90,12 +90,11 @@ app. The schema is as follows, where [O] indicates an optional attribute.
         "name": "Name of sample",
         "uri": "The URI/URL of the sample",
         "extension": "[O] Sample type hint. Values: mpd, ism, m3u8",
-        "prefer_extension_decoders": "[O] Boolean to prefer extension decoders",
-        "abr_algorithm": "[O] ABR algorithm for adaptive playbacks. Values: default, random",
         "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
         "drm_license_url": "[O] URL of the license server if protected",
         "drm_key_request_properties": "[O] Key request headers if protected",
-        "drm_multi_session": "[O] Enables key rotation if protected"
+        "drm_multi_session": "[O] Enables key rotation if protected",
+        "spherical_stereo_mode": "[O] Enables spherical view. Values: mono, top_bottom, left_right"
       },
       ...etc
     ]
@@ -113,8 +112,6 @@ Playlists of samples can be specified using the schema:
     "samples": [
       {
         "name": "Name of playlist sample",
-        "prefer_extension_decoders": "[O] Boolean to prefer extension decoders",
-        "abr_algorithm": "[O] ABR algorithm for adaptive playbacks. Values: default, random",
         "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
         "drm_license_url": "[O] URL of the license server if protected",
         "drm_key_request_properties": "[O] Key request headers if protected",
@@ -148,6 +145,10 @@ attribute for each header:
   ...etc
 }
 {% endhighlight %}
+
+In the sample chooser activity, the overflow menu contains options for
+specifying whether to prefer extension decoders, and which ABR algorithm should
+be used.
 
 ### 2. Loading an external exolist.json file ###
 
@@ -190,6 +191,8 @@ Supported optional extras for a single sample intent are:
 * `drm_key_request_properties` [String array] Key request headers packed as
   name1, value1, name2, value2 etc. if protected
 * `drm_multi_session`: [Boolean] Enables key rotation if protected
+* `spherical_stereo_mode` [String] Enables spherical view. Values: `mono`,
+  `top_bottom` and `left_right`.
 
 When using `adb shell am start` to fire an intent, an optional string extra can
 be set with `--es` (e.g., `--es extension mpd`). An optional boolean extra can

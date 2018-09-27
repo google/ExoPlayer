@@ -124,7 +124,7 @@ And use it when instantiating `SimpleExoPlayer` instances, like:
 
 {% highlight java %}
 SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(
-    new AudioOnlyRenderersFactory(context), trackSelector);
+    context, new AudioOnlyRenderersFactory(context), trackSelector);
 {% endhighlight %}
 
 This will allow other `Renderer` implementations to be removed by ProGuard. In

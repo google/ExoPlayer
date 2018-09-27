@@ -50,8 +50,7 @@ details).
 | **Metadata** |||
 | EMSG metadata | YES | Embedded in FMP4 |
 | **Content protection** |||
-| Widevine | YES | API 19+ ("cenc" scheme) and 25+ ("cbcs", "cbc1" and "cens"
-  schemes) |
+| Widevine | YES | API 19+ ("cenc" scheme) and 25+ ("cbcs", "cbc1" and "cens" schemes) |
 | PlayReady SL2000 | YES | Android TV only |
 | ClearKey | YES | API 21+ |
 
@@ -110,18 +109,24 @@ ExoPlayer. The contained audio and video sample formats must also be supported
 | FMP4 | YES ||
 | WebM| YES ||
 | Matroska| YES ||
-| MP3 | YES ||
+| MP3 | YES | Some files only seekable using constant bitrate seeking** |
 | Ogg | YES | Containing Vorbis, Opus and Flac |
 | WAV | YES ||
-| MPEG-TS | YES | Not seekable* |
-| MPEG-PS | YES | Not seekable* |
+| MPEG-TS | YES ||
+| MPEG-PS | YES ||
 | FLV | YES | Not seekable* |
-| ADTS (AAC) | YES | Not seekable* |
+| ADTS (AAC) | YES | Only seekable using constant bitrate seeking** |
 | Flac | YES | Using the [Flac extension][] only |
+| AMR | YES | Only seekable using constant bitrate seeking** |
 
 \* Seeking is unsupported because the container does not provide metadata (e.g.,
 a sample index) to allow a media player to perform a seek in an efficient way.
 If seeking is required, we suggest using a more appropriate container format.
+\*\* These extractors have `FLAG_ENABLE_CONSTANT_BITRATE_SEEKING` flags for
+enabling approximate seeking using a constant bitrate assumption. This
+functionality is not enabled by default. The simplest way to enable this
+functionality for all extractors that support it is to use
+`DefaultExtractorsFactory.setConstantBitrateSeekingEnabled`.
 
 ## Sample formats ##
 
@@ -152,6 +157,8 @@ arguments to FFmpeg's `configure` script:
 | Opus           | --enable-decoder=opus |
 | FLAC           | --enable-decoder=flac |
 | ALAC           | --enable-decoder=alac |
+| PCM μ-law      | --enable-decoder=pcm_mulaw |
+| PCM A-law      | --enable-decoder=pcm_alaw |
 | MP1, MP2, MP3  | --enable-decoder=mp3 |
 | AMR-NB         | --enable-decoder=amrnb |
 | AMR-WB         | --enable-decoder=amrwb |
