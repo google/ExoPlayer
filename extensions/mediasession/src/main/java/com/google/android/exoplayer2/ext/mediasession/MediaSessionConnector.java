@@ -259,6 +259,9 @@ public final class MediaSessionConnector {
 
     /** See {@link MediaSessionCompat.Callback#onSetRating(RatingCompat)}. */
     void onSetRating(Player player, RatingCompat rating);
+    
+    /** See {@link MediaSessionCompat.Callback#onSetRating(RatingCompat, Bundle)}. */
+    void onSetRating(Player player, RatingCompat rating, Bundle extras);
   }
 
   /**
@@ -1000,6 +1003,13 @@ public final class MediaSessionConnector {
     public void onSetRating(RatingCompat rating) {
       if (canDispatchToRatingCallback(PlaybackStateCompat.ACTION_SET_RATING)) {
         ratingCallback.onSetRating(player, rating);
+      }
+    }
+    
+    @Override
+    public void onSetRating(RatingCompat rating, Bundle extras) {
+      if (canDispatchToRatingCallback(PlaybackStateCompat.ACTION_SET_RATING)) {
+        ratingCallback.onSetRating(player, rating, extras);
       }
     }
 
