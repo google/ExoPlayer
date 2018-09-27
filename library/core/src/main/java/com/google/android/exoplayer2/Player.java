@@ -22,10 +22,17 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import com.google.android.exoplayer2.C.VideoScalingMode;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioListener;
+import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
+import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -50,18 +57,101 @@ import java.lang.annotation.RetentionPolicy;
  */
 public interface Player {
 
+  /** The audio component of a {@link Player}. */
+  interface AudioComponent {
+
+    /**
+     * Adds a listener to receive audio events.
+     *
+     * @param listener The listener to register.
+     */
+    void addAudioListener(AudioListener listener);
+
+    /**
+     * Removes a listener of audio events.
+     *
+     * @param listener The listener to unregister.
+     */
+    void removeAudioListener(AudioListener listener);
+
+    /**
+     * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
+     * default audio attributes will be used. They are suitable for general media playback.
+     *
+     * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
+     * the audio track is recreated. A new audio session id will also be generated.
+     *
+     * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
+     * ignored, but they will take effect if audio is later played without tunneling.
+     *
+     * <p>If the device is running a build before platform API version 21, audio attributes cannot
+     * be set directly on the underlying audio track. In this case, the usage will be mapped onto an
+     * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
+     *
+     * @param audioAttributes The attributes to use for audio playback.
+     * @deprecated Use {@link AudioComponent#setAudioAttributes(AudioAttributes, boolean)}.
+     */
+    @Deprecated
+    void setAudioAttributes(AudioAttributes audioAttributes);
+
+    /**
+     * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
+     * default audio attributes will be used. They are suitable for general media playback.
+     *
+     * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
+     * the audio track is recreated. A new audio session id will also be generated.
+     *
+     * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
+     * ignored, but they will take effect if audio is later played without tunneling.
+     *
+     * <p>If the device is running a build before platform API version 21, audio attributes cannot
+     * be set directly on the underlying audio track. In this case, the usage will be mapped onto an
+     * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
+     *
+     * <p>If audio focus should be handled, the {@link AudioAttributes#usage} must be {@link
+     * C#USAGE_MEDIA} or {@link C#USAGE_GAME}. Other usages will throw an {@link
+     * IllegalArgumentException}.
+     *
+     * @param audioAttributes The attributes to use for audio playback.
+     * @param handleAudioFocus True if the player should handle audio focus, false otherwise.
+     */
+    void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus);
+
+    /** Returns the attributes for audio playback. */
+    AudioAttributes getAudioAttributes();
+
+    /** Returns the audio session identifier, or {@link C#AUDIO_SESSION_ID_UNSET} if not set. */
+    int getAudioSessionId();
+
+    /** Sets information on an auxiliary audio effect to attach to the underlying audio track. */
+    void setAuxEffectInfo(AuxEffectInfo auxEffectInfo);
+
+    /** Detaches any previously attached auxiliary audio effect from the underlying audio track. */
+    void clearAuxEffectInfo();
+
+    /**
+     * Sets the audio volume, with 0 being silence and 1 being unity gain.
+     *
+     * @param audioVolume The audio volume.
+     */
+    void setVolume(float audioVolume);
+
+    /** Returns the audio volume, with 0 being silence and 1 being unity gain. */
+    float getVolume();
+  }
+
   /** The video component of a {@link Player}. */
   interface VideoComponent {
 
     /**
-     * Sets the video scaling mode.
+     * Sets the {@link VideoScalingMode}.
      *
-     * @param videoScalingMode The video scaling mode.
+     * @param videoScalingMode The {@link VideoScalingMode}.
      */
-    void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode);
+    void setVideoScalingMode(@VideoScalingMode int videoScalingMode);
 
-    /** Returns the video scaling mode. */
-    @C.VideoScalingMode
+    /** Returns the {@link VideoScalingMode}. */
+    @VideoScalingMode
     int getVideoScalingMode();
 
     /**
@@ -79,10 +169,52 @@ public interface Player {
     void removeVideoListener(VideoListener listener);
 
     /**
+     * Sets a listener to receive video frame metadata events.
+     *
+     * <p>This method is intended to be called by the same component that sets the {@link Surface}
+     * onto which video will be rendered. If using ExoPlayer's standard UI components, this method
+     * should not be called directly from application code.
+     *
+     * @param listener The listener.
+     */
+    void setVideoFrameMetadataListener(VideoFrameMetadataListener listener);
+
+    /**
+     * Clears the listener which receives video frame metadata events if it matches the one passed.
+     * Else does nothing.
+     *
+     * @param listener The listener to clear.
+     */
+    void clearVideoFrameMetadataListener(VideoFrameMetadataListener listener);
+
+    /**
+     * Sets a listener of camera motion events.
+     *
+     * @param listener The listener.
+     */
+    void setCameraMotionListener(CameraMotionListener listener);
+
+    /**
+     * Clears the listener which receives camera motion events if it matches the one passed. Else
+     * does nothing.
+     *
+     * @param listener The listener to clear.
+     */
+    void clearCameraMotionListener(CameraMotionListener listener);
+
+    /**
      * Clears any {@link Surface}, {@link SurfaceHolder}, {@link SurfaceView} or {@link TextureView}
      * currently set on the player.
      */
     void clearVideoSurface();
+
+    /**
+     * Clears the {@link Surface} onto which video is being rendered if it matches the one passed.
+     * Else does nothing.
+     *
+     * @param surface The surface to clear.
+     */
+    void clearVideoSurface(Surface surface);
 
     /**
      * Sets the {@link Surface} onto which video will be rendered. The caller is responsible for
@@ -97,15 +229,7 @@ public interface Player {
      *
      * @param surface The {@link Surface}.
      */
-    void setVideoSurface(Surface surface);
-
-    /**
-     * Clears the {@link Surface} onto which video is being rendered if it matches the one passed.
-     * Else does nothing.
-     *
-     * @param surface The surface to clear.
-     */
-    void clearVideoSurface(Surface surface);
+    void setVideoSurface(@Nullable Surface surface);
 
     /**
      * Sets the {@link SurfaceHolder} that holds the {@link Surface} onto which video will be
@@ -175,24 +299,25 @@ public interface Player {
   }
 
   /**
-   * Listener of changes in player state.
+   * Listener of changes in player state. All methods have no-op default implementations to allow
+   * selective overrides.
    */
   interface EventListener {
 
     /**
      * Called when the timeline and/or manifest has been refreshed.
-     * <p>
-     * Note that if the timeline has changed then a position discontinuity may also have occurred.
-     * For example, the current period index may have changed as a result of periods being added or
-     * removed from the timeline. This will <em>not</em> be reported via a separate call to
+     *
+     * <p>Note that if the timeline has changed then a position discontinuity may also have
+     * occurred. For example, the current period index may have changed as a result of periods being
+     * added or removed from the timeline. This will <em>not</em> be reported via a separate call to
      * {@link #onPositionDiscontinuity(int)}.
      *
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param manifest The latest manifest. May be null.
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      */
-    void onTimelineChanged(
-        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason);
+    default void onTimelineChanged(
+        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
 
     /**
      * Called when the available or selected tracks change.
@@ -201,46 +326,47 @@ public interface Player {
      * @param trackSelections The track selections for each renderer. Never null and always of
      *     length {@link #getRendererCount()}, but may contain null elements.
      */
-    void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections);
+    default void onTracksChanged(
+        TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
     /**
      * Called when the player starts or stops loading the source.
      *
      * @param isLoading Whether the source is currently being loaded.
      */
-    void onLoadingChanged(boolean isLoading);
+    default void onLoadingChanged(boolean isLoading) {}
 
     /**
-     * Called when the value returned from either {@link #getPlayWhenReady()} or
-     * {@link #getPlaybackState()} changes.
+     * Called when the value returned from either {@link #getPlayWhenReady()} or {@link
+     * #getPlaybackState()} changes.
      *
      * @param playWhenReady Whether playback will proceed when ready.
      * @param playbackState One of the {@code STATE} constants.
      */
-    void onPlayerStateChanged(boolean playWhenReady, int playbackState);
+    default void onPlayerStateChanged(boolean playWhenReady, int playbackState) {}
 
     /**
      * Called when the value of {@link #getRepeatMode()} changes.
      *
      * @param repeatMode The {@link RepeatMode} used for playback.
      */
-    void onRepeatModeChanged(@RepeatMode int repeatMode);
+    default void onRepeatModeChanged(@RepeatMode int repeatMode) {}
 
     /**
      * Called when the value of {@link #getShuffleModeEnabled()} changes.
      *
      * @param shuffleModeEnabled Whether shuffling of windows is enabled.
      */
-    void onShuffleModeEnabledChanged(boolean shuffleModeEnabled);
+    default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
 
     /**
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
-     * immediately after this method is called. The player instance can still be used, and
-     * {@link #release()} must still be called on the player should it no longer be required.
+     * immediately after this method is called. The player instance can still be used, and {@link
+     * #release()} must still be called on the player should it no longer be required.
      *
      * @param error The error.
      */
-    void onPlayerError(ExoPlaybackException error);
+    default void onPlayerError(ExoPlaybackException error) {}
 
     /**
      * Called when a position discontinuity occurs without a change to the timeline. A position
@@ -248,14 +374,14 @@ public interface Player {
      * transitioning from one period in the timeline to the next), or when the playback position
      * jumps within the period currently being played (as a result of a seek being performed, or
      * when the source introduces a discontinuity internally).
-     * <p>
-     * When a position discontinuity occurs as a result of a change to the timeline this method is
-     * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object, int)} is called in this
+     *
+     * <p>When a position discontinuity occurs as a result of a change to the timeline this method
+     * is <em>not</em> called. {@link #onTimelineChanged(Timeline, Object, int)} is called in this
      * case.
      *
      * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
-    void onPositionDiscontinuity(@DiscontinuityReason int reason);
+    default void onPositionDiscontinuity(@DiscontinuityReason int reason) {}
 
     /**
      * Called when the current playback parameters change. The playback parameters may change due to
@@ -265,83 +391,36 @@ public interface Player {
      *
      * @param playbackParameters The playback parameters.
      */
-    void onPlaybackParametersChanged(PlaybackParameters playbackParameters);
+    default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
 
     /**
      * Called when all pending seek requests have been processed by the player. This is guaranteed
-     * to happen after any necessary changes to the player state were reported to
-     * {@link #onPlayerStateChanged(boolean, int)}.
+     * to happen after any necessary changes to the player state were reported to {@link
+     * #onPlayerStateChanged(boolean, int)}.
      */
-    void onSeekProcessed();
-
+    default void onSeekProcessed() {}
   }
 
   /**
-   * {@link EventListener} allowing selective overrides. All methods are implemented as no-ops.
+   * @deprecated Use {@link EventListener} interface directly for selective overrides as all methods
+   *     are implemented as no-op default methods.
    */
+  @Deprecated
   abstract class DefaultEventListener implements EventListener {
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
       // Call deprecated version. Otherwise, do nothing.
       onTimelineChanged(timeline, manifest);
     }
 
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onRepeatModeChanged(@RepeatMode int repeatMode) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlayerError(ExoPlaybackException error) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      // Do nothing.
-    }
-
-    @Override
-    public void onSeekProcessed() {
-      // Do nothing.
-    }
-
-    /**
-     * @deprecated Use {@link DefaultEventListener#onTimelineChanged(Timeline, Object, int)}
-     *     instead.
-     */
+    /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, Object, int)} instead. */
     @Deprecated
     public void onTimelineChanged(Timeline timeline, @Nullable Object manifest) {
       // Do nothing.
     }
-
   }
 
   /**
@@ -364,11 +443,12 @@ public interface Player {
   int STATE_ENDED = 4;
 
   /**
-   * Repeat modes for playback.
+   * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
+   * #REPEAT_MODE_ALL}.
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({REPEAT_MODE_OFF, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
-  public @interface RepeatMode {}
+  @interface RepeatMode {}
   /**
    * Normal playback without repetition.
    */
@@ -382,7 +462,11 @@ public interface Player {
    */
   int REPEAT_MODE_ALL = 2;
 
-  /** Reasons for position discontinuities. */
+  /**
+   * Reasons for position discontinuities. One of {@link #DISCONTINUITY_REASON_PERIOD_TRANSITION},
+   * {@link #DISCONTINUITY_REASON_SEEK}, {@link #DISCONTINUITY_REASON_SEEK_ADJUSTMENT}, {@link
+   * #DISCONTINUITY_REASON_AD_INSERTION} or {@link #DISCONTINUITY_REASON_INTERNAL}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     DISCONTINUITY_REASON_PERIOD_TRANSITION,
@@ -391,7 +475,7 @@ public interface Player {
     DISCONTINUITY_REASON_AD_INSERTION,
     DISCONTINUITY_REASON_INTERNAL
   })
-  public @interface DiscontinuityReason {}
+  @interface DiscontinuityReason {}
   /**
    * Automatic playback transition from one period in the timeline to the next. The period index may
    * be the same as it was before the discontinuity in case the current period is repeated.
@@ -410,12 +494,16 @@ public interface Player {
   int DISCONTINUITY_REASON_INTERNAL = 4;
 
   /**
-   * Reasons for timeline and/or manifest changes.
+   * Reasons for timeline and/or manifest changes. One of {@link #TIMELINE_CHANGE_REASON_PREPARED},
+   * {@link #TIMELINE_CHANGE_REASON_RESET} or {@link #TIMELINE_CHANGE_REASON_DYNAMIC}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TIMELINE_CHANGE_REASON_PREPARED, TIMELINE_CHANGE_REASON_RESET,
-      TIMELINE_CHANGE_REASON_DYNAMIC})
-  public @interface TimelineChangeReason {}
+  @IntDef({
+    TIMELINE_CHANGE_REASON_PREPARED,
+    TIMELINE_CHANGE_REASON_RESET,
+    TIMELINE_CHANGE_REASON_DYNAMIC
+  })
+  @interface TimelineChangeReason {}
   /**
    * Timeline and manifest changed as a result of a player initialization with new media.
    */
@@ -429,6 +517,10 @@ public interface Player {
    */
   int TIMELINE_CHANGE_REASON_DYNAMIC = 2;
 
+  /** Returns the component of this player for audio output, or null if audio is not supported. */
+  @Nullable
+  AudioComponent getAudioComponent();
+
   /** Returns the component of this player for video output, or null if video is not supported. */
   @Nullable
   VideoComponent getVideoComponent();
@@ -436,6 +528,12 @@ public interface Player {
   /** Returns the component of this player for text output, or null if text is not supported. */
   @Nullable
   TextComponent getTextComponent();
+
+  /**
+   * Returns the {@link Looper} associated with the application thread that's used to access the
+   * player and on which player events are received.
+   */
+  Looper getApplicationLooper();
 
   /**
    * Register a listener to receive events from the player. The listener's methods will be called on
@@ -674,27 +772,31 @@ public interface Player {
   @Nullable Object getCurrentTag();
 
   /**
-   * Returns the duration of the current window in milliseconds, or {@link C#TIME_UNSET} if the
-   * duration is not known.
+   * Returns the duration of the current content window or ad in milliseconds, or {@link
+   * C#TIME_UNSET} if the duration is not known.
    */
   long getDuration();
 
-  /**
-   * Returns the playback position in the current window, in milliseconds.
-   */
+  /** Returns the playback position in the current content window or ad, in milliseconds. */
   long getCurrentPosition();
 
   /**
-   * Returns an estimate of the position in the current window up to which data is buffered, in
-   * milliseconds.
+   * Returns an estimate of the position in the current content window or ad up to which data is
+   * buffered, in milliseconds.
    */
   long getBufferedPosition();
 
   /**
-   * Returns an estimate of the percentage in the current window up to which data is buffered, or 0
-   * if no estimate is available.
+   * Returns an estimate of the percentage in the current content window or ad up to which data is
+   * buffered, or 0 if no estimate is available.
    */
   int getBufferedPercentage();
+
+  /**
+   * Returns an estimate of the total buffered duration from the current position, in milliseconds.
+   * This includes pre-buffered data for subsequent ads and windows.
+   */
+  long getTotalBufferedDuration();
 
   /**
    * Returns whether the current window is dynamic, or {@code false} if the {@link Timeline} is
@@ -730,10 +832,23 @@ public interface Player {
   int getCurrentAdIndexInAdGroup();
 
   /**
+   * If {@link #isPlayingAd()} returns {@code true}, returns the duration of the current content
+   * window in milliseconds, or {@link C#TIME_UNSET} if the duration is not known. If there is no ad
+   * playing, the returned duration is the same as that returned by {@link #getDuration()}.
+   */
+  long getContentDuration();
+
+  /**
    * If {@link #isPlayingAd()} returns {@code true}, returns the content position that will be
    * played once all ads in the ad group have finished playing, in milliseconds. If there is no ad
    * playing, the returned position is the same as that returned by {@link #getCurrentPosition()}.
    */
   long getContentPosition();
 
+  /**
+   * If {@link #isPlayingAd()} returns {@code true}, returns an estimate of the content position in
+   * the current content window up to which data is buffered, in milliseconds. If there is no ad
+   * playing, the returned position is the same as that returned by {@link #getBufferedPosition()}.
+   */
+  long getContentBufferedPosition();
 }

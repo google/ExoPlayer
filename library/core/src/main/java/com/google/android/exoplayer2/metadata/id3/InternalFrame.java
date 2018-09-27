@@ -15,9 +15,10 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.os.Parcel;
 import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
 /** Internal ID3 frame that is intended for use by the player. */
@@ -38,9 +39,9 @@ public final class InternalFrame extends Id3Frame {
 
   /* package */ InternalFrame(Parcel in) {
     super(ID);
-    domain = Assertions.checkNotNull(in.readString());
-    description = Assertions.checkNotNull(in.readString());
-    text = Assertions.checkNotNull(in.readString());
+    domain = castNonNull(in.readString());
+    description = castNonNull(in.readString());
+    text = castNonNull(in.readString());
   }
 
   @Override

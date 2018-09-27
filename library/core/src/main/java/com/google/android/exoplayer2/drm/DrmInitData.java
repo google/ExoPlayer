@@ -356,6 +356,16 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
       return data != null;
     }
 
+    /**
+     * Returns a copy of this instance with the specified data.
+     *
+     * @param data The data to include in the copy.
+     * @return The new instance.
+     */
+    public SchemeData copyWithData(@Nullable byte[] data) {
+      return new SchemeData(uuid, licenseServerUrl, mimeType, data, requiresSecureDecryption);
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
       if (!(obj instanceof SchemeData)) {

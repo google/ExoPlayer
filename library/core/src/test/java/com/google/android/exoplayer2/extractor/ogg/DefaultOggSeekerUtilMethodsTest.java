@@ -85,8 +85,14 @@ public final class DefaultOggSeekerUtilMethodsTest {
 
   private static void skipToNextPage(ExtractorInput extractorInput)
       throws IOException, InterruptedException {
-    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, extractorInput.getLength(),
-        new FlacReader(), 1, 2);
+    DefaultOggSeeker oggSeeker =
+        new DefaultOggSeeker(
+            /* startPosition= */ 0,
+            /* endPosition= */ extractorInput.getLength(),
+            /* streamReader= */ new FlacReader(),
+            /* firstPayloadPageSize= */ 1,
+            /* firstPayloadPageGranulePosition= */ 2,
+            /* firstPayloadPageIsLastPage= */ false);
     while (true) {
       try {
         oggSeeker.skipToNextPage(extractorInput);
@@ -157,7 +163,14 @@ public final class DefaultOggSeekerUtilMethodsTest {
 
   private void skipToPageOfGranule(ExtractorInput input, long granule,
       long elapsedSamplesExpected) throws IOException, InterruptedException {
-    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, input.getLength(), new FlacReader(), 1, 2);
+    DefaultOggSeeker oggSeeker =
+        new DefaultOggSeeker(
+            /* startPosition= */ 0,
+            /* endPosition= */ input.getLength(),
+            /* streamReader= */ new FlacReader(),
+            /* firstPayloadPageSize= */ 1,
+            /* firstPayloadPageGranulePosition= */ 2,
+            /* firstPayloadPageIsLastPage= */ false);
     while (true) {
       try {
         assertThat(oggSeeker.skipToPageOfGranule(input, granule, -1))
@@ -211,7 +224,14 @@ public final class DefaultOggSeekerUtilMethodsTest {
 
   private void assertReadGranuleOfLastPage(FakeExtractorInput input, int expected)
       throws IOException, InterruptedException {
-    DefaultOggSeeker oggSeeker = new DefaultOggSeeker(0, input.getLength(), new FlacReader(), 1, 2);
+    DefaultOggSeeker oggSeeker =
+        new DefaultOggSeeker(
+            /* startPosition= */ 0,
+            /* endPosition= */ input.getLength(),
+            /* streamReader= */ new FlacReader(),
+            /* firstPayloadPageSize= */ 1,
+            /* firstPayloadPageGranulePosition= */ 2,
+            /* firstPayloadPageIsLastPage= */ false);
     while (true) {
       try {
         assertThat(oggSeeker.readGranuleOfLastPage(input)).isEqualTo(expected);

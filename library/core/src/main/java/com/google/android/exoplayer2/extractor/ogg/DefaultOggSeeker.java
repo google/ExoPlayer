@@ -23,9 +23,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.io.EOFException;
 import java.io.IOException;
 
-/**
- * Used to seek in an Ogg stream.
- */
+/** Seeks in an Ogg stream. */
 /* package */ final class DefaultOggSeeker implements OggSeeker {
 
   //@VisibleForTesting
@@ -56,19 +54,27 @@ import java.io.IOException;
 
   /**
    * Constructs an OggSeeker.
+   *
    * @param startPosition Start position of the payload (inclusive).
    * @param endPosition End position of the payload (exclusive).
-   * @param streamReader StreamReader instance which owns this OggSeeker
+   * @param streamReader The {@link StreamReader} that owns this seeker.
    * @param firstPayloadPageSize The total size of the first payload page, in bytes.
    * @param firstPayloadPageGranulePosition The granule position of the first payload page.
+   * @param firstPayloadPageIsLastPage Whether the first payload page is also the last page in the
+   *     ogg stream.
    */
-  public DefaultOggSeeker(long startPosition, long endPosition, StreamReader streamReader,
-      int firstPayloadPageSize, long firstPayloadPageGranulePosition) {
+  public DefaultOggSeeker(
+      long startPosition,
+      long endPosition,
+      StreamReader streamReader,
+      long firstPayloadPageSize,
+      long firstPayloadPageGranulePosition,
+      boolean firstPayloadPageIsLastPage) {
     Assertions.checkArgument(startPosition >= 0 && endPosition > startPosition);
     this.streamReader = streamReader;
     this.startPosition = startPosition;
     this.endPosition = endPosition;
-    if (firstPayloadPageSize == endPosition - startPosition) {
+    if (firstPayloadPageSize == endPosition - startPosition || firstPayloadPageIsLastPage) {
       totalGranules = firstPayloadPageGranulePosition;
       state = STATE_IDLE;
     } else {
@@ -240,11 +246,11 @@ import java.io.IOException;
    * Skips to the next page.
    *
    * @param input The {@code ExtractorInput} to skip to the next page.
-   * @throws IOException thrown if peeking/reading from the input fails.
-   * @throws InterruptedException thrown if interrupted while peeking/reading from the input.
-   * @throws EOFException if the next page can't be found before the end of the input.
+   * @throws IOException If peeking/reading from the input fails.
+   * @throws InterruptedException If the thread is interrupted.
+   * @throws EOFException If the next page can't be found before the end of the input.
    */
-  //@VisibleForTesting
+  // @VisibleForTesting
   void skipToNextPage(ExtractorInput input) throws IOException, InterruptedException {
     if (!skipToNextPage(input, endPosition)) {
       // Not found until eof.
@@ -256,21 +262,21 @@ import java.io.IOException;
    * Skips to the next page. Searches for the next page header.
    *
    * @param input The {@code ExtractorInput} to skip to the next page.
-   * @param until Searches until this position.
-   * @return true if the next page is found.
+   * @param limit The limit up to which the search should take place.
+   * @return Whether the next page was found.
    * @throws IOException thrown if peeking/reading from the input fails.
    * @throws InterruptedException thrown if interrupted while peeking/reading from the input.
    */
-  //@VisibleForTesting
-  boolean skipToNextPage(ExtractorInput input, long until)
+  // @VisibleForTesting
+  boolean skipToNextPage(ExtractorInput input, long limit)
       throws IOException, InterruptedException {
-    until = Math.min(until + 3, endPosition);
+    limit = Math.min(limit + 3, endPosition);
     byte[] buffer = new byte[2048];
     int peekLength = buffer.length;
     while (true) {
-      if (input.getPosition() + peekLength > until) {
+      if (input.getPosition() + peekLength > limit) {
         // Make sure to not peek beyond the end of the input.
-        peekLength = (int) (until - input.getPosition());
+        peekLength = (int) (limit - input.getPosition());
         if (peekLength < 4) {
           // Not found until end.
           return false;
@@ -278,7 +284,9 @@ import java.io.IOException;
       }
       input.peekFully(buffer, 0, peekLength, false);
       for (int i = 0; i < peekLength - 3; i++) {
-        if (buffer[i] == 'O' && buffer[i + 1] == 'g' && buffer[i + 2] == 'g'
+        if (buffer[i] == 'O'
+            && buffer[i + 1] == 'g'
+            && buffer[i + 2] == 'g'
             && buffer[i + 3] == 'S') {
           // Match! Skip to the start of the pattern.
           input.skipFully(i);
@@ -295,13 +303,12 @@ import java.io.IOException;
    * total number of samples per channel.
    *
    * @param input The {@link ExtractorInput} to read from.
-   * @return the total number of samples of this input.
-   * @throws IOException thrown if reading from the input fails.
-   * @throws InterruptedException thrown if interrupted while reading from the input.
+   * @return The total number of samples of this input.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If the thread is interrupted.
    */
-  //@VisibleForTesting
-  long readGranuleOfLastPage(ExtractorInput input)
-      throws IOException, InterruptedException {
+  // @VisibleForTesting
+  long readGranuleOfLastPage(ExtractorInput input) throws IOException, InterruptedException {
     skipToNextPage(input);
     pageHeader.reset();
     while ((pageHeader.type & 0x04) != 0x04 && input.getPosition() < endPosition) {

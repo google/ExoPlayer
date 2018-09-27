@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   public Format format;
 
   public FakeTrackOutput() {
-    sampleData = new byte[0];
+    sampleData = Util.EMPTY_BYTE_ARRAY;
     sampleTimesUs = new ArrayList<>();
     sampleFlags = new ArrayList<>();
     sampleStartOffsets = new ArrayList<>();
@@ -53,7 +54,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   }
 
   public void clear() {
-    sampleData = new byte[0];
+    sampleData = Util.EMPTY_BYTE_ARRAY;
     sampleTimesUs.clear();
     sampleFlags.clear();
     sampleStartOffsets.clear();

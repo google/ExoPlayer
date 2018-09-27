@@ -22,13 +22,14 @@ import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecList;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Pair;
 import android.util.SparseIntArray;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,11 +58,9 @@ public final class MediaCodecUtil {
   }
 
   private static final String TAG = "MediaCodecUtil";
-  private static final String GOOGLE_RAW_DECODER_NAME = "OMX.google.raw.decoder";
-  private static final String MTK_RAW_DECODER_NAME = "OMX.MTK.AUDIO.DECODER.RAW";
-  private static final MediaCodecInfo PASSTHROUGH_DECODER_INFO =
-      MediaCodecInfo.newPassthroughInstance(GOOGLE_RAW_DECODER_NAME);
   private static final Pattern PROFILE_PATTERN = Pattern.compile("^\\D?(\\d+)$");
+  private static final RawAudioCodecComparator RAW_AUDIO_CODEC_COMPARATOR =
+      new RawAudioCodecComparator();
 
   private static final HashMap<CodecKey, List<MediaCodecInfo>> decoderInfosCache = new HashMap<>();
 
@@ -75,6 +74,9 @@ public final class MediaCodecUtil {
   private static final Map<String, Integer> HEVC_CODEC_STRING_TO_PROFILE_LEVEL;
   private static final String CODEC_ID_HEV1 = "hev1";
   private static final String CODEC_ID_HVC1 = "hvc1";
+  // MP4A AAC.
+  private static final SparseIntArray MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE;
+  private static final String CODEC_ID_MP4A = "mp4a";
 
   // Lazily initialized.
   private static int maxH264DecodableFrameSize = -1;
@@ -103,22 +105,21 @@ public final class MediaCodecUtil {
   /**
    * Returns information about a decoder suitable for audio passthrough.
    *
-   * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder
-   *     exists.
+   * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder exists.
+   * @throws DecoderQueryException If there was an error querying the available decoders.
    */
-  public static MediaCodecInfo getPassthroughDecoderInfo() {
-    // TODO: Return null if the raw decoder doesn't exist.
-    return PASSTHROUGH_DECODER_INFO;
+  public static @Nullable MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
+    MediaCodecInfo decoderInfo = getDecoderInfo(MimeTypes.AUDIO_RAW, /* secure= */ false);
+    return decoderInfo == null ? null : MediaCodecInfo.newPassthroughInstance(decoderInfo.name);
   }
 
   /**
    * Returns information about the preferred decoder for a given mime type.
    *
-   * @param mimeType The mime type.
+   * @param mimeType The MIME type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
-   * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder
-   *     exists.
+   * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder exists.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
   public static @Nullable MediaCodecInfo getDecoderInfo(String mimeType, boolean secure)
@@ -128,18 +129,18 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns all {@link MediaCodecInfo}s for the given mime type, in the order given by
-   * {@link MediaCodecList}.
+   * Returns all {@link MediaCodecInfo}s for the given mime type, in the order given by {@link
+   * MediaCodecList}.
    *
-   * @param mimeType The mime type.
+   * @param mimeType The MIME type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
-   * @return A list of all @{link MediaCodecInfo}s for the given mime type, in the order
-   *     given by {@link MediaCodecList}.
+   * @return A list of all {@link MediaCodecInfo}s for the given mime type, in the order given by
+   *     {@link MediaCodecList}.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
-  public static synchronized List<MediaCodecInfo> getDecoderInfos(String mimeType,
-      boolean secure) throws DecoderQueryException {
+  public static synchronized List<MediaCodecInfo> getDecoderInfos(String mimeType, boolean secure)
+      throws DecoderQueryException {
     CodecKey key = new CodecKey(mimeType, secure);
     List<MediaCodecInfo> cachedDecoderInfos = decoderInfosCache.get(key);
     if (cachedDecoderInfos != null) {
@@ -165,7 +166,7 @@ public final class MediaCodecUtil {
           getDecoderInfosInternal(eac3Key, mediaCodecList, mimeType);
       decoderInfos.addAll(eac3DecoderInfos);
     }
-    applyWorkarounds(decoderInfos);
+    applyWorkarounds(mimeType, decoderInfos);
     List<MediaCodecInfo> unmodifiableDecoderInfos = Collections.unmodifiableList(decoderInfos);
     decoderInfosCache.put(key, unmodifiableDecoderInfos);
     return unmodifiableDecoderInfos;
@@ -201,7 +202,7 @@ public final class MediaCodecUtil {
    * @return A pair (profile constant, level constant) if {@code codec} is well-formed and
    *     recognized, or null otherwise
    */
-  public static Pair<Integer, Integer> getCodecProfileAndLevel(String codec) {
+  public static @Nullable Pair<Integer, Integer> getCodecProfileAndLevel(String codec) {
     if (codec == null) {
       return null;
     }
@@ -213,6 +214,8 @@ public final class MediaCodecUtil {
       case CODEC_ID_AVC1:
       case CODEC_ID_AVC2:
         return getAvcProfileAndLevel(codec, parts);
+      case CODEC_ID_MP4A:
+        return getAacCodecProfileAndLevel(codec, parts);
       default:
         return null;
     }
@@ -314,6 +317,11 @@ public final class MediaCodecUtil {
       return false;
     }
 
+    // Work around https://github.com/google/ExoPlayer/issues/4519.
+    if ("OMX.SEC.mp3.dec".equals(name) && "SM-T530".equals(Util.MODEL)) {
+      return false;
+    }
+
     // Work around https://github.com/google/ExoPlayer/issues/1528 and
     // https://github.com/google/ExoPlayer/issues/3171.
     if (Util.SDK_INT < 18 && "OMX.MTK.AUDIO.DECODER.AAC".equals(name)
@@ -395,20 +403,12 @@ public final class MediaCodecUtil {
    * Modifies a list of {@link MediaCodecInfo}s to apply workarounds where we know better than the
    * platform.
    *
+   * @param mimeType The MIME type of input media.
    * @param decoderInfos The list to modify.
    */
-  private static void applyWorkarounds(List<MediaCodecInfo> decoderInfos) {
-    if (Util.SDK_INT < 26 && decoderInfos.size() > 1
-        && MTK_RAW_DECODER_NAME.equals(decoderInfos.get(0).name)) {
-      // Prefer the Google raw decoder over the MediaTek one [Internal: b/62337687].
-      for (int i = 1; i < decoderInfos.size(); i++) {
-        MediaCodecInfo decoderInfo = decoderInfos.get(i);
-        if (GOOGLE_RAW_DECODER_NAME.equals(decoderInfo.name)) {
-          decoderInfos.remove(i);
-          decoderInfos.add(0, decoderInfo);
-          break;
-        }
-      }
+  private static void applyWorkarounds(String mimeType, List<MediaCodecInfo> decoderInfos) {
+    if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
+      Collections.sort(decoderInfos, RAW_AUDIO_CODEC_COMPARATOR);
     }
   }
 
@@ -455,8 +455,8 @@ public final class MediaCodecUtil {
     return new Pair<>(profile, level);
   }
 
-  private static Pair<Integer, Integer> getAvcProfileAndLevel(String codec, String[] codecsParts) {
-    if (codecsParts.length < 2) {
+  private static Pair<Integer, Integer> getAvcProfileAndLevel(String codec, String[] parts) {
+    if (parts.length < 2) {
       // The codec has fewer parts than required by the AVC codec string format.
       Log.w(TAG, "Ignoring malformed AVC codec string: " + codec);
       return null;
@@ -464,14 +464,14 @@ public final class MediaCodecUtil {
     Integer profileInteger;
     Integer levelInteger;
     try {
-      if (codecsParts[1].length() == 6) {
+      if (parts[1].length() == 6) {
         // Format: avc1.xxccyy, where xx is profile and yy level, both hexadecimal.
-        profileInteger = Integer.parseInt(codecsParts[1].substring(0, 2), 16);
-        levelInteger = Integer.parseInt(codecsParts[1].substring(4), 16);
-      } else if (codecsParts.length >= 3) {
+        profileInteger = Integer.parseInt(parts[1].substring(0, 2), 16);
+        levelInteger = Integer.parseInt(parts[1].substring(4), 16);
+      } else if (parts.length >= 3) {
         // Format: avc1.xx.[y]yy where xx is profile and [y]yy level, both decimal.
-        profileInteger = Integer.parseInt(codecsParts[1]);
-        levelInteger = Integer.parseInt(codecsParts[2]);
+        profileInteger = Integer.parseInt(parts[1]);
+        levelInteger = Integer.parseInt(parts[2]);
       } else {
         // We don't recognize the format.
         Log.w(TAG, "Ignoring malformed AVC codec string: " + codec);
@@ -504,24 +504,60 @@ public final class MediaCodecUtil {
    */
   private static int avcLevelToMaxFrameSize(int avcLevel) {
     switch (avcLevel) {
-      case CodecProfileLevel.AVCLevel1: return 99 * 16 * 16;
-      case CodecProfileLevel.AVCLevel1b: return 99 * 16 * 16;
-      case CodecProfileLevel.AVCLevel12: return 396 * 16 * 16;
-      case CodecProfileLevel.AVCLevel13: return 396 * 16 * 16;
-      case CodecProfileLevel.AVCLevel2: return 396 * 16 * 16;
-      case CodecProfileLevel.AVCLevel21: return 792 * 16 * 16;
-      case CodecProfileLevel.AVCLevel22: return 1620 * 16 * 16;
-      case CodecProfileLevel.AVCLevel3: return 1620 * 16 * 16;
-      case CodecProfileLevel.AVCLevel31: return 3600 * 16 * 16;
-      case CodecProfileLevel.AVCLevel32: return 5120 * 16 * 16;
-      case CodecProfileLevel.AVCLevel4: return 8192 * 16 * 16;
-      case CodecProfileLevel.AVCLevel41: return 8192 * 16 * 16;
-      case CodecProfileLevel.AVCLevel42: return 8704 * 16 * 16;
-      case CodecProfileLevel.AVCLevel5: return 22080 * 16 * 16;
-      case CodecProfileLevel.AVCLevel51: return 36864 * 16 * 16;
-      case CodecProfileLevel.AVCLevel52: return 36864 * 16 * 16;
-      default: return -1;
+      case CodecProfileLevel.AVCLevel1:
+      case CodecProfileLevel.AVCLevel1b:
+        return 99 * 16 * 16;
+      case CodecProfileLevel.AVCLevel12:
+      case CodecProfileLevel.AVCLevel13:
+      case CodecProfileLevel.AVCLevel2:
+        return 396 * 16 * 16;
+      case CodecProfileLevel.AVCLevel21:
+        return 792 * 16 * 16;
+      case CodecProfileLevel.AVCLevel22:
+      case CodecProfileLevel.AVCLevel3:
+        return 1620 * 16 * 16;
+      case CodecProfileLevel.AVCLevel31:
+        return 3600 * 16 * 16;
+      case CodecProfileLevel.AVCLevel32:
+        return 5120 * 16 * 16;
+      case CodecProfileLevel.AVCLevel4:
+      case CodecProfileLevel.AVCLevel41:
+        return 8192 * 16 * 16;
+      case CodecProfileLevel.AVCLevel42:
+        return 8704 * 16 * 16;
+      case CodecProfileLevel.AVCLevel5:
+        return 22080 * 16 * 16;
+      case CodecProfileLevel.AVCLevel51:
+      case CodecProfileLevel.AVCLevel52:
+        return 36864 * 16 * 16;
+      default:
+        return -1;
     }
+  }
+
+  private static @Nullable Pair<Integer, Integer> getAacCodecProfileAndLevel(
+      String codec, String[] parts) {
+    if (parts.length != 3) {
+      Log.w(TAG, "Ignoring malformed MP4A codec string: " + codec);
+      return null;
+    }
+    try {
+      // Get the object type indication, which is a hexadecimal value (see RFC 6381/ISO 14496-1).
+      int objectTypeIndication = Integer.parseInt(parts[1], 16);
+      String mimeType = MimeTypes.getMimeTypeFromMp4ObjectType(objectTypeIndication);
+      if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
+        // For MPEG-4 audio this is followed by an audio object type indication as a decimal number.
+        int audioObjectTypeIndication = Integer.parseInt(parts[2]);
+        int profile = MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.get(audioObjectTypeIndication, -1);
+        if (profile != -1) {
+          // Level is set to zero in AAC decoder CodecProfileLevels.
+          return new Pair<>(profile, 0);
+        }
+      }
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Ignoring malformed MP4A codec string: " + codec);
+    }
+    return null;
   }
 
   private interface MediaCodecListCompat {
@@ -652,12 +688,41 @@ public final class MediaCodecUtil {
 
   }
 
+  /**
+   * Comparator for ordering media codecs that handle {@link MimeTypes#AUDIO_RAW} to work around
+   * possible inconsistent behavior across different devices. A list sorted with this comparator has
+   * more preferred codecs first.
+   */
+  private static final class RawAudioCodecComparator implements Comparator<MediaCodecInfo> {
+    @Override
+    public int compare(MediaCodecInfo a, MediaCodecInfo b) {
+      return scoreMediaCodecInfo(a) - scoreMediaCodecInfo(b);
+    }
+
+    private static int scoreMediaCodecInfo(MediaCodecInfo mediaCodecInfo) {
+      String name = mediaCodecInfo.name;
+      if (name.startsWith("OMX.google") || name.startsWith("c2.android")) {
+        // Prefer generic decoders over ones provided by the device.
+        return -1;
+      }
+      if (Util.SDK_INT < 26 && name.equals("OMX.MTK.AUDIO.DECODER.RAW")) {
+        // This decoder may modify the audio, so any other compatible decoders take precedence. See
+        // [Internal: b/62337687].
+        return 1;
+      }
+      return 0;
+    }
+  }
+
   static {
     AVC_PROFILE_NUMBER_TO_CONST = new SparseIntArray();
     AVC_PROFILE_NUMBER_TO_CONST.put(66, CodecProfileLevel.AVCProfileBaseline);
     AVC_PROFILE_NUMBER_TO_CONST.put(77, CodecProfileLevel.AVCProfileMain);
     AVC_PROFILE_NUMBER_TO_CONST.put(88, CodecProfileLevel.AVCProfileExtended);
     AVC_PROFILE_NUMBER_TO_CONST.put(100, CodecProfileLevel.AVCProfileHigh);
+    AVC_PROFILE_NUMBER_TO_CONST.put(110, CodecProfileLevel.AVCProfileHigh10);
+    AVC_PROFILE_NUMBER_TO_CONST.put(122, CodecProfileLevel.AVCProfileHigh422);
+    AVC_PROFILE_NUMBER_TO_CONST.put(244, CodecProfileLevel.AVCProfileHigh444);
 
     AVC_LEVEL_NUMBER_TO_CONST = new SparseIntArray();
     AVC_LEVEL_NUMBER_TO_CONST.put(10, CodecProfileLevel.AVCLevel1);
@@ -706,6 +771,20 @@ public final class MediaCodecUtil {
     HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H180", CodecProfileLevel.HEVCHighTierLevel6);
     HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H183", CodecProfileLevel.HEVCHighTierLevel61);
     HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H186", CodecProfileLevel.HEVCHighTierLevel62);
+
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE = new SparseIntArray();
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(1, CodecProfileLevel.AACObjectMain);
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(2, CodecProfileLevel.AACObjectLC);
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(3, CodecProfileLevel.AACObjectSSR);
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(4, CodecProfileLevel.AACObjectLTP);
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(5, CodecProfileLevel.AACObjectHE);
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(6, CodecProfileLevel.AACObjectScalable);
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(17, CodecProfileLevel.AACObjectERLC);
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(20, CodecProfileLevel.AACObjectERScalable);
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(23, CodecProfileLevel.AACObjectLD);
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(29, CodecProfileLevel.AACObjectHE_PS);
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(39, CodecProfileLevel.AACObjectELD);
+    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(42, CodecProfileLevel.AACObjectXHE);
   }
 
 }

@@ -19,12 +19,12 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
-import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
@@ -48,7 +48,7 @@ import java.util.List;
  * HlsDownloader hlsDownloader =
  *     new HlsDownloader(
  *         playlistUri,
- *         Collections.singletonList(new RenditionKey(RenditionKey.TYPE_VARIANT, 0)),
+ *         Collections.singletonList(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, 0)),
  *         constructorHelper);
  * // Perform the download.
  * hlsDownloader.download();
@@ -57,19 +57,17 @@ import java.util.List;
  *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
  * }</pre>
  */
-public final class HlsDownloader extends SegmentDownloader<HlsPlaylist, RenditionKey> {
+public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
 
   /**
    * @param playlistUri The {@link Uri} of the playlist to be downloaded.
-   * @param renditionKeys Keys defining which renditions in the playlist should be selected for
+   * @param streamKeys Keys defining which renditions in the playlist should be selected for
    *     download. If empty, all renditions are downloaded.
    * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
    */
   public HlsDownloader(
-      Uri playlistUri,
-      List<RenditionKey> renditionKeys,
-      DownloaderConstructorHelper constructorHelper) {
-    super(playlistUri, renditionKeys, constructorHelper);
+      Uri playlistUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
+    super(playlistUri, streamKeys, constructorHelper);
   }
 
   @Override
@@ -120,10 +118,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist, Renditio
   }
 
   private static HlsPlaylist loadManifest(DataSource dataSource, Uri uri) throws IOException {
-    ParsingLoadable<HlsPlaylist> loadable =
-        new ParsingLoadable<>(dataSource, uri, C.DATA_TYPE_MANIFEST, new HlsPlaylistParser());
-    loadable.load();
-    return loadable.getResult();
+    return ParsingLoadable.load(dataSource, new HlsPlaylistParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
   private static void addSegment(

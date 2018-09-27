@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.testutil;
 
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -34,7 +33,9 @@ import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
+import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.HandlerWrapper;
+import com.google.android.exoplayer2.util.Log;
 
 /**
  * Base class for actions to perform during playback tests.
@@ -469,12 +470,8 @@ public abstract class Action {
         SimpleExoPlayer player, DefaultTrackSelector trackSelector, Surface surface) {
       player
           .createMessage(
-              new Target() {
-                @Override
-                public void handleMessage(int messageType, Object payload)
-                    throws ExoPlaybackException {
-                  throw exception;
-                }
+              (messageType, payload) -> {
+                throw exception;
               })
           .send();
     }
@@ -507,14 +504,22 @@ public abstract class Action {
         final Surface surface,
         final HandlerWrapper handler,
         final ActionNode nextAction) {
-      // Schedule one message on the playback thread to pause the player immediately.
+      Handler testThreadHandler = new Handler();
+      // Schedule a message on the playback thread to ensure the player is paused immediately.
       player
           .createMessage(
-              new Target() {
-                @Override
-                public void handleMessage(int messageType, Object payload)
-                    throws ExoPlaybackException {
-                  player.setPlayWhenReady(/* playWhenReady= */ false);
+              (messageType, payload) -> {
+                // Block playback thread until pause command has been sent from test thread.
+                ConditionVariable blockPlaybackThreadCondition = new ConditionVariable();
+                testThreadHandler.post(
+                    () -> {
+                      player.setPlayWhenReady(/* playWhenReady= */ false);
+                      blockPlaybackThreadCondition.open();
+                    });
+                try {
+                  blockPlaybackThreadCondition.block();
+                } catch (InterruptedException e) {
+                  // Ignore.
                 }
               })
           .setPosition(windowIndex, positionMs)
@@ -522,15 +527,10 @@ public abstract class Action {
       // Schedule another message on this test thread to continue action schedule.
       player
           .createMessage(
-              new Target() {
-                @Override
-                public void handleMessage(int messageType, Object payload)
-                    throws ExoPlaybackException {
-                  nextAction.schedule(player, trackSelector, surface, handler);
-                }
-              })
+              (messageType, payload) ->
+                  nextAction.schedule(player, trackSelector, surface, handler))
           .setPosition(windowIndex, positionMs)
-          .setHandler(new Handler())
+          .setHandler(testThreadHandler)
           .send();
       player.setPlayWhenReady(true);
     }
@@ -572,7 +572,7 @@ public abstract class Action {
         return;
       }
       Player.EventListener listener =
-          new Player.DefaultEventListener() {
+          new Player.EventListener() {
             @Override
             public void onTimelineChanged(
                 Timeline timeline,
@@ -620,13 +620,14 @@ public abstract class Action {
       if (nextAction == null) {
         return;
       }
-      player.addListener(new Player.DefaultEventListener() {
-        @Override
-        public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-          player.removeListener(this);
-          nextAction.schedule(player, trackSelector, surface, handler);
-        }
-      });
+      player.addListener(
+          new Player.EventListener() {
+            @Override
+            public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+              player.removeListener(this);
+              nextAction.schedule(player, trackSelector, surface, handler);
+            }
+          });
     }
 
     @Override
@@ -665,15 +666,16 @@ public abstract class Action {
       if (targetPlaybackState == player.getPlaybackState()) {
         nextAction.schedule(player, trackSelector, surface, handler);
       } else {
-        player.addListener(new Player.DefaultEventListener() {
-          @Override
-          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            if (targetPlaybackState == playbackState) {
-              player.removeListener(this);
-              nextAction.schedule(player, trackSelector, surface, handler);
-            }
-          }
-        });
+        player.addListener(
+            new Player.EventListener() {
+              @Override
+              public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                if (targetPlaybackState == playbackState) {
+                  player.removeListener(this);
+                  nextAction.schedule(player, trackSelector, surface, handler);
+                }
+              }
+            });
       }
     }
 
@@ -706,13 +708,14 @@ public abstract class Action {
       if (nextAction == null) {
         return;
       }
-      player.addListener(new Player.DefaultEventListener() {
-        @Override
-        public void onSeekProcessed() {
-          player.removeListener(this);
-          nextAction.schedule(player, trackSelector, surface, handler);
-        }
-      });
+      player.addListener(
+          new Player.EventListener() {
+            @Override
+            public void onSeekProcessed() {
+              player.removeListener(this);
+              nextAction.schedule(player, trackSelector, surface, handler);
+            }
+          });
     }
 
     @Override

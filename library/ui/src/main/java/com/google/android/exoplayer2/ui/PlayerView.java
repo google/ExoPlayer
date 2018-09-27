@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ui;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -24,12 +25,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Looper;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
@@ -44,6 +51,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.Player.VideoComponent;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -52,11 +60,15 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
+import com.google.android.exoplayer2.ui.spherical.SingleTapListener;
+import com.google.android.exoplayer2.ui.spherical.SphericalSurfaceView;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
@@ -79,7 +91,7 @@ import java.util.List;
  *   <li><b>{@code default_artwork}</b> - Default artwork to use if no artwork available in audio
  *       streams.
  *       <ul>
- *         <li>Corresponding method: {@link #setDefaultArtwork(Bitmap)}
+ *         <li>Corresponding method: {@link #setDefaultArtwork(Drawable)}
  *         <li>Default: {@code null}
  *       </ul>
  *   <li><b>{@code use_controller}</b> - Whether the playback controls can be shown.
@@ -106,10 +118,10 @@ import java.util.List;
  *         <li>Default: {@code true}
  *       </ul>
  *   <li><b>{@code show_buffering}</b> - Whether the buffering spinner is displayed when the player
- *       is buffering.
+ *       is buffering. Valid values are {@code never}, {@code when_playing} and {@code always}.
  *       <ul>
- *         <li>Corresponding method: {@link #setShowBuffering(boolean)}
- *         <li>Default: {@code false}
+ *         <li>Corresponding method: {@link #setShowBuffering(int)}
+ *         <li>Default: {@code never}
  *       </ul>
  *   <li><b>{@code resize_mode}</b> - Controls how video and album art is resized within the view.
  *       Valid values are {@code fit}, {@code fixed_width}, {@code fixed_height} and {@code fill}.
@@ -118,11 +130,11 @@ import java.util.List;
  *         <li>Default: {@code fit}
  *       </ul>
  *   <li><b>{@code surface_type}</b> - The type of surface view used for video playbacks. Valid
- *       values are {@code surface_view}, {@code texture_view} and {@code none}. Using {@code none}
- *       is recommended for audio only applications, since creating the surface can be expensive.
- *       Using {@code surface_view} is recommended for video applications. Note, TextureView can
- *       only be used in a hardware accelerated window. When rendered in software, TextureView will
- *       draw nothing.
+ *       values are {@code surface_view}, {@code texture_view}, {@code spherical_view} and {@code
+ *       none}. Using {@code none} is recommended for audio only applications, since creating the
+ *       surface can be expensive. Using {@code surface_view} is recommended for video applications.
+ *       Note, TextureView can only be used in a hardware accelerated window. When rendered in
+ *       software, TextureView will draw nothing.
  *       <ul>
  *         <li>Corresponding method: None
  *         <li>Default: {@code surface_view}
@@ -143,13 +155,13 @@ import java.util.List;
  *       for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.id.exo_player_view}
+ *         <li>Default: {@code R.layout.exo_player_view}
  *       </ul>
  *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout resource to be
  *       inflated by the child {@link PlayerControlView}. See below for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.id.exo_player_control_view}
+ *         <li>Default: {@code R.layout.exo_player_control_view}
  *       </ul>
  *   <li>All attributes that can be set on a {@link PlayerControlView} can also be set on a
  *       PlayerView, and will be propagated to the inflated {@link PlayerControlView} unless the
@@ -231,6 +243,27 @@ public class PlayerView extends FrameLayout {
   private static final int SURFACE_TYPE_NONE = 0;
   private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
   private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
+  private static final int SURFACE_TYPE_MONO360_VIEW = 3;
+
+  /**
+   * Determines when the buffering view is shown. One of {@link #SHOW_BUFFERING_NEVER}, {@link
+   * #SHOW_BUFFERING_WHEN_PLAYING} or {@link #SHOW_BUFFERING_ALWAYS}.
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
+  public @interface ShowBuffering {}
+  /** The buffering view is never shown. */
+  public static final int SHOW_BUFFERING_NEVER = 0;
+  /**
+   * The buffering view is shown when the player is in the {@link Player#STATE_BUFFERING buffering}
+   * state and {@link Player#getPlayWhenReady() playWhenReady} is {@code true}.
+   */
+  public static final int SHOW_BUFFERING_WHEN_PLAYING = 1;
+  /**
+   * The buffering view is always shown when the player is in the {@link Player#STATE_BUFFERING
+   * buffering} state.
+   */
+  public static final int SHOW_BUFFERING_ALWAYS = 2;
 
   private final AspectRatioFrameLayout contentFrame;
   private final View shutterView;
@@ -246,8 +279,8 @@ public class PlayerView extends FrameLayout {
   private Player player;
   private boolean useController;
   private boolean useArtwork;
-  private Bitmap defaultArtwork;
-  private boolean showBuffering;
+  private @Nullable Drawable defaultArtwork;
+  private @ShowBuffering int showBuffering;
   private boolean keepContentOnPlayerReset;
   private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   private @Nullable CharSequence customErrorMessage;
@@ -301,7 +334,7 @@ public class PlayerView extends FrameLayout {
     boolean controllerHideOnTouch = true;
     boolean controllerAutoShow = true;
     boolean controllerHideDuringAds = true;
-    boolean showBuffering = false;
+    int showBuffering = SHOW_BUFFERING_NEVER;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PlayerView, 0, 0);
       try {
@@ -319,7 +352,7 @@ public class PlayerView extends FrameLayout {
         controllerHideOnTouch =
             a.getBoolean(R.styleable.PlayerView_hide_on_touch, controllerHideOnTouch);
         controllerAutoShow = a.getBoolean(R.styleable.PlayerView_auto_show, controllerAutoShow);
-        showBuffering = a.getBoolean(R.styleable.PlayerView_show_buffering, showBuffering);
+        showBuffering = a.getInteger(R.styleable.PlayerView_show_buffering, showBuffering);
         keepContentOnPlayerReset =
             a.getBoolean(
                 R.styleable.PlayerView_keep_content_on_player_reset, keepContentOnPlayerReset);
@@ -351,10 +384,21 @@ public class PlayerView extends FrameLayout {
       ViewGroup.LayoutParams params =
           new ViewGroup.LayoutParams(
               ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-      surfaceView =
-          surfaceType == SURFACE_TYPE_TEXTURE_VIEW
-              ? new TextureView(context)
-              : new SurfaceView(context);
+      switch (surfaceType) {
+        case SURFACE_TYPE_TEXTURE_VIEW:
+          surfaceView = new TextureView(context);
+          break;
+        case SURFACE_TYPE_MONO360_VIEW:
+          Assertions.checkState(Util.SDK_INT >= 15);
+          SphericalSurfaceView sphericalSurfaceView = new SphericalSurfaceView(context);
+          sphericalSurfaceView.setSurfaceListener(componentListener);
+          sphericalSurfaceView.setSingleTapListener(componentListener);
+          surfaceView = sphericalSurfaceView;
+          break;
+        default:
+          surfaceView = new SurfaceView(context);
+          break;
+      }
       surfaceView.setLayoutParams(params);
       contentFrame.addView(surfaceView, 0);
     } else {
@@ -368,7 +412,7 @@ public class PlayerView extends FrameLayout {
     artworkView = findViewById(R.id.exo_artwork);
     this.useArtwork = useArtwork && artworkView != null;
     if (defaultArtworkId != 0) {
-      defaultArtwork = BitmapFactory.decodeResource(context.getResources(), defaultArtworkId);
+      defaultArtwork = ContextCompat.getDrawable(getContext(), defaultArtworkId);
     }
 
     // Subtitle view.
@@ -456,9 +500,14 @@ public class PlayerView extends FrameLayout {
    * calling {@code setPlayer(null)} to detach it from the old one. This ordering is significantly
    * more efficient and may allow for more seamless transitions.
    *
-   * @param player The {@link Player} to use.
+   * @param player The {@link Player} to use, or {@code null} to detach the current player. Only
+   *     players which are accessed on the main thread are supported ({@code
+   *     player.getApplicationLooper() == Looper.getMainLooper()}).
    */
-  public void setPlayer(Player player) {
+  public void setPlayer(@Nullable Player player) {
+    Assertions.checkState(Looper.myLooper() == Looper.getMainLooper());
+    Assertions.checkArgument(
+        player == null || player.getApplicationLooper() == Looper.getMainLooper());
     if (this.player == player) {
       return;
     }
@@ -469,6 +518,8 @@ public class PlayerView extends FrameLayout {
         oldVideoComponent.removeVideoListener(componentListener);
         if (surfaceView instanceof TextureView) {
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
+        } else if (surfaceView instanceof SphericalSurfaceView) {
+          ((SphericalSurfaceView) surfaceView).setVideoComponent(null);
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -493,6 +544,8 @@ public class PlayerView extends FrameLayout {
       if (newVideoComponent != null) {
         if (surfaceView instanceof TextureView) {
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
+        } else if (surfaceView instanceof SphericalSurfaceView) {
+          ((SphericalSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
         } else if (surfaceView instanceof SurfaceView) {
           newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -519,16 +572,16 @@ public class PlayerView extends FrameLayout {
   }
 
   /**
-   * Sets the resize mode.
+   * Sets the {@link ResizeMode}.
    *
-   * @param resizeMode The resize mode.
+   * @param resizeMode The {@link ResizeMode}.
    */
   public void setResizeMode(@ResizeMode int resizeMode) {
     Assertions.checkState(contentFrame != null);
     contentFrame.setResizeMode(resizeMode);
   }
 
-  /** Returns the resize mode. */
+  /** Returns the {@link ResizeMode}. */
   public @ResizeMode int getResizeMode() {
     Assertions.checkState(contentFrame != null);
     return contentFrame.getResizeMode();
@@ -553,7 +606,7 @@ public class PlayerView extends FrameLayout {
   }
 
   /** Returns the default artwork to display. */
-  public Bitmap getDefaultArtwork() {
+  public @Nullable Drawable getDefaultArtwork() {
     return defaultArtwork;
   }
 
@@ -562,8 +615,21 @@ public class PlayerView extends FrameLayout {
    * present in the media.
    *
    * @param defaultArtwork the default artwork to display.
+   * @deprecated use (@link {@link #setDefaultArtwork(Drawable)} instead.
    */
-  public void setDefaultArtwork(Bitmap defaultArtwork) {
+  @Deprecated
+  public void setDefaultArtwork(@Nullable Bitmap defaultArtwork) {
+    setDefaultArtwork(
+        defaultArtwork == null ? null : new BitmapDrawable(getResources(), defaultArtwork));
+  }
+
+  /**
+   * Sets the default artwork to display if {@code useArtwork} is {@code true} and no artwork is
+   * present in the media.
+   *
+   * @param defaultArtwork the default artwork to display
+   */
+  public void setDefaultArtwork(@Nullable Drawable defaultArtwork) {
     if (this.defaultArtwork != defaultArtwork) {
       this.defaultArtwork = defaultArtwork;
       updateForCurrentTrackSelections(/* isNewPlayer= */ false);
@@ -636,9 +702,23 @@ public class PlayerView extends FrameLayout {
    * Sets whether a buffering spinner is displayed when the player is in the buffering state. The
    * buffering spinner is not displayed by default.
    *
-   * @param showBuffering Whether the buffering icon is displayer
+   * @deprecated Use {@link #setShowBuffering(int)}
+   * @param showBuffering Whether the buffering icon is displayed
    */
+  @Deprecated
   public void setShowBuffering(boolean showBuffering) {
+    setShowBuffering(showBuffering ? SHOW_BUFFERING_WHEN_PLAYING : SHOW_BUFFERING_NEVER);
+  }
+
+  /**
+   * Sets whether a buffering spinner is displayed when the player is in the buffering state. The
+   * buffering spinner is not displayed by default.
+   *
+   * @param showBuffering The mode that defines when the buffering spinner is displayed. One of
+   *     {@link #SHOW_BUFFERING_NEVER}, {@link #SHOW_BUFFERING_WHEN_PLAYING} and
+   *     {@link #SHOW_BUFFERING_ALWAYS}.
+   */
+  public void setShowBuffering(@ShowBuffering int showBuffering) {
     if (this.showBuffering != showBuffering) {
       this.showBuffering = showBuffering;
       updateBuffering();
@@ -681,8 +761,12 @@ public class PlayerView extends FrameLayout {
     }
     boolean isDpadWhenControlHidden =
         isDpadKey(event.getKeyCode()) && useController && !controller.isVisible();
-    maybeShowController(true);
-    return isDpadWhenControlHidden || dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
+    boolean handled =
+        isDpadWhenControlHidden || dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
+    if (handled) {
+      maybeShowController(true);
+    }
+    return handled;
   }
 
   /**
@@ -909,10 +993,12 @@ public class PlayerView extends FrameLayout {
    *   <li>{@link SurfaceView} by default, or if the {@code surface_type} attribute is set to {@code
    *       surface_view}.
    *   <li>{@link TextureView} if {@code surface_type} is {@code texture_view}.
+   *   <li>{@link SphericalSurfaceView} if {@code surface_type} is {@code spherical_view}.
    *   <li>{@code null} if {@code surface_type} is {@code none}.
    * </ul>
    *
-   * @return The {@link SurfaceView}, {@link TextureView} or {@code null}.
+   * @return The {@link SurfaceView}, {@link TextureView}, {@link SphericalSurfaceView} or {@code
+   *     null}.
    */
   public View getVideoSurfaceView() {
     return surfaceView;
@@ -941,15 +1027,10 @@ public class PlayerView extends FrameLayout {
 
   @Override
   public boolean onTouchEvent(MotionEvent ev) {
-    if (!useController || player == null || ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
+    if (ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
       return false;
     }
-    if (!controller.isVisible()) {
-      maybeShowController(true);
-    } else if (controllerHideOnTouch) {
-      controller.hide();
-    }
-    return true;
+    return toggleControllerVisibility();
   }
 
   @Override
@@ -958,6 +1039,44 @@ public class PlayerView extends FrameLayout {
       return false;
     }
     maybeShowController(true);
+    return true;
+  }
+
+  /**
+   * Should be called when the player is visible to the user and if {@code surface_type} is {@code
+   * spherical_view}. It is the counterpart to {@link #onPause()}.
+   *
+   * <p>This method should typically be called in {@link Activity#onStart()}, or {@link
+   * Activity#onResume()} for API versions &lt;= 23.
+   */
+  public void onResume() {
+    if (surfaceView instanceof SphericalSurfaceView) {
+      ((SphericalSurfaceView) surfaceView).onResume();
+    }
+  }
+
+  /**
+   * Should be called when the player is no longer visible to the user and if {@code surface_type}
+   * is {@code spherical_view}. It is the counterpart to {@link #onResume()}.
+   *
+   * <p>This method should typically be called in {@link Activity#onStop()}, or {@link
+   * Activity#onPause()} for API versions &lt;= 23.
+   */
+  public void onPause() {
+    if (surfaceView instanceof SphericalSurfaceView) {
+      ((SphericalSurfaceView) surfaceView).onPause();
+    }
+  }
+
+  private boolean toggleControllerVisibility() {
+    if (!useController || player == null) {
+      return false;
+    }
+    if (!controller.isVisible()) {
+      maybeShowController(true);
+    } else if (controllerHideOnTouch) {
+      controller.hide();
+    }
     return true;
   }
 
@@ -1037,7 +1156,7 @@ public class PlayerView extends FrameLayout {
           }
         }
       }
-      if (setArtworkFromBitmap(defaultArtwork)) {
+      if (setDrawableArtwork(defaultArtwork)) {
         return;
       }
     }
@@ -1051,21 +1170,21 @@ public class PlayerView extends FrameLayout {
       if (metadataEntry instanceof ApicFrame) {
         byte[] bitmapData = ((ApicFrame) metadataEntry).pictureData;
         Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
-        return setArtworkFromBitmap(bitmap);
+        return setDrawableArtwork(new BitmapDrawable(getResources(), bitmap));
       }
     }
     return false;
   }
 
-  private boolean setArtworkFromBitmap(Bitmap bitmap) {
-    if (bitmap != null) {
-      int bitmapWidth = bitmap.getWidth();
-      int bitmapHeight = bitmap.getHeight();
-      if (bitmapWidth > 0 && bitmapHeight > 0) {
+  private boolean setDrawableArtwork(@Nullable Drawable drawable) {
+    if (drawable != null) {
+      int drawableWidth = drawable.getIntrinsicWidth();
+      int drawableHeight = drawable.getIntrinsicHeight();
+      if (drawableWidth > 0 && drawableHeight > 0) {
         if (contentFrame != null) {
-          contentFrame.setAspectRatio((float) bitmapWidth / bitmapHeight);
+          contentFrame.setAspectRatio((float) drawableWidth / drawableHeight);
         }
-        artworkView.setImageBitmap(bitmap);
+        artworkView.setImageDrawable(drawable);
         artworkView.setVisibility(VISIBLE);
         return true;
       }
@@ -1089,10 +1208,10 @@ public class PlayerView extends FrameLayout {
   private void updateBuffering() {
     if (bufferingView != null) {
       boolean showBufferingSpinner =
-          showBuffering
-              && player != null
+          player != null
               && player.getPlaybackState() == Player.STATE_BUFFERING
-              && player.getPlayWhenReady();
+              && (showBuffering == SHOW_BUFFERING_ALWAYS
+                  || (showBuffering == SHOW_BUFFERING_WHEN_PLAYING && player.getPlayWhenReady()));
       bufferingView.setVisibility(showBufferingSpinner ? View.VISIBLE : View.GONE);
     }
   }
@@ -1175,8 +1294,13 @@ public class PlayerView extends FrameLayout {
         || keyCode == KeyEvent.KEYCODE_DPAD_CENTER;
   }
 
-  private final class ComponentListener extends Player.DefaultEventListener
-      implements TextOutput, VideoListener, OnLayoutChangeListener {
+  private final class ComponentListener
+      implements Player.EventListener,
+          TextOutput,
+          VideoListener,
+          OnLayoutChangeListener,
+          SphericalSurfaceView.SurfaceListener,
+          SingleTapListener {
 
     // TextOutput implementation
 
@@ -1215,6 +1339,8 @@ public class PlayerView extends FrameLayout {
           surfaceView.addOnLayoutChangeListener(this);
         }
         applyTextureViewRotation((TextureView) surfaceView, textureViewRotation);
+      } else if (surfaceView instanceof SphericalSurfaceView) {
+        videoAspectRatio = 0;
       }
 
       contentFrame.setAspectRatio(videoAspectRatio);
@@ -1266,6 +1392,25 @@ public class PlayerView extends FrameLayout {
         int oldRight,
         int oldBottom) {
       applyTextureViewRotation((TextureView) view, textureViewRotation);
+    }
+
+    // SphericalSurfaceView.SurfaceTextureListener implementation
+
+    @Override
+    public void surfaceChanged(@Nullable Surface surface) {
+      if (player != null) {
+        VideoComponent videoComponent = player.getVideoComponent();
+        if (videoComponent != null) {
+          videoComponent.setVideoSurface(surface);
+        }
+      }
+    }
+
+    // SingleTapListener implementation
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+      return toggleControllerVisibility();
     }
   }
 }

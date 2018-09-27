@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.metadata.emsg;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -81,12 +83,12 @@ public final class EventMessage implements Metadata.Entry {
   }
 
   /* package */ EventMessage(Parcel in) {
-    schemeIdUri = in.readString();
-    value = in.readString();
+    schemeIdUri = castNonNull(in.readString());
+    value = castNonNull(in.readString());
     presentationTimeUs = in.readLong();
     durationMs = in.readLong();
     id = in.readLong();
-    messageData = in.createByteArray();
+    messageData = castNonNull(in.createByteArray());
   }
 
   @Override

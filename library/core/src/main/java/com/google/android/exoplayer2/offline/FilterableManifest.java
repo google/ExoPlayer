@@ -22,9 +22,8 @@ import java.util.List;
  * keys.
  *
  * @param <T> The manifest type.
- * @param <K> The stream key type.
  */
-public interface FilterableManifest<T, K> {
+public interface FilterableManifest<T> {
 
   /**
    * Returns a copy of the manifest including only the streams specified by the given keys. If the
@@ -33,5 +32,5 @@ public interface FilterableManifest<T, K> {
    * @param streamKeys A non-empty list of stream keys.
    * @return The filtered manifest.
    */
-  T copy(List<K> streamKeys);
+  T copy(List<StreamKey> streamKeys);
 }

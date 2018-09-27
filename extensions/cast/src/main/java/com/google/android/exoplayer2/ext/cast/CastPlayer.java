@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.CastStatusCodes;
@@ -284,6 +285,11 @@ public final class CastPlayer implements Player {
   // Player implementation.
 
   @Override
+  public AudioComponent getAudioComponent() {
+    return null;
+  }
+
+  @Override
   public VideoComponent getVideoComponent() {
     return null;
   }
@@ -291,6 +297,11 @@ public final class CastPlayer implements Player {
   @Override
   public TextComponent getTextComponent() {
     return null;
+  }
+
+  @Override
+  public Looper getApplicationLooper() {
+    return Looper.getMainLooper();
   }
 
   @Override
@@ -490,7 +501,7 @@ public final class CastPlayer implements Player {
   @Override
   public @Nullable Object getCurrentTag() {
     int windowIndex = getCurrentWindowIndex();
-    return windowIndex > currentTimeline.getWindowCount()
+    return windowIndex >= currentTimeline.getWindowCount()
         ? null
         : currentTimeline.getWindow(windowIndex, window, /* setTag= */ true).tag;
   }
@@ -527,6 +538,15 @@ public final class CastPlayer implements Player {
   }
 
   @Override
+  public long getTotalBufferedDuration() {
+    long bufferedPosition = getBufferedPosition();
+    long currentPosition = getCurrentPosition();
+    return bufferedPosition == C.TIME_UNSET || currentPosition == C.TIME_UNSET
+        ? 0
+        : bufferedPosition - currentPosition;
+  }
+
+  @Override
   public boolean isCurrentWindowDynamic() {
     return !currentTimeline.isEmpty()
         && currentTimeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
@@ -554,6 +574,11 @@ public final class CastPlayer implements Player {
   }
 
   @Override
+  public long getContentDuration() {
+    return getDuration();
+  }
+
+  @Override
   public boolean isLoading() {
     return false;
   }
@@ -561,6 +586,11 @@ public final class CastPlayer implements Player {
   @Override
   public long getContentPosition() {
     return getCurrentPosition();
+  }
+
+  @Override
+  public long getContentBufferedPosition() {
+    return getBufferedPosition();
   }
 
   // Internal methods.
@@ -819,7 +849,6 @@ public final class CastPlayer implements Player {
 
     @Override
     public void onAdBreakStatusUpdated() {}
-
 
     // SessionManagerListener implementation.
 

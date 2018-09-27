@@ -41,10 +41,13 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Decodes and renders audio using {@link MediaCodec} and an {@link AudioSink}.
@@ -58,27 +61,41 @@ import java.nio.ByteBuffer;
  *   <li>Message with type {@link C#MSG_SET_AUDIO_ATTRIBUTES} to set the audio attributes. The
  *       message payload should be an {@link com.google.android.exoplayer2.audio.AudioAttributes}
  *       instance that will configure the underlying audio track.
+ *   <li>Message with type {@link C#MSG_SET_AUX_EFFECT_INFO} to set the auxiliary effect. The
+ *       message payload should be an {@link AuxEffectInfo} instance that will configure the
+ *       underlying audio track.
  * </ul>
  */
 @TargetApi(16)
 public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock {
 
+  /**
+   * Maximum number of tracked pending stream change times. Generally there is zero or one pending
+   * stream change. We track more to allow for pending changes that have fewer samples than the
+   * codec latency.
+   */
+  private static final int MAX_PENDING_STREAM_CHANGE_COUNT = 10;
+
+  private static final String TAG = "MediaCodecAudioRenderer";
+
   private final Context context;
   private final EventDispatcher eventDispatcher;
   private final AudioSink audioSink;
+  private final long[] pendingStreamChangeTimesUs;
 
   private int codecMaxInputSize;
   private boolean passthroughEnabled;
   private boolean codecNeedsDiscardChannelsWorkaround;
   private android.media.MediaFormat passthroughMediaFormat;
-  @C.Encoding
-  private int pcmEncoding;
+  private @C.Encoding int pcmEncoding;
   private int channelCount;
   private int encoderDelay;
   private int encoderPadding;
   private long currentPositionUs;
   private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
+  private long lastInputTimeUs;
+  private int pendingStreamChangeCount;
 
   /**
    * @param context A context.
@@ -229,9 +246,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       AudioSink audioSink) {
-    super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
+    super(
+        C.TRACK_TYPE_AUDIO,
+        mediaCodecSelector,
+        drmSessionManager,
+        playClearSamplesWithoutKeys,
+        /* assumedMinimumCodecOperatingRate= */ 44100);
     this.context = context.getApplicationContext();
     this.audioSink = audioSink;
+    lastInputTimeUs = C.TIME_UNSET;
+    pendingStreamChangeTimesUs = new long[MAX_PENDING_STREAM_CHANGE_COUNT];
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSink.setListener(new AudioSinkListener());
   }
@@ -262,35 +286,41 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         requiresSecureDecryption |= drmInitData.get(i).requiresSecureDecryption;
       }
     }
-    MediaCodecInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
-        requiresSecureDecryption);
-    if (decoderInfo == null) {
-      return requiresSecureDecryption && mediaCodecSelector.getDecoderInfo(mimeType, false) != null
-          ? FORMAT_UNSUPPORTED_DRM : FORMAT_UNSUPPORTED_SUBTYPE;
+    List<MediaCodecInfo> decoderInfos =
+        mediaCodecSelector.getDecoderInfos(format.sampleMimeType, requiresSecureDecryption);
+    if (decoderInfos.isEmpty()) {
+      return requiresSecureDecryption
+              && !mediaCodecSelector
+                  .getDecoderInfos(format.sampleMimeType, /* requiresSecureDecoder= */ false)
+                  .isEmpty()
+          ? FORMAT_UNSUPPORTED_DRM
+          : FORMAT_UNSUPPORTED_SUBTYPE;
     }
     if (!supportsFormatDrm) {
       return FORMAT_UNSUPPORTED_DRM;
     }
-    // Note: We assume support for unknown sampleRate and channelCount.
-    boolean decoderCapable = Util.SDK_INT < 21
-        || ((format.sampleRate == Format.NO_VALUE
-        || decoderInfo.isAudioSampleRateSupportedV21(format.sampleRate))
-        && (format.channelCount == Format.NO_VALUE
-        ||  decoderInfo.isAudioChannelCountSupportedV21(format.channelCount)));
-    int formatSupport = decoderCapable ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
-    return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | formatSupport;
+    // Check capabilities for the first decoder in the list, which takes priority.
+    MediaCodecInfo decoderInfo = decoderInfos.get(0);
+    boolean isFormatSupported = decoderInfo.isFormatSupported(format);
+    int adaptiveSupport =
+        isFormatSupported && decoderInfo.isSeamlessAdaptationSupported(format)
+            ? ADAPTIVE_SEAMLESS
+            : ADAPTIVE_NOT_SEAMLESS;
+    int formatSupport = isFormatSupported ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
+    return adaptiveSupport | tunnelingSupport | formatSupport;
   }
 
   @Override
-  protected MediaCodecInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
-      Format format, boolean requiresSecureDecoder) throws DecoderQueryException {
+  protected List<MediaCodecInfo> getDecoderInfos(
+      MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
+      throws DecoderQueryException {
     if (allowPassthrough(format.sampleMimeType)) {
       MediaCodecInfo passthroughDecoderInfo = mediaCodecSelector.getPassthroughDecoderInfo();
       if (passthroughDecoderInfo != null) {
-        return passthroughDecoderInfo;
+        return Collections.singletonList(passthroughDecoderInfo);
       }
     }
-    return super.getDecoderInfo(mediaCodecSelector, format, requiresSecureDecoder);
+    return super.getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder);
   }
 
   /**
@@ -307,13 +337,18 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
-      MediaCrypto crypto) {
+  protected void configureCodec(
+      MediaCodecInfo codecInfo,
+      MediaCodec codec,
+      Format format,
+      MediaCrypto crypto,
+      float codecOperatingRate) {
     codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     passthroughEnabled = codecInfo.passthrough;
     String codecMimeType = codecInfo.mimeType == null ? MimeTypes.AUDIO_RAW : codecInfo.mimeType;
-    MediaFormat mediaFormat = getMediaFormat(format, codecMimeType, codecMaxInputSize);
+    MediaFormat mediaFormat =
+        getMediaFormat(format, codecMimeType, codecMaxInputSize, codecOperatingRate);
     codec.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
     if (passthroughEnabled) {
       // Store the input MIME type if we're using the passthrough codec.
@@ -327,18 +362,37 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected @KeepCodecResult int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
-    return KEEP_CODEC_RESULT_NO;
-    // TODO: Determine when codecs can be safely kept. When doing so, also uncomment the commented
-    // out code in getCodecMaxInputSize.
-    // return getCodecMaxInputSize(codecInfo, newFormat) <= codecMaxInputSize
-    //         && areAdaptationCompatible(oldFormat, newFormat)
-    //     ? KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
-    //     : KEEP_CODEC_RESULT_NO;
+    if (getCodecMaxInputSize(codecInfo, newFormat) <= codecMaxInputSize
+        && codecInfo.isSeamlessAdaptationSupported(
+            oldFormat, newFormat, /* isNewFormatComplete= */ true)
+        && oldFormat.encoderDelay == 0
+        && oldFormat.encoderPadding == 0
+        && newFormat.encoderDelay == 0
+        && newFormat.encoderPadding == 0) {
+      return KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION;
+    } else {
+      return KEEP_CODEC_RESULT_NO;
+    }
   }
 
   @Override
   public MediaClock getMediaClock() {
     return this;
+  }
+
+  @Override
+  protected float getCodecOperatingRate(
+      float operatingRate, Format format, Format[] streamFormats) {
+    // Use the highest known stream sample-rate up front, to avoid having to reconfigure the codec
+    // should an adaptive switch to that stream occur.
+    int maxSampleRate = -1;
+    for (Format streamFormat : streamFormats) {
+      int streamSampleRate = streamFormat.sampleRate;
+      if (streamSampleRate != Format.NO_VALUE) {
+        maxSampleRate = Math.max(maxSampleRate, streamSampleRate);
+      }
+    }
+    return maxSampleRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxSampleRate * operatingRate);
   }
 
   @Override
@@ -432,12 +486,30 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
+  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+    super.onStreamChanged(formats, offsetUs);
+    if (lastInputTimeUs != C.TIME_UNSET) {
+      if (pendingStreamChangeCount == pendingStreamChangeTimesUs.length) {
+        Log.w(
+            TAG,
+            "Too many stream changes, so dropping change at "
+                + pendingStreamChangeTimesUs[pendingStreamChangeCount - 1]);
+      } else {
+        pendingStreamChangeCount++;
+      }
+      pendingStreamChangeTimesUs[pendingStreamChangeCount - 1] = lastInputTimeUs;
+    }
+  }
+
+  @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
     audioSink.reset();
     currentPositionUs = positionUs;
     allowFirstBufferPositionDiscontinuity = true;
     allowPositionDiscontinuity = true;
+    lastInputTimeUs = C.TIME_UNSET;
+    pendingStreamChangeCount = 0;
   }
 
   @Override
@@ -456,6 +528,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onDisabled() {
     try {
+      lastInputTimeUs = C.TIME_UNSET;
+      pendingStreamChangeCount = 0;
       audioSink.release();
     } finally {
       try {
@@ -506,12 +580,36 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
       allowFirstBufferPositionDiscontinuity = false;
     }
+    lastInputTimeUs = Math.max(buffer.timeUs, lastInputTimeUs);
   }
 
   @Override
-  protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
-      ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs,
-      boolean shouldSkip) throws ExoPlaybackException {
+  protected void onProcessedOutputBuffer(long presentationTimeUs) {
+    super.onProcessedOutputBuffer(presentationTimeUs);
+    while (pendingStreamChangeCount != 0 && presentationTimeUs >= pendingStreamChangeTimesUs[0]) {
+      audioSink.handleDiscontinuity();
+      pendingStreamChangeCount--;
+      System.arraycopy(
+          pendingStreamChangeTimesUs,
+          /* srcPos= */ 1,
+          pendingStreamChangeTimesUs,
+          /* destPos= */ 0,
+          pendingStreamChangeCount);
+    }
+  }
+
+  @Override
+  protected boolean processOutputBuffer(
+      long positionUs,
+      long elapsedRealtimeUs,
+      MediaCodec codec,
+      ByteBuffer buffer,
+      int bufferIndex,
+      int bufferFlags,
+      long bufferPresentationTimeUs,
+      boolean shouldSkip,
+      Format format)
+      throws ExoPlaybackException {
     if (passthroughEnabled && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
       // Discard output buffers from the passthrough (raw) decoder containing codec specific data.
       codec.releaseOutputBuffer(bufferIndex, false);
@@ -547,7 +645,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
+  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     switch (messageType) {
       case C.MSG_SET_VOLUME:
         audioSink.setVolume((Float) message);
@@ -555,6 +653,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       case C.MSG_SET_AUDIO_ATTRIBUTES:
         AudioAttributes audioAttributes = (AudioAttributes) message;
         audioSink.setAudioAttributes(audioAttributes);
+        break;
+      case C.MSG_SET_AUX_EFFECT_INFO:
+        AuxEffectInfo auxEffectInfo = (AuxEffectInfo) message;
+        audioSink.setAuxEffectInfo(auxEffectInfo);
         break;
       default:
         super.handleMessage(messageType, message);
@@ -574,16 +676,17 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected int getCodecMaxInputSize(
       MediaCodecInfo codecInfo, Format format, Format[] streamFormats) {
     int maxInputSize = getCodecMaxInputSize(codecInfo, format);
-    // if (streamFormats.length == 1) {
-    //   // The single entry in streamFormats must correspond to the format for which the codec is
-    //   // being configured.
-    //   return maxInputSize;
-    // }
-    // for (Format streamFormat : streamFormats) {
-    //   if (areAdaptationCompatible(format, streamFormat)) {
-    //     maxInputSize = Math.max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
-    //   }
-    // }
+    if (streamFormats.length == 1) {
+      // The single entry in streamFormats must correspond to the format for which the codec is
+      // being configured.
+      return maxInputSize;
+    }
+    for (Format streamFormat : streamFormats) {
+      if (codecInfo.isSeamlessAdaptationSupported(
+          format, streamFormat, /* isNewFormatComplete= */ false)) {
+        maxInputSize = Math.max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
+      }
+    }
     return maxInputSize;
   }
 
@@ -624,10 +727,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param format The format of the media.
    * @param codecMimeType The MIME type handled by the codec.
    * @param codecMaxInputSize The maximum input size supported by the codec.
+   * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
+   *     no codec operating rate should be set.
    * @return The framework media format.
    */
   @SuppressLint("InlinedApi")
-  protected MediaFormat getMediaFormat(Format format, String codecMimeType, int codecMaxInputSize) {
+  protected MediaFormat getMediaFormat(
+      Format format, String codecMimeType, int codecMaxInputSize, float codecOperatingRate) {
     MediaFormat mediaFormat = new MediaFormat();
     // Set format parameters that should always be set.
     mediaFormat.setString(MediaFormat.KEY_MIME, codecMimeType);
@@ -639,6 +745,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     // Set codec configuration values.
     if (Util.SDK_INT >= 23) {
       mediaFormat.setInteger(MediaFormat.KEY_PRIORITY, 0 /* realtime priority */);
+      if (codecOperatingRate != CODEC_OPERATING_RATE_UNSET) {
+        mediaFormat.setFloat(MediaFormat.KEY_OPERATING_RATE, codecOperatingRate);
+      }
     }
     return mediaFormat;
   }
@@ -652,25 +761,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
               : Math.max(currentPositionUs, newCurrentPositionUs);
       allowPositionDiscontinuity = false;
     }
-  }
-
-  /**
-   * Returns whether a codec with suitable maximum input size will support adaptation between two
-   * {@link Format}s.
-   *
-   * @param first The first format.
-   * @param second The second format.
-   * @return Whether the codec will support adaptation between the two {@link Format}s.
-   */
-  private static boolean areAdaptationCompatible(Format first, Format second) {
-    return first.sampleMimeType.equals(second.sampleMimeType)
-        && first.channelCount == second.channelCount
-        && first.sampleRate == second.sampleRate
-        && first.encoderDelay == 0
-        && first.encoderPadding == 0
-        && second.encoderDelay == 0
-        && second.encoderPadding == 0
-        && first.initializationDataEquals(second);
   }
 
   /**

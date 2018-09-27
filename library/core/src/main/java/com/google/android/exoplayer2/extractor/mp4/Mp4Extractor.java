@@ -46,23 +46,17 @@ import java.util.List;
  */
 public final class Mp4Extractor implements Extractor, SeekMap {
 
-  /**
-   * Factory for {@link Mp4Extractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new Mp4Extractor()};
-    }
-
-  };
+  /** Factory for {@link Mp4Extractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new Mp4Extractor()};
 
   /**
-   * Flags controlling the behavior of the extractor.
+   * Flags controlling the behavior of the extractor. Possible flag value is {@link
+   * #FLAG_WORKAROUND_IGNORE_EDIT_LISTS}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {FLAG_WORKAROUND_IGNORE_EDIT_LISTS})
+  @IntDef(
+      flag = true,
+      value = {FLAG_WORKAROUND_IGNORE_EDIT_LISTS})
   public @interface Flags {}
   /**
    * Flag to ignore any edit lists in the stream.
@@ -392,15 +386,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
 
     boolean ignoreEditLists = (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0;
-    ArrayList<TrackSampleTable> trackSampleTables;
-    try {
-      trackSampleTables = getTrackSampleTables(moov, gaplessInfoHolder, ignoreEditLists);
-    } catch (AtomParsers.UnhandledEditListException e) {
-      // Discard gapless info as we aren't able to handle corresponding edits.
-      gaplessInfoHolder = new GaplessInfoHolder();
-      trackSampleTables =
-          getTrackSampleTables(moov, gaplessInfoHolder, /* ignoreEditLists= */ true);
-    }
+    ArrayList<TrackSampleTable> trackSampleTables =
+        getTrackSampleTables(moov, gaplessInfoHolder, ignoreEditLists);
 
     int trackCount = trackSampleTables.size();
     for (int i = 0; i < trackCount; i++) {

@@ -37,8 +37,8 @@ import java.util.Map;
       Map<String, TtmlRegion> regionMap) {
     this.root = root;
     this.regionMap = regionMap;
-    this.globalStyles = globalStyles != null
-        ? Collections.unmodifiableMap(globalStyles) : Collections.<String, TtmlStyle>emptyMap();
+    this.globalStyles =
+        globalStyles != null ? Collections.unmodifiableMap(globalStyles) : Collections.emptyMap();
     this.eventTimesUs = root.getEventTimesUs();
   }
 

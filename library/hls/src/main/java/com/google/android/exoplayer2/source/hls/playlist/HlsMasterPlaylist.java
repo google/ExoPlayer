@@ -16,13 +16,32 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /** Represents an HLS master playlist. */
 public final class HlsMasterPlaylist extends HlsPlaylist {
+
+  /** Represents an empty master playlist, from which no attributes can be inherited. */
+  public static final HlsMasterPlaylist EMPTY =
+      new HlsMasterPlaylist(
+          /* baseUri= */ "",
+          /* tags= */ Collections.emptyList(),
+          /* variants= */ Collections.emptyList(),
+          /* audios= */ Collections.emptyList(),
+          /* subtitles= */ Collections.emptyList(),
+          /* muxedAudioFormat= */ null,
+          /* muxedCaptionFormats= */ Collections.emptyList(),
+          /* hasIndependentSegments= */ false,
+          /* variableDefinitions= */ Collections.emptyMap());
+
+  public static final int GROUP_INDEX_VARIANT = 0;
+  public static final int GROUP_INDEX_AUDIO = 1;
+  public static final int GROUP_INDEX_SUBTITLE = 2;
 
   /**
    * Represents a url in an HLS master playlist.
@@ -45,8 +64,16 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      * @return An HLS url.
      */
     public static HlsUrl createMediaPlaylistHlsUrl(String url) {
-      Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null, null,
-          Format.NO_VALUE, 0, null);
+      Format format =
+          Format.createContainerFormat(
+              "0",
+              /* label= */ null,
+              MimeTypes.APPLICATION_M3U8,
+              /* sampleMimeType= */ null,
+              /* codecs= */ null,
+              /* bitrate= */ Format.NO_VALUE,
+              /* selectionFlags= */ 0,
+              /* language= */ null);
       return new HlsUrl(url, format);
     }
 
@@ -85,6 +112,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    * captions information.
    */
   public final List<Format> muxedCaptionFormats;
+  /** Contains variable definitions, as defined by the #EXT-X-DEFINE tag. */
+  public final Map<String, String> variableDefinitions;
 
   /**
    * @param baseUri See {@link #baseUri}.
@@ -94,29 +123,41 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    * @param subtitles See {@link #subtitles}.
    * @param muxedAudioFormat See {@link #muxedAudioFormat}.
    * @param muxedCaptionFormats See {@link #muxedCaptionFormats}.
+   * @param hasIndependentSegments See {@link #hasIndependentSegments}.
+   * @param variableDefinitions See {@link #variableDefinitions}.
    */
-  public HlsMasterPlaylist(String baseUri, List<String> tags, List<HlsUrl> variants,
-      List<HlsUrl> audios, List<HlsUrl> subtitles, Format muxedAudioFormat,
-      List<Format> muxedCaptionFormats) {
-    super(baseUri, tags);
+  public HlsMasterPlaylist(
+      String baseUri,
+      List<String> tags,
+      List<HlsUrl> variants,
+      List<HlsUrl> audios,
+      List<HlsUrl> subtitles,
+      Format muxedAudioFormat,
+      List<Format> muxedCaptionFormats,
+      boolean hasIndependentSegments,
+      Map<String, String> variableDefinitions) {
+    super(baseUri, tags, hasIndependentSegments);
     this.variants = Collections.unmodifiableList(variants);
     this.audios = Collections.unmodifiableList(audios);
     this.subtitles = Collections.unmodifiableList(subtitles);
     this.muxedAudioFormat = muxedAudioFormat;
     this.muxedCaptionFormats = muxedCaptionFormats != null
         ? Collections.unmodifiableList(muxedCaptionFormats) : null;
+    this.variableDefinitions = Collections.unmodifiableMap(variableDefinitions);
   }
 
   @Override
-  public HlsMasterPlaylist copy(List<RenditionKey> renditionKeys) {
+  public HlsMasterPlaylist copy(List<StreamKey> streamKeys) {
     return new HlsMasterPlaylist(
         baseUri,
         tags,
-        copyRenditionsList(variants, RenditionKey.TYPE_VARIANT, renditionKeys),
-        copyRenditionsList(audios, RenditionKey.TYPE_AUDIO, renditionKeys),
-        copyRenditionsList(subtitles, RenditionKey.TYPE_SUBTITLE, renditionKeys),
+        copyRenditionsList(variants, GROUP_INDEX_VARIANT, streamKeys),
+        copyRenditionsList(audios, GROUP_INDEX_AUDIO, streamKeys),
+        copyRenditionsList(subtitles, GROUP_INDEX_SUBTITLE, streamKeys),
         muxedAudioFormat,
-        muxedCaptionFormats);
+        muxedCaptionFormats,
+        hasIndependentSegments,
+        variableDefinitions);
   }
 
   /**
@@ -128,18 +169,26 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   public static HlsMasterPlaylist createSingleVariantMasterPlaylist(String variantUrl) {
     List<HlsUrl> variant = Collections.singletonList(HlsUrl.createMediaPlaylistHlsUrl(variantUrl));
     List<HlsUrl> emptyList = Collections.emptyList();
-    return new HlsMasterPlaylist(null, Collections.<String>emptyList(), variant, emptyList,
-        emptyList, null, null);
+    return new HlsMasterPlaylist(
+        null,
+        Collections.emptyList(),
+        variant,
+        emptyList,
+        emptyList,
+        /* muxedAudioFormat= */ null,
+        /* muxedCaptionFormats= */ null,
+        /* hasIndependentSegments= */ false,
+        /* variableDefinitions= */ Collections.emptyMap());
   }
 
   private static List<HlsUrl> copyRenditionsList(
-      List<HlsUrl> renditions, int renditionType, List<RenditionKey> renditionKeys) {
-    List<HlsUrl> copiedRenditions = new ArrayList<>(renditionKeys.size());
+      List<HlsUrl> renditions, int groupIndex, List<StreamKey> streamKeys) {
+    List<HlsUrl> copiedRenditions = new ArrayList<>(streamKeys.size());
     for (int i = 0; i < renditions.size(); i++) {
       HlsUrl rendition = renditions.get(i);
-      for (int j = 0; j < renditionKeys.size(); j++) {
-        RenditionKey renditionKey = renditionKeys.get(j);
-        if (renditionKey.type == renditionType && renditionKey.trackIndex == i) {
+      for (int j = 0; j < streamKeys.size(); j++) {
+        StreamKey streamKey = streamKeys.get(j);
+        if (streamKey.groupIndex == groupIndex && streamKey.trackIndex == i) {
           copiedRenditions.add(rendition);
           break;
         }

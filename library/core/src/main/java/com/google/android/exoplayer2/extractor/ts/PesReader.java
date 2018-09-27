@@ -15,10 +15,10 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
@@ -100,6 +100,8 @@ public final class PesReader implements TsPayloadReader {
           // Either way, notify the reader that it has now finished.
           reader.packetFinished();
           break;
+        default:
+          throw new IllegalStateException();
       }
       setState(STATE_READING_HEADER);
     }
@@ -140,6 +142,8 @@ public final class PesReader implements TsPayloadReader {
             }
           }
           break;
+        default:
+          throw new IllegalStateException();
       }
     }
   }

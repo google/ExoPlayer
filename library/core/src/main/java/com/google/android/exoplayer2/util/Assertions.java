@@ -104,6 +104,7 @@ public final class Assertions {
    * @return The non-null reference that was validated.
    * @throws NullPointerException If {@code reference} is null.
    */
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
   @EnsuresNonNull({"#1"})
   public static <T> T checkNotNull(@Nullable T reference) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && reference == null) {
@@ -122,6 +123,7 @@ public final class Assertions {
    * @return The non-null reference that was validated.
    * @throws NullPointerException If {@code reference} is null.
    */
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
   @EnsuresNonNull({"#1"})
   public static <T> T checkNotNull(@Nullable T reference, Object errorMessage) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && reference == null) {
@@ -137,6 +139,7 @@ public final class Assertions {
    * @return The non-null, non-empty string that was validated.
    * @throws IllegalArgumentException If {@code string} is null or 0-length.
    */
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
   @EnsuresNonNull({"#1"})
   public static String checkNotEmpty(@Nullable String string) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && TextUtils.isEmpty(string)) {
@@ -154,6 +157,7 @@ public final class Assertions {
    * @return The non-null, non-empty string that was validated.
    * @throws IllegalArgumentException If {@code string} is null or 0-length.
    */
+  @SuppressWarnings({"contracts.postcondition.not.satisfied", "return.type.incompatible"})
   @EnsuresNonNull({"#1"})
   public static String checkNotEmpty(@Nullable String string, Object errorMessage) {
     if (ExoPlayerLibraryInfo.ASSERTIONS_ENABLED && TextUtils.isEmpty(string)) {

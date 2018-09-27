@@ -447,7 +447,8 @@ public final class ActionSchedule {
     private SimpleExoPlayer player;
 
     /** Handles the message send to the component and additionally provides access to the player. */
-    public abstract void handleMessage(SimpleExoPlayer player, int messageType, Object message);
+    public abstract void handleMessage(
+        SimpleExoPlayer player, int messageType, @Nullable Object message);
 
     /** Sets the player to be passed to {@link #handleMessage(SimpleExoPlayer, int, Object)}. */
     /* package */ void setPlayer(SimpleExoPlayer player) {
@@ -455,7 +456,8 @@ public final class ActionSchedule {
     }
 
     @Override
-    public final void handleMessage(int messageType, Object message) throws ExoPlaybackException {
+    public final void handleMessage(int messageType, @Nullable Object message)
+        throws ExoPlaybackException {
       handleMessage(player, messageType, message);
     }
   }
@@ -610,13 +612,7 @@ public final class ActionSchedule {
         ActionNode nextAction) {
       Assertions.checkArgument(nextAction == null);
       if (callback != null) {
-        handler.post(
-            new Runnable() {
-              @Override
-              public void run() {
-                callback.onActionScheduleFinished();
-              }
-            });
+        handler.post(() -> callback.onActionScheduleFinished());
       }
     }
 

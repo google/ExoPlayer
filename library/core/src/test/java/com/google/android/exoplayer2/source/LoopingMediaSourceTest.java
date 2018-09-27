@@ -48,7 +48,7 @@ public class LoopingMediaSourceTest {
   }
 
   @Test
-  public void testSingleLoop() throws IOException {
+  public void testSingleLoopTimeline() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, 1);
     TimelineAsserts.assertWindowTags(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1);
@@ -67,7 +67,7 @@ public class LoopingMediaSourceTest {
   }
 
   @Test
-  public void testMultiLoop() throws IOException {
+  public void testMultiLoopTimeline() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, 3);
     TimelineAsserts.assertWindowTags(timeline, 111, 222, 333, 111, 222, 333, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1, 1, 1, 1, 1, 1, 1);
@@ -88,7 +88,7 @@ public class LoopingMediaSourceTest {
   }
 
   @Test
-  public void testInfiniteLoop() throws IOException {
+  public void testInfiniteLoopTimeline() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, Integer.MAX_VALUE);
     TimelineAsserts.assertWindowTags(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1);
@@ -117,6 +117,21 @@ public class LoopingMediaSourceTest {
     TimelineAsserts.assertEmpty(timeline);
   }
 
+  @Test
+  public void testSingleLoopPeriodCreation() throws Exception {
+    testMediaPeriodCreation(multiWindowTimeline, /* loopCount= */ 1);
+  }
+
+  @Test
+  public void testMultiLoopPeriodCreation() throws Exception {
+    testMediaPeriodCreation(multiWindowTimeline, /* loopCount= */ 3);
+  }
+
+  @Test
+  public void testInfiniteLoopPeriodCreation() throws Exception {
+    testMediaPeriodCreation(multiWindowTimeline, /* loopCount= */ Integer.MAX_VALUE);
+  }
+
   /**
    * Wraps the specified timeline in a {@link LoopingMediaSource} and returns the looping timeline.
    */
@@ -129,6 +144,23 @@ public class LoopingMediaSourceTest {
       testRunner.releaseSource();
       fakeMediaSource.assertReleased();
       return loopingTimeline;
+    } finally {
+      testRunner.release();
+    }
+  }
+
+  /**
+   * Wraps the specified timeline in a {@link LoopingMediaSource} and asserts that all periods of
+   * the looping timeline can be created and prepared.
+   */
+  private static void testMediaPeriodCreation(Timeline timeline, int loopCount) throws Exception {
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(timeline, null);
+    LoopingMediaSource mediaSource = new LoopingMediaSource(fakeMediaSource, loopCount);
+    MediaSourceTestRunner testRunner = new MediaSourceTestRunner(mediaSource, null);
+    try {
+      testRunner.prepareSource();
+      testRunner.assertPrepareAndReleaseAllPeriods();
+      testRunner.releaseSource();
     } finally {
       testRunner.release();
     }

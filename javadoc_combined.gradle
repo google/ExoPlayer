@@ -39,7 +39,7 @@ class CombinedJavadocPlugin implements Plugin<Project> {
             libraryModules.each { libraryModule ->
               libraryModule.android.libraryVariants.all { variant ->
                 def name = variant.buildType.name
-                if (name.equals("release")) {
+                if (name == "release") {
                   classpath +=
                       libraryModule.project.files(
                           variant.javaCompile.classpath.files,
@@ -63,7 +63,7 @@ class CombinedJavadocPlugin implements Plugin<Project> {
   }
 
   // Returns Android library modules that declare a generateJavadoc task.
-  private Set<Project> getLibraryModules(Project project) {
+  private static Set<Project> getLibraryModules(Project project) {
     project.subprojects.findAll {
       it.plugins.findPlugin("com.android.library") &&
       it.tasks.findByName("generateJavadoc")

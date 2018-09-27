@@ -220,6 +220,8 @@ public class DefaultTimeBar extends View implements TimeBar {
   private @Nullable boolean[] playedAdGroups;
 
   /** Creates a new time bar. */
+  // Suppress warnings due to usage of View methods in the constructor.
+  @SuppressWarnings("nullness:method.invocation.invalid")
   public DefaultTimeBar(Context context, AttributeSet attrs) {
     super(context, attrs);
     seekBounds = new Rect();
@@ -305,12 +307,7 @@ public class DefaultTimeBar extends View implements TimeBar {
     }
     formatBuilder = new StringBuilder();
     formatter = new Formatter(formatBuilder, Locale.getDefault());
-    stopScrubbingRunnable = new Runnable() {
-      @Override
-      public void run() {
-        stopScrubbing(false);
-      }
-    };
+    stopScrubbingRunnable = () -> stopScrubbing(/* canceled= */ false);
     if (scrubberDrawable != null) {
       scrubberPadding = (scrubberDrawable.getMinimumWidth() + 1) / 2;
     } else {

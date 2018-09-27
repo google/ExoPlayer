@@ -33,7 +33,16 @@ import java.lang.annotation.RetentionPolicy;
 @TargetApi(17)
 public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableListener, Runnable {
 
-  /** Secure mode to be used by the EGL surface and context. */
+  /** Listener to be called when the texture image on {@link SurfaceTexture} has been updated. */
+  public interface TextureImageListener {
+    /** Called when the {@link SurfaceTexture} receives a new frame from its image producer. */
+    void onFrameAvailable();
+  }
+
+  /**
+   * Secure mode to be used by the EGL surface and context. One of {@link #SECURE_MODE_NONE}, {@link
+   * #SECURE_MODE_SURFACELESS_CONTEXT} or {@link #SECURE_MODE_PROTECTED_PBUFFER}.
+   */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({SECURE_MODE_NONE, SECURE_MODE_SURFACELESS_CONTEXT, SECURE_MODE_PROTECTED_PBUFFER})
   public @interface SecureMode {}
@@ -44,6 +53,9 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
   public static final int SECURE_MODE_SURFACELESS_CONTEXT = 1;
   /** Creating a secure surface backed by a pixel buffer. */
   public static final int SECURE_MODE_PROTECTED_PBUFFER = 2;
+
+  private static final int EGL_SURFACE_WIDTH = 1;
+  private static final int EGL_SURFACE_HEIGHT = 1;
 
   private static final int[] EGL_CONFIG_ATTRIBUTES =
       new int[] {
@@ -69,6 +81,7 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
 
   private final Handler handler;
   private final int[] textureIdHolder;
+  private final @Nullable TextureImageListener callback;
 
   private @Nullable EGLDisplay display;
   private @Nullable EGLContext context;
@@ -82,7 +95,21 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
    *     looper.
    */
   public EGLSurfaceTexture(Handler handler) {
+    this(handler, /* callback= */ null);
+  }
+
+  /**
+   * @param handler The {@link Handler} that will be used to call {@link
+   *     SurfaceTexture#updateTexImage()} to update images on the {@link SurfaceTexture}. Note that
+   *     {@link #init(int)} has to be called on the same looper thread as the looper of the {@link
+   *     Handler}.
+   * @param callback The {@link TextureImageListener} to be called when the texture image on {@link
+   *     SurfaceTexture} has been updated. This callback will be called on the same handler thread
+   *     as the {@code handler}.
+   */
+  public EGLSurfaceTexture(Handler handler, @Nullable TextureImageListener callback) {
     this.handler = handler;
+    this.callback = callback;
     textureIdHolder = new int[1];
   }
 
@@ -125,6 +152,11 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
       if (Util.SDK_INT >= 19) {
         EGL14.eglReleaseThread();
       }
+      if (display != null && !display.equals(EGL14.EGL_NO_DISPLAY)) {
+        // Android is unusual in that it uses a reference-counted EGLDisplay.  So for
+        // every eglInitialize() we need an eglTerminate().
+        EGL14.eglTerminate(display);
+      }
       display = null;
       context = null;
       surface = null;
@@ -150,8 +182,20 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
 
   @Override
   public void run() {
+    // Run on the provided handler thread when a new image frame is available.
+    dispatchOnFrameAvailable();
     if (texture != null) {
-      texture.updateTexImage();
+      try {
+        texture.updateTexImage();
+      } catch (RuntimeException e) {
+        // Ignore
+      }
+    }
+  }
+
+  private void dispatchOnFrameAvailable() {
+    if (callback != null) {
+      callback.onFrameAvailable();
     }
   }
 
@@ -228,9 +272,9 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
         pbufferAttributes =
             new int[] {
               EGL14.EGL_WIDTH,
-              1,
+              EGL_SURFACE_WIDTH,
               EGL14.EGL_HEIGHT,
-              1,
+              EGL_SURFACE_HEIGHT,
               EGL_PROTECTED_CONTENT_EXT,
               EGL14.EGL_TRUE,
               EGL14.EGL_NONE
@@ -238,8 +282,10 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
       } else {
         pbufferAttributes =
             new int[] {
-              EGL14.EGL_WIDTH, 1,
-              EGL14.EGL_HEIGHT, 1,
+              EGL14.EGL_WIDTH,
+              EGL_SURFACE_WIDTH,
+              EGL14.EGL_HEIGHT,
+              EGL_SURFACE_HEIGHT,
               EGL14.EGL_NONE
             };
       }

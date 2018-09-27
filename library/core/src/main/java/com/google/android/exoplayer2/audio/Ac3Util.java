@@ -27,13 +27,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 
-/** Utility methods for parsing Dolby TrueHD and (E-)AC3 syncframes. */
+/**
+ * Utility methods for parsing Dolby TrueHD and (E-)AC-3 syncframes. (E-)AC-3 parsing follows the
+ * definition in ETSI TS 102 366 V1.2.1.
+ */
 public final class Ac3Util {
 
   /** Holds sample format information as presented by a syncframe header. */
   public static final class SyncFrameInfo {
 
-    /** AC3 stream types. See also ETSI TS 102 366 E.1.3.1.1. */
+    /**
+     * AC3 stream types. See also ETSI TS 102 366 E.1.3.1.1. One of {@link #STREAM_TYPE_UNDEFINED},
+     * {@link #STREAM_TYPE_TYPE0}, {@link #STREAM_TYPE_TYPE1} or {@link #STREAM_TYPE_TYPE2}.
+     */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({STREAM_TYPE_UNDEFINED, STREAM_TYPE_TYPE0, STREAM_TYPE_TYPE1, STREAM_TYPE_TYPE2})
     public @interface StreamType {}
@@ -137,17 +143,17 @@ public final class Ac3Util {
       121, 139, 174, 208, 243, 278, 348, 417, 487, 557, 696, 835, 975, 1114, 1253, 1393};
 
   /**
-   * Returns the AC-3 format given {@code data} containing the AC3SpecificBox according to
-   * ETSI TS 102 366 Annex F. The reading position of {@code data} will be modified.
+   * Returns the AC-3 format given {@code data} containing the AC3SpecificBox according to ETSI TS
+   * 102 366 Annex F. The reading position of {@code data} will be modified.
    *
    * @param data The AC3SpecificBox to parse.
-   * @param trackId The track identifier to set on the format, or null.
+   * @param trackId The track identifier to set on the format.
    * @param language The language to set on the format.
    * @param drmInitData {@link DrmInitData} to be included in the format.
    * @return The AC-3 format parsed from data in the header.
    */
-  public static Format parseAc3AnnexFFormat(ParsableByteArray data, String trackId,
-      String language, DrmInitData drmInitData) {
+  public static Format parseAc3AnnexFFormat(
+      ParsableByteArray data, String trackId, String language, DrmInitData drmInitData) {
     int fscod = (data.readUnsignedByte() & 0xC0) >> 6;
     int sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
     int nextByte = data.readUnsignedByte();
@@ -155,22 +161,32 @@ public final class Ac3Util {
     if ((nextByte & 0x04) != 0) { // lfeon
       channelCount++;
     }
-    return Format.createAudioSampleFormat(trackId, MimeTypes.AUDIO_AC3, null, Format.NO_VALUE,
-        Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0, language);
+    return Format.createAudioSampleFormat(
+        trackId,
+        MimeTypes.AUDIO_AC3,
+        /* codecs= */ null,
+        Format.NO_VALUE,
+        Format.NO_VALUE,
+        channelCount,
+        sampleRate,
+        /* initializationData= */ null,
+        drmInitData,
+        /* selectionFlags= */ 0,
+        language);
   }
 
   /**
-   * Returns the E-AC-3 format given {@code data} containing the EC3SpecificBox according to
-   * ETSI TS 102 366 Annex F. The reading position of {@code data} will be modified.
+   * Returns the E-AC-3 format given {@code data} containing the EC3SpecificBox according to ETSI TS
+   * 102 366 Annex F. The reading position of {@code data} will be modified.
    *
    * @param data The EC3SpecificBox to parse.
-   * @param trackId The track identifier to set on the format, or null.
+   * @param trackId The track identifier to set on the format.
    * @param language The language to set on the format.
    * @param drmInitData {@link DrmInitData} to be included in the format.
    * @return The E-AC-3 format parsed from data in the header.
    */
-  public static Format parseEAc3AnnexFFormat(ParsableByteArray data, String trackId,
-      String language, DrmInitData drmInitData) {
+  public static Format parseEAc3AnnexFFormat(
+      ParsableByteArray data, String trackId, String language, DrmInitData drmInitData) {
     data.skipBytes(2); // data_rate, num_ind_sub
 
     // Read the first independent substream.
@@ -200,8 +216,18 @@ public final class Ac3Util {
         mimeType = MimeTypes.AUDIO_E_AC3_JOC;
       }
     }
-    return Format.createAudioSampleFormat(trackId, mimeType, null, Format.NO_VALUE,
-        Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0, language);
+    return Format.createAudioSampleFormat(
+        trackId,
+        mimeType,
+        /* codecs= */ null,
+        Format.NO_VALUE,
+        Format.NO_VALUE,
+        channelCount,
+        sampleRate,
+        /* initializationData= */ null,
+        drmInitData,
+        /* selectionFlags= */ 0,
+        language);
   }
 
   /**
@@ -214,7 +240,7 @@ public final class Ac3Util {
   public static SyncFrameInfo parseAc3SyncframeInfo(ParsableBitArray data) {
     int initialPosition = data.getPosition();
     data.skipBits(40);
-    boolean isEac3 = data.readBits(5) == 16;
+    boolean isEac3 = data.readBits(5) == 16; // See bsid in subsection E.1.3.1.6.
     data.setPosition(initialPosition);
     String mimeType;
     @StreamType int streamType = SyncFrameInfo.STREAM_TYPE_UNDEFINED;
@@ -242,7 +268,7 @@ public final class Ac3Util {
           break;
       }
       data.skipBits(3); // substreamid
-      frameSize = (data.readBits(11) + 1) * 2;
+      frameSize = (data.readBits(11) + 1) * 2; // See frmsiz in subsection E.1.3.1.3.
       int fscod = data.readBits(2);
       int audioBlocks;
       int numblkscod;
@@ -428,18 +454,25 @@ public final class Ac3Util {
   }
 
   /**
-   * Returns the size in bytes of the given AC-3 syncframe.
+   * Returns the size in bytes of the given (E-)AC-3 syncframe.
    *
    * @param data The syncframe to parse.
    * @return The syncframe size in bytes. {@link C#LENGTH_UNSET} if the input is invalid.
    */
   public static int parseAc3SyncframeSize(byte[] data) {
-    if (data.length < 5) {
+    if (data.length < 6) {
       return C.LENGTH_UNSET;
     }
-    int fscod = (data[4] & 0xC0) >> 6;
-    int frmsizecod = data[4] & 0x3F;
-    return getAc3SyncframeSize(fscod, frmsizecod);
+    boolean isEac3 = ((data[5] & 0xFF) >> 3) == 16; // See bsid in subsection E.1.3.1.6.
+    if (isEac3) {
+      int frmsiz = (data[2] & 0x07) << 8; // Most significant 3 bits.
+      frmsiz |= data[3] & 0xFF; // Least significant 8 bits.
+      return (frmsiz + 1) * 2; // See frmsiz in subsection E.1.3.1.3.
+    } else {
+      int fscod = (data[4] & 0xC0) >> 6;
+      int frmsizecod = data[4] & 0x3F;
+      return getAc3SyncframeSize(fscod, frmsizecod);
+    }
   }
 
   /**

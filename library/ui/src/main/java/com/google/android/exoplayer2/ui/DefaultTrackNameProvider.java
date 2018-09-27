@@ -43,11 +43,11 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
     } else if (trackType == C.TRACK_TYPE_AUDIO) {
       trackName =
           joinWithSeparator(
-              buildLanguageString(format),
+              buildLabelString(format),
               buildAudioChannelString(format),
               buildBitrateString(format));
     } else {
-      trackName = buildLanguageString(format);
+      trackName = buildLabelString(format);
     }
     return trackName.length() == 0 ? resources.getString(R.string.exo_track_unknown) : trackName;
   }
@@ -87,7 +87,11 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
     }
   }
 
-  private String buildLanguageString(Format format) {
+  private String buildLabelString(Format format) {
+    if (!TextUtils.isEmpty(format.label)) {
+      return format.label;
+    }
+    // Fall back to using the language.
     String language = format.language;
     return TextUtils.isEmpty(language) || C.LANGUAGE_UNDETERMINED.equals(language)
         ? ""

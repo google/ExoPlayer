@@ -20,14 +20,17 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import java.util.List;
 
 /**
- * A track selection consisting of a static subset of selected tracks belonging to a
- * {@link TrackGroup}, and a possibly varying individual selected track from the subset.
- * <p>
- * Tracks belonging to the subset are exposed in decreasing bandwidth order. The individual selected
- * track may change as a result of calling {@link #updateSelectedTrack(long, long, long)}.
+ * A track selection consisting of a static subset of selected tracks belonging to a {@link
+ * TrackGroup}, and a possibly varying individual selected track from the subset.
+ *
+ * <p>Tracks belonging to the subset are exposed in decreasing bandwidth order. The individual
+ * selected track may change as a result of calling {@link #updateSelectedTrack(long, long, long,
+ * List, MediaChunkIterator[])}.
  */
 public interface TrackSelection {
 
@@ -40,12 +43,13 @@ public interface TrackSelection {
      * Creates a new selection.
      *
      * @param group The {@link TrackGroup}. Must not be null.
+     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
      * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
      *     null or empty. May be in any order.
      * @return The created selection.
      */
-    TrackSelection createTrackSelection(TrackGroup group, int... tracks);
-
+    TrackSelection createTrackSelection(
+        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks);
   }
 
   /**
@@ -146,25 +150,47 @@ public interface TrackSelection {
   void onPlaybackSpeed(float speed);
 
   /**
-   * Updates the selected track.
-   * <p>
-   * This method may only be called when the selection is enabled.
+   * @deprecated Use and implement {@link #updateSelectedTrack(long, long, long, List,
+   *     MediaChunkIterator[])} instead.
+   */
+  @Deprecated
+  default void updateSelectedTrack(
+      long playbackPositionUs, long bufferedDurationUs, long availableDurationUs) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Updates the selected track for sources that load media in discrete {@link MediaChunk}s.
+   *
+   * <p>This method may only be called when the selection is enabled.
    *
    * @param playbackPositionUs The current playback position in microseconds. If playback of the
    *     period to which this track selection belongs has not yet started, the value will be the
    *     starting position in the period minus the duration of any media in previous periods still
    *     to be played.
    * @param bufferedDurationUs The duration of media currently buffered from the current playback
-   *     position, in microseconds. Note that the next load position can be calculated as
-   *     {@code (playbackPositionUs + bufferedDurationUs)}.
+   *     position, in microseconds. Note that the next load position can be calculated as {@code
+   *     (playbackPositionUs + bufferedDurationUs)}.
    * @param availableDurationUs The duration of media available for buffering from the current
-   *     playback position, in microseconds, or {@link C#TIME_UNSET} if media can be buffered
-   *     to the end of the current period. Note that if not set to {@link C#TIME_UNSET}, the
-   *     position up to which media is available for buffering can be calculated as
-   *     {@code (playbackPositionUs + availableDurationUs)}.
+   *     playback position, in microseconds, or {@link C#TIME_UNSET} if media can be buffered to the
+   *     end of the current period. Note that if not set to {@link C#TIME_UNSET}, the position up to
+   *     which media is available for buffering can be calculated as {@code (playbackPositionUs +
+   *     availableDurationUs)}.
+   * @param queue The queue of already buffered {@link MediaChunk}s. Must not be modified.
+   * @param mediaChunkIterators An array of {@link MediaChunkIterator}s providing information about
+   *     the sequence of upcoming media chunks for each track in the selection. All iterators start
+   *     from the media chunk which will be loaded next if the respective track is selected. Note
+   *     that this information may not be available for all tracks, and so some iterators may be
+   *     empty.
    */
-  void updateSelectedTrack(long playbackPositionUs, long bufferedDurationUs,
-      long availableDurationUs);
+  default void updateSelectedTrack(
+      long playbackPositionUs,
+      long bufferedDurationUs,
+      long availableDurationUs,
+      List<? extends MediaChunk> queue,
+      MediaChunkIterator[] mediaChunkIterators) {
+    updateSelectedTrack(playbackPositionUs, bufferedDurationUs, availableDurationUs);
+  }
 
   /**
    * May be called periodically by sources that load media in discrete {@link MediaChunk}s and
@@ -188,12 +214,13 @@ public interface TrackSelection {
 
   /**
    * Attempts to blacklist the track at the specified index in the selection, making it ineligible
-   * for selection by calls to {@link #updateSelectedTrack(long, long, long)} for the specified
-   * period of time. Blacklisting will fail if all other tracks are currently blacklisted. If
-   * blacklisting the currently selected track, note that it will remain selected until the next
-   * call to {@link #updateSelectedTrack(long, long, long)}.
-   * <p>
-   * This method may only be called when the selection is enabled.
+   * for selection by calls to {@link #updateSelectedTrack(long, long, long, List,
+   * MediaChunkIterator[])} for the specified period of time. Blacklisting will fail if all other
+   * tracks are currently blacklisted. If blacklisting the currently selected track, note that it
+   * will remain selected until the next call to {@link #updateSelectedTrack(long, long, long, List,
+   * MediaChunkIterator[])}.
+   *
+   * <p>This method may only be called when the selection is enabled.
    *
    * @param index The index of the track in the selection.
    * @param blacklistDurationMs The duration of time for which the track should be blacklisted, in
@@ -201,5 +228,4 @@ public interface TrackSelection {
    * @return Whether blacklisting was successful.
    */
   boolean blacklist(int index, long blacklistDurationMs);
-
 }

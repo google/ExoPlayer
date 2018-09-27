@@ -61,8 +61,7 @@ public final class CachedRegionTrackerTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    when(cache.addListener(anyString(), any(Cache.Listener.class)))
-        .thenReturn(new TreeSet<CacheSpan>());
+    when(cache.addListener(anyString(), any(Cache.Listener.class))).thenReturn(new TreeSet<>());
     tracker = new CachedRegionTracker(cache, CACHE_KEY, CHUNK_INDEX);
     cacheDir = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);

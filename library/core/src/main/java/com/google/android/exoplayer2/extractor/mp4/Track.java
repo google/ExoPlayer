@@ -28,7 +28,8 @@ import java.lang.annotation.RetentionPolicy;
 public final class Track {
 
   /**
-   * The transformation to apply to samples in the track, if any.
+   * The transformation to apply to samples in the track, if any. One of {@link
+   * #TRANSFORMATION_NONE} or {@link #TRANSFORMATION_CEA608_CDAT}.
    */
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TRANSFORMATION_NONE, TRANSFORMATION_CEA608_CDAT})

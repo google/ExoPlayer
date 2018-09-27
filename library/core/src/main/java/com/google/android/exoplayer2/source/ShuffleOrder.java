@@ -21,6 +21,8 @@ import java.util.Random;
 
 /**
  * Shuffled order of indices.
+ *
+ * <p>The shuffle order must be immutable to ensure thread safety.
  */
 public interface ShuffleOrder {
 

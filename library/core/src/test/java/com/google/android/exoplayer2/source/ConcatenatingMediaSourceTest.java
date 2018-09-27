@@ -23,8 +23,8 @@ import android.os.ConditionVariable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
@@ -97,7 +97,7 @@ public final class ConcatenatingMediaSourceTest {
 
     // Add bulk.
     mediaSource.addMediaSources(
-        3, Arrays.<MediaSource>asList(childSources[4], childSources[5], childSources[6]));
+        3, Arrays.asList(childSources[4], childSources[5], childSources[6]));
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 2, 4, 1, 5, 6, 7, 3);
     TimelineAsserts.assertWindowTags(timeline, 222, 444, 111, 555, 666, 777, 333);
@@ -247,12 +247,7 @@ public final class ConcatenatingMediaSourceTest {
     // Trigger source info refresh for lazy source and check that the timeline now contains all
     // information for all windows.
     testRunner.runOnPlaybackThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            lazySources[1].setNewSourceInfo(createFakeTimeline(8), null);
-          }
-        });
+        () -> lazySources[1].setNewSourceInfo(createFakeTimeline(8), null));
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 9);
     TimelineAsserts.assertWindowTags(timeline, 111, 999);
@@ -279,25 +274,22 @@ public final class ConcatenatingMediaSourceTest {
     // called yet.
     MediaPeriod lazyPeriod =
         testRunner.createPeriod(
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+            new MediaPeriodId(
+                timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0));
     CountDownLatch preparedCondition = testRunner.preparePeriod(lazyPeriod, 0);
     assertThat(preparedCondition.getCount()).isEqualTo(1);
 
     // Assert that a second period can also be created and released without problems.
     MediaPeriod secondLazyPeriod =
         testRunner.createPeriod(
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+            new MediaPeriodId(
+                timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0));
     testRunner.releasePeriod(secondLazyPeriod);
 
     // Trigger source info refresh for lazy media source. Assert that now all information is
     // available again and the previously created period now also finished preparing.
     testRunner.runOnPlaybackThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            lazySources[3].setNewSourceInfo(createFakeTimeline(7), null);
-          }
-        });
+        () -> lazySources[3].setNewSourceInfo(createFakeTimeline(7), null));
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 8, 1, 2, 9);
     TimelineAsserts.assertWindowTags(timeline, 888, 111, 222, 999);
@@ -383,7 +375,7 @@ public final class ConcatenatingMediaSourceTest {
         };
     Timeline nonEmptyTimeline = new FakeTimeline(/* windowCount = */ 1);
 
-    mediaSource.addMediaSources(Arrays.<MediaSource>asList(childSources));
+    mediaSource.addMediaSources(Arrays.asList(childSources));
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertEmpty(timeline);
 
@@ -484,12 +476,7 @@ public final class ConcatenatingMediaSourceTest {
       testRunner.prepareSource();
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              mediaSource.addMediaSource(createFakeMediaSource(), timelineGrabber);
-            }
-          });
+          () -> mediaSource.addMediaSource(createFakeMediaSource(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(1);
     } finally {
@@ -504,15 +491,11 @@ public final class ConcatenatingMediaSourceTest {
       testRunner.prepareSource();
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
+          () ->
               mediaSource.addMediaSources(
                   Arrays.asList(
                       new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-                  timelineGrabber);
-            }
-          });
+                  timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
     } finally {
@@ -527,12 +510,8 @@ public final class ConcatenatingMediaSourceTest {
       testRunner.prepareSource();
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              mediaSource.addMediaSource(/* index */ 0, createFakeMediaSource(), timelineGrabber);
-            }
-          });
+          () ->
+              mediaSource.addMediaSource(/* index */ 0, createFakeMediaSource(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(1);
     } finally {
@@ -547,16 +526,12 @@ public final class ConcatenatingMediaSourceTest {
       testRunner.prepareSource();
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
+          () ->
               mediaSource.addMediaSources(
                   /* index */ 0,
                   Arrays.asList(
                       new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-                  timelineGrabber);
-            }
-          });
+                  timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
     } finally {
@@ -569,23 +544,12 @@ public final class ConcatenatingMediaSourceTest {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
-      dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              mediaSource.addMediaSource(createFakeMediaSource());
-            }
-          });
+      dummyMainThread.runOnMainThread(() -> mediaSource.addMediaSource(createFakeMediaSource()));
       testRunner.assertTimelineChangeBlocking();
 
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              mediaSource.removeMediaSource(/* index */ 0, timelineGrabber);
-            }
-          });
+          () -> mediaSource.removeMediaSource(/* index */ 0, timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(0);
     } finally {
@@ -599,24 +563,15 @@ public final class ConcatenatingMediaSourceTest {
     try {
       testRunner.prepareSource();
       dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
+          () ->
               mediaSource.addMediaSources(
                   Arrays.asList(
-                      new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}));
-            }
-          });
+                      new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()})));
       testRunner.assertTimelineChangeBlocking();
 
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
-          new Runnable() {
-            @Override
-            public void run() {
-              mediaSource.moveMediaSource(/* fromIndex */ 1, /* toIndex */ 0, timelineGrabber);
-            }
-          });
+          () -> mediaSource.moveMediaSource(/* fromIndex */ 1, /* toIndex */ 0, timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
     } finally {
@@ -652,23 +607,27 @@ public final class ConcatenatingMediaSourceTest {
 
     // Create all periods and assert period creation of child media sources has been called.
     testRunner.assertPrepareAndReleaseAllPeriods();
+    Object timelineContentOnlyPeriodUid0 = timelineContentOnly.getUidOfPeriod(/* periodIndex= */ 0);
+    Object timelineContentOnlyPeriodUid1 = timelineContentOnly.getUidOfPeriod(/* periodIndex= */ 1);
+    Object timelineWithAdsPeriodUid0 = timelineWithAds.getUidOfPeriod(/* periodIndex= */ 0);
+    Object timelineWithAdsPeriodUid1 = timelineWithAds.getUidOfPeriod(/* periodIndex= */ 1);
     mediaSourceContentOnly.assertMediaPeriodCreated(
-        new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+        new MediaPeriodId(timelineContentOnlyPeriodUid0, /* windowSequenceNumber= */ 0));
     mediaSourceContentOnly.assertMediaPeriodCreated(
-        new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 0));
+        new MediaPeriodId(timelineContentOnlyPeriodUid1, /* windowSequenceNumber= */ 0));
     mediaSourceWithAds.assertMediaPeriodCreated(
-        new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 1));
+        new MediaPeriodId(timelineWithAdsPeriodUid0, /* windowSequenceNumber= */ 1));
     mediaSourceWithAds.assertMediaPeriodCreated(
-        new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 1));
+        new MediaPeriodId(timelineWithAdsPeriodUid1, /* windowSequenceNumber= */ 1));
     mediaSourceWithAds.assertMediaPeriodCreated(
         new MediaPeriodId(
-            /* periodIndex= */ 0,
+            timelineWithAdsPeriodUid0,
             /* adGroupIndex= */ 0,
             /* adIndexInAdGroup= */ 0,
             /* windowSequenceNumber= */ 1));
     mediaSourceWithAds.assertMediaPeriodCreated(
         new MediaPeriodId(
-            /* periodIndex= */ 1,
+            timelineWithAdsPeriodUid1,
             /* adGroupIndex= */ 0,
             /* adIndexInAdGroup= */ 0,
             /* windowSequenceNumber= */ 1));
@@ -683,7 +642,7 @@ public final class ConcatenatingMediaSourceTest {
     ConcatenatingMediaSource mediaSource =
         new ConcatenatingMediaSource(/* isAtomic= */ true, new FakeShuffleOrder(0));
     testRunner = new MediaSourceTestRunner(mediaSource, null);
-    mediaSource.addMediaSources(Arrays.<MediaSource>asList(createMediaSources(3)));
+    mediaSource.addMediaSources(Arrays.asList(createMediaSources(3)));
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertWindowTags(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 2, 3);
@@ -768,10 +727,11 @@ public final class ConcatenatingMediaSourceTest {
   public void testRemoveChildSourceWithActiveMediaPeriod() throws IOException {
     FakeMediaSource childSource = createFakeMediaSource();
     mediaSource.addMediaSource(childSource);
-    testRunner.prepareSource();
+    Timeline timeline = testRunner.prepareSource();
     MediaPeriod mediaPeriod =
         testRunner.createPeriod(
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+            new MediaPeriodId(
+                timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0));
     mediaSource.removeMediaSource(/* index= */ 0);
     testRunner.assertTimelineChangeBlocking();
     testRunner.releasePeriod(mediaPeriod);
@@ -781,27 +741,29 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testDuplicateMediaSources() throws IOException, InterruptedException {
-    FakeMediaSource childSource =
-        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 2), /* manifest= */ null);
+    Timeline childTimeline = new FakeTimeline(/* windowCount= */ 2);
+    FakeMediaSource childSource = new FakeMediaSource(childTimeline, /* manifest= */ null);
 
     mediaSource.addMediaSource(childSource);
     mediaSource.addMediaSource(childSource);
     testRunner.prepareSource();
-    mediaSource.addMediaSources(Arrays.<MediaSource>asList(childSource, childSource));
+    mediaSource.addMediaSources(Arrays.asList(childSource, childSource));
     Timeline timeline = testRunner.assertTimelineChangeBlocking();
 
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1, 1, 1, 1, 1, 1);
     testRunner.assertPrepareAndReleaseAllPeriods();
+    Object childPeriodUid0 = childTimeline.getUidOfPeriod(/* periodIndex= */ 0);
+    Object childPeriodUid1 = childTimeline.getUidOfPeriod(/* periodIndex= */ 1);
     assertThat(childSource.getCreatedMediaPeriods())
         .containsAllOf(
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0),
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 2),
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 4),
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 6),
-            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 1),
-            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 3),
-            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 5),
-            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 7));
+            new MediaPeriodId(childPeriodUid0, /* windowSequenceNumber= */ 0),
+            new MediaPeriodId(childPeriodUid0, /* windowSequenceNumber= */ 2),
+            new MediaPeriodId(childPeriodUid0, /* windowSequenceNumber= */ 4),
+            new MediaPeriodId(childPeriodUid0, /* windowSequenceNumber= */ 6),
+            new MediaPeriodId(childPeriodUid1, /* windowSequenceNumber= */ 1),
+            new MediaPeriodId(childPeriodUid1, /* windowSequenceNumber= */ 3),
+            new MediaPeriodId(childPeriodUid1, /* windowSequenceNumber= */ 5),
+            new MediaPeriodId(childPeriodUid1, /* windowSequenceNumber= */ 7));
     // Assert that only one manifest load is reported because the source is reused.
     testRunner.assertCompletedManifestLoads(/* windowIndices= */ 0);
     assertCompletedAllMediaPeriodLoads(timeline);
@@ -812,13 +774,13 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testDuplicateNestedMediaSources() throws IOException, InterruptedException {
-    FakeMediaSource childSource =
-        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), /* manifest= */ null);
+    Timeline childTimeline = new FakeTimeline(/* windowCount= */ 1);
+    FakeMediaSource childSource = new FakeMediaSource(childTimeline, /* manifest= */ null);
     ConcatenatingMediaSource nestedConcatenation = new ConcatenatingMediaSource();
 
     testRunner.prepareSource();
     mediaSource.addMediaSources(
-        Arrays.<MediaSource>asList(childSource, nestedConcatenation, nestedConcatenation));
+        Arrays.asList(childSource, nestedConcatenation, nestedConcatenation));
     testRunner.assertTimelineChangeBlocking();
     nestedConcatenation.addMediaSource(childSource);
     testRunner.assertTimelineChangeBlocking();
@@ -827,13 +789,14 @@ public final class ConcatenatingMediaSourceTest {
 
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1, 1, 1);
     testRunner.assertPrepareAndReleaseAllPeriods();
+    Object childPeriodUid = childTimeline.getUidOfPeriod(/* periodIndex= */ 0);
     assertThat(childSource.getCreatedMediaPeriods())
         .containsAllOf(
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0),
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 1),
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 2),
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 3),
-            new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 4));
+            new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 0),
+            new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 1),
+            new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 2),
+            new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 3),
+            new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 4));
     // Assert that only one manifest load is needed because the source is reused.
     testRunner.assertCompletedManifestLoads(/* windowIndices= */ 0);
     assertCompletedAllMediaPeriodLoads(timeline);
@@ -849,23 +812,14 @@ public final class ConcatenatingMediaSourceTest {
     final FakeMediaSource unpreparedChildSource =
         new FakeMediaSource(/* timeline= */ null, /* manifest= */ null);
     dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            mediaSource.addMediaSource(preparedChildSource);
-            mediaSource.addMediaSource(unpreparedChildSource);
-          }
+        () -> {
+          mediaSource.addMediaSource(preparedChildSource);
+          mediaSource.addMediaSource(unpreparedChildSource);
         });
     testRunner.prepareSource();
     final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
 
-    dummyMainThread.runOnMainThread(
-        new Runnable() {
-          @Override
-          public void run() {
-            mediaSource.clear(timelineGrabber);
-          }
-        });
+    dummyMainThread.runOnMainThread(() -> mediaSource.clear(timelineGrabber));
 
     Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
     assertThat(timeline.isEmpty()).isTrue();
@@ -875,21 +829,20 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testReleaseAndReprepareSource() throws IOException {
-    Period period = new Period();
     FakeMediaSource[] fakeMediaSources = createMediaSources(/* count= */ 2);
     mediaSource.addMediaSource(fakeMediaSources[0]); // Child source with 1 period.
     mediaSource.addMediaSource(fakeMediaSources[1]); // Child source with 2 periods.
     Timeline timeline = testRunner.prepareSource();
-    Object periodId0 = timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid;
-    Object periodId1 = timeline.getPeriod(/* periodIndex= */ 1, period, /* setIds= */ true).uid;
-    Object periodId2 = timeline.getPeriod(/* periodIndex= */ 2, period, /* setIds= */ true).uid;
+    Object periodId0 = timeline.getUidOfPeriod(/* periodIndex= */ 0);
+    Object periodId1 = timeline.getUidOfPeriod(/* periodIndex= */ 1);
+    Object periodId2 = timeline.getUidOfPeriod(/* periodIndex= */ 2);
     testRunner.releaseSource();
 
     mediaSource.moveMediaSource(/* currentIndex= */ 1, /* newIndex= */ 0);
     timeline = testRunner.prepareSource();
-    Object newPeriodId0 = timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid;
-    Object newPeriodId1 = timeline.getPeriod(/* periodIndex= */ 1, period, /* setIds= */ true).uid;
-    Object newPeriodId2 = timeline.getPeriod(/* periodIndex= */ 2, period, /* setIds= */ true).uid;
+    Object newPeriodId0 = timeline.getUidOfPeriod(/* periodIndex= */ 0);
+    Object newPeriodId1 = timeline.getUidOfPeriod(/* periodIndex= */ 1);
+    Object newPeriodId2 = timeline.getUidOfPeriod(/* periodIndex= */ 2);
     assertThat(newPeriodId0).isEqualTo(periodId1);
     assertThat(newPeriodId1).isEqualTo(periodId2);
     assertThat(newPeriodId2).isEqualTo(periodId0);
@@ -901,16 +854,123 @@ public final class ConcatenatingMediaSourceTest {
     ConcatenatingMediaSource childSource = new ConcatenatingMediaSource(nestedChildSources);
     mediaSource.addMediaSource(childSource);
 
-    testRunner.prepareSource();
+    Timeline timeline = testRunner.prepareSource();
     MediaPeriod mediaPeriod =
         testRunner.createPeriod(
-            new MediaPeriodId(/* periodIndex= */ 1, /* windowSequenceNumber= */ 0));
+            new MediaPeriodId(
+                timeline.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 0));
     childSource.moveMediaSource(/* currentIndex= */ 0, /* newIndex= */ 1);
-    testRunner.assertTimelineChangeBlocking();
+    timeline = testRunner.assertTimelineChangeBlocking();
     testRunner.preparePeriod(mediaPeriod, /* positionUs= */ 0);
 
     testRunner.assertCompletedMediaPeriodLoads(
-        new MediaPeriodId(/* periodIndex= */ 0, /* windowSequenceNumber= */ 0));
+        new MediaPeriodId(
+            timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0));
+  }
+
+  @Test
+  public void testChildSourceIsNotPreparedWithLazyPreparation() throws IOException {
+    FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
+    mediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false,
+            /* useLazyPreparation= */ true,
+            new DefaultShuffleOrder(0),
+            childSources);
+    testRunner = new MediaSourceTestRunner(mediaSource, /* allocator= */ null);
+    testRunner.prepareSource();
+
+    assertThat(childSources[0].isPrepared()).isFalse();
+    assertThat(childSources[1].isPrepared()).isFalse();
+  }
+
+  @Test
+  public void testChildSourceIsPreparedWithLazyPreparationAfterPeriodCreation() throws IOException {
+    FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
+    mediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false,
+            /* useLazyPreparation= */ true,
+            new DefaultShuffleOrder(0),
+            childSources);
+    testRunner = new MediaSourceTestRunner(mediaSource, /* allocator= */ null);
+    Timeline timeline = testRunner.prepareSource();
+    testRunner.createPeriod(
+        new MediaPeriodId(
+            timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0));
+
+    assertThat(childSources[0].isPrepared()).isTrue();
+    assertThat(childSources[1].isPrepared()).isFalse();
+  }
+
+  @Test
+  public void testChildSourceWithLazyPreparationOnlyPreparesSourceOnce() throws IOException {
+    FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
+    mediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false,
+            /* useLazyPreparation= */ true,
+            new DefaultShuffleOrder(0),
+            childSources);
+    testRunner = new MediaSourceTestRunner(mediaSource, /* allocator= */ null);
+    Timeline timeline = testRunner.prepareSource();
+
+    // The lazy preparation must only be triggered once, even if we create multiple periods from
+    // the media source. FakeMediaSource.prepareSource asserts that it's not called twice, so
+    // creating two periods shouldn't throw.
+    MediaPeriodId mediaPeriodId =
+        new MediaPeriodId(
+            timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
+    testRunner.createPeriod(mediaPeriodId);
+    testRunner.createPeriod(mediaPeriodId);
+  }
+
+  @Test
+  public void testSetShuffleOrderBeforePreparation() throws Exception {
+    mediaSource.setShuffleOrder(new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0));
+    mediaSource.addMediaSources(
+        Arrays.asList(createFakeMediaSource(), createFakeMediaSource(), createFakeMediaSource()));
+    Timeline timeline = testRunner.prepareSource();
+
+    assertThat(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true)).isEqualTo(0);
+  }
+
+  @Test
+  public void testSetShuffleOrderAfterPreparation() throws Exception {
+    mediaSource.addMediaSources(
+        Arrays.asList(createFakeMediaSource(), createFakeMediaSource(), createFakeMediaSource()));
+    testRunner.prepareSource();
+    mediaSource.setShuffleOrder(new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 3));
+    Timeline timeline = testRunner.assertTimelineChangeBlocking();
+
+    assertThat(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true)).isEqualTo(0);
+  }
+
+  @Test
+  public void testCustomCallbackBeforePreparationSetShuffleOrder() throws Exception {
+    Runnable runnable = Mockito.mock(Runnable.class);
+    mediaSource.setShuffleOrder(new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0), runnable);
+
+    verify(runnable).run();
+  }
+
+  @Test
+  public void testCustomCallbackAfterPreparationSetShuffleOrder() throws Exception {
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    try {
+      mediaSource.addMediaSources(
+          Arrays.asList(createFakeMediaSource(), createFakeMediaSource(), createFakeMediaSource()));
+      testRunner.prepareSource();
+      TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
+      dummyMainThread.runOnMainThread(
+          () ->
+              mediaSource.setShuffleOrder(
+                  new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 3), timelineGrabber));
+      Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
+      assertThat(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true)).isEqualTo(0);
+    } finally {
+      dummyMainThread.release();
+    }
   }
 
   private void assertCompletedAllMediaPeriodLoads(Timeline timeline) {
@@ -923,11 +983,12 @@ public final class ConcatenatingMediaSourceTest {
           periodIndex <= window.lastPeriodIndex;
           periodIndex++) {
         timeline.getPeriod(periodIndex, period);
-        expectedMediaPeriodIds.add(new MediaPeriodId(periodIndex, windowIndex));
+        Object periodUid = timeline.getUidOfPeriod(periodIndex);
+        expectedMediaPeriodIds.add(new MediaPeriodId(periodUid, windowIndex));
         for (int adGroupIndex = 0; adGroupIndex < period.getAdGroupCount(); adGroupIndex++) {
           for (int adIndex = 0; adIndex < period.getAdCountInAdGroup(adGroupIndex); adIndex++) {
             expectedMediaPeriodIds.add(
-                new MediaPeriodId(periodIndex, adGroupIndex, adIndex, windowIndex));
+                new MediaPeriodId(periodUid, adGroupIndex, adIndex, windowIndex));
           }
         }
       }

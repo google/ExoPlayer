@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,10 +36,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Base class for multi segment stream downloaders.
  *
  * @param <M> The type of the manifest object.
- * @param <K> The type of the streams key object.
  */
-public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
-    implements Downloader {
+public abstract class SegmentDownloader<M extends FilterableManifest<M>> implements Downloader {
 
   /** Smallest unit of content to be downloaded. */
   protected static class Segment implements Comparable<Segment> {
@@ -56,8 +55,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
 
     @Override
     public int compareTo(@NonNull Segment other) {
-      long startOffsetDiff = startTimeUs - other.startTimeUs;
-      return startOffsetDiff == 0 ? 0 : ((startOffsetDiff < 0) ? -1 : 1);
+      return Util.compareLong(startTimeUs, other.startTimeUs);
     }
   }
 
@@ -68,7 +66,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
   private final Cache cache;
   private final CacheDataSource dataSource;
   private final CacheDataSource offlineDataSource;
-  private final ArrayList<K> streamKeys;
+  private final ArrayList<StreamKey> streamKeys;
   private final AtomicBoolean isCanceled;
 
   private volatile int totalSegments;
@@ -82,7 +80,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M, K>, K>
    * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
    */
   public SegmentDownloader(
-      Uri manifestUri, List<K> streamKeys, DownloaderConstructorHelper constructorHelper) {
+      Uri manifestUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
     this.manifestUri = manifestUri;
     this.streamKeys = new ArrayList<>(streamKeys);
     this.cache = constructorHelper.getCache();

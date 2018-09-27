@@ -89,12 +89,18 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * model">
  *
  * <ul>
- *   <li>ExoPlayer instances must be accessed from a single application thread. This must be the
- *       thread the player is created on if that thread has a {@link Looper}, or the application's
- *       main thread otherwise.
- *   <li>Registered listeners are called on the thread the player is created on if that thread has a
- *       {@link Looper}, or the application's main thread otherwise. Note that this means registered
- *       listeners are called on the same thread which must be used to access the player.
+ *   <li>ExoPlayer instances must be accessed from a single application thread. For the vast
+ *       majority of cases this should be the application's main thread. Using the application's
+ *       main thread is also a requirement when using ExoPlayer's UI components or the IMA
+ *       extension. The thread on which an ExoPlayer instance must be accessed can be explicitly
+ *       specified by passing a `Looper` when creating the player. If no `Looper` is specified, then
+ *       the `Looper` of the thread that the player is created on is used, or if that thread does
+ *       not have a `Looper`, the `Looper` of the application's main thread is used. In all cases
+ *       the `Looper` of the thread from which the player must be accessed can be queried using
+ *       {@link #getApplicationLooper()}.
+ *   <li>Registered listeners are called on the thread associated with {@link
+ *       #getApplicationLooper()}. Note that this means registered listeners are called on the same
+ *       thread which must be used to access the player.
  *   <li>An internal playback thread is responsible for playback. Injected player components such as
  *       Renderers, MediaSources, TrackSelectors and LoadControls are called by the player on this
  *       thread.
@@ -178,12 +184,14 @@ public interface ExoPlayer extends Player {
   @Deprecated
   @RepeatMode int REPEAT_MODE_ALL = Player.REPEAT_MODE_ALL;
 
-  /**
-   * Gets the {@link Looper} associated with the playback thread.
-   *
-   * @return The {@link Looper} associated with the playback thread.
-   */
+  /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();
+
+  /**
+   * Retries a failed or stopped playback. Does nothing if the player has been reset, or if playback
+   * has not failed or been stopped.
+   */
+  void retry();
 
   /**
    * Prepares the player to play the provided {@link MediaSource}. Equivalent to
@@ -224,6 +232,7 @@ public interface ExoPlayer extends Player {
 
   /** @deprecated Use {@link #createMessage(PlayerMessage.Target)} instead. */
   @Deprecated
+  @SuppressWarnings("deprecation")
   void sendMessages(ExoPlayerMessage... messages);
 
   /**
@@ -231,6 +240,7 @@ public interface ExoPlayer extends Player {
    *     PlayerMessage#blockUntilDelivered()}.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   void blockingSendMessages(ExoPlayerMessage... messages);
 
   /**
@@ -239,4 +249,7 @@ public interface ExoPlayer extends Player {
    * @param seekParameters The seek parameters, or {@code null} to use the defaults.
    */
   void setSeekParameters(@Nullable SeekParameters seekParameters);
+
+  /** Returns the currently active {@link SeekParameters} of the player. */
+  SeekParameters getSeekParameters();
 }

@@ -60,7 +60,7 @@ public final class ByteArrayUploadDataProviderTest {
 
   @Test
   public void testReadPartialBuffer() throws IOException {
-    byte[] firstHalf = Arrays.copyOfRange(TEST_DATA, 0, TEST_DATA.length / 2);
+    byte[] firstHalf = Arrays.copyOf(TEST_DATA, TEST_DATA.length / 2);
     byte[] secondHalf = Arrays.copyOfRange(TEST_DATA, TEST_DATA.length / 2, TEST_DATA.length);
     byteBuffer = ByteBuffer.allocate(TEST_DATA.length / 2);
     // Read half of the data.

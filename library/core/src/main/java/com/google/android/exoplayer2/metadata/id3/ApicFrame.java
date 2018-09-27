@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -29,11 +31,12 @@ public final class ApicFrame extends Id3Frame {
   public static final String ID = "APIC";
 
   public final String mimeType;
-  public final String description;
+  public final @Nullable String description;
   public final int pictureType;
   public final byte[] pictureData;
 
-  public ApicFrame(String mimeType, String description, int pictureType, byte[] pictureData) {
+  public ApicFrame(
+      String mimeType, @Nullable String description, int pictureType, byte[] pictureData) {
     super(ID);
     this.mimeType = mimeType;
     this.description = description;
@@ -43,10 +46,10 @@ public final class ApicFrame extends Id3Frame {
 
   /* package */ ApicFrame(Parcel in) {
     super(ID);
-    mimeType = in.readString();
-    description = in.readString();
+    mimeType = castNonNull(in.readString());
+    description = castNonNull(in.readString());
     pictureType = in.readInt();
-    pictureData = in.createByteArray();
+    pictureData = castNonNull(in.createByteArray());
   }
 
   @Override

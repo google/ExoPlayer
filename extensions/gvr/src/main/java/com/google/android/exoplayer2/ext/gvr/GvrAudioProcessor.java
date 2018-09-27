@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.vr.sdk.audio.GvrAudioSurround;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -148,18 +149,21 @@ public final class GvrAudioProcessor implements AudioProcessor {
   @Override
   public void queueInput(ByteBuffer input) {
     int position = input.position();
+    Assertions.checkNotNull(gvrAudioSurround);
     int readBytes = gvrAudioSurround.addInput(input, position, input.limit() - position);
     input.position(position + readBytes);
   }
 
   @Override
   public void queueEndOfStream() {
+    Assertions.checkNotNull(gvrAudioSurround);
     inputEnded = true;
     gvrAudioSurround.triggerProcessing();
   }
 
   @Override
   public ByteBuffer getOutput() {
+    Assertions.checkNotNull(gvrAudioSurround);
     int writtenBytes = gvrAudioSurround.getOutput(buffer, 0, buffer.capacity());
     buffer.position(0).limit(writtenBytes);
     return buffer;
@@ -167,6 +171,7 @@ public final class GvrAudioProcessor implements AudioProcessor {
 
   @Override
   public boolean isEnded() {
+    Assertions.checkNotNull(gvrAudioSurround);
     return inputEnded && gvrAudioSurround.getAvailableOutputSize() == 0;
   }
 
