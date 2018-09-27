@@ -18,15 +18,17 @@ package com.google.android.exoplayer2.source.hls.playlist;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer2.source.chunk.ChunkedTrackBlacklistUtil;
 import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.UriUtil;
@@ -39,6 +41,9 @@ import java.util.List;
 public final class DefaultHlsPlaylistTracker
     implements HlsPlaylistTracker, Loader.Callback<ParsingLoadable<HlsPlaylist>> {
 
+  /** Factory for {@link DefaultHlsPlaylistTracker} instances. */
+  public static final Factory FACTORY = DefaultHlsPlaylistTracker::new;
+
   /**
    * Coefficient applied on the target duration of a playlist to determine the amount of time after
    * which an unchanging playlist is considered stuck.
@@ -46,35 +51,51 @@ public final class DefaultHlsPlaylistTracker
   private static final double PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT = 3.5;
 
   private final HlsDataSourceFactory dataSourceFactory;
-  private final ParsingLoadable.Parser<HlsPlaylist> playlistParser;
-  private final int minRetryCount;
+  private final HlsPlaylistParserFactory playlistParserFactory;
+  private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final IdentityHashMap<HlsUrl, MediaPlaylistBundle> playlistBundles;
   private final List<PlaylistEventListener> listeners;
 
-  private EventDispatcher eventDispatcher;
-  private Loader initialPlaylistLoader;
-  private Handler playlistRefreshHandler;
-  private PrimaryPlaylistListener primaryPlaylistListener;
-  private HlsMasterPlaylist masterPlaylist;
-  private HlsUrl primaryHlsUrl;
-  private HlsMediaPlaylist primaryUrlSnapshot;
+  private @Nullable ParsingLoadable.Parser<HlsPlaylist> mediaPlaylistParser;
+  private @Nullable EventDispatcher eventDispatcher;
+  private @Nullable Loader initialPlaylistLoader;
+  private @Nullable Handler playlistRefreshHandler;
+  private @Nullable PrimaryPlaylistListener primaryPlaylistListener;
+  private @Nullable HlsMasterPlaylist masterPlaylist;
+  private @Nullable HlsUrl primaryHlsUrl;
+  private @Nullable HlsMediaPlaylist primaryUrlSnapshot;
   private boolean isLive;
   private long initialStartTimeUs;
 
   /**
    * @param dataSourceFactory A factory for {@link DataSource} instances.
-   * @param minRetryCount The minimum number of times loads must be retried before {@link
-   *     #maybeThrowPlaylistRefreshError(HlsUrl)} and {@link
-   *     #maybeThrowPrimaryPlaylistRefreshError()} propagate any loading errors.
+   * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
    * @param playlistParser A {@link ParsingLoadable.Parser} for HLS playlists.
+   * @deprecated Use {@link #DefaultHlsPlaylistTracker(HlsDataSourceFactory,
+   *     LoadErrorHandlingPolicy, HlsPlaylistParserFactory)} instead. Using this constructor
+   *     prevents support for attributes that are carried over from the master playlist to the media
+   *     playlists.
+   */
+  @Deprecated
+  public DefaultHlsPlaylistTracker(
+      HlsDataSourceFactory dataSourceFactory,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+      ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
+    this(dataSourceFactory, loadErrorHandlingPolicy, createFixedFactory(playlistParser));
+  }
+
+  /**
+   * @param dataSourceFactory A factory for {@link DataSource} instances.
+   * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
+   * @param playlistParserFactory An {@link HlsPlaylistParserFactory}.
    */
   public DefaultHlsPlaylistTracker(
       HlsDataSourceFactory dataSourceFactory,
-      int minRetryCount,
-      ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+      HlsPlaylistParserFactory playlistParserFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    this.minRetryCount = minRetryCount;
-    this.playlistParser = playlistParser;
+    this.playlistParserFactory = playlistParserFactory;
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     listeners = new ArrayList<>();
     playlistBundles = new IdentityHashMap<>();
     initialStartTimeUs = C.TIME_UNSET;
@@ -95,13 +116,18 @@ public final class DefaultHlsPlaylistTracker
             dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST),
             initialPlaylistUri,
             C.DATA_TYPE_MANIFEST,
-            playlistParser);
+            playlistParserFactory.createPlaylistParser());
     Assertions.checkState(initialPlaylistLoader == null);
     initialPlaylistLoader = new Loader("DefaultHlsPlaylistTracker:MasterPlaylist");
     long elapsedRealtime =
-        initialPlaylistLoader.startLoading(masterPlaylistLoadable, this, minRetryCount);
+        initialPlaylistLoader.startLoading(
+            masterPlaylistLoadable,
+            this,
+            loadErrorHandlingPolicy.getMinimumLoadableRetryCount(masterPlaylistLoadable.type));
     eventDispatcher.loadStarted(
-        masterPlaylistLoadable.dataSpec, masterPlaylistLoadable.type, elapsedRealtime);
+        masterPlaylistLoadable.dataSpec,
+        masterPlaylistLoadable.type,
+        elapsedRealtime);
   }
 
   @Override
@@ -131,7 +157,7 @@ public final class DefaultHlsPlaylistTracker
   }
 
   @Override
-  public HlsMasterPlaylist getMasterPlaylist() {
+  public @Nullable HlsMasterPlaylist getMasterPlaylist() {
     return masterPlaylist;
   }
 
@@ -193,6 +219,7 @@ public final class DefaultHlsPlaylistTracker
       masterPlaylist = (HlsMasterPlaylist) result;
     }
     this.masterPlaylist = masterPlaylist;
+    mediaPlaylistParser = playlistParserFactory.createPlaylistParser(masterPlaylist);
     primaryHlsUrl = masterPlaylist.variants.get(0);
     ArrayList<HlsUrl> urls = new ArrayList<>();
     urls.addAll(masterPlaylist.variants);
@@ -202,12 +229,14 @@ public final class DefaultHlsPlaylistTracker
     MediaPlaylistBundle primaryBundle = playlistBundles.get(primaryHlsUrl);
     if (isMediaPlaylist) {
       // We don't need to load the playlist again. We can use the same result.
-      primaryBundle.processLoadedPlaylist((HlsMediaPlaylist) result);
+      primaryBundle.processLoadedPlaylist((HlsMediaPlaylist) result, loadDurationMs);
     } else {
       primaryBundle.loadPlaylist();
     }
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
+        loadable.getUri(),
+        loadable.getResponseHeaders(),
         C.DATA_TYPE_MANIFEST,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -222,6 +251,8 @@ public final class DefaultHlsPlaylistTracker
       boolean released) {
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
+        loadable.getUri(),
+        loadable.getResponseHeaders(),
         C.DATA_TYPE_MANIFEST,
         elapsedRealtimeMs,
         loadDurationMs,
@@ -229,21 +260,29 @@ public final class DefaultHlsPlaylistTracker
   }
 
   @Override
-  public @Loader.RetryAction int onLoadError(
+  public LoadErrorAction onLoadError(
       ParsingLoadable<HlsPlaylist> loadable,
       long elapsedRealtimeMs,
       long loadDurationMs,
-      IOException error) {
-    boolean isFatal = error instanceof ParserException;
+      IOException error,
+      int errorCount) {
+    long retryDelayMs =
+        loadErrorHandlingPolicy.getRetryDelayMsFor(
+            loadable.type, loadDurationMs, error, errorCount);
+    boolean isFatal = retryDelayMs == C.TIME_UNSET;
     eventDispatcher.loadError(
         loadable.dataSpec,
+        loadable.getUri(),
+        loadable.getResponseHeaders(),
         C.DATA_TYPE_MANIFEST,
         elapsedRealtimeMs,
         loadDurationMs,
         loadable.bytesLoaded(),
         error,
         isFatal);
-    return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
+    return isFatal
+        ? Loader.DONT_RETRY_FATAL
+        : Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs);
   }
 
   // Internal methods.
@@ -306,11 +345,11 @@ public final class DefaultHlsPlaylistTracker
     }
   }
 
-  private boolean notifyPlaylistError(HlsUrl playlistUrl, boolean shouldBlacklist) {
+  private boolean notifyPlaylistError(HlsUrl playlistUrl, long blacklistDurationMs) {
     int listenersSize = listeners.size();
     boolean anyBlacklistingFailed = false;
     for (int i = 0; i < listenersSize; i++) {
-      anyBlacklistingFailed |= !listeners.get(i).onPlaylistError(playlistUrl, shouldBlacklist);
+      anyBlacklistingFailed |= !listeners.get(i).onPlaylistError(playlistUrl, blacklistDurationMs);
     }
     return anyBlacklistingFailed;
   }
@@ -406,7 +445,7 @@ public final class DefaultHlsPlaylistTracker
               dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST),
               UriUtil.resolveToUri(masterPlaylist.baseUri, playlistUrl.url),
               C.DATA_TYPE_MANIFEST,
-              playlistParser);
+              mediaPlaylistParser);
     }
 
     public HlsMediaPlaylist getPlaylistSnapshot() {
@@ -458,9 +497,11 @@ public final class DefaultHlsPlaylistTracker
         ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs, long loadDurationMs) {
       HlsPlaylist result = loadable.getResult();
       if (result instanceof HlsMediaPlaylist) {
-        processLoadedPlaylist((HlsMediaPlaylist) result);
+        processLoadedPlaylist((HlsMediaPlaylist) result, loadDurationMs);
         eventDispatcher.loadCompleted(
             loadable.dataSpec,
+            loadable.getUri(),
+            loadable.getResponseHeaders(),
             C.DATA_TYPE_MANIFEST,
             elapsedRealtimeMs,
             loadDurationMs,
@@ -478,6 +519,8 @@ public final class DefaultHlsPlaylistTracker
         boolean released) {
       eventDispatcher.loadCanceled(
           loadable.dataSpec,
+          loadable.getUri(),
+          loadable.getResponseHeaders(),
           C.DATA_TYPE_MANIFEST,
           elapsedRealtimeMs,
           loadDurationMs,
@@ -485,30 +528,49 @@ public final class DefaultHlsPlaylistTracker
     }
 
     @Override
-    public @Loader.RetryAction int onLoadError(
+    public LoadErrorAction onLoadError(
         ParsingLoadable<HlsPlaylist> loadable,
         long elapsedRealtimeMs,
         long loadDurationMs,
-        IOException error) {
-      boolean isFatal = error instanceof ParserException;
+        IOException error,
+        int errorCount) {
+      LoadErrorAction loadErrorAction;
+
+      long blacklistDurationMs =
+          loadErrorHandlingPolicy.getBlacklistDurationMsFor(
+              loadable.type, loadDurationMs, error, errorCount);
+      boolean shouldBlacklist = blacklistDurationMs != C.TIME_UNSET;
+
+      boolean blacklistingFailed =
+          notifyPlaylistError(playlistUrl, blacklistDurationMs) || !shouldBlacklist;
+      if (shouldBlacklist) {
+        blacklistingFailed |= blacklistPlaylist(blacklistDurationMs);
+      }
+
+      if (blacklistingFailed) {
+        long retryDelay =
+            loadErrorHandlingPolicy.getRetryDelayMsFor(
+                loadable.type, loadDurationMs, error, errorCount);
+        loadErrorAction =
+            retryDelay != C.TIME_UNSET
+                ? Loader.createRetryAction(false, retryDelay)
+                : Loader.DONT_RETRY_FATAL;
+      } else {
+        loadErrorAction = Loader.DONT_RETRY;
+      }
+
       eventDispatcher.loadError(
           loadable.dataSpec,
+          loadable.getUri(),
+          loadable.getResponseHeaders(),
           C.DATA_TYPE_MANIFEST,
           elapsedRealtimeMs,
           loadDurationMs,
           loadable.bytesLoaded(),
           error,
-          isFatal);
-      boolean shouldBlacklist = ChunkedTrackBlacklistUtil.shouldBlacklist(error);
-      boolean shouldRetryIfNotFatal =
-          notifyPlaylistError(playlistUrl, shouldBlacklist) || !shouldBlacklist;
-      if (isFatal) {
-        return Loader.DONT_RETRY_FATAL;
-      }
-      if (shouldBlacklist) {
-        shouldRetryIfNotFatal |= blacklistPlaylist();
-      }
-      return shouldRetryIfNotFatal ? Loader.RETRY : Loader.DONT_RETRY;
+          /* wasCanceled= */ !loadErrorAction.isRetry());
+
+      return loadErrorAction;
     }
 
     // Runnable implementation.
@@ -523,12 +585,17 @@ public final class DefaultHlsPlaylistTracker
 
     private void loadPlaylistImmediately() {
       long elapsedRealtime =
-          mediaPlaylistLoader.startLoading(mediaPlaylistLoadable, this, minRetryCount);
+          mediaPlaylistLoader.startLoading(
+              mediaPlaylistLoadable,
+              this,
+              loadErrorHandlingPolicy.getMinimumLoadableRetryCount(mediaPlaylistLoadable.type));
       eventDispatcher.loadStarted(
-          mediaPlaylistLoadable.dataSpec, mediaPlaylistLoadable.type, elapsedRealtime);
+          mediaPlaylistLoadable.dataSpec,
+          mediaPlaylistLoadable.type,
+          elapsedRealtime);
     }
 
-    private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist) {
+    private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist, long loadDurationMs) {
       HlsMediaPlaylist oldPlaylist = playlistSnapshot;
       long currentTimeMs = SystemClock.elapsedRealtime();
       lastSnapshotLoadMs = currentTimeMs;
@@ -540,16 +607,23 @@ public final class DefaultHlsPlaylistTracker
       } else if (!playlistSnapshot.hasEndTag) {
         if (loadedPlaylist.mediaSequence + loadedPlaylist.segments.size()
             < playlistSnapshot.mediaSequence) {
-          // The media sequence jumped backwards. The server has probably reset.
+          // TODO: Allow customization of playlist resets handling.
+          // The media sequence jumped backwards. The server has probably reset. We do not try
+          // blacklisting in this case.
           playlistError = new PlaylistResetException(playlistUrl.url);
-          notifyPlaylistError(playlistUrl, false);
+          notifyPlaylistError(playlistUrl, C.TIME_UNSET);
         } else if (currentTimeMs - lastSnapshotChangeMs
             > C.usToMs(playlistSnapshot.targetDurationUs)
                 * PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT) {
-          // The playlist seems to be stuck. Blacklist it.
+          // TODO: Allow customization of stuck playlists handling.
           playlistError = new PlaylistStuckException(playlistUrl.url);
-          notifyPlaylistError(playlistUrl, true);
-          blacklistPlaylist();
+          long blacklistDurationMs =
+              loadErrorHandlingPolicy.getBlacklistDurationMsFor(
+                  C.DATA_TYPE_MANIFEST, loadDurationMs, playlistError, /* errorCount= */ 1);
+          notifyPlaylistError(playlistUrl, blacklistDurationMs);
+          if (blacklistDurationMs != C.TIME_UNSET) {
+            blacklistPlaylist(blacklistDurationMs);
+          }
         }
       }
       // Do not allow the playlist to load again within the target duration if we obtained a new
@@ -571,12 +645,35 @@ public final class DefaultHlsPlaylistTracker
     /**
      * Blacklists the playlist.
      *
+     * @param blacklistDurationMs The number of milliseconds for which the playlist should be
+     *     blacklisted.
      * @return Whether the playlist is the primary, despite being blacklisted.
      */
-    private boolean blacklistPlaylist() {
-      blacklistUntilMs =
-          SystemClock.elapsedRealtime() + ChunkedTrackBlacklistUtil.DEFAULT_TRACK_BLACKLIST_MS;
+    private boolean blacklistPlaylist(long blacklistDurationMs) {
+      blacklistUntilMs = SystemClock.elapsedRealtime() + blacklistDurationMs;
       return primaryHlsUrl == playlistUrl && !maybeSelectNewPrimaryUrl();
     }
+  }
+
+  /**
+   * Creates a factory which always returns the given playlist parser.
+   *
+   * @param playlistParser The parser to return.
+   * @return A factory which always returns the given playlist parser.
+   */
+  private static HlsPlaylistParserFactory createFixedFactory(
+      ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
+    return new HlsPlaylistParserFactory() {
+      @Override
+      public ParsingLoadable.Parser<HlsPlaylist> createPlaylistParser() {
+        return playlistParser;
+      }
+
+      @Override
+      public ParsingLoadable.Parser<HlsPlaylist> createPlaylistParser(
+          HlsMasterPlaylist masterPlaylist) {
+        return playlistParser;
+      }
+    };
   }
 }

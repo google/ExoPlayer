@@ -38,8 +38,7 @@ public class WebvttSubtitleTest {
   private static final String FIRST_AND_SECOND_SUBTITLE_STRING =
       FIRST_SUBTITLE_STRING + "\n" + SECOND_SUBTITLE_STRING;
 
-  private static final WebvttSubtitle emptySubtitle = new WebvttSubtitle(
-      Collections.<WebvttCue>emptyList());
+  private static final WebvttSubtitle emptySubtitle = new WebvttSubtitle(Collections.emptyList());
 
   private static final WebvttSubtitle simpleSubtitle;
   static {

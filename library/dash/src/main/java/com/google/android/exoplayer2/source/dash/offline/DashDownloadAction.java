@@ -20,32 +20,46 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloadAction;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import com.google.android.exoplayer2.offline.StreamKey;
+import java.util.Collections;
 import java.util.List;
 
 /** An action to download or remove downloaded DASH streams. */
-public final class DashDownloadAction extends SegmentDownloadAction<RepresentationKey> {
+public final class DashDownloadAction extends SegmentDownloadAction {
 
   private static final String TYPE = "dash";
   private static final int VERSION = 0;
 
   public static final Deserializer DESERIALIZER =
-      new SegmentDownloadActionDeserializer<RepresentationKey>(TYPE, VERSION) {
-
-        @Override
-        protected RepresentationKey readKey(DataInputStream input) throws IOException {
-          return new RepresentationKey(input.readInt(), input.readInt(), input.readInt());
-        }
-
+      new SegmentDownloadActionDeserializer(TYPE, VERSION) {
         @Override
         protected DownloadAction createDownloadAction(
-            Uri uri, boolean isRemoveAction, byte[] data, List<RepresentationKey> keys) {
+            Uri uri, boolean isRemoveAction, byte[] data, List<StreamKey> keys) {
           return new DashDownloadAction(uri, isRemoveAction, data, keys);
         }
       };
+
+  /**
+   * Creates a DASH download action.
+   *
+   * @param uri The URI of the media to be downloaded.
+   * @param data Optional custom data for this action. If {@code null} an empty array will be used.
+   * @param keys Keys of tracks to be downloaded. If empty, all tracks will be downloaded.
+   */
+  public static DashDownloadAction createDownloadAction(
+      Uri uri, @Nullable byte[] data, List<StreamKey> keys) {
+    return new DashDownloadAction(uri, /* isRemoveAction= */ false, data, keys);
+  }
+
+  /**
+   * Creates a DASH remove action.
+   *
+   * @param uri The URI of the media to be removed.
+   * @param data Optional custom data for this action. If {@code null} an empty array will be used.
+   */
+  public static DashDownloadAction createRemoveAction(Uri uri, @Nullable byte[] data) {
+    return new DashDownloadAction(uri, /* isRemoveAction= */ true, data, Collections.emptyList());
+  }
 
   /**
    * @param uri The DASH manifest URI.
@@ -53,22 +67,18 @@ public final class DashDownloadAction extends SegmentDownloadAction<Representati
    * @param data Optional custom data for this action.
    * @param keys Keys of representations to be downloaded. If empty, all representations are
    *     downloaded. If {@code removeAction} is true, {@code keys} must be empty.
+   * @deprecated Use {@link #createDownloadAction(Uri, byte[], List)} or {@link
+   *     #createRemoveAction(Uri, byte[])}.
    */
+  @Deprecated
   public DashDownloadAction(
-      Uri uri, boolean isRemoveAction, @Nullable byte[] data, List<RepresentationKey> keys) {
+      Uri uri, boolean isRemoveAction, @Nullable byte[] data, List<StreamKey> keys) {
     super(TYPE, VERSION, uri, isRemoveAction, data, keys);
   }
 
   @Override
-  protected DashDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
+  public DashDownloader createDownloader(DownloaderConstructorHelper constructorHelper) {
     return new DashDownloader(uri, keys, constructorHelper);
-  }
-
-  @Override
-  protected void writeKey(DataOutputStream output, RepresentationKey key) throws IOException {
-    output.writeInt(key.periodIndex);
-    output.writeInt(key.adaptationSetIndex);
-    output.writeInt(key.representationIndex);
   }
 
 }

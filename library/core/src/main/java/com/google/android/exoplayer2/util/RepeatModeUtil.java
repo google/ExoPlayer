@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,14 @@ import java.lang.annotation.RetentionPolicy;
 public final class RepeatModeUtil {
 
   /**
-   * Set of repeat toggle modes. Can be combined using bit-wise operations.
+   * Set of repeat toggle modes. Can be combined using bit-wise operations. Possible flag values are
+   * {@link #REPEAT_TOGGLE_MODE_NONE}, {@link #REPEAT_TOGGLE_MODE_ONE} and {@link
+   * #REPEAT_TOGGLE_MODE_ALL}.
    */
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {REPEAT_TOGGLE_MODE_NONE, REPEAT_TOGGLE_MODE_ONE,
-      REPEAT_TOGGLE_MODE_ALL})
+  @IntDef(
+      flag = true,
+      value = {REPEAT_TOGGLE_MODE_NONE, REPEAT_TOGGLE_MODE_ONE, REPEAT_TOGGLE_MODE_ALL})
   public @interface RepeatToggleModes {}
   /**
    * All repeat mode buttons disabled.
@@ -40,10 +43,8 @@ public final class RepeatModeUtil {
    * "Repeat One" button enabled.
    */
   public static final int REPEAT_TOGGLE_MODE_ONE = 1;
-  /**
-   * "Repeat All" button enabled.
-   */
-  public static final int REPEAT_TOGGLE_MODE_ALL = 2;
+  /** "Repeat All" button enabled. */
+  public static final int REPEAT_TOGGLE_MODE_ALL = 1 << 1; // 2
 
   private RepeatModeUtil() {
     // Prevent instantiation.

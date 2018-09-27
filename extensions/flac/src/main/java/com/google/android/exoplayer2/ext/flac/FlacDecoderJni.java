@@ -155,6 +155,7 @@ import java.nio.ByteBuffer;
   }
 
   /** Decodes and consumes the next sample from the FLAC stream into the given byte buffer. */
+  @SuppressWarnings("ByteBufferBackingArray")
   public void decodeSample(ByteBuffer output)
       throws IOException, InterruptedException, FlacFrameDecodeException {
     output.clear();

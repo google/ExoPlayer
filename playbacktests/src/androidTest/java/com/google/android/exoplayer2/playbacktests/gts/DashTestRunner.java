@@ -22,9 +22,9 @@ import android.app.Instrumentation;
 import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.net.Uri;
-import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
@@ -42,7 +42,6 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.DebugRenderersFactory;
 import com.google.android.exoplayer2.testutil.DecoderCountersUtil;
@@ -55,12 +54,12 @@ import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -265,8 +264,7 @@ public final class DashTestRunner {
     }
 
     @Override
-    protected DefaultTrackSelector buildTrackSelector(
-        HostActivity host, BandwidthMeter bandwidthMeter) {
+    protected DefaultTrackSelector buildTrackSelector(HostActivity host) {
       return trackSelector;
     }
 
@@ -296,30 +294,31 @@ public final class DashTestRunner {
     }
 
     @Override
-    protected SimpleExoPlayer buildExoPlayer(HostActivity host, Surface surface,
+    protected SimpleExoPlayer buildExoPlayer(
+        HostActivity host,
+        Surface surface,
         MappingTrackSelector trackSelector,
         DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
       SimpleExoPlayer player =
           ExoPlayerFactory.newSimpleInstance(
-              new DebugRenderersFactory(host), trackSelector, drmSessionManager);
+              host,
+              new DebugRenderersFactory(host),
+              trackSelector,
+              new DefaultLoadControl(),
+              drmSessionManager);
       player.setVideoSurface(surface);
       return player;
     }
 
     @Override
-    protected MediaSource buildSource(HostActivity host, String userAgent,
-        TransferListener<? super DataSource> mediaTransferListener) {
-      DataSource.Factory manifestDataSourceFactory = dataSourceFactory != null
-          ? dataSourceFactory : new DefaultDataSourceFactory(host, userAgent);
-      DataSource.Factory mediaDataSourceFactory = dataSourceFactory != null
-          ? dataSourceFactory
-          : new DefaultDataSourceFactory(host, userAgent, mediaTransferListener);
+    protected MediaSource buildSource(HostActivity host, String userAgent) {
+      DataSource.Factory dataSourceFactory =
+          this.dataSourceFactory != null
+              ? this.dataSourceFactory
+              : new DefaultDataSourceFactory(host, userAgent);
       Uri manifestUri = Uri.parse(manifestUrl);
-      DefaultDashChunkSource.Factory chunkSourceFactory = new DefaultDashChunkSource.Factory(
-          mediaDataSourceFactory);
-      return new DashMediaSource.Factory(chunkSourceFactory, manifestDataSourceFactory)
-          .setMinLoadableRetryCount(MIN_LOADABLE_RETRY_COUNT)
-          .setLivePresentationDelayMs(0)
+      return new DashMediaSource.Factory(dataSourceFactory)
+          .setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(MIN_LOADABLE_RETRY_COUNT))
           .createMediaSource(manifestUri);
     }
 

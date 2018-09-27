@@ -27,12 +27,12 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -108,7 +108,8 @@ public final class DownloadManager {
    * @param upstreamDataSourceFactory A {@link DataSource.Factory} for creating data sources for
    *     downloading upstream data.
    * @param actionSaveFile File to save active actions.
-   * @param deserializers Used to deserialize {@link DownloadAction}s.
+   * @param deserializers Used to deserialize {@link DownloadAction}s. If empty, {@link
+   *     DownloadAction#getDefaultDeserializers()} is used instead.
    */
   public DownloadManager(
       Cache cache,
@@ -127,7 +128,8 @@ public final class DownloadManager {
    * @param constructorHelper A {@link DownloaderConstructorHelper} to create {@link Downloader}s
    *     for downloading data.
    * @param actionFile The file in which active actions are saved.
-   * @param deserializers Used to deserialize {@link DownloadAction}s.
+   * @param deserializers Used to deserialize {@link DownloadAction}s. If empty, {@link
+   *     DownloadAction#getDefaultDeserializers()} is used instead.
    */
   public DownloadManager(
       DownloaderConstructorHelper constructorHelper,
@@ -149,7 +151,8 @@ public final class DownloadManager {
    * @param maxSimultaneousDownloads The maximum number of simultaneous download tasks.
    * @param minRetryCount The minimum number of times a task must be retried before failing.
    * @param actionFile The file in which active actions are saved.
-   * @param deserializers Used to deserialize {@link DownloadAction}s.
+   * @param deserializers Used to deserialize {@link DownloadAction}s. If empty, {@link
+   *     DownloadAction#getDefaultDeserializers()} is used instead.
    */
   public DownloadManager(
       DownloaderConstructorHelper constructorHelper,
@@ -157,13 +160,12 @@ public final class DownloadManager {
       int minRetryCount,
       File actionFile,
       Deserializer... deserializers) {
-    Assertions.checkArgument(deserializers.length > 0, "At least one Deserializer is required.");
-
     this.downloaderConstructorHelper = constructorHelper;
     this.maxActiveDownloadTasks = maxSimultaneousDownloads;
     this.minRetryCount = minRetryCount;
     this.actionFile = new ActionFile(actionFile);
-    this.deserializers = deserializers;
+    this.deserializers =
+        deserializers.length > 0 ? deserializers : DownloadAction.getDefaultDeserializers();
     this.downloadsStopped = true;
 
     tasks = new ArrayList<>();
@@ -334,12 +336,7 @@ public final class DownloadManager {
       tasks.get(i).stop();
     }
     final ConditionVariable fileIOFinishedCondition = new ConditionVariable();
-    fileIOHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        fileIOFinishedCondition.open();
-      }
-    });
+    fileIOHandler.post(fileIOFinishedCondition::open);
     fileIOFinishedCondition.block();
     fileIOThread.quit();
     logd("Released");
@@ -449,51 +446,45 @@ public final class DownloadManager {
 
   private void loadActions() {
     fileIOHandler.post(
-        new Runnable() {
-          @Override
-          public void run() {
-            DownloadAction[] loadedActions;
-            try {
-              loadedActions = actionFile.load(DownloadManager.this.deserializers);
-              logd("Action file is loaded.");
-            } catch (Throwable e) {
-              Log.e(TAG, "Action file loading failed.", e);
-              loadedActions = new DownloadAction[0];
-            }
-            final DownloadAction[] actions = loadedActions;
-            handler.post(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    if (released) {
-                      return;
-                    }
-                    List<Task> pendingTasks = new ArrayList<>(tasks);
-                    tasks.clear();
-                    for (DownloadAction action : actions) {
-                      addTaskForAction(action);
-                    }
-                    logd("Tasks are created.");
-                    initialized = true;
-                    for (Listener listener : listeners) {
-                      listener.onInitialized(DownloadManager.this);
-                    }
-                    if (!pendingTasks.isEmpty()) {
-                      tasks.addAll(pendingTasks);
-                      saveActions();
-                    }
-                    maybeStartTasks();
-                    for (int i = 0; i < tasks.size(); i++) {
-                      Task task = tasks.get(i);
-                      if (task.currentState == STATE_QUEUED) {
-                        // Task did not change out of its initial state, and so its initial state
-                        // won't have been reported to listeners. Do so now.
-                        notifyListenersTaskStateChange(task);
-                      }
-                    }
-                  }
-                });
+        () -> {
+          DownloadAction[] loadedActions;
+          try {
+            loadedActions = actionFile.load(DownloadManager.this.deserializers);
+            logd("Action file is loaded.");
+          } catch (Throwable e) {
+            Log.e(TAG, "Action file loading failed.", e);
+            loadedActions = new DownloadAction[0];
           }
+          final DownloadAction[] actions = loadedActions;
+          handler.post(
+              () -> {
+                if (released) {
+                  return;
+                }
+                List<Task> pendingTasks = new ArrayList<>(tasks);
+                tasks.clear();
+                for (DownloadAction action : actions) {
+                  addTaskForAction(action);
+                }
+                logd("Tasks are created.");
+                initialized = true;
+                for (Listener listener : listeners) {
+                  listener.onInitialized(DownloadManager.this);
+                }
+                if (!pendingTasks.isEmpty()) {
+                  tasks.addAll(pendingTasks);
+                  saveActions();
+                }
+                maybeStartTasks();
+                for (int i = 0; i < tasks.size(); i++) {
+                  Task task = tasks.get(i);
+                  if (task.currentState == STATE_QUEUED) {
+                    // Task did not change out of its initial state, and so its initial state
+                    // won't have been reported to listeners. Do so now.
+                    notifyListenersTaskStateChange(task);
+                  }
+                }
+              });
         });
   }
 
@@ -505,17 +496,15 @@ public final class DownloadManager {
     for (int i = 0; i < tasks.size(); i++) {
       actions[i] = tasks.get(i).action;
     }
-    fileIOHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          actionFile.store(actions);
-          logd("Actions persisted.");
-        } catch (IOException e) {
-          Log.e(TAG, "Persisting actions failed.", e);
-        }
-      }
-    });
+    fileIOHandler.post(
+        () -> {
+          try {
+            actionFile.store(actions);
+            logd("Actions persisted.");
+          } catch (IOException e) {
+            Log.e(TAG, "Persisting actions failed.", e);
+          }
+        });
   }
 
   private static void logd(String message) {
@@ -532,7 +521,8 @@ public final class DownloadManager {
   public static final class TaskState {
 
     /**
-     * Task states.
+     * Task states. One of {@link #STATE_QUEUED}, {@link #STATE_STARTED}, {@link #STATE_COMPLETED},
+     * {@link #STATE_CANCELED} or {@link #STATE_FAILED}.
      *
      * <p>Transition diagram:
      *
@@ -612,7 +602,10 @@ public final class DownloadManager {
   private static final class Task implements Runnable {
 
     /**
-     * Task states.
+     * Task states. One of {@link TaskState#STATE_QUEUED}, {@link TaskState#STATE_STARTED}, {@link
+     * TaskState#STATE_COMPLETED}, {@link TaskState#STATE_CANCELED}, {@link TaskState#STATE_FAILED},
+     * {@link #STATE_QUEUED_CANCELING}, {@link #STATE_STARTED_CANCELING} or {@link
+     * #STATE_STARTED_STOPPING}.
      *
      * <p>Transition map (vertical states are source states):
      *
@@ -728,6 +721,11 @@ public final class DownloadManager {
           return "CANCELING";
         case STATE_STARTED_STOPPING:
           return "STOPPING";
+        case STATE_QUEUED:
+        case STATE_STARTED:
+        case STATE_COMPLETED:
+        case STATE_CANCELED:
+        case STATE_FAILED:
         default:
           return TaskState.getStateString(currentState);
       }
@@ -740,6 +738,11 @@ public final class DownloadManager {
         case STATE_STARTED_CANCELING:
         case STATE_STARTED_STOPPING:
           return STATE_STARTED;
+        case STATE_QUEUED:
+        case STATE_STARTED:
+        case STATE_COMPLETED:
+        case STATE_CANCELED:
+        case STATE_FAILED:
         default:
           return currentState;
       }
@@ -759,12 +762,7 @@ public final class DownloadManager {
     private void cancel() {
       if (changeStateAndNotify(STATE_QUEUED, STATE_QUEUED_CANCELING)) {
         downloadManager.handler.post(
-            new Runnable() {
-              @Override
-              public void run() {
-                changeStateAndNotify(STATE_QUEUED_CANCELING, STATE_CANCELED);
-              }
-            });
+            () -> changeStateAndNotify(STATE_QUEUED_CANCELING, STATE_CANCELED));
       } else if (changeStateAndNotify(STATE_STARTED, STATE_STARTED_CANCELING)) {
         cancelDownload();
       }
@@ -773,7 +771,7 @@ public final class DownloadManager {
     private void stop() {
       if (changeStateAndNotify(STATE_STARTED, STATE_STARTED_STOPPING)) {
         logd("Stopping", this);
-        thread.interrupt();
+        cancelDownload();
       }
     }
 
@@ -839,19 +837,14 @@ public final class DownloadManager {
       }
       final Throwable finalError = error;
       downloadManager.handler.post(
-          new Runnable() {
-            @Override
-            public void run() {
-              if (changeStateAndNotify(
-                      STATE_STARTED,
-                      finalError != null ? STATE_FAILED : STATE_COMPLETED,
-                      finalError)
-                  || changeStateAndNotify(STATE_STARTED_CANCELING, STATE_CANCELED)
-                  || changeStateAndNotify(STATE_STARTED_STOPPING, STATE_QUEUED)) {
-                return;
-              }
-              throw new IllegalStateException();
+          () -> {
+            if (changeStateAndNotify(
+                    STATE_STARTED, finalError != null ? STATE_FAILED : STATE_COMPLETED, finalError)
+                || changeStateAndNotify(STATE_STARTED_CANCELING, STATE_CANCELED)
+                || changeStateAndNotify(STATE_STARTED_STOPPING, STATE_QUEUED)) {
+              return;
             }
+            throw new IllegalStateException();
           });
     }
 

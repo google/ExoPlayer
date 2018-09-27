@@ -20,6 +20,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 
 /** @deprecated Use {@link PlayerView}. */
@@ -45,7 +46,10 @@ public final class SimpleExoPlayerView extends PlayerView {
    * @param player The player whose target view is being switched.
    * @param oldPlayerView The old view to detach from the player.
    * @param newPlayerView The new view to attach to the player.
+   * @deprecated Use {@link PlayerView#switchTargetView(Player, PlayerView, PlayerView)} instead.
    */
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public static void switchTargetView(
       @NonNull SimpleExoPlayer player,
       @Nullable SimpleExoPlayerView oldPlayerView,

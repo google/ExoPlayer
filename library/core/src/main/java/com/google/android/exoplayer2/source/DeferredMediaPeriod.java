@@ -24,10 +24,10 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
 
 /**
- * Media period that wraps a media source and defers calling its
- * {@link MediaSource#createPeriod(MediaPeriodId, Allocator)} method until {@link #createPeriod()}
- * has been called. This is useful if you need to return a media period immediately but the media
- * source that should create it is not yet prepared.
+ * Media period that wraps a media source and defers calling its {@link
+ * MediaSource#createPeriod(MediaPeriodId, Allocator)} method until {@link
+ * #createPeriod(MediaPeriodId)} has been called. This is useful if you need to return a media
+ * period immediately but the media source that should create it is not yet prepared.
  */
 public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
@@ -40,7 +40,9 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     void onPrepareError(MediaPeriodId mediaPeriodId, IOException exception);
   }
 
+  /** The {@link MediaSource} which will create the actual media period. */
   public final MediaSource mediaSource;
+  /** The {@link MediaPeriodId} used to create the deferred media period. */
   public final MediaPeriodId id;
 
   private final Allocator allocator;
@@ -56,7 +58,7 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
    * Creates a new deferred media period.
    *
    * @param mediaSource The media source to wrap.
-   * @param id The identifier for the media period to create when {@link #createPeriod()} is called.
+   * @param id The identifier used to create the deferred media period.
    * @param allocator The allocator used to create the media period.
    */
   public DeferredMediaPeriod(MediaSource mediaSource, MediaPeriodId id, Allocator allocator) {
@@ -100,8 +102,10 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
    * Calls {@link MediaSource#createPeriod(MediaPeriodId, Allocator)} on the wrapped source then
    * prepares it if {@link #prepare(Callback, long)} has been called. Call {@link #releasePeriod()}
    * to release the period.
+   *
+   * @param id The identifier that should be used to create the media period from the media source.
    */
-  public void createPeriod() {
+  public void createPeriod(MediaPeriodId id) {
     mediaPeriod = mediaSource.createPeriod(id, allocator);
     if (callback != null) {
       mediaPeriod.prepare(this, preparePositionUs);

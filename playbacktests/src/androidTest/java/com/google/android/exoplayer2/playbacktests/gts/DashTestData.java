@@ -22,22 +22,35 @@ import com.google.android.exoplayer2.util.Util;
  */
 public final class DashTestData {
 
-  private static final String BASE_URL = "https://storage.googleapis.com/exoplayer-test-media-1/"
-      + "gen-4/screens/dash-vod-single-segment/";
+  private static final String BASE_URL =
+      "https://storage.googleapis.com/exoplayer-test-media-1/gen-4/";
+
+  private static final String BASE_URL_SCREENS = BASE_URL + "screens/dash-vod-single-segment/";
+  private static final String BASE_URL_COMMON_ENCRYPTION = BASE_URL + "common-encryption/";
   // Clear content manifests.
-  public static final String H264_MANIFEST = BASE_URL + "manifest-h264.mpd";
-  public static final String H265_MANIFEST = BASE_URL + "manifest-h265.mpd";
-  public static final String VP9_MANIFEST = BASE_URL + "manifest-vp9.mpd";
-  public static final String H264_23_MANIFEST = BASE_URL + "manifest-h264-23.mpd";
-  public static final String H264_24_MANIFEST = BASE_URL + "manifest-h264-24.mpd";
-  public static final String H264_29_MANIFEST = BASE_URL + "manifest-h264-29.mpd";
+  public static final String H264_MANIFEST = BASE_URL_SCREENS + "manifest-h264.mpd";
+  public static final String H265_MANIFEST = BASE_URL_SCREENS + "manifest-h265.mpd";
+  public static final String VP9_MANIFEST = BASE_URL_SCREENS + "manifest-vp9.mpd";
+  public static final String H264_23_MANIFEST = BASE_URL_SCREENS + "manifest-h264-23.mpd";
+  public static final String H264_24_MANIFEST = BASE_URL_SCREENS + "manifest-h264-24.mpd";
+  public static final String H264_29_MANIFEST = BASE_URL_SCREENS + "manifest-h264-29.mpd";
   // Widevine encrypted content manifests.
-  public static final String WIDEVINE_H264_MANIFEST = BASE_URL + "manifest-h264-enc.mpd";
-  public static final String WIDEVINE_H265_MANIFEST = BASE_URL + "manifest-h265-enc.mpd";
-  public static final String WIDEVINE_VP9_MANIFEST = BASE_URL + "manifest-vp9-enc.mpd";
-  public static final String WIDEVINE_H264_23_MANIFEST = BASE_URL + "manifest-h264-23-enc.mpd";
-  public static final String WIDEVINE_H264_24_MANIFEST = BASE_URL + "manifest-h264-24-enc.mpd";
-  public static final String WIDEVINE_H264_29_MANIFEST = BASE_URL + "manifest-h264-29-enc.mpd";
+  public static final String WIDEVINE_H264_MANIFEST = BASE_URL_SCREENS + "manifest-h264-enc.mpd";
+  public static final String WIDEVINE_H265_MANIFEST = BASE_URL_SCREENS + "manifest-h265-enc.mpd";
+  public static final String WIDEVINE_VP9_MANIFEST = BASE_URL_SCREENS + "manifest-vp9-enc.mpd";
+  public static final String WIDEVINE_H264_23_MANIFEST =
+      BASE_URL_SCREENS + "manifest-h264-23-enc.mpd";
+  public static final String WIDEVINE_H264_24_MANIFEST =
+      BASE_URL_SCREENS + "manifest-h264-24-enc.mpd";
+  public static final String WIDEVINE_H264_29_MANIFEST =
+      BASE_URL_SCREENS + "manifest-h264-29-enc.mpd";
+
+  // Widevine encrypted content manifests using different common encryption schemes.
+  public static final String WIDEVINE_SCHEME_CENC = BASE_URL_COMMON_ENCRYPTION + "tears-cenc.mpd";
+  public static final String WIDEVINE_SCHEME_CBC1 =
+      BASE_URL_COMMON_ENCRYPTION + "tears-aes-cbc1.mpd";
+  public static final String WIDEVINE_SCHEME_CBCS =
+      BASE_URL_COMMON_ENCRYPTION + "tears-aes-cbcs.mpd";
 
   public static final String AAC_AUDIO_REPRESENTATION_ID = "141";
   public static final String H264_BASELINE_240P_VIDEO_REPRESENTATION_ID = "avc-baseline-240";

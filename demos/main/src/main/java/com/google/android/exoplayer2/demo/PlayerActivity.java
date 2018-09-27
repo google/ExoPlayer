@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.FilteringManifestParser;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
@@ -57,16 +58,11 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
-import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
-import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
+import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistParserFactory;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.StreamKey;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
@@ -77,8 +73,8 @@ import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.TrackSelectionView;
+import com.google.android.exoplayer2.ui.spherical.SphericalSurfaceView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
@@ -111,8 +107,13 @@ public class PlayerActivity extends Activity
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
 
   public static final String ABR_ALGORITHM_EXTRA = "abr_algorithm";
-  private static final String ABR_ALGORITHM_DEFAULT = "default";
-  private static final String ABR_ALGORITHM_RANDOM = "random";
+  public static final String ABR_ALGORITHM_DEFAULT = "default";
+  public static final String ABR_ALGORITHM_RANDOM = "random";
+
+  public static final String SPHERICAL_STEREO_MODE_EXTRA = "spherical_stereo_mode";
+  public static final String SPHERICAL_STEREO_MODE_MONO = "mono";
+  public static final String SPHERICAL_STEREO_MODE_TOP_BOTTOM = "top_bottom";
+  public static final String SPHERICAL_STEREO_MODE_LEFT_RIGHT = "left_right";
 
   // For backwards compatibility only.
   private static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
@@ -123,7 +124,6 @@ public class PlayerActivity extends Activity
   private static final String KEY_POSITION = "position";
   private static final String KEY_AUTO_PLAY = "auto_play";
 
-  private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
   static {
     DEFAULT_COOKIE_MANAGER = new CookieManager();
@@ -134,7 +134,7 @@ public class PlayerActivity extends Activity
   private LinearLayout debugRootView;
   private TextView debugTextView;
 
-  private DataSource.Factory mediaDataSourceFactory;
+  private DataSource.Factory dataSourceFactory;
   private SimpleExoPlayer player;
   private FrameworkMediaDrm mediaDrm;
   private MediaSource mediaSource;
@@ -157,8 +157,12 @@ public class PlayerActivity extends Activity
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
+    String sphericalStereoMode = getIntent().getStringExtra(SPHERICAL_STEREO_MODE_EXTRA);
+    if (sphericalStereoMode != null) {
+      setTheme(R.style.PlayerTheme_Spherical);
+    }
     super.onCreate(savedInstanceState);
-    mediaDataSourceFactory = buildDataSourceFactory(true);
+    dataSourceFactory = buildDataSourceFactory();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
       CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
     }
@@ -173,6 +177,21 @@ public class PlayerActivity extends Activity
     playerView.setControllerVisibilityListener(this);
     playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
     playerView.requestFocus();
+    if (sphericalStereoMode != null) {
+      int stereoMode;
+      if (SPHERICAL_STEREO_MODE_MONO.equals(sphericalStereoMode)) {
+        stereoMode = C.STEREO_MODE_MONO;
+      } else if (SPHERICAL_STEREO_MODE_TOP_BOTTOM.equals(sphericalStereoMode)) {
+        stereoMode = C.STEREO_MODE_TOP_BOTTOM;
+      } else if (SPHERICAL_STEREO_MODE_LEFT_RIGHT.equals(sphericalStereoMode)) {
+        stereoMode = C.STEREO_MODE_LEFT_RIGHT;
+      } else {
+        showToast(R.string.error_unrecognized_stereo_mode);
+        finish();
+        return;
+      }
+      ((SphericalSurfaceView) playerView.getVideoSurfaceView()).setDefaultStereoMode(stereoMode);
+    }
 
     if (savedInstanceState != null) {
       trackSelectorParameters = savedInstanceState.getParcelable(KEY_TRACK_SELECTOR_PARAMETERS);
@@ -198,6 +217,9 @@ public class PlayerActivity extends Activity
     super.onStart();
     if (Util.SDK_INT > 23) {
       initializePlayer();
+      if (playerView != null) {
+        playerView.onResume();
+      }
     }
   }
 
@@ -206,6 +228,9 @@ public class PlayerActivity extends Activity
     super.onResume();
     if (Util.SDK_INT <= 23 || player == null) {
       initializePlayer();
+      if (playerView != null) {
+        playerView.onResume();
+      }
     }
   }
 
@@ -213,6 +238,9 @@ public class PlayerActivity extends Activity
   public void onPause() {
     super.onPause();
     if (Util.SDK_INT <= 23) {
+      if (playerView != null) {
+        playerView.onPause();
+      }
       releasePlayer();
     }
   }
@@ -221,6 +249,9 @@ public class PlayerActivity extends Activity
   public void onStop() {
     super.onStop();
     if (Util.SDK_INT > 23) {
+      if (playerView != null) {
+        playerView.onPause();
+      }
       releasePlayer();
     }
   }
@@ -329,7 +360,11 @@ public class PlayerActivity extends Activity
         finish();
         return;
       }
-      if (Util.maybeRequestReadExternalStoragePermission(this, uris)) {
+      if (!Util.checkCleartextTrafficPermitted(uris)) {
+        showToast(R.string.error_cleartext_not_permitted);
+        return;
+      }
+      if (Util.maybeRequestReadExternalStoragePermission(/* activity= */ this, uris)) {
         // The player will be reinitialized if the permission is granted.
         return;
       }
@@ -370,7 +405,7 @@ public class PlayerActivity extends Activity
       TrackSelection.Factory trackSelectionFactory;
       String abrAlgorithm = intent.getStringExtra(ABR_ALGORITHM_EXTRA);
       if (abrAlgorithm == null || ABR_ALGORITHM_DEFAULT.equals(abrAlgorithm)) {
-        trackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
+        trackSelectionFactory = new AdaptiveTrackSelection.Factory();
       } else if (ABR_ALGORITHM_RANDOM.equals(abrAlgorithm)) {
         trackSelectionFactory = new RandomTrackSelection.Factory();
       } else {
@@ -394,7 +429,8 @@ public class PlayerActivity extends Activity
       lastSeenTrackGroupArray = null;
 
       player =
-          ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, drmSessionManager);
+          ExoPlayerFactory.newSimpleInstance(
+              /* context= */ this, renderersFactory, trackSelector, drmSessionManager);
       player.addListener(new PlayerEventListener());
       player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));
@@ -443,36 +479,29 @@ public class PlayerActivity extends Activity
     @ContentType int type = Util.inferContentType(uri, overrideExtension);
     switch (type) {
       case C.TYPE_DASH:
-        return new DashMediaSource.Factory(
-                new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
-                buildDataSourceFactory(false))
+        return new DashMediaSource.Factory(dataSourceFactory)
             .setManifestParser(
-                new FilteringManifestParser<>(
-                    new DashManifestParser(), (List<RepresentationKey>) getOfflineStreamKeys(uri)))
+                new FilteringManifestParser<>(new DashManifestParser(), getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_SS:
-        return new SsMediaSource.Factory(
-                new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
-                buildDataSourceFactory(false))
+        return new SsMediaSource.Factory(dataSourceFactory)
             .setManifestParser(
-                new FilteringManifestParser<>(
-                    new SsManifestParser(), (List<StreamKey>) getOfflineStreamKeys(uri)))
+                new FilteringManifestParser<>(new SsManifestParser(), getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_HLS:
-        return new HlsMediaSource.Factory(mediaDataSourceFactory)
-            .setPlaylistParser(
-                new FilteringManifestParser<>(
-                    new HlsPlaylistParser(), (List<RenditionKey>) getOfflineStreamKeys(uri)))
+        return new HlsMediaSource.Factory(dataSourceFactory)
+            .setPlaylistParserFactory(
+                new DefaultHlsPlaylistParserFactory(getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_OTHER:
-        return new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
+        return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       default: {
         throw new IllegalStateException("Unsupported type: " + type);
       }
     }
   }
 
-  private List<?> getOfflineStreamKeys(Uri uri) {
+  private List<StreamKey> getOfflineStreamKeys(Uri uri) {
     return ((DemoApplication) getApplication()).getDownloadTracker().getOfflineStreamKeys(uri);
   }
 
@@ -480,7 +509,7 @@ public class PlayerActivity extends Activity
       UUID uuid, String licenseUrl, String[] keyRequestPropertiesArray, boolean multiSession)
       throws UnsupportedDrmException {
     HttpDataSource.Factory licenseDataSourceFactory =
-        ((DemoApplication) getApplication()).buildHttpDataSourceFactory(/* listener= */ null);
+        ((DemoApplication) getApplication()).buildHttpDataSourceFactory();
     HttpMediaDrmCallback drmCallback =
         new HttpMediaDrmCallback(licenseUrl, licenseDataSourceFactory);
     if (keyRequestPropertiesArray != null) {
@@ -544,16 +573,9 @@ public class PlayerActivity extends Activity
     startPosition = C.TIME_UNSET;
   }
 
-  /**
-   * Returns a new DataSource factory.
-   *
-   * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
-   *     DataSource factory.
-   * @return A new DataSource factory.
-   */
-  private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
-    return ((DemoApplication) getApplication())
-        .buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
+  /** Returns a new DataSource factory. */
+  private DataSource.Factory buildDataSourceFactory() {
+    return ((DemoApplication) getApplication()).buildDataSourceFactory();
   }
 
   /** Returns an ads media source, reusing the ads loader if one exists. */
@@ -661,7 +683,7 @@ public class PlayerActivity extends Activity
     return false;
   }
 
-  private class PlayerEventListener extends Player.DefaultEventListener {
+  private class PlayerEventListener implements Player.EventListener {
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {

@@ -19,7 +19,9 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import java.io.IOException;
 
 /**
@@ -35,6 +37,22 @@ import java.io.IOException;
  * primary playlist is always available.
  */
 public interface HlsPlaylistTracker {
+
+  /** Factory for {@link HlsPlaylistTracker} instances. */
+  interface Factory {
+
+    /**
+     * Creates a new tracker instance.
+     *
+     * @param dataSourceFactory The {@link HlsDataSourceFactory} to use for playlist loading.
+     * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy} for playlist load errors.
+     * @param playlistParserFactory The {@link HlsPlaylistParserFactory} for playlist parsing.
+     */
+    HlsPlaylistTracker createTracker(
+        HlsDataSourceFactory dataSourceFactory,
+        LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+        HlsPlaylistParserFactory playlistParserFactory);
+  }
 
   /** Listener for primary playlist changes. */
   interface PrimaryPlaylistListener {
@@ -59,10 +77,11 @@ public interface HlsPlaylistTracker {
      * Called if an error is encountered while loading a playlist.
      *
      * @param url The loaded url that caused the error.
-     * @param shouldBlacklist Whether the playlist should be blacklisted.
+     * @param blacklistDurationMs The duration for which the playlist should be blacklisted. Or
+     *     {@link C#TIME_UNSET} if the playlist should not be blacklisted.
      * @return True if blacklisting did not encounter errors. False otherwise.
      */
-    boolean onPlaylistError(HlsUrl url, boolean shouldBlacklist);
+    boolean onPlaylistError(HlsUrl url, long blacklistDurationMs);
   }
 
   /** Thrown when a playlist is considered to be stuck due to a server side error. */

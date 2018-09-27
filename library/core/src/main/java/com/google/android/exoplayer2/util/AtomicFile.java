@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.util;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -103,7 +102,7 @@ public final class AtomicFile {
       str = new AtomicFileOutputStream(baseName);
     } catch (FileNotFoundException e) {
       File parent = baseName.getParentFile();
-      if (!parent.mkdirs()) {
+      if (parent == null || !parent.mkdirs()) {
         throw new IOException("Couldn't create directory " + baseName, e);
       }
       try {

@@ -16,6 +16,10 @@
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -24,6 +28,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -32,6 +37,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +49,11 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public final class AdaptiveTrackSelectionTest {
 
+  private static final MediaChunkIterator[] THREE_EMPTY_MEDIA_CHUNK_ITERATORS =
+      new MediaChunkIterator[] {
+        MediaChunkIterator.EMPTY, MediaChunkIterator.EMPTY, MediaChunkIterator.EMPTY
+      };
+
   @Mock private BandwidthMeter mockBandwidthMeter;
   private FakeClock fakeClock;
 
@@ -52,6 +63,26 @@ public final class AdaptiveTrackSelectionTest {
   public void setUp() {
     initMocks(this);
     fakeClock = new FakeClock(0);
+  }
+
+  @Test
+  public void testFactoryUsesInitiallyProvidedBandwidthMeter() {
+    BandwidthMeter initialBandwidthMeter = mock(BandwidthMeter.class);
+    BandwidthMeter injectedBandwidthMeter = mock(BandwidthMeter.class);
+    Format format = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
+    @SuppressWarnings("deprecation")
+    AdaptiveTrackSelection adaptiveTrackSelection =
+        new AdaptiveTrackSelection.Factory(initialBandwidthMeter)
+            .createTrackSelection(new TrackGroup(format), injectedBandwidthMeter, /* tracks= */ 0);
+    adaptiveTrackSelection.updateSelectedTrack(
+        /* playbackPositionUs= */ 0,
+        /* bufferedDurationUs= */ 0,
+        /* availableDurationUs= */ C.TIME_UNSET,
+        /* queue= */ Collections.emptyList(),
+        /* mediaChunkIterators= */ new MediaChunkIterator[] {MediaChunkIterator.EMPTY});
+
+    verify(initialBandwidthMeter, atLeastOnce()).getBitrateEstimate();
+    verifyZeroInteractions(injectedBandwidthMeter);
   }
 
   @Test
@@ -99,7 +130,9 @@ public final class AdaptiveTrackSelectionTest {
     adaptiveTrackSelection.updateSelectedTrack(
         /* playbackPositionUs= */ 0,
         /* bufferedDurationUs= */ 9_999_000,
-        /* availableDurationUs= */ C.TIME_UNSET);
+        /* availableDurationUs= */ C.TIME_UNSET,
+        /* queue= */ Collections.emptyList(),
+        /* mediaChunkIterators= */ THREE_EMPTY_MEDIA_CHUNK_ITERATORS);
 
     // When bandwidth estimation is updated to 2000L, we can switch up to use a higher bitrate
     // format. However, since we only buffered 9_999_000 us, which is smaller than
@@ -125,7 +158,9 @@ public final class AdaptiveTrackSelectionTest {
     adaptiveTrackSelection.updateSelectedTrack(
         /* playbackPositionUs= */ 0,
         /* bufferedDurationUs= */ 10_000_000,
-        /* availableDurationUs= */ C.TIME_UNSET);
+        /* availableDurationUs= */ C.TIME_UNSET,
+        /* queue= */ Collections.emptyList(),
+        /* mediaChunkIterators= */ THREE_EMPTY_MEDIA_CHUNK_ITERATORS);
 
     // When bandwidth estimation is updated to 2000L, we can switch up to use a higher bitrate
     // format. When we have buffered enough (10_000_000 us, which is equal to
@@ -151,7 +186,9 @@ public final class AdaptiveTrackSelectionTest {
     adaptiveTrackSelection.updateSelectedTrack(
         /* playbackPositionUs= */ 0,
         /* bufferedDurationUs= */ 25_000_000,
-        /* availableDurationUs= */ C.TIME_UNSET);
+        /* availableDurationUs= */ C.TIME_UNSET,
+        /* queue= */ Collections.emptyList(),
+        /* mediaChunkIterators= */ THREE_EMPTY_MEDIA_CHUNK_ITERATORS);
 
     // When bandwidth estimation is updated to 500L, we should switch down to use a lower bitrate
     // format. However, since we have enough buffer at higher quality (25_000_000 us, which is equal
@@ -177,7 +214,9 @@ public final class AdaptiveTrackSelectionTest {
     adaptiveTrackSelection.updateSelectedTrack(
         /* playbackPositionUs= */ 0,
         /* bufferedDurationUs= */ 24_999_000,
-        /* availableDurationUs= */ C.TIME_UNSET);
+        /* availableDurationUs= */ C.TIME_UNSET,
+        /* queue= */ Collections.emptyList(),
+        /* mediaChunkIterators= */ THREE_EMPTY_MEDIA_CHUNK_ITERATORS);
 
     // When bandwidth estimation is updated to 500L, we should switch down to use a lower bitrate
     // format. When we don't have enough buffer at higher quality (24_999_000 us is smaller than
@@ -399,11 +438,6 @@ public final class AdaptiveTrackSelectionTest {
     @Override
     public boolean isLoadCompleted() {
       return true;
-    }
-
-    @Override
-    public long bytesLoaded() {
-      return 0;
     }
   }
 }

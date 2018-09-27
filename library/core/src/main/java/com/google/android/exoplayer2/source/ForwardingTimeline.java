@@ -77,4 +77,8 @@ public abstract class ForwardingTimeline extends Timeline {
     return timeline.getIndexOfPeriod(uid);
   }
 
+  @Override
+  public Object getUidOfPeriod(int periodIndex) {
+    return timeline.getUidOfPeriod(periodIndex);
+  }
 }

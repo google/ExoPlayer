@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer2.drm;
 
-import android.os.Handler;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.util.Assertions;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Listener of {@link DefaultDrmSessionManager} events. */
 public interface DefaultDrmSessionEventListener {
+
+  /** Called each time a drm session is acquired. */
+  default void onDrmSessionAcquired() {}
 
   /** Called each time keys are loaded. */
   void onDrmKeysLoaded();
@@ -46,96 +46,6 @@ public interface DefaultDrmSessionEventListener {
   /** Called each time offline keys are removed. */
   void onDrmKeysRemoved();
 
-  /** Dispatches drm events to all registered listeners. */
-  final class EventDispatcher {
-
-    private final CopyOnWriteArrayList<HandlerAndListener> listeners;
-
-    /** Creates event dispatcher. */
-    public EventDispatcher() {
-      listeners = new CopyOnWriteArrayList<>();
-    }
-
-    /** Adds listener to event dispatcher. */
-    public void addListener(Handler handler, DefaultDrmSessionEventListener eventListener) {
-      Assertions.checkArgument(handler != null && eventListener != null);
-      listeners.add(new HandlerAndListener(handler, eventListener));
-    }
-
-    /** Removes listener from event dispatcher. */
-    public void removeListener(DefaultDrmSessionEventListener eventListener) {
-      for (HandlerAndListener handlerAndListener : listeners) {
-        if (handlerAndListener.listener == eventListener) {
-          listeners.remove(handlerAndListener);
-        }
-      }
-    }
-
-    /** Dispatches {@link DefaultDrmSessionEventListener#onDrmKeysLoaded()}. */
-    public void drmKeysLoaded() {
-      for (HandlerAndListener handlerAndListener : listeners) {
-        final DefaultDrmSessionEventListener listener = handlerAndListener.listener;
-        handlerAndListener.handler.post(
-            new Runnable() {
-              @Override
-              public void run() {
-                listener.onDrmKeysLoaded();
-              }
-            });
-      }
-    }
-
-    /** Dispatches {@link DefaultDrmSessionEventListener#onDrmSessionManagerError(Exception)}. */
-    public void drmSessionManagerError(final Exception e) {
-      for (HandlerAndListener handlerAndListener : listeners) {
-        final DefaultDrmSessionEventListener listener = handlerAndListener.listener;
-        handlerAndListener.handler.post(
-            new Runnable() {
-              @Override
-              public void run() {
-                listener.onDrmSessionManagerError(e);
-              }
-            });
-      }
-    }
-
-    /** Dispatches {@link DefaultDrmSessionEventListener#onDrmKeysRestored()}. */
-    public void drmKeysRestored() {
-      for (HandlerAndListener handlerAndListener : listeners) {
-        final DefaultDrmSessionEventListener listener = handlerAndListener.listener;
-        handlerAndListener.handler.post(
-            new Runnable() {
-              @Override
-              public void run() {
-                listener.onDrmKeysRestored();
-              }
-            });
-      }
-    }
-
-    /** Dispatches {@link DefaultDrmSessionEventListener#onDrmKeysRemoved()}. */
-    public void drmKeysRemoved() {
-      for (HandlerAndListener handlerAndListener : listeners) {
-        final DefaultDrmSessionEventListener listener = handlerAndListener.listener;
-        handlerAndListener.handler.post(
-            new Runnable() {
-              @Override
-              public void run() {
-                listener.onDrmKeysRemoved();
-              }
-            });
-      }
-    }
-
-    private static final class HandlerAndListener {
-
-      public final Handler handler;
-      public final DefaultDrmSessionEventListener listener;
-
-      public HandlerAndListener(Handler handler, DefaultDrmSessionEventListener eventListener) {
-        this.handler = handler;
-        this.listener = eventListener;
-      }
-    }
-  }
+  /** Called each time a drm session is released. */
+  default void onDrmSessionReleased() {}
 }

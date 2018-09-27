@@ -20,11 +20,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -87,7 +89,7 @@ import java.util.Locale;
  *       below for more details.
  *       <ul>
  *         <li>Corresponding method: None
- *         <li>Default: {@code R.id.exo_player_control_view}
+ *         <li>Default: {@code R.layout.exo_player_control_view}
  *       </ul>
  * </ul>
  *
@@ -207,6 +209,8 @@ public class PlayerControlView extends FrameLayout {
   private final Formatter formatter;
   private final Timeline.Period period;
   private final Timeline.Window window;
+  private final Runnable updateProgressAction;
+  private final Runnable hideAction;
 
   private final Drawable repeatOffButtonDrawable;
   private final Drawable repeatOneButtonDrawable;
@@ -234,22 +238,6 @@ public class PlayerControlView extends FrameLayout {
   private boolean[] playedAdGroups;
   private long[] extraAdGroupTimesMs;
   private boolean[] extraPlayedAdGroups;
-
-  private final Runnable updateProgressAction =
-      new Runnable() {
-        @Override
-        public void run() {
-          updateProgress();
-        }
-      };
-
-  private final Runnable hideAction =
-      new Runnable() {
-        @Override
-        public void run() {
-          hide();
-        }
-      };
 
   public PlayerControlView(Context context) {
     this(context, null);
@@ -302,6 +290,8 @@ public class PlayerControlView extends FrameLayout {
     extraPlayedAdGroups = new boolean[0];
     componentListener = new ComponentListener();
     controlDispatcher = new com.google.android.exoplayer2.DefaultControlDispatcher();
+    updateProgressAction = this::updateProgress;
+    hideAction = this::hide;
 
     LayoutInflater.from(context).inflate(controllerLayoutId, this);
     setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
@@ -373,9 +363,14 @@ public class PlayerControlView extends FrameLayout {
   /**
    * Sets the {@link Player} to control.
    *
-   * @param player The {@link Player} to control.
+   * @param player The {@link Player} to control, or {@code null} to detach the current player. Only
+   *     players which are accessed on the main thread are supported ({@code
+   *     player.getApplicationLooper() == Looper.getMainLooper()}).
    */
-  public void setPlayer(Player player) {
+  public void setPlayer(@Nullable Player player) {
+    Assertions.checkState(Looper.myLooper() == Looper.getMainLooper());
+    Assertions.checkArgument(
+        player == null || player.getApplicationLooper() == Looper.getMainLooper());
     if (this.player == player) {
       return;
     }
@@ -715,7 +710,7 @@ public class PlayerControlView extends FrameLayout {
     long bufferedPosition = 0;
     long duration = 0;
     if (player != null) {
-      long currentWindowTimeBarOffsetUs = 0;
+      long currentWindowTimeBarOffsetMs = 0;
       long durationUs = 0;
       int adGroupCount = 0;
       Timeline timeline = player.getCurrentTimeline();
@@ -726,7 +721,7 @@ public class PlayerControlView extends FrameLayout {
             multiWindowTimeBar ? timeline.getWindowCount() - 1 : currentWindowIndex;
         for (int i = firstWindowIndex; i <= lastWindowIndex; i++) {
           if (i == currentWindowIndex) {
-            currentWindowTimeBarOffsetUs = durationUs;
+            currentWindowTimeBarOffsetMs = C.usToMs(durationUs);
           }
           timeline.getWindow(i, window);
           if (window.durationUs == C.TIME_UNSET) {
@@ -762,15 +757,8 @@ public class PlayerControlView extends FrameLayout {
         }
       }
       duration = C.usToMs(durationUs);
-      position = C.usToMs(currentWindowTimeBarOffsetUs);
-      bufferedPosition = position;
-      if (player.isPlayingAd()) {
-        position += player.getContentPosition();
-        bufferedPosition = position;
-      } else {
-        position += player.getCurrentPosition();
-        bufferedPosition += player.getBufferedPosition();
-      }
+      position = currentWindowTimeBarOffsetMs + player.getContentPosition();
+      bufferedPosition = currentWindowTimeBarOffsetMs + player.getContentBufferedPosition();
       if (timeBar != null) {
         int extraAdGroupCount = extraAdGroupTimesMs.length;
         int totalAdGroupCount = adGroupCount + extraAdGroupCount;
@@ -953,6 +941,16 @@ public class PlayerControlView extends FrameLayout {
   }
 
   @Override
+  public final boolean dispatchTouchEvent(MotionEvent ev) {
+    if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+      removeCallbacks(hideAction);
+    } else if (ev.getAction() == MotionEvent.ACTION_UP) {
+      hideAfterTimeout();
+    }
+    return super.dispatchTouchEvent(ev);
+  }
+
+  @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
     return dispatchMediaKeyEvent(event) || super.dispatchKeyEvent(event);
   }
@@ -1037,12 +1035,11 @@ public class PlayerControlView extends FrameLayout {
     return true;
   }
 
-  private final class ComponentListener extends Player.DefaultEventListener
-      implements TimeBar.OnScrubListener, OnClickListener {
+  private final class ComponentListener
+      implements Player.EventListener, TimeBar.OnScrubListener, OnClickListener {
 
     @Override
     public void onScrubStart(TimeBar timeBar, long position) {
-      removeCallbacks(hideAction);
       scrubbing = true;
     }
 
@@ -1059,7 +1056,6 @@ public class PlayerControlView extends FrameLayout {
       if (!canceled && player != null) {
         seekToTimeBarPosition(position);
       }
-      hideAfterTimeout();
     }
 
     @Override
@@ -1123,7 +1119,6 @@ public class PlayerControlView extends FrameLayout {
           controlDispatcher.dispatchSetShuffleModeEnabled(player, !player.getShuffleModeEnabled());
         }
       }
-      hideAfterTimeout();
     }
   }
 }

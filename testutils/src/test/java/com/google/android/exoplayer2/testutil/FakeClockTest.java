@@ -131,13 +131,7 @@ public final class FakeClockTest {
 
   private static void waitForHandler(HandlerWrapper handler) {
     final ConditionVariable handlerFinished = new ConditionVariable();
-    handler.post(
-        new Runnable() {
-          @Override
-          public void run() {
-            handlerFinished.open();
-          }
-        });
+    handler.post(handlerFinished::open);
     handlerFinished.block();
   }
 

@@ -215,9 +215,7 @@ public interface AudioSink {
    */
   void play();
 
-  /**
-   * Signals to the sink that the next buffer is discontinuous with the previous buffer.
-   */
+  /** Signals to the sink that the next buffer may be discontinuous with the previous buffer. */
   void handleDiscontinuity();
 
   /**
@@ -283,10 +281,11 @@ public interface AudioSink {
    */
   void setAudioAttributes(AudioAttributes audioAttributes);
 
-  /**
-   * Sets the audio session id.
-   */
+  /** Sets the audio session id. */
   void setAudioSessionId(int audioSessionId);
+
+  /** Sets the auxiliary effect. */
+  void setAuxEffectInfo(AuxEffectInfo auxEffectInfo);
 
   /**
    * Enables tunneling, if possible. The sink is reset if tunneling was previously disabled or if

@@ -17,9 +17,10 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import android.os.ConditionVariable;
 import android.support.annotation.NonNull;
-import android.util.Log;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -190,7 +191,7 @@ public final class SimpleCache implements Cache {
     Assertions.checkState(!released);
     CachedContent cachedContent = index.get(key);
     return cachedContent == null || cachedContent.isEmpty()
-        ? new TreeSet<CacheSpan>()
+        ? new TreeSet<>()
         : new TreeSet<CacheSpan>(cachedContent.getSpans());
   }
 
@@ -224,17 +225,23 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized SimpleCacheSpan startReadWriteNonBlocking(String key, long position)
+  public synchronized @Nullable SimpleCacheSpan startReadWriteNonBlocking(String key, long position)
       throws CacheException {
     Assertions.checkState(!released);
     SimpleCacheSpan cacheSpan = getSpan(key, position);
 
     // Read case.
     if (cacheSpan.isCached) {
-      // Obtain a new span with updated last access timestamp.
-      SimpleCacheSpan newCacheSpan = index.get(key).touch(cacheSpan);
-      notifySpanTouched(cacheSpan, newCacheSpan);
-      return newCacheSpan;
+      try {
+        // Obtain a new span with updated last access timestamp.
+        SimpleCacheSpan newCacheSpan = index.get(key).touch(cacheSpan);
+        notifySpanTouched(cacheSpan, newCacheSpan);
+        return newCacheSpan;
+      } catch (CacheException e) {
+        // Ignore. In worst case the cache span is evicted early.
+        // This happens very rarely [Internal: b/38351639]
+        return cacheSpan;
+      }
     }
 
     CachedContent cachedContent = index.getOrAdd(key);

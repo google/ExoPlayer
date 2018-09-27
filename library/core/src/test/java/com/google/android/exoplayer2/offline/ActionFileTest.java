@@ -33,9 +33,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 
-/**
- * Unit tests for {@link ProgressiveDownloadAction}.
- */
+/** Unit tests for {@link ActionFile}. */
 @RunWith(RobolectricTestRunner.class)
 public class ActionFileTest {
 
@@ -258,7 +256,7 @@ public class ActionFileTest {
     }
 
     @Override
-    protected Downloader createDownloader(DownloaderConstructorHelper downloaderConstructorHelper) {
+    public Downloader createDownloader(DownloaderConstructorHelper downloaderConstructorHelper) {
       return null;
     }
 
