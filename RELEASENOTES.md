@@ -11,6 +11,9 @@
 * Add convenience methods `Player.next`, `Player.previous`, `Player.hasNext`
   and `Player.hasPrevious`
   ([#4863](https://github.com/google/ExoPlayer/issues/4863)).
+* HLS:
+  * Add constructor to `DefaultHlsExtractorFactory` for adding TS payload reader
+    factory flags ([#4861](https://github.com/google/ExoPlayer/issues/4861)).
 
 ### 2.9.0 ###
 
