@@ -3,11 +3,6 @@
 ### dev-v2 (not yet released) ###
 
 * Do not retry failed loads whose error is `FileNotFoundException`.
-* Allow setting log level for ExoPlayer logcat output
-  ([#4665](https://github.com/google/ExoPlayer/issues/4665)).
-* Fix an issue where audio and video would desynchronize when playing
-  concatenations of gapless content
-  ([#4559](https://github.com/google/ExoPlayer/issues/4559)).
 * Add convenience methods `Player.next`, `Player.previous`, `Player.hasNext`
   and `Player.hasPrevious`
   ([#4863](https://github.com/google/ExoPlayer/issues/4863)).
@@ -33,6 +28,8 @@
 * Allow passing a `Looper`, which specifies the thread that must be used to
   access the player, when instantiating player instances using
   `ExoPlayerFactory` ([#4278](https://github.com/google/ExoPlayer/issues/4278)).
+* Allow setting log level for ExoPlayer logcat output
+  ([#4665](https://github.com/google/ExoPlayer/issues/4665)).
 * Simplify `BandwidthMeter` injection: The `BandwidthMeter` should now be
   passed directly to `ExoPlayerFactory`, instead of to `TrackSelection.Factory`
   and `DataSource.Factory`. The `BandwidthMeter` is passed to the components
@@ -155,6 +152,9 @@
 * Fix bug preventing use of multiple key session support (`multiSession=true`)
   for non-Widevine `DefaultDrmSessionManager` instances
   ([#4834](https://github.com/google/ExoPlayer/issues/4834)).
+* Fix issue where audio and video would desynchronize when playing
+  concatenations of gapless content
+  ([#4559](https://github.com/google/ExoPlayer/issues/4559)).
 * IMA extension:
   * Refine the previous fix for empty ad groups to avoid discarding ad breaks
     unnecessarily ([#4030](https://github.com/google/ExoPlayer/issues/4030) and
