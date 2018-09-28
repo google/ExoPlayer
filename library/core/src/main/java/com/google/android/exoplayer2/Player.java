@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -446,6 +447,7 @@ public interface Player {
    * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
    * #REPEAT_MODE_ALL}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({REPEAT_MODE_OFF, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
   @interface RepeatMode {}
@@ -467,6 +469,7 @@ public interface Player {
    * {@link #DISCONTINUITY_REASON_SEEK}, {@link #DISCONTINUITY_REASON_SEEK_ADJUSTMENT}, {@link
    * #DISCONTINUITY_REASON_AD_INSERTION} or {@link #DISCONTINUITY_REASON_INTERNAL}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     DISCONTINUITY_REASON_PERIOD_TRANSITION,
@@ -497,6 +500,7 @@ public interface Player {
    * Reasons for timeline and/or manifest changes. One of {@link #TIMELINE_CHANGE_REASON_PREPARED},
    * {@link #TIMELINE_CHANGE_REASON_RESET} or {@link #TIMELINE_CHANGE_REASON_DYNAMIC}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     TIMELINE_CHANGE_REASON_PREPARED,

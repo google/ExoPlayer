@@ -19,6 +19,7 @@ import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -31,6 +32,7 @@ public final class ExoPlaybackException extends Exception {
    * The type of source that produced the error. One of {@link #TYPE_SOURCE}, {@link #TYPE_RENDERER}
    * or {@link #TYPE_UNEXPECTED}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TYPE_SOURCE, TYPE_RENDERER, TYPE_UNEXPECTED})
   public @interface Type {}

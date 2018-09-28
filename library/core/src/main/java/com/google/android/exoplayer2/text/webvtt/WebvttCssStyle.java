@@ -19,6 +19,7 @@ import android.graphics.Typeface;
 import android.support.annotation.IntDef;
 import android.text.Layout;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ public final class WebvttCssStyle {
    * Style flag enum. Possible flag values are {@link #UNSPECIFIED}, {@link #STYLE_NORMAL}, {@link
    * #STYLE_BOLD}, {@link #STYLE_ITALIC} and {@link #STYLE_BOLD_ITALIC}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -54,6 +56,7 @@ public final class WebvttCssStyle {
    * Font size unit enum. One of {@link #UNSPECIFIED}, {@link #FONT_SIZE_UNIT_PIXEL}, {@link
    * #FONT_SIZE_UNIT_EM} or {@link #FONT_SIZE_UNIT_PERCENT}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({UNSPECIFIED, FONT_SIZE_UNIT_PIXEL, FONT_SIZE_UNIT_EM, FONT_SIZE_UNIT_PERCENT})
   public @interface FontSizeUnit {}
@@ -62,9 +65,11 @@ public final class WebvttCssStyle {
   public static final int FONT_SIZE_UNIT_EM = 2;
   public static final int FONT_SIZE_UNIT_PERCENT = 3;
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({UNSPECIFIED, OFF, ON})
   private @interface OptionalBoolean {}
+
   private static final int OFF = 0;
   private static final int ON = 1;
 

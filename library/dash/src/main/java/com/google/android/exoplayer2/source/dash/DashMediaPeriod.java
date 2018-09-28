@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -660,6 +661,7 @@ import java.util.List;
 
   private static final class TrackGroupInfo {
 
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({CATEGORY_PRIMARY, CATEGORY_EMBEDDED, CATEGORY_MANIFEST_EVENTS})
     public @interface TrackGroupCategory {}

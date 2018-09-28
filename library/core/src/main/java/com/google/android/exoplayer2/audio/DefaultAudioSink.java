@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
@@ -195,12 +196,12 @@ public final class DefaultAudioSink implements AudioSink {
 
   private static final String TAG = "AudioTrack";
 
-  /**
-   * Represents states of the {@link #startMediaTimeUs} value.
-   */
+  /** Represents states of the {@link #startMediaTimeUs} value. */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({START_NOT_SET, START_IN_SYNC, START_NEED_SYNC})
   private @interface StartMediaTimeState {}
+
   private static final int START_NOT_SET = 0;
   private static final int START_IN_SYNC = 1;
   private static final int START_NEED_SYNC = 2;

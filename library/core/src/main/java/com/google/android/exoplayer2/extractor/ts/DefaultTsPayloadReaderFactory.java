@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.text.cea.Cea708InitializationData;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    * #FLAG_IGNORE_H264_STREAM}, {@link #FLAG_DETECT_ACCESS_UNITS}, {@link
    * #FLAG_IGNORE_SPLICE_INFO_STREAM} and {@link #FLAG_OVERRIDE_CAPTION_DESCRIPTORS}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
