@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.audio;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
@@ -707,21 +706,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     be determined.
    */
   private int getCodecMaxInputSize(MediaCodecInfo codecInfo, Format format) {
-    if (Util.SDK_INT < 24 && "OMX.google.raw.decoder".equals(codecInfo.name)) {
-      // OMX.google.raw.decoder didn't resize its output buffers correctly prior to N, so there's no
-      // point requesting a non-default input size. Doing so may cause a native crash, where-as not
-      // doing so will cause a more controlled failure when attempting to fill an input buffer. See:
-      // https://github.com/google/ExoPlayer/issues/4057.
-      boolean needsRawDecoderWorkaround = true;
-      if (Util.SDK_INT == 23) {
-        PackageManager packageManager = context.getPackageManager();
-        if (packageManager != null
-            && packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
-          // The workaround is not required for AndroidTV devices running M.
-          needsRawDecoderWorkaround = false;
-        }
-      }
-      if (needsRawDecoderWorkaround) {
+    if ("OMX.google.raw.decoder".equals(codecInfo.name)) {
+      // OMX.google.raw.decoder didn't resize its output buffers correctly prior to N, except on
+      // Android TV running M, so there's no point requesting a non-default input size. Doing so may
+      // cause a native crash, whereas not doing so will cause a more controlled failure when
+      // attempting to fill an input buffer. See: https://github.com/google/ExoPlayer/issues/4057.
+      if (Util.SDK_INT < 24 && !(Util.SDK_INT == 23 && Util.isAndroidTv(context))) {
         return Format.NO_VALUE;
       }
     }
