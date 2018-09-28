@@ -27,6 +27,7 @@ import android.os.PowerManager;
 import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -39,6 +40,7 @@ public final class Requirements {
    * Network types. One of {@link #NETWORK_TYPE_NONE}, {@link #NETWORK_TYPE_ANY}, {@link
    * #NETWORK_TYPE_UNMETERED}, {@link #NETWORK_TYPE_NOT_ROAMING} or {@link #NETWORK_TYPE_METERED}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     NETWORK_TYPE_NONE,
