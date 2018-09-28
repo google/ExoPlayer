@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
@@ -182,6 +183,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * The possible return values for {@link #canKeepCodec(MediaCodec, MediaCodecInfo, Format,
    * Format)}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     KEEP_CODEC_RESULT_NO,
@@ -202,9 +204,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /** The codec can be kept. It does not need to be flushed and no reconfiguration is required. */
   protected static final int KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION = 3;
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({RECONFIGURATION_STATE_NONE, RECONFIGURATION_STATE_WRITE_PENDING,
-      RECONFIGURATION_STATE_QUEUE_PENDING})
+  @IntDef({
+    RECONFIGURATION_STATE_NONE,
+    RECONFIGURATION_STATE_WRITE_PENDING,
+    RECONFIGURATION_STATE_QUEUE_PENDING
+  })
   private @interface ReconfigurationState {}
   /**
    * There is no pending adaptive reconfiguration work.
@@ -220,9 +226,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static final int RECONFIGURATION_STATE_QUEUE_PENDING = 2;
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({REINITIALIZATION_STATE_NONE, REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM,
-      REINITIALIZATION_STATE_WAIT_END_OF_STREAM})
+  @IntDef({
+    REINITIALIZATION_STATE_NONE,
+    REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM,
+    REINITIALIZATION_STATE_WAIT_END_OF_STREAM
+  })
   private @interface ReinitializationState {}
   /**
    * The codec does not need to be re-initialized.
@@ -241,9 +251,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({ADAPTATION_WORKAROUND_MODE_NEVER, ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION,
-      ADAPTATION_WORKAROUND_MODE_ALWAYS})
+  @IntDef({
+    ADAPTATION_WORKAROUND_MODE_NEVER,
+    ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION,
+    ADAPTATION_WORKAROUND_MODE_ALWAYS
+  })
   private @interface AdaptationWorkaroundMode {}
   /**
    * The adaptation workaround is never used.

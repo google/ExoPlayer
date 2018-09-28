@@ -20,6 +20,7 @@ import android.content.res.TypedArray;
 import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -50,6 +51,7 @@ public final class AspectRatioFrameLayout extends FrameLayout {
    * #RESIZE_MODE_FIXED_WIDTH}, {@link #RESIZE_MODE_FIXED_HEIGHT}, {@link #RESIZE_MODE_FILL} or
    * {@link #RESIZE_MODE_ZOOM}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     RESIZE_MODE_FIT,
