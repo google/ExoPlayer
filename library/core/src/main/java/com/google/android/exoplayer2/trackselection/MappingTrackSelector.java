@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
@@ -50,6 +51,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * {@link #RENDERER_SUPPORT_NO_TRACKS}, {@link #RENDERER_SUPPORT_UNSUPPORTED_TRACKS}, {@link
      * #RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS} or {@link #RENDERER_SUPPORT_PLAYABLE_TRACKS}.
      */
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
       RENDERER_SUPPORT_NO_TRACKS,

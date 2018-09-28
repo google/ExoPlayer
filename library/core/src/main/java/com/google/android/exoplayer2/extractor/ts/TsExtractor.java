@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public final class TsExtractor implements Extractor {
    * Modes for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT} or {@link
    * #MODE_HLS}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({MODE_MULTI_PMT, MODE_SINGLE_PMT, MODE_HLS})
   public @interface Mode {}

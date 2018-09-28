@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
@@ -114,6 +115,7 @@ public final class C {
    * Crypto modes for a codec. One of {@link #CRYPTO_MODE_UNENCRYPTED}, {@link #CRYPTO_MODE_AES_CTR}
    * or {@link #CRYPTO_MODE_AES_CBC}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({CRYPTO_MODE_UNENCRYPTED, CRYPTO_MODE_AES_CTR, CRYPTO_MODE_AES_CBC})
   public @interface CryptoMode {}
@@ -144,6 +146,7 @@ public final class C {
    * #ENCODING_E_AC3}, {@link #ENCODING_DTS}, {@link #ENCODING_DTS_HD} or {@link
    * #ENCODING_DOLBY_TRUEHD}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     Format.NO_VALUE,
@@ -169,6 +172,7 @@ public final class C {
    * #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT}, {@link #ENCODING_PCM_FLOAT}, {@link
    * #ENCODING_PCM_MU_LAW} or {@link #ENCODING_PCM_A_LAW}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     Format.NO_VALUE,
@@ -215,6 +219,7 @@ public final class C {
    * #STREAM_TYPE_RING}, {@link #STREAM_TYPE_SYSTEM}, {@link #STREAM_TYPE_VOICE_CALL} or {@link
    * #STREAM_TYPE_USE_DEFAULT}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     STREAM_TYPE_ALARM,
@@ -269,6 +274,7 @@ public final class C {
    * #CONTENT_TYPE_MOVIE}, {@link #CONTENT_TYPE_MUSIC}, {@link #CONTENT_TYPE_SONIFICATION}, {@link
    * #CONTENT_TYPE_SPEECH} or {@link #CONTENT_TYPE_UNKNOWN}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     CONTENT_TYPE_MOVIE,
@@ -309,6 +315,7 @@ public final class C {
    * <p>Note that {@code FLAG_HW_AV_SYNC} is not available because the player takes care of setting
    * the flag when tunneling is enabled via a track selector.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -331,6 +338,7 @@ public final class C {
    * #USAGE_UNKNOWN}, {@link #USAGE_VOICE_COMMUNICATION} or {@link
    * #USAGE_VOICE_COMMUNICATION_SIGNALLING}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     USAGE_ALARM,
@@ -427,6 +435,7 @@ public final class C {
    * #AUDIOFOCUS_GAIN_TRANSIENT}, {@link #AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} or {@link
    * #AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     AUDIOFOCUS_NONE,
@@ -454,6 +463,7 @@ public final class C {
    * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_ENCRYPTED} and
    * {@link #BUFFER_FLAG_DECODE_ONLY}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -482,6 +492,7 @@ public final class C {
    * Video scaling modes for {@link MediaCodec}-based {@link Renderer}s. One of {@link
    * #VIDEO_SCALING_MODE_SCALE_TO_FIT} or {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
   public @interface VideoScalingMode {}
@@ -504,6 +515,7 @@ public final class C {
    * Track selection flags. Possible flag values are {@link #SELECTION_FLAG_DEFAULT}, {@link
    * #SELECTION_FLAG_FORCED} and {@link #SELECTION_FLAG_AUTOSELECT}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -530,6 +542,7 @@ public final class C {
    * Represents a streaming or other media type. One of {@link #TYPE_DASH}, {@link #TYPE_SS}, {@link
    * #TYPE_HLS} or {@link #TYPE_OTHER}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TYPE_DASH, TYPE_SS, TYPE_HLS, TYPE_OTHER})
   public @interface ContentType {}
@@ -796,6 +809,7 @@ public final class C {
    * #STEREO_MODE_MONO}, {@link #STEREO_MODE_TOP_BOTTOM}, {@link #STEREO_MODE_LEFT_RIGHT} or {@link
    * #STEREO_MODE_STEREO_MESH}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     Format.NO_VALUE,
@@ -827,6 +841,7 @@ public final class C {
    * Video colorspaces. One of {@link Format#NO_VALUE}, {@link #COLOR_SPACE_BT709}, {@link
    * #COLOR_SPACE_BT601} or {@link #COLOR_SPACE_BT2020}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_SPACE_BT709, COLOR_SPACE_BT601, COLOR_SPACE_BT2020})
   public @interface ColorSpace {}
@@ -847,6 +862,7 @@ public final class C {
    * Video color transfer characteristics. One of {@link Format#NO_VALUE}, {@link
    * #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
   public @interface ColorTransfer {}
@@ -867,6 +883,7 @@ public final class C {
    * Video color range. One of {@link Format#NO_VALUE}, {@link #COLOR_RANGE_LIMITED} or {@link
    * #COLOR_RANGE_FULL}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({Format.NO_VALUE, COLOR_RANGE_LIMITED, COLOR_RANGE_FULL})
   public @interface ColorRange {}
@@ -899,6 +916,7 @@ public final class C {
    * #NETWORK_TYPE_4G}, {@link #NETWORK_TYPE_CELLULAR_UNKNOWN}, {@link #NETWORK_TYPE_ETHERNET} or
    * {@link #NETWORK_TYPE_OTHER}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     NETWORK_TYPE_UNKNOWN,

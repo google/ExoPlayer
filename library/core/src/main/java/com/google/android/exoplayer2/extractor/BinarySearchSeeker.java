@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
@@ -437,6 +438,7 @@ public abstract class BinarySearchSeeker {
     public static final int RESULT_POSITION_UNDERESTIMATED = -2;
     public static final int RESULT_NO_TIMESTAMP = -3;
 
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
       RESULT_TARGET_TIMESTAMP_FOUND,

@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.android.exoplayer2.video.HevcConfig;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
@@ -68,6 +69,7 @@ public final class MatroskaExtractor implements Extractor {
    * Flags controlling the behavior of the extractor. Possible flag value is {@link
    * #FLAG_DISABLE_SEEK_FOR_CUES}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,

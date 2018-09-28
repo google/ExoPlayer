@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.decoder;
 
 import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
@@ -31,6 +32,7 @@ public class DecoderInputBuffer extends Buffer {
    * #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} or {@link
    * #BUFFER_REPLACEMENT_MODE_DIRECT}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     BUFFER_REPLACEMENT_MODE_DISABLED,

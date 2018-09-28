@@ -19,6 +19,7 @@ import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.StereoMode;
 import com.google.android.exoplayer2.util.Assertions;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -26,6 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 public final class Projection {
 
   /** Enforces allowed (sub) mesh draw modes. */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({DRAW_MODE_TRIANGLES, DRAW_MODE_TRIANGLES_STRIP, DRAW_MODE_TRIANGLES_FAN})
   public @interface DrawMode {}

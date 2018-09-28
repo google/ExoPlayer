@@ -26,6 +26,7 @@ import android.opengl.GLES20;
 import android.os.Handler;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -43,6 +44,7 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
    * Secure mode to be used by the EGL surface and context. One of {@link #SECURE_MODE_NONE}, {@link
    * #SECURE_MODE_SURFACELESS_CONTEXT} or {@link #SECURE_MODE_PROTECTED_PBUFFER}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({SECURE_MODE_NONE, SECURE_MODE_SURFACELESS_CONTEXT, SECURE_MODE_PROTECTED_PBUFFER})
   public @interface SecureMode {}

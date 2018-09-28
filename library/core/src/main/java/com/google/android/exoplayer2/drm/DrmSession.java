@@ -19,6 +19,7 @@ import android.annotation.TargetApi;
 import android.media.MediaDrm;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
@@ -44,6 +45,7 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    * The state of the DRM session. One of {@link #STATE_RELEASED}, {@link #STATE_ERROR}, {@link
    * #STATE_OPENING}, {@link #STATE_OPENED} or {@link #STATE_OPENED_WITH_KEYS}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_RELEASED, STATE_ERROR, STATE_OPENING, STATE_OPENED, STATE_OPENED_WITH_KEYS})
   @interface State {}

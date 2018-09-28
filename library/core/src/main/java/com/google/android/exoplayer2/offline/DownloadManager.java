@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -532,6 +533,7 @@ public final class DownloadManager {
      *                    -&gt; failed
      * </pre>
      */
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({STATE_QUEUED, STATE_STARTED, STATE_COMPLETED, STATE_CANCELED, STATE_FAILED})
     public @interface State {}
@@ -621,6 +623,7 @@ public final class DownloadManager {
      * +-----------+------+-------+---------+-----------+-----------+--------+--------+------+
      * </pre>
      */
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
       STATE_QUEUED,

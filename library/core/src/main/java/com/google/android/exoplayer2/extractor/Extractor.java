@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor;
 import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -48,6 +49,7 @@ public interface Extractor {
    * Result values that can be returned by {@link #read(ExtractorInput, PositionHolder)}. One of
    * {@link #RESULT_CONTINUE}, {@link #RESULT_SEEK} or {@link #RESULT_END_OF_INPUT}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(value = {RESULT_CONTINUE, RESULT_SEEK, RESULT_END_OF_INPUT})
   @interface ReadResult {}

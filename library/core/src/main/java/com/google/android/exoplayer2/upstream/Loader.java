@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.ExecutorService;
@@ -136,6 +137,7 @@ public final class Loader implements LoaderErrorThrower {
   }
 
   /** Types of action that can be taken in response to a load error. */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     ACTION_TYPE_RETRY,
