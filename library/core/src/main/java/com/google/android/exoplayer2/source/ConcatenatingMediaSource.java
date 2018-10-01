@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -65,6 +66,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private final boolean isAtomic;
   private final boolean useLazyPreparation;
   private final Timeline.Window window;
+  private final Timeline.Period period;
 
   private @Nullable ExoPlayer player;
   private @Nullable Handler playerApplicationHandler;
@@ -131,6 +133,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     this.isAtomic = isAtomic;
     this.useLazyPreparation = useLazyPreparation;
     window = new Timeline.Window();
+    period = new Timeline.Period();
     addMediaSources(Arrays.asList(mediaSources));
   }
 
@@ -684,21 +687,53 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
           windowOffsetUpdate,
           periodOffsetUpdate);
     }
-    mediaSourceHolder.timeline = deferredTimeline.cloneWithNewTimeline(timeline);
-    if (!mediaSourceHolder.isPrepared && !timeline.isEmpty()) {
-      timeline.getWindow(/* windowIndex= */ 0, window);
-      long defaultPeriodPositionUs =
-          window.getPositionInFirstPeriodUs() + window.getDefaultPositionUs();
-      for (int i = 0; i < mediaSourceHolder.activeMediaPeriods.size(); i++) {
-        DeferredMediaPeriod deferredMediaPeriod = mediaSourceHolder.activeMediaPeriods.get(i);
-        deferredMediaPeriod.setDefaultPreparePositionUs(defaultPeriodPositionUs);
+    if (mediaSourceHolder.isPrepared) {
+      mediaSourceHolder.timeline = deferredTimeline.cloneWithUpdatedTimeline(timeline);
+    } else if (timeline.isEmpty()) {
+      mediaSourceHolder.timeline =
+          DeferredTimeline.createWithRealTimeline(timeline, DeferredTimeline.DUMMY_ID);
+    } else {
+      // We should have at most one deferred media period for the DummyTimeline because the duration
+      // is unset and we don't load beyond periods with unset duration. We need to figure out how to
+      // handle the prepare positions of multiple deferred media periods, should that ever change.
+      Assertions.checkState(mediaSourceHolder.activeMediaPeriods.size() <= 1);
+      DeferredMediaPeriod deferredMediaPeriod =
+          mediaSourceHolder.activeMediaPeriods.isEmpty()
+              ? null
+              : mediaSourceHolder.activeMediaPeriods.get(0);
+      // Determine first period and the start position.
+      // This will be:
+      //  1. The default window start position if no deferred period has been created yet.
+      //  2. The non-zero prepare position of the deferred period under the assumption that this is
+      //     a non-zero initial seek position in the window.
+      //  3. The default window start position if the deferred period has a prepare position of zero
+      //     under the assumption that the prepare position of zero was used because it's the
+      //     default position of the DummyTimeline window. Note that this will override an
+      //     intentional seek to zero for a window with a non-zero default position. This is
+      //     unlikely to be a problem as a non-zero default position usually only occurs for live
+      //     playbacks and seeking to zero in a live window would cause BehindLiveWindowExceptions
+      //     anyway.
+      long windowStartPositionUs = window.getDefaultPositionUs();
+      if (deferredMediaPeriod != null) {
+        long periodPreparePositionUs = deferredMediaPeriod.getPreparePositionUs();
+        if (periodPreparePositionUs != 0) {
+          windowStartPositionUs = periodPreparePositionUs;
+        }
+      }
+      Pair<Object, Long> periodPosition =
+          timeline.getPeriodPosition(window, period, /* windowIndex= */ 0, windowStartPositionUs);
+      Object periodUid = periodPosition.first;
+      long periodPositionUs = periodPosition.second;
+      mediaSourceHolder.timeline = DeferredTimeline.createWithRealTimeline(timeline, periodUid);
+      if (deferredMediaPeriod != null) {
+        deferredMediaPeriod.overridePreparePositionUs(periodPositionUs);
         MediaPeriodId idInSource =
             deferredMediaPeriod.id.copyWithPeriodUid(
                 getChildPeriodUid(mediaSourceHolder, deferredMediaPeriod.id.periodUid));
         deferredMediaPeriod.createPeriod(idInSource);
       }
-      mediaSourceHolder.isPrepared = true;
     }
+    mediaSourceHolder.isPrepared = true;
     scheduleListenerNotification(/* actionOnCompletion= */ null);
   }
 
@@ -897,18 +932,32 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   /**
-   * Timeline used as placeholder for an unprepared media source. After preparation, a copy of the
-   * DeferredTimeline is used to keep the originally assigned first period ID.
+   * Timeline used as placeholder for an unprepared media source. After preparation, a
+   * DeferredTimeline is used to keep the originally assigned dummy period ID.
    */
   private static final class DeferredTimeline extends ForwardingTimeline {
 
     private static final Object DUMMY_ID = new Object();
-    private static final DummyTimeline dummyTimeline = new DummyTimeline();
+    private static final DummyTimeline DUMMY_TIMELINE = new DummyTimeline();
 
     private final Object replacedId;
 
+    /**
+     * Returns an instance with a real timeline, replacing the provided period ID with the already
+     * assigned dummy period ID.
+     *
+     * @param timeline The real timeline.
+     * @param firstPeriodUid The period UID in the timeline which will be replaced by the already
+     *     assigned dummy period UID.
+     */
+    public static DeferredTimeline createWithRealTimeline(
+        Timeline timeline, Object firstPeriodUid) {
+      return new DeferredTimeline(timeline, firstPeriodUid);
+    }
+
+    /** Creates deferred timeline exposing a {@link DummyTimeline}. */
     public DeferredTimeline() {
-      this(dummyTimeline, DUMMY_ID);
+      this(DUMMY_TIMELINE, DUMMY_ID);
     }
 
     private DeferredTimeline(Timeline timeline, Object replacedId) {
@@ -916,14 +965,16 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       this.replacedId = replacedId;
     }
 
-    public DeferredTimeline cloneWithNewTimeline(Timeline timeline) {
-      return new DeferredTimeline(
-          timeline,
-          replacedId == DUMMY_ID && timeline.getPeriodCount() > 0
-              ? timeline.getUidOfPeriod(0)
-              : replacedId);
+    /**
+     * Returns a copy with an updated timeline. This keeps the existing period replacement.
+     *
+     * @param timeline The new timeline.
+     */
+    public DeferredTimeline cloneWithUpdatedTimeline(Timeline timeline) {
+      return new DeferredTimeline(timeline, replacedId);
     }
 
+    /** Returns wrapped timeline. */
     public Timeline getTimeline() {
       return timeline;
     }

@@ -79,23 +79,19 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     this.listener = listener;
   }
 
+  /** Returns the position at which the deferred media period was prepared, in microseconds. */
+  public long getPreparePositionUs() {
+    return preparePositionUs;
+  }
+
   /**
-   * Sets the default prepare position at which to prepare the media period. This value is only used
-   * if the call to {@link MediaPeriod#prepare(Callback, long)} is being deferred and the call was
-   * made with a (presumably default) prepare position of 0.
+   * Overrides the default prepare position at which to prepare the media period. This value is only
+   * used if the call to {@link MediaPeriod#prepare(Callback, long)} is being deferred.
    *
-   * <p>Note that this will override an intentional seek to zero in the corresponding non-seekable
-   * timeline window. This is unlikely to be a problem as a non-zero default position usually only
-   * occurs for live playbacks and seeking to zero in a live window would cause
-   * BehindLiveWindowExceptions anyway.
-   *
-   * @param defaultPreparePositionUs The actual default prepare position, in microseconds.
+   * @param defaultPreparePositionUs The default prepare position to use, in microseconds.
    */
-  public void setDefaultPreparePositionUs(long defaultPreparePositionUs) {
-    if (preparePositionUs == 0 && defaultPreparePositionUs != 0) {
-      preparePositionOverrideUs = defaultPreparePositionUs;
-      preparePositionUs = defaultPreparePositionUs;
-    }
+  public void overridePreparePositionUs(long defaultPreparePositionUs) {
+    preparePositionOverrideUs = defaultPreparePositionUs;
   }
 
   /**
@@ -108,6 +104,10 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   public void createPeriod(MediaPeriodId id) {
     mediaPeriod = mediaSource.createPeriod(id, allocator);
     if (callback != null) {
+      long preparePositionUs =
+          preparePositionOverrideUs != C.TIME_UNSET
+              ? preparePositionOverrideUs
+              : this.preparePositionUs;
       mediaPeriod.prepare(this, preparePositionUs);
     }
   }
@@ -157,7 +157,7 @@ public final class DeferredMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   @Override
   public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
       SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
-    if (preparePositionOverrideUs != C.TIME_UNSET && positionUs == 0) {
+    if (preparePositionOverrideUs != C.TIME_UNSET && positionUs == preparePositionUs) {
       positionUs = preparePositionOverrideUs;
       preparePositionOverrideUs = C.TIME_UNSET;
     }

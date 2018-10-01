@@ -1,5 +1,11 @@
 # Release notes #
 
+### 2.9.1 ###
+
+* Fix an issue with blind seeking to windows with non-zero offset in a
+  `ConcatenatingMediaSource`
+  ([#4873](https://github.com/google/ExoPlayer/issues/4873)).
+
 ### 2.9.0 ###
 
 * Turn on Java 8 compiler support for the ExoPlayer library. Apps may need to
