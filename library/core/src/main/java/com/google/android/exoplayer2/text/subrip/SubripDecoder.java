@@ -176,7 +176,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
     // Extract tags
     int replacedCharacters = 0;
     StringBuilder processedLine = new StringBuilder(trimmedLine);
-    Matcher matcher = SUBRIP_TAG_PATTERN.matcher(processedLine);
+    Matcher matcher = SUBRIP_TAG_PATTERN.matcher(trimmedLine);
 
     while (matcher.find()) {
       String tag = matcher.group();
