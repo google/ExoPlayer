@@ -9,6 +9,9 @@
 * HLS:
   * Add constructor to `DefaultHlsExtractorFactory` for adding TS payload reader
     factory flags ([#4861](https://github.com/google/ExoPlayer/issues/4861)).
+* Fix an issue with blind seeking to windows with non-zero offset in a
+  `ConcatenatingMediaSource`
+  ([#4873](https://github.com/google/ExoPlayer/issues/4873)).
 
 ### 2.9.0 ###
 
