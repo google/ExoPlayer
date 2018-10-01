@@ -15,16 +15,20 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static android.content.Context.UI_MODE_SERVICE;
+
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.UiModeManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.media.AudioFormat;
 import android.net.ConnectivityManager;
@@ -173,7 +177,7 @@ public final class Util {
       return false;
     }
     for (Uri uri : uris) {
-      if (Util.isLocalFileUri(uri)) {
+      if (isLocalFileUri(uri)) {
         if (activity.checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED) {
           activity.requestPermissions(new String[] {permission.READ_EXTERNAL_STORAGE}, 0);
@@ -242,7 +246,7 @@ public final class Util {
    */
   public static boolean contains(Object[] items, Object item) {
     for (Object arrayItem : items) {
-      if (Util.areEqual(arrayItem, item)) {
+      if (areEqual(arrayItem, item)) {
         return true;
       }
     }
@@ -1352,7 +1356,7 @@ public final class Util {
    * @return The derived {@link UUID}, or {@code null} if one could not be derived.
    */
   public static @Nullable UUID getDrmUuid(String drmScheme) {
-    switch (Util.toLowerInvariant(drmScheme)) {
+    switch (toLowerInvariant(drmScheme)) {
       case "widevine":
         return C.WIDEVINE_UUID;
       case "playready":
@@ -1402,7 +1406,7 @@ public final class Util {
    */
   @C.ContentType
   public static int inferContentType(String fileName) {
-    fileName = Util.toLowerInvariant(fileName);
+    fileName = toLowerInvariant(fileName);
     if (fileName.endsWith(".mpd")) {
       return C.TYPE_DASH;
     } else if (fileName.endsWith(".m3u8")) {
@@ -1565,7 +1569,7 @@ public final class Util {
    * and is not declared to be thrown.
    */
   public static void sneakyThrow(Throwable t) {
-    Util.sneakyThrowInternal(t);
+    sneakyThrowInternal(t);
   }
 
   @SuppressWarnings("unchecked")
@@ -1729,15 +1733,17 @@ public final class Util {
   }
 
   /**
-   * Returns whether the device is an Android TV.
+   * Returns whether the app is running on a TV device.
    *
    * @param context Any context.
-   * @return Whether the device is an Android TV.
+   * @return Whether the app is running on a TV device.
    */
-  public static boolean isAndroidTv(Context context) {
-    PackageManager packageManager = context.getPackageManager();
-    return packageManager != null
-        && packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK);
+  public static boolean isTv(Context context) {
+    // See https://developer.android.com/training/tv/start/hardware.html#runtime-check.
+    UiModeManager uiModeManager =
+        (UiModeManager) context.getApplicationContext().getSystemService(UI_MODE_SERVICE);
+    return uiModeManager != null
+        && uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
   }
 
   /**
@@ -1759,9 +1765,7 @@ public final class Util {
    * @return The physical display size, in pixels.
    */
   public static Point getPhysicalDisplaySize(Context context, Display display) {
-    if (Util.SDK_INT <= 28
-        && display.getDisplayId() == Display.DEFAULT_DISPLAY
-        && Util.isAndroidTv(context)) {
+    if (Util.SDK_INT <= 28 && display.getDisplayId() == Display.DEFAULT_DISPLAY && isTv(context)) {
       // On Android TVs it is common for the UI to be configured for a lower resolution than
       // SurfaceViews can output. Before API 26 the Display object does not provide a way to
       // identify this case, and up to and including API 28 many devices still do not correctly set

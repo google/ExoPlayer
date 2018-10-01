@@ -711,7 +711,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       // Android TV running M, so there's no point requesting a non-default input size. Doing so may
       // cause a native crash, whereas not doing so will cause a more controlled failure when
       // attempting to fill an input buffer. See: https://github.com/google/ExoPlayer/issues/4057.
-      if (Util.SDK_INT < 24 && !(Util.SDK_INT == 23 && Util.isAndroidTv(context))) {
+      if (Util.SDK_INT < 24 && !(Util.SDK_INT == 23 && Util.isTv(context))) {
         return Format.NO_VALUE;
       }
     }
