@@ -80,7 +80,6 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
   @Override
   protected SubripSubtitle decode(byte[] bytes, int length, boolean reset) {
     ArrayList<Cue> cues = new ArrayList<>();
-    ArrayList<String> tags = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
     ParsableByteArray subripData = new ParsableByteArray(bytes, length);
     String currentLine;
@@ -120,6 +119,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       }
 
       // Read and parse the text.
+      ArrayList<String> tags = new ArrayList<>();
       textBuilder.setLength(0);
       while (!TextUtils.isEmpty(currentLine = subripData.readLine())) {
         if (textBuilder.length() > 0) {
@@ -131,19 +131,15 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       Spanned text = Html.fromHtml(textBuilder.toString());
       Cue cue = null;
 
-      boolean alignTagFound = false;
-
       // At end of this loop the clue must be created with the applied tags
       for (String tag : tags) {
 
         // Check if the tag is an alignment tag
         if (tag.matches(SUBRIP_ALIGNMENT_TAG)) {
-
-          // Based on the specs, in case of the alignment tags only the first appearance counts
-          if (alignTagFound) continue;
-          alignTagFound = true;
-
           cue = buildCue(text, tag);
+
+          // Based on the specs, in case of alignment tags only the first appearance counts, so break
+          break;
         }
       }
 
