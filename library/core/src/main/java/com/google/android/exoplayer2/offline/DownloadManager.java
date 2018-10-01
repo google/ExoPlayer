@@ -528,9 +528,9 @@ public final class DownloadManager {
      * <p>Transition diagram:
      *
      * <pre>
-     *                    -&gt; canceled
-     * queued &lt;-&gt; started -&gt; completed
-     *                    -&gt; failed
+     *    ┌────────┬─────→ canceled
+     * queued ↔ started ┬→ completed
+     *                  └→ failed
      * </pre>
      */
     @Documented
@@ -609,18 +609,15 @@ public final class DownloadManager {
      * {@link #STATE_QUEUED_CANCELING}, {@link #STATE_STARTED_CANCELING} or {@link
      * #STATE_STARTED_STOPPING}.
      *
-     * <p>Transition map (vertical states are source states):
+     * <p>Transition diagram:
      *
      * <pre>
-     *             +------+-------+---------+-----------+-----------+--------+--------+------+
-     *             |queued|started|completed|q_canceling|s_canceling|canceled|stopping|failed|
-     * +-----------+------+-------+---------+-----------+-----------+--------+--------+------+
-     * |queued     |      |   X   |         |     X     |           |        |        |      |
-     * |started    |      |       |    X    |           |     X     |        |   X    |   X  |
-     * |q_canceling|      |       |         |           |           |   X    |        |      |
-     * |s_canceling|      |       |         |           |           |   X    |        |      |
-     * |stopping   |   X  |       |         |           |           |        |        |      |
-     * +-----------+------+-------+---------+-----------+-----------+--------+--------+------+
+     *    ┌───→ q_canceling ┬→ canceled
+     *    │     s_canceling ┘
+     *    │         ↑
+     * queued → started ────┬→ completed
+     *    ↑         ↓       └→ failed
+     *    └──── s_stopping
      * </pre>
      */
     @Documented
