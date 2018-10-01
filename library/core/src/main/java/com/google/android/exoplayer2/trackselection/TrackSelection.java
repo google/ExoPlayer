@@ -29,8 +29,9 @@ import java.util.List;
  * TrackGroup}, and a possibly varying individual selected track from the subset.
  *
  * <p>Tracks belonging to the subset are exposed in decreasing bandwidth order. The individual
- * selected track may change as a result of calling {@link #updateSelectedTrack(long, long, long,
- * List, MediaChunkIterator[])}.
+ * selected track may change dynamically as a result of calling {@link #updateSelectedTrack(long,
+ * long, long, List, MediaChunkIterator[])} or {@link #evaluateQueueSize(long, List)}. This only
+ * happens between calls to {@link #enable()} and {@link #disable()}.
  */
 public interface TrackSelection {
 
@@ -53,16 +54,20 @@ public interface TrackSelection {
   }
 
   /**
-   * Enables the track selection.
-   * <p>
-   * This method may not be called when the track selection is already enabled.
+   * Enables the track selection. Dynamic changes via {@link #updateSelectedTrack(long, long, long,
+   * List, MediaChunkIterator[])} or {@link #evaluateQueueSize(long, List)} will only happen after
+   * this call.
+   *
+   * <p>This method may not be called when the track selection is already enabled.
    */
   void enable();
 
   /**
-   * Disables this track selection.
-   * <p>
-   * This method may only be called when the track selection is already enabled.
+   * Disables this track selection. No further dynamic changes via {@link #updateSelectedTrack(long,
+   * long, long, List, MediaChunkIterator[])} or {@link #evaluateQueueSize(long, List)} will happen
+   * after this call.
+   *
+   * <p>This method may only be called when the track selection is already enabled.
    */
   void disable();
 
