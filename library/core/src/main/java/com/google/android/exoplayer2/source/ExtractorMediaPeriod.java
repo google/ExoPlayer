@@ -215,7 +215,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public long selectTracks(
-      TrackSelection[] selections,
+      @NullableType TrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,

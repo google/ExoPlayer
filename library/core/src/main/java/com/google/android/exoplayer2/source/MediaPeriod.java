@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Loads media corresponding to a {@link Timeline.Period}, and allows that media to be read. All
@@ -108,9 +109,9 @@ public interface MediaPeriod extends SequenceableLoader {
    * @return The actual position at which the tracks were enabled, in microseconds.
    */
   long selectTracks(
-      TrackSelection[] selections,
+      @NullableType TrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
-      SampleStream[] streams,
+      @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
       long positionUs);
 

@@ -993,12 +993,14 @@ import java.util.Collections;
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     MediaPeriodHolder readingPeriodHolder = queue.getReadingPeriod();
     boolean selectionsChangedForReadPeriod = true;
+    TrackSelectorResult newTrackSelectorResult = null;
     while (true) {
       if (periodHolder == null || !periodHolder.prepared) {
         // The reselection did not change any prepared periods.
         return;
       }
-      if (periodHolder.selectTracks(playbackSpeed, playbackInfo.timeline)) {
+      newTrackSelectorResult = periodHolder.selectTracks(playbackSpeed, playbackInfo.timeline);
+      if (newTrackSelectorResult != null) {
         // Selected tracks have changed for this period.
         break;
       }
@@ -1017,7 +1019,7 @@ import java.util.Collections;
       boolean[] streamResetFlags = new boolean[renderers.length];
       long periodPositionUs =
           playingPeriodHolder.applyTrackSelection(
-              playbackInfo.positionUs, recreateStreams, streamResetFlags);
+              newTrackSelectorResult, playbackInfo.positionUs, recreateStreams, streamResetFlags);
       if (playbackInfo.playbackState != Player.STATE_ENDED
           && periodPositionUs != playbackInfo.positionUs) {
         playbackInfo = playbackInfo.fromNewPosition(playbackInfo.periodId, periodPositionUs,
@@ -1047,7 +1049,7 @@ import java.util.Collections;
       }
       playbackInfo =
           playbackInfo.copyWithTrackInfo(
-              playingPeriodHolder.trackGroups, playingPeriodHolder.trackSelectorResult);
+              playingPeriodHolder.getTrackGroups(), playingPeriodHolder.getTrackSelectorResult());
       enableRenderers(rendererWasEnabledFlags, enabledRendererCount);
     } else {
       // Release and re-prepare/buffer periods after the one whose selection changed.
@@ -1056,7 +1058,7 @@ import java.util.Collections;
         long loadingPeriodPositionUs =
             Math.max(
                 periodHolder.info.startPositionUs, periodHolder.toPeriodTime(rendererPositionUs));
-        periodHolder.applyTrackSelection(loadingPeriodPositionUs, false);
+        periodHolder.applyTrackSelection(newTrackSelectorResult, loadingPeriodPositionUs, false);
       }
     }
     handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ true);
@@ -1069,13 +1071,11 @@ import java.util.Collections;
 
   private void updateTrackSelectionPlaybackSpeed(float playbackSpeed) {
     MediaPeriodHolder periodHolder = queue.getFrontPeriod();
-    while (periodHolder != null) {
-      if (periodHolder.trackSelectorResult != null) {
-        TrackSelection[] trackSelections = periodHolder.trackSelectorResult.selections.getAll();
-        for (TrackSelection trackSelection : trackSelections) {
-          if (trackSelection != null) {
-            trackSelection.onPlaybackSpeed(playbackSpeed);
-          }
+    while (periodHolder != null && periodHolder.prepared) {
+      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
+      for (TrackSelection trackSelection : trackSelections) {
+        if (trackSelection != null) {
+          trackSelection.onPlaybackSpeed(playbackSpeed);
         }
       }
       periodHolder = periodHolder.getNext();
@@ -1463,9 +1463,9 @@ import java.util.Collections;
       return;
     }
 
-    TrackSelectorResult oldTrackSelectorResult = readingPeriodHolder.trackSelectorResult;
+    TrackSelectorResult oldTrackSelectorResult = readingPeriodHolder.getTrackSelectorResult();
     readingPeriodHolder = queue.advanceReadingPeriod();
-    TrackSelectorResult newTrackSelectorResult = readingPeriodHolder.trackSelectorResult;
+    TrackSelectorResult newTrackSelectorResult = readingPeriodHolder.getTrackSelectorResult();
 
     boolean initialDiscontinuity =
         readingPeriodHolder.mediaPeriod.readDiscontinuity() != C.TIME_UNSET;
@@ -1536,7 +1536,7 @@ import java.util.Collections;
     loadingPeriodHolder.handlePrepared(
         mediaClock.getPlaybackParameters().speed, playbackInfo.timeline);
     updateLoadControlTrackSelection(
-        loadingPeriodHolder.trackGroups, loadingPeriodHolder.trackSelectorResult);
+        loadingPeriodHolder.getTrackGroups(), loadingPeriodHolder.getTrackSelectorResult());
     if (!queue.hasPlayingPeriod()) {
       // This is the first prepared period, so start playing it.
       MediaPeriodHolder playingPeriodHolder = queue.advancePlayingPeriod();
@@ -1596,11 +1596,11 @@ import java.util.Collections;
     for (int i = 0; i < renderers.length; i++) {
       Renderer renderer = renderers[i];
       rendererWasEnabledFlags[i] = renderer.getState() != Renderer.STATE_DISABLED;
-      if (newPlayingPeriodHolder.trackSelectorResult.isRendererEnabled(i)) {
+      if (newPlayingPeriodHolder.getTrackSelectorResult().isRendererEnabled(i)) {
         enabledRendererCount++;
       }
       if (rendererWasEnabledFlags[i]
-          && (!newPlayingPeriodHolder.trackSelectorResult.isRendererEnabled(i)
+          && (!newPlayingPeriodHolder.getTrackSelectorResult().isRendererEnabled(i)
               || (renderer.isCurrentStreamFinal()
                   && renderer.getStream() == oldPlayingPeriodHolder.sampleStreams[i]))) {
         // The renderer should be disabled before playing the next period, either because it's not
@@ -1611,7 +1611,8 @@ import java.util.Collections;
     }
     playbackInfo =
         playbackInfo.copyWithTrackInfo(
-            newPlayingPeriodHolder.trackGroups, newPlayingPeriodHolder.trackSelectorResult);
+            newPlayingPeriodHolder.getTrackGroups(),
+            newPlayingPeriodHolder.getTrackSelectorResult());
     enableRenderers(rendererWasEnabledFlags, enabledRendererCount);
   }
 
@@ -1621,7 +1622,7 @@ import java.util.Collections;
     int enabledRendererCount = 0;
     MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
     for (int i = 0; i < renderers.length; i++) {
-      if (playingPeriodHolder.trackSelectorResult.isRendererEnabled(i)) {
+      if (playingPeriodHolder.getTrackSelectorResult().isRendererEnabled(i)) {
         enableRenderer(i, rendererWasEnabledFlags[i], enabledRendererCount++);
       }
     }
@@ -1634,10 +1635,10 @@ import java.util.Collections;
     Renderer renderer = renderers[rendererIndex];
     enabledRenderers[enabledRendererIndex] = renderer;
     if (renderer.getState() == Renderer.STATE_DISABLED) {
+      TrackSelectorResult trackSelectorResult = playingPeriodHolder.getTrackSelectorResult();
       RendererConfiguration rendererConfiguration =
-          playingPeriodHolder.trackSelectorResult.rendererConfigurations[rendererIndex];
-      TrackSelection newSelection = playingPeriodHolder.trackSelectorResult.selections.get(
-          rendererIndex);
+          trackSelectorResult.rendererConfigurations[rendererIndex];
+      TrackSelection newSelection = trackSelectorResult.selections.get(rendererIndex);
       Format[] formats = getFormats(newSelection);
       // The renderer needs enabling with its new track selection.
       boolean playing = playWhenReady && playbackInfo.playbackState == Player.STATE_READY;
@@ -1674,7 +1675,8 @@ import java.util.Collections;
         && loadingMediaPeriodHolder != null
         && loadingMediaPeriodHolder.prepared) {
       updateLoadControlTrackSelection(
-          loadingMediaPeriodHolder.trackGroups, loadingMediaPeriodHolder.trackSelectorResult);
+          loadingMediaPeriodHolder.getTrackGroups(),
+          loadingMediaPeriodHolder.getTrackSelectorResult());
     }
   }
 
