@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.source.ClippingMediaPeriod;
 import com.google.android.exoplayer2.source.EmptySampleStream;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -42,7 +43,6 @@ import com.google.android.exoplayer2.util.Log;
   public boolean prepared;
   public boolean hasEnabledTracks;
   public MediaPeriodInfo info;
-  public MediaPeriodHolder next;
   public TrackGroupArray trackGroups;
   public TrackSelectorResult trackSelectorResult;
 
@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.util.Log;
   private final TrackSelector trackSelector;
   private final MediaSource mediaSource;
 
+  private MediaPeriodHolder next;
   private long rendererPositionOffsetUs;
   private TrackSelectorResult periodTrackSelectorResult;
 
@@ -190,7 +191,9 @@ import com.google.android.exoplayer2.util.Log;
     // Undo the effect of previous call to associate no-sample renderers with empty tracks
     // so the mediaPeriod receives back whatever it sent us before.
     disassociateNoSampleRenderersWithEmptySampleStream(sampleStreams);
-    updatePeriodTrackSelectorResult(trackSelectorResult);
+    disableTrackSelectionsInResult();
+    periodTrackSelectorResult = trackSelectorResult;
+    enableTrackSelectionsInResult();
     // Disable streams on the period and get new streams for updated/newly-enabled tracks.
     TrackSelectionArray trackSelections = trackSelectorResult.selections;
     positionUs =
@@ -219,7 +222,8 @@ import com.google.android.exoplayer2.util.Log;
   }
 
   public void release() {
-    updatePeriodTrackSelectorResult(null);
+    disableTrackSelectionsInResult();
+    periodTrackSelectorResult = null;
     try {
       if (info.id.endPositionUs != C.TIME_END_OF_SOURCE) {
         mediaSource.releasePeriod(((ClippingMediaPeriod) mediaPeriod).mediaPeriod);
@@ -232,30 +236,40 @@ import com.google.android.exoplayer2.util.Log;
     }
   }
 
-  private void updatePeriodTrackSelectorResult(TrackSelectorResult trackSelectorResult) {
-    if (periodTrackSelectorResult != null) {
-      disableTrackSelectionsInResult(periodTrackSelectorResult);
+  public void setNext(@Nullable MediaPeriodHolder nextMediaPeriodHolder) {
+    if (nextMediaPeriodHolder == next) {
+      return;
     }
-    periodTrackSelectorResult = trackSelectorResult;
-    if (periodTrackSelectorResult != null) {
-      enableTrackSelectionsInResult(periodTrackSelectorResult);
-    }
+    disableTrackSelectionsInResult();
+    next = nextMediaPeriodHolder;
+    enableTrackSelectionsInResult();
   }
 
-  private void enableTrackSelectionsInResult(TrackSelectorResult trackSelectorResult) {
-    for (int i = 0; i < trackSelectorResult.length; i++) {
-      boolean rendererEnabled = trackSelectorResult.isRendererEnabled(i);
-      TrackSelection trackSelection = trackSelectorResult.selections.get(i);
+  @Nullable
+  public MediaPeriodHolder getNext() {
+    return next;
+  }
+
+  private void enableTrackSelectionsInResult() {
+    if (!isLoadingMediaPeriod() || periodTrackSelectorResult == null) {
+      return;
+    }
+    for (int i = 0; i < periodTrackSelectorResult.length; i++) {
+      boolean rendererEnabled = periodTrackSelectorResult.isRendererEnabled(i);
+      TrackSelection trackSelection = periodTrackSelectorResult.selections.get(i);
       if (rendererEnabled && trackSelection != null) {
         trackSelection.enable();
       }
     }
   }
 
-  private void disableTrackSelectionsInResult(TrackSelectorResult trackSelectorResult) {
-    for (int i = 0; i < trackSelectorResult.length; i++) {
-      boolean rendererEnabled = trackSelectorResult.isRendererEnabled(i);
-      TrackSelection trackSelection = trackSelectorResult.selections.get(i);
+  private void disableTrackSelectionsInResult() {
+    if (!isLoadingMediaPeriod() || periodTrackSelectorResult == null) {
+      return;
+    }
+    for (int i = 0; i < periodTrackSelectorResult.length; i++) {
+      boolean rendererEnabled = periodTrackSelectorResult.isRendererEnabled(i);
+      TrackSelection trackSelection = periodTrackSelectorResult.selections.get(i);
       if (rendererEnabled && trackSelection != null) {
         trackSelection.disable();
       }
@@ -285,5 +299,9 @@ import com.google.android.exoplayer2.util.Log;
         sampleStreams[i] = new EmptySampleStream();
       }
     }
+  }
+
+  private boolean isLoadingMediaPeriod() {
+    return next == null;
   }
 }

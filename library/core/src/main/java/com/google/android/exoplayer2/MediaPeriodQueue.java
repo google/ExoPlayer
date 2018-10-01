@@ -156,7 +156,7 @@ import com.google.android.exoplayer2.util.Assertions;
             info);
     if (loading != null) {
       Assertions.checkState(hasPlayingPeriod());
-      loading.next = newPeriodHolder;
+      loading.setNext(newPeriodHolder);
     }
     oldFrontPeriodUid = null;
     loading = newPeriodHolder;
@@ -207,8 +207,8 @@ import com.google.android.exoplayer2.util.Assertions;
    * @return The updated reading period holder.
    */
   public MediaPeriodHolder advanceReadingPeriod() {
-    Assertions.checkState(reading != null && reading.next != null);
-    reading = reading.next;
+    Assertions.checkState(reading != null && reading.getNext() != null);
+    reading = reading.getNext();
     return reading;
   }
 
@@ -222,7 +222,7 @@ import com.google.android.exoplayer2.util.Assertions;
   public MediaPeriodHolder advancePlayingPeriod() {
     if (playing != null) {
       if (playing == reading) {
-        reading = playing.next;
+        reading = playing.getNext();
       }
       playing.release();
       length--;
@@ -231,7 +231,7 @@ import com.google.android.exoplayer2.util.Assertions;
         oldFrontPeriodUid = playing.uid;
         oldFrontPeriodWindowSequenceNumber = playing.info.id.windowSequenceNumber;
       }
-      playing = playing.next;
+      playing = playing.getNext();
     } else {
       playing = loading;
       reading = loading;
@@ -251,8 +251,8 @@ import com.google.android.exoplayer2.util.Assertions;
     Assertions.checkState(mediaPeriodHolder != null);
     boolean removedReading = false;
     loading = mediaPeriodHolder;
-    while (mediaPeriodHolder.next != null) {
-      mediaPeriodHolder = mediaPeriodHolder.next;
+    while (mediaPeriodHolder.getNext() != null) {
+      mediaPeriodHolder = mediaPeriodHolder.getNext();
       if (mediaPeriodHolder == reading) {
         reading = playing;
         removedReading = true;
@@ -260,7 +260,7 @@ import com.google.android.exoplayer2.util.Assertions;
       mediaPeriodHolder.release();
       length--;
     }
-    loading.next = null;
+    loading.setNext(null);
     return removedReading;
   }
 
@@ -337,7 +337,7 @@ import com.google.android.exoplayer2.util.Assertions;
       }
 
       previousPeriodHolder = periodHolder;
-      periodHolder = periodHolder.next;
+      periodHolder = periodHolder.getNext();
     }
     return true;
   }
@@ -439,7 +439,7 @@ import com.google.android.exoplayer2.util.Assertions;
         // Reuse window sequence number of first exact period match.
         return mediaPeriodHolder.info.id.windowSequenceNumber;
       }
-      mediaPeriodHolder = mediaPeriodHolder.next;
+      mediaPeriodHolder = mediaPeriodHolder.getNext();
     }
     mediaPeriodHolder = getFrontPeriod();
     while (mediaPeriodHolder != null) {
@@ -451,7 +451,7 @@ import com.google.android.exoplayer2.util.Assertions;
           return mediaPeriodHolder.info.id.windowSequenceNumber;
         }
       }
-      mediaPeriodHolder = mediaPeriodHolder.next;
+      mediaPeriodHolder = mediaPeriodHolder.getNext();
     }
     // If no match is found, create new sequence number.
     return nextWindowSequenceNumber++;
@@ -482,19 +482,20 @@ import com.google.android.exoplayer2.util.Assertions;
       int nextPeriodIndex =
           timeline.getNextPeriodIndex(
               currentPeriodIndex, period, window, repeatMode, shuffleModeEnabled);
-      while (lastValidPeriodHolder.next != null
+      while (lastValidPeriodHolder.getNext() != null
           && !lastValidPeriodHolder.info.isLastInTimelinePeriod) {
-        lastValidPeriodHolder = lastValidPeriodHolder.next;
+        lastValidPeriodHolder = lastValidPeriodHolder.getNext();
       }
 
-      if (nextPeriodIndex == C.INDEX_UNSET || lastValidPeriodHolder.next == null) {
+      MediaPeriodHolder nextMediaPeriodHolder = lastValidPeriodHolder.getNext();
+      if (nextPeriodIndex == C.INDEX_UNSET || nextMediaPeriodHolder == null) {
         break;
       }
-      int nextPeriodHolderPeriodIndex = timeline.getIndexOfPeriod(lastValidPeriodHolder.next.uid);
+      int nextPeriodHolderPeriodIndex = timeline.getIndexOfPeriod(nextMediaPeriodHolder.uid);
       if (nextPeriodHolderPeriodIndex != nextPeriodIndex) {
         break;
       }
-      lastValidPeriodHolder = lastValidPeriodHolder.next;
+      lastValidPeriodHolder = nextMediaPeriodHolder;
       currentPeriodIndex = nextPeriodIndex;
     }
 
@@ -567,8 +568,9 @@ import com.google.android.exoplayer2.util.Assertions;
         }
         nextPeriodUid = defaultPosition.first;
         startPositionUs = defaultPosition.second;
-        if (mediaPeriodHolder.next != null && mediaPeriodHolder.next.uid.equals(nextPeriodUid)) {
-          windowSequenceNumber = mediaPeriodHolder.next.info.id.windowSequenceNumber;
+        MediaPeriodHolder nextMediaPeriodHolder = mediaPeriodHolder.getNext();
+        if (nextMediaPeriodHolder != null && nextMediaPeriodHolder.uid.equals(nextPeriodUid)) {
+          windowSequenceNumber = nextMediaPeriodHolder.info.id.windowSequenceNumber;
         } else {
           windowSequenceNumber = nextWindowSequenceNumber++;
         }
