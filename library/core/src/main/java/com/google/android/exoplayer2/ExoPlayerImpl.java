@@ -40,10 +40,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-/**
- * An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayerFactory}.
- */
-/* package */ final class ExoPlayerImpl implements ExoPlayer {
+/** An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayerFactory}. */
+/* package */ final class ExoPlayerImpl extends BasePlayer implements ExoPlayer {
 
   private static final String TAG = "ExoPlayerImpl";
 
@@ -61,7 +59,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final ExoPlayerImplInternal internalPlayer;
   private final Handler internalPlayerHandler;
   private final CopyOnWriteArraySet<Player.EventListener> listeners;
-  private final Timeline.Window window;
   private final Timeline.Period period;
   private final ArrayDeque<PlaybackInfoUpdate> pendingPlaybackInfoUpdates;
 
@@ -118,7 +115,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
             new RendererConfiguration[renderers.length],
             new TrackSelection[renderers.length],
             null);
-    window = new Timeline.Window();
     period = new Timeline.Period();
     playbackParameters = PlaybackParameters.DEFAULT;
     seekParameters = SeekParameters.DEFAULT;
@@ -294,21 +290,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void seekToDefaultPosition() {
-    seekToDefaultPosition(getCurrentWindowIndex());
-  }
-
-  @Override
-  public void seekToDefaultPosition(int windowIndex) {
-    seekTo(windowIndex, C.TIME_UNSET);
-  }
-
-  @Override
-  public void seekTo(long positionMs) {
-    seekTo(getCurrentWindowIndex(), positionMs);
-  }
-
-  @Override
   public void seekTo(int windowIndex, long positionMs) {
     Timeline timeline = playbackInfo.timeline;
     if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
@@ -375,19 +356,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public SeekParameters getSeekParameters() {
     return seekParameters;
-  }
-
-  @Override
-  public @Nullable Object getCurrentTag() {
-    int windowIndex = getCurrentWindowIndex();
-    return windowIndex >= playbackInfo.timeline.getWindowCount()
-        ? null
-        : playbackInfo.timeline.getWindow(windowIndex, window, /* setTag= */ true).tag;
-  }
-
-  @Override
-  public void stop() {
-    stop(/* reset= */ false);
   }
 
   @Override
@@ -495,20 +463,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public int getNextWindowIndex() {
-    Timeline timeline = playbackInfo.timeline;
-    return timeline.isEmpty() ? C.INDEX_UNSET
-        : timeline.getNextWindowIndex(getCurrentWindowIndex(), repeatMode, shuffleModeEnabled);
-  }
-
-  @Override
-  public int getPreviousWindowIndex() {
-    Timeline timeline = playbackInfo.timeline;
-    return timeline.isEmpty() ? C.INDEX_UNSET
-        : timeline.getPreviousWindowIndex(getCurrentWindowIndex(), repeatMode, shuffleModeEnabled);
-  }
-
-  @Override
   public long getDuration() {
     if (isPlayingAd()) {
       MediaPeriodId periodId = playbackInfo.periodId;
@@ -541,29 +495,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public int getBufferedPercentage() {
-    long position = getBufferedPosition();
-    long duration = getDuration();
-    return position == C.TIME_UNSET || duration == C.TIME_UNSET
-        ? 0
-        : (duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100));
-  }
-
-  @Override
   public long getTotalBufferedDuration() {
     return Math.max(0, C.usToMs(playbackInfo.totalBufferedDurationUs));
-  }
-
-  @Override
-  public boolean isCurrentWindowDynamic() {
-    Timeline timeline = playbackInfo.timeline;
-    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
-  }
-
-  @Override
-  public boolean isCurrentWindowSeekable() {
-    Timeline timeline = playbackInfo.timeline;
-    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isSeekable;
   }
 
   @Override
@@ -579,13 +512,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public int getCurrentAdIndexInAdGroup() {
     return isPlayingAd() ? playbackInfo.periodId.adIndexInAdGroup : C.INDEX_UNSET;
-  }
-
-  @Override
-  public long getContentDuration() {
-    return playbackInfo.timeline.isEmpty()
-        ? C.TIME_UNSET
-        : playbackInfo.timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
   }
 
   @Override

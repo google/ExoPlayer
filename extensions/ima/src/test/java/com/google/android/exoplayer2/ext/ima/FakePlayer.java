@@ -26,7 +26,6 @@ import java.util.ArrayList;
 /* package */ final class FakePlayer extends StubExoPlayer {
 
   private final ArrayList<Player.EventListener> listeners;
-  private final Timeline.Window window;
   private final Timeline.Period period;
   private final Timeline timeline;
 
@@ -41,7 +40,6 @@ import java.util.ArrayList;
 
   public FakePlayer() {
     listeners = new ArrayList<>();
-    window = new Timeline.Window();
     period = new Timeline.Period();
     state = Player.STATE_IDLE;
     playWhenReady = true;
@@ -149,16 +147,6 @@ import java.util.ArrayList;
   @Override
   public int getCurrentWindowIndex() {
     return 0;
-  }
-
-  @Override
-  public int getNextWindowIndex() {
-    return C.INDEX_UNSET;
-  }
-
-  @Override
-  public int getPreviousWindowIndex() {
-    return C.INDEX_UNSET;
   }
 
   @Override
