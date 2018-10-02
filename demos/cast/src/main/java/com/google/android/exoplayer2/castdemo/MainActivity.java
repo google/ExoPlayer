@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 
@@ -92,13 +93,20 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void onResume() {
     super.onResume();
-    playerManager =
-        PlayerManager.createPlayerManager(
-            /* queuePositionListener= */ this,
-            localPlayerView,
-            castControlView,
-            /* context= */ this,
-            castContext);
+    String applicationId = castContext.getCastOptions().getReceiverApplicationId();
+    switch (applicationId) {
+      case CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID:
+        playerManager =
+            DefaultReceiverPlayerManager.createPlayerManager(
+                /* queuePositionListener= */ this,
+                localPlayerView,
+                castControlView,
+                /* context= */ this,
+                castContext);
+        break;
+      default:
+        throw new IllegalStateException("Illegal receiver app id: " + applicationId);
+    }
     mediaQueueList.setAdapter(mediaQueueListAdapter);
   }
 
@@ -108,6 +116,7 @@ public class MainActivity extends AppCompatActivity
     mediaQueueListAdapter.notifyItemRangeRemoved(0, mediaQueueListAdapter.getItemCount());
     mediaQueueList.setAdapter(null);
     playerManager.release();
+    playerManager = null;
   }
 
   // Activity input.
