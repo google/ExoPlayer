@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.cast;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -31,7 +32,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.CastStatusCodes;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaQueueItem;
@@ -62,7 +62,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *
  * <p>Methods should be called on the application's main thread.
  */
-public final class CastPlayer implements Player {
+public final class CastPlayer extends BasePlayer {
 
   private static final String TAG = "CastPlayer";
 
@@ -78,7 +78,6 @@ public final class CastPlayer implements Player {
   private final CastContext castContext;
   // TODO: Allow custom implementations of CastTimelineTracker.
   private final CastTimelineTracker timelineTracker;
-  private final Timeline.Window window;
   private final Timeline.Period period;
 
   private RemoteMediaClient remoteMediaClient;
@@ -111,7 +110,6 @@ public final class CastPlayer implements Player {
   public CastPlayer(CastContext castContext) {
     this.castContext = castContext;
     timelineTracker = new CastTimelineTracker();
-    window = new Timeline.Window();
     period = new Timeline.Period();
     statusListener = new StatusListener();
     seekResultCallback = new SeekResultCallback();
@@ -325,21 +323,6 @@ public final class CastPlayer implements Player {
   }
 
   @Override
-  public void seekToDefaultPosition() {
-    seekTo(0);
-  }
-
-  @Override
-  public void seekToDefaultPosition(int windowIndex) {
-    seekTo(windowIndex, 0);
-  }
-
-  @Override
-  public void seekTo(long positionMs) {
-    seekTo(getCurrentWindowIndex(), positionMs);
-  }
-
-  @Override
   public void seekTo(int windowIndex, long positionMs) {
     MediaStatus mediaStatus = getMediaStatus();
     // We assume the default position is 0. There is no support for seeking to the default position
@@ -366,32 +349,6 @@ public final class CastPlayer implements Player {
   }
 
   @Override
-  public boolean hasPrevious() {
-    return getPreviousWindowIndex() != C.INDEX_UNSET;
-  }
-
-  @Override
-  public void previous() {
-    int previousWindowIndex = getPreviousWindowIndex();
-    if (previousWindowIndex != C.INDEX_UNSET) {
-      seekToDefaultPosition(previousWindowIndex);
-    }
-  }
-
-  @Override
-  public boolean hasNext() {
-    return getNextWindowIndex() != C.INDEX_UNSET;
-  }
-
-  @Override
-  public void next() {
-    int nextWindowIndex = getPreviousWindowIndex();
-    if (nextWindowIndex != C.INDEX_UNSET) {
-      seekToDefaultPosition(nextWindowIndex);
-    }
-  }
-
-  @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     // Unsupported by the RemoteMediaClient API. Do nothing.
   }
@@ -399,11 +356,6 @@ public final class CastPlayer implements Player {
   @Override
   public PlaybackParameters getPlaybackParameters() {
     return PlaybackParameters.DEFAULT;
-  }
-
-  @Override
-  public void stop() {
-    stop(/* reset= */ false);
   }
 
   @Override
@@ -495,32 +447,11 @@ public final class CastPlayer implements Player {
     return pendingSeekWindowIndex != C.INDEX_UNSET ? pendingSeekWindowIndex : currentWindowIndex;
   }
 
-  @Override
-  public int getNextWindowIndex() {
-    return currentTimeline.isEmpty() ? C.INDEX_UNSET
-        : currentTimeline.getNextWindowIndex(getCurrentWindowIndex(), repeatMode, false);
-  }
-
-  @Override
-  public int getPreviousWindowIndex() {
-    return currentTimeline.isEmpty() ? C.INDEX_UNSET
-        : currentTimeline.getPreviousWindowIndex(getCurrentWindowIndex(), repeatMode, false);
-  }
-
-  @Override
-  public @Nullable Object getCurrentTag() {
-    int windowIndex = getCurrentWindowIndex();
-    return windowIndex >= currentTimeline.getWindowCount()
-        ? null
-        : currentTimeline.getWindow(windowIndex, window, /* setTag= */ true).tag;
-  }
-
   // TODO: Fill the cast timeline information with ProgressListener's duration updates.
   // See [Internal: b/65152553].
   @Override
   public long getDuration() {
-    return currentTimeline.isEmpty() ? C.TIME_UNSET
-        : currentTimeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+    return getContentDuration();
   }
 
   @Override
@@ -538,33 +469,12 @@ public final class CastPlayer implements Player {
   }
 
   @Override
-  public int getBufferedPercentage() {
-    long position = getBufferedPosition();
-    long duration = getDuration();
-    return position == C.TIME_UNSET || duration == C.TIME_UNSET
-        ? 0
-        : duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100);
-  }
-
-  @Override
   public long getTotalBufferedDuration() {
     long bufferedPosition = getBufferedPosition();
     long currentPosition = getCurrentPosition();
     return bufferedPosition == C.TIME_UNSET || currentPosition == C.TIME_UNSET
         ? 0
         : bufferedPosition - currentPosition;
-  }
-
-  @Override
-  public boolean isCurrentWindowDynamic() {
-    return !currentTimeline.isEmpty()
-        && currentTimeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
-  }
-
-  @Override
-  public boolean isCurrentWindowSeekable() {
-    return !currentTimeline.isEmpty()
-        && currentTimeline.getWindow(getCurrentWindowIndex(), window).isSeekable;
   }
 
   @Override
@@ -580,11 +490,6 @@ public final class CastPlayer implements Player {
   @Override
   public int getCurrentAdIndexInAdGroup() {
     return C.INDEX_UNSET;
-  }
-
-  @Override
-  public long getContentDuration() {
-    return getDuration();
   }
 
   @Override
