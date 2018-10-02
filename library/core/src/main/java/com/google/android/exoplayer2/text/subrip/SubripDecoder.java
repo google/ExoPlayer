@@ -202,69 +202,63 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
    * @return Built cue
    */
   private Cue buildCue(Spanned text, String alignmentTag) {
-    // Default values used for positioning the subtitle in case of align tags
-    float line = DEFAULT_END_FRACTION, position = DEFAULT_MID_FRACTION;
-    @Cue.AnchorType int positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-    @Cue.AnchorType int lineAnchor = Cue.ANCHOR_TYPE_END;
+    float line, position;
+    @Cue.AnchorType int positionAnchor;
+    @Cue.AnchorType int lineAnchor;
 
+    // Set position and position anchor (horizontal alignment)
     switch (alignmentTag) {
       case ALIGN_BOTTOM_LEFT:
-        line = DEFAULT_END_FRACTION;
+      case ALIGN_MID_LEFT:
+      case ALIGN_TOP_LEFT:
         position = DEFAULT_START_FRACTION;
         positionAnchor = Cue.ANCHOR_TYPE_START;
-        lineAnchor = Cue.ANCHOR_TYPE_END;
         break;
       case ALIGN_BOTTOM_MID:
-        line = DEFAULT_END_FRACTION;
+      case ALIGN_MID_MID:
+      case ALIGN_TOP_MID:
         position = DEFAULT_MID_FRACTION;
         positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-        lineAnchor = Cue.ANCHOR_TYPE_END;
         break;
       case ALIGN_BOTTOM_RIGHT:
-        line = DEFAULT_END_FRACTION;
-        position = DEFAULT_END_FRACTION;
-        positionAnchor = Cue.ANCHOR_TYPE_END;
-        lineAnchor = Cue.ANCHOR_TYPE_END;
-        break;
-      case ALIGN_MID_LEFT:
-        line = DEFAULT_MID_FRACTION;
-        position = DEFAULT_START_FRACTION;
-        positionAnchor = Cue.ANCHOR_TYPE_START;
-        lineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-        break;
-      case ALIGN_MID_MID:
-        line = DEFAULT_MID_FRACTION;
-        position = DEFAULT_MID_FRACTION;
-        positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-        lineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-        break;
       case ALIGN_MID_RIGHT:
-        line = DEFAULT_MID_FRACTION;
+      case ALIGN_TOP_RIGHT:
         position = DEFAULT_END_FRACTION;
         positionAnchor = Cue.ANCHOR_TYPE_END;
-        lineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
         break;
-      case ALIGN_TOP_LEFT:
-        line = DEFAULT_START_FRACTION;
-        position = DEFAULT_START_FRACTION;
-        positionAnchor = Cue.ANCHOR_TYPE_START;
-        lineAnchor = Cue.ANCHOR_TYPE_START;
-        break;
-      case ALIGN_TOP_MID:
-        line = DEFAULT_START_FRACTION;
+      default:
         position = DEFAULT_MID_FRACTION;
         positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-        lineAnchor = Cue.ANCHOR_TYPE_START;
-        break;
-      case ALIGN_TOP_RIGHT:
-        line = DEFAULT_START_FRACTION;
-        position = DEFAULT_END_FRACTION;
-        positionAnchor = Cue.ANCHOR_TYPE_END;
-        lineAnchor = Cue.ANCHOR_TYPE_START;
         break;
     }
 
-    return new Cue(text, Layout.Alignment.ALIGN_NORMAL, line, Cue.LINE_TYPE_FRACTION, lineAnchor, position, positionAnchor, Cue.DIMEN_UNSET);
+    // Set line and line anchor (vertical alignment)
+    switch (alignmentTag) {
+      case ALIGN_BOTTOM_LEFT:
+      case ALIGN_BOTTOM_MID:
+      case ALIGN_BOTTOM_RIGHT:
+        line = DEFAULT_END_FRACTION;
+        lineAnchor = Cue.ANCHOR_TYPE_END;
+        break;
+      case ALIGN_MID_LEFT:
+      case ALIGN_MID_MID:
+      case ALIGN_MID_RIGHT:
+        line = DEFAULT_MID_FRACTION;
+        lineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
+        break;
+      case ALIGN_TOP_LEFT:
+      case ALIGN_TOP_MID:
+      case ALIGN_TOP_RIGHT:
+        line = DEFAULT_START_FRACTION;
+        lineAnchor = Cue.ANCHOR_TYPE_START;
+        break;
+      default:
+        line = DEFAULT_END_FRACTION;
+        lineAnchor = Cue.ANCHOR_TYPE_END;
+        break;
+    }
+
+    return new Cue(text, null, line, Cue.LINE_TYPE_FRACTION, lineAnchor, position, positionAnchor, Cue.DIMEN_UNSET);
   }
 
   private static long parseTimecode(Matcher matcher, int groupOffset) {
