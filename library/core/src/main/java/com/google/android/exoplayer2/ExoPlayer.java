@@ -117,12 +117,6 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  */
 public interface ExoPlayer extends Player {
 
-  /**
-   * @deprecated Use {@link Player.EventListener} instead.
-   */
-  @Deprecated
-  interface EventListener extends Player.EventListener {}
-
   /** @deprecated Use {@link PlayerMessage.Target} instead. */
   @Deprecated
   interface ExoPlayerComponent extends PlayerMessage.Target {}
@@ -146,43 +140,6 @@ public interface ExoPlayer extends Player {
       this.message = message;
     }
   }
-
-  /**
-   * @deprecated Use {@link Player#STATE_IDLE} instead.
-   */
-  @Deprecated
-  int STATE_IDLE = Player.STATE_IDLE;
-  /**
-   * @deprecated Use {@link Player#STATE_BUFFERING} instead.
-   */
-  @Deprecated
-  int STATE_BUFFERING = Player.STATE_BUFFERING;
-  /**
-   * @deprecated Use {@link Player#STATE_READY} instead.
-   */
-  @Deprecated
-  int STATE_READY = Player.STATE_READY;
-  /**
-   * @deprecated Use {@link Player#STATE_ENDED} instead.
-   */
-  @Deprecated
-  int STATE_ENDED = Player.STATE_ENDED;
-
-  /**
-   * @deprecated Use {@link Player#REPEAT_MODE_OFF} instead.
-   */
-  @Deprecated
-  @RepeatMode int REPEAT_MODE_OFF = Player.REPEAT_MODE_OFF;
-  /**
-   * @deprecated Use {@link Player#REPEAT_MODE_ONE} instead.
-   */
-  @Deprecated
-  @RepeatMode int REPEAT_MODE_ONE = Player.REPEAT_MODE_ONE;
-  /**
-   * @deprecated Use {@link Player#REPEAT_MODE_ALL} instead.
-   */
-  @Deprecated
-  @RepeatMode int REPEAT_MODE_ALL = Player.REPEAT_MODE_ALL;
 
   /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();
