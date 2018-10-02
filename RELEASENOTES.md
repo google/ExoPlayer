@@ -2,6 +2,8 @@
 
 ### 2.9.1 ###
 
+* Improve initial bandwidth meter estimates using the current country and
+  network type.
 * SubRip: Add support for alignment tags, and remove tags from the displayed
   captions ([#4306](https://github.com/google/ExoPlayer/issues/4306)).
 * MP3: Support seeking based on MLLT metadata
