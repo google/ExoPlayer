@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Improve initial bandwidth meter estimates using the current country and
+  network type.
 * Do not retry failed loads whose error is `FileNotFoundException`.
 * Add convenience methods `Player.next`, `Player.previous`, `Player.hasNext`
   and `Player.hasPrevious`
