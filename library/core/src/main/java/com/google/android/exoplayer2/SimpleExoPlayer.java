@@ -64,7 +64,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * be obtained from {@link ExoPlayerFactory}.
  */
 @TargetApi(16)
-public class SimpleExoPlayer
+public class SimpleExoPlayer extends BasePlayer
     implements ExoPlayer, Player.AudioComponent, Player.VideoComponent, Player.TextComponent {
 
   /** @deprecated Use {@link com.google.android.exoplayer2.video.VideoListener}. */
@@ -928,27 +928,6 @@ public class SimpleExoPlayer
   }
 
   @Override
-  public void seekToDefaultPosition() {
-    verifyApplicationThread();
-    analyticsCollector.notifySeekStarted();
-    player.seekToDefaultPosition();
-  }
-
-  @Override
-  public void seekToDefaultPosition(int windowIndex) {
-    verifyApplicationThread();
-    analyticsCollector.notifySeekStarted();
-    player.seekToDefaultPosition(windowIndex);
-  }
-
-  @Override
-  public void seekTo(long positionMs) {
-    verifyApplicationThread();
-    analyticsCollector.notifySeekStarted();
-    player.seekTo(positionMs);
-  }
-
-  @Override
   public void seekTo(int windowIndex, long positionMs) {
     verifyApplicationThread();
     analyticsCollector.notifySeekStarted();
@@ -977,17 +956,6 @@ public class SimpleExoPlayer
   public SeekParameters getSeekParameters() {
     verifyApplicationThread();
     return player.getSeekParameters();
-  }
-
-  @Override
-  public @Nullable Object getCurrentTag() {
-    verifyApplicationThread();
-    return player.getCurrentTag();
-  }
-
-  @Override
-  public void stop() {
-    stop(/* reset= */ false);
   }
 
   @Override
@@ -1093,18 +1061,6 @@ public class SimpleExoPlayer
   }
 
   @Override
-  public int getNextWindowIndex() {
-    verifyApplicationThread();
-    return player.getNextWindowIndex();
-  }
-
-  @Override
-  public int getPreviousWindowIndex() {
-    verifyApplicationThread();
-    return player.getPreviousWindowIndex();
-  }
-
-  @Override
   public long getDuration() {
     verifyApplicationThread();
     return player.getDuration();
@@ -1123,27 +1079,9 @@ public class SimpleExoPlayer
   }
 
   @Override
-  public int getBufferedPercentage() {
-    verifyApplicationThread();
-    return player.getBufferedPercentage();
-  }
-
-  @Override
   public long getTotalBufferedDuration() {
     verifyApplicationThread();
     return player.getTotalBufferedDuration();
-  }
-
-  @Override
-  public boolean isCurrentWindowDynamic() {
-    verifyApplicationThread();
-    return player.isCurrentWindowDynamic();
-  }
-
-  @Override
-  public boolean isCurrentWindowSeekable() {
-    verifyApplicationThread();
-    return player.isCurrentWindowSeekable();
   }
 
   @Override
@@ -1162,12 +1100,6 @@ public class SimpleExoPlayer
   public int getCurrentAdIndexInAdGroup() {
     verifyApplicationThread();
     return player.getCurrentAdIndexInAdGroup();
-  }
-
-  @Override
-  public long getContentDuration() {
-    verifyApplicationThread();
-    return player.getContentDuration();
   }
 
   @Override
