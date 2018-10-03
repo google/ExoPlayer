@@ -5,6 +5,9 @@
 * Fix an issue with blind seeking to windows with non-zero offset in a
   `ConcatenatingMediaSource`
   ([#4873](https://github.com/google/ExoPlayer/issues/4873)).
+* Fix issue where subtitles have a wrong position if SubtitleView has a non-zero
+  offset to its parent
+  ([#4788](https://github.com/google/ExoPlayer/issues/4788)).
 
 ### 2.9.0 ###
 
