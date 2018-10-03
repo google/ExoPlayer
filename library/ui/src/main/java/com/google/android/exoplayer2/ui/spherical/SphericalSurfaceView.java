@@ -36,7 +36,6 @@ import android.view.Surface;
 import android.view.WindowManager;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.ui.spherical.ProjectionRenderer.EyeType;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -287,7 +286,7 @@ public final class SphericalSurfaceView extends GLSurfaceView {
       }
 
       Matrix.multiplyMM(viewProjectionMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
-      scene.drawFrame(viewProjectionMatrix, EyeType.MONOCULAR);
+      scene.drawFrame(viewProjectionMatrix, /* rightEye= */ false);
     }
 
     /** Adjusts the GL camera's rotation based on device rotation. Runs on the sensor thread. */
