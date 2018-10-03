@@ -17,6 +17,8 @@
 * Fix issue where subtitles have a wrong position if SubtitleView has a non-zero
   offset to its parent
   ([#4788](https://github.com/google/ExoPlayer/issues/4788)).
+* SubRip: Add support for alignment tags, and remove tags from the displayed
+  captions ([#4306](https://github.com/google/ExoPlayer/issues/4306)).
 
 ### 2.9.0 ###
 

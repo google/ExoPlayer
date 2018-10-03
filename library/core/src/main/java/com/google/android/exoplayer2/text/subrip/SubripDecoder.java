@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer2.text.subrip;
 
-import android.support.annotation.StringDef;
+import android.support.annotation.Nullable;
 import android.text.Html;
-import android.text.Layout;
 import android.text.Spanned;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.text.Cue;
@@ -25,9 +24,6 @@ import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,6 +32,11 @@ import java.util.regex.Pattern;
  * A {@link SimpleSubtitleDecoder} for SubRip.
  */
 public final class SubripDecoder extends SimpleSubtitleDecoder {
+
+  // Fractional positions for use when alignment tags are present.
+  /* package */ static final float START_FRACTION = 0.08f;
+  /* package */ static final float END_FRACTION = 1 - START_FRACTION;
+  /* package */ static final float MID_FRACTION = 0.5f;
 
   private static final String TAG = "SubripDecoder";
 
@@ -46,35 +47,24 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
   private static final Pattern SUBRIP_TAG_PATTERN = Pattern.compile("\\{\\\\.*?\\}");
   private static final String SUBRIP_ALIGNMENT_TAG = "\\{\\\\an[1-9]\\}";
 
-  private static final float DEFAULT_START_FRACTION = 0.08f;
-  private static final float DEFAULT_END_FRACTION = 1 - DEFAULT_START_FRACTION;
-  private static final float DEFAULT_MID_FRACTION = 0.5f;
-
-  @Retention(RetentionPolicy.SOURCE)
-  @StringDef({
-      ALIGN_BOTTOM_LEFT, ALIGN_BOTTOM_MID, ALIGN_BOTTOM_RIGHT,
-      ALIGN_MID_LEFT, ALIGN_MID_MID, ALIGN_MID_RIGHT,
-      ALIGN_TOP_LEFT, ALIGN_TOP_MID, ALIGN_TOP_RIGHT
-  })
-
-  private @interface SubRipTag {}
-
-  // Possible valid alignment tags based on SSA v4+ specs
-  private static final String ALIGN_BOTTOM_LEFT  = "{\\an1}";
-  private static final String ALIGN_BOTTOM_MID   = "{\\an2}";
+  // Alignment tags for SSA V4+.
+  private static final String ALIGN_BOTTOM_LEFT = "{\\an1}";
+  private static final String ALIGN_BOTTOM_MID = "{\\an2}";
   private static final String ALIGN_BOTTOM_RIGHT = "{\\an3}";
-  private static final String ALIGN_MID_LEFT     = "{\\an4}";
-  private static final String ALIGN_MID_MID      = "{\\an5}";
-  private static final String ALIGN_MID_RIGHT    = "{\\an6}";
-  private static final String ALIGN_TOP_LEFT     = "{\\an7}";
-  private static final String ALIGN_TOP_MID      = "{\\an8}";
-  private static final String ALIGN_TOP_RIGHT    = "{\\an9}";
+  private static final String ALIGN_MID_LEFT = "{\\an4}";
+  private static final String ALIGN_MID_MID = "{\\an5}";
+  private static final String ALIGN_MID_RIGHT = "{\\an6}";
+  private static final String ALIGN_TOP_LEFT = "{\\an7}";
+  private static final String ALIGN_TOP_MID = "{\\an8}";
+  private static final String ALIGN_TOP_RIGHT = "{\\an9}";
 
   private final StringBuilder textBuilder;
+  private final ArrayList<String> tags;
 
   public SubripDecoder() {
     super("SubripDecoder");
     textBuilder = new StringBuilder();
+    tags = new ArrayList<>();
   }
 
   @Override
@@ -118,9 +108,9 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
         continue;
       }
 
-      // Read and parse the text.
-      ArrayList<String> tags = new ArrayList<>();
+      // Read and parse the text and tags.
       textBuilder.setLength(0);
+      tags.clear();
       while (!TextUtils.isEmpty(currentLine = subripData.readLine())) {
         if (textBuilder.length() > 0) {
           textBuilder.append("<br>");
@@ -129,21 +119,17 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       }
 
       Spanned text = Html.fromHtml(textBuilder.toString());
-      Cue cue = null;
 
-      // At end of this loop the clue must be created with the applied tags
-      for (String tag : tags) {
-
-        // Check if the tag is an alignment tag
+      String alignmentTag = null;
+      for (int i = 0; i < tags.size(); i++) {
+        String tag = tags.get(i);
         if (tag.matches(SUBRIP_ALIGNMENT_TAG)) {
-          cue = buildCue(text, tag);
-
-          // Based on the specs, in case of alignment tags only the first appearance counts, so break
+          alignmentTag = tag;
+          // Subsequent alignment tags should be ignored.
           break;
         }
       }
-
-      cues.add(cue == null ? new Cue(text) : cue);
+      cues.add(buildCue(text, alignmentTag));
 
       if (haveEndTimecode) {
         cues.add(null);
@@ -157,108 +143,93 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
   }
 
   /**
-   * Process the given line by first trimming it then extracting the tags from it
-   * <p>
-   * The pattern that is used to extract the tags is specified in SSA v4+ specs and
-   * has the following form: "{\...}".
-   * <p>
-   * "All override codes appear within braces {}"
-   * "All override codes are always preceded by a backslash \"
+   * Trims and removes tags from the given line. The removed tags are added to {@code tags}.
    *
-   * @param currentLine Current line
-   * @param tags        Extracted tags will be stored in this array list
-   * @return Processed line
+   * @param line The line to process.
+   * @param tags A list to which removed tags will be added.
+   * @return The processed line.
    */
-  private String processLine(String currentLine, ArrayList<String> tags) {
-    // Trim line
-    String trimmedLine = currentLine.trim();
+  private String processLine(String line, ArrayList<String> tags) {
+    line = line.trim();
 
-    // Extract tags
-    int replacedCharacters = 0;
-    StringBuilder processedLine = new StringBuilder(trimmedLine);
-    Matcher matcher = SUBRIP_TAG_PATTERN.matcher(trimmedLine);
-
+    int removedCharacterCount = 0;
+    StringBuilder processedLine = new StringBuilder(line);
+    Matcher matcher = SUBRIP_TAG_PATTERN.matcher(line);
     while (matcher.find()) {
       String tag = matcher.group();
       tags.add(tag);
-      processedLine.replace(matcher.start() - replacedCharacters, matcher.end() - replacedCharacters, "");
-      replacedCharacters += tag.length();
+      int start = matcher.start() - removedCharacterCount;
+      int tagLength = tag.length();
+      processedLine.replace(start, /* end= */ start + tagLength, /* str= */ "");
+      removedCharacterCount += tagLength;
     }
 
     return processedLine.toString();
   }
 
   /**
-   * Build a {@link Cue} based on the given text and tag
-   * <p>
-   * Match the alignment tag and calculate the line, position, position anchor accordingly
-   * <p>
-   * Based on SSA v4+ specs the alignment tag can have the following form: {\an[1-9},
-   * where the number specifies the direction (based on the numpad layout).
-   * Note. older SSA scripts may contain tags like {\a1[1-9]} but these are based on
-   * other direction rules, but multiple sources says that these are deprecated, so no support here either
+   * Build a {@link Cue} based on the given text and alignment tag.
    *
-   * @param alignmentTag Alignment tag
+   * @param text The text.
+   * @param alignmentTag The alignment tag, or {@code null} if no alignment tag is available.
    * @return Built cue
    */
-  private Cue buildCue(Spanned text, String alignmentTag) {
-    float line, position;
-    @Cue.AnchorType int positionAnchor;
-    @Cue.AnchorType int lineAnchor;
+  private Cue buildCue(Spanned text, @Nullable String alignmentTag) {
+    if (alignmentTag == null) {
+      return new Cue(text);
+    }
 
-    // Set position and position anchor (horizontal alignment)
+    // Horizontal alignment.
+    @Cue.AnchorType int positionAnchor;
     switch (alignmentTag) {
       case ALIGN_BOTTOM_LEFT:
       case ALIGN_MID_LEFT:
       case ALIGN_TOP_LEFT:
-        position = DEFAULT_START_FRACTION;
         positionAnchor = Cue.ANCHOR_TYPE_START;
         break;
-      case ALIGN_BOTTOM_MID:
-      case ALIGN_MID_MID:
-      case ALIGN_TOP_MID:
-        position = DEFAULT_MID_FRACTION;
-        positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-        break;
       case ALIGN_BOTTOM_RIGHT:
       case ALIGN_MID_RIGHT:
       case ALIGN_TOP_RIGHT:
-        position = DEFAULT_END_FRACTION;
         positionAnchor = Cue.ANCHOR_TYPE_END;
         break;
+      case ALIGN_BOTTOM_MID:
+      case ALIGN_MID_MID:
+      case ALIGN_TOP_MID:
       default:
-        position = DEFAULT_MID_FRACTION;
         positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
         break;
     }
 
-    // Set line and line anchor (vertical alignment)
+    // Vertical alignment.
+    @Cue.AnchorType int lineAnchor;
     switch (alignmentTag) {
       case ALIGN_BOTTOM_LEFT:
       case ALIGN_BOTTOM_MID:
       case ALIGN_BOTTOM_RIGHT:
-        line = DEFAULT_END_FRACTION;
         lineAnchor = Cue.ANCHOR_TYPE_END;
-        break;
-      case ALIGN_MID_LEFT:
-      case ALIGN_MID_MID:
-      case ALIGN_MID_RIGHT:
-        line = DEFAULT_MID_FRACTION;
-        lineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
         break;
       case ALIGN_TOP_LEFT:
       case ALIGN_TOP_MID:
       case ALIGN_TOP_RIGHT:
-        line = DEFAULT_START_FRACTION;
         lineAnchor = Cue.ANCHOR_TYPE_START;
         break;
+      case ALIGN_MID_LEFT:
+      case ALIGN_MID_MID:
+      case ALIGN_MID_RIGHT:
       default:
-        line = DEFAULT_END_FRACTION;
-        lineAnchor = Cue.ANCHOR_TYPE_END;
+        lineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
         break;
     }
 
-    return new Cue(text, null, line, Cue.LINE_TYPE_FRACTION, lineAnchor, position, positionAnchor, Cue.DIMEN_UNSET);
+    return new Cue(
+        text,
+        /* textAlignment= */ null,
+        getFractionalPositionForAnchorType(lineAnchor),
+        Cue.LINE_TYPE_FRACTION,
+        lineAnchor,
+        getFractionalPositionForAnchorType(positionAnchor),
+        positionAnchor,
+        Cue.DIMEN_UNSET);
   }
 
   private static long parseTimecode(Matcher matcher, int groupOffset) {
@@ -267,5 +238,17 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
     timestampMs += Long.parseLong(matcher.group(groupOffset + 3)) * 1000;
     timestampMs += Long.parseLong(matcher.group(groupOffset + 4));
     return timestampMs * 1000;
+  }
+
+  /* package */ static float getFractionalPositionForAnchorType(@Cue.AnchorType int anchorType) {
+    switch (anchorType) {
+      case Cue.ANCHOR_TYPE_START:
+        return SubripDecoder.START_FRACTION;
+      case Cue.ANCHOR_TYPE_MIDDLE:
+        return SubripDecoder.MID_FRACTION;
+      case Cue.ANCHOR_TYPE_END:
+      default:
+        return SubripDecoder.END_FRACTION;
+    }
   }
 }
