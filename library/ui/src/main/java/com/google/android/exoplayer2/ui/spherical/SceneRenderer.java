@@ -23,7 +23,6 @@ import android.opengl.Matrix;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.ui.spherical.ProjectionRenderer.EyeType;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.TimedValueQueue;
@@ -103,9 +102,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * Draws the scene with a given eye pose and type.
    *
    * @param viewProjectionMatrix 16 element GL matrix.
-   * @param eyeType An {@link EyeType} value
+   * @param rightEye Whether the right eye view should be drawn. If {@code false}, the left eye view
+   *     is drawn.
    */
-  public void drawFrame(float[] viewProjectionMatrix, int eyeType) {
+  public void drawFrame(float[] viewProjectionMatrix, boolean rightEye) {
     // glClear isn't strictly necessary when rendering fully spherical panoramas, but it can improve
     // performance on tiled renderers by causing the GPU to discard previous data.
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
@@ -128,7 +128,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
     Matrix.multiplyMM(tempMatrix, 0, viewProjectionMatrix, 0, rotationMatrix, 0);
-    projectionRenderer.draw(textureId, tempMatrix, eyeType);
+    projectionRenderer.draw(textureId, tempMatrix, rightEye);
   }
 
   // Methods called on playback thread.

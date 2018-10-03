@@ -33,18 +33,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @TargetApi(15)
 /* package */ final class ProjectionRenderer {
 
-  /** Defines the constants identifying the current eye type. */
-  /* package */ interface EyeType {
-    /** Single eye in monocular rendering. */
-    int MONOCULAR = 0;
-
-    /** The left eye in stereo rendering. */
-    int LEFT = 1;
-
-    /** The right eye in stereo rendering. */
-    int RIGHT = 2;
-  }
-
   /**
    * Returns whether {@code projection} is supported. At least it should have left mesh and there
    * should be only one sub mesh per mesh.
@@ -148,10 +136,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
    *
    * @param textureId GL_TEXTURE_EXTERNAL_OES used for this mesh.
    * @param mvpMatrix The Model View Projection matrix.
-   * @param eyeType An {@link EyeType} value.
+   * @param rightEye Whether the right eye view should be drawn. If {@code false}, the left eye view
+   *     is drawn.
    */
-  /* package */ void draw(int textureId, float[] mvpMatrix, int eyeType) {
-    MeshData meshData = eyeType == EyeType.RIGHT ? rightMeshData : leftMeshData;
+  /* package */ void draw(int textureId, float[] mvpMatrix, boolean rightEye) {
+    MeshData meshData = rightEye ? rightMeshData : leftMeshData;
     if (meshData == null) {
       return;
     }
@@ -166,9 +155,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     float[] texMatrix;
     if (stereoMode == C.STEREO_MODE_TOP_BOTTOM) {
-      texMatrix = eyeType == EyeType.RIGHT ? TEX_MATRIX_BOTTOM : TEX_MATRIX_TOP;
+      texMatrix = rightEye ? TEX_MATRIX_BOTTOM : TEX_MATRIX_TOP;
     } else if (stereoMode == C.STEREO_MODE_LEFT_RIGHT) {
-      texMatrix = eyeType == EyeType.RIGHT ? TEX_MATRIX_RIGHT : TEX_MATRIX_LEFT;
+      texMatrix = rightEye ? TEX_MATRIX_RIGHT : TEX_MATRIX_LEFT;
     } else {
       texMatrix = TEX_MATRIX_WHOLE;
     }
