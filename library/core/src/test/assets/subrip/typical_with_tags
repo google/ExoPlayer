@@ -13,7 +13,7 @@ This {\an2} is the third {\ tag} subtitle.
 
 4
 00:00:09,567 --> 00:00:12,901
-This { \an2} is the fourth subtitle.
+This { \an2} is not a valid tag due to the space after the opening bracket.
 
 5
 00:00:013,567 --> 00:00:14,901

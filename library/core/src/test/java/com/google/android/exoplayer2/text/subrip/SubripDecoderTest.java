@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
-
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -158,89 +157,30 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeCueWithTag() throws IOException{
+  public void testDecodeCueWithTag() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_WITH_TAGS);
     SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
-    assertThat(subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString())
-        .isEqualTo("This is the first subtitle.");
-    assertThat(subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString())
-        .isEqualTo("This is the second subtitle.\nSecond subtitle with second line.");
-    assertThat(subtitle.getCues(subtitle.getEventTime(4)).get(0).text.toString())
-        .isEqualTo("This is the third subtitle.");
 
-    // Based on the SSA v4+ specs the curly bracket must be followed by a backslash, so this is
-    // not a valid tag (won't be parsed / replaced)
+    assertTypicalCue1(subtitle, 0);
+    assertTypicalCue2(subtitle, 2);
+    assertTypicalCue3(subtitle, 4);
+
     assertThat(subtitle.getCues(subtitle.getEventTime(6)).get(0).text.toString())
-        .isEqualTo("This { \\an2} is the fourth subtitle.");
+        .isEqualTo("This { \\an2} is not a valid tag due to the space after the opening bracket.");
 
     assertThat(subtitle.getCues(subtitle.getEventTime(8)).get(0).text.toString())
         .isEqualTo("This is the fifth subtitle with multiple valid tags.");
 
-    // Verify positions
-
-    // {/an1}
-    assertThat(subtitle.getCues(subtitle.getEventTime(10)).get(0).positionAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_START);
-
-    assertThat(subtitle.getCues(subtitle.getEventTime(10)).get(0).lineAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_END);
-
-    // {/an2}
-    assertThat(subtitle.getCues(subtitle.getEventTime(12)).get(0).positionAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
-
-    assertThat(subtitle.getCues(subtitle.getEventTime(12)).get(0).lineAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_END);
-
-    // {/an3}
-    assertThat(subtitle.getCues(subtitle.getEventTime(14)).get(0).positionAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_END);
-
-    assertThat(subtitle.getCues(subtitle.getEventTime(14)).get(0).lineAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_END);
-
-    // {/an4}
-    assertThat(subtitle.getCues(subtitle.getEventTime(16)).get(0).positionAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_START);
-
-    assertThat(subtitle.getCues(subtitle.getEventTime(16)).get(0).lineAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
-
-    // {/an5}
-    assertThat(subtitle.getCues(subtitle.getEventTime(18)).get(0).positionAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
-
-    assertThat(subtitle.getCues(subtitle.getEventTime(18)).get(0).lineAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
-
-    // {/an6}
-    assertThat(subtitle.getCues(subtitle.getEventTime(20)).get(0).positionAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_END);
-
-    assertThat(subtitle.getCues(subtitle.getEventTime(20)).get(0).lineAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
-
-    // {/an7}
-    assertThat(subtitle.getCues(subtitle.getEventTime(22)).get(0).positionAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_START);
-
-    assertThat(subtitle.getCues(subtitle.getEventTime(22)).get(0).lineAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_START);
-
-    // {/an8}
-    assertThat(subtitle.getCues(subtitle.getEventTime(24)).get(0).positionAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
-
-    assertThat(subtitle.getCues(subtitle.getEventTime(24)).get(0).lineAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_START);
-
-    // {/an9}
-    assertThat(subtitle.getCues(subtitle.getEventTime(26)).get(0).positionAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_END);
-
-    assertThat(subtitle.getCues(subtitle.getEventTime(26)).get(0).lineAnchor)
-        .isEqualTo(Cue.ANCHOR_TYPE_START);
+    assertAlignmentCue(subtitle, 10, Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_START); // {/an1}
+    assertAlignmentCue(subtitle, 12, Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_MIDDLE); // {/an2}
+    assertAlignmentCue(subtitle, 14, Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_END); // {/an3}
+    assertAlignmentCue(subtitle, 16, Cue.ANCHOR_TYPE_MIDDLE, Cue.ANCHOR_TYPE_START); // {/an4}
+    assertAlignmentCue(subtitle, 18, Cue.ANCHOR_TYPE_MIDDLE, Cue.ANCHOR_TYPE_MIDDLE); // {/an5}
+    assertAlignmentCue(subtitle, 20, Cue.ANCHOR_TYPE_MIDDLE, Cue.ANCHOR_TYPE_END); // {/an6}
+    assertAlignmentCue(subtitle, 22, Cue.ANCHOR_TYPE_START, Cue.ANCHOR_TYPE_START); // {/an7}
+    assertAlignmentCue(subtitle, 24, Cue.ANCHOR_TYPE_START, Cue.ANCHOR_TYPE_MIDDLE); // {/an8}
+    assertAlignmentCue(subtitle, 26, Cue.ANCHOR_TYPE_START, Cue.ANCHOR_TYPE_END); // {/an9}
   }
 
   private static void assertTypicalCue1(SubripSubtitle subtitle, int eventIndex) {
@@ -262,5 +202,20 @@ public final class SubripDecoderTest {
     assertThat(subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString())
         .isEqualTo("This is the third subtitle.");
     assertThat(subtitle.getEventTime(eventIndex + 1)).isEqualTo(8901000);
+  }
+
+  private static void assertAlignmentCue(
+      SubripSubtitle subtitle,
+      int eventIndex,
+      @Cue.AnchorType int lineAnchor,
+      @Cue.AnchorType int positionAnchor) {
+    long eventTimeUs = subtitle.getEventTime(eventIndex);
+    Cue cue = subtitle.getCues(eventTimeUs).get(0);
+    assertThat(cue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(cue.lineAnchor).isEqualTo(lineAnchor);
+    assertThat(cue.line).isEqualTo(SubripDecoder.getFractionalPositionForAnchorType(lineAnchor));
+    assertThat(cue.positionAnchor).isEqualTo(positionAnchor);
+    assertThat(cue.position)
+        .isEqualTo(SubripDecoder.getFractionalPositionForAnchorType(positionAnchor));
   }
 }
