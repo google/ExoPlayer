@@ -50,7 +50,7 @@ public final class ProgressiveDownloader implements Downloader {
       Uri uri, String customCacheKey, DownloaderConstructorHelper constructorHelper) {
     this.dataSpec = new DataSpec(uri, 0, C.LENGTH_UNSET, customCacheKey, 0);
     this.cache = constructorHelper.getCache();
-    this.dataSource = constructorHelper.buildCacheDataSource(false);
+    this.dataSource = constructorHelper.createCacheDataSource();
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
     cachingCounters = new CachingCounters();
     isCanceled = new AtomicBoolean();
