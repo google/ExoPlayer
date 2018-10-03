@@ -84,8 +84,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     this.manifestUri = manifestUri;
     this.streamKeys = new ArrayList<>(streamKeys);
     this.cache = constructorHelper.getCache();
-    this.dataSource = constructorHelper.buildCacheDataSource(false);
-    this.offlineDataSource = constructorHelper.buildCacheDataSource(true);
+    this.dataSource = constructorHelper.createCacheDataSource();
+    this.offlineDataSource = constructorHelper.createOfflineCacheDataSource();
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
     totalSegments = C.LENGTH_UNSET;
     isCanceled = new AtomicBoolean();

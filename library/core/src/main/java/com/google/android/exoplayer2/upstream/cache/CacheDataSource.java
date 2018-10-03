@@ -57,8 +57,9 @@ public final class CacheDataSource implements DataSource {
   public static final long DEFAULT_MAX_CACHE_FILE_SIZE = 2 * 1024 * 1024;
 
   /**
-   * Flags controlling the cache's behavior. Possible flag values are {@link #FLAG_BLOCK_ON_CACHE},
-   * {@link #FLAG_IGNORE_CACHE_ON_ERROR} and {@link #FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS}.
+   * Flags controlling the CacheDataSource's behavior. Possible flag values are {@link
+   * #FLAG_BLOCK_ON_CACHE}, {@link #FLAG_IGNORE_CACHE_ON_ERROR} and {@link
+   * #FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -219,8 +220,13 @@ public final class CacheDataSource implements DataSource {
    *     and {@link #FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS}, or 0.
    * @param eventListener An optional {@link EventListener} to receive events.
    */
-  public CacheDataSource(Cache cache, DataSource upstream, DataSource cacheReadDataSource,
-      DataSink cacheWriteDataSink, @Flags int flags, @Nullable EventListener eventListener) {
+  public CacheDataSource(
+      Cache cache,
+      DataSource upstream,
+      DataSource cacheReadDataSource,
+      @Nullable DataSink cacheWriteDataSink,
+      @Flags int flags,
+      @Nullable EventListener eventListener) {
     this(
         cache,
         upstream,
@@ -250,7 +256,7 @@ public final class CacheDataSource implements DataSource {
       Cache cache,
       DataSource upstream,
       DataSource cacheReadDataSource,
-      DataSink cacheWriteDataSink,
+      @Nullable DataSink cacheWriteDataSink,
       @Flags int flags,
       @Nullable EventListener eventListener,
       @Nullable CacheKeyFactory cacheKeyFactory) {
