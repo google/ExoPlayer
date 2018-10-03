@@ -310,7 +310,7 @@ import com.google.android.exoplayer2.util.Util;
       textLeft = Math.max(textLeft, parentLeft);
       textRight = Math.min(textLeft + textWidth, parentRight);
     } else {
-      textLeft = (parentWidth - textWidth) / 2;
+      textLeft = (parentWidth - textWidth) / 2 + parentLeft;
       textRight = textLeft + textWidth;
     }
 
