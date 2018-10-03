@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.text.subrip;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.text.Cue;
+
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +38,7 @@ public final class SubripDecoderTest {
   private static final String TYPICAL_MISSING_SEQUENCE = "subrip/typical_missing_sequence";
   private static final String TYPICAL_NEGATIVE_TIMESTAMPS = "subrip/typical_negative_timestamps";
   private static final String TYPICAL_UNEXPECTED_END = "subrip/typical_unexpected_end";
+  private static final String TYPICAL_WITH_TAGS = "subrip/typical_with_tags";
   private static final String NO_END_TIMECODES_FILE = "subrip/no_end_timecodes";
 
   @Test
@@ -152,6 +155,92 @@ public final class SubripDecoderTest {
     assertThat(subtitle.getEventTime(2)).isEqualTo(3456000);
     assertThat(subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString())
         .isEqualTo("Or to the end of the media.");
+  }
+
+  @Test
+  public void testDecodeCueWithTag() throws IOException{
+    SubripDecoder decoder = new SubripDecoder();
+    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_WITH_TAGS);
+    SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    assertThat(subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString())
+        .isEqualTo("This is the first subtitle.");
+    assertThat(subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString())
+        .isEqualTo("This is the second subtitle.\nSecond subtitle with second line.");
+    assertThat(subtitle.getCues(subtitle.getEventTime(4)).get(0).text.toString())
+        .isEqualTo("This is the third subtitle.");
+
+    // Based on the SSA v4+ specs the curly bracket must be followed by a backslash, so this is
+    // not a valid tag (won't be parsed / replaced)
+    assertThat(subtitle.getCues(subtitle.getEventTime(6)).get(0).text.toString())
+        .isEqualTo("This { \\an2} is the fourth subtitle.");
+
+    assertThat(subtitle.getCues(subtitle.getEventTime(8)).get(0).text.toString())
+        .isEqualTo("This is the fifth subtitle with multiple valid tags.");
+
+    // Verify positions
+
+    // {/an1}
+    assertThat(subtitle.getCues(subtitle.getEventTime(10)).get(0).positionAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_START);
+
+    assertThat(subtitle.getCues(subtitle.getEventTime(10)).get(0).lineAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_END);
+
+    // {/an2}
+    assertThat(subtitle.getCues(subtitle.getEventTime(12)).get(0).positionAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+
+    assertThat(subtitle.getCues(subtitle.getEventTime(12)).get(0).lineAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_END);
+
+    // {/an3}
+    assertThat(subtitle.getCues(subtitle.getEventTime(14)).get(0).positionAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_END);
+
+    assertThat(subtitle.getCues(subtitle.getEventTime(14)).get(0).lineAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_END);
+
+    // {/an4}
+    assertThat(subtitle.getCues(subtitle.getEventTime(16)).get(0).positionAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_START);
+
+    assertThat(subtitle.getCues(subtitle.getEventTime(16)).get(0).lineAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+
+    // {/an5}
+    assertThat(subtitle.getCues(subtitle.getEventTime(18)).get(0).positionAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+
+    assertThat(subtitle.getCues(subtitle.getEventTime(18)).get(0).lineAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+
+    // {/an6}
+    assertThat(subtitle.getCues(subtitle.getEventTime(20)).get(0).positionAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_END);
+
+    assertThat(subtitle.getCues(subtitle.getEventTime(20)).get(0).lineAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+
+    // {/an7}
+    assertThat(subtitle.getCues(subtitle.getEventTime(22)).get(0).positionAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_START);
+
+    assertThat(subtitle.getCues(subtitle.getEventTime(22)).get(0).lineAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_START);
+
+    // {/an8}
+    assertThat(subtitle.getCues(subtitle.getEventTime(24)).get(0).positionAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+
+    assertThat(subtitle.getCues(subtitle.getEventTime(24)).get(0).lineAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_START);
+
+    // {/an9}
+    assertThat(subtitle.getCues(subtitle.getEventTime(26)).get(0).positionAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_END);
+
+    assertThat(subtitle.getCues(subtitle.getEventTime(26)).get(0).lineAnchor)
+        .isEqualTo(Cue.ANCHOR_TYPE_START);
   }
 
   private static void assertTypicalCue1(SubripSubtitle subtitle, int eventIndex) {
