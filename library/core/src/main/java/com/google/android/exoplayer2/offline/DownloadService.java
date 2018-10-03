@@ -303,10 +303,11 @@ public abstract class DownloadService extends Service {
     maybeStopWatchingRequirements();
   }
 
+  /** DownloadService isn't designed to be bound. */
   @Nullable
   @Override
-  public IBinder onBind(Intent intent) {
-    return null;
+  public final IBinder onBind(Intent intent) {
+    throw new UnsupportedOperationException();
   }
 
   /**
