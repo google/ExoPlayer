@@ -25,9 +25,8 @@
 
 ### 2.9.0 ###
 
-* Turn on Java 8 compiler support for the ExoPlayer library. Apps that depend
-  on ExoPlayer via its source code rather than an AAR may need to add
-  `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to their
+* Turn on Java 8 compiler support for the ExoPlayer library. Apps may need to
+  add `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to their
   gradle settings to ensure bytecode compatibility.
 * Set `compileSdkVersion` and `targetSdkVersion` to 28.
 * Support for automatic audio focus handling via
