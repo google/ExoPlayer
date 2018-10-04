@@ -692,7 +692,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         // Replace internal unset start position with externally visible start position of zero.
         playbackInfo =
-            playbackInfo.fromNewPosition(
+            playbackInfo.resetToNewPosition(
                 playbackInfo.periodId, /* startPositionUs= */ 0, playbackInfo.contentPositionUs);
       }
       if ((!this.playbackInfo.timeline.isEmpty() || hasPendingPrepare)

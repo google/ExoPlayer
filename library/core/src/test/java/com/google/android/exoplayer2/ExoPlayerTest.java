@@ -2534,6 +2534,59 @@ public final class ExoPlayerTest {
     assertThat(positionWhenReady.get()).isEqualTo(periodDurationMs + 10);
   }
 
+  @Test
+  public void periodTransitionReportsCorrectBufferedPosition() throws Exception {
+    int periodCount = 3;
+    long periodDurationUs = 5 * C.MICROS_PER_SECOND;
+    long windowDurationUs = periodCount * periodDurationUs;
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                periodCount,
+                /* id= */ new Object(),
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                windowDurationUs));
+    AtomicReference<Player> playerReference = new AtomicReference<>();
+    AtomicLong bufferedPositionAtFirstDiscontinuityMs = new AtomicLong(C.TIME_UNSET);
+    EventListener eventListener =
+        new EventListener() {
+          @Override
+          public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
+            if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+              if (bufferedPositionAtFirstDiscontinuityMs.get() == C.TIME_UNSET) {
+                bufferedPositionAtFirstDiscontinuityMs.set(
+                    playerReference.get().getBufferedPosition());
+              }
+            }
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("periodTransitionReportsCorrectBufferedPosition")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    playerReference.set(player);
+                    player.addListener(eventListener);
+                  }
+                })
+            .pause()
+            // Wait until all periods are fully buffered.
+            .waitForIsLoading(/* targetIsLoading= */ true)
+            .waitForIsLoading(/* targetIsLoading= */ false)
+            .play()
+            .build();
+    new Builder()
+        .setTimeline(timeline)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(bufferedPositionAtFirstDiscontinuityMs.get()).isEqualTo(C.usToMs(windowDurationUs));
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
