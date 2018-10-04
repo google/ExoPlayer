@@ -596,7 +596,8 @@ public class DashManifestParser extends DefaultHandler
             audioSamplingRate,
             /* initializationData= */ null,
             selectionFlags,
-            language);
+            language,
+            /* groupId= */ null);
       } else if (mimeTypeIsRawText(sampleMimeType)) {
         int accessibilityChannel;
         if (MimeTypes.APPLICATION_CEA608.equals(sampleMimeType)) {
@@ -615,6 +616,7 @@ public class DashManifestParser extends DefaultHandler
             bitrate,
             selectionFlags,
             language,
+            /* groupId= */ null,
             accessibilityChannel);
       }
     }

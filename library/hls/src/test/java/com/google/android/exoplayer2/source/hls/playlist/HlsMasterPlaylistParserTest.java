@@ -75,7 +75,7 @@ public class HlsMasterPlaylistParserTest {
 
   private static final String PLAYLIST_WITH_CC =
       " #EXTM3U \n"
-          + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,"
+          + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID=\"cc1\","
           + "LANGUAGE=\"es\",NAME=\"Eng\",INSTREAM-ID=\"SERVICE4\"\n"
           + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,"
           + "CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
@@ -89,6 +89,14 @@ public class HlsMasterPlaylistParserTest {
           + "CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128,"
           + "CLOSED-CAPTIONS=NONE\n"
           + "http://example.com/low.m3u8\n";
+
+  private static final String PLAYLIST_WITH_SUBTITLES =
+      " #EXTM3U \n"
+              + "#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"sub1\","
+              + "LANGUAGE=\"es\",NAME=\"Eng\"\n"
+              + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,"
+              + "CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
+              + "http://example.com/low.m3u8\n";
 
   private static final String PLAYLIST_WITH_AUDIO_MEDIA_TAG =
       "#EXTM3U\n"
@@ -214,6 +222,33 @@ public class HlsMasterPlaylistParserTest {
     Format secondAudioFormat = playlist.audios.get(1).format;
     assertThat(secondAudioFormat.codecs).isEqualTo("ac-3");
     assertThat(secondAudioFormat.sampleMimeType).isEqualTo(MimeTypes.AUDIO_AC3);
+  }
+
+  @Test
+  public void testAudioGroupIdPropagation() throws IOException {
+    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AUDIO_MEDIA_TAG);
+
+    Format firstAudioFormat = playlist.audios.get(0).format;
+    assertThat(firstAudioFormat.groupId).isEqualTo("aud1");
+
+    Format secondAudioFormat = playlist.audios.get(1).format;
+    assertThat(secondAudioFormat.groupId).isEqualTo("aud2");
+  }
+
+  @Test
+  public void testCCGroupIdPropagation() throws IOException {
+    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CC);
+
+    Format firstTextFormat = playlist.muxedCaptionFormats.get(0);
+    assertThat(firstTextFormat.groupId).isEqualTo("cc1");
+  }
+
+  @Test
+  public void testSubtitleGroupIdPropagation() throws IOException {
+    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_SUBTITLES);
+
+    Format firstTextFormat = playlist.subtitles.get(0).format;
+    assertThat(firstTextFormat.groupId).isEqualTo("sub1");
   }
 
   @Test
