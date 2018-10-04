@@ -308,7 +308,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       // chunk even if the sample timestamps are slightly offset from the chunk start times.
       seekInsideBuffer =
           primarySampleQueue.setReadPosition(seekToMediaChunk.getFirstSampleIndex(0));
-      decodeOnlyUntilPositionUs = Long.MIN_VALUE;
+      decodeOnlyUntilPositionUs = 0;
     } else {
       seekInsideBuffer =
           primarySampleQueue.advanceTo(
@@ -583,7 +583,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       if (pendingReset) {
         boolean resetToMediaChunk = mediaChunk.startTimeUs == pendingResetPositionUs;
         // Only enable setting of the decode only flag if we're not resetting to a chunk boundary.
-        decodeOnlyUntilPositionUs = resetToMediaChunk ? Long.MIN_VALUE : pendingResetPositionUs;
+        decodeOnlyUntilPositionUs = resetToMediaChunk ? 0 : pendingResetPositionUs;
         pendingResetPositionUs = C.TIME_UNSET;
       }
       mediaChunk.init(mediaChunkOutput);

@@ -544,7 +544,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       long endTimeUs = representationHolder.getSegmentEndTimeUs(firstSegmentNum + segmentCount - 1);
       long periodDurationUs = representationHolder.periodDurationUs;
       long clippedEndTimeUs =
-          periodDurationUs != C.TIME_UNSET && periodDurationUs < endTimeUs
+          periodDurationUs != C.TIME_UNSET && periodDurationUs <= endTimeUs
               ? periodDurationUs
               : C.TIME_UNSET;
       DataSpec dataSpec = new DataSpec(segmentUri.resolveUri(baseUrl),
