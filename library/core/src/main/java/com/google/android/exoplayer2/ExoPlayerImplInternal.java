@@ -989,6 +989,7 @@ import java.util.Collections;
     mediaClock.onRendererDisabled(renderer);
     ensureStopped(renderer);
     renderer.disable();
+    renderer.reset();
   }
 
   private void reselectTracksInternal() throws ExoPlaybackException {

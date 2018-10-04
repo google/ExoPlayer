@@ -72,12 +72,12 @@ public class CameraMotionRenderer extends BaseRenderer {
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    reset();
+    resetListener();
   }
 
   @Override
   protected void onDisabled() {
-    reset();
+    resetListener();
   }
 
   @Override
@@ -124,7 +124,7 @@ public class CameraMotionRenderer extends BaseRenderer {
     return result;
   }
 
-  private void reset() {
+  private void resetListener() {
     lastTimestampUs = 0;
     if (listener != null) {
       listener.onCameraMotionReset();
