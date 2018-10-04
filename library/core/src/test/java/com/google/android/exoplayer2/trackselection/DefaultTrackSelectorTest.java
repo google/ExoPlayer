@@ -1298,7 +1298,8 @@ public final class DefaultTrackSelectorTest {
         /* codecs= */ null,
         /* bitrate= */ Format.NO_VALUE,
         selectionFlags,
-        language);
+        language,
+        /* groupId= */ null);
   }
 
   /**

@@ -196,6 +196,7 @@ public final class Mp3Extractor implements Extractor {
               /* drmInitData= */ null,
               /* selectionFlags= */ 0,
               /* language= */ null,
+              /* groupId= */ null,
               (flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata));
     }
     return readSample(input);

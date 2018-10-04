@@ -358,7 +358,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* sampleRate= */ Format.NO_VALUE,
                   /* initializationData= */ null,
                   selectionFlags,
-                  language);
+                  language,
+                  groupId);
           if (uri == null) {
             muxedAudioFormat = format;
           } else {
@@ -375,7 +376,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* codecs= */ null,
                   /* bitrate= */ Format.NO_VALUE,
                   selectionFlags,
-                  language);
+                  language,
+                  groupId);
           subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format));
           break;
         case TYPE_CLOSED_CAPTIONS:
@@ -402,6 +404,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* bitrate= */ Format.NO_VALUE,
                   selectionFlags,
                   language,
+                  groupId,
                   accessibilityChannel));
           break;
         default:

@@ -88,6 +88,7 @@ public final class FormatTest {
             /* encoderPadding= */ 1002,
             C.SELECTION_FLAG_DEFAULT,
             "language",
+            "groupId",
             /* accessibilityChannel= */ Format.NO_VALUE,
             Format.OFFSET_SAMPLE_RELATIVE,
             INIT_DATA,

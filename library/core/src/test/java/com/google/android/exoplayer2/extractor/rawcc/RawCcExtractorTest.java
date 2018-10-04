@@ -42,6 +42,7 @@ public final class RawCcExtractorTest {
                     /* bitrate= */ Format.NO_VALUE,
                     /* selectionFlags= */ 0,
                     /* language= */ null,
+                    /* groupId= */ null,
                     /* accessibilityChannel= */ 1)),
         "rawcc/sample.rawcc");
   }

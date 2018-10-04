@@ -277,6 +277,7 @@ public final class FlacExtractor implements Extractor {
             /* drmInitData= */ null,
             /* selectionFlags= */ 0,
             /* language= */ null,
+            /* groupId= */ null,
             isId3MetadataDisabled ? null : id3Metadata);
     trackOutput.format(mediaFormat);
   }

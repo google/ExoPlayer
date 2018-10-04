@@ -162,6 +162,9 @@ public final class Format implements Parcelable {
   /** The language, or null if unknown or not applicable. */
   public final @Nullable String language;
 
+  /** The group id for the , or null if unknown or not applicable. */
+  public final @Nullable String groupId;
+
   /**
    * The Accessibility channel, or {@link #NO_VALUE} if not known or applicable.
    */
@@ -233,6 +236,7 @@ public final class Format implements Parcelable {
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
         /* language= */ null,
+        /* groupId= */ null,
         /* accessibilityChannel= */ NO_VALUE,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
@@ -336,6 +340,7 @@ public final class Format implements Parcelable {
         /* encoderPadding= */ NO_VALUE,
         /* selectionFlags= */ 0,
         /* language= */ null,
+        /* groupId= */ null,
         /* accessibilityChannel= */ NO_VALUE,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
@@ -368,7 +373,8 @@ public final class Format implements Parcelable {
         sampleRate,
         initializationData,
         selectionFlags,
-        language);
+        language,
+        /* groupId= */ null);
   }
 
   public static Format createAudioContainerFormat(
@@ -382,7 +388,8 @@ public final class Format implements Parcelable {
       int sampleRate,
       @Nullable List<byte[]> initializationData,
       @C.SelectionFlags int selectionFlags,
-      @Nullable String language) {
+      @Nullable String language,
+      @Nullable String groupId) {
     return new Format(
         id,
         label,
@@ -406,6 +413,7 @@ public final class Format implements Parcelable {
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
         language,
+        groupId,
         /* accessibilityChannel= */ NO_VALUE,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
@@ -468,6 +476,7 @@ public final class Format implements Parcelable {
         drmInitData,
         selectionFlags,
         language,
+        /* groupId= */ null,
         /* metadata= */ null);
   }
 
@@ -486,6 +495,7 @@ public final class Format implements Parcelable {
       @Nullable DrmInitData drmInitData,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
+      @Nullable String groupId,
       @Nullable Metadata metadata) {
     return new Format(
         id,
@@ -510,6 +520,7 @@ public final class Format implements Parcelable {
         encoderPadding,
         selectionFlags,
         language,
+        groupId,
         /* accessibilityChannel= */ NO_VALUE,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
@@ -536,7 +547,8 @@ public final class Format implements Parcelable {
         codecs,
         bitrate,
         selectionFlags,
-        language);
+        language,
+        /* groupId= */ null);
   }
 
   public static Format createTextContainerFormat(
@@ -547,7 +559,8 @@ public final class Format implements Parcelable {
       @Nullable String codecs,
       int bitrate,
       @C.SelectionFlags int selectionFlags,
-      @Nullable String language) {
+      @Nullable String language,
+      @Nullable String groupId) {
     return createTextContainerFormat(
         id,
         label,
@@ -557,6 +570,7 @@ public final class Format implements Parcelable {
         bitrate,
         selectionFlags,
         language,
+        groupId,
         /* accessibilityChannel= */ NO_VALUE);
   }
 
@@ -569,6 +583,7 @@ public final class Format implements Parcelable {
       int bitrate,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
+      @Nullable String groupId,
       int accessibilityChannel) {
     return new Format(
         id,
@@ -593,6 +608,7 @@ public final class Format implements Parcelable {
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
         language,
+        groupId,
         accessibilityChannel,
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
@@ -705,6 +721,7 @@ public final class Format implements Parcelable {
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
         language,
+        /* groupId= */ null,
         accessibilityChannel,
         subsampleOffsetUs,
         initializationData,
@@ -746,6 +763,7 @@ public final class Format implements Parcelable {
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
         language,
+        /* groupId= */ null,
         /* accessibilityChannel= */ NO_VALUE,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
@@ -807,6 +825,7 @@ public final class Format implements Parcelable {
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
         language,
+        /* groupId= */ null,
         /* accessibilityChannel= */ NO_VALUE,
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
@@ -839,6 +858,7 @@ public final class Format implements Parcelable {
         /* encoderPadding= */ NO_VALUE,
         /* selectionFlags= */ 0,
         /* language= */ null,
+        /* groupId= */ null,
         /* accessibilityChannel= */ NO_VALUE,
         subsampleOffsetUs,
         /* initializationData= */ null,
@@ -875,6 +895,7 @@ public final class Format implements Parcelable {
         /* encoderPadding= */ NO_VALUE,
         /* selectionFlags= */ 0,
         /* language= */ null,
+        /* groupId= */ null,
         /* accessibilityChannel= */ NO_VALUE,
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
@@ -905,6 +926,7 @@ public final class Format implements Parcelable {
       int encoderPadding,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
+      @Nullable String groupId,
       int accessibilityChannel,
       long subsampleOffsetUs,
       @Nullable List<byte[]> initializationData,
@@ -933,6 +955,7 @@ public final class Format implements Parcelable {
     this.encoderPadding = encoderPadding == Format.NO_VALUE ? 0 : encoderPadding;
     this.selectionFlags = selectionFlags;
     this.language = language;
+    this.groupId = groupId;
     this.accessibilityChannel = accessibilityChannel;
     this.subsampleOffsetUs = subsampleOffsetUs;
     this.initializationData =
@@ -966,6 +989,7 @@ public final class Format implements Parcelable {
     encoderPadding = in.readInt();
     selectionFlags = in.readInt();
     language = in.readString();
+    groupId = in.readString();
     accessibilityChannel = in.readInt();
     subsampleOffsetUs = in.readLong();
     int initializationDataSize = in.readInt();
@@ -1001,6 +1025,7 @@ public final class Format implements Parcelable {
         encoderPadding,
         selectionFlags,
         language,
+        groupId,
         accessibilityChannel,
         subsampleOffsetUs,
         initializationData,
@@ -1032,6 +1057,7 @@ public final class Format implements Parcelable {
         encoderPadding,
         selectionFlags,
         language,
+        groupId,
         accessibilityChannel,
         subsampleOffsetUs,
         initializationData,
@@ -1072,6 +1098,7 @@ public final class Format implements Parcelable {
         encoderPadding,
         selectionFlags,
         language,
+        groupId,
         accessibilityChannel,
         subsampleOffsetUs,
         initializationData,
@@ -1094,9 +1121,14 @@ public final class Format implements Parcelable {
     // Prefer manifest values, but fill in from sample format if missing.
     String label = manifestFormat.label != null ? manifestFormat.label : this.label;
     String language = this.language;
-    if ((trackType == C.TRACK_TYPE_TEXT || trackType == C.TRACK_TYPE_AUDIO)
-        && manifestFormat.language != null) {
-      language = manifestFormat.language;
+    String groupId = this.groupId;
+    if ((trackType == C.TRACK_TYPE_TEXT || trackType == C.TRACK_TYPE_AUDIO)) {
+      if (manifestFormat.language != null) {
+        language = manifestFormat.language;
+      }
+      if (manifestFormat.groupId != null) {
+        groupId = manifestFormat.groupId;
+      }
     }
 
     // Prefer sample format values, but fill in from manifest if missing.
@@ -1143,6 +1175,7 @@ public final class Format implements Parcelable {
         encoderPadding,
         selectionFlags,
         language,
+        groupId,
         accessibilityChannel,
         subsampleOffsetUs,
         initializationData,
@@ -1174,6 +1207,7 @@ public final class Format implements Parcelable {
         encoderPadding,
         selectionFlags,
         language,
+        groupId,
         accessibilityChannel,
         subsampleOffsetUs,
         initializationData,
@@ -1205,6 +1239,7 @@ public final class Format implements Parcelable {
         encoderPadding,
         selectionFlags,
         language,
+        groupId,
         accessibilityChannel,
         subsampleOffsetUs,
         initializationData,
@@ -1236,6 +1271,7 @@ public final class Format implements Parcelable {
         encoderPadding,
         selectionFlags,
         language,
+        groupId,
         accessibilityChannel,
         subsampleOffsetUs,
         initializationData,
@@ -1267,6 +1303,7 @@ public final class Format implements Parcelable {
         encoderPadding,
         selectionFlags,
         language,
+        groupId,
         accessibilityChannel,
         subsampleOffsetUs,
         initializationData,
@@ -1299,6 +1336,8 @@ public final class Format implements Parcelable {
         + ", "
         + language
         + ", ["
+        + groupId
+        + ", ["
         + width
         + ", "
         + height
@@ -1326,6 +1365,7 @@ public final class Format implements Parcelable {
       result = 31 * result + channelCount;
       result = 31 * result + sampleRate;
       result = 31 * result + (language == null ? 0 : language.hashCode());
+      result = 31 * result + (groupId == null ? 0 : groupId.hashCode());
       result = 31 * result + accessibilityChannel;
       result = 31 * result + (drmInitData == null ? 0 : drmInitData.hashCode());
       result = 31 * result + (metadata == null ? 0 : metadata.hashCode());
@@ -1376,6 +1416,7 @@ public final class Format implements Parcelable {
         && Util.areEqual(id, other.id)
         && Util.areEqual(label, other.label)
         && Util.areEqual(language, other.language)
+        && Util.areEqual(groupId, other.groupId)
         && accessibilityChannel == other.accessibilityChannel
         && Util.areEqual(containerMimeType, other.containerMimeType)
         && Util.areEqual(sampleMimeType, other.sampleMimeType)
@@ -1437,6 +1478,9 @@ public final class Format implements Parcelable {
     if (format.language != null) {
       builder.append(", language=").append(format.language);
     }
+    if (format.groupId != null) {
+      builder.append(", groupId=").append(format.groupId);
+    }
     if (format.label != null) {
       builder.append(", label=").append(format.label);
     }
@@ -1477,6 +1521,7 @@ public final class Format implements Parcelable {
     dest.writeInt(encoderPadding);
     dest.writeInt(selectionFlags);
     dest.writeString(language);
+    dest.writeString(groupId);
     dest.writeInt(accessibilityChannel);
     dest.writeLong(subsampleOffsetUs);
     int initializationDataSize = initializationData.size();
