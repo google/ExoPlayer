@@ -496,10 +496,8 @@ import java.util.Collections;
 
     // Update the buffered position and total buffered duration.
     MediaPeriodHolder loadingPeriod = queue.getLoadingPeriod();
-    playbackInfo.bufferedPositionUs =
-        loadingPeriod.getBufferedPositionUs(/* convertEosToDuration= */ true);
-    playbackInfo.totalBufferedDurationUs =
-        playbackInfo.bufferedPositionUs - loadingPeriod.toPeriodTime(rendererPositionUs);
+    playbackInfo.bufferedPositionUs = loadingPeriod.getBufferedPositionUs();
+    playbackInfo.totalBufferedDurationUs = getTotalBufferedDurationUs();
   }
 
   private void doSomeWork() throws ExoPlaybackException, IOException {
@@ -1097,12 +1095,10 @@ import java.util.Collections;
     }
     // Renderers are ready and we're loading. Ask the LoadControl whether to transition.
     MediaPeriodHolder loadingHolder = queue.getLoadingPeriod();
-    long bufferedPositionUs = loadingHolder.getBufferedPositionUs(!loadingHolder.info.isFinal);
-    return bufferedPositionUs == C.TIME_END_OF_SOURCE
+    boolean bufferedToEnd = loadingHolder.isFullyBuffered() && loadingHolder.info.isFinal;
+    return bufferedToEnd
         || loadControl.shouldStartPlayback(
-            bufferedPositionUs - loadingHolder.toPeriodTime(rendererPositionUs),
-            mediaClock.getPlaybackParameters().speed,
-            rebuffering);
+            getTotalBufferedDurationUs(), mediaClock.getPlaybackParameters().speed, rebuffering);
   }
 
   private boolean isTimelineReady() {
@@ -1574,7 +1570,7 @@ import java.util.Collections;
       return;
     }
     long bufferedDurationUs =
-        nextLoadPositionUs - loadingPeriodHolder.toPeriodTime(rendererPositionUs);
+        getTotalBufferedDurationUs(/* bufferedPositionInLoadingPeriodUs= */ nextLoadPositionUs);
     boolean continueLoading =
         loadControl.shouldContinueLoading(
             bufferedDurationUs, mediaClock.getPlaybackParameters().speed);
@@ -1678,6 +1674,17 @@ import java.util.Collections;
           loadingMediaPeriodHolder.getTrackGroups(),
           loadingMediaPeriodHolder.getTrackSelectorResult());
     }
+  }
+
+  private long getTotalBufferedDurationUs() {
+    return getTotalBufferedDurationUs(playbackInfo.bufferedPositionUs);
+  }
+
+  private long getTotalBufferedDurationUs(long bufferedPositionInLoadingPeriodUs) {
+    MediaPeriodHolder loadingPeriodHolder = queue.getLoadingPeriod();
+    return loadingPeriodHolder == null
+        ? 0
+        : bufferedPositionInLoadingPeriodUs - loadingPeriodHolder.toPeriodTime(rendererPositionUs);
   }
 
   private void updateLoadControlTrackSelection(
