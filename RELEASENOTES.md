@@ -348,18 +348,18 @@
     begins, and poll the audio timestamp less frequently once it starts
     advancing ([#3841](https://github.com/google/ExoPlayer/issues/3841)).
   * Add an option to skip silent audio in `PlaybackParameters`
-    ((#2635)[https://github.com/google/ExoPlayer/issues/2635]).
+    ([#2635](https://github.com/google/ExoPlayer/issues/2635)).
   * Fix an issue where playback of TrueHD streams would get stuck after seeking
     due to not finding a syncframe
-    ((#3845)[https://github.com/google/ExoPlayer/issues/3845]).
+    ([#3845](https://github.com/google/ExoPlayer/issues/3845)).
   * Fix an issue with eac3-joc playback where a codec would fail to configure
-    ((#4165)[https://github.com/google/ExoPlayer/issues/4165]).
+    ([#4165](https://github.com/google/ExoPlayer/issues/4165)).
   * Handle non-empty end-of-stream buffers, to fix gapless playback of streams
     with encoder padding when the decoder returns a non-empty final buffer.
   * Allow trimming more than one sample when applying an elst audio edit via
     gapless playback info.
   * Allow overriding skipping/scaling with custom `AudioProcessor`s
-    ((#3142)[https://github.com/google/ExoPlayer/issues/3142]).
+    ([#3142](https://github.com/google/ExoPlayer/issues/3142)).
 * Caching:
   * Add release method to the `Cache` interface, and prevent multiple instances
     of `SimpleCache` using the same folder at the same time.
