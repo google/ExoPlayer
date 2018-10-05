@@ -1078,6 +1078,33 @@ public final class DefaultTrackSelectorTest {
     assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(lowerBitrateFormat);
   }
 
+  /**
+   * Tests that track selector will select audio tracks with higher bitrate when {@link Parameters}
+   * indicate highest bitrate preference, even when tracks are within capabilities.
+   */
+  @Test
+  public void testSelectTracksWithinCapabilitiesAndForceHighestBitrateSelectHigherBitrate()
+          throws Exception {
+    trackSelector.setParameters(new ParametersBuilder().setForceHighestSupportedBitrate(true).build());
+
+    Format lowerBitrateFormat =
+            Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 15000,
+                    Format.NO_VALUE, 2, 44100, null, null, 0, null);
+    Format higherBitrateFormat =
+            Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
+                    Format.NO_VALUE, 2, 44100, null, null, 0, null);
+
+    TrackSelectorResult result =
+            trackSelector.selectTracks(
+                    new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+                    singleTrackGroup(lowerBitrateFormat, higherBitrateFormat),
+                    periodId,
+                    TIMELINE);
+
+    assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(higherBitrateFormat);
+  }
+
+
   @Test
   public void testSelectTracksWithMultipleAudioTracksReturnsAdaptiveTrackSelection()
       throws Exception {
