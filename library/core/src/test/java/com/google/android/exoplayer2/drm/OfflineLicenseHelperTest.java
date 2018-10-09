@@ -92,9 +92,12 @@ public class OfflineLicenseHelperTest {
   public void testDownloadLicenseFailsIfNoKeySetIdIsReturned() throws Exception {
     setStubLicenseAndPlaybackDurationValues(1000, 200);
 
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
-
-    assertThat(offlineLicenseKeySetId).isNull();
+    try {
+      offlineLicenseHelper.downloadLicense(newDrmInitData());
+      fail();
+    } catch (Exception e) {
+      // Expected.
+    }
   }
 
   @Test

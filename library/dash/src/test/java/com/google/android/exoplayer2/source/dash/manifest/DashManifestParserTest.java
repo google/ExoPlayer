@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collections;
@@ -117,7 +118,8 @@ public class DashManifestParserTest {
                 "",
                 1500000,
                 1,
-                ("<![CDATA[<BroadcastEvent>\n"
+                Util.getUtf8Bytes(
+                    "<![CDATA[<BroadcastEvent>\n"
                         + "      <Program crid=\"crid://broadcaster.example.com/ABCDEF\"/>\n"
                         + "      <InstanceDescription>\n"
                         + "      <Title xml:lang=\"en\">The title</Title>\n"
@@ -128,8 +130,7 @@ public class DashManifestParserTest {
                         + "      <mpeg7:Region>GB</mpeg7:Region>\n"
                         + "      </ParentalGuidance>\n"
                         + "      </InstanceDescription>\n"
-                        + "      </BroadcastEvent>]]>")
-                    .getBytes(),
+                        + "      </BroadcastEvent>]]>"),
                 300000000));
 
     // assert xml-structured event stream
@@ -142,12 +143,12 @@ public class DashManifestParserTest {
                 "",
                 1000000,
                 2,
-                ("<scte35:Signal>\n"
+                Util.getUtf8Bytes(
+                    "<scte35:Signal>\n"
                         + "         <scte35:Binary>\n"
                         + "         /DAIAAAAAAAAAAAQAAZ/I0VniQAQAgBDVUVJQAAAAH+cAAAAAA==\n"
                         + "         </scte35:Binary>\n"
-                        + "       </scte35:Signal>")
-                    .getBytes(),
+                        + "       </scte35:Signal>"),
                 1000000000));
   }
 

@@ -89,10 +89,15 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * model">
  *
  * <ul>
- *   <li>ExoPlayer instances must be accessed from the thread associated with {@link
- *       #getApplicationLooper()}. This Looper can be specified when creating the player, or this is
- *       the Looper of the thread the player is created on, or the Looper of the application's main
- *       thread if the player is created on a thread without Looper.
+ *   <li>ExoPlayer instances must be accessed from a single application thread. For the vast
+ *       majority of cases this should be the application's main thread. Using the application's
+ *       main thread is also a requirement when using ExoPlayer's UI components or the IMA
+ *       extension. The thread on which an ExoPlayer instance must be accessed can be explicitly
+ *       specified by passing a `Looper` when creating the player. If no `Looper` is specified, then
+ *       the `Looper` of the thread that the player is created on is used, or if that thread does
+ *       not have a `Looper`, the `Looper` of the application's main thread is used. In all cases
+ *       the `Looper` of the thread from which the player must be accessed can be queried using
+ *       {@link #getApplicationLooper()}.
  *   <li>Registered listeners are called on the thread associated with {@link
  *       #getApplicationLooper()}. Note that this means registered listeners are called on the same
  *       thread which must be used to access the player.
@@ -111,12 +116,6 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * </ul>
  */
 public interface ExoPlayer extends Player {
-
-  /**
-   * @deprecated Use {@link Player.EventListener} instead.
-   */
-  @Deprecated
-  interface EventListener extends Player.EventListener {}
 
   /** @deprecated Use {@link PlayerMessage.Target} instead. */
   @Deprecated
@@ -142,51 +141,14 @@ public interface ExoPlayer extends Player {
     }
   }
 
-  /**
-   * @deprecated Use {@link Player#STATE_IDLE} instead.
-   */
-  @Deprecated
-  int STATE_IDLE = Player.STATE_IDLE;
-  /**
-   * @deprecated Use {@link Player#STATE_BUFFERING} instead.
-   */
-  @Deprecated
-  int STATE_BUFFERING = Player.STATE_BUFFERING;
-  /**
-   * @deprecated Use {@link Player#STATE_READY} instead.
-   */
-  @Deprecated
-  int STATE_READY = Player.STATE_READY;
-  /**
-   * @deprecated Use {@link Player#STATE_ENDED} instead.
-   */
-  @Deprecated
-  int STATE_ENDED = Player.STATE_ENDED;
-
-  /**
-   * @deprecated Use {@link Player#REPEAT_MODE_OFF} instead.
-   */
-  @Deprecated
-  @RepeatMode int REPEAT_MODE_OFF = Player.REPEAT_MODE_OFF;
-  /**
-   * @deprecated Use {@link Player#REPEAT_MODE_ONE} instead.
-   */
-  @Deprecated
-  @RepeatMode int REPEAT_MODE_ONE = Player.REPEAT_MODE_ONE;
-  /**
-   * @deprecated Use {@link Player#REPEAT_MODE_ALL} instead.
-   */
-  @Deprecated
-  @RepeatMode int REPEAT_MODE_ALL = Player.REPEAT_MODE_ALL;
-
   /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();
 
   /**
-   * Returns the {@link Looper} associated with the application thread that's used to access the
-   * player and on which player events are received.
+   * Retries a failed or stopped playback. Does nothing if the player has been reset, or if playback
+   * has not failed or been stopped.
    */
-  Looper getApplicationLooper();
+  void retry();
 
   /**
    * Prepares the player to play the provided {@link MediaSource}. Equivalent to

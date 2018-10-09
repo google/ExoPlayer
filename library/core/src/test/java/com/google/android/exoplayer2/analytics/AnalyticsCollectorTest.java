@@ -101,6 +101,8 @@ public final class AnalyticsCollectorTest {
   private static final int EVENT_DRM_ERROR = 34;
   private static final int EVENT_DRM_KEYS_RESTORED = 35;
   private static final int EVENT_DRM_KEYS_REMOVED = 36;
+  private static final int EVENT_DRM_SESSION_ACQUIRED = 37;
+  private static final int EVENT_DRM_SESSION_RELEASED = 38;
 
   private static final int TIMEOUT_MS = 10000;
   private static final Timeline SINGLE_PERIOD_TIMELINE = new FakeTimeline(/* windowCount= */ 1);
@@ -583,7 +585,7 @@ public final class AnalyticsCollectorTest {
                 () ->
                     concatenatedMediaSource.moveMediaSource(
                         /* currentIndex= */ 0, /* newIndex= */ 1))
-            .waitForTimelineChanged(/* expectedTimeline= */ null)
+            .waitForTimelineChanged()
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(concatenatedMediaSource, actionSchedule);
@@ -619,7 +621,7 @@ public final class AnalyticsCollectorTest {
         .containsExactly(window0Period1Seq0, window1Period0Seq1);
     assertThat(listener.getEvents(EVENT_MEDIA_PERIOD_CREATED))
         .containsExactly(window0Period1Seq0, window1Period0Seq1);
-    assertThat(listener.getEvents(EVENT_MEDIA_PERIOD_RELEASED)).containsExactly(period0Seq1);
+    assertThat(listener.getEvents(EVENT_MEDIA_PERIOD_RELEASED)).containsExactly(window1Period0Seq1);
     assertThat(listener.getEvents(EVENT_READING_STARTED))
         .containsExactly(window0Period1Seq0, window1Period0Seq1);
     assertThat(listener.getEvents(EVENT_DECODER_ENABLED))
@@ -1092,6 +1094,11 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
+    public void onDrmSessionAcquired(EventTime eventTime) {
+      reportedEvents.add(new ReportedEvent(EVENT_DRM_SESSION_ACQUIRED, eventTime));
+    }
+
+    @Override
     public void onDrmKeysLoaded(EventTime eventTime) {
       reportedEvents.add(new ReportedEvent(EVENT_DRM_KEYS_LOADED, eventTime));
     }
@@ -1109,6 +1116,11 @@ public final class AnalyticsCollectorTest {
     @Override
     public void onDrmKeysRemoved(EventTime eventTime) {
       reportedEvents.add(new ReportedEvent(EVENT_DRM_KEYS_REMOVED, eventTime));
+    }
+
+    @Override
+    public void onDrmSessionReleased(EventTime eventTime) {
+      reportedEvents.add(new ReportedEvent(EVENT_DRM_SESSION_RELEASED, eventTime));
     }
 
     private static final class ReportedEvent {

@@ -23,9 +23,13 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.util.MimeTypes;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -51,6 +55,14 @@ public final class MappingTrackSelectorTest {
           Format.NO_VALUE, 2, 44100, null, null, 0, null));
   private static final TrackGroupArray TRACK_GROUPS = new TrackGroupArray(
       VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP);
+  private static final Timeline TIMELINE = new FakeTimeline(/* windowCount= */ 1);
+
+  private static MediaPeriodId periodId;
+
+  @BeforeClass
+  public static void setUpBeforeClass() {
+    periodId = new MediaPeriodId(TIMELINE.getUidOfPeriod(/* periodIndex= */ 0));
+  }
 
   /**
    * Tests that the video and audio track groups are mapped onto the correct renderers.
@@ -58,7 +70,7 @@ public final class MappingTrackSelectorTest {
   @Test
   public void testMapping() throws ExoPlaybackException {
     FakeMappingTrackSelector trackSelector = new FakeMappingTrackSelector();
-    trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS);
+    trackSelector.selectTracks(RENDERER_CAPABILITIES, TRACK_GROUPS, periodId, TIMELINE);
     trackSelector.assertMappedTrackGroups(0, VIDEO_TRACK_GROUP);
     trackSelector.assertMappedTrackGroups(1, AUDIO_TRACK_GROUP);
   }
@@ -72,7 +84,7 @@ public final class MappingTrackSelectorTest {
     FakeMappingTrackSelector trackSelector = new FakeMappingTrackSelector();
     RendererCapabilities[] reverseOrderRendererCapabilities = new RendererCapabilities[] {
         AUDIO_CAPABILITIES, VIDEO_CAPABILITIES};
-    trackSelector.selectTracks(reverseOrderRendererCapabilities, TRACK_GROUPS);
+    trackSelector.selectTracks(reverseOrderRendererCapabilities, TRACK_GROUPS, periodId, TIMELINE);
     trackSelector.assertMappedTrackGroups(0, AUDIO_TRACK_GROUP);
     trackSelector.assertMappedTrackGroups(1, VIDEO_TRACK_GROUP);
   }
@@ -86,7 +98,7 @@ public final class MappingTrackSelectorTest {
     FakeMappingTrackSelector trackSelector = new FakeMappingTrackSelector();
     TrackGroupArray multiTrackGroups = new TrackGroupArray(VIDEO_TRACK_GROUP, AUDIO_TRACK_GROUP,
         VIDEO_TRACK_GROUP);
-    trackSelector.selectTracks(RENDERER_CAPABILITIES, multiTrackGroups);
+    trackSelector.selectTracks(RENDERER_CAPABILITIES, multiTrackGroups, periodId, TIMELINE);
     trackSelector.assertMappedTrackGroups(0, VIDEO_TRACK_GROUP, VIDEO_TRACK_GROUP);
     trackSelector.assertMappedTrackGroups(1, AUDIO_TRACK_GROUP);
   }

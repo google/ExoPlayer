@@ -27,6 +27,7 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -66,6 +67,7 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
@@ -248,6 +250,7 @@ public class PlayerView extends FrameLayout {
    * Determines when the buffering view is shown. One of {@link #SHOW_BUFFERING_NEVER}, {@link
    * #SHOW_BUFFERING_WHEN_PLAYING} or {@link #SHOW_BUFFERING_ALWAYS}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
   public @interface ShowBuffering {}
@@ -499,9 +502,14 @@ public class PlayerView extends FrameLayout {
    * calling {@code setPlayer(null)} to detach it from the old one. This ordering is significantly
    * more efficient and may allow for more seamless transitions.
    *
-   * @param player The {@link Player} to use.
+   * @param player The {@link Player} to use, or {@code null} to detach the current player. Only
+   *     players which are accessed on the main thread are supported ({@code
+   *     player.getApplicationLooper() == Looper.getMainLooper()}).
    */
-  public void setPlayer(Player player) {
+  public void setPlayer(@Nullable Player player) {
+    Assertions.checkState(Looper.myLooper() == Looper.getMainLooper());
+    Assertions.checkArgument(
+        player == null || player.getApplicationLooper() == Looper.getMainLooper());
     if (this.player == player) {
       return;
     }
@@ -513,9 +521,7 @@ public class PlayerView extends FrameLayout {
         if (surfaceView instanceof TextureView) {
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalSurfaceView) {
-          oldVideoComponent.clearVideoSurface(((SphericalSurfaceView) surfaceView).getSurface());
-          oldVideoComponent.clearVideoFrameMetadataListener(((SphericalSurfaceView) surfaceView));
-          oldVideoComponent.clearCameraMotionListener(((SphericalSurfaceView) surfaceView));
+          ((SphericalSurfaceView) surfaceView).setVideoComponent(null);
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -541,9 +547,7 @@ public class PlayerView extends FrameLayout {
         if (surfaceView instanceof TextureView) {
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalSurfaceView) {
-          newVideoComponent.setVideoFrameMetadataListener(((SphericalSurfaceView) surfaceView));
-          newVideoComponent.setCameraMotionListener(((SphericalSurfaceView) surfaceView));
-          newVideoComponent.setVideoSurface(((SphericalSurfaceView) surfaceView).getSurface());
+          ((SphericalSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
         } else if (surfaceView instanceof SurfaceView) {
           newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -570,16 +574,16 @@ public class PlayerView extends FrameLayout {
   }
 
   /**
-   * Sets the resize mode.
+   * Sets the {@link ResizeMode}.
    *
-   * @param resizeMode The resize mode.
+   * @param resizeMode The {@link ResizeMode}.
    */
   public void setResizeMode(@ResizeMode int resizeMode) {
     Assertions.checkState(contentFrame != null);
     contentFrame.setResizeMode(resizeMode);
   }
 
-  /** Returns the resize mode. */
+  /** Returns the {@link ResizeMode}. */
   public @ResizeMode int getResizeMode() {
     Assertions.checkState(contentFrame != null);
     return contentFrame.getResizeMode();

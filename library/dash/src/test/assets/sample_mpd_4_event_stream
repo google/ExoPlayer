@@ -2,7 +2,7 @@
 <MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:mpeg:DASH:schema:MPD:2011" xmlns:yt="http://youtube.com/yt/2012/10/10" xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd" minBufferTime="PT1.500S" profiles="urn:mpeg:dash:profile:isoff-main:2011" type="dynamic" availabilityStartTime="2016-10-14T17:00:17" timeShiftBufferDepth="PT7200.000S" minimumUpdatePeriod="PT2.000S" yt:earliestMediaSequence="0" yt:mpdRequestTime="2016-10-14T18:29:17.082" yt:mpdResponseTime="2016-10-14T18:29:17.194">
  <Period start="PT0.000S" yt:segmentIngestTime="2016-10-14T17:00:14.257">
    <EventStream schemeIdUri="urn:uuid:XYZY" timescale="1000" value="call">
-     <Event presentationTime="0" duration="10000" id="0">+ 1 800 10101010</Event>
+     <Event presentationTime="0" duration="10000" id="0" messageData="+ 1 800 10101010"/>
    </EventStream>
    <EventStream schemeIdUri="urn:dvb:iptv:cpm:2014">
      <Event presentationTime="300" duration="1500" id="1"><![CDATA[<BroadcastEvent>

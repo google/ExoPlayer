@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.ima;
 
+import android.os.Looper;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 /* package */ final class FakePlayer extends StubExoPlayer {
 
   private final ArrayList<Player.EventListener> listeners;
-  private final Timeline.Window window;
   private final Timeline.Period period;
   private final Timeline timeline;
 
@@ -40,7 +40,6 @@ import java.util.ArrayList;
 
   public FakePlayer() {
     listeners = new ArrayList<>();
-    window = new Timeline.Window();
     period = new Timeline.Period();
     state = Player.STATE_IDLE;
     playWhenReady = true;
@@ -111,6 +110,11 @@ import java.util.ArrayList;
   // ExoPlayer methods. Other methods are unsupported.
 
   @Override
+  public Looper getApplicationLooper() {
+    return Looper.getMainLooper();
+  }
+
+  @Override
   public void addListener(Player.EventListener listener) {
     listeners.add(listener);
   }
@@ -143,16 +147,6 @@ import java.util.ArrayList;
   @Override
   public int getCurrentWindowIndex() {
     return 0;
-  }
-
-  @Override
-  public int getNextWindowIndex() {
-    return C.INDEX_UNSET;
-  }
-
-  @Override
-  public int getPreviousWindowIndex() {
-    return C.INDEX_UNSET;
   }
 
   @Override

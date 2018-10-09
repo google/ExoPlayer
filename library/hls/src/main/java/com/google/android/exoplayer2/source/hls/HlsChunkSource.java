@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.DataChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
@@ -222,9 +223,6 @@ import java.util.List;
    *     started, the value will be the starting position in the period minus the duration of any
    *     media in previous periods still to be played.
    * @param loadPositionUs The current load position relative to the period start in microseconds.
-   *     If {@code queue} is empty, this is the starting position from which chunks should be
-   *     provided. Else it's equal to {@link HlsMediaChunk#endTimeUs} of the last chunk in the
-   *     {@code queue}.
    * @param queue The queue of buffered {@link HlsMediaChunk}s.
    * @param out A holder to populate.
    */
@@ -236,12 +234,12 @@ import java.util.List;
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
     if (previous != null && !independentSegments) {
-      // Unless segments are known to be independent, switching variant will require downloading
-      // overlapping segments. Hence we will subtract previous chunk's duration from buffered
+      // Unless segments are known to be independent, switching variant requires downloading
+      // overlapping segments. Hence we subtract the previous segment's duration from the buffered
       // duration.
-      // This may affect the live-streaming adaptive track selection logic, when we are comparing
-      // buffered duration to time to live edge to decide whether to switch. Therefore,
-      // we will subtract this same amount from timeToLiveEdgeUs as well.
+      // This may affect the live-streaming adaptive track selection logic, when we compare the
+      // buffered duration to time-to-live-edge to decide whether to switch. Therefore, we subtract
+      // the duration of the last loaded segment from timeToLiveEdgeUs as well.
       long subtractedDurationUs = previous.getDurationUs();
       bufferedDurationUs = Math.max(0, bufferedDurationUs - subtractedDurationUs);
       if (timeToLiveEdgeUs != C.TIME_UNSET) {
@@ -250,7 +248,9 @@ import java.util.List;
     }
 
     // Select the variant.
-    trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs);
+    MediaChunkIterator[] mediaChunkIterators = createMediaChunkIterators(previous, loadPositionUs);
+    trackSelection.updateSelectedTrack(
+        playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs, queue, mediaChunkIterators);
     int selectedVariantIndex = trackSelection.getSelectedIndexInTrackGroup();
 
     boolean switchingVariant = oldVariantIndex != selectedVariantIndex;
@@ -268,42 +268,25 @@ import java.util.List;
     updateLiveEdgeTimeUs(mediaPlaylist);
 
     // Select the chunk.
-    long chunkMediaSequence;
     long startOfPlaylistInPeriodUs =
         mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
-    if (previous == null || switchingVariant) {
-      long endOfPlaylistInPeriodUs = startOfPlaylistInPeriodUs + mediaPlaylist.durationUs;
-      long targetPositionInPeriodUs =
-          (previous == null || independentSegments) ? loadPositionUs : previous.startTimeUs;
-      if (!mediaPlaylist.hasEndTag && targetPositionInPeriodUs >= endOfPlaylistInPeriodUs) {
-        // If the playlist is too old to contain the chunk, we need to refresh it.
-        chunkMediaSequence = mediaPlaylist.mediaSequence + mediaPlaylist.segments.size();
-      } else {
-        long targetPositionInPlaylistUs = targetPositionInPeriodUs - startOfPlaylistInPeriodUs;
-        chunkMediaSequence =
-            Util.binarySearchFloor(
-                    mediaPlaylist.segments,
-                    /* value= */ targetPositionInPlaylistUs,
-                    /* inclusive= */ true,
-                    /* stayInBounds= */ !playlistTracker.isLive() || previous == null)
-                + mediaPlaylist.mediaSequence;
-        if (chunkMediaSequence < mediaPlaylist.mediaSequence && previous != null) {
-          // We try getting the next chunk without adapting in case that's the reason for falling
-          // behind the live window.
-          selectedVariantIndex = oldVariantIndex;
-          selectedUrl = variants[selectedVariantIndex];
-          mediaPlaylist = playlistTracker.getPlaylistSnapshot(selectedUrl);
-          startOfPlaylistInPeriodUs =
-              mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
-          chunkMediaSequence = previous.getNextChunkIndex();
-        }
-      }
-    } else {
-      chunkMediaSequence = previous.getNextChunkIndex();
-    }
+    long chunkMediaSequence =
+        getChunkMediaSequence(
+            previous, switchingVariant, mediaPlaylist, startOfPlaylistInPeriodUs, loadPositionUs);
     if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
-      fatalError = new BehindLiveWindowException();
-      return;
+      if (previous != null && switchingVariant) {
+        // We try getting the next chunk without adapting in case that's the reason for falling
+        // behind the live window.
+        selectedVariantIndex = oldVariantIndex;
+        selectedUrl = variants[selectedVariantIndex];
+        mediaPlaylist = playlistTracker.getPlaylistSnapshot(selectedUrl);
+        startOfPlaylistInPeriodUs =
+            mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
+        chunkMediaSequence = previous.getNextChunkIndex();
+      } else {
+        fatalError = new BehindLiveWindowException();
+        return;
+      }
     }
 
     int chunkIndex = (int) (chunkMediaSequence - mediaPlaylist.mediaSequence);
@@ -433,7 +416,83 @@ import java.util.List;
         || trackSelection.blacklist(trackSelectionIndex, blacklistDurationMs);
   }
 
+  /**
+   * Returns an array of {@link MediaChunkIterator}s for upcoming media chunks.
+   *
+   * @param previous The previous media chunk. May be null.
+   * @param loadPositionUs The position at which the iterators will start.
+   * @return Array of {@link MediaChunkIterator}s for each track.
+   */
+  public MediaChunkIterator[] createMediaChunkIterators(
+      @Nullable HlsMediaChunk previous, long loadPositionUs) {
+    int oldVariantIndex =
+        previous == null ? C.INDEX_UNSET : trackGroup.indexOf(previous.trackFormat);
+    MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
+    for (int i = 0; i < chunkIterators.length; i++) {
+      int variantIndex = trackSelection.getIndexInTrackGroup(i);
+      HlsUrl variantUrl = variants[variantIndex];
+      if (!playlistTracker.isSnapshotValid(variantUrl)) {
+        chunkIterators[i] = MediaChunkIterator.EMPTY;
+        continue;
+      }
+      HlsMediaPlaylist playlist = playlistTracker.getPlaylistSnapshot(variantUrl);
+      long startOfPlaylistInPeriodUs =
+          playlist.startTimeUs - playlistTracker.getInitialStartTimeUs();
+      boolean switchingVariant = variantIndex != oldVariantIndex;
+      long chunkMediaSequence =
+          getChunkMediaSequence(
+              previous, switchingVariant, playlist, startOfPlaylistInPeriodUs, loadPositionUs);
+      if (chunkMediaSequence < playlist.mediaSequence) {
+        chunkIterators[i] = MediaChunkIterator.EMPTY;
+        continue;
+      }
+      int chunkIndex = (int) (chunkMediaSequence - playlist.mediaSequence);
+      chunkIterators[i] =
+          new HlsMediaPlaylistSegmentIterator(playlist, startOfPlaylistInPeriodUs, chunkIndex);
+    }
+    return chunkIterators;
+  }
+
   // Private methods.
+
+  /**
+   * Returns the media sequence number of the segment to load next in {@code mediaPlaylist}.
+   *
+   * @param previous The last (at least partially) loaded segment.
+   * @param switchingVariant Whether the segment to load is not preceded by a segment in the same
+   *     variant.
+   * @param mediaPlaylist The media playlist to which the segment to load belongs.
+   * @param startOfPlaylistInPeriodUs The start of {@code mediaPlaylist} relative to the period
+   *     start in microseconds.
+   * @param loadPositionUs The current load position relative to the period start in microseconds.
+   * @return The media sequence of the segment to load.
+   */
+  private long getChunkMediaSequence(
+      @Nullable HlsMediaChunk previous,
+      boolean switchingVariant,
+      HlsMediaPlaylist mediaPlaylist,
+      long startOfPlaylistInPeriodUs,
+      long loadPositionUs) {
+    if (previous == null || switchingVariant) {
+      long endOfPlaylistInPeriodUs = startOfPlaylistInPeriodUs + mediaPlaylist.durationUs;
+      long targetPositionInPeriodUs =
+          (previous == null || independentSegments) ? loadPositionUs : previous.startTimeUs;
+      if (!mediaPlaylist.hasEndTag && targetPositionInPeriodUs >= endOfPlaylistInPeriodUs) {
+        // If the playlist is too old to contain the chunk, we need to refresh it.
+        return mediaPlaylist.mediaSequence + mediaPlaylist.segments.size();
+      }
+      long targetPositionInPlaylistUs = targetPositionInPeriodUs - startOfPlaylistInPeriodUs;
+      return Util.binarySearchFloor(
+              mediaPlaylist.segments,
+              /* value= */ targetPositionInPlaylistUs,
+              /* inclusive= */ true,
+              /* stayInBounds= */ !playlistTracker.isLive() || previous == null)
+          + mediaPlaylist.mediaSequence;
+    }
+    // We ignore the case of previous not having loaded completely, in which case we load the next
+    // segment.
+    return previous.getNextChunkIndex();
+  }
 
   private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {
     final boolean resolveTimeToLiveEdgePossible = liveEdgeInPeriodTimeUs != C.TIME_UNSET;
@@ -498,8 +557,12 @@ import java.util.List;
     }
 
     @Override
-    public void updateSelectedTrack(long playbackPositionUs, long bufferedDurationUs,
-        long availableDurationUs) {
+    public void updateSelectedTrack(
+        long playbackPositionUs,
+        long bufferedDurationUs,
+        long availableDurationUs,
+        List<? extends MediaChunk> queue,
+        MediaChunkIterator[] mediaChunkIterators) {
       long nowMs = SystemClock.elapsedRealtime();
       if (!isBlacklisted(selectedIndex, nowMs)) {
         return;

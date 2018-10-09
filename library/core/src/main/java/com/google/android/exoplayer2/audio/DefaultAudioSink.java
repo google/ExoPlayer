@@ -24,12 +24,13 @@ import android.os.ConditionVariable;
 import android.os.SystemClock;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
@@ -195,12 +196,12 @@ public final class DefaultAudioSink implements AudioSink {
 
   private static final String TAG = "AudioTrack";
 
-  /**
-   * Represents states of the {@link #startMediaTimeUs} value.
-   */
+  /** Represents states of the {@link #startMediaTimeUs} value. */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({START_NOT_SET, START_IN_SYNC, START_NEED_SYNC})
   private @interface StartMediaTimeState {}
+
   private static final int START_NOT_SET = 0;
   private static final int START_IN_SYNC = 1;
   private static final int START_NEED_SYNC = 2;
@@ -632,7 +633,9 @@ public final class DefaultAudioSink implements AudioSink {
       } else {
         // Sanity check that presentationTimeUs is consistent with the expected value.
         long expectedPresentationTimeUs =
-            startMediaTimeUs + inputFramesToDurationUs(getSubmittedFrames());
+            startMediaTimeUs
+                + inputFramesToDurationUs(
+                    getSubmittedFrames() - trimmingAudioProcessor.getTrimmedFrameCount());
         if (startMediaTimeState == START_IN_SYNC
             && Math.abs(expectedPresentationTimeUs - presentationTimeUs) > 200000) {
           Log.e(TAG, "Discontinuity detected [expected " + expectedPresentationTimeUs + ", got "
@@ -642,9 +645,10 @@ public final class DefaultAudioSink implements AudioSink {
         if (startMediaTimeState == START_NEED_SYNC) {
           // Adjust startMediaTimeUs to be consistent with the current buffer's start time and the
           // number of bytes submitted.
-          startMediaTimeUs += (presentationTimeUs - expectedPresentationTimeUs);
+          long adjustmentUs = presentationTimeUs - expectedPresentationTimeUs;
+          startMediaTimeUs += adjustmentUs;
           startMediaTimeState = START_IN_SYNC;
-          if (listener != null) {
+          if (listener != null && adjustmentUs != 0) {
             listener.onPositionDiscontinuity();
           }
         }
@@ -954,6 +958,7 @@ public final class DefaultAudioSink implements AudioSink {
       playbackParametersCheckpoints.clear();
       playbackParametersOffsetUs = 0;
       playbackParametersPositionUs = 0;
+      trimmingAudioProcessor.resetTrimmedFrameCount();
       inputBuffer = null;
       outputBuffer = null;
       flushAudioProcessors();

@@ -19,6 +19,7 @@ import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.StereoMode;
 import com.google.android.exoplayer2.util.Assertions;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -26,6 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 public final class Projection {
 
   /** Enforces allowed (sub) mesh draw modes. */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({DRAW_MODE_TRIANGLES, DRAW_MODE_TRIANGLES_STRIP, DRAW_MODE_TRIANGLES_FAN})
   public @interface DrawMode {}
@@ -59,9 +61,9 @@ public final class Projection {
   /**
    * Generates an equirectangular projection.
    *
-   * @param radius Size of the sphere. Must be > 0.
-   * @param latitudes Number of rows that make up the sphere. Must be >= 1.
-   * @param longitudes Number of columns that make up the sphere. Must be >= 1.
+   * @param radius Size of the sphere. Must be &gt; 0.
+   * @param latitudes Number of rows that make up the sphere. Must be &gt;= 1.
+   * @param longitudes Number of columns that make up the sphere. Must be &gt;= 1.
    * @param verticalFovDegrees Total latitudinal degrees that are covered by the sphere. Must be in
    *     (0, 180].
    * @param horizontalFovDegrees Total longitudinal degrees that are covered by the sphere.Must be

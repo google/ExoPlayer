@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.util;
 
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -42,6 +41,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /** Logs events from {@link Player} and other core components using {@link Log}. */
+@SuppressWarnings("UngroupedOverloads")
 public class EventLogger implements AnalyticsListener {
 
   private static final String DEFAULT_TAG = "EventLogger";
@@ -322,8 +322,8 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onRenderedFirstFrame(EventTime eventTime, Surface surface) {
-    logd(eventTime, "renderedFirstFrame", surface.toString());
+  public void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {
+    logd(eventTime, "renderedFirstFrame", String.valueOf(surface));
   }
 
   @Override
@@ -391,6 +391,11 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
+  public void onDrmSessionAcquired(EventTime eventTime) {
+    logd(eventTime, "drmSessionAcquired");
+  }
+
+  @Override
   public void onDrmSessionManagerError(EventTime eventTime, Exception e) {
     printInternalError(eventTime, "drmSessionManagerError", e);
   }
@@ -410,6 +415,11 @@ public class EventLogger implements AnalyticsListener {
     logd(eventTime, "drmKeysLoaded");
   }
 
+  @Override
+  public void onDrmSessionReleased(EventTime eventTime) {
+    logd(eventTime, "drmSessionReleased");
+  }
+
   /**
    * Logs a debug message.
    *
@@ -425,7 +435,7 @@ public class EventLogger implements AnalyticsListener {
    * @param msg The message to log.
    * @param tr The exception to log.
    */
-  protected void loge(String msg, Throwable tr) {
+  protected void loge(String msg, @Nullable Throwable tr) {
     Log.e(tag, msg, tr);
   }
 
@@ -439,12 +449,15 @@ public class EventLogger implements AnalyticsListener {
     logd(getEventString(eventTime, eventName, eventDescription));
   }
 
-  private void loge(EventTime eventTime, String eventName, Throwable throwable) {
+  private void loge(EventTime eventTime, String eventName, @Nullable Throwable throwable) {
     loge(getEventString(eventTime, eventName), throwable);
   }
 
   private void loge(
-      EventTime eventTime, String eventName, String eventDescription, Throwable throwable) {
+      EventTime eventTime,
+      String eventName,
+      String eventDescription,
+      @Nullable Throwable throwable) {
     loge(getEventString(eventTime, eventName, eventDescription), throwable);
   }
 
@@ -538,8 +551,8 @@ public class EventLogger implements AnalyticsListener {
   // Suppressing reference equality warning because the track group stored in the track selection
   // must point to the exact track group object to be considered part of it.
   @SuppressWarnings("ReferenceEquality")
-  private static String getTrackStatusString(TrackSelection selection, TrackGroup group,
-      int trackIndex) {
+  private static String getTrackStatusString(
+      @Nullable TrackSelection selection, TrackGroup group, int trackIndex) {
     return getTrackStatusString(selection != null && selection.getTrackGroup() == group
         && selection.indexOf(trackIndex) != C.INDEX_UNSET);
   }

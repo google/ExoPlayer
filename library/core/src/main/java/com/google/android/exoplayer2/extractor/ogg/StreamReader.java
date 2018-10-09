@@ -144,9 +144,15 @@ import java.io.IOException;
       oggSeeker = new UnseekableOggSeeker();
     } else {
       OggPageHeader firstPayloadPageHeader = oggPacket.getPageHeader();
-      oggSeeker = new DefaultOggSeeker(payloadStartPosition, input.getLength(), this,
-          firstPayloadPageHeader.headerSize + firstPayloadPageHeader.bodySize,
-          firstPayloadPageHeader.granulePosition);
+      boolean isLastPage = (firstPayloadPageHeader.type & 0x04) != 0; // Type 4 is end of stream.
+      oggSeeker =
+          new DefaultOggSeeker(
+              payloadStartPosition,
+              input.getLength(),
+              this,
+              firstPayloadPageHeader.headerSize + firstPayloadPageHeader.bodySize,
+              firstPayloadPageHeader.granulePosition,
+              isLastPage);
     }
 
     setupData = null;

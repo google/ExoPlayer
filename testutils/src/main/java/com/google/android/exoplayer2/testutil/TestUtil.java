@@ -148,7 +148,7 @@ public class TestUtil {
   }
 
   public static String getString(Context context, String fileName) throws IOException {
-    return new String(getByteArray(context, fileName));
+    return Util.fromUtf8Bytes(getByteArray(context, fileName));
   }
 
   public static Bitmap readBitmapFromFile(Context context, String fileName) throws IOException {

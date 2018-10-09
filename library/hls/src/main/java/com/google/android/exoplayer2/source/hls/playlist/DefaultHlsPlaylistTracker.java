@@ -41,6 +41,9 @@ import java.util.List;
 public final class DefaultHlsPlaylistTracker
     implements HlsPlaylistTracker, Loader.Callback<ParsingLoadable<HlsPlaylist>> {
 
+  /** Factory for {@link DefaultHlsPlaylistTracker} instances. */
+  public static final Factory FACTORY = DefaultHlsPlaylistTracker::new;
+
   /**
    * Coefficient applied on the target duration of a playlist to determine the amount of time after
    * which an unchanging playlist is considered stuck.

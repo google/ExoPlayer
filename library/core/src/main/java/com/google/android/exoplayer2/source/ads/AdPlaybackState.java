@@ -20,6 +20,7 @@ import android.support.annotation.CheckResult;
 import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
@@ -239,6 +240,7 @@ public final class AdPlaybackState {
    * #AD_STATE_AVAILABLE}, {@link #AD_STATE_SKIPPED}, {@link #AD_STATE_PLAYED} or {@link
    * #AD_STATE_ERROR}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     AD_STATE_UNAVAILABLE,

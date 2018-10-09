@@ -21,7 +21,6 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
 import org.junit.Test;
@@ -57,7 +56,7 @@ public final class DefaultLoadErrorHandlingPolicyTest {
 
   @Test
   public void getBlacklistDurationMsFor_dontBlacklistUnexpectedExceptions() {
-    FileNotFoundException exception = new FileNotFoundException();
+    IOException exception = new IOException();
     assertThat(getDefaultPolicyBlacklistOutputFor(exception)).isEqualTo(C.TIME_UNSET);
   }
 
@@ -69,9 +68,9 @@ public final class DefaultLoadErrorHandlingPolicyTest {
 
   @Test
   public void getRetryDelayMsFor_successiveRetryDelays() {
-    assertThat(getDefaultPolicyRetryDelayOutputFor(new FileNotFoundException(), 3)).isEqualTo(2000);
-    assertThat(getDefaultPolicyRetryDelayOutputFor(new FileNotFoundException(), 5)).isEqualTo(4000);
-    assertThat(getDefaultPolicyRetryDelayOutputFor(new FileNotFoundException(), 9)).isEqualTo(5000);
+    assertThat(getDefaultPolicyRetryDelayOutputFor(new IOException(), 3)).isEqualTo(2000);
+    assertThat(getDefaultPolicyRetryDelayOutputFor(new IOException(), 5)).isEqualTo(4000);
+    assertThat(getDefaultPolicyRetryDelayOutputFor(new IOException(), 9)).isEqualTo(5000);
   }
 
   private static long getDefaultPolicyBlacklistOutputFor(IOException exception) {

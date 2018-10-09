@@ -27,16 +27,17 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -527,11 +528,12 @@ public final class DownloadManager {
      * <p>Transition diagram:
      *
      * <pre>
-     *                    -&gt; canceled
-     * queued &lt;-&gt; started -&gt; completed
-     *                    -&gt; failed
+     *    ┌────────┬─────→ canceled
+     * queued ↔ started ┬→ completed
+     *                  └→ failed
      * </pre>
      */
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({STATE_QUEUED, STATE_STARTED, STATE_COMPLETED, STATE_CANCELED, STATE_FAILED})
     public @interface State {}
@@ -607,20 +609,18 @@ public final class DownloadManager {
      * {@link #STATE_QUEUED_CANCELING}, {@link #STATE_STARTED_CANCELING} or {@link
      * #STATE_STARTED_STOPPING}.
      *
-     * <p>Transition map (vertical states are source states):
+     * <p>Transition diagram:
      *
      * <pre>
-     *             +------+-------+---------+-----------+-----------+--------+--------+------+
-     *             |queued|started|completed|q_canceling|s_canceling|canceled|stopping|failed|
-     * +-----------+------+-------+---------+-----------+-----------+--------+--------+------+
-     * |queued     |      |   X   |         |     X     |           |        |        |      |
-     * |started    |      |       |    X    |           |     X     |        |   X    |   X  |
-     * |q_canceling|      |       |         |           |           |   X    |        |      |
-     * |s_canceling|      |       |         |           |           |   X    |        |      |
-     * |stopping   |   X  |       |         |           |           |        |        |      |
-     * +-----------+------+-------+---------+-----------+-----------+--------+--------+------+
+     *    ┌───→ q_canceling ┬→ canceled
+     *    │     s_canceling ┘
+     *    │         ↑
+     * queued → started ────┬→ completed
+     *    ↑         ↓       └→ failed
+     *    └──── s_stopping
      * </pre>
      */
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
       STATE_QUEUED,

@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source.dash.manifest;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.util.Pair;
 import android.util.Xml;
 import com.google.android.exoplayer2.C;
@@ -34,6 +33,7 @@ import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTim
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -838,8 +838,15 @@ public class DashManifestParser extends DefaultHandler
     long durationMs = Util.scaleLargeTimestamp(duration, 1000, timescale);
     long presentationTimesUs = Util.scaleLargeTimestamp(presentationTime, C.MICROS_PER_SECOND,
         timescale);
+    String messageData = parseString(xpp, "messageData", null);
     byte[] eventObject = parseEventObject(xpp, scratchOutputStream);
-    return buildEvent(schemeIdUri, value, id, durationMs, eventObject, presentationTimesUs);
+    return buildEvent(
+        schemeIdUri,
+        value,
+        id,
+        durationMs,
+        messageData == null ? eventObject : Util.getUtf8Bytes(messageData),
+        presentationTimesUs);
   }
 
   /**
@@ -855,7 +862,7 @@ public class DashManifestParser extends DefaultHandler
       throws XmlPullParserException, IOException {
     scratchOutputStream.reset();
     XmlSerializer xmlSerializer = Xml.newSerializer();
-    xmlSerializer.setOutput(scratchOutputStream, null);
+    xmlSerializer.setOutput(scratchOutputStream, C.UTF8_NAME);
     // Start reading everything between <Event> and </Event>, and serialize them into an Xml
     // byte array.
     xpp.nextToken();

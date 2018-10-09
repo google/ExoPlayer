@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.webvtt.WebvttParserUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -47,6 +46,8 @@ public final class WebvttExtractor implements Extractor {
 
   private static final Pattern LOCAL_TIMESTAMP = Pattern.compile("LOCAL:([^,]+)");
   private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:(\\d+)");
+  private static final int HEADER_MIN_LENGTH = 6 /* "WEBVTT" */;
+  private static final int HEADER_MAX_LENGTH = 3 /* optional Byte Order Mark */ + HEADER_MIN_LENGTH;
 
   private final String language;
   private final TimestampAdjuster timestampAdjuster;
@@ -68,8 +69,21 @@ public final class WebvttExtractor implements Extractor {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
-    // This extractor is only used for the HLS use case, which should not call this method.
-    throw new IllegalStateException();
+    // Check whether there is a header without BOM.
+    input.peekFully(
+        sampleData, /* offset= */ 0, /* length= */ HEADER_MIN_LENGTH, /* allowEndOfInput= */ false);
+    sampleDataWrapper.reset(sampleData, HEADER_MIN_LENGTH);
+    if (WebvttParserUtil.isWebvttHeaderLine(sampleDataWrapper)) {
+      return true;
+    }
+    // The header did not match, try including the BOM.
+    input.peekFully(
+        sampleData,
+        /* offset= */ HEADER_MIN_LENGTH,
+        HEADER_MAX_LENGTH - HEADER_MIN_LENGTH,
+        /* allowEndOfInput= */ false);
+    sampleDataWrapper.reset(sampleData, HEADER_MAX_LENGTH);
+    return WebvttParserUtil.isWebvttHeaderLine(sampleDataWrapper);
   }
 
   @Override
@@ -118,11 +132,7 @@ public final class WebvttExtractor implements Extractor {
     ParsableByteArray webvttData = new ParsableByteArray(sampleData);
 
     // Validate the first line of the header.
-    try {
-      WebvttParserUtil.validateWebvttHeaderLine(webvttData);
-    } catch (SubtitleDecoderException e) {
-      throw new ParserException(e);
-    }
+    WebvttParserUtil.validateWebvttHeaderLine(webvttData);
 
     // Defaults to use if the header doesn't contain an X-TIMESTAMP-MAP header.
     long vttTimestampUs = 0;

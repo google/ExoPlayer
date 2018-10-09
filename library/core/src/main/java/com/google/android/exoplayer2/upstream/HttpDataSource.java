@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
@@ -226,9 +227,11 @@ public interface HttpDataSource extends DataSource {
    */
   class HttpDataSourceException extends IOException {
 
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({TYPE_OPEN, TYPE_READ, TYPE_CLOSE})
     public @interface Type {}
+
     public static final int TYPE_OPEN = 1;
     public static final int TYPE_READ = 2;
     public static final int TYPE_CLOSE = 3;

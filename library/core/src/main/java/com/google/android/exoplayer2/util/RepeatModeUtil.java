@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.util;
 
 import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.Player;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -30,6 +31,7 @@ public final class RepeatModeUtil {
    * {@link #REPEAT_TOGGLE_MODE_NONE}, {@link #REPEAT_TOGGLE_MODE_ONE} and {@link
    * #REPEAT_TOGGLE_MODE_ALL}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,

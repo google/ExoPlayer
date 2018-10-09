@@ -16,11 +16,11 @@
 package com.google.android.exoplayer2.metadata.id3;
 
 import android.support.annotation.Nullable;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.UnsupportedEncodingException;
@@ -759,7 +759,7 @@ public final class Id3Decoder implements MetadataDecoder {
   private static byte[] copyOfRangeIfValid(byte[] data, int from, int to) {
     if (to <= from) {
       // Invalid or zero length range.
-      return new byte[0];
+      return Util.EMPTY_BYTE_ARRAY;
     }
     return Arrays.copyOfRange(data, from, to);
   }

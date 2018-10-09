@@ -20,6 +20,8 @@ import static org.junit.Assert.fail;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -37,16 +39,21 @@ public class TrackSelectorTest {
 
   @Before
   public void setUp() {
-    trackSelector = new TrackSelector() {
-      @Override
-      public TrackSelectorResult selectTracks(RendererCapabilities[] rendererCapabilities,
-          TrackGroupArray trackGroups) throws ExoPlaybackException {
-        throw new UnsupportedOperationException();
-      }
+    trackSelector =
+        new TrackSelector() {
+          @Override
+          public TrackSelectorResult selectTracks(
+              RendererCapabilities[] rendererCapabilities,
+              TrackGroupArray trackGroups,
+              MediaPeriodId periodId,
+              Timeline timeline)
+              throws ExoPlaybackException {
+            throw new UnsupportedOperationException();
+          }
 
-      @Override
-      public void onSelectionActivated(Object info) {}
-    };
+          @Override
+          public void onSelectionActivated(Object info) {}
+        };
   }
 
   @Test

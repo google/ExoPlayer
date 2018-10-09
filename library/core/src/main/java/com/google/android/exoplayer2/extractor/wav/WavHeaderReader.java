@@ -15,12 +15,12 @@
  */
 package com.google.android.exoplayer2.extractor.wav;
 
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.WavUtil;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -97,13 +97,15 @@ import java.io.IOException;
   }
 
   /**
-   * Skips to the data in the given WAV input stream and returns its data size. After calling, the
-   * input stream's position will point to the start of sample data in the WAV.
-   * <p>
-   * If an exception is thrown, the input position will be left pointing to a chunk header.
+   * Skips to the data in the given WAV input stream. After calling, the input stream's position
+   * will point to the start of sample data in the WAV, and the data bounds of the provided {@link
+   * WavHeader} will have been set.
    *
-   * @param input Input stream to skip to the data chunk in. Its peek position must be pointing to
-   *     a valid chunk header.
+   * <p>If an exception is thrown, the input position will be left pointing to a chunk header and
+   * the bounds of the provided {@link WavHeader} will not have been set.
+   *
+   * @param input Input stream to skip to the data chunk in. Its peek position must be pointing to a
+   *     valid chunk header.
    * @param wavHeader WAV header to populate with data bounds.
    * @throws ParserException If an error occurs parsing chunks.
    * @throws IOException If reading from the input fails.

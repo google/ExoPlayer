@@ -20,7 +20,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.util.Pair;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -33,6 +32,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -40,10 +40,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-/**
- * An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayerFactory}.
- */
-/* package */ final class ExoPlayerImpl implements ExoPlayer {
+/** An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayerFactory}. */
+/* package */ final class ExoPlayerImpl extends BasePlayer implements ExoPlayer {
 
   private static final String TAG = "ExoPlayerImpl";
 
@@ -51,7 +49,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
    * This empty track selector result can only be used for {@link PlaybackInfo#trackSelectorResult}
    * when the player does not have any track selection made (such as when player is reset, or when
    * player seeks to an unprepared period). It will not be used as result of any {@link
-   * TrackSelector#selectTracks(RendererCapabilities[], TrackGroupArray)} operation.
+   * TrackSelector#selectTracks(RendererCapabilities[], TrackGroupArray, MediaPeriodId, Timeline)}
+   * operation.
    */
   /* package */ final TrackSelectorResult emptyTrackSelectorResult;
 
@@ -61,11 +60,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final ExoPlayerImplInternal internalPlayer;
   private final Handler internalPlayerHandler;
   private final CopyOnWriteArraySet<Player.EventListener> listeners;
-  private final Timeline.Window window;
   private final Timeline.Period period;
   private final ArrayDeque<PlaybackInfoUpdate> pendingPlaybackInfoUpdates;
   private final VideoComponent videoComponent;
 
+  private MediaSource mediaSource;
   private boolean playWhenReady;
   private boolean internalPlayWhenReady;
   private @RepeatMode int repeatMode;
@@ -143,7 +142,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
             new RendererConfiguration[renderers.length],
             new TrackSelection[renderers.length],
             null);
-    window = new Timeline.Window();
     period = new Timeline.Period();
     playbackParameters = PlaybackParameters.DEFAULT;
     seekParameters = SeekParameters.DEFAULT;
@@ -218,13 +216,22 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public void retry() {
+    if (mediaSource != null
+        && (playbackError != null || playbackInfo.playbackState == Player.STATE_IDLE)) {
+      prepare(mediaSource, /* resetPosition= */ false, /* resetState= */ false);
+    }
+  }
+
+  @Override
   public void prepare(MediaSource mediaSource) {
-    prepare(mediaSource, true, true);
+    prepare(mediaSource, /* resetPosition= */ true, /* resetState= */ true);
   }
 
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     playbackError = null;
+    this.mediaSource = mediaSource;
     PlaybackInfo playbackInfo =
         getResetPlaybackInfo(
             resetPosition, resetState, /* playbackState= */ Player.STATE_BUFFERING);
@@ -310,21 +317,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void seekToDefaultPosition() {
-    seekToDefaultPosition(getCurrentWindowIndex());
-  }
-
-  @Override
-  public void seekToDefaultPosition(int windowIndex) {
-    seekTo(windowIndex, C.TIME_UNSET);
-  }
-
-  @Override
-  public void seekTo(long positionMs) {
-    seekTo(getCurrentWindowIndex(), positionMs);
-  }
-
-  @Override
   public void seekTo(int windowIndex, long positionMs) {
     Timeline timeline = playbackInfo.timeline;
     if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
@@ -394,22 +386,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public @Nullable Object getCurrentTag() {
-    int windowIndex = getCurrentWindowIndex();
-    return windowIndex > playbackInfo.timeline.getWindowCount()
-        ? null
-        : playbackInfo.timeline.getWindow(windowIndex, window, /* setTag= */ true).tag;
-  }
-
-  @Override
-  public void stop() {
-    stop(/* reset= */ false);
-  }
-
-  @Override
   public void stop(boolean reset) {
     if (reset) {
       playbackError = null;
+      mediaSource = null;
     }
     PlaybackInfo playbackInfo =
         getResetPlaybackInfo(
@@ -436,6 +416,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     Log.i(TAG, "Release " + Integer.toHexString(System.identityHashCode(this)) + " ["
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "] ["
         + ExoPlayerLibraryInfo.registeredModules() + "]");
+    mediaSource = null;
     internalPlayer.release();
     eventHandler.removeCallbacksAndMessages(null);
   }
@@ -509,20 +490,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public int getNextWindowIndex() {
-    Timeline timeline = playbackInfo.timeline;
-    return timeline.isEmpty() ? C.INDEX_UNSET
-        : timeline.getNextWindowIndex(getCurrentWindowIndex(), repeatMode, shuffleModeEnabled);
-  }
-
-  @Override
-  public int getPreviousWindowIndex() {
-    Timeline timeline = playbackInfo.timeline;
-    return timeline.isEmpty() ? C.INDEX_UNSET
-        : timeline.getPreviousWindowIndex(getCurrentWindowIndex(), repeatMode, shuffleModeEnabled);
-  }
-
-  @Override
   public long getDuration() {
     if (isPlayingAd()) {
       MediaPeriodId periodId = playbackInfo.periodId;
@@ -555,29 +522,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public int getBufferedPercentage() {
-    long position = getBufferedPosition();
-    long duration = getDuration();
-    return position == C.TIME_UNSET || duration == C.TIME_UNSET
-        ? 0
-        : (duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100));
-  }
-
-  @Override
   public long getTotalBufferedDuration() {
     return Math.max(0, C.usToMs(playbackInfo.totalBufferedDurationUs));
-  }
-
-  @Override
-  public boolean isCurrentWindowDynamic() {
-    Timeline timeline = playbackInfo.timeline;
-    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
-  }
-
-  @Override
-  public boolean isCurrentWindowSeekable() {
-    Timeline timeline = playbackInfo.timeline;
-    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isSeekable;
   }
 
   @Override
@@ -593,13 +539,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public int getCurrentAdIndexInAdGroup() {
     return isPlayingAd() ? playbackInfo.periodId.adIndexInAdGroup : C.INDEX_UNSET;
-  }
-
-  @Override
-  public long getContentDuration() {
-    return playbackInfo.timeline.isEmpty()
-        ? C.TIME_UNSET
-        : playbackInfo.timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
   }
 
   @Override

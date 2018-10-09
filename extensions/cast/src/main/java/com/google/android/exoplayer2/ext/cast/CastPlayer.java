@@ -15,9 +15,10 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
+import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -29,8 +30,8 @@ import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.CastStatusCodes;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaQueueItem;
@@ -51,34 +52,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * {@link Player} implementation that communicates with a Cast receiver app.
  *
  * <p>The behavior of this class depends on the underlying Cast session, which is obtained from the
- * Cast context passed to {@link #CastPlayer}. To keep track of the session,
- * {@link #isCastSessionAvailable()} can be queried and {@link SessionAvailabilityListener} can be
- * implemented and attached to the player.</p>
+ * Cast context passed to {@link #CastPlayer}. To keep track of the session, {@link
+ * #isCastSessionAvailable()} can be queried and {@link RemotePlayer.SessionAvailabilityListener}
+ * can be implemented and attached to the player.
  *
- * <p> If no session is available, the player state will remain unchanged and calls to methods that
+ * <p>If no session is available, the player state will remain unchanged and calls to methods that
  * alter it will be ignored. Querying the player state is possible even when no session is
- * available, in which case, the last observed receiver app state is reported.</p>
+ * available, in which case, the last observed receiver app state is reported.
  *
- * <p>Methods should be called on the application's main thread.</p>
+ * <p>Methods should be called on the application's main thread.
  */
-public final class CastPlayer implements Player {
-
-  /**
-   * Listener of changes in the cast session availability.
-   */
-  public interface SessionAvailabilityListener {
-
-    /**
-     * Called when a cast session becomes available to the player.
-     */
-    void onCastSessionAvailable();
-
-    /**
-     * Called when the cast session becomes unavailable.
-     */
-    void onCastSessionUnavailable();
-
-  }
+public final class CastPlayer extends BasePlayer {
 
   private static final String TAG = "CastPlayer";
 
@@ -94,7 +78,6 @@ public final class CastPlayer implements Player {
   private final CastContext castContext;
   // TODO: Allow custom implementations of CastTimelineTracker.
   private final CastTimelineTracker timelineTracker;
-  private final Timeline.Window window;
   private final Timeline.Period period;
 
   private RemoteMediaClient remoteMediaClient;
@@ -105,7 +88,7 @@ public final class CastPlayer implements Player {
 
   // Listeners.
   private final CopyOnWriteArraySet<EventListener> listeners;
-  private SessionAvailabilityListener sessionAvailabilityListener;
+  private RemotePlayer.SessionAvailabilityListener sessionAvailabilityListener;
 
   // Internal state.
   private CastTimeline currentTimeline;
@@ -127,7 +110,6 @@ public final class CastPlayer implements Player {
   public CastPlayer(CastContext castContext) {
     this.castContext = castContext;
     timelineTracker = new CastTimelineTracker();
-    window = new Timeline.Window();
     period = new Timeline.Period();
     statusListener = new StatusListener();
     seekResultCallback = new SeekResultCallback();
@@ -275,9 +257,9 @@ public final class CastPlayer implements Player {
   /**
    * Sets a listener for updates on the cast session availability.
    *
-   * @param listener The {@link SessionAvailabilityListener}.
+   * @param listener The {@link RemotePlayer.SessionAvailabilityListener}.
    */
-  public void setSessionAvailabilityListener(SessionAvailabilityListener listener) {
+  public void setSessionAvailabilityListener(RemotePlayer.SessionAvailabilityListener listener) {
     sessionAvailabilityListener = listener;
   }
 
@@ -296,6 +278,11 @@ public final class CastPlayer implements Player {
   @Override
   public TextComponent getTextComponent() {
     return null;
+  }
+
+  @Override
+  public Looper getApplicationLooper() {
+    return Looper.getMainLooper();
   }
 
   @Override
@@ -336,21 +323,6 @@ public final class CastPlayer implements Player {
   }
 
   @Override
-  public void seekToDefaultPosition() {
-    seekTo(0);
-  }
-
-  @Override
-  public void seekToDefaultPosition(int windowIndex) {
-    seekTo(windowIndex, 0);
-  }
-
-  @Override
-  public void seekTo(long positionMs) {
-    seekTo(getCurrentWindowIndex(), positionMs);
-  }
-
-  @Override
   public void seekTo(int windowIndex, long positionMs) {
     MediaStatus mediaStatus = getMediaStatus();
     // We assume the default position is 0. There is no support for seeking to the default position
@@ -384,11 +356,6 @@ public final class CastPlayer implements Player {
   @Override
   public PlaybackParameters getPlaybackParameters() {
     return PlaybackParameters.DEFAULT;
-  }
-
-  @Override
-  public void stop() {
-    stop(/* reset= */ false);
   }
 
   @Override
@@ -480,32 +447,11 @@ public final class CastPlayer implements Player {
     return pendingSeekWindowIndex != C.INDEX_UNSET ? pendingSeekWindowIndex : currentWindowIndex;
   }
 
-  @Override
-  public int getNextWindowIndex() {
-    return currentTimeline.isEmpty() ? C.INDEX_UNSET
-        : currentTimeline.getNextWindowIndex(getCurrentWindowIndex(), repeatMode, false);
-  }
-
-  @Override
-  public int getPreviousWindowIndex() {
-    return currentTimeline.isEmpty() ? C.INDEX_UNSET
-        : currentTimeline.getPreviousWindowIndex(getCurrentWindowIndex(), repeatMode, false);
-  }
-
-  @Override
-  public @Nullable Object getCurrentTag() {
-    int windowIndex = getCurrentWindowIndex();
-    return windowIndex > currentTimeline.getWindowCount()
-        ? null
-        : currentTimeline.getWindow(windowIndex, window, /* setTag= */ true).tag;
-  }
-
   // TODO: Fill the cast timeline information with ProgressListener's duration updates.
   // See [Internal: b/65152553].
   @Override
   public long getDuration() {
-    return currentTimeline.isEmpty() ? C.TIME_UNSET
-        : currentTimeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+    return getContentDuration();
   }
 
   @Override
@@ -523,33 +469,12 @@ public final class CastPlayer implements Player {
   }
 
   @Override
-  public int getBufferedPercentage() {
-    long position = getBufferedPosition();
-    long duration = getDuration();
-    return position == C.TIME_UNSET || duration == C.TIME_UNSET
-        ? 0
-        : duration == 0 ? 100 : Util.constrainValue((int) ((position * 100) / duration), 0, 100);
-  }
-
-  @Override
   public long getTotalBufferedDuration() {
     long bufferedPosition = getBufferedPosition();
     long currentPosition = getCurrentPosition();
     return bufferedPosition == C.TIME_UNSET || currentPosition == C.TIME_UNSET
         ? 0
         : bufferedPosition - currentPosition;
-  }
-
-  @Override
-  public boolean isCurrentWindowDynamic() {
-    return !currentTimeline.isEmpty()
-        && currentTimeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
-  }
-
-  @Override
-  public boolean isCurrentWindowSeekable() {
-    return !currentTimeline.isEmpty()
-        && currentTimeline.getWindow(getCurrentWindowIndex(), window).isSeekable;
   }
 
   @Override
@@ -565,11 +490,6 @@ public final class CastPlayer implements Player {
   @Override
   public int getCurrentAdIndexInAdGroup() {
     return C.INDEX_UNSET;
-  }
-
-  @Override
-  public long getContentDuration() {
-    return getDuration();
   }
 
   @Override

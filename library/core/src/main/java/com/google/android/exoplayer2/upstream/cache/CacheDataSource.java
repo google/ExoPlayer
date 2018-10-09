@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
@@ -56,9 +57,11 @@ public final class CacheDataSource implements DataSource {
   public static final long DEFAULT_MAX_CACHE_FILE_SIZE = 2 * 1024 * 1024;
 
   /**
-   * Flags controlling the cache's behavior. Possible flag values are {@link #FLAG_BLOCK_ON_CACHE},
-   * {@link #FLAG_IGNORE_CACHE_ON_ERROR} and {@link #FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS}.
+   * Flags controlling the CacheDataSource's behavior. Possible flag values are {@link
+   * #FLAG_BLOCK_ON_CACHE}, {@link #FLAG_IGNORE_CACHE_ON_ERROR} and {@link
+   * #FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -91,6 +94,7 @@ public final class CacheDataSource implements DataSource {
    * Reasons the cache may be ignored. One of {@link #CACHE_IGNORED_REASON_ERROR} or {@link
    * #CACHE_IGNORED_REASON_UNSET_LENGTH}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({CACHE_IGNORED_REASON_ERROR, CACHE_IGNORED_REASON_UNSET_LENGTH})
   public @interface CacheIgnoredReason {}
@@ -216,8 +220,13 @@ public final class CacheDataSource implements DataSource {
    *     and {@link #FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS}, or 0.
    * @param eventListener An optional {@link EventListener} to receive events.
    */
-  public CacheDataSource(Cache cache, DataSource upstream, DataSource cacheReadDataSource,
-      DataSink cacheWriteDataSink, @Flags int flags, @Nullable EventListener eventListener) {
+  public CacheDataSource(
+      Cache cache,
+      DataSource upstream,
+      DataSource cacheReadDataSource,
+      @Nullable DataSink cacheWriteDataSink,
+      @Flags int flags,
+      @Nullable EventListener eventListener) {
     this(
         cache,
         upstream,
@@ -247,7 +256,7 @@ public final class CacheDataSource implements DataSource {
       Cache cache,
       DataSource upstream,
       DataSource cacheReadDataSource,
-      DataSink cacheWriteDataSink,
+      @Nullable DataSink cacheWriteDataSink,
       @Flags int flags,
       @Nullable EventListener eventListener,
       @Nullable CacheKeyFactory cacheKeyFactory) {

@@ -60,6 +60,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.Test;
@@ -1346,7 +1347,7 @@ public final class ExoPlayerTest {
                 () ->
                     concatenatingMediaSource.addMediaSources(
                         Arrays.asList(mediaSource, mediaSource)))
-            .waitForTimelineChanged(null)
+            .waitForTimelineChanged()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -1964,7 +1965,7 @@ public final class ExoPlayerTest {
     Renderer videoRenderer =
         new FakeRenderer(Builder.VIDEO_FORMAT) {
           @Override
-          public void handleMessage(int what, Object object) throws ExoPlaybackException {
+          public void handleMessage(int what, @Nullable Object object) throws ExoPlaybackException {
             super.handleMessage(what, object);
             rendererMessages.add(what);
           }
@@ -2192,14 +2193,14 @@ public final class ExoPlayerTest {
             startPositionUs + expectedDurationUs);
     Clock clock = new AutoAdvancingFakeClock();
     AtomicReference<Player> playerReference = new AtomicReference<>();
-    AtomicReference<Long> positionAtDiscontinuityMs = new AtomicReference<>();
-    AtomicReference<Long> clockAtStartMs = new AtomicReference<>();
-    AtomicReference<Long> clockAtDiscontinuityMs = new AtomicReference<>();
+    AtomicLong positionAtDiscontinuityMs = new AtomicLong(C.TIME_UNSET);
+    AtomicLong clockAtStartMs = new AtomicLong(C.TIME_UNSET);
+    AtomicLong clockAtDiscontinuityMs = new AtomicLong(C.TIME_UNSET);
     EventListener eventListener =
         new EventListener() {
           @Override
           public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            if (playbackState == Player.STATE_READY && clockAtStartMs.get() == null) {
+            if (playbackState == Player.STATE_READY && clockAtStartMs.get() == C.TIME_UNSET) {
               clockAtStartMs.set(clock.elapsedRealtime());
             }
           }
@@ -2296,6 +2297,243 @@ public final class ExoPlayerTest {
     assertThat(trackGroupsList.get(2).get(0).getFormat(0)).isEqualTo(Builder.AUDIO_FORMAT);
   }
 
+  @Test
+  public void testSecondMediaSourceInPlaylistOnlyThrowsWhenPreviousPeriodIsFullyRead()
+      throws Exception {
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND));
+    MediaSource workingMediaSource =
+        new FakeMediaSource(fakeTimeline, /* manifest= */ null, Builder.VIDEO_FORMAT);
+    MediaSource failingMediaSource =
+        new FakeMediaSource(/* timeline= */ null, /* manifest= */ null, Builder.VIDEO_FORMAT) {
+          @Override
+          public void maybeThrowSourceInfoRefreshError() throws IOException {
+            throw new IOException();
+          }
+        };
+    ConcatenatingMediaSource concatenatingMediaSource =
+        new ConcatenatingMediaSource(workingMediaSource, failingMediaSource);
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setMediaSource(concatenatingMediaSource)
+            .setRenderers(renderer)
+            .build(context);
+    try {
+      testRunner.start().blockUntilEnded(TIMEOUT_MS);
+      fail();
+    } catch (ExoPlaybackException e) {
+      // Expected exception.
+    }
+    assertThat(renderer.sampleBufferReadCount).isAtLeast(1);
+    assertThat(renderer.hasReadStreamToEnd()).isTrue();
+  }
+
+  @Test
+  public void
+      testDynamicallyAddedSecondMediaSourceInPlaylistOnlyThrowsWhenPreviousPeriodIsFullyRead()
+          throws Exception {
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND));
+    MediaSource workingMediaSource =
+        new FakeMediaSource(fakeTimeline, /* manifest= */ null, Builder.VIDEO_FORMAT);
+    MediaSource failingMediaSource =
+        new FakeMediaSource(/* timeline= */ null, /* manifest= */ null, Builder.VIDEO_FORMAT) {
+          @Override
+          public void maybeThrowSourceInfoRefreshError() throws IOException {
+            throw new IOException();
+          }
+        };
+    ConcatenatingMediaSource concatenatingMediaSource =
+        new ConcatenatingMediaSource(workingMediaSource);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testFailingSecondMediaSourceInPlaylistOnlyThrowsLater")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(() -> concatenatingMediaSource.addMediaSource(failingMediaSource))
+            .play()
+            .build();
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setMediaSource(concatenatingMediaSource)
+            .setActionSchedule(actionSchedule)
+            .setRenderers(renderer)
+            .build(context);
+    try {
+      testRunner.start().blockUntilEnded(TIMEOUT_MS);
+      fail();
+    } catch (ExoPlaybackException e) {
+      // Expected exception.
+    }
+    assertThat(renderer.sampleBufferReadCount).isAtLeast(1);
+    assertThat(renderer.hasReadStreamToEnd()).isTrue();
+  }
+
+  @Test
+  public void failingDynamicUpdateOnlyThrowsWhenAvailablePeriodHasBeenFullyRead() throws Exception {
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND));
+    AtomicReference<Boolean> wasReadyOnce = new AtomicReference<>(false);
+    MediaSource mediaSource =
+        new FakeMediaSource(fakeTimeline, /* manifest= */ null, Builder.VIDEO_FORMAT) {
+          @Override
+          public void maybeThrowSourceInfoRefreshError() throws IOException {
+            if (wasReadyOnce.get()) {
+              throw new IOException();
+            }
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testFailingDynamicMediaSourceInTimelineOnlyThrowsLater")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(() -> wasReadyOnce.set(true))
+            .play()
+            .build();
+    FakeRenderer renderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setMediaSource(mediaSource)
+            .setActionSchedule(actionSchedule)
+            .setRenderers(renderer)
+            .build(context);
+    try {
+      testRunner.start().blockUntilEnded(TIMEOUT_MS);
+      fail();
+    } catch (ExoPlaybackException e) {
+      // Expected exception.
+    }
+    assertThat(renderer.sampleBufferReadCount).isAtLeast(1);
+    assertThat(renderer.hasReadStreamToEnd()).isTrue();
+  }
+
+  @Test
+  public void removingLoopingLastPeriodFromPlaylistDoesNotThrow() throws Exception {
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true, /* isDynamic= */ true, /* durationUs= */ 100_000));
+    MediaSource mediaSource = new FakeMediaSource(timeline, /* manifest= */ null);
+    ConcatenatingMediaSource concatenatingMediaSource = new ConcatenatingMediaSource(mediaSource);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("removingLoopingLastPeriodFromPlaylistDoesNotThrow")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            // Play almost to end to ensure the current period is fully buffered.
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 90)
+            // Enable repeat mode to trigger the creation of new media periods.
+            .setRepeatMode(Player.REPEAT_MODE_ALL)
+            // Remove the media source.
+            .executeRunnable(concatenatingMediaSource::clear)
+            .build();
+    new Builder()
+        .setMediaSource(concatenatingMediaSource)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+  }
+
+  @Test
+  public void seekToUnpreparedWindowWithNonZeroOffsetInConcatenationStartsAtCorrectPosition()
+      throws Exception {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    FakeMediaSource mediaSource = new FakeMediaSource(/* timeline= */ null, /* manifest= */ null);
+    MediaSource clippedMediaSource =
+        new ClippingMediaSource(
+            mediaSource,
+            /* startPositionUs= */ 3 * C.MICROS_PER_SECOND,
+            /* endPositionUs= */ C.TIME_END_OF_SOURCE);
+    MediaSource concatenatedMediaSource = new ConcatenatingMediaSource(clippedMediaSource);
+    AtomicLong positionWhenReady = new AtomicLong();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("seekToUnpreparedWindowWithNonZeroOffsetInConcatenation")
+            .pause()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            .seek(/* positionMs= */ 10)
+            .waitForTimelineChanged()
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline, /* newManifest= */ null))
+            .waitForTimelineChanged()
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    positionWhenReady.set(player.getContentPosition());
+                  }
+                })
+            .play()
+            .build();
+    new Builder()
+        .setMediaSource(concatenatedMediaSource)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(positionWhenReady.get()).isEqualTo(10);
+  }
+
+  @Test
+  public void seekToUnpreparedWindowWithMultiplePeriodsInConcatenationStartsAtCorrectPeriod()
+      throws Exception {
+    long periodDurationMs = 5000;
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount =*/ 2,
+                /* id= */ new Object(),
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ 2 * periodDurationMs * 1000));
+    FakeMediaSource mediaSource = new FakeMediaSource(/* timeline= */ null, /* manifest= */ null);
+    MediaSource concatenatedMediaSource = new ConcatenatingMediaSource(mediaSource);
+    AtomicInteger periodIndexWhenReady = new AtomicInteger();
+    AtomicLong positionWhenReady = new AtomicLong();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("seekToUnpreparedWindowWithMultiplePeriodsInConcatenation")
+            .pause()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            // Seek 10ms into the second period.
+            .seek(/* positionMs= */ periodDurationMs + 10)
+            .waitForTimelineChanged()
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline, /* newManifest= */ null))
+            .waitForTimelineChanged()
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    periodIndexWhenReady.set(player.getCurrentPeriodIndex());
+                    positionWhenReady.set(player.getContentPosition());
+                  }
+                })
+            .play()
+            .build();
+    new Builder()
+        .setMediaSource(concatenatedMediaSource)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(periodIndexWhenReady.get()).isEqualTo(1);
+    assertThat(positionWhenReady.get()).isEqualTo(periodDurationMs + 10);
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
@@ -2332,7 +2570,7 @@ public final class ExoPlayerTest {
     }
 
     @Override
-    public void handleMessage(SimpleExoPlayer player, int messageType, Object message) {
+    public void handleMessage(SimpleExoPlayer player, int messageType, @Nullable Object message) {
       if (player != null) {
         windowIndex = player.getCurrentWindowIndex();
         positionMs = player.getCurrentPosition();

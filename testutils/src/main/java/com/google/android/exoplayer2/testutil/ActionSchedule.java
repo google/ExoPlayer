@@ -376,13 +376,22 @@ public final class ActionSchedule {
     }
 
     /**
+     * Schedules a delay until any timeline change.
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder waitForTimelineChanged() {
+      return apply(new WaitForTimelineChanged(tag, /* expectedTimeline= */ null));
+    }
+
+    /**
      * Schedules a delay until the timeline changed to a specified expected timeline.
      *
      * @param expectedTimeline The expected timeline to wait for. If null, wait for any timeline
      *     change.
      * @return The builder, for convenience.
      */
-    public Builder waitForTimelineChanged(@Nullable Timeline expectedTimeline) {
+    public Builder waitForTimelineChanged(Timeline expectedTimeline) {
       return apply(new WaitForTimelineChanged(tag, expectedTimeline));
     }
 
@@ -447,7 +456,8 @@ public final class ActionSchedule {
     private SimpleExoPlayer player;
 
     /** Handles the message send to the component and additionally provides access to the player. */
-    public abstract void handleMessage(SimpleExoPlayer player, int messageType, Object message);
+    public abstract void handleMessage(
+        SimpleExoPlayer player, int messageType, @Nullable Object message);
 
     /** Sets the player to be passed to {@link #handleMessage(SimpleExoPlayer, int, Object)}. */
     /* package */ void setPlayer(SimpleExoPlayer player) {
@@ -455,7 +465,8 @@ public final class ActionSchedule {
     }
 
     @Override
-    public final void handleMessage(int messageType, Object message) throws ExoPlaybackException {
+    public final void handleMessage(int messageType, @Nullable Object message)
+        throws ExoPlaybackException {
       handleMessage(player, messageType, message);
     }
   }

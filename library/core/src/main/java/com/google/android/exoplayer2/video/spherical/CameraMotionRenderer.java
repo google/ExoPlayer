@@ -57,7 +57,7 @@ public class CameraMotionRenderer extends BaseRenderer {
   }
 
   @Override
-  public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
+  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_CAMERA_MOTION_LISTENER) {
       listener = (CameraMotionListener) message;
     } else {
@@ -72,15 +72,12 @@ public class CameraMotionRenderer extends BaseRenderer {
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    lastTimestampUs = 0;
-    if (listener != null) {
-      listener.onCameraMotionReset();
-    }
+    reset();
   }
 
   @Override
   protected void onDisabled() {
-    lastTimestampUs = 0;
+    reset();
   }
 
   @Override
@@ -125,5 +122,12 @@ public class CameraMotionRenderer extends BaseRenderer {
       result[i] = Float.intBitsToFloat(scratch.readLittleEndianInt());
     }
     return result;
+  }
+
+  private void reset() {
+    lastTimestampUs = 0;
+    if (listener != null) {
+      listener.onCameraMotionReset();
+    }
   }
 }

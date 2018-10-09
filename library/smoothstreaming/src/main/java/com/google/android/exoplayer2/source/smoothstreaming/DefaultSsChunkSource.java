@@ -213,7 +213,14 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
-    trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs);
+
+    MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
+    for (int i = 0; i < chunkIterators.length; i++) {
+      int trackIndex = trackSelection.getIndexInTrackGroup(i);
+      chunkIterators[i] = new StreamElementIterator(streamElement, trackIndex, chunkIndex);
+    }
+    trackSelection.updateSelectedTrack(
+        playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs, queue, chunkIterators);
 
     long chunkStartTimeUs = streamElement.getStartTimeUs(chunkIndex);
     long chunkEndTimeUs = chunkStartTimeUs + streamElement.getChunkDurationUs(chunkIndex);
@@ -281,6 +288,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
         chunkStartTimeUs,
         chunkEndTimeUs,
         chunkSeekTimeUs,
+        /* clippedEndTimeUs= */ C.TIME_UNSET,
         chunkIndex,
         /* chunkCount= */ 1,
         sampleOffsetUs,

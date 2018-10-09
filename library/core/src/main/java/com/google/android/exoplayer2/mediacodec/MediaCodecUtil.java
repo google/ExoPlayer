@@ -22,9 +22,9 @@ import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecList;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Pair;
 import android.util.SparseIntArray;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
@@ -314,6 +314,11 @@ public final class MediaCodecUtil {
 
     // Work around https://github.com/google/ExoPlayer/issues/398.
     if (Util.SDK_INT < 18 && "OMX.SEC.MP3.Decoder".equals(name)) {
+      return false;
+    }
+
+    // Work around https://github.com/google/ExoPlayer/issues/4519.
+    if ("OMX.SEC.mp3.dec".equals(name) && "SM-T530".equals(Util.MODEL)) {
       return false;
     }
 
