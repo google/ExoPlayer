@@ -122,6 +122,7 @@ public class DashManifestParser extends DefaultHandler
     long publishTimeMs = parseDateTime(xpp, "publishTime", C.TIME_UNSET);
     UtcTimingElement utcTiming = null;
     Uri location = null;
+    ProgramInformation programInformation = null;
 
     List<Period> periods = new ArrayList<>();
     long nextPeriodStartMs = dynamic ? C.TIME_UNSET : 0;
@@ -138,6 +139,8 @@ public class DashManifestParser extends DefaultHandler
         utcTiming = parseUtcTiming(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "Location")) {
         location = Uri.parse(xpp.nextText());
+      } else if (XmlPullParserUtil.isStartTag(xpp, "ProgramInformation")) {
+        programInformation = parseProgramInformation(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "Period") && !seenEarlyAccessPeriod) {
         Pair<Period, Long> periodWithDurationMs = parsePeriod(xpp, baseUrl, nextPeriodStartMs);
         Period period = periodWithDurationMs.first;
@@ -173,16 +176,16 @@ public class DashManifestParser extends DefaultHandler
 
     return buildMediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
         dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs,
-        publishTimeMs, utcTiming, location, periods);
+        publishTimeMs, utcTiming, location, programInformation, periods);
   }
 
   protected DashManifest buildMediaPresentationDescription(long availabilityStartTime,
       long durationMs, long minBufferTimeMs, boolean dynamic, long minUpdateTimeMs,
       long timeShiftBufferDepthMs, long suggestedPresentationDelayMs, long publishTimeMs,
-      UtcTimingElement utcTiming, Uri location, List<Period> periods) {
+      UtcTimingElement utcTiming, Uri location, ProgramInformation programInformation, List<Period> periods) {
     return new DashManifest(availabilityStartTime, durationMs, minBufferTimeMs,
         dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs,
-        publishTimeMs, utcTiming, location, periods);
+        publishTimeMs, utcTiming, location, programInformation, periods);
   }
 
   protected UtcTimingElement parseUtcTiming(XmlPullParser xpp) {
@@ -976,6 +979,43 @@ public class DashManifestParser extends DefaultHandler
 
   protected RangedUri buildRangedUri(String urlText, long rangeStart, long rangeLength) {
     return new RangedUri(urlText, rangeStart, rangeLength);
+  }
+
+  protected ProgramInformation parseProgramInformation(XmlPullParser xpp) throws IOException, XmlPullParserException {
+    String title = "";
+    String source = "";
+    String copyright = "";
+    List<byte[]> customEvents = new ArrayList<>();
+    do {
+      xpp.next();
+      if (XmlPullParserUtil.isStartTag(xpp, "Title")) {
+        title = xpp.getText();
+      } else if (XmlPullParserUtil.isStartTag(xpp, "Source")) {
+        source = xpp.getText();
+      } else if (XmlPullParserUtil.isStartTag(xpp, "Copyright")) {
+        copyright = xpp.getText();
+      } else {
+        byte[] customElement = parseCustomElement(xpp, new ByteArrayOutputStream(512));
+        if (customElement.length > 0) {
+          customEvents.add(customElement);
+        }
+      }
+    } while (!XmlPullParserUtil.isEndTag(xpp, "ProgramInformation"));
+    return new ProgramInformation(title, source, copyright, customEvents);
+  }
+
+  private byte[] parseCustomElement(XmlPullParser xpp, ByteArrayOutputStream outputStream) throws IOException, XmlPullParserException {
+    XmlSerializer serializer = Xml.newSerializer();
+    serializer.setOutput(outputStream, C.UTF8_NAME);
+    if (xpp.getEventType() == XmlPullParser.START_TAG) {
+      serializer.startTag(xpp.getNamespace(), xpp.getName());
+      for (int i = 0; i < xpp.getAttributeCount(); i++) {
+        serializer.attribute(xpp.getAttributeNamespace(i), xpp.getAttributeName(i), xpp.getAttributeValue(i));
+      }
+      serializer.endTag(xpp.getNamespace(), xpp.getName());
+    }
+    serializer.flush();
+    return outputStream.toByteArray();
   }
 
   // AudioChannelConfiguration parsing.
