@@ -16,12 +16,12 @@
 package com.google.android.exoplayer2.source.rtsp;
 
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.source.rtsp.api.Client;
-import com.google.android.exoplayer2.source.rtsp.core.Header;
-import com.google.android.exoplayer2.source.rtsp.core.MediaType;
-import com.google.android.exoplayer2.source.rtsp.core.Range;
-import com.google.android.exoplayer2.source.rtsp.core.Request;
-import com.google.android.exoplayer2.source.rtsp.core.Transport;
+import com.google.android.exoplayer2.source.rtsp.core.Client;
+import com.google.android.exoplayer2.source.rtsp.message.Header;
+import com.google.android.exoplayer2.source.rtsp.media.MediaType;
+import com.google.android.exoplayer2.source.rtsp.message.Range;
+import com.google.android.exoplayer2.source.rtsp.message.Request;
+import com.google.android.exoplayer2.source.rtsp.message.Transport;
 import com.google.android.exoplayer2.source.rtsp.media.MediaTrack;
 
 public final class RtspDefaultClient extends Client {
@@ -29,22 +29,22 @@ public final class RtspDefaultClient extends Client {
     private static final String USER_AGENT = ExoPlayerLibraryInfo.VERSION_SLASHY +
             " (Media Player for Android)";
 
-    public static Client.Factory<RtspDefaultClient> factory() {
-        return new Client.Factory<RtspDefaultClient>() {
+    public static Factory<RtspDefaultClient> factory() {
+        return new Factory<RtspDefaultClient>() {
             private @Flags int flags;
             private @NatMethod int natMethod;
 
-            public Client.Factory<RtspDefaultClient> setFlags(@Flags int flags) {
+            public Factory<RtspDefaultClient> setFlags(@Flags int flags) {
                 this.flags = flags;
                 return this;
             }
 
-            public Client.Factory<RtspDefaultClient> setNatMethod(@NatMethod int natMethod) {
+            public Factory<RtspDefaultClient> setNatMethod(@NatMethod int natMethod) {
                 this.natMethod = natMethod;
                 return this;
             }
 
-            public RtspDefaultClient create(Client.Builder builder) {
+            public RtspDefaultClient create(Builder builder) {
                 return new RtspDefaultClient(builder.setFlags(flags).setNatMethod(natMethod));
             }
         };
@@ -63,8 +63,12 @@ public final class RtspDefaultClient extends Client {
     @Override
     protected void sendOptionsRequest() {
         Request.Builder builder = new Request.Builder().options().url(session.uri().toString());
-        builder.header(Header.CSeq, session.nexCSeq());
+        builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
+
+        if (session.getId() != null) {
+            builder.header(Header.Session, session.getId());
+        }
 
         dispatch(builder.build());
     }
@@ -72,7 +76,7 @@ public final class RtspDefaultClient extends Client {
     @Override
     protected void sendDescribeRequest() {
         Request.Builder builder = new Request.Builder().describe().url(session.uri().toString());
-        builder.header(Header.CSeq, session.nexCSeq());
+        builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
         builder.header(Header.Accept, MediaType.APPLICATION_SDP);
 
@@ -82,7 +86,7 @@ public final class RtspDefaultClient extends Client {
     @Override
     public void sendSetupRequest(MediaTrack track, int localPort) {
         Request.Builder builder = new Request.Builder().setup().url(track.url());
-        builder.header(Header.CSeq, session.nexCSeq());
+        builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
 
         Transport transport = track.format().transport();
@@ -103,9 +107,20 @@ public final class RtspDefaultClient extends Client {
     }
 
     @Override
+    public void sendSetupRequest(String trackId, Transport transport) {
+        Request.Builder builder = new Request.Builder().setup().url(trackId);
+        builder.header(Header.CSeq, session.nextCSeq());
+        builder.header(Header.UserAgent, USER_AGENT);
+
+        builder.header(Header.Transport, transport);
+
+        dispatch(builder.build());
+    }
+
+    @Override
     public void sendPlayRequest(Range range) {
         Request.Builder builder = new Request.Builder().play().url(session.uri().toString());
-        builder.header(Header.CSeq, session.nexCSeq());
+        builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
         builder.header(Header.Session, session.getId());
         builder.header(Header.Range, range);
@@ -116,7 +131,7 @@ public final class RtspDefaultClient extends Client {
     @Override
     public void sendPlayRequest(Range range, float scale) {
         Request.Builder builder = new Request.Builder().play().url(session.uri().toString());
-        builder.header(Header.CSeq, session.nexCSeq());
+        builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
         builder.header(Header.Session, session.getId());
         builder.header(Header.Range, range);
@@ -128,7 +143,7 @@ public final class RtspDefaultClient extends Client {
     @Override
     public void sendPauseRequest() {
         Request.Builder builder = new Request.Builder().pause().url(session.uri().toString());
-        builder.header(Header.CSeq, session.nexCSeq());
+        builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
         builder.header(Header.Session, session.getId());
 
@@ -143,7 +158,7 @@ public final class RtspDefaultClient extends Client {
     @Override
     protected void sendGetParameterRequest() {
         Request.Builder builder = new Request.Builder().get_parameter().url(session.uri().toString());
-        builder.header(Header.CSeq, session.nexCSeq());
+        builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
         builder.header(Header.Session, session.getId());
 
@@ -158,7 +173,7 @@ public final class RtspDefaultClient extends Client {
     @Override
     public void sendTeardownRequest() {
         Request.Builder builder = new Request.Builder().teardown().url(session.uri().toString());
-        builder.header(Header.CSeq, session.nexCSeq());
+        builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
         builder.header(Header.Session, session.getId());
 

@@ -127,7 +127,7 @@ public abstract class RtcpPacket {
             }
 
             // Read and check the payload type
-            @PacketType int payloadType = (packet[offset + 1] & 0xFF);
+            @PacketType int payloadType = (((int)packet[offset + 1]) & 0xFF);
             if (payloadType < RtcpPacket.FIR || payloadType > RtcpPacket.TOKEN) {
                 return null;
             }

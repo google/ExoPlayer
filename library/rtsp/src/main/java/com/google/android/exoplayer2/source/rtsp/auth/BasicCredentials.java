@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.source.rtsp.auth;
 
-import com.google.android.exoplayer2.source.rtsp.core.Header;
-import com.google.android.exoplayer2.source.rtsp.core.Request;
+import com.google.android.exoplayer2.source.rtsp.message.Header;
+import com.google.android.exoplayer2.source.rtsp.message.Request;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

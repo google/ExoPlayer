@@ -102,12 +102,6 @@ import java.lang.annotation.RetentionPolicy;
 
         if (lastSequenceNumber == -1) {
             lastSequenceNumber = sequenceNumber - 1;
-
-        } else {
-            // We discard the packets that arrive out of order and duplicates
-            if (((sequenceNumber + 1) % 65536) <= lastSequenceNumber) {
-                return false;
-            }
         }
 
         return true;

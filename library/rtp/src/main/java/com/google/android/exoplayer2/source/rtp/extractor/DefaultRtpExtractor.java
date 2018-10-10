@@ -39,13 +39,18 @@ public final class DefaultRtpExtractor implements Extractor {
     private final TrackIdGenerator trackIdGenerator;
 
     public DefaultRtpExtractor(RtpPayloadFormat payloadFormat,
-                               TrackIdGenerator trackIdGenerator) {
+                               TrackIdGenerator trackIdGenerator) throws IOException {
         this.trackIdGenerator = trackIdGenerator;
 
         sampleData = new ParsableByteArray();
         packetBuffer = new byte[RtpPacket.MAX_PACKET_SIZE];
 
         payloadReader = new DefaultRtpPayloadReaderFactory().createPayloadReader(payloadFormat);
+
+        if (payloadReader == null) {
+            throw new IOException("Payload reader not found for media type=[" +
+                    payloadFormat.sampleMimeType() + "]");
+        }
     }
 
     @Override

@@ -20,12 +20,13 @@ import android.support.annotation.StringDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class Origin {
     private static final Pattern regexSDPOrigin =
-            Pattern.compile("(\\S+)\\s(\\d+)\\s(\\d+)\\sIN\\s(\\w+)\\s+(\\S+)",
+            Pattern.compile("(\\S+)\\s(\\d+)\\s(\\d+)\\sIN\\s(\\w+)(?:\\s+(\\S+))?",
                     Pattern.CASE_INSENSITIVE);
 
     @Retention(RetentionPolicy.SOURCE)
@@ -47,6 +48,20 @@ public final class Origin {
     private @AddrType String addrtype;
     private String unicastAddress;
 
+    public Origin(String userName, String unicastAddress) {
+        this(userName, IN, IP4, unicastAddress);
+    }
+
+    public Origin(String userName,
+        @AddrType String addrtype, String unicastAddress) {
+        this(userName, IN, addrtype, unicastAddress);
+    }
+
+    public Origin(String userName, @NetType String nettype,
+        @AddrType String addrtype, String unicastAddress) {
+        this(userName, generateId(), generateId(), nettype, addrtype, unicastAddress);
+    }
+
     Origin(String username, long sessId, long sessVersion, @NetType String nettype,
            @AddrType String addrtype, String unicastAddress) {
         this.username = username;
@@ -54,7 +69,10 @@ public final class Origin {
         this.sessVersion = sessVersion;
         this.nettype = nettype;
         this.addrtype = addrtype;
-        this.unicastAddress = unicastAddress;
+
+        if (unicastAddress != null) {
+            this.unicastAddress = unicastAddress.trim();
+        }
     }
 
     public String username() {
@@ -83,6 +101,12 @@ public final class Origin {
         return unicastAddress;
     }
 
+    private static long generateId() {
+        Random rand = new Random(System.nanoTime());
+        long id = System.nanoTime() + System.currentTimeMillis() + rand.nextLong();
+        return Math.abs(id);
+    }
+
     @Nullable
     public static Origin parse(String line) {
         try {
@@ -93,13 +117,13 @@ public final class Origin {
                     return new Origin(matcher.group(1).trim(),
                             Long.parseLong(matcher.group(2).trim()),
                             Long.parseLong(matcher.group(3).trim()),
-                            IN, IP4, matcher.group(5).trim());
+                            IN, IP4, matcher.group(5));
                 }
                 else if (matcher.group(4).trim().equals(IP6)) {
                     return new Origin(matcher.group(1).trim(),
                             Long.parseLong(matcher.group(2).trim()),
                             Long.parseLong(matcher.group(3).trim()),
-                            IN, IP6, matcher.group(5).trim());
+                            IN, IP6, matcher.group(5));
                 }
             }
 

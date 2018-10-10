@@ -67,7 +67,6 @@ public final class RtcpSdesPacket extends RtcpPacket {
         }
 
         int padLen = RtcpPacketUtils.calculatePadLength(chunkItems.length);
-
         if (padLen > 0) {
             // Append necessary setPadding fields
             byte[] padBytes = new byte[padLen];
@@ -95,22 +94,32 @@ public final class RtcpSdesPacket extends RtcpPacket {
     private byte[] assembleRTCPChunks() {
         byte[] chunkItems = new byte[0];
 
-        for (RtcpChunk chunkItem : chunks) {
-            byte[] ss = RtcpPacketUtils.longToBytes (chunkItem.getSsrc(), 4);
+        for (RtcpChunk chunk : chunks) {
+            byte[] ss = RtcpPacketUtils.longToBytes (chunk.getSsrc(), 4);
             byte[] sdesItems = new byte[0];
 
-            for (RtcpSdesItem sdesItem : chunkItem.getSdesItems()) {
+            for (RtcpSdesItem sdesItem : chunk.getSdesItems()) {
                 byte[] sdesItemHdr = { (byte) sdesItem.getType(), (byte) sdesItem.getLength() };
                 sdesItems = RtcpPacketUtils.append(sdesItems, sdesItemHdr);
                 sdesItems = RtcpPacketUtils.append(sdesItems, sdesItem.getValue());
             }
 
-            chunkItems = RtcpPacketUtils.append(chunkItems, ss);
-            chunkItems = RtcpPacketUtils.append(chunkItems, sdesItems);
-
             // Append SDES Item end field (32 bit boundary)
-            byte[] sdesItemEnd = new byte [4];
-            chunkItems = RtcpPacketUtils.append(chunkItems, sdesItemEnd);
+            byte[] sdesItemEnd = new byte [1];
+            sdesItems = RtcpPacketUtils.append(sdesItems, sdesItemEnd);
+
+            int padLen = RtcpPacketUtils.calculatePadLength(sdesItems.length);
+            if (padLen > 0) {
+                // Append necessary setPadding fields
+                byte[] padBytes = new byte[padLen];
+                sdesItems = RtcpPacketUtils.append(sdesItems, padBytes);
+            }
+
+            byte[] chunkItem = new byte[0];
+            chunkItem = RtcpPacketUtils.append(chunkItem, ss);
+            chunkItem = RtcpPacketUtils.append(chunkItem, sdesItems);
+
+            chunkItems = RtcpPacketUtils.append(chunkItems, chunkItem);
         }
 
         return chunkItems;

@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.rtsp.core;
+package com.google.android.exoplayer2.source.rtsp.message;
+
+import com.google.android.exoplayer2.source.rtsp.media.MediaType;
 
 public final class MessageBody {
     private final long length;

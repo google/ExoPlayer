@@ -43,6 +43,18 @@ public final class Connection {
     private @AddrType String addrtype;
     private String connectionAddress;
 
+    public Connection(String connectionAddress) {
+        this.nettype = IN;
+        this.addrtype = IP4;
+        this.connectionAddress = connectionAddress;
+    }
+
+    public Connection(@AddrType String addrtype, String connectionAddress) {
+        this.nettype = IN;
+        this.addrtype = addrtype;
+        this.connectionAddress = connectionAddress;
+    }
+
     Connection(@NetType String nettype, @AddrType String addrtype, String connectionAddress) {
         this.nettype = nettype;
         this.addrtype = addrtype;

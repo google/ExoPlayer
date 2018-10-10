@@ -111,17 +111,9 @@ import java.util.List;
 
         if (lastSequenceNumber == -1) {
             lastSequenceNumber = sequenceNumber - 1;
-
-            this.sequenceNumber = sequenceNumber;
-
-        } else {
-            // We discard the packets that arrive out of order and duplicates
-            if (((sequenceNumber + 1) % 65536) <= lastSequenceNumber) {
-                return false;
-            }
-
-            this.sequenceNumber = sequenceNumber;
         }
+
+        this.sequenceNumber = sequenceNumber;
 
         return true;
     }

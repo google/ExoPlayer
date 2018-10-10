@@ -24,8 +24,9 @@ import com.google.android.exoplayer2.source.rtp.rtcp.RtcpCompoundPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpSdesPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpSrPacket;
-import com.google.android.exoplayer2.upstream.UdpDataSinkSource;
 import com.google.android.exoplayer2.upstream.UdpDataSource;
+import java.io.IOException;
+import java.util.Random;
 
 /* package */ final class RtcpReportReceiver {
 
@@ -35,21 +36,22 @@ import com.google.android.exoplayer2.upstream.UdpDataSource;
     }
 
     private boolean enabled;
+    private boolean canceled;
 
     private final Handler handler;
     private final HandlerThread thread;
 
     private final byte[] packetBuffer;
-    private final UdpDataSinkSource dataSource;
     private final EventListener listener;
+    private final UdpDataSource dataSource;
 
-    public RtcpReportReceiver(UdpDataSinkSource dataSource, EventListener listener) {
+    public RtcpReportReceiver(UdpDataSource dataSource, EventListener listener) {
         this.dataSource = dataSource;
         this.listener = listener;
 
         packetBuffer = new byte[UdpDataSource.DEFAULT_MAX_PACKET_SIZE];
 
-        thread = new HandlerThread("RtcpFeedbackSource:HandlerThread",
+        thread = new HandlerThread("RtcpReportReceiver:HandlerThread",
                 Process.THREAD_PRIORITY_AUDIO);
         thread.start();
 
@@ -57,15 +59,20 @@ import com.google.android.exoplayer2.upstream.UdpDataSource;
     }
 
     public void start() {
-        if (!enabled) {
+        if (!enabled && !canceled) {
             enabled = true;
             handler.post(loader);
         }
     }
 
     public void stop() {
-        if (enabled) {
-            enabled = false;
+        if (!canceled) {
+            thread.quit();
+            canceled = true;
+
+            if (enabled) {
+                enabled = false;
+            }
         }
     }
 
@@ -108,13 +115,13 @@ import com.google.android.exoplayer2.upstream.UdpDataSource;
                             }
                         }
 
-                    } catch (UdpDataSource.UdpDataSourceException ex) {
+                    } catch (IOException ex) {
                         enabled = false;
                     }
                 }
 
             } finally {
-                handler.removeCallbacks(this);
+                handler.removeCallbacksAndMessages(this);
             }
         }
     };

@@ -68,6 +68,11 @@ public final class C {
    */
   public static final int LENGTH_UNSET = -1;
 
+  /**
+   * Represents an unset or unknown port.
+   */
+  public static final int PORT_UNSET = -1;
+
   /** Represents an unset or unknown percentage. */
   public static final int PERCENTAGE_UNSET = -1;
 
@@ -149,20 +154,20 @@ public final class C {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    Format.NO_VALUE,
-    ENCODING_INVALID,
-    ENCODING_PCM_8BIT,
-    ENCODING_PCM_16BIT,
-    ENCODING_PCM_24BIT,
-    ENCODING_PCM_32BIT,
-    ENCODING_PCM_FLOAT,
-    ENCODING_PCM_MU_LAW,
-    ENCODING_PCM_A_LAW,
-    ENCODING_AC3,
-    ENCODING_E_AC3,
-    ENCODING_DTS,
-    ENCODING_DTS_HD,
-    ENCODING_DOLBY_TRUEHD
+          Format.NO_VALUE,
+          ENCODING_INVALID,
+          ENCODING_PCM_8BIT,
+          ENCODING_PCM_16BIT,
+          ENCODING_PCM_24BIT,
+          ENCODING_PCM_32BIT,
+          ENCODING_PCM_FLOAT,
+          ENCODING_PCM_MU_LAW,
+          ENCODING_PCM_A_LAW,
+          ENCODING_AC3,
+          ENCODING_E_AC3,
+          ENCODING_DTS,
+          ENCODING_DTS_HD,
+          ENCODING_DOLBY_TRUEHD
   })
   public @interface Encoding {}
 
@@ -175,15 +180,15 @@ public final class C {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    Format.NO_VALUE,
-    ENCODING_INVALID,
-    ENCODING_PCM_8BIT,
-    ENCODING_PCM_16BIT,
-    ENCODING_PCM_24BIT,
-    ENCODING_PCM_32BIT,
-    ENCODING_PCM_FLOAT,
-    ENCODING_PCM_MU_LAW,
-    ENCODING_PCM_A_LAW
+          Format.NO_VALUE,
+          ENCODING_INVALID,
+          ENCODING_PCM_8BIT,
+          ENCODING_PCM_16BIT,
+          ENCODING_PCM_24BIT,
+          ENCODING_PCM_32BIT,
+          ENCODING_PCM_FLOAT,
+          ENCODING_PCM_MU_LAW,
+          ENCODING_PCM_A_LAW
   })
   public @interface PcmEncoding {}
   /** @see AudioFormat#ENCODING_INVALID */
@@ -222,14 +227,14 @@ public final class C {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    STREAM_TYPE_ALARM,
-    STREAM_TYPE_DTMF,
-    STREAM_TYPE_MUSIC,
-    STREAM_TYPE_NOTIFICATION,
-    STREAM_TYPE_RING,
-    STREAM_TYPE_SYSTEM,
-    STREAM_TYPE_VOICE_CALL,
-    STREAM_TYPE_USE_DEFAULT
+          STREAM_TYPE_ALARM,
+          STREAM_TYPE_DTMF,
+          STREAM_TYPE_MUSIC,
+          STREAM_TYPE_NOTIFICATION,
+          STREAM_TYPE_RING,
+          STREAM_TYPE_SYSTEM,
+          STREAM_TYPE_VOICE_CALL,
+          STREAM_TYPE_USE_DEFAULT
   })
   public @interface StreamType {}
   /**
@@ -277,11 +282,11 @@ public final class C {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    CONTENT_TYPE_MOVIE,
-    CONTENT_TYPE_MUSIC,
-    CONTENT_TYPE_SONIFICATION,
-    CONTENT_TYPE_SPEECH,
-    CONTENT_TYPE_UNKNOWN
+          CONTENT_TYPE_MOVIE,
+          CONTENT_TYPE_MUSIC,
+          CONTENT_TYPE_SONIFICATION,
+          CONTENT_TYPE_SPEECH,
+          CONTENT_TYPE_UNKNOWN
   })
   public @interface AudioContentType {}
   /**
@@ -296,17 +301,17 @@ public final class C {
    * @see android.media.AudioAttributes#CONTENT_TYPE_SONIFICATION
    */
   public static final int CONTENT_TYPE_SONIFICATION =
-      android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION;
+          android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION;
   /**
    * @see android.media.AudioAttributes#CONTENT_TYPE_SPEECH
    */
   public static final int CONTENT_TYPE_SPEECH =
-      android.media.AudioAttributes.CONTENT_TYPE_SPEECH;
+          android.media.AudioAttributes.CONTENT_TYPE_SPEECH;
   /**
    * @see android.media.AudioAttributes#CONTENT_TYPE_UNKNOWN
    */
   public static final int CONTENT_TYPE_UNKNOWN =
-      android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
+          android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
 
   /**
    * Flags for {@link com.google.android.exoplayer2.audio.AudioAttributes}. Possible flag value is
@@ -318,14 +323,14 @@ public final class C {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
-      flag = true,
-      value = {FLAG_AUDIBILITY_ENFORCED})
+          flag = true,
+          value = {FLAG_AUDIBILITY_ENFORCED})
   public @interface AudioFlags {}
   /**
    * @see android.media.AudioAttributes#FLAG_AUDIBILITY_ENFORCED
    */
   public static final int FLAG_AUDIBILITY_ENFORCED =
-      android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED;
+          android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED;
 
   /**
    * Usage types for {@link com.google.android.exoplayer2.audio.AudioAttributes}. One of {@link
@@ -341,22 +346,22 @@ public final class C {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    USAGE_ALARM,
-    USAGE_ASSISTANCE_ACCESSIBILITY,
-    USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
-    USAGE_ASSISTANCE_SONIFICATION,
-    USAGE_ASSISTANT,
-    USAGE_GAME,
-    USAGE_MEDIA,
-    USAGE_NOTIFICATION,
-    USAGE_NOTIFICATION_COMMUNICATION_DELAYED,
-    USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
-    USAGE_NOTIFICATION_COMMUNICATION_REQUEST,
-    USAGE_NOTIFICATION_EVENT,
-    USAGE_NOTIFICATION_RINGTONE,
-    USAGE_UNKNOWN,
-    USAGE_VOICE_COMMUNICATION,
-    USAGE_VOICE_COMMUNICATION_SIGNALLING
+          USAGE_ALARM,
+          USAGE_ASSISTANCE_ACCESSIBILITY,
+          USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+          USAGE_ASSISTANCE_SONIFICATION,
+          USAGE_ASSISTANT,
+          USAGE_GAME,
+          USAGE_MEDIA,
+          USAGE_NOTIFICATION,
+          USAGE_NOTIFICATION_COMMUNICATION_DELAYED,
+          USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
+          USAGE_NOTIFICATION_COMMUNICATION_REQUEST,
+          USAGE_NOTIFICATION_EVENT,
+          USAGE_NOTIFICATION_RINGTONE,
+          USAGE_UNKNOWN,
+          USAGE_VOICE_COMMUNICATION,
+          USAGE_VOICE_COMMUNICATION_SIGNALLING
   })
   public @interface AudioUsage {}
   /**
@@ -365,17 +370,17 @@ public final class C {
   public static final int USAGE_ALARM = android.media.AudioAttributes.USAGE_ALARM;
   /** @see android.media.AudioAttributes#USAGE_ASSISTANCE_ACCESSIBILITY */
   public static final int USAGE_ASSISTANCE_ACCESSIBILITY =
-      android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY;
+          android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY;
   /**
    * @see android.media.AudioAttributes#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE
    */
   public static final int USAGE_ASSISTANCE_NAVIGATION_GUIDANCE =
-      android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+          android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
   /**
    * @see android.media.AudioAttributes#USAGE_ASSISTANCE_SONIFICATION
    */
   public static final int USAGE_ASSISTANCE_SONIFICATION =
-      android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;
+          android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;
   /** @see android.media.AudioAttributes#USAGE_ASSISTANT */
   public static final int USAGE_ASSISTANT = android.media.AudioAttributes.USAGE_ASSISTANT;
   /**
@@ -394,27 +399,27 @@ public final class C {
    * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_DELAYED
    */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_DELAYED =
-      android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED;
+          android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED;
   /**
    * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_INSTANT
    */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_INSTANT =
-      android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT;
+          android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT;
   /**
    * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_REQUEST
    */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_REQUEST =
-      android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST;
+          android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST;
   /**
    * @see android.media.AudioAttributes#USAGE_NOTIFICATION_EVENT
    */
   public static final int USAGE_NOTIFICATION_EVENT =
-      android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
+          android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
   /**
    * @see android.media.AudioAttributes#USAGE_NOTIFICATION_RINGTONE
    */
   public static final int USAGE_NOTIFICATION_RINGTONE =
-      android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+          android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
   /**
    * @see android.media.AudioAttributes#USAGE_UNKNOWN
    */
@@ -423,12 +428,12 @@ public final class C {
    * @see android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION
    */
   public static final int USAGE_VOICE_COMMUNICATION =
-      android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
+          android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
   /**
    * @see android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION_SIGNALLING
    */
   public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING =
-      android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
+          android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
   /**
    * Audio focus types. One of {@link #AUDIOFOCUS_NONE}, {@link #AUDIOFOCUS_GAIN}, {@link
@@ -438,11 +443,11 @@ public final class C {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    AUDIOFOCUS_NONE,
-    AUDIOFOCUS_GAIN,
-    AUDIOFOCUS_GAIN_TRANSIENT,
-    AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
-    AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
+          AUDIOFOCUS_NONE,
+          AUDIOFOCUS_GAIN,
+          AUDIOFOCUS_GAIN_TRANSIENT,
+          AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
+          AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
   })
   public @interface AudioFocusGain {}
   /** @see AudioManager#AUDIOFOCUS_NONE */
@@ -453,10 +458,10 @@ public final class C {
   public static final int AUDIOFOCUS_GAIN_TRANSIENT = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
   /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK */
   public static final int AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK =
-      AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
+          AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
   /** @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE */
   public static final int AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE =
-      AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
+          AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
 
   /**
    * Flags which can apply to a buffer containing a media sample. Possible flag values are {@link
@@ -466,13 +471,13 @@ public final class C {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
-      flag = true,
-      value = {
-        BUFFER_FLAG_KEY_FRAME,
-        BUFFER_FLAG_END_OF_STREAM,
-        BUFFER_FLAG_ENCRYPTED,
-        BUFFER_FLAG_DECODE_ONLY
-      })
+          flag = true,
+          value = {
+                  BUFFER_FLAG_KEY_FRAME,
+                  BUFFER_FLAG_END_OF_STREAM,
+                  BUFFER_FLAG_ENCRYPTED,
+                  BUFFER_FLAG_DECODE_ONLY
+          })
   public @interface BufferFlags {}
   /**
    * Indicates that a buffer holds a synchronization sample.
@@ -500,12 +505,12 @@ public final class C {
    * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
    */
   public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT =
-      MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT;
+          MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT;
   /**
    * @see MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT
    */
   public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
-      MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
+          MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
   /**
    * A default video scaling mode for {@link MediaCodec}-based {@link Renderer}s.
    */
@@ -518,8 +523,8 @@ public final class C {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
-      flag = true,
-      value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED, SELECTION_FLAG_AUTOSELECT})
+          flag = true,
+          value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED, SELECTION_FLAG_AUTOSELECT})
   public @interface SelectionFlags {}
   /**
    * Indicates that the track should be selected if user preferences do not state otherwise.
@@ -677,7 +682,7 @@ public final class C {
 
   /** A default size in bytes for a muxed buffer (e.g. containing video, audio and text). */
   public static final int DEFAULT_MUXED_BUFFER_SIZE =
-      DEFAULT_VIDEO_BUFFER_SIZE + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
+          DEFAULT_VIDEO_BUFFER_SIZE + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
 
   /** "cenc" scheme type name as defined in ISO/IEC 23001-7:2016. */
   @SuppressWarnings("ConstantField")
@@ -812,11 +817,11 @@ public final class C {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    Format.NO_VALUE,
-    STEREO_MODE_MONO,
-    STEREO_MODE_TOP_BOTTOM,
-    STEREO_MODE_LEFT_RIGHT,
-    STEREO_MODE_STEREO_MESH
+          Format.NO_VALUE,
+          STEREO_MODE_MONO,
+          STEREO_MODE_TOP_BOTTOM,
+          STEREO_MODE_LEFT_RIGHT,
+          STEREO_MODE_STEREO_MESH
   })
   public @interface StereoMode {}
   /**
@@ -919,15 +924,15 @@ public final class C {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    NETWORK_TYPE_UNKNOWN,
-    NETWORK_TYPE_OFFLINE,
-    NETWORK_TYPE_WIFI,
-    NETWORK_TYPE_2G,
-    NETWORK_TYPE_3G,
-    NETWORK_TYPE_4G,
-    NETWORK_TYPE_CELLULAR_UNKNOWN,
-    NETWORK_TYPE_ETHERNET,
-    NETWORK_TYPE_OTHER
+          NETWORK_TYPE_UNKNOWN,
+          NETWORK_TYPE_OFFLINE,
+          NETWORK_TYPE_WIFI,
+          NETWORK_TYPE_2G,
+          NETWORK_TYPE_3G,
+          NETWORK_TYPE_4G,
+          NETWORK_TYPE_CELLULAR_UNKNOWN,
+          NETWORK_TYPE_ETHERNET,
+          NETWORK_TYPE_OTHER
   })
   public @interface NetworkType {}
   /** Unknown network type. */
@@ -983,7 +988,7 @@ public final class C {
   @TargetApi(21)
   public static int generateAudioSessionIdV21(Context context) {
     return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
-        .generateAudioSessionId();
+            .generateAudioSessionId();
   }
 
 }

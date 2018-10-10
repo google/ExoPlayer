@@ -24,10 +24,16 @@ public final class Attribute {
     private static final Pattern regexSDPAttribute = Pattern.compile("(\\w+):\\s*(.+)|(\\w+)",
             Pattern.CASE_INSENSITIVE);
 
+    public final static String CHARSET = "charset";
     public final static String CONTROL = "control";
     public final static String CLIPRECT = "cliprect";
+    public final static String ETAG = "etag";
     public final static String FMTP = "fmtp";
     public final static String FRAMESIZE = "framesize";
+    public final static String XDIMENSIONS = "x-dimensions";
+    public final static String XFRAMERATE = "x-framerate";
+    public final static String XRTPTS = "x-rtp-ts";
+    public final static String XVENDORID = "x-vendor-id";
     public final static String FRAMERATE = "framerate";
     public final static String INACTIVE = "inactive";
     public final static String LENGTH = "length";

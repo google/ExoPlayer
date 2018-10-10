@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.rtsp.core;
+package com.google.android.exoplayer2.source.rtsp.message;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
@@ -42,6 +42,9 @@ public final class Transport {
 
     private static final Pattern regexSsrc =
             Pattern.compile("ssrc=([0-9|a-f|A-F]{8})", Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern regexInterleaved =
+        Pattern.compile(".+;interleaved=(\\d+)-(\\d+)|.+;interleaved=(\\d+)", Pattern.CASE_INSENSITIVE);
 
     public static final Transport SPEC_MP2T = Transport.parse("MP2T/H2221");
     public static final Transport SPEC_RAW = Transport.parse("RAW/RAW");
@@ -153,6 +156,7 @@ public final class Transport {
     private String destination;
 
     private String ssrc;
+    private int[] channels;
 
     Transport(Transport transport) {
         this.deliveryType = transport.deliveryType;
@@ -164,6 +168,7 @@ public final class Transport {
         this.source = transport.source;
         this.destination = transport.destination;
         this.ssrc = transport.ssrc;
+        this.channels = transport.channels;
     }
 
     Transport(@TransportProtocol String transportProtocol, @Profile String profile,
@@ -178,6 +183,15 @@ public final class Transport {
         this.source = source;
         this.destination = destination;
         this.ssrc = ssrc;
+    }
+
+    Transport(@TransportProtocol String transportProtocol, @Profile String profile,
+        @LowerTransport String lowerTransport, int[] channels) {
+        this.deliveryType = unicast;
+        this.transportProtocol = transportProtocol;
+        this.profile = profile;
+        this.lowerTransport = lowerTransport;
+        this.channels = channels;
     }
 
     public String transportProtocol() {
@@ -216,6 +230,8 @@ public final class Transport {
         return ssrc;
     }
 
+    public int[] channels() { return channels; }
+
     @Nullable
     public static Transport parse(String mediaProtocol) {
         return parse(mediaProtocol, null);
@@ -228,6 +244,7 @@ public final class Transport {
         String ssrc = null;
         String[] clientPort = null;
         String[] serverPort = null;
+        int[] channels = null;
         @Profile String profile = RAW_PROFILE;
         @LowerTransport String lowerTransport = UDP;
         @TransportProtocol String transportProtocol = RAW_PROTOCOL;
@@ -262,48 +279,64 @@ public final class Transport {
                 }
             }
 
-            if (mediaProtocol.contains("client_port")) {
-                Matcher matcher = regexClientPort.matcher(mediaProtocol);
+            if (mediaProtocol.contains("interleaved")) {
+                Matcher matcher = regexInterleaved.matcher(mediaProtocol);
                 if (matcher.find()) {
                     if (matcher.group(3) != null) {
-                        clientPort = new String[]{matcher.group(3)};
+                        channels = new int[]{Integer.parseInt(matcher.group(3))};
                     } else {
-                        clientPort = new String[]{matcher.group(1), matcher.group(2)};
+                        channels = new int[]{Integer.parseInt(matcher.group(1)),
+                            Integer.parseInt(matcher.group(2))};
                     }
                 }
 
-                if (mediaProtocol.contains("server_port")) {
-                    matcher = regexServerPort.matcher(mediaProtocol);
+                return new Transport(transportProtocol, profile, lowerTransport, channels);
+
+            } else {
+
+                if (mediaProtocol.contains("client_port")) {
+                    Matcher matcher = regexClientPort.matcher(mediaProtocol);
                     if (matcher.find()) {
                         if (matcher.group(3) != null) {
-                            serverPort = new String[]{matcher.group(3)};
+                            clientPort = new String[]{matcher.group(3)};
                         } else {
-                            serverPort = new String[]{matcher.group(1), matcher.group(2)};
+                            clientPort = new String[]{matcher.group(1), matcher.group(2)};
                         }
                     }
 
-                    matcher = regexSource.matcher(mediaProtocol);
-                    if (matcher.find()) {
-                        source = matcher.group(0).split("=")[1];
-                    }
+                    if (mediaProtocol.contains("server_port")) {
+                        matcher = regexServerPort.matcher(mediaProtocol);
+                        if (matcher.find()) {
+                            if (matcher.group(3) != null) {
+                                serverPort = new String[]{matcher.group(3)};
+                            } else {
+                                serverPort = new String[]{matcher.group(1), matcher.group(2)};
+                            }
+                        }
 
-                    matcher = regexDestination.matcher(mediaProtocol);
-                    if (matcher.find()) {
-                        destination = matcher.group(0).split("=")[1];
+                        matcher = regexSource.matcher(mediaProtocol);
+                        if (matcher.find()) {
+                            source = matcher.group(0).split("=")[1];
+                        }
+
+                        matcher = regexDestination.matcher(mediaProtocol);
+                        if (matcher.find()) {
+                            destination = matcher.group(0).split("=")[1];
+                        }
                     }
                 }
-            }
 
-            if (mediaProtocol.contains("ssrc")) {
-                Matcher matcher = regexSsrc.matcher(mediaProtocol);
+                if (mediaProtocol.contains("ssrc")) {
+                    Matcher matcher = regexSsrc.matcher(mediaProtocol);
 
-                if (matcher.find()) {
-                    ssrc = matcher.group(1);
+                    if (matcher.find()) {
+                        ssrc = matcher.group(1);
+                    }
                 }
-            }
 
-            return new Transport(transportProtocol, profile, lowerTransport,
+                return new Transport(transportProtocol, profile, lowerTransport,
                     clientPort, serverPort, source, destination, ssrc);
+            }
         }
         catch (Exception ex) {
 
@@ -327,27 +360,37 @@ public final class Transport {
 
         str.append(';').append(deliveryType);
 
-        if (clientPort != null && clientPort.length > 0) {
-            str.append(";client_port=").append(clientPort[0]);
+        if (channels != null && channels.length > 0) {
+            str.append(";interleaved=").append(channels[0]);
 
-            if (clientPort.length == 2) {
-                str.append('-').append(clientPort[1]);
+            if (channels.length == 2) {
+                str.append('-').append(channels[1]);
             }
-        }
 
-        if (source != null) {
-            str.append(";source=").append(source);
-        }
+        } else {
 
-        if (destination != null) {
-            str.append(";destination=").append(destination);
-        }
+            if (clientPort != null && clientPort.length > 0) {
+                str.append(";client_port=").append(clientPort[0]);
 
-        if (serverPort != null && serverPort.length > 0) {
-            str.append(";server_port=").append(serverPort[0]);
+                if (clientPort.length == 2) {
+                    str.append('-').append(clientPort[1]);
+                }
+            }
 
-            if (serverPort.length == 2) {
-                str.append('-').append(serverPort[1]);
+            if (source != null) {
+                str.append(";source=").append(source);
+            }
+
+            if (destination != null) {
+                str.append(";destination=").append(destination);
+            }
+
+            if (serverPort != null && serverPort.length > 0) {
+                str.append(";server_port=").append(serverPort[0]);
+
+                if (serverPort.length == 2) {
+                    str.append('-').append(serverPort[1]);
+                }
             }
         }
 

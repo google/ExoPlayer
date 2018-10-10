@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.rtsp.core;
+package com.google.android.exoplayer2.source.rtsp.message;
 
 import java.util.Map;
 
@@ -56,10 +56,10 @@ public final class Response extends Message {
         if (body != null) {
             str.append(Header.ContentType).append(": ").append(body.getContentType()).append("\r\n");
             str.append(Header.ContentLength).append(": ").append(body.getContentLength()).append("\r\n");
-            str.append("\r\n").append(body.getContent()).append("\r\n");
+            str.append("\r\n").append(body.getContent());
+        } else {
+            str.append("\r\n");
         }
-
-        str.append("\r\n");
 
         return str.toString();
     }
