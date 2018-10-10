@@ -9,6 +9,9 @@
     xmlns="urn:mpeg:DASH:schema:MPD:2011"
     xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd"
     yt:earliestMediaSequence="1266404" >
+    <ProgramInformation>
+        <scte214:ContentIdentifier type="URN" value="5939026565177792163" />
+    </ProgramInformation>
     <Period start="PT6462826.784S" >
         <SegmentList
             presentationTimeOffset="34740095"
