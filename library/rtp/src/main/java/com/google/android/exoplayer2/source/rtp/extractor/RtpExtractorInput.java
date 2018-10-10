@@ -19,7 +19,7 @@ import com.google.android.exoplayer2.C;
 
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.source.rtp.RtpPacket;
-import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource;
+import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSinkSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -30,7 +30,7 @@ import java.io.IOException;
  */
 public final class RtpExtractorInput implements ExtractorInput {
 
-  private final RtpDataSource dataSource;
+  private final DataSource dataSource;
 
   private long position;
   private byte[] peekBuffer;
@@ -38,9 +38,9 @@ public final class RtpExtractorInput implements ExtractorInput {
   private int peekBufferLength;
 
   /**
-   * @param dataSource The wrapped {@link RtpDataSource }.
+   * @param dataSource The wrapped {@link RtpDataSinkSource }.
    */
-  public RtpExtractorInput(RtpDataSource dataSource) {
+  public RtpExtractorInput(DataSource dataSource) {
     this.dataSource = dataSource;
 
     peekBuffer = new byte[RtpPacket.MAX_PACKET_SIZE];

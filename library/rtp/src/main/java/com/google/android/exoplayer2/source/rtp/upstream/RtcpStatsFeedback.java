@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.rtp.upstream;
 
 import android.net.Uri;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
@@ -31,27 +30,22 @@ import com.google.android.exoplayer2.source.rtp.rtcp.RtcpSdesPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpSenderInfo;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpSrPacket;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.UdpDataSink;
 import com.google.android.exoplayer2.upstream.UdpDataSinkSource;
-import com.google.android.exoplayer2.upstream.UdpDataSinkSourceFactory;
-import com.google.android.exoplayer2.upstream.UdpDataSource;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
-/* package */ final class RtcpFeedbackSource implements RtcpReportReceiver.EventListener,
-        RtcpReportScheduler.EventListener, RtcpReportSender.EventListener {
+/* package */ final class RtcpStatsFeedback implements RtcpReportReceiver.EventListener,
+        RtcpReportSender.EventListener {
 
-    public interface FeedbackListener {
-        void onFeedbackReport(RtcpPacket packet);
-    }
+    private static final long REPORT_INTERVAL = 5000;
 
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef(flag = true, value = {FLAG_FORCE_EXTERNAL_RECEIVER, FLAG_FORCE_EXTERNAL_FEEDBACK})
-    private @interface Flags {}
-    private static final int FLAG_FORCE_EXTERNAL_RECEIVER = 1;
-    public static final int FLAG_FORCE_EXTERNAL_FEEDBACK = 1 << 1;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private static final long MIDDLE_32_BITS_OUT_OF_64_BITS = 0x0000ffffffff0000L;
 
@@ -75,32 +69,36 @@ import java.util.Random;
     private long localSsrc;
     private long remoteSsrc;
 
-    private @Flags int flags;
-    private FeedbackListener listener;
-
     private RtcpReportReceiver receiver;
     private RtcpReportSender sender;
-    private RtcpReportScheduler scheduler;
 
-    private final UdpDataSinkSource dataSinkSource;
+    private UdpDataSinkSource dataSinkSource;
+    private RtcpOutgoingReportSink outReportSink;
 
-    public RtcpFeedbackSource(Builder builder) {
-        flags = builder.flags;
-        listener = builder.listener;
-        statistics = builder.statistics;
+    public RtcpStatsFeedback(RtpStatistics statistics) {
+        this.statistics = statistics;
 
-        dataSinkSource = (builder.dataSinkSource != null) ? builder.dataSinkSource :
-                new UdpDataSinkSourceFactory().createDataSource();
+        dataSinkSource = new UdpDataSinkSource();
 
-        scheduler = new RtcpReportScheduler(this);
+        sender = new RtcpReportSender(dataSinkSource, this);
+        receiver = new RtcpReportReceiver(dataSinkSource, this);
 
-        if (!isSet(FLAG_FORCE_EXTERNAL_FEEDBACK)) {
-            sender = new RtcpReportSender(dataSinkSource, this);
-        }
+        localSsrc = new Random().nextLong();
+        remoteSsrc = Long.MIN_VALUE;
+    }
 
-        if (!isSet(FLAG_FORCE_EXTERNAL_RECEIVER)) {
-            receiver = new RtcpReportReceiver(dataSinkSource, this);
-        }
+    public RtcpStatsFeedback(RtpStatistics statistics, UdpDataSink dataSink) {
+        this.statistics = statistics;
+
+        sender = new RtcpReportSender(dataSink, this);
+
+        localSsrc = new Random().nextLong();
+        remoteSsrc = Long.MIN_VALUE;
+    }
+
+    public RtcpStatsFeedback(RtpStatistics statistics, RtcpOutgoingReportSink outgoingReportSink) {
+        this.statistics = statistics;
+        this.outReportSink = outgoingReportSink;
 
         localSsrc = new Random().nextLong();
         remoteSsrc = Long.MIN_VALUE;
@@ -114,34 +112,35 @@ import java.util.Random;
         this.remoteSsrc = remoteSsrc;
     }
 
-    public void open() throws UdpDataSource.UdpDataSourceException {
-        if (!isSet(FLAG_FORCE_EXTERNAL_RECEIVER)) {
-            throw new UdpDataSource.UdpDataSourceException("None external source was found");
+    public void open() throws IllegalStateException {
+        if (outReportSink == null && sender == null) {
+            throw new IllegalStateException(
+                "None internal outgoing or data sink was found");
         }
 
         if (!opened) {
-            scheduler.start();
             opened = true;
+            executor.execute(scheduler);
         }
     }
 
     public void open(String host, int port, @DataSpec.Flags int flags)
-            throws UdpDataSource.UdpDataSourceException {
-        if (isSet(FLAG_FORCE_EXTERNAL_RECEIVER)) {
-            throw new UdpDataSource.UdpDataSourceException("An external source was found");
+            throws IOException, IllegalStateException {
+        if (dataSinkSource == null) {
+            throw new IllegalStateException("None data and sink source was found");
         }
 
         if (!opened) {
             dataSinkSource.open(new DataSpec(Uri.parse("rtcp://" + host + ":" + port), flags));
-
-            scheduler.start();
-            receiver.start();
             opened = true;
+
+            receiver.start();
+            executor.execute(scheduler);
         }
     }
 
     public void sendTo(RtcpPacket packet, InetAddress address, int port) {
-        if (!isSet(FLAG_FORCE_EXTERNAL_FEEDBACK)) {
+        if (sender != null) {
             sender.sendTo(packet, address, port);
         }
     }
@@ -176,19 +175,18 @@ import java.util.Random;
         // Do nothing
     }
 
-    // RtcpReportScheduler.EventListener implementation
-
-    @Override
-    public void onReceivedDelaySinceLastReport() {
-        notifyFeedbackReport(false);
-    }
 
     // RtcpReportSender.EventListener implementation
 
     @Override
     public void onLastReportSent() {
-        scheduler.stop();
-        sender.cancel();
+        if (!executor.isShutdown()) {
+            executor.shutdown();
+        }
+
+        if (sender != null) {
+            sender.cancel();
+        }
 
         if (receiver != null) {
             receiver.stop();
@@ -204,9 +202,16 @@ import java.util.Random;
 
     private void notifyFeedbackReport (boolean isLastReport) {
         RtcpPacket packet = buildReportPacket(isLastReport);
-        if (isSet(FLAG_FORCE_EXTERNAL_FEEDBACK)) {
-            listener.onFeedbackReport(packet);
-        } else {
+        if (packet != null && outReportSink != null) {
+
+            byte[] buffer = packet.getBytes();
+            outReportSink.write (buffer, 0, buffer.length);
+
+            if (isLastReport) {
+                onLastReportSent();
+            }
+
+        } else if (sender != null) {
             sender.send(packet, isLastReport);
         }
     }
@@ -278,38 +283,41 @@ import java.util.Random;
         return null;
     }
 
-    private boolean isSet(@Flags int flag) {
-        return (flags & flag) != 0;
+    private void onReceivedDelaySinceLastReport() {
+        notifyFeedbackReport(false);
     }
 
-    public static class Builder {
-        private @Flags int flags;
-        private FeedbackListener listener;
-        private RtpStatistics statistics;
-        private UdpDataSinkSource dataSinkSource;
-
-        public Builder(RtpStatistics statistics) {
-            this.statistics = statistics;
-        }
-
-        public Builder setFeedbackListener(FeedbackListener listener) {
-            if (listener == null) throw new NullPointerException("listener cannot be null");
-
-            this.listener = listener;
-            this.flags = flags | FLAG_FORCE_EXTERNAL_FEEDBACK;
-            return this;
-        }
-
-        public Builder setExternalSource(UdpDataSinkSource dataSinkSource) {
-            if (dataSinkSource == null) throw new NullPointerException("dataSinkSource cannot be null");
-
-            this.dataSinkSource = dataSinkSource;
-            this.flags = flags | FLAG_FORCE_EXTERNAL_RECEIVER;
-            return this;
-        }
-
-        public RtcpFeedbackSource build() {
-            return new RtcpFeedbackSource(this);
-        }
+    private long delayToSendNextRtcpReport() {
+        int random = new Random().nextInt (999);
+        long delayToNext = (REPORT_INTERVAL / 2) + (REPORT_INTERVAL * random / 1000);
+        return delayToNext;
     }
+
+    private Runnable scheduler = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                try {
+
+                    while (!Thread.currentThread().isInterrupted() && opened) {
+                        Thread.sleep(delayToSendNextRtcpReport());
+
+                        if (opened) {
+                            onReceivedDelaySinceLastReport();
+                        }
+                    }
+
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+
+            } catch (RejectedExecutionException e) {
+
+            } finally {
+                if (!executor.isShutdown()) {
+                    executor.shutdown();
+                }
+            }
+        }
+    };
 }

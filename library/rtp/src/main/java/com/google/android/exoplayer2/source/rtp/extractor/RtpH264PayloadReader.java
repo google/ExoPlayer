@@ -184,7 +184,6 @@ import java.util.List;
     private void outputSampleMetadata() {
         if (nalUnitCompleteIndicator) {
             @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
-            //Log.v("RtpH264PayloadReader", "sampleMetadata timestamp=[" + timestampAdjuster.getSampleTimeUs() + "]");
             output.sampleMetadata(timestampAdjuster.getSampleTimeUs(), flags, sampleLength,
                     0, null);
             sampleLength = 0;

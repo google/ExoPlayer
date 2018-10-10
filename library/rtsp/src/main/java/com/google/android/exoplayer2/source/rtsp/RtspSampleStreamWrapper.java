@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.rtsp;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.util.Log;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -28,6 +27,7 @@ import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.source.SampleQueue;
@@ -41,19 +41,22 @@ import com.google.android.exoplayer2.source.rtp.extractor.RtpExtractorInput;
 import com.google.android.exoplayer2.source.rtp.extractor.RtpMp2tExtractor;
 import com.google.android.exoplayer2.source.rtp.format.RtpPayloadFormat;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpRrPacket;
-import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource;
-import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSourceFactory;
-import com.google.android.exoplayer2.source.rtsp.core.Transport;
+import com.google.android.exoplayer2.source.rtp.upstream.RtcpIncomingReportSink;
+import com.google.android.exoplayer2.source.rtp.upstream.RtcpOutgoingReportSink;
+import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSinkSource;
+import com.google.android.exoplayer2.source.rtp.upstream.RtpInternalSamplesSink;
+import com.google.android.exoplayer2.source.rtp.upstream.RtpInternalDataSource;
+import com.google.android.exoplayer2.source.rtsp.message.InterleavedFrame;
+import com.google.android.exoplayer2.source.rtsp.message.Transport;
 import com.google.android.exoplayer2.source.rtsp.media.MediaFormat;
 import com.google.android.exoplayer2.source.rtsp.media.MediaSession;
 import com.google.android.exoplayer2.source.rtsp.media.MediaTrack;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.UdpDataSinkSource;
-import com.google.android.exoplayer2.upstream.UdpDataSinkSourceFactory;
-import com.google.android.exoplayer2.upstream.UdpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -67,13 +70,13 @@ import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
 import static com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES;
-import static com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource.FLAG_ENABLE_RTCP_FEEDBACK;
-import static com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource.FLAG_FORCE_RTCP_MULTIPLEXING;
+import static com.google.android.exoplayer2.source.rtp.upstream.RtpDataSinkSource.FLAG_ENABLE_RTCP_FEEDBACK;
+import static com.google.android.exoplayer2.source.rtp.upstream.RtpDataSinkSource.FLAG_FORCE_RTCP_MULTIPLEXING;
 
 public final class RtspSampleStreamWrapper implements
-        Loader.Callback<RtspSampleStreamWrapper.MediaStreamLoadable>,
-        SequenceableLoader, ExtractorOutput,
-        SampleQueue.UpstreamFormatChangedListener, MediaSession.EventListener {
+    Loader.Callback<RtspSampleStreamWrapper.MediaStreamLoadable>,
+    SequenceableLoader, ExtractorOutput,
+    SampleQueue.UpstreamFormatChangedListener, MediaSession.EventListener {
 
     public interface EventListener {
         void onMediaStreamPrepareStarted(RtspSampleStreamWrapper stream);
@@ -92,7 +95,6 @@ public final class RtspSampleStreamWrapper implements
     private final MediaSession session;
     private final MediaTrack track;
     private final EventListener listener;
-    private final Loader loader;
     private final Runnable maybeFinishPrepareRunnable;
     private final Handler handler;
 
@@ -106,6 +108,8 @@ public final class RtspSampleStreamWrapper implements
     private int enabledTrackCount;
     private boolean released;
 
+    private Loader loader;
+
     // Indexed by track (as exposed by this source).
     private TrackGroupArray trackGroups;
 
@@ -117,10 +121,12 @@ public final class RtspSampleStreamWrapper implements
     private boolean loadingFinished;
 
     private int localPort;
+    private int[] interleavedChannels;
     private MediaStreamLoadable loadable;
 
-    private final TrackIdGenerator trackIdGenerator;
+    private boolean pendingResetMediaStreamLoadable;
 
+    private final TrackIdGenerator trackIdGenerator;
     private final DefaultExtractorsFactory defaultExtractorsFactory;
 
     public RtspSampleStreamWrapper(MediaSession session, MediaTrack track,
@@ -149,6 +155,12 @@ public final class RtspSampleStreamWrapper implements
 
         defaultExtractorsFactory = new DefaultExtractorsFactory();
 
+        inReportSink = new RtcpIncomingReportSink();
+        samplesSink = new RtpInternalSamplesSink();
+
+        outReportSink = new RtcpOutgoingReportSink();
+        outReportSink.addListener(session);
+
         maybeFinishPrepareRunnable = new Runnable() {
             @Override
             public void run() {
@@ -162,13 +174,37 @@ public final class RtspSampleStreamWrapper implements
         session.addListener(this);
     }
 
+    public void setInterleavedChannels(int[] interleavedChannels) {
+        this.interleavedChannels = interleavedChannels;
+    }
+
     public void prepare() {
-        if (loadingFinished || prepared) {
+        if (loadingFinished) {
             return;
         }
 
-        if (!loader.isLoading()) {
-            startLoading();
+        Transport transport = track.format().transport();
+
+        if (!prepared && !loader.isLoading()) {
+            if (Transport.UDP.equals(transport.lowerTransport())) {
+                startUdpMediaLoader();
+            } else {
+                startTcpMediaLoader();
+            }
+
+        } else if (prepared) {
+            pendingResetMediaStreamLoadable = true;
+
+            if (loader.isLoading()) {
+                loader.cancelLoading();
+                loader.release();
+            }
+
+            loader = new Loader("Loader:RtspSampleStreamWrapper");
+
+            if (Transport.TCP.equals(transport.lowerTransport())) {
+                startTcpMediaLoader();
+            }
         }
     }
 
@@ -212,8 +248,8 @@ public final class RtspSampleStreamWrapper implements
     private void sendPunchPacket(String host, int port) {
         try {
             byte[] punchMessage = "Dummy".getBytes();
-            loadable.dataSource.writeTo(punchMessage, 0, punchMessage.length,
-                    InetAddress.getByName(host), port);
+            ((UdpDataSinkSource)loadable.dataSource).writeTo(punchMessage, 0, punchMessage.length,
+                InetAddress.getByName(host), port);
 
         } catch (IOException ex) {
 
@@ -222,7 +258,7 @@ public final class RtspSampleStreamWrapper implements
 
     private void sendRtpPunchPacket(String host, int port) {
         try {
-            ((RtpDataSource)loadable.dataSource).writeTo(new RtpPacket.Builder().build(),
+            ((RtpDataSinkSource)loadable.dataSource).writeTo(new RtpPacket.Builder().build(),
                     InetAddress.getByName(host), port);
 
         } catch (IOException ex) {
@@ -232,11 +268,25 @@ public final class RtspSampleStreamWrapper implements
 
     private void sendRtcpPunchPacket(String host, int port) {
         try {
-            ((RtpDataSource)loadable.dataSource).writeTo(new RtcpRrPacket.Builder().build(),
+            ((RtpDataSinkSource)loadable.dataSource).writeTo(new RtcpRrPacket.Builder().build(),
                     InetAddress.getByName(host), port);
 
         } catch (IOException ex) {
 
+        }
+    }
+
+    public void onInterleavedFrame(InterleavedFrame interleavedFrame) {
+        if (prepared && !loadingFinished && interleavedChannels != null) {
+            byte[] buffer = interleavedFrame.getData();
+
+            if (interleavedFrame.getChannel() == interleavedChannels[0]) {
+                samplesSink.write(buffer, 0, buffer.length);
+
+            } else if (interleavedChannels.length > 1 &&
+                interleavedFrame.getChannel() == interleavedChannels[1]) {
+                inReportSink.write(buffer, 0, buffer.length);
+            }
         }
     }
 
@@ -291,7 +341,11 @@ public final class RtspSampleStreamWrapper implements
     }
 
     public void release() {
-        loader.release(null);
+        if (loader.isLoading()) {
+            loader.cancelLoading();
+            loader.release();
+        }
+
         if (prepared) {
             // Discard as much as we can synchronously. We only do this if we're prepared, since otherwise
             // sampleQueues may still be being modified by the loading thread.
@@ -302,6 +356,13 @@ public final class RtspSampleStreamWrapper implements
             prepared = false;
             playback = false;
         }
+
+        inReportSink.close();
+        samplesSink.close();
+
+        outReportSink.removeListener(session);
+        outReportSink.close();
+
         handler.removeCallbacksAndMessages(null);
         released = true;
     }
@@ -352,13 +413,10 @@ public final class RtspSampleStreamWrapper implements
 
     @Override
     public void onPausePlayback() {
-        Log.v("RtspSampleStreamWrapper", "onPausePlayback");
     }
 
     @Override
     public void onResumePlayback() {
-        Log.v("RtspSampleStreamWrapper", "onResumePlayback: pendingResetPositionUs=["
-                + pendingResetPositionUs + "]");
         if (pendingResetPositionUs != C.TIME_UNSET) {
             if (loader.isLoading() && playback) {
                 loadable.seekLoad();
@@ -368,8 +426,6 @@ public final class RtspSampleStreamWrapper implements
 
     @Override
     public void onSeekPlayback() {
-        Log.v("RtspSampleStreamWrapper", "onSeekPlayback: pendingResetPositionUs=["
-                + pendingResetPositionUs + "]");
         if (pendingResetPositionUs != C.TIME_UNSET) {
             if (loader.isLoading() && playback) {
                 loadable.seekLoad();
@@ -379,7 +435,6 @@ public final class RtspSampleStreamWrapper implements
 
     @Override
     public void onStopPlayback() {
-        Log.v("RtspSampleStreamWrapper", "onStopPlayback");
         if (loader.isLoading() && playback) {
             loadable.cancelLoad();
         }
@@ -443,12 +498,18 @@ public final class RtspSampleStreamWrapper implements
     @Override
     public void onLoadCompleted(MediaStreamLoadable loadable, long elapsedRealtimeMs, long loadDurationMs) {
         loadingFinished = true;
+        pendingResetMediaStreamLoadable = false;
     }
 
     @Override
     public void onLoadCanceled(MediaStreamLoadable loadable, long elapsedRealtimeMs, long loadDurationMs,
                                boolean released) {
-        loadingFinished = true;
+        if (pendingResetMediaStreamLoadable) {
+            pendingResetMediaStreamLoadable = false;
+
+        } else {
+            loadingFinished = true;
+        }
     }
 
     @Override
@@ -561,8 +622,20 @@ public final class RtspSampleStreamWrapper implements
         return true;
     }
 
-    private void startLoading() {
+    /*private void startLoading() {
         loadable = new MediaStreamLoadable(this, handler, loadCondition);
+        loader.startLoading(loadable, this, minLoadableRetryCount);
+        prepared = true;
+    }*/
+
+    private void startUdpMediaLoader() {
+        loadable = new UdpMediaStreamLoadable(this, handler, loadCondition);
+        loader.startLoading(loadable, this, minLoadableRetryCount);
+        prepared = true;
+    }
+
+    private void startTcpMediaLoader() {
+        loadable = new TcpMediaStreamLoadable(this, handler, loadCondition);
         loader.startLoading(loadable, this, minLoadableRetryCount);
         prepared = true;
     }
@@ -601,10 +674,7 @@ public final class RtspSampleStreamWrapper implements
         return new TrackGroupArray(trackGroups);
     }
 
-    /**
-     * Loads the media stream and extracts sample data from it.
-     */
-  /* package */ final class MediaStreamLoadable implements Loader.Loadable {
+    /* package */ abstract class MediaStreamLoadable implements Loader.Loadable {
         /**
          * The maximum length of an datagram data packet size, in bytes.
          * 65535 bytes minus IP header (20 bytes) and UDP header (8 bytes)
@@ -612,26 +682,29 @@ public final class RtspSampleStreamWrapper implements
         public static final int MAX_UDP_PACKET_SIZE = 65507;
 
         private boolean opened;
-
-        private final Handler handler;
-
-        private DataSpec dataSpec;
-        private UdpDataSinkSource dataSource;
+        private DataSource dataSource;
 
         private Extractor extractor;
         private ExtractorInput extractorInput;
         private ExtractorOutput extractorOutput;
 
-        private volatile boolean loadCanceled;
+        protected volatile boolean loadCanceled;
         private volatile boolean pendingReset;
 
+        private final Handler handler;
         private final ConditionVariable loadCondition;
 
         public MediaStreamLoadable(ExtractorOutput extractorOutput, Handler handler,
-                                   ConditionVariable loadCondition) {
+            ConditionVariable loadCondition) {
+            this(extractorOutput, handler, loadCondition, false);
+        }
+
+        public MediaStreamLoadable(ExtractorOutput extractorOutput, Handler handler,
+            ConditionVariable loadCondition, boolean opened) {
             this.extractorOutput = extractorOutput;
             this.loadCondition = loadCondition;
             this.handler = handler;
+            this.opened = opened;
         }
 
         public void seekLoad() {
@@ -639,20 +712,41 @@ public final class RtspSampleStreamWrapper implements
         }
 
         // Loader.Loadable implementation
-
         @Override
         public void cancelLoad() {
             loadCanceled = true;
         }
 
         @Override
-        public void load() throws IOException, InterruptedException, NullPointerException {
-            buildAndOpenDataSource();
-
+        public void load() throws IOException, InterruptedException, NullPointerException,
+                IllegalStateException {
             try {
-                loadCondition.block();
+                openInternal();
 
-                if (opened) {
+                try {
+
+                    loadMedia();
+
+                } catch (IOException ex) {
+                    maybeFinishPlay();
+                    throw ex;
+                }
+
+            } finally {
+                closeInternal();
+            }
+        }
+
+        // Internal methods
+        private void openInternal() throws InterruptedException, IOException {
+            try {
+
+                dataSource = buildAndOpenDataSource();
+
+                if (dataSource == null) {
+                    maybeFailureOpen();
+
+                } else {
 
                     MediaFormat format = track.format();
                     Transport transport = format.transport();
@@ -660,10 +754,10 @@ public final class RtspSampleStreamWrapper implements
                     if (Transport.RTP_PROTOCOL.equals(transport.transportProtocol())) {
 
                         if (transport.ssrc() != null) {
-                            ((RtpDataSource) dataSource).setSsrc(Long.parseLong(transport.ssrc(), 16));
+                            ((RtpDataSinkSource) dataSource).setSsrc(Long.parseLong(transport.ssrc(), 16));
                         }
 
-                        extractorInput = new RtpExtractorInput((RtpDataSource)dataSource);
+                        extractorInput = new RtpExtractorInput(dataSource);
 
                         if (MimeTypes.VIDEO_MP2T.equals(format.format().sampleMimeType())) {
                             extractor = new RtpMp2tExtractor(FLAG_ALLOW_NON_IDR_KEYFRAMES);
@@ -673,7 +767,7 @@ public final class RtspSampleStreamWrapper implements
 
                     } else {
                         extractorInput = new DefaultExtractorInput(dataSource,
-                                dataSpec.absoluteStreamPosition, C.LENGTH_UNSET);
+                                0, C.LENGTH_UNSET);
 
                         if (Transport.MP2T_PROTOCOL.equals(transport.transportProtocol())) {
                             extractor = new TsExtractor(FLAG_ALLOW_NON_IDR_KEYFRAMES);
@@ -686,20 +780,29 @@ public final class RtspSampleStreamWrapper implements
                         }
                     }
 
-                    extractor.init(extractorOutput);
+                    maybeFinishOpen();
 
-                    loadMedia();
+                    if (opened) {
+                        loadCondition.block();
+
+                        if (opened) {
+                            extractor.init(extractorOutput);
+                        }
+
+                    } else {
+                        maybeFailureOpen();
+                        throw new IOException();
+                    }
                 }
-            } finally {
-                loadCondition.open();
+
+            } catch (IOException ex) {
+                maybeFailureOpen();
+                throw ex;
             }
         }
 
-
-        // Internal methods
-
         private Extractor createRawExtractor(ExtractorInput extractorInput)
-                throws IOException, InterruptedException {
+            throws IOException, InterruptedException {
             Extractor rawExtractor = null;
 
             for (Extractor extractor : defaultExtractorsFactory.createExtractors()) {
@@ -716,6 +819,26 @@ public final class RtspSampleStreamWrapper implements
             }
 
             return rawExtractor;
+        }
+
+        private void closeInternal() {
+            Util.closeQuietly(dataSource);
+
+            opened = false;
+            loadCondition.open();
+        }
+
+        protected boolean isPendingReset() {
+            return pendingReset;
+        }
+
+        protected int readInternal(PositionHolder seekPosition) throws IOException, InterruptedException {
+            return extractor.read(extractorInput, seekPosition);
+        }
+
+        protected void seekInternal(long timeUs) throws IOException, InterruptedException {
+            extractor.seek(C.POSITION_UNSET, timeUs);
+            pendingReset = false;
         }
 
         private void maybeFailureOpen() {
@@ -748,7 +871,7 @@ public final class RtspSampleStreamWrapper implements
             });
         }
 
-        private void maybeFinishPlay() {
+        protected void maybeFinishPlay() {
             if (loadCanceled || !opened) {
                 return;
             }
@@ -763,14 +886,31 @@ public final class RtspSampleStreamWrapper implements
             });
         }
 
-        private void buildAndOpenDataSource() {
+        abstract DataSource buildAndOpenDataSource() throws IOException;
+        abstract void loadMedia() throws IOException, InterruptedException;
+
+    }
+
+    /**
+     * Loads the media stream and extracts sample data from udp data source.
+     */
+  /* package */ final class UdpMediaStreamLoadable extends MediaStreamLoadable {
+        private UdpDataSinkSource dataSource;
+
+        public UdpMediaStreamLoadable(ExtractorOutput extractorOutput, Handler handler,
+                                   ConditionVariable loadCondition) {
+            super(extractorOutput, handler, loadCondition);
+        }
+
+        // Internal methods
+        protected DataSource buildAndOpenDataSource() {
             try {
                 MediaFormat format = track.format();
                 Transport transport = format.transport();
-                String urlScheme = "udp";
+                boolean isUdpSchema = false;
 
                 if (Transport.RTP_PROTOCOL.equals(transport.transportProtocol())) {
-                    @RtpDataSource.Flags int flags = 0;
+                    @RtpDataSinkSource.Flags int flags = 0;
                     RtpPayloadFormat payloadFormat = format.format();
                     if (session.isRtcpSupported()) {
                         flags |= FLAG_ENABLE_RTCP_FEEDBACK;
@@ -780,59 +920,110 @@ public final class RtspSampleStreamWrapper implements
                         flags |= FLAG_FORCE_RTCP_MULTIPLEXING;
                     }
 
-                    dataSource = new RtpDataSourceFactory(payloadFormat.clockrate(), flags)
-                            .createDataSource();
-                    urlScheme = "rtp";
+                    dataSource = new RtpDataSinkSource(payloadFormat.clockrate(), flags);
 
                 } else {
-                    dataSource = new UdpDataSinkSourceFactory(MAX_UDP_PACKET_SIZE)
-                            .createDataSource();
+                    dataSource = new UdpDataSinkSource(MAX_UDP_PACKET_SIZE);
+                    isUdpSchema = true;
                 }
 
-                dataSpec = new DataSpec(Uri.parse(urlScheme + "://" + IPV4_ANY_ADDR + ":0"),
-                        DataSpec.FLAG_FORCE_BOUND_LOCAL_ADDRESS);
+                DataSpec dataSpec = new DataSpec(Uri.parse((isUdpSchema ? "udp" : "rtp") + "://" +
+                        IPV4_ANY_ADDR + ":0"), DataSpec.FLAG_FORCE_BOUND_LOCAL_ADDRESS);
 
                 dataSource.open(dataSpec);
 
                 localPort = dataSource.getLocalPort();
 
-                maybeFinishOpen();
+                return dataSource;
 
             } catch (IOException e) {
-                maybeFailureOpen();
+                return null;
             }
         }
 
-        private void loadMedia() throws IOException, InterruptedException {
-            try {
-                int result = Extractor.RESULT_CONTINUE;
-                while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-                    while (result == Extractor.RESULT_CONTINUE && !loadCanceled && !pendingReset) {
-                        try {
-                            result = extractor.read(extractorInput, null);
+        protected void loadMedia() throws IOException, InterruptedException {
+            int result = Extractor.RESULT_CONTINUE;
+            while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
+                while (result == Extractor.RESULT_CONTINUE && !loadCanceled && !isPendingReset()) {
+                    try {
+                        result = readInternal(null);
 
-                        } catch (UdpDataSource.UdpDataSourceException e) {
-                            if (e.getCause() instanceof SocketTimeoutException) {
-                                if (session.getState() == MediaSession.PAUSED) {
-                                    continue;
-                                }
+                    } catch (IOException e) {
+                        if (e.getCause() instanceof SocketTimeoutException) {
+                            if (session.getState() == MediaSession.PAUSED) {
+                                continue;
                             }
-
-                            maybeFinishPlay();
-                            throw e;
                         }
-                    }
 
-                    if (pendingReset && pendingResetPositionUs != C.TIME_UNSET) {
-                        extractor.seek(C.POSITION_UNSET, pendingResetPositionUs);
-                        pendingReset = false;
-                        pendingResetPositionUs = C.TIME_UNSET;
+                        throw e;
                     }
                 }
 
-            } finally {
-                Util.closeQuietly(dataSource);
-                opened = false;
+                if (isPendingReset() && pendingResetPositionUs != C.TIME_UNSET) {
+                    seekInternal(pendingResetPositionUs);
+                    pendingResetPositionUs = C.TIME_UNSET;
+                }
+            }
+        }
+    }
+
+    /**
+     * Loads the media stream and extracts sample data from tcp data source.
+     */
+  /* package */ final class TcpMediaStreamLoadable extends MediaStreamLoadable {
+
+        private DataSource dataSource;
+
+        public TcpMediaStreamLoadable(ExtractorOutput extractorOutput, Handler handler,
+            ConditionVariable loadCondition) {
+            super(extractorOutput, handler, loadCondition, true);
+        }
+
+        // Internal methods
+        protected DataSource buildAndOpenDataSource() {
+            try {
+                MediaFormat format = track.format();
+                Transport transport = format.transport();
+
+                if (Transport.RTP_PROTOCOL.equals(transport.transportProtocol())) {
+                    RtpPayloadFormat payloadFormat = format.format();
+                    samplesSink.open(payloadFormat.clockrate());
+
+                    if (session.isRtcpSupported()) {
+                        inReportSink.open();
+                        outReportSink.open();
+
+                        dataSource = new RtpInternalDataSource(samplesSink, inReportSink,
+                                outReportSink);
+
+                    } else {
+                        dataSource = new RtpInternalDataSource(samplesSink);
+                    }
+                }
+
+                DataSpec dataSpec = new DataSpec(Uri.parse(track.url()));
+                dataSource.open(dataSpec);
+
+                return dataSource;
+
+            } catch (IOException e) {
+                return null;
+            }
+        }
+
+        protected void loadMedia() throws IOException, InterruptedException {
+            int result = Extractor.RESULT_CONTINUE;
+            while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
+                while (result == Extractor.RESULT_CONTINUE && !loadCanceled && !isPendingReset()) {
+                    result = readInternal(null);
+                    // We need to time to avoid cpu overhead.
+                    Thread.sleep(10);
+                }
+
+                if (isPendingReset() && pendingResetPositionUs != C.TIME_UNSET) {
+                    seekInternal(pendingResetPositionUs);
+                    pendingResetPositionUs = C.TIME_UNSET;
+                }
             }
         }
     }

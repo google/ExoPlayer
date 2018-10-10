@@ -89,42 +89,42 @@ public final class MediaDescription {
             attributes = new Vector();
         }
 
-        public MediaDescription.Builder media(Media media) {
+        public Builder media(Media media) {
             if (media == null) throw new IllegalArgumentException("media == null");
 
             this.media = media;
             return this;
         }
 
-        public MediaDescription.Builder info(Information info) {
+        public Builder info(Information info) {
             if (info == null) throw new IllegalArgumentException("info == null");
 
             this.info = info;
             return this;
         }
 
-        public MediaDescription.Builder connection(Connection connection) {
+        public Builder connection(Connection connection) {
             if (connection == null) throw new IllegalArgumentException("connection == null");
 
             this.connection = connection;
             return this;
         }
 
-        public MediaDescription.Builder bandwidth(Bandwidth bandwidth) {
+        public Builder bandwidth(Bandwidth bandwidth) {
             if (bandwidth == null) throw new IllegalArgumentException("bandwidth == null");
 
             this.bandwidth = bandwidth;
             return this;
         }
 
-        public MediaDescription.Builder key(Key key) {
+        public Builder key(Key key) {
             if (key == null) throw new IllegalArgumentException("key == null");
 
             this.key = key;
             return this;
         }
 
-        public MediaDescription.Builder attribute(Attribute attribute) {
+        public Builder attribute(Attribute attribute) {
             if (attribute == null) throw new IllegalArgumentException("attribute == null");
 
             attributes.add(attribute);

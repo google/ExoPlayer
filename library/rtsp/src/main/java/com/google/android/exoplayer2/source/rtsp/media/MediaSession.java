@@ -19,27 +19,33 @@ import android.net.Uri;
 import android.support.annotation.IntDef;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.source.rtp.rtcp.RtcpPacket;
+import com.google.android.exoplayer2.source.rtp.upstream.RtcpOutgoingReportSink;
 import com.google.android.exoplayer2.source.rtsp.RtspSampleStreamWrapper;
-import com.google.android.exoplayer2.source.rtsp.api.Client;
-import com.google.android.exoplayer2.source.rtsp.core.Range;
-import com.google.android.exoplayer2.source.rtsp.core.Transport;
+import com.google.android.exoplayer2.source.rtsp.core.Client;
+import com.google.android.exoplayer2.source.rtsp.message.InterleavedFrame;
+import com.google.android.exoplayer2.source.rtsp.message.Range;
+import com.google.android.exoplayer2.source.rtsp.message.Transport;
 import com.google.android.exoplayer2.video.VideoListener;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.google.android.exoplayer2.source.rtsp.api.Client.FLAG_ENABLE_RTCP_SUPPORT;
-import static com.google.android.exoplayer2.source.rtsp.api.Client.FLAG_FORCE_RTCP_MUXED;
-import static com.google.android.exoplayer2.source.rtsp.api.Client.RTSP_NAT_DUMMY;
+import static com.google.android.exoplayer2.source.rtsp.core.Client.FLAG_ENABLE_RTCP_SUPPORT;
+import static com.google.android.exoplayer2.source.rtsp.core.Client.FLAG_FORCE_RTCP_MUXED;
+import static com.google.android.exoplayer2.source.rtsp.core.Client.RTSP_NAT_DUMMY;
 
-public final class MediaSession implements VideoListener {
+public final class MediaSession implements VideoListener, RtcpOutgoingReportSink.EventListener {
 
     public interface EventListener {
         void onPausePlayback();
@@ -62,6 +68,18 @@ public final class MediaSession implements VideoListener {
     public final static int PAUSED = 4;
     public final static int STOPPED = 5;
 
+    /**
+     * Flags to indicate the delivery mode.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true, value = {UNICAST, MULTICAST, INTERLEAVED, HTTP_TUNNELED})
+    public @interface DeliveryMode {}
+
+    public final static int UNICAST = 0;
+    public final static int MULTICAST = 1;
+    public final static int INTERLEAVED = 2;
+    public final static int HTTP_TUNNELED = 3;
+
     private boolean isVideoTrackEnable;
 
     private final static int DEFAULT_TIMEOUT_MILLIS = 60000;
@@ -83,6 +101,7 @@ public final class MediaSession implements VideoListener {
     private final ConcurrentLinkedQueue<RtspSampleStreamWrapper> prepared;
 
     private final CopyOnWriteArraySet<EventListener> listeners;
+    private final Map<Integer, RtspSampleStreamWrapper> interleavedListeners;
 
     private Uri uri;
     private final String username;
@@ -92,7 +111,9 @@ public final class MediaSession implements VideoListener {
     private final KeepAliveMonitor keepAliveMonitor;
 
     private @SessionState int state;
+    private @DeliveryMode int deliveryMode;
 
+    private int[] tcpChannels;
     private long pendingResetPosition;
 
     MediaSession(Builder builder) {
@@ -104,16 +125,20 @@ public final class MediaSession implements VideoListener {
         duration = C.TIME_UNSET;
 
         listeners = new CopyOnWriteArraySet<>();
+        interleavedListeners = Collections.synchronizedMap(new LinkedHashMap());
 
         tracks = new ArrayList<>();
         preparing = new ConcurrentLinkedQueue<>();
         prepared = new ConcurrentLinkedQueue<>();
 
         state = IDLE;
+        deliveryMode = UNICAST;
+
         timeout = DEFAULT_TIMEOUT_MILLIS;
 
         keepAliveMonitor = new KeepAliveMonitor();
 
+        tcpChannels = new int[0];
         pendingResetPosition = C.TIME_UNSET;
     }
 
@@ -125,9 +150,13 @@ public final class MediaSession implements VideoListener {
 
     public String password() { return password; }
 
-    public int nexCSeq() { return ++cSeq; }
+    public int nextCSeq() { return ++cSeq; }
 
     public int getCSeq() { return cSeq; }
+
+    public int nextTcpChannel() {
+        return (tcpChannels.length == 0) ? 0 : tcpChannels[tcpChannels.length - 1] + 1;
+    }
 
     public void setTimeout(int timeout) { this.timeout = timeout; }
 
@@ -157,6 +186,7 @@ public final class MediaSession implements VideoListener {
 
     public void setDuration(long duration) { this.duration = duration; }
 
+    public boolean isInterleaved() { return tcpChannels.length > 0; }
 
     public @SessionState int getState() { return state; }
 
@@ -330,10 +360,16 @@ public final class MediaSession implements VideoListener {
         MediaTrack track = sampleStreamWrapper.getMediaTrack();
         int localPort = sampleStreamWrapper.getLocalPort();
 
-        client.sendSetupRequest(track, localPort);
+        if (deliveryMode == INTERLEAVED) {
+            Transport transport = Transport.parse("RTP/AVP/TCP;interleaved=" + nextTcpChannel());
+            client.sendSetupRequest(track.url(), transport);
+
+        } else {
+            client.sendSetupRequest(track, localPort);
+        }
     }
 
-    public synchronized void configTransport(Transport transport) {
+    public synchronized void configureTransport(Transport transport) {
         if (prepared.size() > 0) {
             RtspSampleStreamWrapper[] preparedSamples = new RtspSampleStreamWrapper[prepared.size()];
             prepared.toArray(preparedSamples);
@@ -341,6 +377,25 @@ public final class MediaSession implements VideoListener {
             int currentSample = prepared.size() - 1;
             RtspSampleStreamWrapper sampleStreamWrapper = preparedSamples[currentSample];
             sampleStreamWrapper.getMediaTrack().format().transport(transport);
+
+            if (Transport.TCP.equals(transport.lowerTransport())) {
+                int channelsCount = tcpChannels.length;
+                tcpChannels = Arrays.copyOf(tcpChannels,
+                    channelsCount + transport.channels().length);
+
+                System.arraycopy(transport.channels(), 0, tcpChannels, channelsCount,
+                    transport.channels().length);
+
+                sampleStreamWrapper.setInterleavedChannels(transport.channels());
+
+                for (int channel : transport.channels()) {
+                    interleavedListeners.put(channel, sampleStreamWrapper);
+                }
+
+                deliveryMode = INTERLEAVED;
+
+                sampleStreamWrapper.prepare();
+            }
         }
     }
 
@@ -376,6 +431,19 @@ public final class MediaSession implements VideoListener {
         }
     }
 
+    public void onInterleavedFrame(InterleavedFrame interleavedFrame) {
+        for(Map.Entry<Integer, RtspSampleStreamWrapper> entry : interleavedListeners.entrySet()) {
+            Integer channel = entry.getKey();
+            if (channel.intValue() == interleavedFrame.getChannel()) {
+                RtspSampleStreamWrapper sampleStreamWrapper = entry.getValue();
+                sampleStreamWrapper.onInterleavedFrame(interleavedFrame);
+                break;
+            }
+        }
+    }
+
+    // VideoListener implementation
+
     @Override
     public void onVideoSizeChanged(
             int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
@@ -386,6 +454,20 @@ public final class MediaSession implements VideoListener {
     public void onRenderedFirstFrame() {
         if (state == PAUSED) {
             client.sendPauseRequest();
+        }
+    }
+
+    @Override
+    public void onSurfaceSizeChanged(int width, int height) {
+        // Do nothing.
+    }
+
+    // FeedbackListener implementation
+
+    @Override
+    public void onOutgoingReport (RtcpPacket packet) {
+        if (packet != null) {
+            client.dispatch(new InterleavedFrame(tcpChannels[1], packet.getBytes()));
         }
     }
 
@@ -436,7 +518,10 @@ public final class MediaSession implements VideoListener {
         public void cancel() {
             if (enabled) {
                 enabled = false;
-                executor.shutdown();
+
+                if (!executor.isShutdown()) {
+                    executor.shutdown();
+                }
             }
         }
     }

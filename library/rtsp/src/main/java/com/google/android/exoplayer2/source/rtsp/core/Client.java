@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.rtsp.api;
+package com.google.android.exoplayer2.source.rtsp.core;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -29,17 +29,18 @@ import com.google.android.exoplayer2.source.rtsp.auth.AuthScheme;
 import com.google.android.exoplayer2.source.rtsp.auth.BasicCredentials;
 import com.google.android.exoplayer2.source.rtsp.auth.Credentials;
 import com.google.android.exoplayer2.source.rtsp.auth.DigestCredentials;
-import com.google.android.exoplayer2.source.rtsp.core.Header;
-import com.google.android.exoplayer2.source.rtsp.core.Headers;
-import com.google.android.exoplayer2.source.rtsp.core.MediaType;
-import com.google.android.exoplayer2.source.rtsp.core.MessageBody;
-import com.google.android.exoplayer2.source.rtsp.core.Method;
-import com.google.android.exoplayer2.source.rtsp.core.Protocol;
-import com.google.android.exoplayer2.source.rtsp.core.Range;
-import com.google.android.exoplayer2.source.rtsp.core.Request;
-import com.google.android.exoplayer2.source.rtsp.core.Response;
-import com.google.android.exoplayer2.source.rtsp.core.Status;
-import com.google.android.exoplayer2.source.rtsp.core.Transport;
+import com.google.android.exoplayer2.source.rtsp.message.InterleavedFrame;
+import com.google.android.exoplayer2.source.rtsp.message.Header;
+import com.google.android.exoplayer2.source.rtsp.message.Headers;
+import com.google.android.exoplayer2.source.rtsp.media.MediaType;
+import com.google.android.exoplayer2.source.rtsp.message.MessageBody;
+import com.google.android.exoplayer2.source.rtsp.message.Method;
+import com.google.android.exoplayer2.source.rtsp.message.Protocol;
+import com.google.android.exoplayer2.source.rtsp.message.Range;
+import com.google.android.exoplayer2.source.rtsp.message.Request;
+import com.google.android.exoplayer2.source.rtsp.message.Response;
+import com.google.android.exoplayer2.source.rtsp.message.Status;
+import com.google.android.exoplayer2.source.rtsp.message.Transport;
 import com.google.android.exoplayer2.source.rtsp.media.MediaFormat;
 import com.google.android.exoplayer2.source.rtsp.media.MediaSession;
 import com.google.android.exoplayer2.source.rtsp.media.MediaTrack;
@@ -64,7 +65,7 @@ public abstract class Client {
     public interface Factory<T> {
         Factory<T> setFlags(@Flags int flags);
         Factory<T> setNatMethod(@NatMethod int natMethod);
-        T create(Client.Builder builder);
+        T create(Builder builder);
     }
 
     public interface EventListener {
@@ -112,9 +113,9 @@ public abstract class Client {
     @IntDef(flag = true, value = {FLAG_AUTO_DETECT, FLAG_FORCE_RTSP_INTERLEAVED,
             FLAG_FORCE_RTSP_TUNNELING})
     public @interface Mode {}
-    public static final int FLAG_AUTO_DETECT = 0;
-    public static final int FLAG_FORCE_RTSP_INTERLEAVED = 1;
-    public static final int FLAG_FORCE_RTSP_TUNNELING = 2;
+    public static final int FLAG_AUTO_DETECT = 1;
+    public static final int FLAG_FORCE_RTSP_INTERLEAVED = 1 << 1;
+    public static final int FLAG_FORCE_RTSP_TUNNELING = 1 << 2;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {RTSP_NAT_NONE, RTSP_NAT_DUMMY})
@@ -177,12 +178,13 @@ public abstract class Client {
 
     public final void close() {
         if (opened) {
+            opened = false;
+
             session.release();
             dispatcher.close();
             serverMethods.clear();
 
             state = IDLE;
-            opened = false;
         }
     }
 
@@ -204,6 +206,10 @@ public abstract class Client {
 
     public boolean isNatSet(@NatMethod int method) {
         return (natMethod & method) != 0;
+    }
+
+    public final void dispatch(InterleavedFrame interleavedFrame) {
+        dispatcher.execute(interleavedFrame);
     }
 
     public final void dispatch(Request request) {
@@ -519,12 +525,13 @@ public abstract class Client {
             } else {
 
                 Response.Builder builder = new Response.Builder().status(Status.UnsupportedMediaType);
-                builder.header(Header.CSeq, Integer.toString(session().nexCSeq()));
+                builder.header(Header.CSeq, Integer.toString(session().nextCSeq()));
                 builder.header(Header.UserAgent, userAgent());
                 builder.header(Header.Unsupported, mediaType.toString());
 
                 dispatcher.execute(builder.build());
 
+                close();
                 listener.onMediaDescriptionTypeUnSupported(mediaType);
             }
         }
@@ -553,7 +560,7 @@ public abstract class Client {
         }
 
         Transport transport = Transport.parse(response.getHeaders().value(Header.Transport));
-        session.configTransport(transport);
+        session.configureTransport(transport);
         session.continuePreparing();
     }
 
@@ -601,7 +608,7 @@ public abstract class Client {
                             credentials.applyToRequest(request);
 
                             request.getHeaders().add(Header.CSeq.toString(),
-                                    String.valueOf(session.nexCSeq()));
+                                    String.valueOf(session.nextCSeq()));
 
                             dispatcher.execute(request);
                         }
@@ -618,7 +625,7 @@ public abstract class Client {
                             credentials.applyToRequest(request);
 
                             request.getHeaders().add(Header.CSeq.toString(),
-                                    String.valueOf(session.nexCSeq()));
+                                    String.valueOf(session.nextCSeq()));
 
                             dispatcher.execute(request);
                         }
@@ -640,6 +647,11 @@ public abstract class Client {
                 sendDescribeRequest();
             }
 
+        } else if ((Method.SETUP.equals(request.getMethod())) &&
+            (Status.UnsupportedTransport.equals(response.getStatus()))) {
+            sendSetupRequest(request.getUrl(), Transport.parse("RTP/AVP/TCP;interleaved=" +
+                session.nextTcpChannel()));
+
         } else {
             // any other unsuccessful response
             if (state >= READY) {
@@ -648,19 +660,35 @@ public abstract class Client {
                 }
             }
 
+            close();
             listener.onClientError(null);
         }
     }
 
-    public final void onIOError() {
-        listener.onClientError(null);
-    }
-
-    public final void onTimeOut() {
-        listener.onClientError(null);
-    }
-
     public final void onBadRequest() {
+        close();
+        listener.onClientError(null);
+    }
+
+    public final void onIOError() {
+        close();
+        listener.onClientError(null);
+    }
+
+    public final void onRequestTimeOut() {
+        close();
+        listener.onClientError(null);
+    }
+
+    public final void onNoResponse(Request request) {
+        Method method = request.getMethod();
+        if (Method.OPTIONS.equals(method) || Method.GET_PARAMETER.equals(method)) {
+            if (session.isInterleaved()) {
+                return;
+            }
+        }
+
+        close();
         listener.onClientError(null);
     }
 
@@ -669,6 +697,7 @@ public abstract class Client {
     protected abstract void sendOptionsRequest();
     protected abstract void sendDescribeRequest();
     public abstract void sendSetupRequest(MediaTrack track, int localPort);
+    public abstract void sendSetupRequest(String trackId, Transport transport);
     public abstract void sendPlayRequest(Range range);
     public abstract void sendPlayRequest(Range range, float scale);
     public abstract void sendPauseRequest();
@@ -706,22 +735,22 @@ public abstract class Client {
             this.factory = factory;
         }
 
-        public Client.Builder setFlags(@Flags int flags) {
+        public Builder setFlags(@Flags int flags) {
             this.flags = flags;
             return this;
         }
 
-        public Client.Builder setNatMethod(@NatMethod int natMethod) {
+        public Builder setNatMethod(@NatMethod int natMethod) {
             this.natMethod = natMethod;
             return this;
         }
 
-        public Client.Builder setMode(@Mode int mode) {
+        public Builder setMode(@Mode int mode) {
             this.mode = mode;
             return this;
         }
 
-        public Client.Builder setListener(EventListener listener) {
+        public Builder setListener(EventListener listener) {
             if (listener == null) throw new IllegalArgumentException("listener == null");
 
             this.listener = listener;
@@ -736,20 +765,20 @@ public abstract class Client {
          * @param eventListener A listener of events.
          * @return This builder.
          */
-        public Client.Builder setEventListener(Handler eventHandler, MediaSourceEventListener eventListener) {
+        public Builder setEventListener(Handler eventHandler, MediaSourceEventListener eventListener) {
             this.eventHandler = eventHandler;
             this.eventListener = eventListener;
             return this;
         }
 
-        public Client.Builder setRetries(int retries) {
+        public Builder setRetries(int retries) {
             if (retries < 0) throw new IllegalArgumentException("retries is wrong");
 
             this.retries = retries;
             return this;
         }
 
-        public Client.Builder setUri(Uri uri) {
+        public Builder setUri(Uri uri) {
             if (uri == null) throw new NullPointerException("uri == null");
 
             this.uri = uri;

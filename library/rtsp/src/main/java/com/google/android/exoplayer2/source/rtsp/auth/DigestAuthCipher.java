@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.source.rtsp.auth;
 
-import com.google.android.exoplayer2.source.rtsp.core.MessageBody;
-import com.google.android.exoplayer2.source.rtsp.core.Method;
+import com.google.android.exoplayer2.source.rtsp.message.MessageBody;
+import com.google.android.exoplayer2.source.rtsp.message.Method;
 
 public final class DigestAuthCipher extends AuthCipher {
 

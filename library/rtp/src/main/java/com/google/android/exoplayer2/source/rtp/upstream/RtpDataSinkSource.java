@@ -23,15 +23,14 @@ import com.google.android.exoplayer2.source.rtp.rtcp.RtcpPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpSdesPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpSrPacket;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.UdpDataSinkSource;
-import com.google.android.exoplayer2.upstream.UdpDataSource;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.InetAddress;
 
-public final class RtpDataSource extends UdpDataSinkSource {
+public final class RtpDataSinkSource extends UdpDataSinkSource  {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true, value = {FLAG_ENABLE_RTCP_FEEDBACK, FLAG_FORCE_RTCP_MULTIPLEXING})
@@ -45,24 +44,18 @@ public final class RtpDataSource extends UdpDataSinkSource {
     private final RtpSamplesQueue samplesQueue;
 
     private RtpStatistics statistics;
-    private RtcpFeedbackSource feedbackSource;
+    private RtcpStatsFeedback statsFeedback;
 
-    public RtpDataSource(int clockrate) {
-        this(clockrate, 0, null, RtpPacket.MAX_PACKET_SIZE);
+    public RtpDataSinkSource(int clockrate) {
+        this(clockrate, 0, RtpPacket.MAX_PACKET_SIZE);
     }
 
-    public RtpDataSource(int clockrate, @Flags int flags) {
-        this(clockrate, flags, null, RtpPacket.MAX_PACKET_SIZE);
+    public RtpDataSinkSource(int clockrate, @Flags int flags) {
+        this(clockrate, flags, RtpPacket.MAX_PACKET_SIZE);
     }
 
-    public RtpDataSource(int clockrate, @Flags int flags,
-                         TransferListener<? super UdpDataSource> listener) {
-        this(clockrate, flags, listener, RtpPacket.MAX_PACKET_SIZE);
-    }
-
-    public RtpDataSource(int clockrate, @Flags int flags,
-                         TransferListener<? super UdpDataSource> listener, int maxPacketSize) {
-        super(listener, maxPacketSize);
+    public RtpDataSinkSource(int clockrate, @Flags int flags, int maxPacketSize) {
+        super(maxPacketSize);
 
         this.flags = flags;
 
@@ -73,39 +66,39 @@ public final class RtpDataSource extends UdpDataSinkSource {
             statistics = new RtpStatistics();
 
             if (isSet(FLAG_FORCE_RTCP_MULTIPLEXING)) {
-                feedbackSource = new RtcpFeedbackSource.Builder(statistics)
-                        .setExternalSource(this)
-                        .build();
+                statsFeedback = new RtcpStatsFeedback(statistics, this);
+
             } else {
-                feedbackSource = new RtcpFeedbackSource.Builder(statistics)
-                        .build();
+                statsFeedback = new RtcpStatsFeedback(statistics);
             }
         }
     }
 
     public void setSsrc(long ssrc) {
         if (isSet(FLAG_ENABLE_RTCP_FEEDBACK)) {
-            feedbackSource.setRemoteSsrc(ssrc);
+            statsFeedback.setRemoteSsrc(ssrc);
         }
     }
 
     @Override
-    public long open(DataSpec dataSpec) throws UdpDataSourceException {
-        long nbytes = super.open(dataSpec);
+    public long open(DataSpec dataSpec) throws IOException {
+        long bytes = super.open(dataSpec);
 
         if (isSet(FLAG_ENABLE_RTCP_FEEDBACK)) {
             if (isSet(FLAG_FORCE_RTCP_MULTIPLEXING)) {
-                feedbackSource.open();
+                statsFeedback.open();
+
             } else {
-                feedbackSource.open(dataSpec.uri.getHost(), getLocalPort() + 1, dataSpec.flags);
+                statsFeedback.open(dataSpec.uri.getHost(), getLocalPort() + 1,
+                    dataSpec.flags);
             }
         }
 
-        return nbytes;
+        return bytes;
     }
 
     @Override
-    public int read(byte[] buffer, int offset, int readLength) throws UdpDataSourceException {
+    public int read(byte[] buffer, int offset, int readLength) throws IOException {
         int bytesRead = super.read(packetBuffer, 0, RtpPacket.MAX_PACKET_SIZE);
 
         if (bytesRead > 0) {
@@ -121,8 +114,8 @@ public final class RtpDataSource extends UdpDataSinkSource {
                 if (packet != null) {
 
                     if (isSet(FLAG_ENABLE_RTCP_FEEDBACK)) {
-                        if (feedbackSource.getRemoteSsrc() == Long.MIN_VALUE) {
-                            feedbackSource.setRemoteSsrc(packet.ssrc());
+                        if (statsFeedback.getRemoteSsrc() == Long.MIN_VALUE) {
+                            statsFeedback.setRemoteSsrc(packet.ssrc());
                         }
 
                         statistics.update(samplesQueue.getStatsInfo());
@@ -145,7 +138,7 @@ public final class RtpDataSource extends UdpDataSinkSource {
 
                         switch (packetType) {
                             case RtcpPacket.SR:
-                                feedbackSource.onSenderReport((RtcpSrPacket) rtcpPacket);
+                                statsFeedback.onSenderReport((RtcpSrPacket) rtcpPacket);
                                 break;
 
                             case RtcpPacket.COMPOUND:
@@ -154,12 +147,12 @@ public final class RtpDataSource extends UdpDataSinkSource {
                                 for (RtcpPacket simpleRtcpPacket : compoundPacket.getPackets()) {
                                     switch (simpleRtcpPacket.getPayloadType()) {
                                         case RtcpPacket.SR:
-                                            feedbackSource.onSenderReport(
+                                            statsFeedback.onSenderReport(
                                                     (RtcpSrPacket) simpleRtcpPacket);
                                             break;
 
                                         case RtcpPacket.SDES:
-                                            feedbackSource.onSourceDescription(
+                                            statsFeedback.onSourceDescription(
                                                     (RtcpSdesPacket) simpleRtcpPacket);
                                             break;
                                     }
@@ -178,22 +171,22 @@ public final class RtpDataSource extends UdpDataSinkSource {
     }
 
     public void writeTo(RtpPacket packet, InetAddress address, int port)
-            throws UdpDataSourceException {
+            throws IOException {
         byte[] bytes = packet.getBytes();
         super.writeTo(bytes, 0, bytes.length, address, port);
     }
 
     public void writeTo(RtcpPacket packet, InetAddress address, int port)
-            throws UdpDataSourceException {
+            throws IOException {
         if (isSet(FLAG_ENABLE_RTCP_FEEDBACK)) {
-            feedbackSource.sendTo(packet, address, port);
+            statsFeedback.sendTo(packet, address, port);
         }
     }
 
     @Override
     public void close() {
         if (isSet(FLAG_ENABLE_RTCP_FEEDBACK)) {
-            feedbackSource.close();
+            statsFeedback.close();
             statistics.clear();
         }
 
@@ -202,6 +195,6 @@ public final class RtpDataSource extends UdpDataSinkSource {
     }
 
     private boolean isSet(@Flags int flag) {
-        return (flags & flag) != 0;
+        return (flags & flag) > 0;
     }
 }

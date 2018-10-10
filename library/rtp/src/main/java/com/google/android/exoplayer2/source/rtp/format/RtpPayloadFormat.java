@@ -21,11 +21,24 @@ import android.support.annotation.StringDef;
 
 import com.google.android.exoplayer2.util.MimeTypes;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 public abstract class RtpPayloadFormat {
+
+    /**
+     * Thrown when the format is not supported.
+     */
+    public static final class UnsupportedFormatException extends IOException {
+
+        public UnsupportedFormatException(String msg) {
+            super(msg);
+        }
+
+    }
+
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({AUDIO, VIDEO, DATA, TEXT, APPLICATION})
     public @interface MediaType {}

@@ -28,8 +28,8 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
-import com.google.android.exoplayer2.source.rtsp.api.Client;
-import com.google.android.exoplayer2.source.rtsp.core.MediaType;
+import com.google.android.exoplayer2.source.rtsp.core.Client;
+import com.google.android.exoplayer2.source.rtsp.media.MediaType;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -179,7 +179,7 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
         Assertions.checkNotNull(videoComponent, "VideoComponent is null");
 
         client = new Client.Builder(factory).setUri(uri).setListener(this).build();
-        EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
+        eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
 
         try {
 
@@ -189,8 +189,7 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
         } catch (IOException e) {
             eventDispatcher.loadError(
                 new DataSpec(uri), uri, null, C.DATA_TYPE_MEDIA_INITIALIZATION,
-                0, 0, 0,
-                new IOException("Client open failed.", e.getCause()), false);
+                0, 0, 0, null, false);
         }
     }
 
@@ -226,7 +225,8 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     public void onClientError(Throwable throwable) {
         if (eventDispatcher != null) {
             eventDispatcher.loadError(new DataSpec(uri), uri, null, C.DATA_TYPE_MEDIA,
-                0, 0, 0, null, false);
+                0, 0, 0, (throwable == null) ? null :
+                    new IOException(throwable), false);
         }
     }
 }

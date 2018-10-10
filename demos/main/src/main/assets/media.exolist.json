@@ -3,8 +3,36 @@
     "name": "RTSP Streams",
     "samples": [
       {
-        "name": "Live stream TV from HDIPCam IP Camera",
-        "uri": "rtsp://80.28.249.45:8114/rtsph2641080p"
+        "name": "CCTV Camera Portugal",
+        "uri": "rtsp://213.58.156.180/live/ch00_0"
+      },
+      {
+        "name": "CCTV Camera Spain",
+        "uri": "rtsp://88.26.221.17/live/ch00_0"
+      },
+      {
+        "name": "CCTV United States - Cam 1",
+        "uri": "rtsp://98.163.61.244/live/ch00_0"
+      },
+      {
+        "name": "CCTV United States - Cam 2",
+        "uri": "rtsp://207.224.178.221/live/ch00_0"
+      },
+      {
+        "name": "Sony SNC-DH260 - California, Los Angeles",
+        "uri": "rtsp://admin:admin@172.8.60.173/media/video1"
+      },
+      {
+        "name": "Sony SNC-CH140 - Massachusetts, Ipswich",
+        "uri": "rtsp://admin:admin@71.174.52.92/media/video1"
+      },
+      {
+        "name": "Linksys - Florida, Jacksonville",
+        "uri": "rtsp://admin:admin@73.28.232.32/img/video.sav"
+      },
+      {
+        "name": "Live stream from SNC-EP521 Sony Camera",
+        "uri": "rtsp://admin:admin@119.226.50.195/media/video1"
       },
       {
         "name": "Live stream from Danmarks plass",
@@ -17,10 +45,6 @@
       {
         "name": "Live stream TV from Hessdalen - Camera 3",
         "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen03.stream"
-      },
-      {
-        "name": "Live stream from the radar in Hessdalen",
-        "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen05.stream"
       },
       {
         "name": "Video on Demand - Big Buck Bunny Comedy Film",

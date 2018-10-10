@@ -17,7 +17,7 @@
 package com.google.android.exoplayer2.source.rtp.upstream;
 
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpPacket;
-import com.google.android.exoplayer2.upstream.UdpDataSinkSource;
+import com.google.android.exoplayer2.upstream.UdpDataSink;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,27 +25,30 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 
-/* package */ class RtcpReportSender {
+/* package */ final class RtcpReportSender {
     public interface EventListener {
         void onLastReportSent();
     }
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private final UdpDataSinkSource dataSink;
     private final EventListener listener;
+    private final UdpDataSink dataSink;
 
-    public RtcpReportSender(UdpDataSinkSource dataSink, EventListener listener) {
+    public RtcpReportSender(UdpDataSink dataSink, EventListener listener) {
         this.dataSink = dataSink;
         this.listener = listener;
     }
 
     public void cancel() {
-        executorService.shutdown();
+        if (!executorService.isShutdown()) {
+            executorService.shutdown();
+        }
     }
 
     public synchronized void send(final RtcpPacket packet, final boolean isLast) {
         try {
+
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -73,8 +76,9 @@ import java.util.concurrent.RejectedExecutionException;
     }
 
     public synchronized void sendTo(final RtcpPacket packet, final InetAddress address,
-                                     final int port) {
+                                    final int port) {
         try {
+
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {

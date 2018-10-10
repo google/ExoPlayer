@@ -20,6 +20,7 @@ import android.support.annotation.StringDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +47,20 @@ public final class Origin {
     private @NetType String nettype;
     private @AddrType String addrtype;
     private String unicastAddress;
+
+    public Origin(String userName, String unicastAddress) {
+        this(userName, IN, IP4, unicastAddress);
+    }
+
+    public Origin(String userName,
+        @AddrType String addrtype, String unicastAddress) {
+        this(userName, IN, addrtype, unicastAddress);
+    }
+
+    public Origin(String userName, @NetType String nettype,
+        @AddrType String addrtype, String unicastAddress) {
+        this(userName, generateId(), generateId(), nettype, addrtype, unicastAddress);
+    }
 
     Origin(String username, long sessId, long sessVersion, @NetType String nettype,
            @AddrType String addrtype, String unicastAddress) {
@@ -81,6 +96,12 @@ public final class Origin {
 
     public String unicastAddress() {
         return unicastAddress;
+    }
+
+    private static long generateId() {
+        Random rand = new Random(System.nanoTime());
+        long id = System.nanoTime() + System.currentTimeMillis() + rand.nextLong();
+        return Math.abs(id);
     }
 
     @Nullable

@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source.rtsp.api;
+package com.google.android.exoplayer2.source.rtsp.core;
 
 import android.support.annotation.IntDef;
 
-import com.google.android.exoplayer2.source.rtsp.core.Header;
-import com.google.android.exoplayer2.source.rtsp.core.Message;
-import com.google.android.exoplayer2.source.rtsp.core.Method;
-import com.google.android.exoplayer2.source.rtsp.core.Request;
-import com.google.android.exoplayer2.source.rtsp.core.Response;
-import com.google.android.exoplayer2.source.rtsp.core.Status;
+import com.google.android.exoplayer2.source.rtsp.message.InterleavedFrame;
+import com.google.android.exoplayer2.source.rtsp.message.Header;
+import com.google.android.exoplayer2.source.rtsp.message.Message;
+import com.google.android.exoplayer2.source.rtsp.message.Method;
+import com.google.android.exoplayer2.source.rtsp.message.Request;
+import com.google.android.exoplayer2.source.rtsp.message.Response;
+import com.google.android.exoplayer2.source.rtsp.message.Status;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -36,7 +37,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
+import java.util.concurrent.RejectedExecutionException;
 import javax.net.SocketFactory;
 
 /* package */ final class Dispatcher implements Sender.EventListener, Receiver.EventListener {
@@ -66,6 +67,8 @@ import javax.net.SocketFactory;
     final Map<Integer, Request> outstanding;
     final Map<Integer, Request> requests;
 
+    private boolean opened;
+
     Dispatcher(Builder builder) {
         client = builder.client;
         outstanding =  Collections.synchronizedMap(new LinkedHashMap());
@@ -75,28 +78,36 @@ import javax.net.SocketFactory;
     }
 
     public void connect() throws IOException {
-        socket = SocketFactory.getDefault().createSocket();
+        if (!opened) {
+            socket = SocketFactory.getDefault().createSocket();
 
-        address = InetAddress.getByName(client.session.uri().getHost());
+            address = InetAddress.getByName(client.session.uri().getHost());
 
-        int port = client.session.uri().getPort();
+            int port = client.session.uri().getPort();
 
-        socket.connect(new InetSocketAddress(address, (port > 0) ? port : DEFAULT_PORT),
+            socket.connect(new InetSocketAddress(address, (port > 0) ? port : DEFAULT_PORT),
                 DEFAULT_TIMEOUT_MILLIS);
 
-        sender = new Sender(socket.getOutputStream(), this);
-        receiver = new Receiver(socket.getInputStream(), this);
+            sender = new Sender(socket.getOutputStream(), this);
+            receiver = new Receiver(socket.getInputStream(), this);
+
+            opened = true;
+        }
     }
 
     public void close() {
-        sender.cancel();
-        receiver.cancel();
-        requestMonitor.stop();
+        if (opened) {
+            opened = false;
 
-        requests.clear();
-        outstanding.clear();
+            sender.cancel();
+            receiver.cancel();
+            requestMonitor.stop();
 
-        closeQuietly();
+            requests.clear();
+            outstanding.clear();
+
+            closeQuietly();
+        }
     }
 
     private void closeQuietly() {
@@ -108,6 +119,12 @@ import javax.net.SocketFactory;
 
         } catch (IOException e) {
             // Ignore.
+        }
+    }
+
+    public void execute(InterleavedFrame interleavedFrame) {
+        synchronized (this) {
+            sender.send(interleavedFrame);
         }
     }
 
@@ -136,6 +153,11 @@ import javax.net.SocketFactory;
     }
 
     @Override
+    public void onSendSuccess(InterleavedFrame message) {
+        // Do nothing
+    }
+
+    @Override
     public void onSendFailure(Message message) {
         if (message.getType() == Message.REQUEST) {
             Integer cSeq = Integer.parseInt(message.getHeaders().value(Header.CSeq));
@@ -144,6 +166,10 @@ import javax.net.SocketFactory;
         client.onIOError();
     }
 
+    @Override
+    public void onSendFailure(InterleavedFrame message) {
+        client.onIOError();
+    }
 
     // Receiver.EventListener implementation
     @Override
@@ -295,7 +321,7 @@ import javax.net.SocketFactory;
                 } else {
 
                     if (response.getStatus().equals(Status.RequestTimeOut)) {
-                        client.onTimeOut();
+                        client.onRequestTimeOut();
 
                     } else {
 
@@ -317,6 +343,11 @@ import javax.net.SocketFactory;
 
             execute(builder.build());
         }
+    }
+
+    @Override
+    public void onReceiveSuccess(InterleavedFrame interleavedFrame) {
+        client.session().onInterleavedFrame(interleavedFrame);
     }
 
     @Override
@@ -347,10 +378,12 @@ import javax.net.SocketFactory;
      * Monitor the request/reply message.
      */
     /* package */ final class RequestMonitor {
-        private final long DEFAULT_TIMEOUT_REQUEST = 5000;
+        private final long DEFAULT_TIMEOUT_REQUEST = 50000;
 
         private final ExecutorService executorService = Executors.newSingleThreadExecutor();
         private final Map<Integer, Future<?>> tasks;
+
+        private boolean stopped;
 
         public RequestMonitor() {
             tasks = Collections.synchronizedMap(new LinkedHashMap());
@@ -365,31 +398,39 @@ import javax.net.SocketFactory;
         }
 
         public void stop() {
-            executorService.shutdown();
+            if (!executorService.isShutdown()) {
+                executorService.shutdown();
+            }
         }
 
-        public synchronized void wait(Message message) {
+        public synchronized void wait(final Message message) {
             final Integer cSeq = Integer.parseInt(message.getHeaders().value(Header.CSeq));
 
-            if (!Thread.currentThread().isInterrupted()) {
-                tasks.put(cSeq, executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
+            try {
 
-                        try {
+                if (!Thread.currentThread().isInterrupted()) {
+                    tasks.put(cSeq, executorService.submit(new Runnable() {
+                        @Override
+                        public void run() {
 
-                            if (!Thread.currentThread().isInterrupted()) {
-                                Thread.sleep(DEFAULT_TIMEOUT_REQUEST);
+                            try {
+
+                                if (!Thread.currentThread().isInterrupted()) {
+                                    Thread.sleep(DEFAULT_TIMEOUT_REQUEST);
+                                }
+
+                                if (outstanding.containsKey(cSeq)) {
+                                    requests.remove(cSeq);
+                                    client.onNoResponse(outstanding.remove(cSeq));
+                                }
+
+                            } catch (InterruptedException ex) {
                             }
-
-                            if (outstanding.containsKey(cSeq)) {
-                                client.onTimeOut();
-                            }
-
-                        } catch (InterruptedException ex) {
                         }
-                    }
-                }));
+                    }));
+                }
+
+            } catch (RejectedExecutionException ex) {
             }
         }
     }
