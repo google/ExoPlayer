@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.source.sdp.SessionDescription;
 import com.google.android.exoplayer2.source.sdp.core.Attribute;
 import com.google.android.exoplayer2.source.sdp.core.Bandwidth;
 import com.google.android.exoplayer2.source.sdp.core.Media;
+import com.google.android.exoplayer2.util.InetUtil;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -88,13 +89,16 @@ public abstract class Client {
         void onClientError(Throwable throwable);
     }
 
-    private static final Pattern rexegRtpMap = Pattern.compile("\\d+\\s+([a-zA-Z0-9-]*)/(\\d+){1}(/(\\d+))?",
+    private static final Pattern regexRtpMap = Pattern.compile("\\d+\\s+([a-zA-Z0-9-]*)/(\\d+){1}(/(\\d+))?",
             Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern rexegFrameSize = Pattern.compile("(\\d+)\\s+(\\d+)-(\\d+)",
+    private static final Pattern regexFrameSize = Pattern.compile("(\\d+)\\s+(\\d+)-(\\d+)",
             Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern rexegFmtp = Pattern.compile("\\d+\\s+(.+)",
+    private static final Pattern regexXDimensions = Pattern.compile("(\\d+),\\s+(\\d+)",
+            Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern regexFmtp = Pattern.compile("\\d+\\s+(.+)",
             Pattern.CASE_INSENSITIVE);
 
     static final List<Method> METHODS = Collections.unmodifiableList(Arrays.asList(
@@ -422,14 +426,18 @@ public abstract class Client {
 
                                                 Uri uri = session.uri();
                                                 String url = uri.getScheme() + "://" + uri.getHost()
-                                                        + ":" + uri.getPort() + uri.getPath();
+                                                        + ((uri.getPort() > 0) ? ":" + uri.getPort()
+                                                        : "") + uri.getPath();
 
                                                 if (baseUrl != null) {
-                                                    String scheme = Uri.parse(baseUrl).getScheme();
+                                                    Uri uriBaseUrl = Uri.parse(baseUrl);
+                                                    String scheme = uriBaseUrl.getScheme();
                                                     if (scheme != null &&
                                                             "rtsp".equalsIgnoreCase(scheme)) {
-                                                        url = baseUrl;
+                                                        if (!InetUtil.isPrivateIpAddress(uriBaseUrl.getHost())) {
+                                                            url = baseUrl;
                                                         }
+                                                    }
                                                 }
 
                                                 if (url.lastIndexOf('/') == url.length() - 1) {
@@ -449,7 +457,7 @@ public abstract class Client {
 
                                     } else if (payloadBuilder != null) {
                                         if (Attribute.RTPMAP.equalsIgnoreCase(attribute.name())) {
-                                            Matcher matcher = rexegRtpMap.matcher(attribute.value());
+                                            Matcher matcher = regexRtpMap.matcher(attribute.value());
                                             if (matcher.find()) {
                                                 @RtpPayloadFormat.MediaCodec String encoding = matcher.group(1).toUpperCase();
 
@@ -466,7 +474,7 @@ public abstract class Client {
                                             }
                                         /* NOTE: fmtp is only supported AFTER the 'a=rtpmap:xxx' tag */
                                         } else if (Attribute.FMTP.equalsIgnoreCase(attribute.name())) {
-                                            Matcher matcher = rexegFmtp.matcher(attribute.value());
+                                            Matcher matcher = regexFmtp.matcher(attribute.value());
 
                                             if (matcher.find()) {
                                                 String[] encodingParameters = matcher.group(1).split(";");
@@ -479,7 +487,7 @@ public abstract class Client {
                                                     Float.parseFloat(attribute.value()));
 
                                         } else if (Attribute.FRAMESIZE.equalsIgnoreCase(attribute.name())) {
-                                            Matcher matcher = rexegFrameSize.matcher(attribute.value());
+                                            Matcher matcher = regexFrameSize.matcher(attribute.value());
 
                                             if (matcher.find()) {
                                                 ((RtpVideoPayload.Builder) payloadBuilder).width(
@@ -488,6 +496,27 @@ public abstract class Client {
                                                 ((RtpVideoPayload.Builder) payloadBuilder).height(
                                                         Integer.parseInt(matcher.group(3)));
                                             }
+                                        } else if (Attribute.XFRAMERATE.equalsIgnoreCase(attribute.name())) {
+                                            Matcher matcher = regexFrameSize.matcher(attribute.value());
+
+                                            if (matcher.find()) {
+                                                ((RtpVideoPayload.Builder) payloadBuilder).width(
+                                                        Integer.parseInt(matcher.group(2)));
+
+                                                ((RtpVideoPayload.Builder) payloadBuilder).height(
+                                                        Integer.parseInt(matcher.group(3)));
+                                            }
+                                        } else if (Attribute.XDIMENSIONS.equalsIgnoreCase(attribute.name())) {
+                                            Matcher matcher = regexXDimensions.matcher(attribute.value());
+
+                                            if (matcher.find()) {
+                                                ((RtpVideoPayload.Builder) payloadBuilder).width(
+                                                        Integer.parseInt(matcher.group(2)));
+
+                                                ((RtpVideoPayload.Builder) payloadBuilder).height(
+                                                        Integer.parseInt(matcher.group(3)));
+                                            }
+
                                         } else if (Attribute.PTIME.equalsIgnoreCase(attribute.name())) {
                                             ((RtpAudioPayload.Builder) payloadBuilder).
                                                     ptime(Long.parseLong(attribute.value()));
@@ -706,7 +735,6 @@ public abstract class Client {
     protected abstract void sendSetParameterRequest(String name, String value);
     public abstract void sendTeardownRequest();
 
-
     public void sendKeepAlive() {
         if (state >= READY) {
             if (serverMethods.contains(Method.GET_PARAMETER)) {
@@ -717,6 +745,7 @@ public abstract class Client {
             }
         }
     }
+
 
     public static final class Builder {
         Uri uri;

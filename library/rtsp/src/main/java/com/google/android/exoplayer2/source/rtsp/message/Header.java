@@ -58,6 +58,7 @@ public enum Header {
     RetryAfter("Retry-After"),
     Require("Require"),
     RTPInfo("RTP-Info"),
+    RTCPInterval("RTCP-Interval"),
     Scale("Scale"),
     Session("Session"),
     Server("Server"),

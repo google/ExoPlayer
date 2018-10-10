@@ -210,7 +210,7 @@ public final class SessionDescription {
 
             return sesionBuilder.build();
 
-        } catch (Exception exc) {
+        } catch (Exception ex) {
             // quit
         }
 

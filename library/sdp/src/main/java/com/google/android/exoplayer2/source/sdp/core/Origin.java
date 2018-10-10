@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 public final class Origin {
     private static final Pattern regexSDPOrigin =
-            Pattern.compile("(\\S+)\\s(\\d+)\\s(\\d+)\\sIN\\s(\\w+)\\s+(\\S+)",
+            Pattern.compile("(\\S+)\\s(\\d+)\\s(\\d+)\\sIN\\s(\\w+)(?:\\s+(\\S+))?",
                     Pattern.CASE_INSENSITIVE);
 
     @Retention(RetentionPolicy.SOURCE)
@@ -69,7 +69,10 @@ public final class Origin {
         this.sessVersion = sessVersion;
         this.nettype = nettype;
         this.addrtype = addrtype;
-        this.unicastAddress = unicastAddress;
+
+        if (unicastAddress != null) {
+            this.unicastAddress = unicastAddress.trim();
+        }
     }
 
     public String username() {
@@ -114,13 +117,13 @@ public final class Origin {
                     return new Origin(matcher.group(1).trim(),
                             Long.parseLong(matcher.group(2).trim()),
                             Long.parseLong(matcher.group(3).trim()),
-                            IN, IP4, matcher.group(5).trim());
+                            IN, IP4, matcher.group(5));
                 }
                 else if (matcher.group(4).trim().equals(IP6)) {
                     return new Origin(matcher.group(1).trim(),
                             Long.parseLong(matcher.group(2).trim()),
                             Long.parseLong(matcher.group(3).trim()),
-                            IN, IP6, matcher.group(5).trim());
+                            IN, IP6, matcher.group(5));
                 }
             }
 

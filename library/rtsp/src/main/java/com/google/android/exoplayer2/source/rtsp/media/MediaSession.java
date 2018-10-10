@@ -492,7 +492,7 @@ public final class MediaSession implements VideoListener, RtcpOutgoingReportSink
                             try {
 
                                 while (!Thread.currentThread().isInterrupted() && enabled) {
-                                    Thread.sleep(timeout / 2);
+                                    Thread.sleep(timeout - 3000);
                                     client.sendKeepAlive();
                                 }
 

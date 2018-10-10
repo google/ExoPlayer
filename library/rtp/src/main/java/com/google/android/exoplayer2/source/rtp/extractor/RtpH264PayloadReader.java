@@ -114,19 +114,18 @@ import java.util.List;
         sampleReader = new SampleReader(formatId, output, allowNonIdrKeyframes,
                 detectAccessUnits, false, timestampAdjuster);
 
-        if (payloadFormat.width() > 0 && payloadFormat.height() > 0) {
-            List<byte[]> codecSpecificData = payloadFormat.buildCodecSpecificData();
+        List<byte[]> codecSpecificData = payloadFormat.buildCodecSpecificData();
 
-            if (codecSpecificData != null) {
-                format = Format.createVideoSampleFormat(formatId, payloadFormat.sampleMimeType(),
-                        payloadFormat.codecs(), payloadFormat.bitrate(), Format.NO_VALUE,
-                        payloadFormat.width(), payloadFormat.height(), payloadFormat.framerate(),
-                        codecSpecificData, Format.NO_VALUE, payloadFormat.pixelWidthAspectRatio(),
-                        null);
+        if (codecSpecificData != null) {
+            format = Format.createVideoSampleFormat(formatId, payloadFormat.sampleMimeType(),
+                    payloadFormat.codecs(), payloadFormat.bitrate(), Format.NO_VALUE,
+                    payloadFormat.width() > 0 ? payloadFormat.width() : Format.NO_VALUE,
+                    payloadFormat.height() > 0 ? payloadFormat.height() : Format.NO_VALUE, payloadFormat.framerate(),
+                    codecSpecificData, Format.NO_VALUE, payloadFormat.pixelWidthAspectRatio(),
+                    null);
 
-                hasOutputFormat = true;
-                output.format(format);
-            }
+            hasOutputFormat = true;
+            output.format(format);
         }
     }
 
@@ -141,17 +140,9 @@ import java.util.List;
 
         if (lastSequenceNumber == -1) {
             lastSequenceNumber = sequenceNumber - 1;
-
-            this.sequenceNumber = sequenceNumber;
-
-        } else {
-            // We discard the packets that arrive out of order and duplicates
-            if (((sequenceNumber + 1) % 65536) <= lastSequenceNumber) {
-                return false;
-            }
-
-            this.sequenceNumber = sequenceNumber;
         }
+
+        this.sequenceNumber = sequenceNumber;
 
         return true;
     }
@@ -276,6 +267,8 @@ import java.util.List;
         if (isFirstFragmentUnit) {
             fragments.reset();
             fragments.sequence(sequenceNumber);
+
+            //Log.v("RtpH264PayloadReader", "[Fragmented] NAL unit type=[" + nalUnitType + "]");
 
             byte[] fragmentUnit = Arrays.copyOfRange(packet.data, 1, limit);
             fragmentUnit[0] = headerNAL; // replaces FU header octet to NAL unit header octet

@@ -59,6 +59,7 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.UdpDataSinkSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.InetUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Util;
@@ -128,6 +129,10 @@ public final class RtspSampleStreamWrapper implements
 
     private final TrackIdGenerator trackIdGenerator;
     private final DefaultExtractorsFactory defaultExtractorsFactory;
+
+    private final RtpInternalSamplesSink samplesSink;
+    private final RtcpIncomingReportSink inReportSink;
+    private final RtcpOutgoingReportSink outReportSink;
 
     public RtspSampleStreamWrapper(MediaSession session, MediaTrack track,
                                    TrackIdGenerator trackIdGenerator, long positionUs,
@@ -220,23 +225,24 @@ public final class RtspSampleStreamWrapper implements
             if (transport.serverPort() != null && transport.serverPort().length > 0) {
                 int port = Integer.parseInt(transport.serverPort()[0]);
                 for (int count = 0; count < NUM_TIMES_TO_SEND; count++) {
+                    String host = (transport.source() != null) ? transport.source() :
+                            transport.destination();
+
+                    if (host == null || InetUtil.isPrivateIpAddress(host)) {
+                        host = Uri.parse(track.url()).getHost();
+                    }
+
                     if (Transport.RTP_PROTOCOL.equals(transport.transportProtocol())) {
-                        sendRtpPunchPacket((transport.source() != null) ? transport.source() :
-                                (transport.destination() != null) ? transport.destination() :
-                                        Uri.parse(track.url()).getHost(), port);
+                        sendRtpPunchPacket(host, port);
 
                         if (transport.serverPort().length == 2 && session.isRtcpSupported() &&
                                 !session.isRtcpMuxed()) {
                             int rtcpPort = Integer.parseInt(transport.serverPort()[1]);
-                            sendRtcpPunchPacket((transport.source() != null) ? transport.source() :
-                                    (transport.destination() != null) ? transport.destination() :
-                                            Uri.parse(track.url()).getHost(), rtcpPort);
+                            sendRtcpPunchPacket(host, rtcpPort);
                         }
 
                     } else {
-                        sendPunchPacket((transport.source() != null) ? transport.source() :
-                                (transport.destination() != null) ? transport.destination() :
-                                        Uri.parse(track.url()).getHost(), port);
+                        sendPunchPacket(host, port);
                     }
                 }
             }
