@@ -1062,10 +1062,10 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(new ParametersBuilder().setForceLowestBitrate(true).build());
 
     Format lowerBitrateFormat =
-        Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 15000,
+        Format.createAudioSampleFormat("lowerBitrateFormat", MimeTypes.AUDIO_AAC, null, 15000,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
     Format higherBitrateFormat =
-        Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
+        Format.createAudioSampleFormat("higherBitrateFormat", MimeTypes.AUDIO_AAC, null, 30000,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
 
     TrackSelectorResult result =
@@ -1089,10 +1089,10 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(new ParametersBuilder().setForceHighestSupportedBitrate(true).build());
 
     Format lowerBitrateFormat =
-            Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 15000,
+            Format.createAudioSampleFormat("lowerBitrateFormat", MimeTypes.AUDIO_AAC, null, 15000,
                     Format.NO_VALUE, 2, 44100, null, null, 0, null);
     Format higherBitrateFormat =
-            Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
+            Format.createAudioSampleFormat("higherBitrateFormat", MimeTypes.AUDIO_AAC, null, 30000,
                     Format.NO_VALUE, 2, 44100, null, null, 0, null);
 
     TrackSelectorResult result =
