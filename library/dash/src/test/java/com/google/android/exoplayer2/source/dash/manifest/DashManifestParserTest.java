@@ -158,9 +158,8 @@ public class DashManifestParserTest {
     DashManifestParser parser = new DashManifestParser();
     DashManifest mpd = parser.parse(Uri.parse("Https://example.com/test.mpd"),
             TestUtil.getInputStream(RuntimeEnvironment.application, SAMPLE_MPD_1));
-    List<byte[]> list = new ArrayList<>();
-    list.add("<scte214:ContentIdentifier type=\"URN\" value=\"5939026565177792163\" />".getBytes());
-    ProgramInformation programInformation = new ProgramInformation("", "", "", list);
+    ProgramInformation programInformation = new ProgramInformation("MediaTitle", "MediaSource",
+            "MediaCopyright", "www.example.com", "enUs");
     assertThat(programInformation).isEqualTo(mpd.programInformation);
   }
 
