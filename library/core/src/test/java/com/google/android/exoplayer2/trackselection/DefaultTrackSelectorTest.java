@@ -1053,8 +1053,8 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
-   * Tests that track selector will select audio tracks with lower bitrate when {@link Parameters}
-   * indicate lowest bitrate preference, even when tracks are within capabilities.
+   * Tests that track selector will select the lowest supported audio track when
+   * {@link Parameters#forceLowestBitrate} is set.
    */
   @Test
   public void testSelectTracksWithinCapabilitiesAndForceLowestBitrateSelectLowerBitrate()
@@ -1080,8 +1080,8 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
-   * Tests that track selector will select audio tracks with higher bitrate when {@link Parameters}
-   * indicate highest bitrate preference, even when tracks are within capabilities.
+   * Tests that track selector will select the highest supported audio track when
+   * {@link Parameters#forceHighestSupportedBitrate} is set.
    */
   @Test
   public void testSelectTracksWithinCapabilitiesAndForceHighestBitrateSelectHigherBitrate()
