@@ -22,6 +22,9 @@
 * Fix issue where buffered position is not updated correctly when transitioning
   between periods
   ([#4899](https://github.com/google/ExoPlayer/issues/4899)).
+* IMA extension:
+  * For preroll to live stream transitions, project forward the loading position
+    to avoid being behind the live window.
 
 ### 2.9.0 ###
 
