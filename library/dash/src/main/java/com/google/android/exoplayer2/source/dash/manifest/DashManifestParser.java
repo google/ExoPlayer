@@ -985,17 +985,19 @@ public class DashManifestParser extends DefaultHandler
     String title = null;
     String source = null;
     String copyright = null;
+    String moreInformationURL = parseString(xpp, "moreInformationURL", null);
+    String lang = parseString(xpp, "lang", null);
     do {
       xpp.next();
       if (XmlPullParserUtil.isStartTag(xpp, "Title")) {
-        title = xpp.getText();
+        title = xpp.nextText();
       } else if (XmlPullParserUtil.isStartTag(xpp, "Source")) {
-        source = xpp.getText();
+        source = xpp.nextText();
       } else if (XmlPullParserUtil.isStartTag(xpp, "Copyright")) {
-        copyright = xpp.getText();
+        copyright = xpp.nextText();
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "ProgramInformation"));
-    return new ProgramInformation(title, source, copyright);
+    return new ProgramInformation(title, source, copyright, moreInformationURL, lang);
   }
 
   // AudioChannelConfiguration parsing.
