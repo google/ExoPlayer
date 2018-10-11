@@ -1061,6 +1061,9 @@ public final class DefaultTrackSelectorTest {
       throws Exception {
     trackSelector.setParameters(new ParametersBuilder().setForceLowestBitrate(true).build());
 
+    Format exceedsBitrateFormat =
+        Format.createAudioSampleFormat("exceedsBitrateFormat", MimeTypes.AUDIO_AAC, null, 5000,
+                    Format.NO_VALUE, 2, 44100, null, null, 0, null);
     Format lowerBitrateFormat =
         Format.createAudioSampleFormat("lowerBitrateFormat", MimeTypes.AUDIO_AAC, null, 15000,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
@@ -1068,10 +1071,17 @@ public final class DefaultTrackSelectorTest {
         Format.createAudioSampleFormat("higherBitrateFormat", MimeTypes.AUDIO_AAC, null, 30000,
             Format.NO_VALUE, 2, 44100, null, null, 0, null);
 
+    Map<String, Integer> mappedCapabilities = new HashMap<>();
+    mappedCapabilities.put(exceedsBitrateFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
+    mappedCapabilities.put(lowerBitrateFormat.id, FORMAT_HANDLED);
+    mappedCapabilities.put(higherBitrateFormat.id, FORMAT_HANDLED);
+    RendererCapabilities mappedAudioRendererCapabilities =
+            new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, mappedCapabilities);
+
     TrackSelectorResult result =
         trackSelector.selectTracks(
-            new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-            singleTrackGroup(lowerBitrateFormat, higherBitrateFormat),
+            new RendererCapabilities[] {mappedAudioRendererCapabilities},
+            singleTrackGroup(exceedsBitrateFormat, lowerBitrateFormat, higherBitrateFormat),
             periodId,
             TIMELINE);
 
@@ -1094,11 +1104,21 @@ public final class DefaultTrackSelectorTest {
     Format higherBitrateFormat =
             Format.createAudioSampleFormat("higherBitrateFormat", MimeTypes.AUDIO_AAC, null, 30000,
                     Format.NO_VALUE, 2, 44100, null, null, 0, null);
+    Format exceedsBitrateFormat =
+            Format.createAudioSampleFormat("exceedsBitrateFormat", MimeTypes.AUDIO_AAC, null, 45000,
+                    Format.NO_VALUE, 2, 44100, null, null, 0, null);
+
+    Map<String, Integer> mappedCapabilities = new HashMap<>();
+    mappedCapabilities.put(lowerBitrateFormat.id, FORMAT_HANDLED);
+    mappedCapabilities.put(higherBitrateFormat.id, FORMAT_HANDLED);
+    mappedCapabilities.put(exceedsBitrateFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
+    RendererCapabilities mappedAudioRendererCapabilities =
+            new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, mappedCapabilities);
 
     TrackSelectorResult result =
             trackSelector.selectTracks(
-                    new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
-                    singleTrackGroup(lowerBitrateFormat, higherBitrateFormat),
+                    new RendererCapabilities[] {mappedAudioRendererCapabilities},
+                    singleTrackGroup(lowerBitrateFormat, higherBitrateFormat, exceedsBitrateFormat),
                     periodId,
                     TIMELINE);
 
