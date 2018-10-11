@@ -1075,6 +1075,7 @@ public final class DefaultTrackSelectorTest {
             periodId,
             TIMELINE);
 
+    assertThat(result.selections.get(0).length()).isEqualTo(1);
     assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(lowerBitrateFormat);
   }
 
@@ -1101,6 +1102,7 @@ public final class DefaultTrackSelectorTest {
                     periodId,
                     TIMELINE);
 
+    assertThat(result.selections.get(0).length()).isEqualTo(1);
     assertThat(result.selections.get(0).getSelectedFormat()).isEqualTo(higherBitrateFormat);
   }
 
