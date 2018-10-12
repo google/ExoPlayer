@@ -17,6 +17,9 @@ package com.google.android.exoplayer2.source.dash.manifest;
 
 import com.google.android.exoplayer2.util.Util;
 
+/**
+ * A parsed ProgramInformation element.
+ */
 public class ProgramInformation {
   /**
    * The title for the media presentation.
