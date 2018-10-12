@@ -520,9 +520,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @CallSuper
   @Override
-  protected void flushCodec() throws ExoPlaybackException {
-    super.flushCodec();
-    buffersInCodecCount = 0;
+  protected boolean flushOrReleaseCodec() {
+    try {
+      return super.flushOrReleaseCodec();
+    } finally {
+      buffersInCodecCount = 0;
+    }
   }
 
   @Override
@@ -859,7 +862,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // We dropped some buffers to catch up, so update the decoder counters and flush the codec,
     // which releases all pending buffers buffers including the current output buffer.
     updateDroppedBufferCounters(buffersInCodecCount + droppedSourceBufferCount);
-    flushCodec();
+    flushOrReinitCodec();
     return true;
   }
 
