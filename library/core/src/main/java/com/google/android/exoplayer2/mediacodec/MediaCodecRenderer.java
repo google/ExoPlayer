@@ -558,6 +558,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Override
   protected void onDisabled() {
+    if (drmSession != null || pendingDrmSession != null) {
+      // TODO: Do something better with this case.
+      onReset();
+    } else {
+      flushOrReleaseCodec();
+    }
+  }
+
+  @Override
+  protected void onReset() {
     format = null;
     availableCodecInfos = null;
     try {
