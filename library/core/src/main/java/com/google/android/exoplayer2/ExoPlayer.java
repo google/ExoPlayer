@@ -209,4 +209,34 @@ public interface ExoPlayer extends Player {
 
   /** Returns the currently active {@link SeekParameters} of the player. */
   SeekParameters getSeekParameters();
+
+  /**
+   * Sets whether the player is allowed to keep holding limited resources such as video decoders,
+   * even when in the idle state. By doing so, the player may be able to reduce latency when
+   * starting to play another piece of content for which the same resources are required.
+   *
+   * <p>This mode should be used with caution, since holding limited resources may prevent other
+   * players of media components from acquiring them. It should only be enabled when <em>both</em>
+   * of the following conditions are true:
+   *
+   * <ul>
+   *   <li>The application that owns the player is in the foreground.
+   *   <li>The player is used in a way that may benefit from foreground mode. For this to be true,
+   *       the same player instance must be used to play multiple pieces of content, and there must
+   *       be gaps between the playbacks (i.e. {@link #stop} is called to halt one playback, and
+   *       {@link #prepare} is called some time later to start a new one).
+   * </ul>
+   *
+   * <p>Note that foreground mode is <em>not</em> useful for switching between content without gaps
+   * between the playbacks. For this use case {@link #stop} does not need to be called, and simply
+   * calling {@link #prepare} for the new media will cause limited resources to be retained even if
+   * foreground mode is not enabled.
+   *
+   * <p>If foreground mode is enabled, it's the application's responsibility to disable it when the
+   * conditions described above no longer hold.
+   *
+   * @param foregroundMode Whether the player is allowed to keep limited resources even when in the
+   *     idle state.
+   */
+  void setForegroundMode(boolean foregroundMode);
 }
