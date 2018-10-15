@@ -1620,31 +1620,24 @@ public final class Util {
   }
 
   /**
-   * Returns the {@link C.NetworkType} of the current network connection. {@link
-   * C#NETWORK_TYPE_UNKNOWN} will be returned if the {@code ACCESS_NETWORK_STATE} permission is not
-   * granted or the network connection type couldn't be determined.
+   * Returns the {@link C.NetworkType} of the current network connection.
    *
    * @param context A context to access the connectivity manager.
-   * @return The {@link C.NetworkType} of the current network connection, or {@link
-   *     C#NETWORK_TYPE_UNKNOWN} if the {@code ACCESS_NETWORK_STATE} permission is not granted or
-   *     {@code context} is null.
+   * @return The {@link C.NetworkType} of the current network connection.
    */
-  public static @C.NetworkType int getNetworkType(@Nullable Context context) {
+  @C.NetworkType
+  public static int getNetworkType(Context context) {
     if (context == null) {
+      // Note: This is for backward compatibility only (context used to be @Nullable).
       return C.NETWORK_TYPE_UNKNOWN;
     }
     NetworkInfo networkInfo;
-    try {
-      ConnectivityManager connectivityManager =
-          (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-      if (connectivityManager == null) {
-        return C.NETWORK_TYPE_UNKNOWN;
-      }
-      networkInfo = connectivityManager.getActiveNetworkInfo();
-    } catch (SecurityException e) {
-      // Permission ACCESS_NETWORK_STATE not granted.
+    ConnectivityManager connectivityManager =
+        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    if (connectivityManager == null) {
       return C.NETWORK_TYPE_UNKNOWN;
     }
+    networkInfo = connectivityManager.getActiveNetworkInfo();
     if (networkInfo == null || !networkInfo.isConnected()) {
       return C.NETWORK_TYPE_OFFLINE;
     }

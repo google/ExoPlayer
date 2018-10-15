@@ -187,7 +187,9 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
      * @return A bandwidth meter with the configured properties.
      */
     public DefaultBandwidthMeter build() {
-      Long initialBitrateEstimate = initialBitrateEstimates.get(Util.getNetworkType(context));
+      Long initialBitrateEstimate =
+          initialBitrateEstimates.get(
+              context == null ? C.NETWORK_TYPE_UNKNOWN : Util.getNetworkType(context));
       if (initialBitrateEstimate == null) {
         initialBitrateEstimate = initialBitrateEstimates.get(C.NETWORK_TYPE_UNKNOWN);
       }

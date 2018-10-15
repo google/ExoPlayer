@@ -287,7 +287,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
         trackSelector = new DefaultTrackSelector();
       }
       if (bandwidthMeter == null) {
-        bandwidthMeter = new DefaultBandwidthMeter.Builder().build();
+        bandwidthMeter = new DefaultBandwidthMeter.Builder(context).build();
       }
       if (renderersFactory == null) {
         if (renderers == null) {
