@@ -209,22 +209,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @SuppressWarnings("deprecation")
   public void onMediaDrmEvent(int what) {
-    if (!isOpen()) {
-      return;
-    }
     switch (what) {
+      case ExoMediaDrm.EVENT_PROVISION_REQUIRED:
+        onProvisionRequired();
+        break;
       case ExoMediaDrm.EVENT_KEY_REQUIRED:
-        doLicense(false);
+        onKeysRequired();
         break;
       case ExoMediaDrm.EVENT_KEY_EXPIRED:
-        // When an already expired key is loaded MediaDrm sends this event immediately. Ignore
-        // this event if the state isn't STATE_OPENED_WITH_KEYS yet which means we're still
-        // waiting for key response.
         onKeysExpired();
-        break;
-      case ExoMediaDrm.EVENT_PROVISION_REQUIRED:
-        state = STATE_OPENED;
-        provisioningManager.provisionRequired(this);
         break;
       default:
         break;
@@ -441,8 +434,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
+  private void onProvisionRequired() {
+    if (mode == DefaultDrmSessionManager.MODE_PLAYBACK && isOpen()) {
+      state = STATE_OPENED;
+      provisioningManager.provisionRequired(this);
+    }
+  }
+
+  private void onKeysRequired() {
+    if (mode == DefaultDrmSessionManager.MODE_PLAYBACK && isOpen()) {
+      doLicense(/* allowRetry= */ false);
+    }
+  }
+
   private void onKeysExpired() {
-    if (state == STATE_OPENED_WITH_KEYS) {
+    if (mode == DefaultDrmSessionManager.MODE_PLAYBACK && state == STATE_OPENED_WITH_KEYS) {
       state = STATE_OPENED;
       onError(new KeysExpiredException());
     }
