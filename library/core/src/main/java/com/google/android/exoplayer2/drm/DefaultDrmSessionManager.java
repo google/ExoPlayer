@@ -589,6 +589,10 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
   @Override
   public void provisionRequired(DefaultDrmSession<T> session) {
+    if (provisioningSessions.contains(session)) {
+      // The session has already requested provisioning.
+      return;
+    }
     provisioningSessions.add(session);
     if (provisioningSessions.size() == 1) {
       // This is the first session requesting provisioning, so have it perform the operation.
@@ -649,6 +653,10 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     @Override
     public void handleMessage(Message msg) {
       byte[] sessionId = (byte[]) msg.obj;
+      if (sessionId == null) {
+        // The event is not associated with any particular session.
+        return;
+      }
       for (DefaultDrmSession<T> session : sessions) {
         if (session.hasSessionId(sessionId)) {
           session.onMediaDrmEvent(msg.what);
@@ -668,9 +676,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         int event,
         int extra,
         @Nullable byte[] data) {
-      if (mode == DefaultDrmSessionManager.MODE_PLAYBACK) {
-        Assertions.checkNotNull(mediaDrmHandler).obtainMessage(event, sessionId).sendToTarget();
-      }
+      Assertions.checkNotNull(mediaDrmHandler).obtainMessage(event, sessionId).sendToTarget();
     }
 
   }
