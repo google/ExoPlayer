@@ -155,6 +155,8 @@ public class DashManifestParser extends DefaultHandler
               : (period.startMs + periodDurationMs);
           periods.add(period);
         }
+      } else {
+        maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "MPD"));
 
@@ -221,6 +223,8 @@ public class DashManifestParser extends DefaultHandler
         segmentBase = parseSegmentList(xpp, null);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, null);
+      } else {
+        maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "Period"));
 
@@ -409,22 +413,26 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "widevine:license")) {
         String robustnessLevel = xpp.getAttributeValue(null, "robustness_level");
         requiresSecureDecoder = robustnessLevel != null && robustnessLevel.startsWith("HW");
-      } else if (data == null) {
-        if (XmlPullParserUtil.isStartTagIgnorePrefix(xpp, "pssh")
-            && xpp.next() == XmlPullParser.TEXT) {
-          // The cenc:pssh element is defined in 23001-7:2015.
-          data = Base64.decode(xpp.getText(), Base64.DEFAULT);
-          uuid = PsshAtomUtil.parseUuid(data);
-          if (uuid == null) {
-            Log.w(TAG, "Skipping malformed cenc:pssh data");
-            data = null;
-          }
-        } else if (C.PLAYREADY_UUID.equals(uuid) && XmlPullParserUtil.isStartTag(xpp, "mspr:pro")
-            && xpp.next() == XmlPullParser.TEXT) {
-          // The mspr:pro element is defined in DASH Content Protection using Microsoft PlayReady.
-          data = PsshAtomUtil.buildPsshAtom(C.PLAYREADY_UUID,
-              Base64.decode(xpp.getText(), Base64.DEFAULT));
+      } else if (data == null
+          && XmlPullParserUtil.isStartTagIgnorePrefix(xpp, "pssh")
+          && xpp.next() == XmlPullParser.TEXT) {
+        // The cenc:pssh element is defined in 23001-7:2015.
+        data = Base64.decode(xpp.getText(), Base64.DEFAULT);
+        uuid = PsshAtomUtil.parseUuid(data);
+        if (uuid == null) {
+          Log.w(TAG, "Skipping malformed cenc:pssh data");
+          data = null;
         }
+      } else if (data == null
+          && C.PLAYREADY_UUID.equals(uuid)
+          && XmlPullParserUtil.isStartTag(xpp, "mspr:pro")
+          && xpp.next() == XmlPullParser.TEXT) {
+        // The mspr:pro element is defined in DASH Content Protection using Microsoft PlayReady.
+        data =
+            PsshAtomUtil.buildPsshAtom(
+                C.PLAYREADY_UUID, Base64.decode(xpp.getText(), Base64.DEFAULT));
+      } else {
+        maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "ContentProtection"));
     SchemeData schemeData =
@@ -462,7 +470,7 @@ public class DashManifestParser extends DefaultHandler
    */
   protected void parseAdaptationSetChild(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
-    // pass
+    maybeSkipTag(xpp);
   }
 
   // Representation parsing.
@@ -526,6 +534,8 @@ public class DashManifestParser extends DefaultHandler
         inbandEventStreams.add(parseDescriptor(xpp, "InbandEventStream"));
       } else if (XmlPullParserUtil.isStartTag(xpp, "SupplementalProperty")) {
         supplementalProperties.add(parseDescriptor(xpp, "SupplementalProperty"));
+      } else {
+        maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "Representation"));
 
@@ -664,6 +674,8 @@ public class DashManifestParser extends DefaultHandler
       xpp.next();
       if (XmlPullParserUtil.isStartTag(xpp, "Initialization")) {
         initialization = parseInitialization(xpp);
+      } else {
+        maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "SegmentBase"));
 
@@ -701,6 +713,8 @@ public class DashManifestParser extends DefaultHandler
           segments = new ArrayList<>();
         }
         segments.add(parseSegmentUrl(xpp));
+      } else {
+        maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "SegmentList"));
 
@@ -747,6 +761,8 @@ public class DashManifestParser extends DefaultHandler
         initialization = parseInitialization(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTimeline")) {
         timeline = parseSegmentTimeline(xpp);
+      } else {
+        maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "SegmentTemplate"));
 
@@ -794,6 +810,8 @@ public class DashManifestParser extends DefaultHandler
         EventMessage event = parseEvent(xpp, schemeIdUri, value, timescale,
             scratchOutputStream);
         eventMessages.add(event);
+      } else {
+        maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "EventStream"));
 
@@ -932,6 +950,8 @@ public class DashManifestParser extends DefaultHandler
           segmentTimeline.add(buildSegmentTimelineElement(elapsedTime, duration));
           elapsedTime += duration;
         }
+      } else {
+        maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "SegmentTimeline"));
     return segmentTimeline;
@@ -994,6 +1014,29 @@ public class DashManifestParser extends DefaultHandler
   }
 
   // Utility methods.
+
+  /**
+   * If the provided {@link XmlPullParser} is currently positioned at the start of a tag, skips
+   * forward to the end of that tag.
+   *
+   * @param xpp The {@link XmlPullParser}.
+   * @throws XmlPullParserException If an error occurs parsing the stream.
+   * @throws IOException If an error occurs reading the stream.
+   */
+  public static void maybeSkipTag(XmlPullParser xpp) throws IOException, XmlPullParserException {
+    if (!XmlPullParserUtil.isStartTag(xpp)) {
+      return;
+    }
+    int depth = 1;
+    while (depth != 0) {
+      xpp.next();
+      if (XmlPullParserUtil.isStartTag(xpp)) {
+        depth++;
+      } else if (XmlPullParserUtil.isEndTag(xpp)) {
+        depth--;
+      }
+    }
+  }
 
   /**
    * Removes unnecessary {@link SchemeData}s with null {@link SchemeData#data}.
