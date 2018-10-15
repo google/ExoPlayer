@@ -423,7 +423,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
     this.firstVideoTrackIndex = firstVideoTrackIndex;
     this.durationUs = durationUs;
-    this.tracks = tracks.toArray(new Mp4Track[tracks.size()]);
+    this.tracks = tracks.toArray(new Mp4Track[0]);
     accumulatedSampleSizes = calculateAccumulatedSampleSizes(this.tracks);
 
     extractorOutput.endTracks();

@@ -11,7 +11,7 @@
   <string name="exo_controls_repeat_one_description">एक रीपीट करा</string>
   <string name="exo_controls_repeat_all_description">सर्व रीपीट करा</string>
   <string name="exo_controls_shuffle_description">शफल करा</string>
-  <string name="exo_controls_fullscreen_description">पूर्ण स्क्रीन मोड</string>
+  <string name="exo_controls_fullscreen_description">फुल स्क्रीन मोड</string>
   <string name="exo_download_description">डाउनलोड करा</string>
   <string name="exo_download_notification_channel_name">डाउनलोड</string>
   <string name="exo_download_downloading">डाउनलोड होत आहे</string>

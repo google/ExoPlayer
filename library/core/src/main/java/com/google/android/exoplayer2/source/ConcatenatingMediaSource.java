@@ -801,6 +801,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
     public final MediaSource mediaSource;
     public final Object uid;
+    public final List<DeferredMediaPeriod> activeMediaPeriods;
 
     public DeferredTimeline timeline;
     public int childIndex;
@@ -809,7 +810,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     public boolean hasStartedPreparing;
     public boolean isPrepared;
     public boolean isRemoved;
-    public List<DeferredMediaPeriod> activeMediaPeriods;
 
     public MediaSourceHolder(MediaSource mediaSource) {
       this.mediaSource = mediaSource;

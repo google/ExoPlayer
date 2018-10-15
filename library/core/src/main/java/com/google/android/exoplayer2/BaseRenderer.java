@@ -153,6 +153,12 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     onDisabled();
   }
 
+  @Override
+  public final void reset() {
+    Assertions.checkState(state == STATE_DISABLED);
+    onReset();
+  }
+
   // RendererCapabilities implementation.
 
   @Override
@@ -244,6 +250,15 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * The default implementation is a no-op.
    */
   protected void onDisabled() {
+    // Do nothing.
+  }
+
+  /**
+   * Called when the renderer is reset.
+   *
+   * <p>The default implementation is a no-op.
+   */
+  protected void onReset() {
     // Do nothing.
   }
 
