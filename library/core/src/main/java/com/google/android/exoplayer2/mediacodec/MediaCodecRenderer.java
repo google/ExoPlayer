@@ -546,9 +546,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;
-    if (codec != null) {
-      flushCodec();
-    }
+    flushOrReinitCodec();
     formatQueue.clear();
   }
 
@@ -560,6 +558,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Override
   protected void onDisabled() {
+    if (drmSession != null || pendingDrmSession != null) {
+      // TODO: Do something better with this case.
+      onReset();
+    } else {
+      flushOrReleaseCodec();
+    }
+  }
+
+  @Override
+  protected void onReset() {
     format = null;
     availableCodecInfos = null;
     try {
@@ -687,10 +695,36 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     decoderCounters.ensureUpdated();
   }
 
-  protected void flushCodec() throws ExoPlaybackException {
+  /**
+   * Flushes the codec. If flushing is not possible, the codec will be released and re-instantiated.
+   * This method is a no-op if the codec is {@code null}.
+   *
+   * <p>The implementation of this method calls {@link #flushOrReleaseCodec()}, and {@link
+   * #maybeInitCodec()} if the codec needs to be re-instantiated.
+   *
+   * @throws ExoPlaybackException If an error occurs re-instantiating the codec.
+   */
+  protected final void flushOrReinitCodec() throws ExoPlaybackException {
+    if (flushOrReleaseCodec()) {
+      maybeInitCodec();
+    }
+  }
+
+  /**
+   * Flushes the codec. If flushing is not possible, the codec will be released. This method is a
+   * no-op if the codec is {@code null}.
+   *
+   * @return Whether the codec was released.
+   */
+  protected boolean flushOrReleaseCodec() {
+    if (codec == null) {
+      // Nothing to do.
+      return false;
+    }
     codecHotswapDeadlineMs = C.TIME_UNSET;
     resetInputBuffer();
     resetOutputBuffer();
+    codecReceivedBuffers = false;
     waitingForFirstSyncFrame = true;
     waitingForKeys = false;
     shouldSkipOutputBuffer = false;
@@ -699,28 +733,27 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     shouldSkipAdaptationWorkaroundOutputBuffer = false;
     if (codecNeedsFlushWorkaround || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
       releaseCodec();
-      maybeInitCodec();
+      return true;
     } else if (codecReinitializationState != REINITIALIZATION_STATE_NONE) {
       // We're already waiting to re-initialize the codec. Since we're now flushing, there's no need
       // to wait any longer.
       if (codecReinitializationIsRelease) {
         releaseCodec();
-        maybeInitCodec();
+        return true;
       } else {
         codec.flush();
-        codecReceivedBuffers = false;
         codecReinitializationState = REINITIALIZATION_STATE_NONE;
       }
     } else {
       // We can flush and re-use the existing decoder.
       codec.flush();
-      codecReceivedBuffers = false;
     }
     if (codecReconfigured && format != null) {
       // Any reconfiguration data that we send shortly before the flush may be discarded. We
       // avoid this issue by sending reconfiguration data following every flush.
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     }
+    return false;
   }
 
   private boolean initCodecWithFallback(MediaCrypto crypto, boolean drmSessionRequiresSecureDecoder)
@@ -1496,7 +1529,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         releaseCodec();
         maybeInitCodec();
       } else {
-        flushCodec();
+        flushOrReinitCodec();
       }
     } else {
       outputStreamEnded = true;

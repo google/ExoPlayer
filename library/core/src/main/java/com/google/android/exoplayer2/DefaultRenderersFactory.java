@@ -187,7 +187,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
         extensionRendererMode, renderersList);
     buildCameraMotionRenderers(context, extensionRendererMode, renderersList);
     buildMiscellaneousRenderers(context, eventHandler, extensionRendererMode, renderersList);
-    return renderersList.toArray(new Renderer[renderersList.size()]);
+    return renderersList.toArray(new Renderer[0]);
   }
 
   /**

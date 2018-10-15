@@ -81,8 +81,9 @@ public abstract class BinarySearchSeeker {
    */
   public static final class OutputFrameHolder {
 
+    public final ByteBuffer byteBuffer;
+
     public long timeUs;
-    public ByteBuffer byteBuffer;
 
     /** Constructs an instance, wrapping the given byte buffer. */
     public OutputFrameHolder(ByteBuffer outputByteBuffer) {

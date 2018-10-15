@@ -105,9 +105,12 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
     }
 
     @Override
-    protected void flushCodec() throws ExoPlaybackException {
-      super.flushCodec();
-      clearTimestamps();
+    protected boolean flushOrReleaseCodec() {
+      try {
+        return super.flushOrReleaseCodec();
+      } finally {
+        clearTimestamps();
+      }
     }
 
     @Override
