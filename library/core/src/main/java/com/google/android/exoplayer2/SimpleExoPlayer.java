@@ -959,6 +959,11 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void setForegroundMode(boolean foregroundMode) {
+    player.setForegroundMode(foregroundMode);
+  }
+
+  @Override
   public void stop(boolean reset) {
     verifyApplicationThread();
     player.stop(reset);
