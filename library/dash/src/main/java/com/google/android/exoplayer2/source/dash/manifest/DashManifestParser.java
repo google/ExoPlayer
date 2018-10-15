@@ -1015,6 +1015,8 @@ public class DashManifestParser extends DefaultHandler
         source = xpp.nextText();
       } else if (XmlPullParserUtil.isStartTag(xpp, "Copyright")) {
         copyright = xpp.nextText();
+      } else {
+        maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "ProgramInformation"));
     return new ProgramInformation(title, source, copyright, moreInformationURL, lang);
