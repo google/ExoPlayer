@@ -27,7 +27,7 @@ public final class VpxLibrary {
     ExoPlayerLibraryInfo.registerModule("goog.exo.vpx");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("vpx", "vpxJNI");
+  private static final LibraryLoader LOADER = new LibraryLoader("vpx", "vpxV2JNI");
 
   private VpxLibrary() {}
 
