@@ -44,7 +44,6 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Implements the internal behavior of {@link ExoPlayerImpl}. */
 /* package */ final class ExoPlayerImplInternal
@@ -77,10 +76,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_TRACK_SELECTION_INVALIDATED = 11;
   private static final int MSG_SET_REPEAT_MODE = 12;
   private static final int MSG_SET_SHUFFLE_ENABLED = 13;
-  private static final int MSG_SET_FOREGROUND_MODE = 14;
-  private static final int MSG_SEND_MESSAGE = 15;
-  private static final int MSG_SEND_MESSAGE_TO_TARGET_THREAD = 16;
-  private static final int MSG_PLAYBACK_PARAMETERS_CHANGED_INTERNAL = 17;
+  private static final int MSG_SEND_MESSAGE = 14;
+  private static final int MSG_SEND_MESSAGE_TO_TARGET_THREAD = 15;
+  private static final int MSG_PLAYBACK_PARAMETERS_CHANGED_INTERNAL = 16;
 
   private static final int PREPARING_SOURCE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
@@ -117,7 +115,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private boolean rebuffering;
   @Player.RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
-  private boolean foregroundMode;
 
   private int pendingPrepareCount;
   private SeekPosition pendingInitialSeekPosition;
@@ -221,29 +218,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     handler.obtainMessage(MSG_SEND_MESSAGE, message).sendToTarget();
   }
 
-  public synchronized void setForegroundMode(boolean foregroundMode) {
-    if (foregroundMode) {
-      handler.obtainMessage(MSG_SET_FOREGROUND_MODE, /* foregroundMode */ 1, 0).sendToTarget();
-    } else {
-      AtomicBoolean processedFlag = new AtomicBoolean();
-      handler
-          .obtainMessage(MSG_SET_FOREGROUND_MODE, /* foregroundMode */ 0, 0, processedFlag)
-          .sendToTarget();
-      boolean wasInterrupted = false;
-      while (!processedFlag.get() && !released) {
-        try {
-          wait();
-        } catch (InterruptedException e) {
-          wasInterrupted = true;
-        }
-      }
-      if (wasInterrupted) {
-        // Restore the interrupted status.
-        Thread.currentThread().interrupt();
-      }
-    }
-  }
-
   public synchronized void release() {
     if (released) {
       return;
@@ -337,15 +311,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         case MSG_SET_SEEK_PARAMETERS:
           setSeekParametersInternal((SeekParameters) msg.obj);
           break;
-        case MSG_SET_FOREGROUND_MODE:
-          setForegroundModeInternal(
-              /* foregroundMode= */ msg.arg1 != 0, /* processedFlag= */ (AtomicBoolean) msg.obj);
-          break;
         case MSG_STOP:
-          stopInternal(
-              /* forceResetRenderers= */ false,
-              /* resetPositionAndState= */ msg.arg1 != 0,
-              /* acknowledgeStop= */ true);
+          stopInternal(/* reset= */ msg.arg1 != 0, /* acknowledgeStop= */ true);
           break;
         case MSG_PERIOD_PREPARED:
           handlePeriodPrepared((MediaPeriod) msg.obj);
@@ -378,26 +345,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
       maybeNotifyPlaybackInfoChanged();
     } catch (ExoPlaybackException e) {
       Log.e(TAG, "Playback error.", e);
-      stopInternal(
-          /* forceResetRenderers= */ true,
-          /* resetPositionAndState= */ false,
-          /* acknowledgeStop= */ false);
+      stopInternal(/* reset= */ false, /* acknowledgeStop= */ false);
       eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
       maybeNotifyPlaybackInfoChanged();
     } catch (IOException e) {
       Log.e(TAG, "Source error.", e);
-      stopInternal(
-          /* forceResetRenderers= */ false,
-          /* resetPositionAndState= */ false,
-          /* acknowledgeStop= */ false);
+      stopInternal(/* reset= */ false, /* acknowledgeStop= */ false);
       eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForSource(e)).sendToTarget();
       maybeNotifyPlaybackInfoChanged();
     } catch (RuntimeException e) {
       Log.e(TAG, "Internal runtime error.", e);
-      stopInternal(
-          /* forceResetRenderers= */ true,
-          /* resetPositionAndState= */ false,
-          /* acknowledgeStop= */ false);
+      stopInternal(/* reset= */ false, /* acknowledgeStop= */ false);
       eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForUnexpected(e))
           .sendToTarget();
       maybeNotifyPlaybackInfoChanged();
@@ -436,8 +394,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void prepareInternal(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     pendingPrepareCount++;
-    resetInternal(
-        /* resetRenderers= */ false, /* releaseMediaSource= */ true, resetPosition, resetState);
+    resetInternal(/* releaseMediaSource= */ true, resetPosition, resetState);
     loadControl.onPrepared();
     this.mediaSource = mediaSource;
     setState(Player.STATE_BUFFERING);
@@ -674,10 +631,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         // End playback, as we didn't manage to find a valid seek position.
         setState(Player.STATE_ENDED);
         resetInternal(
-            /* resetRenderers= */ false,
-            /* releaseMediaSource= */ false,
-            /* resetPosition= */ true,
-            /* resetState= */ false);
+            /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
       } else {
         // Execute the seek in the current media periods.
         long newPeriodPositionUs = periodPositionUs;
@@ -784,33 +738,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
     this.seekParameters = seekParameters;
   }
 
-  private void setForegroundModeInternal(
-      boolean foregroundMode, @Nullable AtomicBoolean processedFlag) {
-    if (this.foregroundMode != foregroundMode) {
-      this.foregroundMode = foregroundMode;
-      if (!foregroundMode) {
-        for (Renderer renderer : renderers) {
-          if (renderer.getState() == Renderer.STATE_DISABLED) {
-            renderer.reset();
-          }
-        }
-      }
-    }
-    if (processedFlag != null) {
-      synchronized (this) {
-        processedFlag.set(true);
-        notifyAll();
-      }
-    }
-  }
-
-  private void stopInternal(
-      boolean forceResetRenderers, boolean resetPositionAndState, boolean acknowledgeStop) {
+  private void stopInternal(boolean reset, boolean acknowledgeStop) {
     resetInternal(
-        /* resetRenderers= */ forceResetRenderers || !foregroundMode,
-        /* releaseMediaSource= */ true,
-        /* resetPosition= */ resetPositionAndState,
-        /* resetState= */ resetPositionAndState);
+        /* releaseMediaSource= */ true, /* resetPosition= */ reset, /* resetState= */ reset);
     playbackInfoUpdate.incrementPendingOperationAcks(
         pendingPrepareCount + (acknowledgeStop ? 1 : 0));
     pendingPrepareCount = 0;
@@ -820,10 +750,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void releaseInternal() {
     resetInternal(
-        /* resetRenderers= */ true,
-        /* releaseMediaSource= */ true,
-        /* resetPosition= */ true,
-        /* resetState= */ true);
+        /* releaseMediaSource= */ true, /* resetPosition= */ true, /* resetState= */ true);
     loadControl.onReleased();
     setState(Player.STATE_IDLE);
     internalPlaybackThread.quit();
@@ -845,10 +772,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void resetInternal(
-      boolean resetRenderers,
-      boolean releaseMediaSource,
-      boolean resetPosition,
-      boolean resetState) {
+      boolean releaseMediaSource, boolean resetPosition, boolean resetState) {
     handler.removeMessages(MSG_DO_SOME_WORK);
     rebuffering = false;
     mediaClock.stop();
@@ -858,17 +782,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         disableRenderer(renderer);
       } catch (ExoPlaybackException | RuntimeException e) {
         // There's nothing we can do.
-        Log.e(TAG, "Disable failed.", e);
-      }
-    }
-    if (resetRenderers) {
-      for (Renderer renderer : renderers) {
-        try {
-          renderer.reset();
-        } catch (RuntimeException e) {
-          // There's nothing we can do.
-          Log.e(TAG, "Reset failed.", e);
-        }
+        Log.e(TAG, "Stop failed.", e);
       }
     }
     enabledRenderers = new Renderer[0];
@@ -1075,6 +989,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     mediaClock.onRendererDisabled(renderer);
     ensureStopped(renderer);
     renderer.disable();
+    renderer.reset();
   }
 
   private void reselectTracksInternal() throws ExoPlaybackException {
@@ -1379,10 +1294,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     setState(Player.STATE_ENDED);
     // Reset, but retain the source so that it can still be used should a seek occur.
     resetInternal(
-        /* resetRenderers= */ false,
-        /* releaseMediaSource= */ false,
-        /* resetPosition= */ true,
-        /* resetState= */ false);
+        /* releaseMediaSource= */ false, /* resetPosition= */ true, /* resetState= */ false);
   }
 
   /**
@@ -1727,17 +1639,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
       throws ExoPlaybackException {
     enabledRenderers = new Renderer[totalEnabledRendererCount];
     int enabledRendererCount = 0;
-    TrackSelectorResult trackSelectorResult = queue.getPlayingPeriod().getTrackSelectorResult();
-    // Reset all disabled renderers before enabling any new ones. This makes sure resources released
-    // by the disabled renderers will be available to renderers that are being enabled.
+    MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
     for (int i = 0; i < renderers.length; i++) {
-      if (!trackSelectorResult.isRendererEnabled(i)) {
-        renderers[i].reset();
-      }
-    }
-    // Enable the renderers.
-    for (int i = 0; i < renderers.length; i++) {
-      if (trackSelectorResult.isRendererEnabled(i)) {
+      if (playingPeriodHolder.getTrackSelectorResult().isRendererEnabled(i)) {
         enableRenderer(i, rendererWasEnabledFlags[i], enabledRendererCount++);
       }
     }

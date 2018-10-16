@@ -71,7 +71,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private int pendingOperationAcks;
   private boolean hasPendingPrepare;
   private boolean hasPendingSeek;
-  private boolean foregroundMode;
   private PlaybackParameters playbackParameters;
   private SeekParameters seekParameters;
   private @Nullable ExoPlaybackException playbackError;
@@ -358,14 +357,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public SeekParameters getSeekParameters() {
     return seekParameters;
-  }
-
-  @Override
-  public void setForegroundMode(boolean foregroundMode) {
-    if (this.foregroundMode != foregroundMode) {
-      this.foregroundMode = foregroundMode;
-      internalPlayer.setForegroundMode(foregroundMode);
-    }
   }
 
   @Override
