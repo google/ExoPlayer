@@ -28,10 +28,10 @@ include $(LIBYUV_ROOT)/Android.mk
 LOCAL_PATH := $(WORKING_DIR)
 include libvpx.mk
 
-# build libvpxJNI.so
+# build libvpxV2JNI.so
 include $(CLEAR_VARS)
 LOCAL_PATH := $(WORKING_DIR)
-LOCAL_MODULE := libvpxJNI
+LOCAL_MODULE := libvpxV2JNI
 LOCAL_ARM_MODE := arm
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_SRC_FILES := vpx_jni.cc
