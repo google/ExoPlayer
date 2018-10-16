@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp3;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -31,6 +32,8 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
+import com.google.android.exoplayer2.metadata.id3.Id3Decoder.FramePredicate;
+import com.google.android.exoplayer2.metadata.id3.MlltFrame;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
@@ -67,6 +70,12 @@ public final class Mp3Extractor implements Extractor {
    * required.
    */
   public static final int FLAG_DISABLE_ID3_METADATA = 2;
+
+  /** Predicate that matches ID3 frames containing only required gapless/seeking metadata. */
+  private static final FramePredicate REQUIRED_ID3_FRAME_PREDICATE =
+      (majorVersion, id0, id1, id2, id3) ->
+          ((id0 == 'C' && id1 == 'O' && id2 == 'M' && (id3 == 'M' || majorVersion == 2))
+              || (id0 == 'M' && id1 == 'L' && id2 == 'L' && (id3 == 'T' || majorVersion == 2)));
 
   /**
    * The maximum number of bytes to search when synchronizing, before giving up.
@@ -174,7 +183,15 @@ public final class Mp3Extractor implements Extractor {
       }
     }
     if (seeker == null) {
-      seeker = maybeReadSeekFrame(input);
+      // Read past any seek frame and set the seeker based on metadata or a seek frame. Metadata
+      // takes priority as it can provide greater precision.
+      Seeker seekFrameSeeker = maybeReadSeekFrame(input);
+      Seeker metadataSeeker = maybeHandleSeekMetadata(metadata, input.getPosition());
+      if (metadataSeeker != null) {
+        seeker = metadataSeeker;
+      } else if (seekFrameSeeker != null) {
+        seeker = seekFrameSeeker;
+      }
       if (seeker == null
           || (!seeker.isSeekable() && (flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING) != 0)) {
         seeker = getConstantBitrateSeeker(input);
@@ -253,11 +270,11 @@ public final class Mp3Extractor implements Extractor {
     int searchLimitBytes = sniffing ? MAX_SNIFF_BYTES : MAX_SYNC_BYTES;
     input.resetPeekPosition();
     if (input.getPosition() == 0) {
-      // We need to parse enough ID3 metadata to retrieve any gapless playback information even
-      // if ID3 metadata parsing is disabled.
-      boolean onlyDecodeGaplessInfoFrames = (flags & FLAG_DISABLE_ID3_METADATA) != 0;
+      // We need to parse enough ID3 metadata to retrieve any gapless/seeking playback information
+      // even if ID3 metadata parsing is disabled.
+      boolean parseAllId3Frames = (flags & FLAG_DISABLE_ID3_METADATA) == 0;
       Id3Decoder.FramePredicate id3FramePredicate =
-          onlyDecodeGaplessInfoFrames ? GaplessInfoHolder.GAPLESS_INFO_ID3_FRAME_PREDICATE : null;
+          parseAllId3Frames ? null : REQUIRED_ID3_FRAME_PREDICATE;
       metadata = id3Peeker.peekId3Data(input, id3FramePredicate);
       if (metadata != null) {
         gaplessInfoHolder.setFromMetadata(metadata);
@@ -399,6 +416,20 @@ public final class Mp3Extractor implements Extractor {
       }
     }
     return SEEK_HEADER_UNSET;
+  }
+
+  @Nullable
+  private static MlltSeeker maybeHandleSeekMetadata(Metadata metadata, long firstFramePosition) {
+    if (metadata != null) {
+      int length = metadata.length();
+      for (int i = 0; i < length; i++) {
+        Metadata.Entry entry = metadata.get(i);
+        if (entry instanceof MlltFrame) {
+          return MlltSeeker.create(firstFramePosition, (MlltFrame) entry);
+        }
+      }
+    }
+    return null;
   }
 
   /**
