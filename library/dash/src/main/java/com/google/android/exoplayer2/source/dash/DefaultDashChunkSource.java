@@ -578,12 +578,14 @@ public class DefaultDashChunkSource implements DashChunkSource {
      * Creates iterator.
      *
      * @param representation The {@link RepresentationHolder} to wrap.
-     * @param segmentNum The number of the segment this iterator will be pointing to initially.
+     * @param firstAvailableSegmentNum The number of the first available segment.
      * @param lastAvailableSegmentNum The number of the last available segment.
      */
     public RepresentationSegmentIterator(
-        RepresentationHolder representation, long segmentNum, long lastAvailableSegmentNum) {
-      super(/* fromIndex= */ segmentNum, /* toIndex= */ lastAvailableSegmentNum);
+        RepresentationHolder representation,
+        long firstAvailableSegmentNum,
+        long lastAvailableSegmentNum) {
+      super(/* fromIndex= */ firstAvailableSegmentNum, /* toIndex= */ lastAvailableSegmentNum);
       this.representationHolder = representation;
     }
 

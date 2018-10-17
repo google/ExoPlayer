@@ -31,7 +31,7 @@ public abstract class BaseMediaChunkIterator implements MediaChunkIterator {
   /**
    * Creates base iterator.
    *
-   * @param fromIndex The index at which the iterator will start.
+   * @param fromIndex The first available index.
    * @param toIndex The last available index.
    */
   public BaseMediaChunkIterator(long fromIndex, long toIndex) {
