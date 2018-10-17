@@ -390,8 +390,10 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   @Override
   public void releaseSourceInternal() {
     super.releaseSourceInternal();
-    componentListener.release();
-    componentListener = null;
+    if (componentListener != null) {
+      componentListener.release();
+      componentListener = null;
+    }
     deferredMediaPeriodByAdMediaSource.clear();
     contentTimeline = null;
     contentManifest = null;
