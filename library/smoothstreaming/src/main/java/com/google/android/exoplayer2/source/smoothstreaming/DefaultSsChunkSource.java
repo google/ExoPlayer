@@ -318,7 +318,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
      *
      * @param streamElement The {@link StreamElement} to wrap.
      * @param trackIndex The track index in the stream element.
-     * @param chunkIndex The chunk index at which the iterator will start.
+     * @param chunkIndex The index of the first available chunk.
      */
     public StreamElementIterator(StreamElement streamElement, int trackIndex, int chunkIndex) {
       super(/* fromIndex= */ chunkIndex, /* toIndex= */ streamElement.chunkCount - 1);

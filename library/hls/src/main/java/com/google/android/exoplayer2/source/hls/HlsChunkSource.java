@@ -631,7 +631,7 @@ import java.util.List;
      * @param playlist The {@link HlsMediaPlaylist} to wrap.
      * @param startOfPlaylistInPeriodUs The start time of the playlist in the period, in
      *     microseconds.
-     * @param chunkIndex The chunk index in the playlist at which the iterator will start.
+     * @param chunkIndex The index of the first available chunk in the playlist.
      */
     public HlsMediaPlaylistSegmentIterator(
         HlsMediaPlaylist playlist, long startOfPlaylistInPeriodUs, int chunkIndex) {
