@@ -516,8 +516,10 @@ public final class ImaAdsLoader
     lastVolumePercentage = getVolume();
     lastAdProgress = getAdProgress();
     lastContentProgress = getContentProgress();
-    player.removeListener(this);
-    player = null;
+    if (player != null) {
+      player.removeListener(this);
+      player = null;
+    }
     eventListener = null;
   }
 
