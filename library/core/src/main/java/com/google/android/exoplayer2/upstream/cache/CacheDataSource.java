@@ -34,6 +34,7 @@ import java.io.InterruptedIOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -367,7 +368,7 @@ public final class CacheDataSource implements DataSource {
     // TODO: Implement.
     return isReadingFromUpstream()
         ? upstreamDataSource.getResponseHeaders()
-        : DataSource.super.getResponseHeaders();
+        : Collections.emptyMap();
   }
 
   @Override
