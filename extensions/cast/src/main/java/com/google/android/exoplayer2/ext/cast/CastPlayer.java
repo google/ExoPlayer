@@ -53,8 +53,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *
  * <p>The behavior of this class depends on the underlying Cast session, which is obtained from the
  * Cast context passed to {@link #CastPlayer}. To keep track of the session, {@link
- * #isCastSessionAvailable()} can be queried and {@link RemotePlayer.SessionAvailabilityListener}
- * can be implemented and attached to the player.
+ * #isCastSessionAvailable()} can be queried and {@link SessionAvailabilityListener} can be
+ * implemented and attached to the player.
  *
  * <p>If no session is available, the player state will remain unchanged and calls to methods that
  * alter it will be ignored. Querying the player state is possible even when no session is
@@ -88,7 +88,7 @@ public final class CastPlayer extends BasePlayer {
 
   // Listeners.
   private final CopyOnWriteArraySet<EventListener> listeners;
-  private RemotePlayer.SessionAvailabilityListener sessionAvailabilityListener;
+  private SessionAvailabilityListener sessionAvailabilityListener;
 
   // Internal state.
   private CastTimeline currentTimeline;
@@ -257,9 +257,9 @@ public final class CastPlayer extends BasePlayer {
   /**
    * Sets a listener for updates on the cast session availability.
    *
-   * @param listener The {@link RemotePlayer.SessionAvailabilityListener}.
+   * @param listener The {@link SessionAvailabilityListener}.
    */
-  public void setSessionAvailabilityListener(RemotePlayer.SessionAvailabilityListener listener) {
+  public void setSessionAvailabilityListener(SessionAvailabilityListener listener) {
     sessionAvailabilityListener = listener;
   }
 
