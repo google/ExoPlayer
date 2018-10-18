@@ -415,14 +415,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (this.surface != surface) {
       this.surface = surface;
       @State int state = getState();
-      if (state == STATE_ENABLED || state == STATE_STARTED) {
-        MediaCodec codec = getCodec();
-        if (Util.SDK_INT >= 23 && codec != null && surface != null
-            && !codecNeedsSetOutputSurfaceWorkaround) {
+      MediaCodec codec = getCodec();
+      if (codec != null) {
+        if (Util.SDK_INT >= 23 && surface != null && !codecNeedsSetOutputSurfaceWorkaround) {
           setOutputSurfaceV23(codec, surface);
         } else {
           releaseCodec();
-          maybeInitCodec();
+          if (state == STATE_ENABLED || state == STATE_STARTED) {
+            maybeInitCodec();
+          }
         }
       }
       if (surface != null && surface != dummySurface) {
