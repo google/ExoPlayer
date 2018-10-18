@@ -382,6 +382,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
+  protected void onReset() {
+    try {
+      super.onReset();
+    } finally {
+      if (dummySurface != null) {
+        if (surface == dummySurface) {
+          surface = null;
+        }
+        dummySurface.release();
+        dummySurface = null;
+      }
+    }
+  }
+
+  @Override
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     if (messageType == C.MSG_SET_SURFACE) {
       setSurface((Surface) message);
@@ -509,13 +524,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       super.releaseCodec();
     } finally {
       buffersInCodecCount = 0;
-      if (dummySurface != null) {
-        if (surface == dummySurface) {
-          surface = null;
-        }
-        dummySurface.release();
-        dummySurface = null;
-      }
     }
   }
 
