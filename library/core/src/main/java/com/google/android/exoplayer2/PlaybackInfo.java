@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    * Dummy media period id used while the timeline is empty and no period id is specified. This id
    * is used when playback infos are created with {@link #createDummy(long, TrackSelectorResult)}.
    */
-  public static final MediaPeriodId DUMMY_MEDIA_PERIOD_ID =
+  private static final MediaPeriodId DUMMY_MEDIA_PERIOD_ID =
       new MediaPeriodId(/* periodUid= */ new Object());
 
   /** The current {@link Timeline}. */
@@ -149,6 +149,24 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this.bufferedPositionUs = bufferedPositionUs;
     this.totalBufferedDurationUs = totalBufferedDurationUs;
     this.positionUs = positionUs;
+  }
+
+  /**
+   * Returns dummy media period id for the first-to-be-played period of the current timeline.
+   *
+   * @param shuffleModeEnabled Whether shuffle mode is enabled.
+   * @param window A writable {@link Timeline.Window}.
+   * @return A dummy media period id for the first-to-be-played period of the current timeline.
+   */
+  public MediaPeriodId getDummyFirstMediaPeriodId(
+      boolean shuffleModeEnabled, Timeline.Window window) {
+    if (timeline.isEmpty()) {
+      return DUMMY_MEDIA_PERIOD_ID;
+    }
+    int firstPeriodIndex =
+        timeline.getWindow(timeline.getFirstWindowIndex(shuffleModeEnabled), window)
+            .firstPeriodIndex;
+    return new MediaPeriodId(timeline.getUidOfPeriod(firstPeriodIndex));
   }
 
   /**
