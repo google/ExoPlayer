@@ -667,20 +667,26 @@ import java.util.concurrent.CopyOnWriteArraySet;
       maskingPeriodIndex = getCurrentPeriodIndex();
       maskingWindowPositionMs = getCurrentPosition();
     }
+    MediaPeriodId mediaPeriodId =
+        resetPosition
+            ? playbackInfo.getDummyFirstMediaPeriodId(shuffleModeEnabled, window)
+            : playbackInfo.periodId;
+    long startPositionUs = resetPosition ? 0 : playbackInfo.positionUs;
+    long contentPositionUs = resetPosition ? C.TIME_UNSET : playbackInfo.contentPositionUs;
     return new PlaybackInfo(
         resetState ? Timeline.EMPTY : playbackInfo.timeline,
         resetState ? null : playbackInfo.manifest,
-        playbackInfo.periodId,
-        playbackInfo.startPositionUs,
-        playbackInfo.contentPositionUs,
+        mediaPeriodId,
+        startPositionUs,
+        contentPositionUs,
         playbackState,
         /* isLoading= */ false,
         resetState ? TrackGroupArray.EMPTY : playbackInfo.trackGroups,
         resetState ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult,
-        playbackInfo.periodId,
-        playbackInfo.startPositionUs,
+        mediaPeriodId,
+        startPositionUs,
         /* totalBufferedDurationUs= */ 0,
-        playbackInfo.startPositionUs);
+        startPositionUs);
   }
 
   private void updatePlaybackInfo(
