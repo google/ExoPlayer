@@ -607,7 +607,7 @@ import java.util.Collections;
     if (resolvedSeekPosition == null) {
       // The seek position was valid for the timeline that it was performed into, but the
       // timeline has changed or is not ready and a suitable seek position could not be resolved.
-      periodId = getFirstMediaPeriodId();
+      periodId = playbackInfo.getDummyFirstMediaPeriodId(shuffleModeEnabled, window);
       periodPositionUs = C.TIME_UNSET;
       contentPositionUs = C.TIME_UNSET;
       seekPositionAdjusted = true;
@@ -762,17 +762,6 @@ import java.util.Collections;
     }
   }
 
-  private MediaPeriodId getFirstMediaPeriodId() {
-    Timeline timeline = playbackInfo.timeline;
-    if (timeline.isEmpty()) {
-      return PlaybackInfo.DUMMY_MEDIA_PERIOD_ID;
-    }
-    int firstPeriodIndex =
-        timeline.getWindow(timeline.getFirstWindowIndex(shuffleModeEnabled), window)
-            .firstPeriodIndex;
-    return new MediaPeriodId(timeline.getUidOfPeriod(firstPeriodIndex));
-  }
-
   private void resetInternal(
       boolean releaseMediaSource, boolean resetPosition, boolean resetState) {
     handler.removeMessages(MSG_DO_SOME_WORK);
@@ -801,8 +790,11 @@ import java.util.Collections;
       pendingMessages.clear();
       nextPendingMessageIndex = 0;
     }
+    MediaPeriodId mediaPeriodId =
+        resetPosition
+            ? playbackInfo.getDummyFirstMediaPeriodId(shuffleModeEnabled, window)
+            : playbackInfo.periodId;
     // Set the start position to TIME_UNSET so that a subsequent seek to 0 isn't ignored.
-    MediaPeriodId mediaPeriodId = resetPosition ? getFirstMediaPeriodId() : playbackInfo.periodId;
     long startPositionUs = resetPosition ? C.TIME_UNSET : playbackInfo.positionUs;
     long contentPositionUs = resetPosition ? C.TIME_UNSET : playbackInfo.contentPositionUs;
     playbackInfo =
@@ -1178,8 +1170,13 @@ import java.util.Collections;
           periodPosition =
               resolveSeekPosition(pendingInitialSeekPosition, /* trySubsequentPeriods= */ true);
         } catch (IllegalSeekPositionException e) {
+          MediaPeriodId firstMediaPeriodId =
+              playbackInfo.getDummyFirstMediaPeriodId(shuffleModeEnabled, window);
           playbackInfo =
-              playbackInfo.resetToNewPosition(getFirstMediaPeriodId(), C.TIME_UNSET, C.TIME_UNSET);
+              playbackInfo.resetToNewPosition(
+                  firstMediaPeriodId,
+                  /* startPositionUs= */ C.TIME_UNSET,
+                  /* contentPositionUs= */ C.TIME_UNSET);
           throw e;
         }
         pendingInitialSeekPosition = null;
