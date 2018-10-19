@@ -135,12 +135,6 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void prepareSource(
-      ExoPlayer player, boolean isTopLevelSource, SourceInfoRefreshListener listener) {
-    prepareSource(player, isTopLevelSource, listener, /* mediaTransferListener= */ null);
-  }
-
-  @Override
-  public final void prepareSource(
       ExoPlayer player,
       boolean isTopLevelSource,
       SourceInfoRefreshListener listener,
