@@ -436,9 +436,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           setOutputSurfaceV23(codec, surface);
         } else {
           releaseCodec();
-          if (state == STATE_ENABLED || state == STATE_STARTED) {
-            maybeInitCodec();
-          }
+          maybeInitCodec();
         }
       }
       if (surface != null && surface != dummySurface) {

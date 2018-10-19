@@ -558,18 +558,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Override
   protected void onDisabled() {
-    if (drmSession != null || pendingDrmSession != null) {
-      // TODO: Do something better with this case.
-      onReset();
-    } else {
-      flushOrReleaseCodec();
-    }
-  }
-
-  @Override
-  protected void onReset() {
     format = null;
-    availableCodecInfos = null;
     try {
       releaseCodec();
     } finally {
@@ -591,6 +580,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   protected void releaseCodec() {
+    availableCodecInfos = null;
     codecHotswapDeadlineMs = C.TIME_UNSET;
     resetInputBuffer();
     resetOutputBuffer();
@@ -1307,7 +1297,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs releasing or initializing a codec.
    */
   private void reinitializeCodec(boolean release) throws ExoPlaybackException {
-    availableCodecInfos = null;
     if (codecReceivedBuffers) {
       // Signal end of stream and wait for any final output buffers before re-initialization.
       codecReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
