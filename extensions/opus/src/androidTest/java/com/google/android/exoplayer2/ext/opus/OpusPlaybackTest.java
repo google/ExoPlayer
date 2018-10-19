@@ -83,7 +83,7 @@ public class OpusPlaybackTest {
       Looper.prepare();
       LibopusAudioRenderer audioRenderer = new LibopusAudioRenderer();
       DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-      player = ExoPlayerFactory.newInstance(new Renderer[] {audioRenderer}, trackSelector);
+      player = ExoPlayerFactory.newInstance(context, new Renderer[] {audioRenderer}, trackSelector);
       player.addListener(this);
       MediaSource mediaSource =
           new ExtractorMediaSource.Factory(

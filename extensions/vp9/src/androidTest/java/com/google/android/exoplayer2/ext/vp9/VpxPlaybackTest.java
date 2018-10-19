@@ -116,7 +116,7 @@ public class VpxPlaybackTest {
       Looper.prepare();
       LibvpxVideoRenderer videoRenderer = new LibvpxVideoRenderer(true, 0);
       DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-      player = ExoPlayerFactory.newInstance(new Renderer[] {videoRenderer}, trackSelector);
+      player = ExoPlayerFactory.newInstance(context, new Renderer[] {videoRenderer}, trackSelector);
       player.addListener(this);
       MediaSource mediaSource =
           new ExtractorMediaSource.Factory(
