@@ -19,7 +19,6 @@ import android.content.Context;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
-import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -44,51 +43,13 @@ public final class ExoPlayerFactory {
    * @param context A {@link Context}.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
-   * @deprecated Use {@link #newSimpleInstance(Context, RenderersFactory, TrackSelector,
-   *     LoadControl)}.
-   */
-  @Deprecated
-  public static SimpleExoPlayer newSimpleInstance(
-      Context context, TrackSelector trackSelector, LoadControl loadControl) {
-    RenderersFactory renderersFactory = new DefaultRenderersFactory(context);
-    return newSimpleInstance(context, renderersFactory, trackSelector, loadControl);
-  }
-
-  /**
-   * Creates a {@link SimpleExoPlayer} instance. Available extension renderers are not used.
-   *
-   * @param context A {@link Context}.
-   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-   * @param loadControl The {@link LoadControl} that will be used by the instance.
-   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
-   *     will not be used for DRM protected playbacks.
-   * @deprecated Use {@link #newSimpleInstance(Context, RenderersFactory, TrackSelector,
-   *     LoadControl)}.
-   */
-  @Deprecated
-  public static SimpleExoPlayer newSimpleInstance(
-      Context context,
-      TrackSelector trackSelector,
-      LoadControl loadControl,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    RenderersFactory renderersFactory = new DefaultRenderersFactory(context);
-    return newSimpleInstance(
-        context, renderersFactory, trackSelector, loadControl, drmSessionManager);
-  }
-
-  /**
-   * Creates a {@link SimpleExoPlayer} instance.
-   *
-   * @param context A {@link Context}.
-   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-   * @param loadControl The {@link LoadControl} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
    * @param extensionRendererMode The extension renderer mode, which determines if and how available
    *     extension renderers are used. Note that extensions must be included in the application
    *     build for them to be considered available.
    * @deprecated Use {@link #newSimpleInstance(Context, RenderersFactory, TrackSelector,
-   *     LoadControl)}.
+   *     LoadControl, DrmSessionManager)}.
    */
   @Deprecated
   public static SimpleExoPlayer newSimpleInstance(
@@ -116,7 +77,7 @@ public final class ExoPlayerFactory {
    * @param allowedVideoJoiningTimeMs The maximum duration for which a video renderer can attempt to
    *     seamlessly join an ongoing playback.
    * @deprecated Use {@link #newSimpleInstance(Context, RenderersFactory, TrackSelector,
-   *     LoadControl)}.
+   *     LoadControl, DrmSessionManager)}.
    */
   @Deprecated
   public static SimpleExoPlayer newSimpleInstance(
@@ -154,23 +115,6 @@ public final class ExoPlayerFactory {
   /**
    * Creates a {@link SimpleExoPlayer} instance.
    *
-   * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
-   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-   * @deprecated Use {@link #newSimpleInstance(Context, RenderersFactory, TrackSelector)}. The use
-   *     of {@link SimpleExoPlayer#setAudioAttributes(AudioAttributes, boolean)} to manage audio
-   *     focus will be unavailable for the {@link SimpleExoPlayer} returned by this method.
-   */
-  @Deprecated
-  @SuppressWarnings("nullness:argument.type.incompatible")
-  public static SimpleExoPlayer newSimpleInstance(
-      RenderersFactory renderersFactory, TrackSelector trackSelector) {
-    return newSimpleInstance(
-        /* context= */ null, renderersFactory, trackSelector, new DefaultLoadControl());
-  }
-
-  /**
-   * Creates a {@link SimpleExoPlayer} instance.
-   *
    * @param context A {@link Context}.
    * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
@@ -178,6 +122,38 @@ public final class ExoPlayerFactory {
   public static SimpleExoPlayer newSimpleInstance(
       Context context, RenderersFactory renderersFactory, TrackSelector trackSelector) {
     return newSimpleInstance(context, renderersFactory, trackSelector, new DefaultLoadControl());
+  }
+
+  /**
+   * Creates a {@link SimpleExoPlayer} instance.
+   *
+   * @param context A {@link Context}.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
+   */
+  public static SimpleExoPlayer newSimpleInstance(
+      Context context, TrackSelector trackSelector, LoadControl loadControl) {
+    RenderersFactory renderersFactory = new DefaultRenderersFactory(context);
+    return newSimpleInstance(context, renderersFactory, trackSelector, loadControl);
+  }
+
+  /**
+   * Creates a {@link SimpleExoPlayer} instance. Available extension renderers are not used.
+   *
+   * @param context A {@link Context}.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
+   * @param loadControl The {@link LoadControl} that will be used by the instance.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
+   *     will not be used for DRM protected playbacks.
+   */
+  public static SimpleExoPlayer newSimpleInstance(
+      Context context,
+      TrackSelector trackSelector,
+      LoadControl loadControl,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    RenderersFactory renderersFactory = new DefaultRenderersFactory(context);
+    return newSimpleInstance(
+        context, renderersFactory, trackSelector, loadControl, drmSessionManager);
   }
 
   /**
@@ -355,7 +331,7 @@ public final class ExoPlayerFactory {
         trackSelector,
         loadControl,
         drmSessionManager,
-        getDefaultBandwidthMeter(),
+        getDefaultBandwidthMeter(context),
         analyticsCollectorFactory,
         looper);
   }
@@ -397,28 +373,32 @@ public final class ExoPlayerFactory {
   /**
    * Creates an {@link ExoPlayer} instance.
    *
+   * @param context A {@link Context}.
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    */
-  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector trackSelector) {
-    return newInstance(renderers, trackSelector, new DefaultLoadControl());
+  public static ExoPlayer newInstance(
+      Context context, Renderer[] renderers, TrackSelector trackSelector) {
+    return newInstance(context, renderers, trackSelector, new DefaultLoadControl());
   }
 
   /**
    * Creates an {@link ExoPlayer} instance.
    *
+   * @param context A {@link Context}.
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
    */
-  public static ExoPlayer newInstance(Renderer[] renderers, TrackSelector trackSelector,
-      LoadControl loadControl) {
-    return newInstance(renderers, trackSelector, loadControl, Util.getLooper());
+  public static ExoPlayer newInstance(
+      Context context, Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
+    return newInstance(context, renderers, trackSelector, loadControl, Util.getLooper());
   }
 
   /**
    * Creates an {@link ExoPlayer} instance.
    *
+   * @param context A {@link Context}.
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
@@ -426,13 +406,19 @@ public final class ExoPlayerFactory {
    *     used to call listeners on.
    */
   public static ExoPlayer newInstance(
-      Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl, Looper looper) {
-    return newInstance(renderers, trackSelector, loadControl, getDefaultBandwidthMeter(), looper);
+      Context context,
+      Renderer[] renderers,
+      TrackSelector trackSelector,
+      LoadControl loadControl,
+      Looper looper) {
+    return newInstance(
+        context, renderers, trackSelector, loadControl, getDefaultBandwidthMeter(context), looper);
   }
 
   /**
    * Creates an {@link ExoPlayer} instance.
    *
+   * @param context A {@link Context}.
    * @param renderers The {@link Renderer}s that will be used by the instance.
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param loadControl The {@link LoadControl} that will be used by the instance.
@@ -440,7 +426,9 @@ public final class ExoPlayerFactory {
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
    *     used to call listeners on.
    */
+  @SuppressWarnings("unused")
   public static ExoPlayer newInstance(
+      Context context,
       Renderer[] renderers,
       TrackSelector trackSelector,
       LoadControl loadControl,
@@ -450,9 +438,9 @@ public final class ExoPlayerFactory {
         renderers, trackSelector, loadControl, bandwidthMeter, Clock.DEFAULT, looper);
   }
 
-  private static synchronized BandwidthMeter getDefaultBandwidthMeter() {
+  private static synchronized BandwidthMeter getDefaultBandwidthMeter(Context context) {
     if (singletonBandwidthMeter == null) {
-      singletonBandwidthMeter = new DefaultBandwidthMeter.Builder().build();
+      singletonBandwidthMeter = new DefaultBandwidthMeter.Builder(context).build();
     }
     return singletonBandwidthMeter;
   }

@@ -82,18 +82,13 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     private int slidingWindowMaxWeight;
     private Clock clock;
 
-    /** @deprecated Use {@link #Builder(Context)} instead. */
-    @Deprecated
-    public Builder() {
-      this(/* context= */ null);
-    }
-
     /**
      * Creates a builder with default parameters and without listener.
      *
      * @param context A context.
      */
-    public Builder(@Nullable Context context) {
+    public Builder(Context context) {
+      // Handling of null is for backward compatibility only.
       this.context = context == null ? null : context.getApplicationContext();
       initialBitrateEstimates = getInitialBitrateEstimatesForCountry(Util.getCountryCode(context));
       slidingWindowMaxWeight = DEFAULT_SLIDING_WINDOW_MAX_WEIGHT;
@@ -187,14 +182,9 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
      * @return A bandwidth meter with the configured properties.
      */
     public DefaultBandwidthMeter build() {
-      Long initialBitrateEstimate =
-          initialBitrateEstimates.get(
-              context == null ? C.NETWORK_TYPE_UNKNOWN : Util.getNetworkType(context));
-      if (initialBitrateEstimate == null) {
-        initialBitrateEstimate = initialBitrateEstimates.get(C.NETWORK_TYPE_UNKNOWN);
-      }
       DefaultBandwidthMeter bandwidthMeter =
-          new DefaultBandwidthMeter(initialBitrateEstimate, slidingWindowMaxWeight, clock);
+          new DefaultBandwidthMeter(
+              context, initialBitrateEstimates, slidingWindowMaxWeight, clock);
       if (eventHandler != null && eventListener != null) {
         bandwidthMeter.addEventListener(eventHandler, eventListener);
       }
@@ -225,6 +215,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private static final int ELAPSED_MILLIS_FOR_ESTIMATE = 2000;
   private static final int BYTES_TRANSFERRED_FOR_ESTIMATE = 512 * 1024;
 
+  private final SparseArray<Long> initialBitrateEstimates;
   private final EventDispatcher<EventListener> eventDispatcher;
   private final SlidingPercentile slidingPercentile;
   private final Clock clock;
@@ -237,34 +228,54 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private long totalBytesTransferred;
   private long bitrateEstimate;
 
-  /** Creates a bandwidth meter with default parameters. */
+  /** @deprecated Use {@link Builder} instead. */
+  @Deprecated
   public DefaultBandwidthMeter() {
-    this(DEFAULT_INITIAL_BITRATE_ESTIMATE, DEFAULT_SLIDING_WINDOW_MAX_WEIGHT, Clock.DEFAULT);
+    this(
+        /* context= */ null,
+        /* initialBitrateEstimates= */ new SparseArray<>(),
+        DEFAULT_SLIDING_WINDOW_MAX_WEIGHT,
+        Clock.DEFAULT);
   }
 
   /** @deprecated Use {@link Builder} instead. */
   @Deprecated
   public DefaultBandwidthMeter(Handler eventHandler, EventListener eventListener) {
-    this(DEFAULT_INITIAL_BITRATE_ESTIMATE, DEFAULT_SLIDING_WINDOW_MAX_WEIGHT, Clock.DEFAULT);
+    this(
+        /* context= */ null,
+        /* initialBitrateEstimates= */ new SparseArray<>(),
+        DEFAULT_SLIDING_WINDOW_MAX_WEIGHT,
+        Clock.DEFAULT);
     if (eventHandler != null && eventListener != null) {
       addEventListener(eventHandler, eventListener);
     }
   }
 
-  /** @deprecated Use {@link Builder} instead. */
-  @Deprecated
-  public DefaultBandwidthMeter(Handler eventHandler, EventListener eventListener, int maxWeight) {
-    this(DEFAULT_INITIAL_BITRATE_ESTIMATE, maxWeight, Clock.DEFAULT);
-    if (eventHandler != null && eventListener != null) {
-      addEventListener(eventHandler, eventListener);
-    }
-  }
-
-  private DefaultBandwidthMeter(long initialBitrateEstimate, int maxWeight, Clock clock) {
+  private DefaultBandwidthMeter(
+      @Nullable Context context,
+      SparseArray<Long> initialBitrateEstimates,
+      int maxWeight,
+      Clock clock) {
+    this.initialBitrateEstimates = initialBitrateEstimates;
     this.eventDispatcher = new EventDispatcher<>();
     this.slidingPercentile = new SlidingPercentile(maxWeight);
     this.clock = clock;
-    bitrateEstimate = initialBitrateEstimate;
+    bitrateEstimate =
+        getInitialBitrateEstimateForNetworkType(
+            context == null ? C.NETWORK_TYPE_UNKNOWN : Util.getNetworkType(context));
+  }
+
+  /**
+   * Overrides the network type. Handled in the same way as if the meter had detected a change from
+   * the current network type to the specified network type.
+   *
+   * <p>Applications should not normally call this method. It is intended for testing purposes.
+   *
+   * @param networkType The overriding network type.
+   */
+  public synchronized void setNetworkTypeOverride(@C.NetworkType int networkType) {
+    // TODO: Handle properly as a network change (in same way as non-external network changes).
+    bitrateEstimate = getInitialBitrateEstimateForNetworkType(networkType);
   }
 
   @Override
@@ -341,6 +352,17 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
   private void notifyBandwidthSample(int elapsedMs, long bytes, long bitrate) {
     eventDispatcher.dispatch(listener -> listener.onBandwidthSample(elapsedMs, bytes, bitrate));
+  }
+
+  private long getInitialBitrateEstimateForNetworkType(@C.NetworkType int networkType) {
+    Long initialBitrateEstimate = initialBitrateEstimates.get(networkType);
+    if (initialBitrateEstimate == null) {
+      initialBitrateEstimate = initialBitrateEstimates.get(C.NETWORK_TYPE_UNKNOWN);
+    }
+    if (initialBitrateEstimate == null) {
+      initialBitrateEstimate = DEFAULT_INITIAL_BITRATE_ESTIMATE;
+    }
+    return initialBitrateEstimate;
   }
 
   private static Map<String, int[]> createInitialBitrateCountryGroupAssignment() {
