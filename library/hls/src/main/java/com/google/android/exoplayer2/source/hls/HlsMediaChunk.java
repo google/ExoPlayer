@@ -41,7 +41,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 /* package */ final class HlsMediaChunk extends MediaChunk {
 
-
   private static final String PRIV_TIMESTAMP_FRAME_OWNER =
       "com.apple.streaming.transportStreamTimestamp";
 
