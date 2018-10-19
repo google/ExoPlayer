@@ -95,14 +95,23 @@ public final class GlUtil {
     return program;
   }
 
-  /** Allocates a FloatBuffer with the given data. */
+  /**
+   * Allocates a FloatBuffer with the given data.
+   *
+   * @param data Used to initialize the new buffer.
+   */
   public static FloatBuffer createBuffer(float[] data) {
-    ByteBuffer byteBuffer = ByteBuffer.allocateDirect(data.length * C.BYTES_PER_FLOAT);
-    byteBuffer.order(ByteOrder.nativeOrder());
-    FloatBuffer buffer = byteBuffer.asFloatBuffer();
-    buffer.put(data);
-    buffer.flip();
-    return buffer;
+    return (FloatBuffer) createBuffer(data.length).put(data).flip();
+  }
+
+  /**
+   * Allocates a FloatBuffer.
+   *
+   * @param capacity The new buffer's capacity, in floats.
+   */
+  public static FloatBuffer createBuffer(int capacity) {
+    ByteBuffer byteBuffer = ByteBuffer.allocateDirect(capacity * C.BYTES_PER_FLOAT);
+    return byteBuffer.order(ByteOrder.nativeOrder()).asFloatBuffer();
   }
 
   /**
