@@ -2,23 +2,25 @@
 
 ### 2.9.1 ###
 
-* Fix an issue with blind seeking to windows with non-zero offset in a
-  `ConcatenatingMediaSource`
-  ([#4873](https://github.com/google/ExoPlayer/issues/4873)).
-* Fix issue where subtitles have a wrong position if SubtitleView has a non-zero
-  offset to its parent
-  ([#4788](https://github.com/google/ExoPlayer/issues/4788)).
 * SubRip: Add support for alignment tags, and remove tags from the displayed
   captions ([#4306](https://github.com/google/ExoPlayer/issues/4306)).
-* Audio:
-  * Support seeking based on MLLT metadata
-    ([#3241](https://github.com/google/ExoPlayer/issues/3241)).
-* Fix issue where buffered position is not updated correctly when transitioning
-  between periods
+* MP3: Support seeking based on MLLT metadata
+  ([#3241](https://github.com/google/ExoPlayer/issues/3241)).
+* IMA extension: For preroll to live stream transitions, project forward the
+  loading position to avoid being behind the live window.
+* Fix issue with blind seeking to windows with non-zero offset in a
+  `ConcatenatingMediaSource`
+  ([#4873](https://github.com/google/ExoPlayer/issues/4873)).
+* Fix issue where subtitles were positioned incorrectly if `SubtitleView` had a
+  non-zero position offset to its parent
+  ([#4788](https://github.com/google/ExoPlayer/issues/4788)).
+* Fix issue where the buffered position was not updated correctly when
+  transitioning between periods
   ([#4899](https://github.com/google/ExoPlayer/issues/4899)).
-* IMA extension:
-  * For preroll to live stream transitions, project forward the loading position
-    to avoid being behind the live window.
+* Suppress a spurious assertion failure on some Samsung devices
+  ([#4532](https://github.com/google/ExoPlayer/issues/4532)).
+* Suppress spurious "references unknown class member" shrinking warning
+  ([#4890](https://github.com/google/ExoPlayer/issues/4890)).
 
 ### 2.9.0 ###
 
