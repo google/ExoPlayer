@@ -40,18 +40,14 @@ public final class GlUtil {
    * ExoPlayerLibraryInfo#GL_ASSERTIONS_ENABLED} is true throws a {@link RuntimeException}.
    */
   public static void checkGlError() {
-    int error = GLES20.glGetError();
-    int lastError;
-    if (error != GLES20.GL_NO_ERROR) {
-      do {
-        lastError = error;
-        Log.e(TAG, "glError " + gluErrorString(lastError));
-        error = GLES20.glGetError();
-      } while (error != GLES20.GL_NO_ERROR);
-
-      if (ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED) {
-        throw new RuntimeException("glError " + gluErrorString(lastError));
-      }
+    int lastError = GLES20.GL_NO_ERROR;
+    int error;
+    while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+      Log.e(TAG, "glError " + gluErrorString(lastError));
+      lastError = error;
+    }
+    if (ExoPlayerLibraryInfo.GL_ASSERTIONS_ENABLED && lastError != GLES20.GL_NO_ERROR) {
+      throw new RuntimeException("glError " + gluErrorString(lastError));
     }
   }
 
