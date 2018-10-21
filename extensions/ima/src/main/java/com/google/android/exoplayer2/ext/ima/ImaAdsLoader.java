@@ -93,6 +93,7 @@ public final class ImaAdsLoader
     private @Nullable AdEventListener adEventListener;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
+    private int mediaBitrateKbps;
     private ImaFactory imaFactory;
 
     /**
@@ -104,6 +105,7 @@ public final class ImaAdsLoader
       this.context = Assertions.checkNotNull(context);
       vastLoadTimeoutMs = TIMEOUT_UNSET;
       mediaLoadTimeoutMs = TIMEOUT_UNSET;
+      mediaBitrateKbps = BITRATE_UNSET;
       imaFactory = new DefaultImaFactory();
     }
 
@@ -159,6 +161,19 @@ public final class ImaAdsLoader
       return this;
     }
 
+    /**
+     * Sets the ad media maximum recommended bitrate, in Kbps.
+     *
+     * @param mediaBitrateKbps The ad media maximum recommended bitrate, in Kbps.
+     * @return This builder, for convenience.
+     * @see AdsRenderingSettings#setBitrateKbps(int)
+     */
+    public Builder setMediaBitrateKbps(int mediaBitrateKbps) {
+      Assertions.checkArgument(mediaBitrateKbps > 0);
+      this.mediaBitrateKbps = mediaBitrateKbps;
+      return this;
+    }
+
     // @VisibleForTesting
     /* package */ Builder setImaFactory(ImaFactory imaFactory) {
       this.imaFactory = Assertions.checkNotNull(imaFactory);
@@ -181,6 +196,7 @@ public final class ImaAdsLoader
           null,
           vastLoadTimeoutMs,
           mediaLoadTimeoutMs,
+          mediaBitrateKbps,
           adEventListener,
           imaFactory);
     }
@@ -200,6 +216,7 @@ public final class ImaAdsLoader
           adsResponse,
           vastLoadTimeoutMs,
           mediaLoadTimeoutMs,
+          mediaBitrateKbps,
           adEventListener,
           imaFactory);
     }
@@ -229,6 +246,7 @@ public final class ImaAdsLoader
   private static final long MAXIMUM_PRELOAD_DURATION_MS = 8000;
 
   private static final int TIMEOUT_UNSET = -1;
+  private static final int BITRATE_UNSET = -1;
 
   /** The state of ad playback. */
   @Documented
@@ -252,6 +270,7 @@ public final class ImaAdsLoader
   private final @Nullable String adsResponse;
   private final int vastLoadTimeoutMs;
   private final int mediaLoadTimeoutMs;
+  private final int mediaBitrateKbps;
   private final @Nullable AdEventListener adEventListener;
   private final ImaFactory imaFactory;
   private final Timeline.Period period;
@@ -338,6 +357,7 @@ public final class ImaAdsLoader
         /* adsResponse= */ null,
         /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
+        /* mediaBitrateKpbs= */ BITRATE_UNSET,
         /* adEventListener= */ null,
         /* imaFactory= */ new DefaultImaFactory());
   }
@@ -362,6 +382,7 @@ public final class ImaAdsLoader
         /* adsResponse= */ null,
         /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
+        /* mediaBitrateKbps= */ BITRATE_UNSET,
         /* adEventListener= */ null,
         /* imaFactory= */ new DefaultImaFactory());
   }
@@ -373,6 +394,7 @@ public final class ImaAdsLoader
       @Nullable String adsResponse,
       int vastLoadTimeoutMs,
       int mediaLoadTimeoutMs,
+      int mediaBitrateKbps,
       @Nullable AdEventListener adEventListener,
       ImaFactory imaFactory) {
     Assertions.checkArgument(adTagUri != null || adsResponse != null);
@@ -380,6 +402,7 @@ public final class ImaAdsLoader
     this.adsResponse = adsResponse;
     this.vastLoadTimeoutMs = vastLoadTimeoutMs;
     this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
+    this.mediaBitrateKbps = mediaBitrateKbps;
     this.adEventListener = adEventListener;
     this.imaFactory = imaFactory;
     if (imaSdkSettings == null) {
@@ -925,6 +948,9 @@ public final class ImaAdsLoader
     adsRenderingSettings.setMimeTypes(supportedMimeTypes);
     if (mediaLoadTimeoutMs != TIMEOUT_UNSET) {
       adsRenderingSettings.setLoadVideoTimeout(mediaLoadTimeoutMs);
+    }
+    if (mediaBitrateKbps != BITRATE_UNSET) {
+      adsRenderingSettings.setBitrateKbps(mediaBitrateKbps);
     }
 
     // Set up the ad playback state, skipping ads based on the start position as required.
