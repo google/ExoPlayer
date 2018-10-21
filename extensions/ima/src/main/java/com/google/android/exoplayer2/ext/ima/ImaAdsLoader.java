@@ -40,6 +40,7 @@ import com.google.ads.interactivemedia.v3.api.AdsRequest;
 import com.google.ads.interactivemedia.v3.api.CompanionAdSlot;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
+import com.google.ads.interactivemedia.v3.api.UiElement;
 import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
@@ -69,6 +70,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /** Loads ads using the IMA SDK. All methods are called on the main thread. */
 public final class ImaAdsLoader
@@ -91,6 +93,7 @@ public final class ImaAdsLoader
 
     private @Nullable ImaSdkSettings imaSdkSettings;
     private @Nullable AdEventListener adEventListener;
+    private @Nullable Set<UiElement> adUiElements;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
     private int mediaBitrateKbps;
@@ -132,6 +135,18 @@ public final class ImaAdsLoader
      */
     public Builder setAdEventListener(AdEventListener adEventListener) {
       this.adEventListener = Assertions.checkNotNull(adEventListener);
+      return this;
+    }
+
+    /**
+     * Sets the ad UI elements to be rendered by the IMA SDK.
+     *
+     * @param adUiElements The ad UI elements to be rendered by the IMA SDK.
+     * @return This builder, for convenience.
+     * @see AdsRenderingSettings#setUiElements(Set)
+     */
+    public Builder setAdUiElements(Set<UiElement> adUiElements) {
+      this.adUiElements = Assertions.checkNotNull(adUiElements);
       return this;
     }
 
@@ -197,6 +212,7 @@ public final class ImaAdsLoader
           vastLoadTimeoutMs,
           mediaLoadTimeoutMs,
           mediaBitrateKbps,
+          adUiElements,
           adEventListener,
           imaFactory);
     }
@@ -217,6 +233,7 @@ public final class ImaAdsLoader
           vastLoadTimeoutMs,
           mediaLoadTimeoutMs,
           mediaBitrateKbps,
+          adUiElements,
           adEventListener,
           imaFactory);
     }
@@ -271,6 +288,7 @@ public final class ImaAdsLoader
   private final int vastLoadTimeoutMs;
   private final int mediaLoadTimeoutMs;
   private final int mediaBitrateKbps;
+  private final @Nullable Set<UiElement> adUiElements;
   private final @Nullable AdEventListener adEventListener;
   private final ImaFactory imaFactory;
   private final Timeline.Period period;
@@ -358,6 +376,7 @@ public final class ImaAdsLoader
         /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaBitrateKpbs= */ BITRATE_UNSET,
+        /* adUiElements= */ null,
         /* adEventListener= */ null,
         /* imaFactory= */ new DefaultImaFactory());
   }
@@ -383,6 +402,7 @@ public final class ImaAdsLoader
         /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaBitrateKbps= */ BITRATE_UNSET,
+        /* adUiElements= */ null,
         /* adEventListener= */ null,
         /* imaFactory= */ new DefaultImaFactory());
   }
@@ -395,6 +415,7 @@ public final class ImaAdsLoader
       int vastLoadTimeoutMs,
       int mediaLoadTimeoutMs,
       int mediaBitrateKbps,
+      @Nullable Set<UiElement> adUiElements,
       @Nullable AdEventListener adEventListener,
       ImaFactory imaFactory) {
     Assertions.checkArgument(adTagUri != null || adsResponse != null);
@@ -403,6 +424,7 @@ public final class ImaAdsLoader
     this.vastLoadTimeoutMs = vastLoadTimeoutMs;
     this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
     this.mediaBitrateKbps = mediaBitrateKbps;
+    this.adUiElements = adUiElements;
     this.adEventListener = adEventListener;
     this.imaFactory = imaFactory;
     if (imaSdkSettings == null) {
@@ -951,6 +973,9 @@ public final class ImaAdsLoader
     }
     if (mediaBitrateKbps != BITRATE_UNSET) {
       adsRenderingSettings.setBitrateKbps(mediaBitrateKbps);
+    }
+    if (adUiElements != null) {
+      adsRenderingSettings.setUiElements(adUiElements);
     }
 
     // Set up the ad playback state, skipping ads based on the start position as required.
