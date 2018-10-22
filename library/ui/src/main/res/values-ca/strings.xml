@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">Repeteix tot</string>
   <string name="exo_controls_shuffle_description">Reprodueix aleatòriament</string>
   <string name="exo_controls_fullscreen_description">Mode de pantalla completa</string>
+  <string name="exo_controls_exit_vr_description">Exit VR mode</string>
   <string name="exo_download_description">Baixa</string>
   <string name="exo_download_notification_channel_name">Baixades</string>
   <string name="exo_download_downloading">S\'està baixant</string>

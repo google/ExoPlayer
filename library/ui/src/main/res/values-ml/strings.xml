@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">എല്ലാം ആവർത്തിക്കുക</string>
   <string name="exo_controls_shuffle_description">ഇടകലര്‍ത്തുക</string>
   <string name="exo_controls_fullscreen_description">പൂർണ്ണ സ്‌ക്രീൻ മോഡ്</string>
+  <string name="exo_controls_exit_vr_description">Exit VR mode</string>
   <string name="exo_download_description">ഡൗൺലോഡ്</string>
   <string name="exo_download_notification_channel_name">ഡൗൺലോഡുകൾ</string>
   <string name="exo_download_downloading">ഡൗൺലോഡ് ചെയ്യുന്നു</string>
