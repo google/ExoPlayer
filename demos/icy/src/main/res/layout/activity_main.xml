@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <android.support.constraint.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <android.support.design.widget.TextInputLayout
+      android:id="@+id/stream_layout"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="16dp"
+      android:layout_marginTop="16dp"
+      android:layout_marginEnd="16dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent">
+
+      <android.support.design.widget.TextInputEditText
+        android:id="@+id/stream"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/audio_stream"
+        android:singleLine="true"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+  </android.support.constraint.ConstraintLayout>
+
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/play_pause"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|center"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="16dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:fabSize="normal"
+    app:srcCompat="@drawable/ic_play_arrow_black_24dp"/>
+
+</android.support.design.widget.CoordinatorLayout>
