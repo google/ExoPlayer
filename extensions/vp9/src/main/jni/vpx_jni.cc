@@ -460,6 +460,14 @@ DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
     if (err) {
       LOGE("ERROR: Failed to shut off libvpx loop filter, error = %d.", err);
     }
+#ifdef VPX_CTRL_VP9_SET_LOOP_FILTER_OPT
+  } else {
+    err = vpx_codec_control(context->decoder, VP9D_SET_LOOP_FILTER_OPT, true);
+    if (err) {
+      LOGE("ERROR: Failed to enable loop filter optimization, error = %d.",
+           err);
+    }
+#endif
   }
   if (enableBufferManager) {
     err = vpx_codec_set_frame_buffer_functions(
