@@ -28,6 +28,7 @@ include modulePrefix + 'testutils-robolectric'
 include modulePrefix + 'extension-ffmpeg'
 include modulePrefix + 'extension-flac'
 include modulePrefix + 'extension-gvr'
+include modulePrefix + 'extension-icy'
 include modulePrefix + 'extension-ima'
 include modulePrefix + 'extension-cast'
 include modulePrefix + 'extension-cronet'
@@ -50,6 +51,7 @@ project(modulePrefix + 'testutils-robolectric').projectDir = new File(rootDir, '
 project(modulePrefix + 'extension-ffmpeg').projectDir = new File(rootDir, 'extensions/ffmpeg')
 project(modulePrefix + 'extension-flac').projectDir = new File(rootDir, 'extensions/flac')
 project(modulePrefix + 'extension-gvr').projectDir = new File(rootDir, 'extensions/gvr')
+project(modulePrefix + 'extension-icy').projectDir = new File(rootDir, 'extensions/icy')
 project(modulePrefix + 'extension-ima').projectDir = new File(rootDir, 'extensions/ima')
 project(modulePrefix + 'extension-cast').projectDir = new File(rootDir, 'extensions/cast')
 project(modulePrefix + 'extension-cronet').projectDir = new File(rootDir, 'extensions/cronet')
