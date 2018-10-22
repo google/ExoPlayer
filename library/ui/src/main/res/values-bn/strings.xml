@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">সবগুলি আইটেম আবার চালান</string>
   <string name="exo_controls_shuffle_description">শাফেল করুন</string>
   <string name="exo_controls_fullscreen_description">পূর্ণ স্ক্রিন মোড</string>
+  <string name="exo_controls_exit_vr_description">Exit VR mode</string>
   <string name="exo_download_description">ডাউনলোড করুন</string>
   <string name="exo_download_notification_channel_name">ডাউনলোড</string>
   <string name="exo_download_downloading">ডাউনলোড হচ্ছে</string>

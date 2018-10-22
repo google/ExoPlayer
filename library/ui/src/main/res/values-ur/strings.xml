@@ -12,6 +12,7 @@
   <string name="exo_controls_repeat_all_description">سبھی کو دہرائیں</string>
   <string name="exo_controls_shuffle_description">شفل کریں</string>
   <string name="exo_controls_fullscreen_description">پوری اسکرین والی وضع</string>
+  <string name="exo_controls_exit_vr_description">Exit VR mode</string>
   <string name="exo_download_description">ڈاؤن لوڈ کریں</string>
   <string name="exo_download_notification_channel_name">ڈاؤن لوڈز</string>
   <string name="exo_download_downloading">ڈاؤن لوڈ ہو رہا ہے</string>
