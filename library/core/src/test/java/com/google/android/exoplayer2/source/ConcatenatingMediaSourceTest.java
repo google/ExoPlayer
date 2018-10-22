@@ -926,6 +926,22 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
+  public void testRemoveUnpreparedChildSourceWithLazyPreparation() throws IOException {
+    FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
+    mediaSource =
+        new ConcatenatingMediaSource(
+            /* isAtomic= */ false,
+            /* useLazyPreparation= */ true,
+            new DefaultShuffleOrder(0),
+            childSources);
+    testRunner = new MediaSourceTestRunner(mediaSource, /* allocator= */ null);
+    testRunner.prepareSource();
+
+    // Check that removal doesn't throw even though the child sources are unprepared.
+    mediaSource.removeMediaSource(0);
+  }
+
+  @Test
   public void testSetShuffleOrderBeforePreparation() throws Exception {
     mediaSource.setShuffleOrder(new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0));
     mediaSource.addMediaSources(
