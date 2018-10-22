@@ -201,20 +201,20 @@ public final class MediaItem {
     public final UUID uuid;
 
     /**
-     * A optional {@link UriBundle} for the license server. If no license server is provided, the
+     * Optional {@link UriBundle} for the license server. If no license server is provided, the
      * server must be provided by the media.
      */
-    @Nullable public final UriBundle licenseServerUri;
+    @Nullable public final UriBundle licenseServer;
 
     /**
      * Creates an instance.
      *
      * @param uuid See {@link #uuid}.
-     * @param licenseServerUri See {@link #licenseServerUri}.
+     * @param licenseServer See {@link #licenseServer}.
      */
-    public DrmScheme(UUID uuid, @Nullable UriBundle licenseServerUri) {
+    public DrmScheme(UUID uuid, @Nullable UriBundle licenseServer) {
       this.uuid = uuid;
-      this.licenseServerUri = licenseServerUri;
+      this.licenseServer = licenseServer;
     }
   }
 
