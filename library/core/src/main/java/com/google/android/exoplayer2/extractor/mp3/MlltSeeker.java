@@ -118,4 +118,8 @@ import com.google.android.exoplayer2.util.Util;
     }
   }
 
+  @Override
+  public long getDataEndPosition() {
+    return C.POSITION_UNSET;
+  }
 }

@@ -223,7 +223,7 @@ public final class Mp3Extractor implements Extractor {
   private int readSample(ExtractorInput extractorInput) throws IOException, InterruptedException {
     if (sampleBytesRemaining == 0) {
       extractorInput.resetPeekPosition();
-      if (!extractorInput.peekFully(scratch.data, 0, 4, true)) {
+      if (peekEndOfStreamOrHeader(extractorInput)) {
         return RESULT_END_OF_INPUT;
       }
       scratch.setPosition(0);
@@ -285,9 +285,12 @@ public final class Mp3Extractor implements Extractor {
       }
     }
     while (true) {
-      if (!input.peekFully(scratch.data, 0, 4, validFrameCount > 0)) {
-        // We reached the end of the stream but found at least one valid frame.
-        break;
+      if (peekEndOfStreamOrHeader(input)) {
+        if (validFrameCount > 0) {
+          // We reached the end of the stream but found at least one valid frame.
+          break;
+        }
+        throw new EOFException();
       }
       scratch.setPosition(0);
       int headerData = scratch.readInt();
@@ -330,6 +333,17 @@ public final class Mp3Extractor implements Extractor {
     }
     synchronizedHeaderData = candidateSynchronizedHeaderData;
     return true;
+  }
+
+  /**
+   * Returns whether the extractor input is peeking the end of the stream. If {@code false},
+   * populates the scratch buffer with the next four bytes.
+   */
+  private boolean peekEndOfStreamOrHeader(ExtractorInput extractorInput)
+      throws IOException, InterruptedException {
+    return (seeker != null && extractorInput.getPeekPosition() == seeker.getDataEndPosition())
+        || !extractorInput.peekFully(
+            scratch.data, /* offset= */ 0, /* length= */ 4, /* allowEndOfInput= */ true);
   }
 
   /**
@@ -433,8 +447,9 @@ public final class Mp3Extractor implements Extractor {
   }
 
   /**
-   * {@link SeekMap} that also allows mapping from position (byte offset) back to time, which can be
-   * used to work out the new sample basis timestamp after seeking and resynchronization.
+   * {@link SeekMap} that provides the end position of audio data and also allows mapping from
+   * position (byte offset) back to time, which can be used to work out the new sample basis
+   * timestamp after seeking and resynchronization.
    */
   /* package */ interface Seeker extends SeekMap {
 
@@ -446,6 +461,11 @@ public final class Mp3Extractor implements Extractor {
      */
     long getTimeUs(long position);
 
+    /**
+     * Returns the position (byte offset) in the stream that is immediately after audio data, or
+     * {@link C#POSITION_UNSET} if not known.
+     */
+    long getDataEndPosition();
   }
 
 }
