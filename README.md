@@ -33,8 +33,8 @@ included in the `build.gradle` file in the root of your project:
 
 ```gradle
 repositories {
-    jcenter()
     google()
+    jcenter()
 }
 ```
 
