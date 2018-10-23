@@ -6,8 +6,11 @@
   network type.
 * SubRip: Add support for alignment tags, and remove tags from the displayed
   captions ([#4306](https://github.com/google/ExoPlayer/issues/4306)).
-* MP3: Support seeking based on MLLT metadata
-  ([#3241](https://github.com/google/ExoPlayer/issues/3241)).
+* MP3:
+  * Support seeking based on MLLT metadata
+    ([#3241](https://github.com/google/ExoPlayer/issues/3241)).
+  * Fix handling of streams with appending data
+    ([#4954](https://github.com/google/ExoPlayer/issues/4954)).
 * IMA extension: For preroll to live stream transitions, project forward the
   loading position to avoid being behind the live window.
 * Fix issue with blind seeking to windows with non-zero offset in a
