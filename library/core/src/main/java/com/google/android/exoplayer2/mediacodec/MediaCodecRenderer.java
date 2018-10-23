@@ -228,28 +228,25 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    REINITIALIZATION_STATE_NONE,
-    REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM,
-    REINITIALIZATION_STATE_WAIT_END_OF_STREAM
-  })
-  private @interface ReinitializationState {}
-  /**
-   * The codec does not need to be re-initialized.
-   */
-  private static final int REINITIALIZATION_STATE_NONE = 0;
-  /**
-   * The input format has changed in a way that requires the codec to be re-initialized, but we
-   * haven't yet signaled an end of stream to the existing codec. We need to do so in order to
-   * ensure that it outputs any remaining buffers before we release it.
-   */
-  private static final int REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM = 1;
-  /**
-   * The input format has changed in a way that requires the codec to be re-initialized, and we've
-   * signaled an end of stream to the existing codec. We're waiting for the codec to output an end
-   * of stream signal to indicate that it has output any remaining buffers before we release it.
-   */
-  private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
+  @IntDef({DRAIN_STATE_NONE, DRAIN_STATE_SIGNAL_END_OF_STREAM, DRAIN_STATE_WAIT_END_OF_STREAM})
+  private @interface DrainState {}
+  /** The codec is not being drained. */
+  private static final int DRAIN_STATE_NONE = 0;
+  /** The codec needs to be drained, but we haven't signaled an end of stream to it yet. */
+  private static final int DRAIN_STATE_SIGNAL_END_OF_STREAM = 1;
+  /** The codec needs to be drained, and we're waiting for it to output an end of stream. */
+  private static final int DRAIN_STATE_WAIT_END_OF_STREAM = 2;
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({DRAIN_ACTION_NONE, DRAIN_ACTION_FLUSH, DRAIN_ACTION_REINITIALIZE})
+  private @interface DrainAction {}
+  /** No special action should be taken. */
+  private static final int DRAIN_ACTION_NONE = 0;
+  /** The codec should be flushed. */
+  private static final int DRAIN_ACTION_FLUSH = 1;
+  /** The codec should be re-initialized. */
+  private static final int DRAIN_ACTION_REINITIALIZE = 2;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -283,8 +280,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private static final int ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT = 32;
 
   private final MediaCodecSelector mediaCodecSelector;
-  @Nullable
-  private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
+  @Nullable private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
   private final float assumedMinimumCodecOperatingRate;
   private final DecoderInputBuffer buffer;
@@ -303,10 +299,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private float rendererOperatingRate;
   private float codecOperatingRate;
   private boolean codecConfiguredWithOperatingRate;
-  private @Nullable ArrayDeque<MediaCodecInfo> availableCodecInfos;
-  private @Nullable DecoderInitializationException preferredDecoderInitializationException;
-  private @Nullable MediaCodecInfo codecInfo;
-  private @AdaptationWorkaroundMode int codecAdaptationWorkaroundMode;
+  @Nullable private ArrayDeque<MediaCodecInfo> availableCodecInfos;
+  @Nullable private DecoderInitializationException preferredDecoderInitializationException;
+  @Nullable private MediaCodecInfo codecInfo;
+  @AdaptationWorkaroundMode private int codecAdaptationWorkaroundMode;
   private boolean codecNeedsReconfigureWorkaround;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
@@ -324,9 +320,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private ByteBuffer outputBuffer;
   private boolean shouldSkipOutputBuffer;
   private boolean codecReconfigured;
-  private @ReconfigurationState int codecReconfigurationState;
-  private @ReinitializationState int codecReinitializationState;
-  private boolean codecReinitializationIsRelease;
+  @ReconfigurationState private int codecReconfigurationState;
+  @DrainState private int codecDrainState;
+  @DrainAction private int codecDrainAction;
   private boolean codecReceivedBuffers;
   private boolean codecReceivedEos;
 
@@ -371,7 +367,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-    codecReinitializationState = REINITIALIZATION_STATE_NONE;
+    codecDrainState = DRAIN_STATE_NONE;
+    codecDrainAction = DRAIN_ACTION_NONE;
     codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     rendererOperatingRate = 1f;
   }
@@ -567,9 +564,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       waitingForKeys = false;
       decodeOnlyPresentationTimestamps.clear();
       codecInfo = null;
-      codecReconfigured = false;
-      codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-      codecReinitializationState = REINITIALIZATION_STATE_NONE;
       decoderCounters.decoderReleaseCount++;
       try {
         codec.stop();
@@ -674,15 +668,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codec == null) {
       return false;
     }
-    if (codecNeedsFlushWorkaround
-        || (codecNeedsEosFlushWorkaround && codecReceivedEos)
-        || (codecReinitializationState != REINITIALIZATION_STATE_NONE
-            && codecReinitializationIsRelease)) {
+    if (codecDrainAction == DRAIN_ACTION_REINITIALIZE
+        || codecNeedsFlushWorkaround
+        || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
       releaseCodec();
       return true;
     }
-    codec.flush();
 
+    codec.flush();
     resetInputBuffer();
     resetOutputBuffer();
     codecHotswapDeadlineMs = C.TIME_UNSET;
@@ -695,7 +688,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     waitingForKeys = false;
     decodeOnlyPresentationTimestamps.clear();
-    codecReinitializationState = REINITIALIZATION_STATE_NONE;
+    codecDrainState = DRAIN_STATE_NONE;
+    codecDrainAction = DRAIN_ACTION_NONE;
     // Reconfiguration data sent shortly before the flush may not have been processed by the
     // decoder. If the codec has been reconfigured we always send reconfiguration data again to
     // guarantee that it's processed.
@@ -836,12 +830,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         getState() == STATE_STARTED
             ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS)
             : C.TIME_UNSET;
+    codecReconfigured = false;
+    codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     codecReceivedEos = false;
     codecReceivedBuffers = false;
-    waitingForFirstSyncFrame = true;
+    codecDrainState = DRAIN_STATE_NONE;
+    codecDrainAction = DRAIN_ACTION_NONE;
     codecNeedsAdaptationWorkaroundBuffer = false;
     shouldSkipAdaptationWorkaroundOutputBuffer = false;
     shouldSkipOutputBuffer = false;
+    waitingForFirstSyncFrame = true;
 
     decoderCounters.decoderInitCount++;
     long elapsed = codecInitializedTimestamp - codecInitializingTimestamp;
@@ -897,9 +895,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
   private boolean feedInputBuffer() throws ExoPlaybackException {
-    if (codec == null || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
-        || inputStreamEnded) {
-      // We need to re-initialize the codec or the input stream has ended.
+    if (codec == null || codecDrainState == DRAIN_STATE_WAIT_END_OF_STREAM || inputStreamEnded) {
       return false;
     }
 
@@ -912,7 +908,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       buffer.clear();
     }
 
-    if (codecReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
+    if (codecDrainState == DRAIN_STATE_SIGNAL_END_OF_STREAM) {
       // We need to re-initialize the codec. Send an end of stream signal to the existing codec so
       // that it outputs any remaining buffers before we release it.
       if (codecNeedsEosPropagation) {
@@ -922,7 +918,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
         resetInputBuffer();
       }
-      codecReinitializationState = REINITIALIZATION_STATE_WAIT_END_OF_STREAM;
+      codecDrainState = DRAIN_STATE_WAIT_END_OF_STREAM;
       return false;
     }
 
@@ -1109,19 +1105,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // We have an existing codec that we may need to reconfigure or re-initialize. If the existing
     // codec instance is being kept then its operating rate may need to be updated.
     if (pendingDrmSession != drmSession) {
-      reinitializeCodec(/* release= */ true);
+      drainAndReinitializeCodec();
     } else {
       switch (canKeepCodec(codec, codecInfo, oldFormat, format)) {
         case KEEP_CODEC_RESULT_NO:
-          reinitializeCodec(/* release= */ true);
+          drainAndReinitializeCodec();
           break;
         case KEEP_CODEC_RESULT_YES_WITH_FLUSH:
-          reinitializeCodec(/* release= */ false);
+          drainAndFlushCodec();
           updateCodecOperatingRate();
           break;
         case KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION:
           if (codecNeedsReconfigureWorkaround) {
-            reinitializeCodec(/* release= */ true);
+            drainAndReinitializeCodec();
           } else {
             codecReconfigured = true;
             codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
@@ -1253,15 +1249,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     this.codecOperatingRate = codecOperatingRate;
-    if (codec == null
-        || (codecReinitializationState != REINITIALIZATION_STATE_NONE
-            && codecReinitializationIsRelease)) {
+    if (codec == null || codecDrainAction == DRAIN_ACTION_REINITIALIZE) {
       // Either no codec, or it's about to be released due to re-initialization anyway.
     } else if (codecOperatingRate == CODEC_OPERATING_RATE_UNSET
         && codecConfiguredWithOperatingRate) {
       // We need to clear the operating rate. The only way to do so is to instantiate a new codec
       // instance. See [Internal ref: b/71987865].
-      reinitializeCodec(/* release= */ true);
+      drainAndReinitializeCodec();
     } else if (codecOperatingRate != CODEC_OPERATING_RATE_UNSET
         && (codecConfiguredWithOperatingRate
             || codecOperatingRate > assumedMinimumCodecOperatingRate)) {
@@ -1274,26 +1268,26 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
   }
 
-  /**
-   * Starts the process of re-initializing the codec. This may occur immediately, or be deferred
-   * until any final output buffers have been dequeued.
-   *
-   * @param release Whether re-initialization requires fully releasing the codec and instantiating a
-   *     new instance, as opposed to flushing and reusing the current instance.
-   * @throws ExoPlaybackException If an error occurs releasing or initializing a codec.
-   */
-  private void reinitializeCodec(boolean release) throws ExoPlaybackException {
+  /** Starts draining the codec for flush. */
+  private void drainAndFlushCodec() {
     if (codecReceivedBuffers) {
-      // Signal end of stream and wait for any final output buffers before re-initialization.
-      codecReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
-      codecReinitializationIsRelease = release;
-      return;
+      codecDrainState = DRAIN_STATE_SIGNAL_END_OF_STREAM;
+      codecDrainAction = DRAIN_ACTION_FLUSH;
     }
+  }
 
-    // Nothing has been queued to the decoder. If we need to fully release the codec and instantiate
-    // a new instance, do so immediately. If only a flush is required then we can do nothing, since
-    // flushing will be a no-op.
-    if (release) {
+  /**
+   * Starts draining the codec for re-initialization. Re-initialization may occur immediately if no
+   * buffers have been queued to the codec.
+   *
+   * @throws ExoPlaybackException If an error occurs re-initializing a codec.
+   */
+  private void drainAndReinitializeCodec() throws ExoPlaybackException {
+    if (codecReceivedBuffers) {
+      codecDrainState = DRAIN_STATE_SIGNAL_END_OF_STREAM;
+      codecDrainAction = DRAIN_ACTION_REINITIALIZE;
+    } else {
+      // Nothing has been queued to the decoder, so we can re-initialize immediately.
       releaseCodec();
       maybeInitCodec();
     }
@@ -1334,8 +1328,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         }
         /* MediaCodec.INFO_TRY_AGAIN_LATER (-1) or unknown negative return value */
         if (codecNeedsEosPropagation
-            && (inputStreamEnded
-                || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM)) {
+            && (inputStreamEnded || codecDrainState == DRAIN_STATE_WAIT_END_OF_STREAM)) {
           processEndOfStream();
         }
         return false;
@@ -1498,17 +1491,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs processing the signal.
    */
   private void processEndOfStream() throws ExoPlaybackException {
-    if (codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
-      // We're waiting to re-initialize the codec, and have now processed all final buffers.
-      if (codecReinitializationIsRelease) {
+    switch (codecDrainAction) {
+      case DRAIN_ACTION_REINITIALIZE:
         releaseCodec();
         maybeInitCodec();
-      } else {
+        break;
+      case DRAIN_ACTION_FLUSH:
         flushOrReinitCodec();
-      }
-    } else {
-      outputStreamEnded = true;
-      renderToEndOfStream();
+        break;
+      case DRAIN_ACTION_NONE:
+      default:
+        outputStreamEnded = true;
+        renderToEndOfStream();
+        break;
     }
   }
 
