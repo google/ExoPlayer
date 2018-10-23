@@ -24,6 +24,8 @@
 * Audio:
   * Support seeking based on MLLT metadata
     ([#3241](https://github.com/google/ExoPlayer/issues/3241)).
+  * Fix handling of MP3s with appended data
+    ([#4954](https://github.com/google/ExoPlayer/issues/4954)).
 * Fix issue where buffered position is not updated correctly when transitioning
   between periods
   ([#4899](https://github.com/google/ExoPlayer/issues/4899)).
