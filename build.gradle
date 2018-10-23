@@ -13,8 +13,8 @@
 // limitations under the License.
 buildscript {
     repositories {
-        jcenter()
         google()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.4'
@@ -32,8 +32,8 @@ buildscript {
 }
 allprojects {
     repositories {
-        jcenter()
         google()
+        jcenter()
     }
     project.ext {
         exoplayerPublishEnabled = true

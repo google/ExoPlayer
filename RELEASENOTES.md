@@ -33,6 +33,8 @@
 * Fix issue where a `NullPointerException` is thrown when removing an unprepared
   media source from a `ConcatenatingMediaSource` with the `useLazyPreparation`
   option enabled ([#4986](https://github.com/google/ExoPlayer/issues/4986)).
+* Swap recommended order for google() and jcenter() in gradle config
+  ([#4997](https://github.com/google/ExoPlayer/issues/4997)).
 
 ### 2.9.0 ###
 
