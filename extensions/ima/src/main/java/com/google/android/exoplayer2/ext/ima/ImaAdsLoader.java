@@ -96,7 +96,7 @@ public final class ImaAdsLoader
     private @Nullable Set<UiElement> adUiElements;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
-    private int mediaBitrateKbps;
+    private int mediaBitrate;
     private ImaFactory imaFactory;
 
     /**
@@ -108,7 +108,7 @@ public final class ImaAdsLoader
       this.context = Assertions.checkNotNull(context);
       vastLoadTimeoutMs = TIMEOUT_UNSET;
       mediaLoadTimeoutMs = TIMEOUT_UNSET;
-      mediaBitrateKbps = BITRATE_UNSET;
+      mediaBitrate = BITRATE_UNSET;
       imaFactory = new DefaultImaFactory();
     }
 
@@ -177,15 +177,15 @@ public final class ImaAdsLoader
     }
 
     /**
-     * Sets the ad media maximum recommended bitrate, in Kbps.
+     * Sets the ad media maximum recommended bitrate, in bps.
      *
-     * @param mediaBitrateKbps The ad media maximum recommended bitrate, in Kbps.
+     * @param bitrate The ad media maximum recommended bitrate, in bps.
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setBitrateKbps(int)
      */
-    public Builder setMediaBitrateKbps(int mediaBitrateKbps) {
-      Assertions.checkArgument(mediaBitrateKbps > 0);
-      this.mediaBitrateKbps = mediaBitrateKbps;
+    public Builder setMaxMediaBitrate(int bitrate) {
+      Assertions.checkArgument(bitrate > 0);
+      this.mediaBitrate = bitrate;
       return this;
     }
 
@@ -211,7 +211,7 @@ public final class ImaAdsLoader
           null,
           vastLoadTimeoutMs,
           mediaLoadTimeoutMs,
-          mediaBitrateKbps,
+          mediaBitrate,
           adUiElements,
           adEventListener,
           imaFactory);
@@ -232,7 +232,7 @@ public final class ImaAdsLoader
           adsResponse,
           vastLoadTimeoutMs,
           mediaLoadTimeoutMs,
-          mediaBitrateKbps,
+          mediaBitrate,
           adUiElements,
           adEventListener,
           imaFactory);
@@ -287,7 +287,7 @@ public final class ImaAdsLoader
   private final @Nullable String adsResponse;
   private final int vastLoadTimeoutMs;
   private final int mediaLoadTimeoutMs;
-  private final int mediaBitrateKbps;
+  private final int mediaBitrate;
   private final @Nullable Set<UiElement> adUiElements;
   private final @Nullable AdEventListener adEventListener;
   private final ImaFactory imaFactory;
@@ -375,7 +375,7 @@ public final class ImaAdsLoader
         /* adsResponse= */ null,
         /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
-        /* mediaBitrateKpbs= */ BITRATE_UNSET,
+        /* mediaBitrate= */ BITRATE_UNSET,
         /* adUiElements= */ null,
         /* adEventListener= */ null,
         /* imaFactory= */ new DefaultImaFactory());
@@ -401,7 +401,7 @@ public final class ImaAdsLoader
         /* adsResponse= */ null,
         /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
-        /* mediaBitrateKbps= */ BITRATE_UNSET,
+        /* mediaBitrate= */ BITRATE_UNSET,
         /* adUiElements= */ null,
         /* adEventListener= */ null,
         /* imaFactory= */ new DefaultImaFactory());
@@ -414,7 +414,7 @@ public final class ImaAdsLoader
       @Nullable String adsResponse,
       int vastLoadTimeoutMs,
       int mediaLoadTimeoutMs,
-      int mediaBitrateKbps,
+      int mediaBitrate,
       @Nullable Set<UiElement> adUiElements,
       @Nullable AdEventListener adEventListener,
       ImaFactory imaFactory) {
@@ -423,7 +423,7 @@ public final class ImaAdsLoader
     this.adsResponse = adsResponse;
     this.vastLoadTimeoutMs = vastLoadTimeoutMs;
     this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
-    this.mediaBitrateKbps = mediaBitrateKbps;
+    this.mediaBitrate = mediaBitrate;
     this.adUiElements = adUiElements;
     this.adEventListener = adEventListener;
     this.imaFactory = imaFactory;
@@ -971,8 +971,8 @@ public final class ImaAdsLoader
     if (mediaLoadTimeoutMs != TIMEOUT_UNSET) {
       adsRenderingSettings.setLoadVideoTimeout(mediaLoadTimeoutMs);
     }
-    if (mediaBitrateKbps != BITRATE_UNSET) {
-      adsRenderingSettings.setBitrateKbps(mediaBitrateKbps);
+    if (mediaBitrate != BITRATE_UNSET) {
+      adsRenderingSettings.setBitrateKbps(mediaBitrate / 1000);
     }
     if (adUiElements != null) {
       adsRenderingSettings.setUiElements(adUiElements);
