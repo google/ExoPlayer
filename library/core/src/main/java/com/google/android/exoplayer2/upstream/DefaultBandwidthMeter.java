@@ -76,8 +76,6 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
     @Nullable private final Context context;
 
-    @Nullable private Handler eventHandler;
-    @Nullable private EventListener eventListener;
     private SparseArray<Long> initialBitrateEstimates;
     private int slidingWindowMaxWeight;
     private Clock clock;
@@ -93,21 +91,6 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       initialBitrateEstimates = getInitialBitrateEstimatesForCountry(Util.getCountryCode(context));
       slidingWindowMaxWeight = DEFAULT_SLIDING_WINDOW_MAX_WEIGHT;
       clock = Clock.DEFAULT;
-    }
-
-    /**
-     * Sets an event listener for new bandwidth estimates.
-     *
-     * @param eventHandler A handler for events.
-     * @param eventListener A listener of events.
-     * @return This builder.
-     * @throws IllegalArgumentException If the event handler or listener are null.
-     */
-    public Builder setEventListener(Handler eventHandler, EventListener eventListener) {
-      Assertions.checkArgument(eventHandler != null && eventListener != null);
-      this.eventHandler = eventHandler;
-      this.eventListener = eventListener;
-      return this;
     }
 
     /**
@@ -185,9 +168,6 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       DefaultBandwidthMeter bandwidthMeter =
           new DefaultBandwidthMeter(
               context, initialBitrateEstimates, slidingWindowMaxWeight, clock);
-      if (eventHandler != null && eventListener != null) {
-        bandwidthMeter.addEventListener(eventHandler, eventListener);
-      }
       return bandwidthMeter;
     }
 
@@ -236,19 +216,6 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
         /* initialBitrateEstimates= */ new SparseArray<>(),
         DEFAULT_SLIDING_WINDOW_MAX_WEIGHT,
         Clock.DEFAULT);
-  }
-
-  /** @deprecated Use {@link Builder} instead. */
-  @Deprecated
-  public DefaultBandwidthMeter(Handler eventHandler, EventListener eventListener) {
-    this(
-        /* context= */ null,
-        /* initialBitrateEstimates= */ new SparseArray<>(),
-        DEFAULT_SLIDING_WINDOW_MAX_WEIGHT,
-        Clock.DEFAULT);
-    if (eventHandler != null && eventListener != null) {
-      addEventListener(eventHandler, eventListener);
-    }
   }
 
   private DefaultBandwidthMeter(
