@@ -475,32 +475,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     try {
-      if (!initCodecWithFallback(wrappedMediaCrypto, drmSessionRequiresSecureDecoder)) {
-        // We can't initialize a codec yet.
-        return;
-      }
+      maybeInitCodecWithFallback(wrappedMediaCrypto, drmSessionRequiresSecureDecoder);
     } catch (DecoderInitializationException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
-
-    String codecName = codecInfo.name;
-    codecAdaptationWorkaroundMode = codecAdaptationWorkaroundMode(codecName);
-    codecNeedsReconfigureWorkaround = codecNeedsReconfigureWorkaround(codecName);
-    codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
-    codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
-    codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
-    codecNeedsEosOutputExceptionWorkaround = codecNeedsEosOutputExceptionWorkaround(codecName);
-    codecNeedsMonoChannelCountWorkaround = codecNeedsMonoChannelCountWorkaround(codecName, format);
-    codecNeedsEosPropagation =
-        codecNeedsEosPropagationWorkaround(codecInfo) || getCodecNeedsEosPropagation();
-    codecHotswapDeadlineMs =
-        getState() == STATE_STARTED
-            ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS)
-            : C.TIME_UNSET;
-    resetInputBuffer();
-    resetOutputBuffer();
-    waitingForFirstSyncFrame = true;
-    decoderCounters.decoderInitCount++;
   }
 
   protected boolean shouldInitCodec(MediaCodecInfo codecInfo) {
@@ -581,31 +559,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   protected void releaseCodec() {
     availableCodecInfos = null;
-    codecHotswapDeadlineMs = C.TIME_UNSET;
-    resetInputBuffer();
-    resetOutputBuffer();
-    waitingForKeys = false;
-    shouldSkipOutputBuffer = false;
-    decodeOnlyPresentationTimestamps.clear();
-    resetCodecBuffers();
-    codecInfo = null;
-    codecReconfigured = false;
-    codecReceivedBuffers = false;
-    codecNeedsDiscardToSpsWorkaround = false;
-    codecNeedsFlushWorkaround = false;
-    codecAdaptationWorkaroundMode = ADAPTATION_WORKAROUND_MODE_NEVER;
-    codecNeedsReconfigureWorkaround = false;
-    codecNeedsEosFlushWorkaround = false;
-    codecNeedsMonoChannelCountWorkaround = false;
-    codecNeedsAdaptationWorkaroundBuffer = false;
-    shouldSkipAdaptationWorkaroundOutputBuffer = false;
-    codecNeedsEosPropagation = false;
-    codecReceivedEos = false;
-    codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-    codecReinitializationState = REINITIALIZATION_STATE_NONE;
-    codecReinitializationIsRelease = false;
-    codecConfiguredWithOperatingRate = false;
     if (codec != null) {
+      resetInputBuffer();
+      resetOutputBuffer();
+      resetCodecBuffers();
+      codecHotswapDeadlineMs = C.TIME_UNSET;
+      waitingForKeys = false;
+      decodeOnlyPresentationTimestamps.clear();
+      codecInfo = null;
+      codecReconfigured = false;
+      codecReconfigurationState = RECONFIGURATION_STATE_NONE;
+      codecReinitializationState = REINITIALIZATION_STATE_NONE;
       decoderCounters.decoderReleaseCount++;
       try {
         codec.stop();
@@ -708,45 +672,40 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   protected boolean flushOrReleaseCodec() {
     if (codec == null) {
-      // Nothing to do.
       return false;
     }
-    codecHotswapDeadlineMs = C.TIME_UNSET;
-    resetInputBuffer();
-    resetOutputBuffer();
-    codecReceivedBuffers = false;
-    waitingForFirstSyncFrame = true;
-    waitingForKeys = false;
-    shouldSkipOutputBuffer = false;
-    decodeOnlyPresentationTimestamps.clear();
-    codecNeedsAdaptationWorkaroundBuffer = false;
-    shouldSkipAdaptationWorkaroundOutputBuffer = false;
-    if (codecNeedsFlushWorkaround || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
+    if (codecNeedsFlushWorkaround
+        || (codecNeedsEosFlushWorkaround && codecReceivedEos)
+        || (codecReinitializationState != REINITIALIZATION_STATE_NONE
+            && codecReinitializationIsRelease)) {
       releaseCodec();
       return true;
-    } else if (codecReinitializationState != REINITIALIZATION_STATE_NONE) {
-      // We're already waiting to re-initialize the codec. Since we're now flushing, there's no need
-      // to wait any longer.
-      if (codecReinitializationIsRelease) {
-        releaseCodec();
-        return true;
-      } else {
-        codec.flush();
-        codecReinitializationState = REINITIALIZATION_STATE_NONE;
-      }
-    } else {
-      // We can flush and re-use the existing decoder.
-      codec.flush();
     }
-    if (codecReconfigured && format != null) {
-      // Any reconfiguration data that we send shortly before the flush may be discarded. We
-      // avoid this issue by sending reconfiguration data following every flush.
-      codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
-    }
+    codec.flush();
+
+    resetInputBuffer();
+    resetOutputBuffer();
+    codecHotswapDeadlineMs = C.TIME_UNSET;
+    codecReceivedEos = false;
+    codecReceivedBuffers = false;
+    waitingForFirstSyncFrame = true;
+    codecNeedsAdaptationWorkaroundBuffer = false;
+    shouldSkipAdaptationWorkaroundOutputBuffer = false;
+    shouldSkipOutputBuffer = false;
+
+    waitingForKeys = false;
+    decodeOnlyPresentationTimestamps.clear();
+    codecReinitializationState = REINITIALIZATION_STATE_NONE;
+    // Reconfiguration data sent shortly before the flush may not have been processed by the
+    // decoder. If the codec has been reconfigured we always send reconfiguration data again to
+    // guarantee that it's processed.
+    codecReconfigurationState =
+        codecReconfigured ? RECONFIGURATION_STATE_WRITE_PENDING : RECONFIGURATION_STATE_NONE;
     return false;
   }
 
-  private boolean initCodecWithFallback(MediaCrypto crypto, boolean drmSessionRequiresSecureDecoder)
+  private void maybeInitCodecWithFallback(
+      MediaCrypto crypto, boolean drmSessionRequiresSecureDecoder)
       throws DecoderInitializationException {
     if (availableCodecInfos == null) {
       try {
@@ -770,14 +729,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           DecoderInitializationException.NO_SUITABLE_DECODER_ERROR);
     }
 
-    while (true) {
+    while (codec == null) {
       MediaCodecInfo codecInfo = availableCodecInfos.peekFirst();
       if (!shouldInitCodec(codecInfo)) {
-        return false;
+        return;
       }
       try {
         initCodec(codecInfo, crypto);
-        return true;
       } catch (Exception e) {
         Log.w(TAG, "Failed to initialize decoder: " + codecInfo, e);
         // This codec failed to initialize, so fall back to the next codec in the list (if any). We
@@ -798,6 +756,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         }
       }
     }
+
+    availableCodecInfos = null;
   }
 
   private List<MediaCodecInfo> getAvailableCodecInfos(boolean drmSessionRequiresSecureDecoder)
@@ -827,13 +787,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     long codecInitializingTimestamp;
     long codecInitializedTimestamp;
     MediaCodec codec = null;
-    String name = codecInfo.name;
+    String codecName = codecInfo.name;
+
     updateCodecOperatingRate();
     boolean configureWithOperatingRate = codecOperatingRate > assumedMinimumCodecOperatingRate;
     try {
       codecInitializingTimestamp = SystemClock.elapsedRealtime();
-      TraceUtil.beginSection("createCodec:" + name);
-      codec = MediaCodec.createByCodecName(name);
+      TraceUtil.beginSection("createCodec:" + codecName);
+      codec = MediaCodec.createByCodecName(codecName);
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
       configureCodec(
@@ -842,7 +803,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           format,
           crypto,
           configureWithOperatingRate ? codecOperatingRate : CODEC_OPERATING_RATE_UNSET);
-      codecConfiguredWithOperatingRate = configureWithOperatingRate;
       TraceUtil.endSection();
       TraceUtil.beginSection("startCodec");
       codec.start();
@@ -856,10 +816,36 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
       throw e;
     }
+
     this.codec = codec;
     this.codecInfo = codecInfo;
+    codecConfiguredWithOperatingRate = configureWithOperatingRate;
+    codecAdaptationWorkaroundMode = codecAdaptationWorkaroundMode(codecName);
+    codecNeedsReconfigureWorkaround = codecNeedsReconfigureWorkaround(codecName);
+    codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
+    codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
+    codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
+    codecNeedsEosOutputExceptionWorkaround = codecNeedsEosOutputExceptionWorkaround(codecName);
+    codecNeedsMonoChannelCountWorkaround = codecNeedsMonoChannelCountWorkaround(codecName, format);
+    codecNeedsEosPropagation =
+        codecNeedsEosPropagationWorkaround(codecInfo) || getCodecNeedsEosPropagation();
+
+    resetInputBuffer();
+    resetOutputBuffer();
+    codecHotswapDeadlineMs =
+        getState() == STATE_STARTED
+            ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS)
+            : C.TIME_UNSET;
+    codecReceivedEos = false;
+    codecReceivedBuffers = false;
+    waitingForFirstSyncFrame = true;
+    codecNeedsAdaptationWorkaroundBuffer = false;
+    shouldSkipAdaptationWorkaroundOutputBuffer = false;
+    shouldSkipOutputBuffer = false;
+
+    decoderCounters.decoderInitCount++;
     long elapsed = codecInitializedTimestamp - codecInitializingTimestamp;
-    onCodecInitialized(name, codecInitializedTimestamp, elapsed);
+    onCodecInitialized(codecName, codecInitializedTimestamp, elapsed);
   }
 
   private void getCodecBuffers(MediaCodec codec) {
