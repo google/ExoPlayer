@@ -298,15 +298,17 @@ public interface HttpDataSource extends DataSource {
     /**
      * The HTTP status message.
      */
-    public final @Nullable String responseMessage;
+    @Nullable public final String responseMessage;
 
     /**
      * An unmodifiable map of the response header fields and values.
      */
     public final Map<String, List<String>> headerFields;
 
-    public InvalidResponseCodeException(int responseCode, @Nullable String responseMessage,
-                                        Map<String, List<String>> headerFields,
+    public InvalidResponseCodeException(
+        int responseCode,
+        @Nullable String responseMessage,
+        Map<String, List<String>> headerFields,
         DataSpec dataSpec) {
       super("Response code: " + responseCode, dataSpec, TYPE_OPEN);
       this.responseCode = responseCode;

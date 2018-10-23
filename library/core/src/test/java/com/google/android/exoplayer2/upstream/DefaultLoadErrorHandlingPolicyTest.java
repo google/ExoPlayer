@@ -50,7 +50,8 @@ public final class DefaultLoadErrorHandlingPolicyTest {
   @Test
   public void getBlacklistDurationMsFor_dontBlacklistUnexpectedHttpCodes() {
     InvalidResponseCodeException exception =
-        new InvalidResponseCodeException(500, "Internal Server Error", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
+        new InvalidResponseCodeException(
+            500, "Internal Server Error", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
     assertThat(getDefaultPolicyBlacklistOutputFor(exception)).isEqualTo(C.TIME_UNSET);
   }
 
