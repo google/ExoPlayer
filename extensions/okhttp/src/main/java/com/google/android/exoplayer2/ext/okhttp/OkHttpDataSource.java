@@ -173,7 +173,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       Map<String, List<String>> headers = response.headers().toMultimap();
       closeConnectionQuietly();
       InvalidResponseCodeException exception = new InvalidResponseCodeException(
-          responseCode, headers, dataSpec);
+          responseCode, response.message(), headers, dataSpec);
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }
