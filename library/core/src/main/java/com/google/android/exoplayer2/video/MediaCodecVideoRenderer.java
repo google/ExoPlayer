@@ -536,7 +536,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected float getCodecOperatingRate(
+  protected float getCodecOperatingRateV23(
       float operatingRate, Format format, Format[] streamFormats) {
     // Use the highest known stream frame-rate up front, to avoid having to reconfigure the codec
     // should an adaptive switch to that stream occur.

@@ -298,7 +298,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private MediaCodec codec;
   private float rendererOperatingRate;
   private float codecOperatingRate;
-  private boolean codecConfiguredWithOperatingRate;
   @Nullable private ArrayDeque<MediaCodecInfo> availableCodecInfos;
   @Nullable private DecoderInitializationException preferredDecoderInitializationException;
   @Nullable private MediaCodecInfo codecInfo;
@@ -783,20 +782,20 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     MediaCodec codec = null;
     String codecName = codecInfo.name;
 
-    updateCodecOperatingRate();
-    boolean configureWithOperatingRate = codecOperatingRate > assumedMinimumCodecOperatingRate;
+    float codecOperatingRate =
+        Util.SDK_INT < 23
+            ? CODEC_OPERATING_RATE_UNSET
+            : getCodecOperatingRateV23(rendererOperatingRate, format, getStreamFormats());
+    if (codecOperatingRate <= assumedMinimumCodecOperatingRate) {
+      codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
+    }
     try {
       codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createCodec:" + codecName);
       codec = MediaCodec.createByCodecName(codecName);
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
-      configureCodec(
-          codecInfo,
-          codec,
-          format,
-          crypto,
-          configureWithOperatingRate ? codecOperatingRate : CODEC_OPERATING_RATE_UNSET);
+      configureCodec(codecInfo, codec, format, crypto, codecOperatingRate);
       TraceUtil.endSection();
       TraceUtil.beginSection("startCodec");
       codec.start();
@@ -813,7 +812,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     this.codec = codec;
     this.codecInfo = codecInfo;
-    codecConfiguredWithOperatingRate = configureWithOperatingRate;
+    this.codecOperatingRate = codecOperatingRate;
     codecAdaptationWorkaroundMode = codecAdaptationWorkaroundMode(codecName);
     codecNeedsReconfigureWorkaround = codecNeedsReconfigureWorkaround(codecName);
     codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
@@ -1227,7 +1226,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @return The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if no codec operating
    *     rate should be set.
    */
-  protected float getCodecOperatingRate(
+  protected float getCodecOperatingRateV23(
       float operatingRate, Format format, Format[] streamFormats) {
     return CODEC_OPERATING_RATE_UNSET;
   }
@@ -1238,33 +1237,26 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs releasing or initializing a codec.
    */
   private void updateCodecOperatingRate() throws ExoPlaybackException {
-    if (format == null || Util.SDK_INT < 23) {
+    if (Util.SDK_INT < 23 || codec == null || codecDrainAction == DRAIN_ACTION_REINITIALIZE) {
       return;
     }
 
-    float codecOperatingRate =
-        getCodecOperatingRate(rendererOperatingRate, format, getStreamFormats());
-    if (this.codecOperatingRate == codecOperatingRate) {
-      return;
-    }
-
-    this.codecOperatingRate = codecOperatingRate;
-    if (codec == null || codecDrainAction == DRAIN_ACTION_REINITIALIZE) {
-      // Either no codec, or it's about to be released due to re-initialization anyway.
-    } else if (codecOperatingRate == CODEC_OPERATING_RATE_UNSET
-        && codecConfiguredWithOperatingRate) {
-      // We need to clear the operating rate. The only way to do so is to instantiate a new codec
-      // instance. See [Internal ref: b/71987865].
+    float newCodecOperatingRate =
+        getCodecOperatingRateV23(rendererOperatingRate, format, getStreamFormats());
+    if (codecOperatingRate == newCodecOperatingRate) {
+      // No change.
+    } else if (newCodecOperatingRate == CODEC_OPERATING_RATE_UNSET) {
+      // The only way to clear the operating rate is to instantiate a new codec instance. See
+      // [Internal ref: b/71987865].
       drainAndReinitializeCodec();
     } else if (codecOperatingRate != CODEC_OPERATING_RATE_UNSET
-        && (codecConfiguredWithOperatingRate
-            || codecOperatingRate > assumedMinimumCodecOperatingRate)) {
+        || newCodecOperatingRate > assumedMinimumCodecOperatingRate) {
       // We need to set the operating rate, either because we've set it previously or because it's
       // above the assumed minimum rate.
       Bundle codecParameters = new Bundle();
-      codecParameters.putFloat(MediaFormat.KEY_OPERATING_RATE, codecOperatingRate);
+      codecParameters.putFloat(MediaFormat.KEY_OPERATING_RATE, newCodecOperatingRate);
       codec.setParameters(codecParameters);
-      codecConfiguredWithOperatingRate = true;
+      codecOperatingRate = newCodecOperatingRate;
     }
   }
 
