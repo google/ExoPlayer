@@ -309,16 +309,16 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
           || totalBytesTransferred >= BYTES_TRANSFERRED_FOR_ESTIMATE) {
         bitrateEstimate = (long) slidingPercentile.getPercentile(0.5f);
       }
-    }
-    notifyBandwidthSample(sampleElapsedTimeMs, sampleBytesTransferred, bitrateEstimate);
-    if (--streamCount > 0) {
+      notifyBandwidthSample(sampleElapsedTimeMs, sampleBytesTransferred, bitrateEstimate);
       sampleStartTimeMs = nowMs;
-    }
-    sampleBytesTransferred = 0;
+      sampleBytesTransferred = 0;
+    } // Else any sample bytes transferred will be carried forward into the next sample.
+    streamCount--;
   }
 
-  private void notifyBandwidthSample(int elapsedMs, long bytes, long bitrate) {
-    eventDispatcher.dispatch(listener -> listener.onBandwidthSample(elapsedMs, bytes, bitrate));
+  private void notifyBandwidthSample(int elapsedMs, long bytesTransferred, long bitrateEstimate) {
+    eventDispatcher.dispatch(
+        listener -> listener.onBandwidthSample(elapsedMs, bytesTransferred, bitrateEstimate));
   }
 
   private long getInitialBitrateEstimateForNetworkType(@C.NetworkType int networkType) {
