@@ -1651,9 +1651,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           }
           boolean selectTrack = trackScore > selectedTrackScore;
           if (trackScore == selectedTrackScore) {
-            if (params.forceLowestBitrate) {
+            int bitrateComparison = compareFormatValues(format.bitrate, selectedBitrate);
+            if (params.forceLowestBitrate && bitrateComparison != 0) {
               // Use bitrate as a tie breaker, preferring the lower bitrate.
-              selectTrack = compareFormatValues(format.bitrate, selectedBitrate) < 0;
+              selectTrack = bitrateComparison < 0;
             } else {
               // Use the pixel count as a tie breaker (or bitrate if pixel counts are tied). If
               // we're within constraints prefer a higher pixel count (or bitrate), else prefer a
@@ -2173,23 +2174,29 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       if (this.withinRendererCapabilitiesScore != other.withinRendererCapabilitiesScore) {
         return compareInts(this.withinRendererCapabilitiesScore,
             other.withinRendererCapabilitiesScore);
-      } else if (this.matchLanguageScore != other.matchLanguageScore) {
-        return compareInts(this.matchLanguageScore, other.matchLanguageScore);
-      } else if (this.defaultSelectionFlagScore != other.defaultSelectionFlagScore) {
-        return compareInts(this.defaultSelectionFlagScore, other.defaultSelectionFlagScore);
-      } else if (parameters.forceLowestBitrate) {
-        return compareInts(other.bitrate, this.bitrate);
-      } else {
-        // If the format are within renderer capabilities, prefer higher values of channel count,
-        // sample rate and bit rate in that order. Otherwise, prefer lower values.
-        int resultSign = withinRendererCapabilitiesScore == 1 ? 1 : -1;
-        if (this.channelCount != other.channelCount) {
-          return resultSign * compareInts(this.channelCount, other.channelCount);
-        } else if (this.sampleRate != other.sampleRate) {
-          return resultSign * compareInts(this.sampleRate, other.sampleRate);
-        }
-        return resultSign * compareInts(this.bitrate, other.bitrate);
       }
+      if (this.matchLanguageScore != other.matchLanguageScore) {
+        return compareInts(this.matchLanguageScore, other.matchLanguageScore);
+      }
+      if (parameters.forceLowestBitrate) {
+        int bitrateComparison = compareFormatValues(bitrate, other.bitrate);
+        if (bitrateComparison != 0) {
+          return bitrateComparison > 0 ? -1 : 1;
+        }
+      }
+      if (this.defaultSelectionFlagScore != other.defaultSelectionFlagScore) {
+        return compareInts(this.defaultSelectionFlagScore, other.defaultSelectionFlagScore);
+      }
+      // If the formats are within renderer capabilities then prefer higher values of channel count,
+      // sample rate and bit rate in that order. Otherwise, prefer lower values.
+      int resultSign = withinRendererCapabilitiesScore == 1 ? 1 : -1;
+      if (this.channelCount != other.channelCount) {
+        return resultSign * compareInts(this.channelCount, other.channelCount);
+      }
+      if (this.sampleRate != other.sampleRate) {
+        return resultSign * compareInts(this.sampleRate, other.sampleRate);
+      }
+      return resultSign * compareInts(this.bitrate, other.bitrate);
     }
   }
 

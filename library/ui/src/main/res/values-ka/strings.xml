@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">ყველას გამეორება</string>
   <string name="exo_controls_shuffle_description">არეულად დაკვრა</string>
   <string name="exo_controls_fullscreen_description">სრულეკრანიანი რეჟიმი</string>
-  <string name="exo_controls_exit_vr_description">Exit VR mode</string>
+  <string name="exo_controls_exit_vr_description">VR რეჟიმიდან გასვლა</string>
   <string name="exo_download_description">ჩამოტვირთვა</string>
   <string name="exo_download_notification_channel_name">ჩამოტვირთვები</string>
   <string name="exo_download_downloading">მიმდინარეობს ჩამოტვირთვა</string>
