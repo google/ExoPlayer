@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">Ulangi semua</string>
   <string name="exo_controls_shuffle_description">Acak</string>
   <string name="exo_controls_fullscreen_description">Mode layar penuh</string>
-  <string name="exo_controls_exit_vr_description">Exit VR mode</string>
+  <string name="exo_controls_exit_vr_description">Keluar dari mode VR</string>
   <string name="exo_download_description">Download</string>
   <string name="exo_download_notification_channel_name">Download</string>
   <string name="exo_download_downloading">Mendownload</string>
