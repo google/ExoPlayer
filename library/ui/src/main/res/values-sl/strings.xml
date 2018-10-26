@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">Ponavljanje vseh</string>
   <string name="exo_controls_shuffle_description">Naključno predvajanje</string>
   <string name="exo_controls_fullscreen_description">Celozaslonski način</string>
-  <string name="exo_controls_exit_vr_description">Exit VR mode</string>
+  <string name="exo_controls_exit_vr_description">Izhod iz načina VR</string>
   <string name="exo_download_description">Prenos</string>
   <string name="exo_download_notification_channel_name">Prenosi</string>
   <string name="exo_download_downloading">Prenašanje</string>
