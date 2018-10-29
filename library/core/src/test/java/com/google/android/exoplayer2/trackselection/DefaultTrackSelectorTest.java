@@ -129,26 +129,31 @@ public final class DefaultTrackSelectorTest {
 
     Parameters parametersToParcel =
         new Parameters(
-            selectionOverrides,
-            rendererDisabledFlags,
+            // Video
+            /* maxVideoWidth= */ 0,
+            /* maxVideoHeight= */ 1,
+            /* maxVideoFrameRate= */ 2,
+            /* maxVideoBitrate= */ 3,
+            /* exceedVideoConstraintsIfNecessary= */ false,
+            /* viewportWidth= */ 4,
+            /* viewportHeight= */ 5,
+            /* viewportOrientationMayChange= */ true,
+            // Audio
             /* preferredAudioLanguage= */ "en",
+            // Text
             /* preferredTextLanguage= */ "de",
             /* selectUndeterminedTextLanguage= */ false,
-            /* disabledTextTrackSelectionFlags= */ 0,
+            /* disabledTextTrackSelectionFlags= */ 6,
+            // General
             /* forceLowestBitrate= */ true,
-            /* forceHighestSupportedBitrate= */ true,
-            /* allowMixedMimeAdaptiveness= */ false,
-            /* allowNonSeamlessAdaptiveness= */ true,
-            /* maxVideoWidth= */ 1,
-            /* maxVideoHeight= */ 2,
-            /* maxVideoFrameRate= */ 3,
-            /* maxVideoBitrate= */ 4,
-            /* exceedVideoConstraintsIfNecessary= */ false,
+            /* forceHighestSupportedBitrate= */ false,
+            /* allowMixedMimeAdaptiveness= */ true,
+            /* allowNonSeamlessAdaptiveness= */ false,
             /* exceedRendererCapabilitiesIfNecessary= */ true,
-            /* viewportWidth= */ 5,
-            /* viewportHeight= */ 6,
-            /* viewportOrientationMayChange= */ false,
-            /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET);
+            /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET,
+            // Overrides
+            selectionOverrides,
+            rendererDisabledFlags);
 
     Parcel parcel = Parcel.obtain();
     parametersToParcel.writeToParcel(parcel, 0);
