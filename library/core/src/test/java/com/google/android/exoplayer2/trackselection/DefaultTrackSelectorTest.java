@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import static com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES;
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE;
@@ -132,21 +133,26 @@ public final class DefaultTrackSelectorTest {
             /* maxVideoFrameRate= */ 2,
             /* maxVideoBitrate= */ 3,
             /* exceedVideoConstraintsIfNecessary= */ false,
+            /* allowVideoMixedMimeTypeAdaptiveness= */ true,
+            /* allowVideoNonSeamlessAdaptiveness= */ false,
             /* viewportWidth= */ 4,
             /* viewportHeight= */ 5,
             /* viewportOrientationMayChange= */ true,
             // Audio
             /* preferredAudioLanguage= */ "en",
+            /* maxAudioChannelCount= */ 6,
+            /* maxAudioBitrate= */ 7,
+            /* exceedAudioConstraintsIfNecessary= */ false,
+            /* allowAudioMixedMimeTypeAdaptiveness= */ true,
+            /* allowAudioMixedSampleRateAdaptiveness= */ false,
             // Text
             /* preferredTextLanguage= */ "de",
-            /* selectUndeterminedTextLanguage= */ false,
-            /* disabledTextTrackSelectionFlags= */ 6,
+            /* selectUndeterminedTextLanguage= */ true,
+            /* disabledTextTrackSelectionFlags= */ 8,
             // General
-            /* forceLowestBitrate= */ true,
-            /* forceHighestSupportedBitrate= */ false,
-            /* allowMixedMimeAdaptiveness= */ true,
-            /* allowNonSeamlessAdaptiveness= */ false,
-            /* exceedRendererCapabilitiesIfNecessary= */ true,
+            /* forceLowestBitrate= */ false,
+            /* forceHighestSupportedBitrate= */ true,
+            /* exceedRendererCapabilitiesIfNecessary= */ false,
             /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET,
             // Overrides
             selectionOverrides,
@@ -1091,6 +1097,137 @@ public final class DefaultTrackSelectorTest {
   }
 
   @Test
+  public void testSelectTracksWithMultipleAudioTracksWithMixedSampleRates() throws Exception {
+    Format highSampleRateAudioFormat =
+        buildAudioFormatWithSampleRate("44100", /* sampleRate= */ 44100);
+    Format lowSampleRateAudioFormat =
+        buildAudioFormatWithSampleRate("22050", /* sampleRate= */ 22050);
+
+    // Should not adapt between mixed sample rates by default, so we expect a fixed selection
+    // containing the higher sample rate stream.
+    TrackGroupArray trackGroups =
+        singleTrackGroup(highSampleRateAudioFormat, lowSampleRateAudioFormat);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, highSampleRateAudioFormat);
+
+    // The same applies if the tracks are provided in the opposite order.
+    trackGroups = singleTrackGroup(lowSampleRateAudioFormat, highSampleRateAudioFormat);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, highSampleRateAudioFormat);
+
+    // If we explicitly enable mixed sample rate adaptiveness, expect an adaptive selection.
+    trackSelector.setParameters(
+        Parameters.DEFAULT.buildUpon().setAllowAudioMixedSampleRateAdaptiveness(true));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleAudioTracksWithMixedMimeTypes() throws Exception {
+    Format aacAudioFormat = buildAudioFormatWithMimeType("aac", MimeTypes.AUDIO_AAC);
+    Format opusAudioFormat = buildAudioFormatWithMimeType("opus", MimeTypes.AUDIO_OPUS);
+
+    // Should not adapt between mixed mime types by default, so we expect a fixed selection
+    // containing the first stream.
+    TrackGroupArray trackGroups = singleTrackGroup(aacAudioFormat, opusAudioFormat);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, aacAudioFormat);
+
+    // The same applies if the tracks are provided in the opposite order.
+    trackGroups = singleTrackGroup(opusAudioFormat, aacAudioFormat);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, opusAudioFormat);
+
+    // If we explicitly enable mixed mime type adaptiveness, expect an adaptive selection.
+    trackSelector.setParameters(
+        Parameters.DEFAULT.buildUpon().setAllowAudioMixedMimeTypeAdaptiveness(true));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleAudioTracksWithMixedChannelCounts() throws Exception {
+    Format stereoAudioFormat =
+        buildAudioFormatWithChannelCount("2-channels", /* channelCount= */ 2);
+    Format surroundAudioFormat =
+        buildAudioFormatWithChannelCount("5-channels", /* channelCount= */ 5);
+
+    // Should not adapt between different channel counts, so we expect a fixed selection containing
+    // the track with more channels.
+    TrackGroupArray trackGroups = singleTrackGroup(stereoAudioFormat, surroundAudioFormat);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, surroundAudioFormat);
+
+    // The same applies if the tracks are provided in the opposite order.
+    trackGroups = singleTrackGroup(surroundAudioFormat, stereoAudioFormat);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, surroundAudioFormat);
+
+    // If we constrain the channel count to 4 we expect a fixed selection containing the track with
+    // fewer channels.
+    trackSelector.setParameters(Parameters.DEFAULT.buildUpon().setMaxAudioChannelCount(4));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, stereoAudioFormat);
+
+    // If we constrain the channel count to 2 we expect a fixed selection containing the track with
+    // fewer channels.
+    trackSelector.setParameters(Parameters.DEFAULT.buildUpon().setMaxAudioChannelCount(2));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, stereoAudioFormat);
+
+    // If we constrain the channel count to 1 we expect a fixed selection containing the track with
+    // fewer channels.
+    trackSelector.setParameters(Parameters.DEFAULT.buildUpon().setMaxAudioChannelCount(1));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, stereoAudioFormat);
+
+    // If we disable exceeding of constraints we expect no selection.
+    trackSelector.setParameters(
+        Parameters.DEFAULT
+            .buildUpon()
+            .setMaxAudioChannelCount(1)
+            .setExceedAudioConstraintsIfNecessary(false));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertNoSelection(result.selections.get(0));
+  }
+
+  @Test
   public void testSelectTracksWithMultipleAudioTracksOverrideReturnsAdaptiveTrackSelection()
       throws Exception {
     TrackGroupArray trackGroups =
@@ -1160,6 +1297,70 @@ public final class DefaultTrackSelectorTest {
         trackSelector.selectTracks(
             new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
 
+    assertThat(result.length).isEqualTo(1);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleVideoTracksWithNonSeamlessAdaptiveness()
+      throws Exception {
+    FakeRendererCapabilities nonSeamlessVideoCapabilities =
+        new FakeRendererCapabilities(C.TRACK_TYPE_VIDEO, FORMAT_HANDLED | ADAPTIVE_NOT_SEAMLESS);
+
+    // Should do non-seamless adaptiveness by default, so expect an adaptive selection.
+    TrackGroupArray trackGroups = singleTrackGroup(buildVideoFormat("0"), buildVideoFormat("1"));
+    trackSelector.setParameters(
+        Parameters.DEFAULT.buildUpon().setAllowVideoNonSeamlessAdaptiveness(true));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {nonSeamlessVideoCapabilities},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
+
+    // If we explicitly disable non-seamless adaptiveness, expect a fixed selection.
+    trackSelector.setParameters(
+        Parameters.DEFAULT.buildUpon().setAllowVideoNonSeamlessAdaptiveness(false));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {nonSeamlessVideoCapabilities},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups.get(0), 0);
+  }
+
+  @Test
+  public void testSelectTracksWithMultipleVideoTracksWithMixedMimeTypes() throws Exception {
+    Format h264VideoFormat = buildVideoFormatWithMimeType("h264", MimeTypes.VIDEO_H264);
+    Format h265VideoFormat = buildVideoFormatWithMimeType("h265", MimeTypes.VIDEO_H265);
+
+    // Should not adapt between mixed mime types by default, so we expect a fixed selection
+    // containing the first stream.
+    TrackGroupArray trackGroups = singleTrackGroup(h264VideoFormat, h265VideoFormat);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, h264VideoFormat);
+
+    // The same applies if the tracks are provided in the opposite order.
+    trackGroups = singleTrackGroup(h265VideoFormat, h264VideoFormat);
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, h265VideoFormat);
+
+    // If we explicitly enable mixed mime type adaptiveness, expect an adaptive selection.
+    trackSelector.setParameters(
+        Parameters.DEFAULT.buildUpon().setAllowVideoMixedMimeTypeAdaptiveness(true));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
     assertThat(result.length).isEqualTo(1);
     assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1);
   }
@@ -1273,6 +1474,36 @@ public final class DefaultTrackSelectorTest {
         MimeTypes.AUDIO_AAC,
         language,
         selectionFlags,
+        /* channelCount= */ 2,
+        /* sampleRate= */ 44100);
+  }
+
+  private static Format buildAudioFormatWithSampleRate(String id, int sampleRate) {
+    return buildAudioFormat(
+        id,
+        MimeTypes.AUDIO_AAC,
+        /* language= */ null,
+        /* selectionFlags= */ 0,
+        /* channelCount= */ 2,
+        sampleRate);
+  }
+
+  private static Format buildAudioFormatWithChannelCount(String id, int channelCount) {
+    return buildAudioFormat(
+        id,
+        MimeTypes.AUDIO_AAC,
+        /* language= */ null,
+        /* selectionFlags= */ 0,
+        channelCount,
+        /* sampleRate= */ 44100);
+  }
+
+  private static Format buildAudioFormatWithMimeType(String id, String mimeType) {
+    return buildAudioFormat(
+        id,
+        mimeType,
+        /* language= */ null,
+        /* selectionFlags= */ 0,
         /* channelCount= */ 2,
         /* sampleRate= */ 44100);
   }

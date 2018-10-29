@@ -6,6 +6,8 @@
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
 * Improve initial bandwidth meter estimates using the current country and
   network type.
+* Add options for controlling audio track selections to `DefaultTrackSelector`
+  ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
 * Add convenience methods `Player.next`, `Player.previous`, `Player.hasNext`
   and `Player.hasPrevious`
