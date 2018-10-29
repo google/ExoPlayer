@@ -207,17 +207,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return Arrays.equals(this.sessionId, sessionId);
   }
 
-  @SuppressWarnings("deprecation")
   public void onMediaDrmEvent(int what) {
     switch (what) {
-      case ExoMediaDrm.EVENT_PROVISION_REQUIRED:
-        onProvisionRequired();
-        break;
       case ExoMediaDrm.EVENT_KEY_REQUIRED:
         onKeysRequired();
-        break;
-      case ExoMediaDrm.EVENT_KEY_EXPIRED:
-        onKeysExpired();
         break;
       default:
         break;
@@ -434,23 +427,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  private void onProvisionRequired() {
-    if (mode == DefaultDrmSessionManager.MODE_PLAYBACK && isOpen()) {
-      state = STATE_OPENED;
-      provisioningManager.provisionRequired(this);
-    }
-  }
-
   private void onKeysRequired() {
-    if (mode == DefaultDrmSessionManager.MODE_PLAYBACK && isOpen()) {
-      doLicense(/* allowRetry= */ false);
-    }
-  }
-
-  private void onKeysExpired() {
     if (mode == DefaultDrmSessionManager.MODE_PLAYBACK && state == STATE_OPENED_WITH_KEYS) {
-      state = STATE_OPENED;
-      onError(new KeysExpiredException());
+      Util.castNonNull(sessionId);
+      doLicense(/* allowRetry= */ false);
     }
   }
 
