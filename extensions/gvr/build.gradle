@@ -31,8 +31,12 @@ android {
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-ui')
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     implementation 'com.google.vr:sdk-audio:1.80.0'
+    implementation 'com.google.vr:sdk-controller:1.80.0'
+    api 'com.google.vr:sdk-base:1.80.0'
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
 }
 
 ext {

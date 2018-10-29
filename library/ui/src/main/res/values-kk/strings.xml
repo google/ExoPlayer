@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">Барлығын қайталау</string>
   <string name="exo_controls_shuffle_description">Араластыру</string>
   <string name="exo_controls_fullscreen_description">Толық экран режимі</string>
-  <string name="exo_controls_exit_vr_description">VR режимінен шығу</string>
+  <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_download_description">Жүктеп алу</string>
   <string name="exo_download_notification_channel_name">Жүктеп алынғандар</string>
   <string name="exo_download_downloading">Жүктеп алынуда</string>

@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">Opakovat vše</string>
   <string name="exo_controls_shuffle_description">Náhodně</string>
   <string name="exo_controls_fullscreen_description">Režim celé obrazovky</string>
-  <string name="exo_controls_exit_vr_description">Ukončit režim VR</string>
+  <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_download_description">Stáhnout</string>
   <string name="exo_download_notification_channel_name">Stahování</string>
   <string name="exo_download_downloading">Stahování</string>

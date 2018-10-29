@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">Upprepa alla</string>
   <string name="exo_controls_shuffle_description">Blanda spår</string>
   <string name="exo_controls_fullscreen_description">Helskärmsläge</string>
-  <string name="exo_controls_exit_vr_description">Avsluta VR-läget</string>
+  <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_download_description">Ladda ned</string>
   <string name="exo_download_notification_channel_name">Nedladdningar</string>
   <string name="exo_download_downloading">Laddar ned</string>
