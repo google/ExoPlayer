@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">Rudia zote</string>
   <string name="exo_controls_shuffle_description">Changanya</string>
   <string name="exo_controls_fullscreen_description">Hali ya skrini nzima</string>
-  <string name="exo_controls_exit_vr_description">Ondoka kwenye hali ya VR</string>
+  <string name="exo_controls_exit_vr_description">Funga hali ya VR</string>
   <string name="exo_download_description">Pakua</string>
   <string name="exo_download_notification_channel_name">Vipakuliwa</string>
   <string name="exo_download_downloading">Inapakua</string>
