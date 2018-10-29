@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">Powtórz wszystkie</string>
   <string name="exo_controls_shuffle_description">Odtwarzanie losowe</string>
   <string name="exo_controls_fullscreen_description">Tryb pełnoekranowy</string>
-  <string name="exo_controls_exit_vr_description">Wyłącz tryb VR</string>
+  <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_download_description">Pobierz</string>
   <string name="exo_download_notification_channel_name">Pobieranie</string>
   <string name="exo_download_downloading">Pobieram</string>

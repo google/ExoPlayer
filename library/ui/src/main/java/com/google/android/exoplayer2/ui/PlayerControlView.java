@@ -136,6 +136,10 @@ import java.util.Locale;
  *       <ul>
  *         <li>Type: {@link View}
  *       </ul>
+ *   <li><b>{@code exo_vr}</b> - The VR mode button.
+ *       <ul>
+ *         <li>Type: {@link View}
+ *       </ul>
  *   <li><b>{@code exo_position}</b> - Text view displaying the current playback position.
  *       <ul>
  *         <li>Type: {@link TextView}
@@ -202,6 +206,7 @@ public class PlayerControlView extends FrameLayout {
   private final View rewindButton;
   private final ImageView repeatToggleButton;
   private final View shuffleButton;
+  private final View vrButton;
   private final TextView durationView;
   private final TextView positionView;
   private final TimeBar timeBar;
@@ -334,6 +339,8 @@ public class PlayerControlView extends FrameLayout {
     if (shuffleButton != null) {
       shuffleButton.setOnClickListener(componentListener);
     }
+    vrButton = findViewById(R.id.exo_vr);
+    setShowVrButton(false);
     Resources resources = context.getResources();
     repeatOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_off);
     repeatOneButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_one);
@@ -546,6 +553,33 @@ public class PlayerControlView extends FrameLayout {
     updateShuffleButton();
   }
 
+  /** Returns whether the VR button is shown. */
+  public boolean getShowVrButton() {
+    return vrButton != null && vrButton.getVisibility() == VISIBLE;
+  }
+
+  /**
+   * Sets whether the VR button is shown.
+   *
+   * @param showVrButton Whether the VR button is shown.
+   */
+  public void setShowVrButton(boolean showVrButton) {
+    if (vrButton != null) {
+      vrButton.setVisibility(showVrButton ? VISIBLE : GONE);
+    }
+  }
+
+  /**
+   * Sets listener for the VR button.
+   *
+   * @param onClickListener Listener for the VR button, or null to clear the listener.
+   */
+  public void setVrButtonListener(@Nullable OnClickListener onClickListener) {
+    if (vrButton != null) {
+      vrButton.setOnClickListener(onClickListener);
+    }
+  }
+
   /**
    * Shows the playback controls. If {@link #getShowTimeoutMs()} is positive then the controls will
    * be automatically hidden after this duration of time has elapsed without user input.
@@ -609,11 +643,11 @@ public class PlayerControlView extends FrameLayout {
     boolean playing = isPlaying();
     if (playButton != null) {
       requestPlayPauseFocus |= playing && playButton.isFocused();
-      playButton.setVisibility(playing ? View.GONE : View.VISIBLE);
+      playButton.setVisibility(playing ? GONE : VISIBLE);
     }
     if (pauseButton != null) {
       requestPlayPauseFocus |= !playing && pauseButton.isFocused();
-      pauseButton.setVisibility(!playing ? View.GONE : View.VISIBLE);
+      pauseButton.setVisibility(!playing ? GONE : VISIBLE);
     }
     if (requestPlayPauseFocus) {
       requestPlayPauseFocus();
@@ -651,7 +685,7 @@ public class PlayerControlView extends FrameLayout {
       return;
     }
     if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE) {
-      repeatToggleButton.setVisibility(View.GONE);
+      repeatToggleButton.setVisibility(GONE);
       return;
     }
     if (player == null) {
@@ -675,7 +709,7 @@ public class PlayerControlView extends FrameLayout {
       default:
         // Never happens.
     }
-    repeatToggleButton.setVisibility(View.VISIBLE);
+    repeatToggleButton.setVisibility(VISIBLE);
   }
 
   private void updateShuffleButton() {
@@ -683,13 +717,13 @@ public class PlayerControlView extends FrameLayout {
       return;
     }
     if (!showShuffleButton) {
-      shuffleButton.setVisibility(View.GONE);
+      shuffleButton.setVisibility(GONE);
     } else if (player == null) {
       setButtonEnabled(false, shuffleButton);
     } else {
       shuffleButton.setAlpha(player.getShuffleModeEnabled() ? 1f : 0.3f);
       shuffleButton.setEnabled(true);
-      shuffleButton.setVisibility(View.VISIBLE);
+      shuffleButton.setVisibility(VISIBLE);
     }
   }
 

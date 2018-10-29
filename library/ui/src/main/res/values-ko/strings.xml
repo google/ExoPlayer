@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">모두 반복</string>
   <string name="exo_controls_shuffle_description">셔플</string>
   <string name="exo_controls_fullscreen_description">전체화면 모드</string>
-  <string name="exo_controls_exit_vr_description">VR 모드 종료</string>
+  <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_download_description">다운로드</string>
   <string name="exo_download_notification_channel_name">다운로드</string>
   <string name="exo_download_downloading">다운로드 중</string>

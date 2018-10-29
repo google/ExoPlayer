@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">Alle wiederholen</string>
   <string name="exo_controls_shuffle_description">Zufallsmix</string>
   <string name="exo_controls_fullscreen_description">Vollbildmodus</string>
-  <string name="exo_controls_exit_vr_description">VR-Modus beenden</string>
+  <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_download_description">Herunterladen</string>
   <string name="exo_download_notification_channel_name">Downloads</string>
   <string name="exo_download_downloading">Wird heruntergeladen</string>

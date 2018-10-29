@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">सबै दोहोर्‍याउनुहोस्</string>
   <string name="exo_controls_shuffle_description">मिसाउनुहोस्</string>
   <string name="exo_controls_fullscreen_description">पूर्ण स्क्रिन मोड</string>
-  <string name="exo_controls_exit_vr_description">VR मोडबाट बाहिरिनुहोस्</string>
+  <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_download_description">डाउनलोड गर्नुहोस्</string>
   <string name="exo_download_notification_channel_name">डाउनलोडहरू</string>
   <string name="exo_download_downloading">डाउनलोड गरिँदै छ</string>

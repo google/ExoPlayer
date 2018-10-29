@@ -36,7 +36,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Renders a GL Scene. */
-/* package */ class SceneRenderer implements VideoFrameMetadataListener, CameraMotionListener {
+/* package */ final class SceneRenderer
+    implements VideoFrameMetadataListener, CameraMotionListener {
 
   private final AtomicBoolean frameAvailable;
   private final AtomicBoolean resetRotationAtNextFrame;
@@ -129,6 +130,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     Matrix.multiplyMM(tempMatrix, 0, viewProjectionMatrix, 0, rotationMatrix, 0);
     projectionRenderer.draw(textureId, tempMatrix, rightEye);
+  }
+
+  /** Cleans up the GL resources. */
+  public void shutdown() {
+    projectionRenderer.shutdown();
   }
 
   // Methods called on playback thread.

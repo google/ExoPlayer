@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">Alles herhalen</string>
   <string name="exo_controls_shuffle_description">Shuffle</string>
   <string name="exo_controls_fullscreen_description">Modus \'Volledig scherm\'</string>
-  <string name="exo_controls_exit_vr_description">VR-modus sluiten</string>
+  <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_download_description">Downloaden</string>
   <string name="exo_download_notification_channel_name">Downloads</string>
   <string name="exo_download_downloading">Downloaden</string>

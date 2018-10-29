@@ -32,6 +32,7 @@
 * IMA extension:
   * For preroll to live stream transitions, project forward the loading position
     to avoid being behind the live window.
+* Support for playing spherical videos on Daydream.
 * Fix issue where a `NullPointerException` is thrown when removing an unprepared
   media source from a `ConcatenatingMediaSource` with the `useLazyPreparation`
   option enabled ([#4986](https://github.com/google/ExoPlayer/issues/4986)).
