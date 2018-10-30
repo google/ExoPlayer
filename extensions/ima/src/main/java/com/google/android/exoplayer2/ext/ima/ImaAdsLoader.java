@@ -93,6 +93,7 @@ public final class ImaAdsLoader
     private @Nullable AdEventListener adEventListener;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
+    private boolean focusSkipButtonWhenAvailable;
     private ImaFactory imaFactory;
 
     /**
@@ -104,6 +105,7 @@ public final class ImaAdsLoader
       this.context = Assertions.checkNotNull(context);
       vastLoadTimeoutMs = TIMEOUT_UNSET;
       mediaLoadTimeoutMs = TIMEOUT_UNSET;
+      focusSkipButtonWhenAvailable = true;
       imaFactory = new DefaultImaFactory();
     }
 
@@ -159,6 +161,20 @@ public final class ImaAdsLoader
       return this;
     }
 
+    /**
+     * Sets whether to focus the skip button (when available) on Android TV devices. The default
+     * setting is {@code true}.
+     *
+     * @param focusSkipButtonWhenAvailable Whether to focus the skip button (when available) on
+     *     Android TV devices.
+     * @return This builder, for convenience.
+     * @see AdsRenderingSettings#setFocusSkipButtonWhenAvailable(boolean)
+     */
+    public Builder setFocusSkipButtonWhenAvailable(boolean focusSkipButtonWhenAvailable) {
+      this.focusSkipButtonWhenAvailable = focusSkipButtonWhenAvailable;
+      return this;
+    }
+
     // @VisibleForTesting
     /* package */ Builder setImaFactory(ImaFactory imaFactory) {
       this.imaFactory = Assertions.checkNotNull(imaFactory);
@@ -181,6 +197,7 @@ public final class ImaAdsLoader
           null,
           vastLoadTimeoutMs,
           mediaLoadTimeoutMs,
+          focusSkipButtonWhenAvailable,
           adEventListener,
           imaFactory);
     }
@@ -200,6 +217,7 @@ public final class ImaAdsLoader
           adsResponse,
           vastLoadTimeoutMs,
           mediaLoadTimeoutMs,
+          focusSkipButtonWhenAvailable,
           adEventListener,
           imaFactory);
     }
@@ -252,6 +270,7 @@ public final class ImaAdsLoader
   private final @Nullable String adsResponse;
   private final int vastLoadTimeoutMs;
   private final int mediaLoadTimeoutMs;
+  private final boolean focusSkipButtonWhenAvailable;
   private final @Nullable AdEventListener adEventListener;
   private final ImaFactory imaFactory;
   private final Timeline.Period period;
@@ -338,6 +357,7 @@ public final class ImaAdsLoader
         /* adsResponse= */ null,
         /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
+        /* focusSkipButtonWhenAvailable= */ true,
         /* adEventListener= */ null,
         /* imaFactory= */ new DefaultImaFactory());
   }
@@ -362,6 +382,7 @@ public final class ImaAdsLoader
         /* adsResponse= */ null,
         /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
+        /* focusSkipButtonWhenAvailable= */ true,
         /* adEventListener= */ null,
         /* imaFactory= */ new DefaultImaFactory());
   }
@@ -373,6 +394,7 @@ public final class ImaAdsLoader
       @Nullable String adsResponse,
       int vastLoadTimeoutMs,
       int mediaLoadTimeoutMs,
+      boolean focusSkipButtonWhenAvailable,
       @Nullable AdEventListener adEventListener,
       ImaFactory imaFactory) {
     Assertions.checkArgument(adTagUri != null || adsResponse != null);
@@ -380,6 +402,7 @@ public final class ImaAdsLoader
     this.adsResponse = adsResponse;
     this.vastLoadTimeoutMs = vastLoadTimeoutMs;
     this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
+    this.focusSkipButtonWhenAvailable = focusSkipButtonWhenAvailable;
     this.adEventListener = adEventListener;
     this.imaFactory = imaFactory;
     if (imaSdkSettings == null) {
@@ -926,6 +949,7 @@ public final class ImaAdsLoader
     if (mediaLoadTimeoutMs != TIMEOUT_UNSET) {
       adsRenderingSettings.setLoadVideoTimeout(mediaLoadTimeoutMs);
     }
+    adsRenderingSettings.setFocusSkipButtonWhenAvailable(focusSkipButtonWhenAvailable);
 
     // Set up the ad playback state, skipping ads based on the start position as required.
     long[] adGroupTimesUs = getAdGroupTimesUs(adsManager.getAdCuePoints());

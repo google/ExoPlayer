@@ -34,6 +34,8 @@
 * IMA extension:
   * For preroll to live stream transitions, project forward the loading position
     to avoid being behind the live window.
+  * Let apps specify whether to focus the skip button on ATV
+    ([#5019](https://github.com/google/ExoPlayer/issues/5019)).
 * Support for playing spherical videos on Daydream.
 * Fix issue where a `NullPointerException` is thrown when removing an unprepared
   media source from a `ConcatenatingMediaSource` with the `useLazyPreparation`
