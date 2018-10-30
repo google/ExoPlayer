@@ -26,6 +26,9 @@
   ([#4532](https://github.com/google/ExoPlayer/issues/4532)).
 * Suppress spurious "references unknown class member" shrinking warning
   ([#4890](https://github.com/google/ExoPlayer/issues/4890)).
+* IMA extension:
+  * Let apps specify whether to focus the skip button on ATV
+    ([#5019](https://github.com/google/ExoPlayer/issues/5019)).
 * Fix issue where a `NullPointerException` is thrown when removing an unprepared
   media source from a `ConcatenatingMediaSource` with the `useLazyPreparation`
   option enabled ([#4986](https://github.com/google/ExoPlayer/issues/4986)).
