@@ -12,7 +12,7 @@
 * MP3:
   * Support seeking based on MLLT metadata
     ([#3241](https://github.com/google/ExoPlayer/issues/3241)).
-  * Fix handling of streams with appending data
+  * Fix handling of streams with appended data
     ([#4954](https://github.com/google/ExoPlayer/issues/4954)).
 * DASH: Parse ProgramInformation element if present in the manifest.
 * SubRip: Add support for alignment tags, and remove tags from the displayed
