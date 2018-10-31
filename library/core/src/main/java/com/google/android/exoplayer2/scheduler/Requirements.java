@@ -187,7 +187,7 @@ public final class Requirements {
     }
     PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
     return Util.SDK_INT >= 23
-        ? !powerManager.isDeviceIdleMode()
+        ? powerManager.isDeviceIdleMode()
         : Util.SDK_INT >= 20 ? !powerManager.isInteractive() : !powerManager.isScreenOn();
   }
 
