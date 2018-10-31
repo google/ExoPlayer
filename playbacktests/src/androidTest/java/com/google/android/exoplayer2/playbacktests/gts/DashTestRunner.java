@@ -323,7 +323,7 @@ public final class DashTestRunner {
     }
 
     @Override
-    protected void logMetrics(DecoderCounters audioCounters, DecoderCounters videoCounters) {
+    protected void onTestFinished(DecoderCounters audioCounters, DecoderCounters videoCounters) {
       metricsLogger.logMetric(MetricsLogger.KEY_TEST_NAME, streamName);
       metricsLogger.logMetric(MetricsLogger.KEY_IS_CDD_LIMITED_RETRY, isCddLimitedRetry);
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_DROPPED_COUNT,
@@ -335,10 +335,7 @@ public final class DashTestRunner {
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_RENDERED_COUNT,
           videoCounters.renderedOutputBufferCount);
       metricsLogger.close();
-    }
 
-    @Override
-    protected void assertPassed(DecoderCounters audioCounters, DecoderCounters videoCounters) {
       if (fullPlaybackNoSeeking) {
         // We shouldn't have skipped any output buffers.
         DecoderCountersUtil
@@ -372,7 +369,6 @@ public final class DashTestRunner {
         }
       }
     }
-
   }
 
   private static final class DashTestTrackSelector extends DefaultTrackSelector {
