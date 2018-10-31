@@ -1115,7 +1115,7 @@ public final class DefaultTrackSelectorTest {
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {mappedAudioRendererCapabilities},
-            singleTrackGroup(lowerBitrateFormat, higherBitrateFormat, exceedsBitrateFormat),
+            trackGroups,
             periodId,
             TIMELINE);
     assertFixedSelection(result.selections.get(0), trackGroups, higherBitrateFormat);
