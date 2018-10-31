@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
@@ -150,6 +151,16 @@ public class DashManifestParserTest {
                         + "         </scte35:Binary>\n"
                         + "       </scte35:Signal>"),
                 1000000000));
+  }
+
+  @Test
+  public void testParseMediaPresentationDescriptionCanParseProgramInformation() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest mpd = parser.parse(Uri.parse("Https://example.com/test.mpd"),
+            TestUtil.getInputStream(RuntimeEnvironment.application, SAMPLE_MPD_1));
+    ProgramInformation programInformation = new ProgramInformation("MediaTitle", "MediaSource",
+            "MediaCopyright", "www.example.com", "enUs");
+    assertThat(programInformation).isEqualTo(mpd.programInformation);
   }
 
   @Test
