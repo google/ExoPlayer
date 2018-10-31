@@ -441,7 +441,7 @@ public abstract class Timeline {
      * @return The index of the ad group, or {@link C#INDEX_UNSET}.
      */
     public int getAdGroupIndexAfterPositionUs(long positionUs) {
-      return adPlaybackState.getAdGroupIndexAfterPositionUs(positionUs);
+      return adPlaybackState.getAdGroupIndexAfterPositionUs(positionUs, durationUs);
     }
 
     /**
