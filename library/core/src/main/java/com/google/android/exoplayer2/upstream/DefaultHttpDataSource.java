@@ -283,8 +283,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
 
     int responseCode;
+    String responseMessage;
     try {
       responseCode = connection.getResponseCode();
+      responseMessage = connection.getResponseMessage();
     } catch (IOException e) {
       closeConnectionQuietly();
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
@@ -296,7 +298,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       Map<String, List<String>> headers = connection.getHeaderFields();
       closeConnectionQuietly();
       InvalidResponseCodeException exception =
-          new InvalidResponseCodeException(responseCode, headers, dataSpec);
+          new InvalidResponseCodeException(responseCode, responseMessage, headers, dataSpec);
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }
