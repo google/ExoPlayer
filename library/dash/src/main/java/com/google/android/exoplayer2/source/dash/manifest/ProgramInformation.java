@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 
 /** A parsed program information element. */
@@ -44,7 +45,7 @@ public class ProgramInformation {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }
