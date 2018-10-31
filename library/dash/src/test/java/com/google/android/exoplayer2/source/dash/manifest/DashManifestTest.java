@@ -219,7 +219,7 @@ public class DashManifestTest {
 
   private static DashManifest newDashManifest(int duration, Period... periods) {
     return new DashManifest(
-        0, duration, 1, false, 2, 3, 4, 12345, DUMMY_UTC_TIMING, Uri.EMPTY, Arrays.asList(periods));
+        0, duration, 1, false, 2, 3, 4, 12345, DUMMY_UTC_TIMING, Uri.EMPTY, null, Arrays.asList(periods));
   }
 
   private static Period newPeriod(String id, int startMs, AdaptationSet... adaptationSets) {
