@@ -12,7 +12,7 @@
   <string name="exo_controls_repeat_all_description">Ponovi sve</string>
   <string name="exo_controls_shuffle_description">Pusti nasumično</string>
   <string name="exo_controls_fullscreen_description">Režim celog ekrana</string>
-  <string name="exo_controls_vr_description">VR mode</string>
+  <string name="exo_controls_vr_description">VR režim</string>
   <string name="exo_download_description">Preuzmi</string>
   <string name="exo_download_notification_channel_name">Preuzimanja</string>
   <string name="exo_download_downloading">Preuzima se</string>

@@ -89,11 +89,10 @@ public interface MediaSource {
     public final long windowSequenceNumber;
 
     /**
-     * The end position of the media to play within the media period, in microseconds, or {@link
-     * C#TIME_END_OF_SOURCE} if the end position is the end of the media period.
-     *
-     * <p>Note that this only applies if the media period is for content (i.e., not for an ad) and
-     * is clipped to the position of the next ad group.
+     * The end position to which the media period's content is clipped in order to play a following
+     * ad group, in microseconds, or {@link C#TIME_UNSET} if there is no following ad group or if
+     * this media period is an ad. The value {@link C#TIME_END_OF_SOURCE} indicates that a postroll
+     * ad follows at the end of this content media period.
      */
     public final long endPositionUs;
 
@@ -115,7 +114,7 @@ public interface MediaSource {
      *     windows this media period is part of.
      */
     public MediaPeriodId(Object periodUid, long windowSequenceNumber) {
-      this(periodUid, C.INDEX_UNSET, C.INDEX_UNSET, windowSequenceNumber, C.TIME_END_OF_SOURCE);
+      this(periodUid, C.INDEX_UNSET, C.INDEX_UNSET, windowSequenceNumber, C.TIME_UNSET);
     }
 
     /**
@@ -143,7 +142,7 @@ public interface MediaSource {
      */
     public MediaPeriodId(
         Object periodUid, int adGroupIndex, int adIndexInAdGroup, long windowSequenceNumber) {
-      this(periodUid, adGroupIndex, adIndexInAdGroup, windowSequenceNumber, C.TIME_END_OF_SOURCE);
+      this(periodUid, adGroupIndex, adIndexInAdGroup, windowSequenceNumber, C.TIME_UNSET);
     }
 
     private MediaPeriodId(
