@@ -23,19 +23,14 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.testutil.FakeClock;
+import com.google.android.exoplayer2.testutil.FakeMediaChunk;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -409,35 +404,4 @@ public final class AdaptiveTrackSelectionTest {
         /* drmInitData= */ null);
   }
 
-  private static final class FakeMediaChunk extends MediaChunk {
-
-    private static final DataSource DATA_SOURCE = new DefaultHttpDataSource("TEST_AGENT", null);
-
-    public FakeMediaChunk(Format trackFormat, long startTimeUs, long endTimeUs) {
-      super(
-          DATA_SOURCE,
-          new DataSpec(Uri.EMPTY),
-          trackFormat,
-          C.SELECTION_REASON_ADAPTIVE,
-          null,
-          startTimeUs,
-          endTimeUs,
-          0);
-    }
-
-    @Override
-    public void cancelLoad() {
-      // Do nothing.
-    }
-
-    @Override
-    public void load() throws IOException, InterruptedException {
-      // Do nothing.
-    }
-
-    @Override
-    public boolean isLoadCompleted() {
-      return true;
-    }
-  }
 }

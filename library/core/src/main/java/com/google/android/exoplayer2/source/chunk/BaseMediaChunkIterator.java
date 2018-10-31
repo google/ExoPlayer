@@ -56,14 +56,14 @@ public abstract class BaseMediaChunkIterator implements MediaChunkIterator {
    *
    * @throws NoSuchElementException If the iterator does not point to a valid element.
    */
-  protected void checkInBounds() {
+  protected final void checkInBounds() {
     if (currentIndex < fromIndex || currentIndex > toIndex) {
       throw new NoSuchElementException();
     }
   }
 
   /** Returns the current index this iterator is pointing to. */
-  protected long getCurrentIndex() {
+  protected final long getCurrentIndex() {
     return currentIndex;
   }
 }
