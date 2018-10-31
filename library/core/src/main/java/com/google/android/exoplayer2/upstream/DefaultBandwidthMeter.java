@@ -15,8 +15,13 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
@@ -25,9 +30,12 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.SlidingPercentile;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Estimates bandwidth by listening to data transfers.
@@ -79,6 +87,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     private SparseArray<Long> initialBitrateEstimates;
     private int slidingWindowMaxWeight;
     private Clock clock;
+    private boolean resetOnNetworkTypeChange;
 
     /**
      * Creates a builder with default parameters and without listener.
@@ -119,9 +128,8 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     }
 
     /**
-     * Sets the initial bitrate estimate in bits per second for a network type that should be
-     * assumed when a bandwidth estimate is unavailable and the current network connection is of the
-     * specified type.
+     * Sets the initial bitrate estimate in bits per second that should be assumed when a bandwidth
+     * estimate is unavailable and the current network connection is of the specified type.
      *
      * @param networkType The {@link C.NetworkType} this initial estimate is for.
      * @param initialBitrateEstimate The initial bitrate estimate in bits per second.
@@ -160,15 +168,28 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     }
 
     /**
+     * Sets whether to reset if the network type changes.
+     *
+     * @param resetOnNetworkTypeChange Whether to reset if the network type changes.
+     * @return This builder.
+     */
+    public Builder experimental_resetOnNetworkTypeChange(boolean resetOnNetworkTypeChange) {
+      this.resetOnNetworkTypeChange = resetOnNetworkTypeChange;
+      return this;
+    }
+
+    /**
      * Builds the bandwidth meter.
      *
      * @return A bandwidth meter with the configured properties.
      */
     public DefaultBandwidthMeter build() {
-      DefaultBandwidthMeter bandwidthMeter =
-          new DefaultBandwidthMeter(
-              context, initialBitrateEstimates, slidingWindowMaxWeight, clock);
-      return bandwidthMeter;
+      return new DefaultBandwidthMeter(
+          context,
+          initialBitrateEstimates,
+          slidingWindowMaxWeight,
+          clock,
+          resetOnNetworkTypeChange);
     }
 
     private static SparseArray<Long> getInitialBitrateEstimatesForCountry(String countryCode) {
@@ -195,6 +216,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private static final int ELAPSED_MILLIS_FOR_ESTIMATE = 2000;
   private static final int BYTES_TRANSFERRED_FOR_ESTIMATE = 512 * 1024;
 
+  @Nullable private final Context context;
   private final SparseArray<Long> initialBitrateEstimates;
   private final EventDispatcher<EventListener> eventDispatcher;
   private final SlidingPercentile slidingPercentile;
@@ -204,9 +226,14 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private long sampleStartTimeMs;
   private long sampleBytesTransferred;
 
+  @C.NetworkType private int networkType;
   private long totalElapsedTimeMs;
   private long totalBytesTransferred;
   private long bitrateEstimate;
+  private long lastReportedBitrateEstimate;
+
+  private boolean networkTypeOverrideSet;
+  @C.NetworkType private int networkTypeOverride;
 
   /** @deprecated Use {@link Builder} instead. */
   @Deprecated
@@ -215,34 +242,44 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
         /* context= */ null,
         /* initialBitrateEstimates= */ new SparseArray<>(),
         DEFAULT_SLIDING_WINDOW_MAX_WEIGHT,
-        Clock.DEFAULT);
+        Clock.DEFAULT,
+        /* resetOnNetworkTypeChange= */ false);
   }
 
   private DefaultBandwidthMeter(
       @Nullable Context context,
       SparseArray<Long> initialBitrateEstimates,
       int maxWeight,
-      Clock clock) {
+      Clock clock,
+      boolean resetOnNetworkTypeChange) {
+    this.context = context == null ? null : context.getApplicationContext();
     this.initialBitrateEstimates = initialBitrateEstimates;
     this.eventDispatcher = new EventDispatcher<>();
     this.slidingPercentile = new SlidingPercentile(maxWeight);
     this.clock = clock;
-    bitrateEstimate =
-        getInitialBitrateEstimateForNetworkType(
-            context == null ? C.NETWORK_TYPE_UNKNOWN : Util.getNetworkType(context));
+    // Set the initial network type and bitrate estimate
+    networkType = context == null ? C.NETWORK_TYPE_UNKNOWN : Util.getNetworkType(context);
+    bitrateEstimate = getInitialBitrateEstimateForNetworkType(networkType);
+    // Register to receive connectivity actions if possible.
+    if (context != null && resetOnNetworkTypeChange) {
+      ConnectivityActionReceiver connectivityActionReceiver =
+          ConnectivityActionReceiver.getInstance(context);
+      connectivityActionReceiver.register(/* bandwidthMeter= */ this);
+    }
   }
 
   /**
    * Overrides the network type. Handled in the same way as if the meter had detected a change from
-   * the current network type to the specified network type.
+   * the current network type to the specified network type internally.
    *
    * <p>Applications should not normally call this method. It is intended for testing purposes.
    *
    * @param networkType The overriding network type.
    */
   public synchronized void setNetworkTypeOverride(@C.NetworkType int networkType) {
-    // TODO: Handle properly as a network change (in same way as non-external network changes).
-    bitrateEstimate = getInitialBitrateEstimateForNetworkType(networkType);
+    networkTypeOverride = networkType;
+    networkTypeOverrideSet = true;
+    onConnectivityAction();
   }
 
   @Override
@@ -309,14 +346,50 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
           || totalBytesTransferred >= BYTES_TRANSFERRED_FOR_ESTIMATE) {
         bitrateEstimate = (long) slidingPercentile.getPercentile(0.5f);
       }
-      notifyBandwidthSample(sampleElapsedTimeMs, sampleBytesTransferred, bitrateEstimate);
+      maybeNotifyBandwidthSample(sampleElapsedTimeMs, sampleBytesTransferred, bitrateEstimate);
       sampleStartTimeMs = nowMs;
       sampleBytesTransferred = 0;
     } // Else any sample bytes transferred will be carried forward into the next sample.
     streamCount--;
   }
 
-  private void notifyBandwidthSample(int elapsedMs, long bytesTransferred, long bitrateEstimate) {
+  private synchronized void onConnectivityAction() {
+    int networkType =
+        networkTypeOverrideSet
+            ? networkTypeOverride
+            : (context == null ? C.NETWORK_TYPE_UNKNOWN : Util.getNetworkType(context));
+    if (this.networkType == networkType) {
+      return;
+    }
+
+    this.networkType = networkType;
+    if (networkType == C.NETWORK_TYPE_OFFLINE
+        || networkType == C.NETWORK_TYPE_UNKNOWN
+        || networkType == C.NETWORK_TYPE_OTHER) {
+      // It's better not to reset the bandwidth meter for these network types.
+      return;
+    }
+
+    // Reset the bitrate estimate and report it, along with any bytes transferred.
+    this.bitrateEstimate = getInitialBitrateEstimateForNetworkType(networkType);
+    long nowMs = clock.elapsedRealtime();
+    int sampleElapsedTimeMs = streamCount > 0 ? (int) (nowMs - sampleStartTimeMs) : 0;
+    maybeNotifyBandwidthSample(sampleElapsedTimeMs, sampleBytesTransferred, bitrateEstimate);
+
+    // Reset the remainder of the state.
+    sampleStartTimeMs = nowMs;
+    sampleBytesTransferred = 0;
+    totalBytesTransferred = 0;
+    totalElapsedTimeMs = 0;
+    slidingPercentile.reset();
+  }
+
+  private void maybeNotifyBandwidthSample(
+      int elapsedMs, long bytesTransferred, long bitrateEstimate) {
+    if (elapsedMs == 0 && bytesTransferred == 0 && bitrateEstimate == lastReportedBitrateEstimate) {
+      return;
+    }
+    lastReportedBitrateEstimate = bitrateEstimate;
     eventDispatcher.dispatch(
         listener -> listener.onBandwidthSample(elapsedMs, bytesTransferred, bitrateEstimate));
   }
@@ -330,6 +403,70 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       initialBitrateEstimate = DEFAULT_INITIAL_BITRATE_ESTIMATE;
     }
     return initialBitrateEstimate;
+  }
+
+  /*
+   * Note: This class only holds a weak reference to DefaultBandwidthMeter instances. It should not
+   * be made non-static, since doing so adds a strong reference (i.e. DefaultBandwidthMeter.this).
+   */
+  private static class ConnectivityActionReceiver extends BroadcastReceiver {
+
+    @MonotonicNonNull private static ConnectivityActionReceiver staticInstance;
+
+    private final Handler mainHandler;
+    private final ArrayList<WeakReference<DefaultBandwidthMeter>> bandwidthMeters;
+
+    public static synchronized ConnectivityActionReceiver getInstance(Context context) {
+      if (staticInstance == null) {
+        staticInstance = new ConnectivityActionReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        context.registerReceiver(staticInstance, filter);
+      }
+      return staticInstance;
+    }
+
+    private ConnectivityActionReceiver() {
+      mainHandler = new Handler(Looper.getMainLooper());
+      bandwidthMeters = new ArrayList<>();
+    }
+
+    public synchronized void register(DefaultBandwidthMeter bandwidthMeter) {
+      removeClearedReferences();
+      bandwidthMeters.add(new WeakReference<>(bandwidthMeter));
+      // Simulate an initial update on the main thread (like the sticky broadcast we'd receive if
+      // we were to register a separate broadcast receiver for each bandwidth meter).
+      mainHandler.post(() -> updateBandwidthMeter(bandwidthMeter));
+    }
+
+    @Override
+    public synchronized void onReceive(Context context, Intent intent) {
+      if (isInitialStickyBroadcast()) {
+        return;
+      }
+      removeClearedReferences();
+      for (int i = 0; i < bandwidthMeters.size(); i++) {
+        WeakReference<DefaultBandwidthMeter> bandwidthMeterReference = bandwidthMeters.get(i);
+        DefaultBandwidthMeter bandwidthMeter = bandwidthMeterReference.get();
+        if (bandwidthMeter != null) {
+          updateBandwidthMeter(bandwidthMeter);
+        }
+      }
+    }
+
+    private void updateBandwidthMeter(DefaultBandwidthMeter bandwidthMeter) {
+      bandwidthMeter.onConnectivityAction();
+    }
+
+    private void removeClearedReferences() {
+      for (int i = bandwidthMeters.size() - 1; i >= 0; i--) {
+        WeakReference<DefaultBandwidthMeter> bandwidthMeterReference = bandwidthMeters.get(i);
+        DefaultBandwidthMeter bandwidthMeter = bandwidthMeterReference.get();
+        if (bandwidthMeter == null) {
+          bandwidthMeters.remove(i);
+        }
+      }
+    }
   }
 
   private static Map<String, int[]> createInitialBitrateCountryGroupAssignment() {
