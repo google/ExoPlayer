@@ -4,15 +4,19 @@
 
 * Improve initial bandwidth meter estimates using the current country and
   network type.
-* SubRip: Add support for alignment tags, and remove tags from the displayed
-  captions ([#4306](https://github.com/google/ExoPlayer/issues/4306)).
+* IMA extension:
+  * For preroll to live stream transitions, project forward the
+    loading position to avoid being behind the live window.
+  * Let apps specify whether to focus the skip button on ATV
+    ([#5019](https://github.com/google/ExoPlayer/issues/5019)).
 * MP3:
   * Support seeking based on MLLT metadata
     ([#3241](https://github.com/google/ExoPlayer/issues/3241)).
   * Fix handling of streams with appending data
     ([#4954](https://github.com/google/ExoPlayer/issues/4954)).
-* IMA extension: For preroll to live stream transitions, project forward the
-  loading position to avoid being behind the live window.
+* DASH: Parse ProgramInformation element if present in the manifest.
+* SubRip: Add support for alignment tags, and remove tags from the displayed
+  captions ([#4306](https://github.com/google/ExoPlayer/issues/4306)).
 * Fix issue with blind seeking to windows with non-zero offset in a
   `ConcatenatingMediaSource`
   ([#4873](https://github.com/google/ExoPlayer/issues/4873)).
@@ -26,9 +30,6 @@
   ([#4532](https://github.com/google/ExoPlayer/issues/4532)).
 * Suppress spurious "references unknown class member" shrinking warning
   ([#4890](https://github.com/google/ExoPlayer/issues/4890)).
-* IMA extension:
-  * Let apps specify whether to focus the skip button on ATV
-    ([#5019](https://github.com/google/ExoPlayer/issues/5019)).
 * Fix issue where a `NullPointerException` is thrown when removing an unprepared
   media source from a `ConcatenatingMediaSource` with the `useLazyPreparation`
   option enabled ([#4986](https://github.com/google/ExoPlayer/issues/4986)).
