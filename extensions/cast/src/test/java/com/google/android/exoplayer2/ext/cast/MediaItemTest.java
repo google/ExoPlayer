@@ -67,7 +67,7 @@ public class MediaItemTest {
   }
 
   @Test
-  public void buildMediaItem_testClear() {
+  public void buildAndClear_assertDefaultValues() {
     MediaItem.Builder builder = new MediaItem.Builder();
     builder
         .setMedia("http://example.com")
@@ -86,13 +86,13 @@ public class MediaItemTest {
         builder
             .setUuid(new UUID(0, 1))
             .setMedia("www.google.com")
-            .setDrmSchemes(createMockDrmSchemes(1))
+            .setDrmSchemes(createDummyDrmSchemes(1))
             .buildAndClear();
     MediaItem mediaItem2 =
         builder
             .setUuid(new UUID(0, 1))
             .setMedia("www.google.com")
-            .setDrmSchemes(createMockDrmSchemes(1))
+            .setDrmSchemes(createDummyDrmSchemes(1))
             .buildAndClear();
     assertThat(mediaItem1).isEqualTo(mediaItem2);
   }
@@ -104,13 +104,13 @@ public class MediaItemTest {
         builder
             .setUuid(new UUID(0, 1))
             .setMedia("www.google.com")
-            .setDrmSchemes(createMockDrmSchemes(1))
+            .setDrmSchemes(createDummyDrmSchemes(1))
             .buildAndClear();
     MediaItem mediaItem2 =
         builder
             .setUuid(new UUID(0, 1))
             .setMedia("www.google.com")
-            .setDrmSchemes(createMockDrmSchemes(2))
+            .setDrmSchemes(createDummyDrmSchemes(2))
             .buildAndClear();
     assertThat(mediaItem1).isNotEqualTo(mediaItem2);
   }
@@ -126,7 +126,7 @@ public class MediaItemTest {
     assertThat(item.mimeType).isEmpty();
   }
 
-  private static List<MediaItem.DrmScheme> createMockDrmSchemes(int seed) {
+  private static List<MediaItem.DrmScheme> createDummyDrmSchemes(int seed) {
     HashMap<String, String> requestHeaders1 = new HashMap<>();
     requestHeaders1.put("key1", "value1");
     requestHeaders1.put("key2", "value1");
