@@ -17,36 +17,25 @@ package com.google.android.exoplayer2.source.dash.manifest;
 
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * A parsed ProgramInformation element.
- */
+/** A parsed program information element. */
 public class ProgramInformation {
-  /**
-   * The title for the media presentation.
-   */
+  /** The title for the media presentation. */
   public final String title;
 
-  /**
-   * Information about the original source of the media presentation.
-   */
+  /** Information about the original source of the media presentation. */
   public final String source;
 
-  /**
-   * A copyright statement for the media presentation.
-   */
+  /** A copyright statement for the media presentation. */
   public final String copyright;
 
-  /**
-   * A URL that provides more information about the media presentation.
-   */
+  /** A URL that provides more information about the media presentation. */
   public final String moreInformationURL;
 
-  /**
-   * Declares the language code(s) for this ProgramInformation.
-   */
+  /** Declares the language code(s) for this ProgramInformation. */
   public final String lang;
 
-  public ProgramInformation(String title, String source, String copyright, String moreInformationURL, String lang) {
+  public ProgramInformation(
+      String title, String source, String copyright, String moreInformationURL, String lang) {
     this.title = title;
     this.source = source;
     this.copyright = copyright;
@@ -56,15 +45,18 @@ public class ProgramInformation {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof ProgramInformation)) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
     ProgramInformation other = (ProgramInformation) obj;
     return Util.areEqual(this.title, other.title)
-            && Util.areEqual(this.source, other.source)
-            && Util.areEqual(this.copyright, other.copyright)
-            && Util.areEqual(this.moreInformationURL, other.moreInformationURL)
-            && Util.areEqual(this.lang, other.lang);
+        && Util.areEqual(this.source, other.source)
+        && Util.areEqual(this.copyright, other.copyright)
+        && Util.areEqual(this.moreInformationURL, other.moreInformationURL)
+        && Util.areEqual(this.lang, other.lang);
   }
 
   @Override
