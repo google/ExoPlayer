@@ -1652,7 +1652,7 @@ public final class Util {
         return getMobileNetworkType(networkInfo);
       case ConnectivityManager.TYPE_ETHERNET:
         return C.NETWORK_TYPE_ETHERNET;
-      default: // Ethernet, VPN, Bluetooth, Dummy.
+      default: // VPN, Bluetooth, Dummy.
         return C.NETWORK_TYPE_OTHER;
     }
   }
