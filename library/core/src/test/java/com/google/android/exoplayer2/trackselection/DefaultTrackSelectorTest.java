@@ -1061,28 +1061,64 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
-   * Tests that track selector will select audio tracks with lower bitrate when {@link Parameters}
-   * indicate lowest bitrate preference, even when tracks are within capabilities.
+   * Tests that track selector will select the lowest bitrate supported audio track when {@link
+   * Parameters#forceLowestBitrate} is set.
    */
   @Test
   public void testSelectTracksWithinCapabilitiesAndForceLowestBitrateSelectLowerBitrate()
       throws Exception {
-    Format lowerBitrateFormat =
-        Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 15000,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
-    Format higherBitrateFormat =
-        Format.createAudioSampleFormat("audioFormat", MimeTypes.AUDIO_AAC, null, 30000,
-            Format.NO_VALUE, 2, 44100, null, null, 0, null);
-    TrackGroupArray trackGroups = wrapFormats(lowerBitrateFormat, higherBitrateFormat);
+    Format unsupportedLowBitrateFormat = buildAudioFormatWithBitrate("unsupportedLowBitrate", 5000);
+    Format lowerBitrateFormat = buildAudioFormatWithBitrate("lowBitrate", 15000);
+    Format higherBitrateFormat = buildAudioFormatWithBitrate("highBitrate", 30000);
+    TrackGroupArray trackGroups =
+        wrapFormats(unsupportedLowBitrateFormat, lowerBitrateFormat, higherBitrateFormat);
+
+    Map<String, Integer> mappedCapabilities = new HashMap<>();
+    mappedCapabilities.put(unsupportedLowBitrateFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
+    mappedCapabilities.put(lowerBitrateFormat.id, FORMAT_HANDLED);
+    mappedCapabilities.put(higherBitrateFormat.id, FORMAT_HANDLED);
+    RendererCapabilities mappedAudioRendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, mappedCapabilities);
 
     trackSelector.setParameters(Parameters.DEFAULT.buildUpon().setForceLowestBitrate(true).build());
     TrackSelectorResult result =
         trackSelector.selectTracks(
-            new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+            new RendererCapabilities[] {mappedAudioRendererCapabilities},
             trackGroups,
             periodId,
             TIMELINE);
     assertFixedSelection(result.selections.get(0), trackGroups, lowerBitrateFormat);
+  }
+
+  /**
+   * Tests that track selector will select the highest bitrate supported audio track when {@link
+   * Parameters#forceHighestSupportedBitrate} is set.
+   */
+  @Test
+  public void testSelectTracksWithinCapabilitiesAndForceHighestBitrateSelectHigherBitrate()
+      throws Exception {
+    Format lowerBitrateFormat = buildAudioFormatWithBitrate("lowerBitrateFormat", 5000);
+    Format higherBitrateFormat = buildAudioFormatWithBitrate("higherBitrateFormat", 15000);
+    Format exceedsBitrateFormat = buildAudioFormatWithBitrate("exceedsBitrateFormat", 30000);
+    TrackGroupArray trackGroups =
+        wrapFormats(lowerBitrateFormat, higherBitrateFormat, exceedsBitrateFormat);
+
+    Map<String, Integer> mappedCapabilities = new HashMap<>();
+    mappedCapabilities.put(lowerBitrateFormat.id, FORMAT_HANDLED);
+    mappedCapabilities.put(higherBitrateFormat.id, FORMAT_HANDLED);
+    mappedCapabilities.put(exceedsBitrateFormat.id, FORMAT_EXCEEDS_CAPABILITIES);
+    RendererCapabilities mappedAudioRendererCapabilities =
+        new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, mappedCapabilities);
+
+    trackSelector.setParameters(
+        new ParametersBuilder().setForceHighestSupportedBitrate(true).build());
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {mappedAudioRendererCapabilities},
+            singleTrackGroup(lowerBitrateFormat, higherBitrateFormat, exceedsBitrateFormat),
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, higherBitrateFormat);
   }
 
   @Test
@@ -1472,8 +1508,20 @@ public final class DefaultTrackSelectorTest {
     return buildAudioFormat(
         id,
         MimeTypes.AUDIO_AAC,
+        /* bitrate= */ Format.NO_VALUE,
         language,
         selectionFlags,
+        /* channelCount= */ 2,
+        /* sampleRate= */ 44100);
+  }
+
+  private static Format buildAudioFormatWithBitrate(String id, int bitrate) {
+    return buildAudioFormat(
+        id,
+        MimeTypes.AUDIO_AAC,
+        bitrate,
+        /* language= */ null,
+        /* selectionFlags= */ 0,
         /* channelCount= */ 2,
         /* sampleRate= */ 44100);
   }
@@ -1482,6 +1530,7 @@ public final class DefaultTrackSelectorTest {
     return buildAudioFormat(
         id,
         MimeTypes.AUDIO_AAC,
+        /* bitrate= */ Format.NO_VALUE,
         /* language= */ null,
         /* selectionFlags= */ 0,
         /* channelCount= */ 2,
@@ -1492,6 +1541,7 @@ public final class DefaultTrackSelectorTest {
     return buildAudioFormat(
         id,
         MimeTypes.AUDIO_AAC,
+        /* bitrate= */ Format.NO_VALUE,
         /* language= */ null,
         /* selectionFlags= */ 0,
         channelCount,
@@ -1502,6 +1552,7 @@ public final class DefaultTrackSelectorTest {
     return buildAudioFormat(
         id,
         mimeType,
+        /* bitrate= */ Format.NO_VALUE,
         /* language= */ null,
         /* selectionFlags= */ 0,
         /* channelCount= */ 2,
@@ -1512,6 +1563,7 @@ public final class DefaultTrackSelectorTest {
     return buildAudioFormat(
         id,
         MimeTypes.AUDIO_AAC,
+        /* bitrate= */ Format.NO_VALUE,
         /* language= */ null,
         /* selectionFlags= */ 0,
         /* channelCount= */ 2,
@@ -1521,6 +1573,7 @@ public final class DefaultTrackSelectorTest {
   private static Format buildAudioFormat(
       String id,
       String mimeType,
+      int bitrate,
       String language,
       int selectionFlags,
       int channelCount,
@@ -1529,7 +1582,7 @@ public final class DefaultTrackSelectorTest {
         id,
         mimeType,
         /* codecs= */ null,
-        /* bitrate= */ Format.NO_VALUE,
+        bitrate,
         /* maxInputSize= */ Format.NO_VALUE,
         channelCount,
         sampleRate,
