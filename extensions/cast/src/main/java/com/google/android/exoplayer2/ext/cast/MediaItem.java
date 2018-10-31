@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -189,6 +190,26 @@ public final class MediaItem {
       this.uri = uri;
       this.requestHeaders = Collections.unmodifiableMap(new HashMap<>(requestHeaders));
     }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+      if (this == other) {
+        return true;
+      }
+      if (other == null || getClass() != other.getClass()) {
+        return false;
+      }
+
+      UriBundle uriBundle = (UriBundle) other;
+      return uri.equals(uriBundle.uri) && requestHeaders.equals(uriBundle.requestHeaders);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = uri.hashCode();
+      result = 31 * result + requestHeaders.hashCode();
+      return result;
+    }
   }
 
   /**
@@ -215,6 +236,26 @@ public final class MediaItem {
     public DrmScheme(UUID uuid, @Nullable UriBundle licenseServer) {
       this.uuid = uuid;
       this.licenseServer = licenseServer;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+      if (this == other) {
+        return true;
+      }
+      if (other == null || getClass() != other.getClass()) {
+        return false;
+      }
+
+      DrmScheme drmScheme = (DrmScheme) other;
+      return uuid.equals(drmScheme.uuid) && Util.areEqual(licenseServer, drmScheme.licenseServer);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = uuid.hashCode();
+      result = 31 * result + (licenseServer != null ? licenseServer.hashCode() : 0);
+      return result;
     }
   }
 
@@ -269,6 +310,40 @@ public final class MediaItem {
   public final String mimeType;
 
   // TODO: Add support for sideloaded tracks, artwork, icon, and subtitle.
+
+  @Override
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null || getClass() != other.getClass()) {
+      return false;
+    }
+    MediaItem mediaItem = (MediaItem) other;
+    return startPositionUs == mediaItem.startPositionUs
+        && endPositionUs == mediaItem.endPositionUs
+        && uuid.equals(mediaItem.uuid)
+        && title.equals(mediaItem.title)
+        && description.equals(mediaItem.description)
+        && media.equals(mediaItem.media)
+        && Util.areEqual(attachment, mediaItem.attachment)
+        && drmSchemes.equals(mediaItem.drmSchemes)
+        && mimeType.equals(mediaItem.mimeType);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = uuid.hashCode();
+    result = 31 * result + title.hashCode();
+    result = 31 * result + description.hashCode();
+    result = 31 * result + media.hashCode();
+    result = 31 * result + (attachment != null ? attachment.hashCode() : 0);
+    result = 31 * result + drmSchemes.hashCode();
+    result = 31 * result + (int) (startPositionUs ^ (startPositionUs >>> 32));
+    result = 31 * result + (int) (endPositionUs ^ (endPositionUs >>> 32));
+    result = 31 * result + mimeType.hashCode();
+    return result;
+  }
 
   private MediaItem(
       UUID uuid,

@@ -20,6 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,18 +50,15 @@ public class MediaItemTest {
     MediaItem.Builder builder = new MediaItem.Builder();
     MediaItem item1 =
         builder
+            .setUuid(new UUID(0, 1))
             .setMedia("http://example.com")
             .setTitle("title")
             .setMimeType(MimeTypes.AUDIO_MP4)
             .setStartPositionUs(3)
             .setEndPositionUs(4)
             .build();
-    MediaItem item2 = builder.build();
-    assertThat(item1.title).isEqualTo(item2.title);
-    assertThat(item1.media.uri).isEqualTo(item2.media.uri);
-    assertThat(item1.mimeType).isEqualTo(item2.mimeType);
-    assertThat(item1.startPositionUs).isEqualTo(item2.startPositionUs);
-    assertThat(item1.endPositionUs).isEqualTo(item2.endPositionUs);
+    MediaItem item2 = builder.setUuid(new UUID(0, 1)).build();
+    assertThat(item1).isEqualTo(item2);
   }
 
   @Test
@@ -79,6 +79,42 @@ public class MediaItemTest {
     assertDefaultValues(builder.build());
   }
 
+  @Test
+  public void equals_withEqualDrmSchemes_returnsTrue() {
+    MediaItem.Builder builder = new MediaItem.Builder();
+    MediaItem mediaItem1 =
+        builder
+            .setUuid(new UUID(0, 1))
+            .setMedia("www.google.com")
+            .setDrmSchemes(createMockDrmSchemes(1))
+            .buildAndClear();
+    MediaItem mediaItem2 =
+        builder
+            .setUuid(new UUID(0, 1))
+            .setMedia("www.google.com")
+            .setDrmSchemes(createMockDrmSchemes(1))
+            .buildAndClear();
+    assertThat(mediaItem1).isEqualTo(mediaItem2);
+  }
+
+  @Test
+  public void equals_withDifferentDrmRequestHeaders_returnsFalse() {
+    MediaItem.Builder builder = new MediaItem.Builder();
+    MediaItem mediaItem1 =
+        builder
+            .setUuid(new UUID(0, 1))
+            .setMedia("www.google.com")
+            .setDrmSchemes(createMockDrmSchemes(1))
+            .buildAndClear();
+    MediaItem mediaItem2 =
+        builder
+            .setUuid(new UUID(0, 1))
+            .setMedia("www.google.com")
+            .setDrmSchemes(createMockDrmSchemes(2))
+            .buildAndClear();
+    assertThat(mediaItem1).isNotEqualTo(mediaItem2);
+  }
+
   private static void assertDefaultValues(MediaItem item) {
     assertThat(item.title).isEmpty();
     assertThat(item.description).isEmpty();
@@ -88,5 +124,21 @@ public class MediaItemTest {
     assertThat(item.startPositionUs).isEqualTo(C.TIME_UNSET);
     assertThat(item.endPositionUs).isEqualTo(C.TIME_UNSET);
     assertThat(item.mimeType).isEmpty();
+  }
+
+  private static List<MediaItem.DrmScheme> createMockDrmSchemes(int seed) {
+    HashMap<String, String> requestHeaders1 = new HashMap<>();
+    requestHeaders1.put("key1", "value1");
+    requestHeaders1.put("key2", "value1");
+    MediaItem.UriBundle uriBundle1 =
+        new MediaItem.UriBundle(Uri.parse("www.uri1.com"), requestHeaders1);
+    MediaItem.DrmScheme drmScheme1 = new MediaItem.DrmScheme(C.WIDEVINE_UUID, uriBundle1);
+    HashMap<String, String> requestHeaders2 = new HashMap<>();
+    requestHeaders2.put("key3", "value3");
+    requestHeaders2.put("key4", "valueWithSeed" + seed);
+    MediaItem.UriBundle uriBundle2 =
+        new MediaItem.UriBundle(Uri.parse("www.uri2.com"), requestHeaders2);
+    MediaItem.DrmScheme drmScheme2 = new MediaItem.DrmScheme(C.PLAYREADY_UUID, uriBundle2);
+    return Arrays.asList(drmScheme1, drmScheme2);
   }
 }
