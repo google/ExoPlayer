@@ -2,6 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
+* DASH: Parse ProgramInformation element if present in the manifest.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
 * Improve initial bandwidth meter estimates using the current country and
