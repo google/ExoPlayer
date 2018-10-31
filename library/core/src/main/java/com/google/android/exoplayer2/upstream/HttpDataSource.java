@@ -295,15 +295,20 @@ public interface HttpDataSource extends DataSource {
      */
     public final int responseCode;
 
-    /**
-     * The HTTP status message.
-     */
+    /** The http status message. */
     @Nullable public final String responseMessage;
 
     /**
      * An unmodifiable map of the response header fields and values.
      */
     public final Map<String, List<String>> headerFields;
+
+    /** @deprecated Use {@link #InvalidResponseCodeException(int, String, Map, DataSpec)}. */
+    @Deprecated
+    public InvalidResponseCodeException(
+        int responseCode, Map<String, List<String>> headerFields, DataSpec dataSpec) {
+      this(responseCode, /* responseMessage= */ null, headerFields, dataSpec);
+    }
 
     public InvalidResponseCodeException(
         int responseCode,

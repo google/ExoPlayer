@@ -341,7 +341,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       String name = parseStringAttr(line, REGEX_NAME, variableDefinitions);
       String language = parseOptionalStringAttr(line, REGEX_LANGUAGE, variableDefinitions);
       String groupId = parseOptionalStringAttr(line, REGEX_GROUP_ID, variableDefinitions);
-      String id = String.format("%s:%s", groupId, name);
+      String id = groupId + ":" + name;
       Format format;
       switch (parseStringAttr(line, REGEX_TYPE, variableDefinitions)) {
         case TYPE_AUDIO:

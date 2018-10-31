@@ -120,9 +120,9 @@ public class DashManifestParser extends DefaultHandler
     long suggestedPresentationDelayMs = dynamic
         ? parseDuration(xpp, "suggestedPresentationDelay", C.TIME_UNSET) : C.TIME_UNSET;
     long publishTimeMs = parseDateTime(xpp, "publishTime", C.TIME_UNSET);
+    ProgramInformation programInformation = null;
     UtcTimingElement utcTiming = null;
     Uri location = null;
-    ProgramInformation programInformation = null;
 
     List<Period> periods = new ArrayList<>();
     long nextPeriodStartMs = dynamic ? C.TIME_UNSET : 0;
@@ -135,12 +135,12 @@ public class DashManifestParser extends DefaultHandler
           baseUrl = parseBaseUrl(xpp, baseUrl);
           seenFirstBaseUrl = true;
         }
+      } else if (XmlPullParserUtil.isStartTag(xpp, "ProgramInformation")) {
+        programInformation = parseProgramInformation(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "UTCTiming")) {
         utcTiming = parseUtcTiming(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "Location")) {
         location = Uri.parse(xpp.nextText());
-      } else if (XmlPullParserUtil.isStartTag(xpp, "ProgramInformation")) {
-        programInformation = parseProgramInformation(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "Period") && !seenEarlyAccessPeriod) {
         Pair<Period, Long> periodWithDurationMs = parsePeriod(xpp, baseUrl, nextPeriodStartMs);
         Period period = periodWithDurationMs.first;
@@ -176,18 +176,47 @@ public class DashManifestParser extends DefaultHandler
       throw new ParserException("No periods found.");
     }
 
-    return buildMediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs,
-        publishTimeMs, utcTiming, location, programInformation, periods);
+    return buildMediaPresentationDescription(
+        availabilityStartTime,
+        durationMs,
+        minBufferTimeMs,
+        dynamic,
+        minUpdateTimeMs,
+        timeShiftBufferDepthMs,
+        suggestedPresentationDelayMs,
+        publishTimeMs,
+        programInformation,
+        utcTiming,
+        location,
+        periods);
   }
 
-  protected DashManifest buildMediaPresentationDescription(long availabilityStartTime,
-      long durationMs, long minBufferTimeMs, boolean dynamic, long minUpdateTimeMs,
-      long timeShiftBufferDepthMs, long suggestedPresentationDelayMs, long publishTimeMs,
-      UtcTimingElement utcTiming, Uri location, ProgramInformation programInformation, List<Period> periods) {
-    return new DashManifest(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, suggestedPresentationDelayMs,
-        publishTimeMs, utcTiming, location, programInformation, periods);
+  protected DashManifest buildMediaPresentationDescription(
+      long availabilityStartTime,
+      long durationMs,
+      long minBufferTimeMs,
+      boolean dynamic,
+      long minUpdateTimeMs,
+      long timeShiftBufferDepthMs,
+      long suggestedPresentationDelayMs,
+      long publishTimeMs,
+      ProgramInformation programInformation,
+      UtcTimingElement utcTiming,
+      Uri location,
+      List<Period> periods) {
+    return new DashManifest(
+        availabilityStartTime,
+        durationMs,
+        minBufferTimeMs,
+        dynamic,
+        minUpdateTimeMs,
+        timeShiftBufferDepthMs,
+        suggestedPresentationDelayMs,
+        publishTimeMs,
+        programInformation,
+        utcTiming,
+        location,
+        periods);
   }
 
   protected UtcTimingElement parseUtcTiming(XmlPullParser xpp) {
@@ -1001,7 +1030,8 @@ public class DashManifestParser extends DefaultHandler
     return new RangedUri(urlText, rangeStart, rangeLength);
   }
 
-  protected ProgramInformation parseProgramInformation(XmlPullParser xpp) throws IOException, XmlPullParserException {
+  protected ProgramInformation parseProgramInformation(XmlPullParser xpp)
+      throws IOException, XmlPullParserException {
     String title = null;
     String source = null;
     String copyright = null;

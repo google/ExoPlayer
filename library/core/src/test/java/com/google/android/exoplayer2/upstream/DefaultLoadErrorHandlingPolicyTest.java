@@ -34,7 +34,8 @@ public final class DefaultLoadErrorHandlingPolicyTest {
   @Test
   public void getBlacklistDurationMsFor_blacklist404() {
     InvalidResponseCodeException exception =
-        new InvalidResponseCodeException(404, "Not Found", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
+        new InvalidResponseCodeException(
+            404, "Not Found", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
     assertThat(getDefaultPolicyBlacklistOutputFor(exception))
         .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
   }
@@ -42,7 +43,8 @@ public final class DefaultLoadErrorHandlingPolicyTest {
   @Test
   public void getBlacklistDurationMsFor_blacklist410() {
     InvalidResponseCodeException exception =
-        new InvalidResponseCodeException(410, "Gone", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
+        new InvalidResponseCodeException(
+            410, "Gone", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
     assertThat(getDefaultPolicyBlacklistOutputFor(exception))
         .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
   }

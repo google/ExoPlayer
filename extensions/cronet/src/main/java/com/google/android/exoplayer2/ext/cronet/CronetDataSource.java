@@ -616,10 +616,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         if (responseCode == 307 || responseCode == 308) {
           exception =
               new InvalidResponseCodeException(
-                  responseCode,
-                  info.getHttpStatusText(),
-                  info.getAllHeaders(),
-                  currentDataSpec);
+                  responseCode, info.getHttpStatusText(), info.getAllHeaders(), currentDataSpec);
           operation.open();
           return;
         }
