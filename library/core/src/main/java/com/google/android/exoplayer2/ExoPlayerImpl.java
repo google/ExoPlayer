@@ -330,32 +330,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public boolean hasPrevious() {
-    return getPreviousWindowIndex() != C.INDEX_UNSET;
-  }
-
-  @Override
-  public void previous() {
-    int previousWindowIndex = getPreviousWindowIndex();
-    if (previousWindowIndex != C.INDEX_UNSET) {
-      seekToDefaultPosition(previousWindowIndex);
-    }
-  }
-
-  @Override
-  public boolean hasNext() {
-    return getNextWindowIndex() != C.INDEX_UNSET;
-  }
-
-  @Override
-  public void next() {
-    int nextWindowIndex = getPreviousWindowIndex();
-    if (nextWindowIndex != C.INDEX_UNSET) {
-      seekToDefaultPosition(nextWindowIndex);
-    }
-  }
-
-  @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     if (playbackParameters == null) {
       playbackParameters = PlaybackParameters.DEFAULT;
