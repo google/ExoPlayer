@@ -18,7 +18,9 @@ package com.google.android.exoplayer2.trackselection;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -33,62 +35,60 @@ public class TrackSelectionUtilTest {
   public static final long MAX_DURATION_US = 30 * C.MICROS_PER_SECOND;
 
   @Test
-  public void getAverageBitrate_emptyIterator_returnsUnsetLength() {
+  public void getAverageBitrate_emptyIterator_returnsNoValue() {
     assertThat(TrackSelectionUtil.getAverageBitrate(MediaChunkIterator.EMPTY, MAX_DURATION_US))
-        .isEqualTo(C.LENGTH_UNSET);
+        .isEqualTo(Format.NO_VALUE);
   }
 
   @Test
   public void getAverageBitrate_oneChunk_returnsChunkBitrate() {
-    long[] chunkTimeBoundariesSec = {0, 5};
+    long[] chunkTimeBoundariesSec = {12, 17};
     long[] chunkLengths = {10};
+
     FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
-    int expectedAverageBitrate =
-        (int) (chunkLengths[0] * C.BITS_PER_BYTE / chunkTimeBoundariesSec[1]);
-    assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US))
-        .isEqualTo(expectedAverageBitrate);
+
+    assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US)).isEqualTo(16);
   }
 
   @Test
   public void getAverageBitrate_multipleSameDurationChunks_returnsAverageChunkBitrate() {
     long[] chunkTimeBoundariesSec = {0, 5, 10};
     long[] chunkLengths = {10, 20};
+
     FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
-    long totalLength = chunkLengths[0] + chunkLengths[1];
-    int expectedAverageBitrate = (int) (totalLength * C.BITS_PER_BYTE / chunkTimeBoundariesSec[2]);
-    assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US))
-        .isEqualTo(expectedAverageBitrate);
+
+    assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US)).isEqualTo(24);
   }
 
   @Test
   public void getAverageBitrate_multipleDifferentDurationChunks_returnsAverageChunkBitrate() {
     long[] chunkTimeBoundariesSec = {0, 5, 15, 30};
     long[] chunkLengths = {10, 20, 30};
+
     FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
-    long totalLength = chunkLengths[0] + chunkLengths[1] + chunkLengths[2];
-    int expectedAverageBitrate = (int) (totalLength * C.BITS_PER_BYTE / chunkTimeBoundariesSec[3]);
-    assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US))
-        .isEqualTo(expectedAverageBitrate);
+
+    assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US)).isEqualTo(16);
   }
 
   @Test
-  public void getAverageBitrate_firstChunkLengthUnset_returnsUnsetLength() {
+  public void getAverageBitrate_firstChunkLengthUnset_returnsNoValue() {
     long[] chunkTimeBoundariesSec = {0, 5, 15, 30};
     long[] chunkLengths = {C.LENGTH_UNSET, 20, 30};
+
     FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
+
     assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US))
-        .isEqualTo(C.LENGTH_UNSET);
+        .isEqualTo(Format.NO_VALUE);
   }
 
   @Test
   public void getAverageBitrate_secondChunkLengthUnset_returnsFirstChunkBitrate() {
     long[] chunkTimeBoundariesSec = {0, 5, 15, 30};
     long[] chunkLengths = {10, C.LENGTH_UNSET, 30};
+
     FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
-    int expectedAverageBitrate =
-        (int) (chunkLengths[0] * C.BITS_PER_BYTE / chunkTimeBoundariesSec[1]);
-    assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US))
-        .isEqualTo(expectedAverageBitrate);
+
+    assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US)).isEqualTo(16);
   }
 
   @Test
@@ -96,22 +96,101 @@ public class TrackSelectionUtilTest {
       getAverageBitrate_chunksExceedingMaxDuration_returnsAverageChunkBitrateUpToMaxDuration() {
     long[] chunkTimeBoundariesSec = {0, 5, 15, 45, 50};
     long[] chunkLengths = {10, 20, 30, 100};
+
     FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
-    // Just half of the third chunk is in the max duration
-    long totalLength = chunkLengths[0] + chunkLengths[1] + chunkLengths[2] / 2;
-    int expectedAverageBitrate =
-        (int) (totalLength * C.BITS_PER_BYTE * C.MICROS_PER_SECOND / MAX_DURATION_US);
-    assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US))
-        .isEqualTo(expectedAverageBitrate);
+
+    assertThat(TrackSelectionUtil.getAverageBitrate(iterator, 30 * C.MICROS_PER_SECOND))
+        .isEqualTo(12);
   }
 
   @Test
-  public void getAverageBitrate_zeroMaxDuration_returnsUnsetLength() {
+  public void getAverageBitrate_zeroMaxDuration_returnsNoValue() {
     long[] chunkTimeBoundariesSec = {0, 5, 10};
     long[] chunkLengths = {10, 20};
+
     FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
+
     assertThat(TrackSelectionUtil.getAverageBitrate(iterator, /* maxDurationUs= */ 0))
-        .isEqualTo(C.LENGTH_UNSET);
+        .isEqualTo(Format.NO_VALUE);
+  }
+
+  @Test
+  public void getAverageBitrates_noIterator_returnsEmptyArray() {
+    assertThat(
+            TrackSelectionUtil.getAverageBitrates(
+                new MediaChunkIterator[0], new Format[0], MAX_DURATION_US))
+        .hasLength(0);
+  }
+
+  @Test
+  public void getAverageBitrates_emptyIterator_returnsNoValue() {
+    int[] averageBitrates =
+        TrackSelectionUtil.getAverageBitrates(
+            new MediaChunkIterator[] {MediaChunkIterator.EMPTY},
+            new Format[] {createFormatWithBitrate(10)},
+            MAX_DURATION_US);
+
+    assertThat(averageBitrates).asList().containsExactly(Format.NO_VALUE);
+  }
+
+  @Test
+  public void getAverageBitrates_twoTracks_returnsAverageChunkBitrates() {
+    FakeIterator iterator1 =
+        new FakeIterator(
+            /* chunkTimeBoundariesSec= */ new long[] {0, 10}, /* chunkLengths= */ new long[] {10});
+    FakeIterator iterator2 =
+        new FakeIterator(
+            /* chunkTimeBoundariesSec= */ new long[] {0, 5, 15, 30},
+            /* chunkLengths= */ new long[] {10, 20, 30});
+
+    int[] averageBitrates =
+        TrackSelectionUtil.getAverageBitrates(
+            new MediaChunkIterator[] {iterator1, iterator2},
+            new Format[] {createFormatWithBitrate(10), createFormatWithBitrate(20)},
+            MAX_DURATION_US);
+
+    assertThat(averageBitrates).asList().containsExactly(8, 16).inOrder();
+  }
+
+  @Test
+  public void getAverageBitrates_oneEmptyIteratorOneWithChunks_returnsEstimationForEmpty() {
+    FakeIterator iterator1 =
+        new FakeIterator(
+            /* chunkTimeBoundariesSec= */ new long[] {0, 5}, /* chunkLengths= */ new long[] {10});
+    Format format1 = createFormatWithBitrate(10);
+    MediaChunkIterator iterator2 = MediaChunkIterator.EMPTY;
+    Format format2 = createFormatWithBitrate(20);
+
+    int[] averageBitrates =
+        TrackSelectionUtil.getAverageBitrates(
+            new MediaChunkIterator[] {iterator1, iterator2},
+            new Format[] {format1, format2},
+            MAX_DURATION_US);
+
+    assertThat(averageBitrates).asList().containsExactly(16, 32).inOrder();
+  }
+
+  @Test
+  public void getAverageBitrates_formatWithoutBitrate_returnsNoValueForEmpty() {
+    FakeIterator iterator1 =
+        new FakeIterator(
+            /* chunkTimeBoundariesSec= */ new long[] {0, 5}, /* chunkLengths= */ new long[] {10});
+    Format format1 = createFormatWithBitrate(10);
+    MediaChunkIterator iterator2 = MediaChunkIterator.EMPTY;
+    Format format2 = createFormatWithBitrate(Format.NO_VALUE);
+
+    int[] averageBitrates =
+        TrackSelectionUtil.getAverageBitrates(
+            new MediaChunkIterator[] {iterator1, iterator2},
+            new Format[] {format1, format2},
+            MAX_DURATION_US);
+
+    assertThat(averageBitrates).asList().containsExactly(16, Format.NO_VALUE).inOrder();
+  }
+
+  @NonNull
+  private static Format createFormatWithBitrate(int bitrate) {
+    return Format.createSampleFormat(null, null, null, bitrate, null);
   }
 
   private static final class FakeIterator extends BaseMediaChunkIterator {

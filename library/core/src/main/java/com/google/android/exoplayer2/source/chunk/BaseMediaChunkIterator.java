@@ -34,10 +34,11 @@ public abstract class BaseMediaChunkIterator implements MediaChunkIterator {
    * @param fromIndex The first available index.
    * @param toIndex The last available index.
    */
+  @SuppressWarnings("method.invocation.invalid")
   public BaseMediaChunkIterator(long fromIndex, long toIndex) {
     this.fromIndex = fromIndex;
     this.toIndex = toIndex;
-    currentIndex = fromIndex - 1;
+    reset();
   }
 
   @Override
@@ -49,6 +50,11 @@ public abstract class BaseMediaChunkIterator implements MediaChunkIterator {
   public boolean next() {
     currentIndex++;
     return !isEnded();
+  }
+
+  @Override
+  public void reset() {
+    currentIndex = fromIndex - 1;
   }
 
   /**
