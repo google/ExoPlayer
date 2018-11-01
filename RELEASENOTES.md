@@ -2,42 +2,49 @@
 
 ### dev-v2 (not yet released) ###
 
-* DASH: Parse ProgramInformation element if present in the manifest.
+* Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
-* Improve initial bandwidth meter estimates using the current country and
-  network type.
 * Add options for controlling audio track selections to `DefaultTrackSelector`
   ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
+
+### 2.9.1 ###
+
 * Add convenience methods `Player.next`, `Player.previous`, `Player.hasNext`
   and `Player.hasPrevious`
   ([#4863](https://github.com/google/ExoPlayer/issues/4863)).
-* HLS:
-  * Add constructor to `DefaultHlsExtractorFactory` for adding TS payload reader
-    factory flags ([#4861](https://github.com/google/ExoPlayer/issues/4861)).
-* Fix an issue with blind seeking to windows with non-zero offset in a
-  `ConcatenatingMediaSource`
-  ([#4873](https://github.com/google/ExoPlayer/issues/4873)).
-* Fix issue where subtitles have a wrong position if SubtitleView has a non-zero
-  offset to its parent
-  ([#4788](https://github.com/google/ExoPlayer/issues/4788)).
-* SubRip: Add support for alignment tags, and remove tags from the displayed
-  captions ([#4306](https://github.com/google/ExoPlayer/issues/4306)).
-* Audio:
-  * Support seeking based on MLLT metadata
-    ([#3241](https://github.com/google/ExoPlayer/issues/3241)).
-  * Fix handling of MP3s with appended data
-    ([#4954](https://github.com/google/ExoPlayer/issues/4954)).
-* Fix issue where buffered position is not updated correctly when transitioning
-  between periods
-  ([#4899](https://github.com/google/ExoPlayer/issues/4899)).
+* Improve initial bandwidth meter estimates using the current country and
+  network type.
 * IMA extension:
   * For preroll to live stream transitions, project forward the loading position
     to avoid being behind the live window.
   * Let apps specify whether to focus the skip button on ATV
     ([#5019](https://github.com/google/ExoPlayer/issues/5019)).
-* Support for playing spherical videos on Daydream.
+* MP3:
+  * Support seeking based on MLLT metadata
+    ([#3241](https://github.com/google/ExoPlayer/issues/3241)).
+  * Fix handling of streams with appended data
+    ([#4954](https://github.com/google/ExoPlayer/issues/4954)).
+* DASH: Parse ProgramInformation element if present in the manifest.
+* HLS: Add constructor to `DefaultHlsExtractorFactory` for adding TS payload
+  reader factory flags
+  ([#4861](https://github.com/google/ExoPlayer/issues/4861)).
+* SubRip: Add support for alignment tags, and remove tags from the displayed
+  captions ([#4306](https://github.com/google/ExoPlayer/issues/4306)).
+* Fix issue with blind seeking to windows with non-zero offset in a
+  `ConcatenatingMediaSource`
+  ([#4873](https://github.com/google/ExoPlayer/issues/4873)).
+* Fix issue where subtitles were positioned incorrectly if `SubtitleView` had a
+  non-zero position offset to its parent
+  ([#4788](https://github.com/google/ExoPlayer/issues/4788)).
+* Fix issue where the buffered position was not updated correctly when
+  transitioning between periods
+  ([#4899](https://github.com/google/ExoPlayer/issues/4899)).
+* Suppress a spurious assertion failure on some Samsung devices
+  ([#4532](https://github.com/google/ExoPlayer/issues/4532)).
+* Suppress spurious "references unknown class member" shrinking warning
+  ([#4890](https://github.com/google/ExoPlayer/issues/4890)).
 * Fix issue where a `NullPointerException` is thrown when removing an unprepared
   media source from a `ConcatenatingMediaSource` with the `useLazyPreparation`
   option enabled ([#4986](https://github.com/google/ExoPlayer/issues/4986)).
