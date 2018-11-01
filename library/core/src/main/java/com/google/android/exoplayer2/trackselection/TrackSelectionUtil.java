@@ -16,7 +16,9 @@
 package com.google.android.exoplayer2.trackselection;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
+import com.google.android.exoplayer2.util.Assertions;
 
 /** Track selection related utility methods. */
 public final class TrackSelectionUtil {
@@ -30,7 +32,7 @@ public final class TrackSelectionUtil {
    * @param iterator Iterator for media chunk sequences.
    * @param maxDurationUs Maximum duration of chunks to be included in average bitrate, in
    *     microseconds.
-   * @return Average bitrate for chunks in bits per second, or {@link C#LENGTH_UNSET} if there are
+   * @return Average bitrate for chunks in bits per second, or {@link Format#NO_VALUE} if there are
    *     no chunks or the first chunk length is unknown.
    */
   public static int getAverageBitrate(MediaChunkIterator iterator, long maxDurationUs) {
@@ -51,7 +53,79 @@ public final class TrackSelectionUtil {
       totalLength += chunkLength;
     }
     return totalDurationUs == 0
-        ? C.LENGTH_UNSET
+        ? Format.NO_VALUE
         : (int) (totalLength * C.BITS_PER_BYTE * C.MICROS_PER_SECOND / totalDurationUs);
+  }
+
+  /**
+   * Returns average bitrate values for a set of tracks whose upcoming media chunk iterators and
+   * formats are given. If an average bitrate can't be calculated, an estimation is calculated using
+   * average bitrate of another track and the ratio of the bitrate values defined in the formats of
+   * the two tracks.
+   *
+   * @param iterators An array of {@link MediaChunkIterator}s providing information about the
+   *     sequence of upcoming media chunks for each track.
+   * @param formats The track formats.
+   * @param maxDurationUs Maximum duration of chunks to be included in average bitrate values, in
+   *     microseconds.
+   * @return Average bitrate values for the tracks. If for a track, an average bitrate or an
+   *     estimation can't be calculated, {@link Format#NO_VALUE} is set.
+   * @see #getAverageBitrate(MediaChunkIterator, long)
+   */
+  public static int[] getAverageBitrates(
+      MediaChunkIterator[] iterators, Format[] formats, long maxDurationUs) {
+    int trackCount = iterators.length;
+    Assertions.checkArgument(trackCount == formats.length);
+    if (trackCount == 0) {
+      return new int[0];
+    }
+
+    int[] bitrates = new int[trackCount];
+    int[] formatBitrates = new int[trackCount];
+    float[] bitrateRatios = new float[trackCount];
+    boolean needEstimateBitrate = false;
+    boolean canEstimateBitrate = false;
+    for (int i = 0; i < trackCount; i++) {
+      int bitrate = getAverageBitrate(iterators[i], maxDurationUs);
+      if (bitrate != Format.NO_VALUE) {
+        int formatBitrate = formats[i].bitrate;
+        formatBitrates[i] = formatBitrate;
+        if (formatBitrate != Format.NO_VALUE) {
+          bitrateRatios[i] = ((float) bitrate) / formatBitrate;
+          canEstimateBitrate = true;
+        }
+      } else {
+        needEstimateBitrate = true;
+        formatBitrates[i] = Format.NO_VALUE;
+      }
+      bitrates[i] = bitrate;
+    }
+
+    if (needEstimateBitrate && canEstimateBitrate) {
+      for (int i = 0; i < trackCount; i++) {
+        if (bitrates[i] == Format.NO_VALUE) {
+          int formatBitrate = formats[i].bitrate;
+          if (formatBitrate != Format.NO_VALUE) {
+            int closestFormat = findClosestBitrateFormat(formatBitrate, formatBitrates);
+            bitrates[i] = (int) (bitrateRatios[closestFormat] * formatBitrate);
+          }
+        }
+      }
+    }
+    return bitrates;
+  }
+
+  private static int findClosestBitrateFormat(int formatBitrate, int[] formatBitrates) {
+    int closestDistance = Integer.MAX_VALUE;
+    int closestFormat = C.INDEX_UNSET;
+    for (int j = 0; j < formatBitrates.length; j++) {
+      if (formatBitrates[j] != Format.NO_VALUE) {
+        int distance = Math.abs(formatBitrates[j] - formatBitrate);
+        if (distance < closestDistance) {
+          closestFormat = j;
+        }
+      }
+    }
+    return closestFormat;
   }
 }
