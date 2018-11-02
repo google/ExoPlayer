@@ -104,7 +104,7 @@ public class SimpleDecoderAudioRendererTest {
     verify(mockAudioSink, times(1)).playToEndOfStream();
     audioRenderer.disable();
     audioRenderer.reset();
-    verify(mockAudioSink, times(1)).release();
+    verify(mockAudioSink, times(1)).reset();
   }
 
   private static final class FakeDecoder

@@ -538,7 +538,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    audioSink.reset();
+    audioSink.flush();
     currentPositionUs = positionUs;
     allowFirstBufferPositionDiscontinuity = true;
     allowPositionDiscontinuity = true;
@@ -567,7 +567,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     waitingForKeys = false;
     try {
       releaseDecoder();
-      audioSink.release();
+      audioSink.reset();
     } finally {
       try {
         if (drmSession != null) {

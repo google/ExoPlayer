@@ -511,7 +511,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
-    audioSink.reset();
+    audioSink.flush();
     currentPositionUs = positionUs;
     allowFirstBufferPositionDiscontinuity = true;
     allowPositionDiscontinuity = true;
@@ -537,7 +537,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       lastInputTimeUs = C.TIME_UNSET;
       pendingStreamChangeCount = 0;
-      audioSink.release();
+      audioSink.flush();
     } finally {
       try {
         super.onDisabled();
@@ -545,6 +545,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         decoderCounters.ensureUpdated();
         eventDispatcher.disabled(decoderCounters);
       }
+    }
+  }
+
+  @Override
+  protected void onReset() {
+    try {
+      super.onReset();
+    } finally {
+      audioSink.reset();
     }
   }
 
