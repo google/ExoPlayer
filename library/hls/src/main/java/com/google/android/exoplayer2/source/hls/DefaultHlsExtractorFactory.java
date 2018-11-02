@@ -48,6 +48,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
   public static final String MP4_FILE_EXTENSION = ".mp4";
   public static final String M4_FILE_EXTENSION_PREFIX = ".m4";
   public static final String MP4_FILE_EXTENSION_PREFIX = ".mp4";
+  public static final String CMF_FILE_EXTENSION_PREFIX = ".cmf";
   public static final String VTT_FILE_EXTENSION = ".vtt";
   public static final String WEBVTT_FILE_EXTENSION = ".webvtt";
 
@@ -191,7 +192,8 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       return new Mp3Extractor(/* flags= */ 0, /* forcedFirstSampleTimestampUs= */ 0);
     } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)
         || lastPathSegment.startsWith(M4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)
-        || lastPathSegment.startsWith(MP4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)) {
+        || lastPathSegment.startsWith(MP4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)
+        || lastPathSegment.startsWith(CMF_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)) {
       return new FragmentedMp4Extractor(
           /* flags= */ 0,
           timestampAdjuster,
