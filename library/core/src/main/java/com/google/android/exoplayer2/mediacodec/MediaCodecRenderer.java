@@ -294,6 +294,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private Format outputFormat;
   private DrmSession<FrameworkMediaCrypto> drmSession;
   private DrmSession<FrameworkMediaCrypto> pendingDrmSession;
+  private long renderTimeLimitMs;
   private float rendererOperatingRate;
   @Nullable private MediaCodec codec;
   @Nullable private Format codecFormat;
@@ -371,6 +372,21 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecDrainAction = DRAIN_ACTION_NONE;
     codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     rendererOperatingRate = 1f;
+    renderTimeLimitMs = C.TIME_UNSET;
+  }
+
+  /**
+   * Set a limit on the time a single {@link #render(long, long)} call can spend draining and
+   * filling the decoder.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release. It should
+   * only be called before the renderer is used.
+   *
+   * @param renderTimeLimitMs The render time limit in milliseconds, or {@link C#TIME_UNSET} for no
+   *     limit.
+   */
+  public void experimental_setRenderTimeLimitMs(long renderTimeLimitMs) {
+    this.renderTimeLimitMs = renderTimeLimitMs;
   }
 
   @Override
@@ -623,9 +639,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // We have a format.
     maybeInitCodec();
     if (codec != null) {
+      long drainStartTimeMs = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("drainAndFeed");
       while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-      while (feedInputBuffer()) {}
+      while (feedInputBuffer() && shouldContinueFeeding(drainStartTimeMs)) {}
       TraceUtil.endSection();
     } else {
       decoderCounters.skippedInputBufferCount += skipSource(positionUs);
@@ -850,6 +867,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     decoderCounters.decoderInitCount++;
     long elapsed = codecInitializedTimestamp - codecInitializingTimestamp;
     onCodecInitialized(codecName, codecInitializedTimestamp, elapsed);
+  }
+
+  private boolean shouldContinueFeeding(long drainStartTimeMs) {
+    return renderTimeLimitMs == C.TIME_UNSET
+        || SystemClock.elapsedRealtime() - drainStartTimeMs < renderTimeLimitMs;
   }
 
   private void getCodecBuffers(MediaCodec codec) {
