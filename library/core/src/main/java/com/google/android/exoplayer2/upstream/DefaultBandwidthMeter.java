@@ -170,6 +170,8 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     /**
      * Sets whether to reset if the network type changes.
      *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     *
      * @param resetOnNetworkTypeChange Whether to reset if the network type changes.
      * @return This builder.
      */
