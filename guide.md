@@ -134,8 +134,15 @@ implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
 
 where `2.X.X` is your preferred version. If not enabled already, you also need
 to turn on Java 8 support in all `build.gradle` files depending on ExoPlayer, by
-adding `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to the
-`android` section.
+adding 
+
+```gradle
+compileOptions {
+    targetCompatibility JavaVersion.VERSION_1_8
+}
+```
+
+to the `android` section.
 
 As an alternative to the full library, you can depend on only the library
 modules that you actually need. For example the following will add dependencies
