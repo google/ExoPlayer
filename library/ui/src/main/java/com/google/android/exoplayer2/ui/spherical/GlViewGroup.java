@@ -31,7 +31,7 @@ import android.widget.FrameLayout;
 import com.google.android.exoplayer2.util.Assertions;
 
 /** This View uses standard Android APIs to render its child Views to a texture. */
-/* package */ final class GlViewGroup extends FrameLayout {
+public final class GlViewGroup extends FrameLayout {
 
   private final CanvasRenderer canvasRenderer;
 

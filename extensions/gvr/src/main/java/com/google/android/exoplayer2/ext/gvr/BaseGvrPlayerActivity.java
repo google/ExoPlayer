@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.exoplayer2.ui.spherical;
+package com.google.android.exoplayer2.ext.gvr;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,8 +32,10 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.ext.gvr.R;
 import com.google.android.exoplayer2.ui.PlayerControlView;
+import com.google.android.exoplayer2.ui.spherical.GlViewGroup;
+import com.google.android.exoplayer2.ui.spherical.PointerRenderer;
+import com.google.android.exoplayer2.ui.spherical.SceneRenderer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.vr.ndk.base.DaydreamApi;
