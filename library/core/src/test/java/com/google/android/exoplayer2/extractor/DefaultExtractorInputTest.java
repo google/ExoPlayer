@@ -339,6 +339,23 @@ public class DefaultExtractorInputTest {
   }
 
   @Test
+  public void testPeekFullyAfterEofExceptionPeeksAsExpected() throws Exception {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length + 10];
+
+    try {
+      input.peekFully(target, /* offset= */ 0, target.length);
+      fail();
+    } catch (EOFException expected) {
+      // Do nothing. Expected.
+    }
+    input.peekFully(target, /* offset= */ 0, /* length= */ TEST_DATA.length);
+
+    assertThat(input.getPeekPosition()).isEqualTo(TEST_DATA.length);
+    assertThat(Arrays.equals(TEST_DATA, Arrays.copyOf(target, TEST_DATA.length))).isTrue();
+  }
+
+  @Test
   public void testResetPeekPosition() throws Exception {
     DefaultExtractorInput input = createDefaultExtractorInput();
     byte[] target = new byte[TEST_DATA.length];
