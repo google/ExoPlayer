@@ -172,6 +172,9 @@ public final class DefaultAudioSink implements AudioSink {
    */
   private static final int BUFFER_MULTIPLICATION_FACTOR = 4;
 
+  /** To avoid underruns on some devices (e.g., Broadcom 7271), scale up the AC3 buffer duration. */
+  private static final int AC3_BUFFER_MULTIPLICATION_FACTOR = 2;
+
   /**
    * @see AudioTrack#ERROR_BAD_VALUE
    */
@@ -484,6 +487,9 @@ public final class DefaultAudioSink implements AudioSink {
       return Util.constrainValue(multipliedBufferSize, minAppBufferSize, maxAppBufferSize);
     } else {
       int rate = getMaximumEncodedRateBytesPerSecond(outputEncoding);
+      if (outputEncoding == C.ENCODING_AC3) {
+        rate *= AC3_BUFFER_MULTIPLICATION_FACTOR;
+      }
       return (int) (PASSTHROUGH_BUFFER_DURATION_US * rate / C.MICROS_PER_SECOND);
     }
   }
