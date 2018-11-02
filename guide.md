@@ -120,8 +120,8 @@ project.
 
 ```gradle
 repositories {
-    jcenter()
     google()
+    jcenter()
 }
 ```
 
@@ -132,10 +132,15 @@ following will add a dependency to the full ExoPlayer library:
 implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
 ```
 
-where `2.X.X` is your preferred version. Alternatively, you can depend on only
-the library modules that you actually need. For example the following will add
-dependencies on the Core, DASH and UI library modules, as might be required for
-an app that plays DASH content:
+where `2.X.X` is your preferred version. If not enabled already, you also need
+to turn on Java 8 support in all `build.gradle` files depending on ExoPlayer, by
+adding `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to the
+`android` section.
+
+As an alternative to the full library, you can depend on only the library
+modules that you actually need. For example the following will add dependencies
+on the Core, DASH and UI library modules, as might be required for an app that
+plays DASH content:
 
 ```gradle
 implementation 'com.google.android.exoplayer:exoplayer-core:2.X.X'
