@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.util.GlUtil;
 import java.nio.FloatBuffer;
 
 /** Renders a pointer. */
-/* package */ final class PointerRenderer {
+public final class PointerRenderer {
   // The pointer quad is 2 * SIZE units.
   private static final float SIZE = .01f;
   private static final float DISTANCE = 1;

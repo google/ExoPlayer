@@ -40,7 +40,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * GL thread before it can be rendered.
  */
 @TargetApi(15)
-/* package */ final class CanvasRenderer {
+public final class CanvasRenderer {
 
   private static final float WIDTH_UNIT = 0.8f;
   private static final float DISTANCE_UNIT = 1f;
@@ -156,7 +156,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Finishes constructing this object on the GL Thread. */
-  /* package */ void init() {
+  public void init() {
     if (program != 0) {
       return;
     }
@@ -183,7 +183,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param viewProjectionMatrix Array of floats containing the quad's 4x4 perspective matrix in the
    *     {@link android.opengl.Matrix} format.
    */
-  /* package */ void draw(float[] viewProjectionMatrix) {
+  public void draw(float[] viewProjectionMatrix) {
     if (displaySurfaceTexture == null) {
       return;
     }
@@ -237,7 +237,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Frees GL resources. */
-  /* package */ void shutdown() {
+  public void shutdown() {
     if (program != 0) {
       GLES20.glDeleteProgram(program);
       GLES20.glDeleteTextures(1, new int[] {textureId}, 0);
