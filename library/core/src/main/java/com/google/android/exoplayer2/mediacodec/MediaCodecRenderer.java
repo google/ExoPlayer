@@ -552,6 +552,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   protected void onDisabled() {
     inputFormat = null;
+    if (drmSession != null || pendingDrmSession != null) {
+      // TODO: Do something better with this case.
+      onReset();
+    } else {
+      flushOrReleaseCodec();
+    }
+  }
+
+  @Override
+  protected void onReset() {
     try {
       releaseCodec();
     } finally {
@@ -575,14 +585,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void releaseCodec() {
     availableCodecInfos = null;
     if (codec != null) {
+      codecInfo = null;
+      codecFormat = null;
       resetInputBuffer();
       resetOutputBuffer();
       resetCodecBuffers();
-      codecHotswapDeadlineMs = C.TIME_UNSET;
       waitingForKeys = false;
+      codecHotswapDeadlineMs = C.TIME_UNSET;
       decodeOnlyPresentationTimestamps.clear();
-      codecInfo = null;
-      codecFormat = null;
       decoderCounters.decoderReleaseCount++;
       try {
         codec.stop();
