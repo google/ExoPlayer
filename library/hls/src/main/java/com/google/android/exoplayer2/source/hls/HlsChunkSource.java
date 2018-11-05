@@ -431,7 +431,8 @@ import java.util.List;
     for (int i = 0; i < chunkIterators.length; i++) {
       int variantIndex = trackSelection.getIndexInTrackGroup(i);
       HlsUrl variantUrl = variants[variantIndex];
-      if (!playlistTracker.isSnapshotValid(variantUrl)) {
+      if (!playlistTracker.isSnapshotValid(variantUrl)
+          || trackSelection.getSelectedIndexInTrackGroup() != variantIndex) {
         chunkIterators[i] = MediaChunkIterator.EMPTY;
         continue;
       }
