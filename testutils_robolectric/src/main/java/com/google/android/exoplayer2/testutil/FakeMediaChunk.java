@@ -30,9 +30,13 @@ public final class FakeMediaChunk extends MediaChunk {
   private static final DataSource DATA_SOURCE = new DefaultHttpDataSource("TEST_AGENT", null);
 
   public FakeMediaChunk(Format trackFormat, long startTimeUs, long endTimeUs) {
+    this(new DataSpec(Uri.EMPTY), trackFormat, startTimeUs, endTimeUs);
+  }
+
+  public FakeMediaChunk(DataSpec dataSpec, Format trackFormat, long startTimeUs, long endTimeUs) {
     super(
         DATA_SOURCE,
-        new DataSpec(Uri.EMPTY),
+        dataSpec,
         trackFormat,
         C.SELECTION_REASON_ADAPTIVE,
         /* trackSelectionData= */ null,

@@ -17,8 +17,12 @@ package com.google.android.exoplayer2.trackselection;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
+import com.google.android.exoplayer2.source.chunk.MediaChunkListIterator;
 import com.google.android.exoplayer2.util.Assertions;
+import java.util.Arrays;
+import java.util.List;
 
 /** Track selection related utility methods. */
 public final class TrackSelectionUtil {
@@ -58,10 +62,11 @@ public final class TrackSelectionUtil {
   }
 
   /**
-   * Returns average bitrate values for a set of tracks whose upcoming media chunk iterators and
-   * formats are given. If an average bitrate can't be calculated, an estimation is calculated using
-   * average bitrate of another track and the ratio of the bitrate values defined in the formats of
-   * the two tracks.
+   * Returns bitrate values for a set of tracks whose upcoming media chunk iterators and formats are
+   * given.
+   *
+   * <p>If an average bitrate can't be calculated, an estimation is calculated using average bitrate
+   * of another track and the ratio of the bitrate values defined in the formats of the two tracks.
    *
    * @param iterators An array of {@link MediaChunkIterator}s providing information about the
    *     sequence of upcoming media chunks for each track.
@@ -72,7 +77,7 @@ public final class TrackSelectionUtil {
    *     estimation can't be calculated, {@link Format#NO_VALUE} is set.
    * @see #getAverageBitrate(MediaChunkIterator, long)
    */
-  public static int[] getAverageBitrates(
+  public static int[] getBitratesUsingFutureInfo(
       MediaChunkIterator[] iterators, Format[] formats, long maxDurationUs) {
     int trackCount = iterators.length;
     Assertions.checkArgument(trackCount == formats.length);
@@ -102,26 +107,82 @@ public final class TrackSelectionUtil {
     }
 
     if (needEstimateBitrate && canEstimateBitrate) {
-      for (int i = 0; i < trackCount; i++) {
-        if (bitrates[i] == Format.NO_VALUE) {
-          int formatBitrate = formats[i].bitrate;
-          if (formatBitrate != Format.NO_VALUE) {
-            int closestFormat = findClosestBitrateFormat(formatBitrate, formatBitrates);
-            bitrates[i] = (int) (bitrateRatios[closestFormat] * formatBitrate);
-          }
-        }
-      }
+      estimateBitrates(bitrates, formats, formatBitrates, bitrateRatios);
     }
     return bitrates;
   }
 
-  private static int findClosestBitrateFormat(int formatBitrate, int[] formatBitrates) {
+  /**
+   * Returns bitrate values for a set of tracks whose formats are given, using the given queue of
+   * already buffered {@link MediaChunk} instances.
+   *
+   * @param queue The queue of already buffered {@link MediaChunk} instances. Must not be modified.
+   * @param formats The track formats.
+   * @param maxDurationUs Maximum duration of chunks to be included in average bitrate values, in
+   *     microseconds.
+   * @return Bitrate values for the tracks. If for a track, a bitrate value can't be calculated,
+   *     {@link Format#NO_VALUE} is set.
+   * @see #getBitratesUsingFutureInfo(MediaChunkIterator[], Format[], long)
+   */
+  public static int[] getBitratesUsingPastInfo(
+      List<? extends MediaChunk> queue, Format[] formats, long maxDurationUs) {
+    int[] bitrates = new int[formats.length];
+    Arrays.fill(bitrates, Format.NO_VALUE);
+    int queueAverageBitrate = getAverageQueueBitrate(queue, maxDurationUs);
+    if (queueAverageBitrate == Format.NO_VALUE) {
+      return bitrates;
+    }
+    int queueFormatBitrate = queue.get(queue.size() - 1).trackFormat.bitrate;
+    if (queueFormatBitrate != Format.NO_VALUE) {
+      float queueBitrateRatio = ((float) queueAverageBitrate) / queueFormatBitrate;
+      estimateBitrates(
+          bitrates, formats, new int[] {queueFormatBitrate}, new float[] {queueBitrateRatio});
+    }
+    return bitrates;
+  }
+
+  private static int getAverageQueueBitrate(List<? extends MediaChunk> queue, long maxDurationUs) {
+    if (queue.isEmpty()) {
+      return Format.NO_VALUE;
+    }
+    MediaChunkListIterator iterator =
+        new MediaChunkListIterator(getSingleFormatSubQueue(queue), /* reverseOrder= */ true);
+    return getAverageBitrate(iterator, maxDurationUs);
+  }
+
+  private static List<? extends MediaChunk> getSingleFormatSubQueue(
+      List<? extends MediaChunk> queue) {
+    Format queueFormat = queue.get(queue.size() - 1).trackFormat;
+    int queueSize = queue.size();
+    for (int i = queueSize - 2; i >= 0; i--) {
+      if (!queue.get(i).trackFormat.equals(queueFormat)) {
+        return queue.subList(i + 1, queueSize);
+      }
+    }
+    return queue;
+  }
+
+  private static void estimateBitrates(
+      int[] bitrates, Format[] formats, int[] formatBitrates, float[] bitrateRatios) {
+    for (int i = 0; i < bitrates.length; i++) {
+      if (bitrates[i] == Format.NO_VALUE) {
+        int formatBitrate = formats[i].bitrate;
+        if (formatBitrate != Format.NO_VALUE) {
+          int closestFormat = getClosestBitrateIndex(formatBitrate, formatBitrates);
+          bitrates[i] = (int) (bitrateRatios[closestFormat] * formatBitrate);
+        }
+      }
+    }
+  }
+
+  private static int getClosestBitrateIndex(int formatBitrate, int[] formatBitrates) {
     int closestDistance = Integer.MAX_VALUE;
     int closestFormat = C.INDEX_UNSET;
     for (int j = 0; j < formatBitrates.length; j++) {
       if (formatBitrates[j] != Format.NO_VALUE) {
         int distance = Math.abs(formatBitrates[j] - formatBitrate);
         if (distance < closestDistance) {
+          closestDistance = distance;
           closestFormat = j;
         }
       }
