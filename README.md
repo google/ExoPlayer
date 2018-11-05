@@ -28,7 +28,7 @@ repository and depend on the modules locally.
 ### From JCenter ###
 
 The easiest way to get started using ExoPlayer is to add it as a gradle
-dependency. You need to make sure you have the JCenter and Google repositories
+dependency. You need to make sure you have the Google and JCenter repositories
 included in the `build.gradle` file in the root of your project:
 
 ```gradle
@@ -47,8 +47,13 @@ implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
 
 where `2.X.X` is your preferred version. If not enabled already, you also need
 to turn on Java 8 support in all `build.gradle` files depending on ExoPlayer, by
-adding `compileOptions { targetCompatibility JavaVersion.VERSION_1_8 }` to the
-`android` section.
+adding the following to the `android` section:
+
+```gradle
+compileOptions {
+    targetCompatibility JavaVersion.VERSION_1_8
+}
+```
 
 As an alternative to the full library, you can depend on only the library
 modules that you actually need. For example the following will add dependencies
