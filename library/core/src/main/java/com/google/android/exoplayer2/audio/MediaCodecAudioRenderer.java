@@ -24,6 +24,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
+import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -86,6 +87,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private int codecMaxInputSize;
   private boolean passthroughEnabled;
   private boolean codecNeedsDiscardChannelsWorkaround;
+  private boolean codecNeedsEosBufferTimestampWorkaround;
   private android.media.MediaFormat passthroughMediaFormat;
   private @C.Encoding int pcmEncoding;
   private int channelCount;
@@ -345,6 +347,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       float codecOperatingRate) {
     codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
+    codecNeedsEosBufferTimestampWorkaround = codecNeedsEosBufferTimestampWorkaround(codecInfo.name);
     passthroughEnabled = codecInfo.passthrough;
     String codecMimeType = codecInfo.mimeType == null ? MimeTypes.AUDIO_RAW : codecInfo.mimeType;
     MediaFormat mediaFormat =
@@ -583,9 +586,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     lastInputTimeUs = Math.max(buffer.timeUs, lastInputTimeUs);
   }
 
+  @CallSuper
   @Override
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
-    super.onProcessedOutputBuffer(presentationTimeUs);
     while (pendingStreamChangeCount != 0 && presentationTimeUs >= pendingStreamChangeTimesUs[0]) {
       audioSink.handleDiscontinuity();
       pendingStreamChangeCount--;
@@ -610,6 +613,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       boolean shouldSkip,
       Format format)
       throws ExoPlaybackException {
+    if (codecNeedsEosBufferTimestampWorkaround
+        && bufferPresentationTimeUs == 0
+        && (bufferFlags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0
+        && lastInputTimeUs != C.TIME_UNSET) {
+      bufferPresentationTimeUs = lastInputTimeUs;
+    }
+
     if (passthroughEnabled && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
       // Discard output buffers from the passthrough (raw) decoder containing codec specific data.
       codec.releaseOutputBuffer(bufferIndex, false);
@@ -775,6 +785,24 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         && "samsung".equals(Util.MANUFACTURER)
         && (Util.DEVICE.startsWith("zeroflte") || Util.DEVICE.startsWith("herolte")
         || Util.DEVICE.startsWith("heroqlte"));
+  }
+
+  /**
+   * Returns whether the decoder may output a non-empty buffer with timestamp 0 as the end of stream
+   * buffer.
+   *
+   * <p>See <a href="https://github.com/google/ExoPlayer/issues/5045">GitHub issue #5045</a>.
+   */
+  private static boolean codecNeedsEosBufferTimestampWorkaround(String codecName) {
+    return Util.SDK_INT < 21
+        && "OMX.SEC.mp3.dec".equals(codecName)
+        && "samsung".equals(Util.MANUFACTURER)
+        && (Util.DEVICE.startsWith("baffin")
+            || Util.DEVICE.startsWith("grand")
+            || Util.DEVICE.startsWith("fortuna")
+            || Util.DEVICE.startsWith("gprimelte")
+            || Util.DEVICE.startsWith("j2y18lte")
+            || Util.DEVICE.startsWith("ms01"));
   }
 
   private final class AudioSinkListener implements AudioSink.Listener {
