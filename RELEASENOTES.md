@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Fix issue where audio focus handling could not be disabled after enabling
+  it ([#5055](https://github.com/google/ExoPlayer/issues/5055)).
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
