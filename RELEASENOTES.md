@@ -7,6 +7,9 @@
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
 * Add options for controlling audio track selections to `DefaultTrackSelector`
   ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
+* Work around an issue where a non-empty end-of-stream audio buffer would be
+  output with timestamp zero, causing the player position to jump backwards
+  ([#5045](https://github.com/google/ExoPlayer/issues/5045)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
 
 ### 2.9.1 ###
