@@ -15,10 +15,16 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.text.SpannableStringBuilder;
+import android.util.Base64;
+import android.util.Pair;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Assertions;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,9 +50,9 @@ import java.util.TreeSet;
   public static final String TAG_LAYOUT = "layout";
   public static final String TAG_REGION = "region";
   public static final String TAG_METADATA = "metadata";
-  public static final String TAG_SMPTE_IMAGE = "smpte:image";
-  public static final String TAG_SMPTE_DATA = "smpte:data";
-  public static final String TAG_SMPTE_INFORMATION = "smpte:information";
+  public static final String TAG_SMPTE_IMAGE = "image";
+  public static final String TAG_SMPTE_DATA = "data";
+  public static final String TAG_SMPTE_INFORMATION = "information";
 
   public static final String ANONYMOUS_REGION_ID = "";
   public static final String ATTR_ID = "id";
@@ -82,6 +88,7 @@ import java.util.TreeSet;
   public final long endTimeUs;
   public final TtmlStyle style;
   public final String regionId;
+  public final String imageId;
 
   private final String[] styleIds;
   private final HashMap<String, Integer> nodeStartsByRegion;
@@ -91,18 +98,19 @@ import java.util.TreeSet;
 
   public static TtmlNode buildTextNode(String text) {
     return new TtmlNode(null, TtmlRenderUtil.applyTextElementSpacePolicy(text), C.TIME_UNSET,
-        C.TIME_UNSET, null, null, ANONYMOUS_REGION_ID);
+        C.TIME_UNSET, null, null, ANONYMOUS_REGION_ID, null);
   }
 
   public static TtmlNode buildNode(String tag, long startTimeUs, long endTimeUs,
-      TtmlStyle style, String[] styleIds, String regionId) {
-    return new TtmlNode(tag, null, startTimeUs, endTimeUs, style, styleIds, regionId);
+                                   TtmlStyle style, String[] styleIds, String regionId, String imageId) {
+    return new TtmlNode(tag, null, startTimeUs, endTimeUs, style, styleIds, regionId, imageId);
   }
 
   private TtmlNode(String tag, String text, long startTimeUs, long endTimeUs,
-      TtmlStyle style, String[] styleIds, String regionId) {
+                   TtmlStyle style, String[] styleIds, String regionId, String imageId) {
     this.tag = tag;
     this.text = text;
+    this.imageId = imageId;
     this.style = style;
     this.styleIds = styleIds;
     this.isTextNode = text != null;
@@ -172,11 +180,37 @@ import java.util.TreeSet;
   }
 
   public List<Cue> getCues(long timeUs, Map<String, TtmlStyle> globalStyles,
-      Map<String, TtmlRegion> regionMap) {
+                           Map<String, TtmlRegion> regionMap, Map<String, String> imageMap) {
+
     TreeMap<String, SpannableStringBuilder> regionOutputs = new TreeMap<>();
+    List<Pair<String, String>> regionImageList = new ArrayList<>();
+
     traverseForText(timeUs, false, regionId, regionOutputs);
     traverseForStyle(timeUs, globalStyles, regionOutputs);
+    traverseForImage(timeUs, regionId, regionImageList);
+
     List<Cue> cues = new ArrayList<>();
+
+    // Create text based cues
+    for (Pair<String, String> regionImagePair : regionImageList) {
+      String base64 = imageMap.get(regionImagePair.second);
+      byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
+      Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+      TtmlRegion region = regionMap.get(regionImagePair.first);
+
+      cues.add(
+          new Cue(decodedByte,
+              region.position,
+              Cue.TYPE_UNSET,
+              region.line,
+              region.lineAnchor,
+              region.width,
+              Cue.DIMEN_UNSET
+          )
+      );
+    }
+
+    // Create image based cues
     for (Entry<String, SpannableStringBuilder> entry : regionOutputs.entrySet()) {
       TtmlRegion region = regionMap.get(entry.getKey());
       cues.add(
@@ -193,6 +227,19 @@ import java.util.TreeSet;
               region.textSize));
     }
     return cues;
+  }
+
+  private void traverseForImage(long timeUs, String inheritedRegion, List<Pair<String, String>> regionImageList) {
+      // TODO isActive needed?
+
+    String resolvedRegionId = ANONYMOUS_REGION_ID.equals(regionId) ? inheritedRegion : regionId;
+    if (TAG_DIV.equals(tag) && imageId != null) {
+      regionImageList.add(new Pair<>(resolvedRegionId, imageId));
+    }
+
+    for (int i = 0; i < getChildCount(); ++i) {
+      getChild(i).traverseForImage(timeUs, resolvedRegionId, regionImageList);
+    }
   }
 
   private void traverseForText(

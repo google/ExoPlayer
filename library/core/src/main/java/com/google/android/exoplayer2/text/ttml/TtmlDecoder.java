@@ -68,6 +68,8 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   private static final String ATTR_END = "end";
   private static final String ATTR_STYLE = "style";
   private static final String ATTR_REGION = "region";
+  private static final String ATTR_IMAGE = "backgroundImage";
+
 
   private static final Pattern CLOCK_TIME =
       Pattern.compile("^([0-9][0-9]+):([0-9][0-9]):([0-9][0-9])"
@@ -105,6 +107,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       Map<String, TtmlStyle> globalStyles = new HashMap<>();
       Map<String, TtmlRegion> regionMap = new HashMap<>();
+      Map<String, String> imageMap = new HashMap<>();
       regionMap.put(TtmlNode.ANONYMOUS_REGION_ID, new TtmlRegion(null));
       ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes, 0, length);
       xmlParser.setInput(inputStream, null);
@@ -127,7 +130,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               Log.i(TAG, "Ignoring unsupported tag: " + xmlParser.getName());
               unsupportedNodeDepth++;
             } else if (TtmlNode.TAG_HEAD.equals(name)) {
-              parseHeader(xmlParser, globalStyles, regionMap, cellResolution);
+              parseHeader(xmlParser, globalStyles, regionMap, cellResolution, imageMap);
             } else {
               try {
                 TtmlNode node = parseNode(xmlParser, parent, regionMap, frameAndTickRate);
@@ -145,7 +148,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
             parent.addChild(TtmlNode.buildTextNode(xmlParser.getText()));
           } else if (eventType == XmlPullParser.END_TAG) {
             if (xmlParser.getName().equals(TtmlNode.TAG_TT)) {
-              ttmlSubtitle = new TtmlSubtitle(nodeStack.peek(), globalStyles, regionMap);
+              ttmlSubtitle = new TtmlSubtitle(nodeStack.peek(), globalStyles, regionMap, imageMap);
             }
             nodeStack.pop();
           }
@@ -230,7 +233,8 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       XmlPullParser xmlParser,
       Map<String, TtmlStyle> globalStyles,
       Map<String, TtmlRegion> globalRegions,
-      CellResolution cellResolution)
+      CellResolution cellResolution,
+      Map<String, String> imageMap)
       throws IOException, XmlPullParserException {
     do {
       xmlParser.next();
@@ -250,9 +254,27 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         if (ttmlRegion != null) {
           globalRegions.put(ttmlRegion.id, ttmlRegion);
         }
+      } else if(XmlPullParserUtil.isStartTag(xmlParser, TtmlNode.TAG_METADATA)){
+        parseMetaData(xmlParser, imageMap);
       }
+
     } while (!XmlPullParserUtil.isEndTag(xmlParser, TtmlNode.TAG_HEAD));
     return globalStyles;
+  }
+
+  public void parseMetaData(XmlPullParser xmlParser, Map<String, String> imageMap) throws IOException, XmlPullParserException {
+    do {
+      xmlParser.next();
+      if (XmlPullParserUtil.isStartTag(xmlParser, TtmlNode.TAG_SMPTE_IMAGE)) {
+        for (int i = 0; i < xmlParser.getAttributeCount(); i++) {
+          String id = XmlPullParserUtil.getAttributeValue(xmlParser, "id");
+          if(id != null){
+            String base64 = xmlParser.nextText();
+            imageMap.put(id, base64);
+          }
+        }
+      }
+    } while (!XmlPullParserUtil.isEndTag(xmlParser, TtmlNode.TAG_METADATA));
   }
 
   /**
@@ -457,6 +479,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     long startTime = C.TIME_UNSET;
     long endTime = C.TIME_UNSET;
     String regionId = TtmlNode.ANONYMOUS_REGION_ID;
+    String imageId = "";
     String[] styleIds = null;
     int attributeCount = parser.getAttributeCount();
     TtmlStyle style = parseStyleAttributes(parser, null);
@@ -487,6 +510,9 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
             regionId = value;
           }
           break;
+        case ATTR_IMAGE:
+          imageId = value.substring(1);
+          break;
         default:
           // Do nothing.
           break;
@@ -509,7 +535,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         endTime = parent.endTimeUs;
       }
     }
-    return TtmlNode.buildNode(parser.getName(), startTime, endTime, style, styleIds, regionId);
+    return TtmlNode.buildNode(parser.getName(), startTime, endTime, style, styleIds, regionId, imageId);
   }
 
   private static boolean isSupportedTag(String tag) {
