@@ -35,13 +35,16 @@
 * Fix issue where the buffered position was not updated correctly when
   transitioning between periods
   ([#4899](https://github.com/google/ExoPlayer/issues/4899)).
+* Fix issue where a `NullPointerException` is thrown when removing an unprepared
+  media source from a `ConcatenatingMediaSource` with the `useLazyPreparation`
+  option enabled ([#4986](https://github.com/google/ExoPlayer/issues/4986)).
+* Work around an issue where a non-empty end-of-stream audio buffer would be
+  output with timestamp zero, causing the player position to jump backwards
+  ([#5045](https://github.com/google/ExoPlayer/issues/5045)).
 * Suppress a spurious assertion failure on some Samsung devices
   ([#4532](https://github.com/google/ExoPlayer/issues/4532)).
 * Suppress spurious "references unknown class member" shrinking warning
   ([#4890](https://github.com/google/ExoPlayer/issues/4890)).
-* Fix issue where a `NullPointerException` is thrown when removing an unprepared
-  media source from a `ConcatenatingMediaSource` with the `useLazyPreparation`
-  option enabled ([#4986](https://github.com/google/ExoPlayer/issues/4986)).
 * Swap recommended order for google() and jcenter() in gradle config
   ([#4997](https://github.com/google/ExoPlayer/issues/4997)).
 
