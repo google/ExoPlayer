@@ -144,8 +144,8 @@ public final class AudioFocusManager {
    */
   public @PlayerCommand int setAudioAttributes(
       @Nullable AudioAttributes audioAttributes, boolean playWhenReady, int playerState) {
-    if (audioAttributes == null) {
-      return PLAYER_COMMAND_PLAY_WHEN_READY;
+    if (this.audioAttributes == null && audioAttributes == null) {
+      return playWhenReady ? PLAYER_COMMAND_PLAY_WHEN_READY : PLAYER_COMMAND_DO_NOT_PLAY;
     }
 
     Assertions.checkNotNull(
