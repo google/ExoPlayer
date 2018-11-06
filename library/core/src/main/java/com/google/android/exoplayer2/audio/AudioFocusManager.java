@@ -141,10 +141,6 @@ public final class AudioFocusManager {
    */
   public @PlayerCommand int setAudioAttributes(
       @Nullable AudioAttributes audioAttributes, boolean playWhenReady, int playerState) {
-    if (audioAttributes == null) {
-      return PLAYER_COMMAND_PLAY_WHEN_READY;
-    }
-
     if (!Util.areEqual(this.audioAttributes, audioAttributes)) {
       this.audioAttributes = audioAttributes;
       focusGain = convertAudioAttributesToFocusGain(audioAttributes);
