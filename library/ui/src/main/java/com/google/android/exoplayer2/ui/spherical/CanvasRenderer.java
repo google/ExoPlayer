@@ -271,7 +271,7 @@ public final class CanvasRenderer {
   }
 
   @Nullable
-  /*package*/ static PointF internalTranslateClick(
+  /* package */ static PointF internalTranslateClick(
       float yaw,
       float pitch,
       float xUnit,

@@ -43,7 +43,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /** Maintains the index of cached content. */
-/*package*/ class CachedContentIndex {
+/* package */ class CachedContentIndex {
 
   public static final String FILE_NAME = "cached_content_index.exi";
 
