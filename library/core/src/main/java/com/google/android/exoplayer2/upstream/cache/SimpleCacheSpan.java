@@ -23,10 +23,8 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This class stores span metadata in filename.
- */
-/*package*/ final class SimpleCacheSpan extends CacheSpan {
+/** This class stores span metadata in filename. */
+/* package */ final class SimpleCacheSpan extends CacheSpan {
 
   private static final String SUFFIX = ".v3.exo";
   private static final Pattern CACHE_FILE_PATTERN_V1 = Pattern.compile(

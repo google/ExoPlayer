@@ -126,7 +126,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     removePreviouslyExpiredManifestPublishTimeValues();
   }
 
-  /* package*/ boolean maybeRefreshManifestBeforeLoadingNextChunk(long presentationPositionUs) {
+  /* package */ boolean maybeRefreshManifestBeforeLoadingNextChunk(long presentationPositionUs) {
     if (!manifest.dynamic) {
       return false;
     }
