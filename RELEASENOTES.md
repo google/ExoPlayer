@@ -29,6 +29,8 @@
 * Fix issue with blind seeking to windows with non-zero offset in a
   `ConcatenatingMediaSource`
   ([#4873](https://github.com/google/ExoPlayer/issues/4873)).
+* Fix issue where audio focus handling could not be disabled after enabling it
+  ([#5055](https://github.com/google/ExoPlayer/issues/5055)).
 * Fix issue where subtitles were positioned incorrectly if `SubtitleView` had a
   non-zero position offset to its parent
   ([#4788](https://github.com/google/ExoPlayer/issues/4788)).
