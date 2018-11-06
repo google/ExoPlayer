@@ -191,7 +191,7 @@ import java.util.TreeSet;
 
     List<Cue> cues = new ArrayList<>();
 
-    // Create text based cues
+    // Create image based cues
     for (Pair<String, String> regionImagePair : regionImageList) {
       String base64 = imageMap.get(regionImagePair.second);
       byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
@@ -210,7 +210,7 @@ import java.util.TreeSet;
       );
     }
 
-    // Create image based cues
+    // Create text based cues
     for (Entry<String, SpannableStringBuilder> entry : regionOutputs.entrySet()) {
       TtmlRegion region = regionMap.get(entry.getKey());
       cues.add(
