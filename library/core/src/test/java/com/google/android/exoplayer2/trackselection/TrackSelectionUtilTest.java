@@ -20,9 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.testutil.FakeMediaChunk;
+import com.google.android.exoplayer2.testutil.FakeMediaChunkIterator;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,7 +47,8 @@ public class TrackSelectionUtilTest {
     long[] chunkTimeBoundariesSec = {12, 17};
     long[] chunkLengths = {10};
 
-    FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
+    FakeMediaChunkIterator iterator =
+        new FakeMediaChunkIterator(chunkTimeBoundariesSec, chunkLengths);
 
     assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US)).isEqualTo(16);
   }
@@ -57,7 +58,8 @@ public class TrackSelectionUtilTest {
     long[] chunkTimeBoundariesSec = {0, 5, 10};
     long[] chunkLengths = {10, 20};
 
-    FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
+    FakeMediaChunkIterator iterator =
+        new FakeMediaChunkIterator(chunkTimeBoundariesSec, chunkLengths);
 
     assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US)).isEqualTo(24);
   }
@@ -67,7 +69,8 @@ public class TrackSelectionUtilTest {
     long[] chunkTimeBoundariesSec = {0, 5, 15, 30};
     long[] chunkLengths = {10, 20, 30};
 
-    FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
+    FakeMediaChunkIterator iterator =
+        new FakeMediaChunkIterator(chunkTimeBoundariesSec, chunkLengths);
 
     assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US)).isEqualTo(16);
   }
@@ -77,7 +80,8 @@ public class TrackSelectionUtilTest {
     long[] chunkTimeBoundariesSec = {0, 5, 15, 30};
     long[] chunkLengths = {C.LENGTH_UNSET, 20, 30};
 
-    FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
+    FakeMediaChunkIterator iterator =
+        new FakeMediaChunkIterator(chunkTimeBoundariesSec, chunkLengths);
 
     assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US))
         .isEqualTo(Format.NO_VALUE);
@@ -88,7 +92,8 @@ public class TrackSelectionUtilTest {
     long[] chunkTimeBoundariesSec = {0, 5, 15, 30};
     long[] chunkLengths = {10, C.LENGTH_UNSET, 30};
 
-    FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
+    FakeMediaChunkIterator iterator =
+        new FakeMediaChunkIterator(chunkTimeBoundariesSec, chunkLengths);
 
     assertThat(TrackSelectionUtil.getAverageBitrate(iterator, MAX_DURATION_US)).isEqualTo(16);
   }
@@ -98,7 +103,8 @@ public class TrackSelectionUtilTest {
       getAverageBitrate_chunksExceedingMaxDuration_returnsAverageChunkBitrateUpToMaxDuration() {
     long[] chunkTimeBoundariesSec = {0, 5, 15, 45, 50};
     long[] chunkLengths = {10, 20, 30, 100};
-    FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
+    FakeMediaChunkIterator iterator =
+        new FakeMediaChunkIterator(chunkTimeBoundariesSec, chunkLengths);
 
     long maxDurationUs = 30 * C.MICROS_PER_SECOND;
     int averageBitrate = TrackSelectionUtil.getAverageBitrate(iterator, maxDurationUs);
@@ -111,7 +117,8 @@ public class TrackSelectionUtilTest {
     long[] chunkTimeBoundariesSec = {0, 5, 10};
     long[] chunkLengths = {10, 20};
 
-    FakeIterator iterator = new FakeIterator(chunkTimeBoundariesSec, chunkLengths);
+    FakeMediaChunkIterator iterator =
+        new FakeMediaChunkIterator(chunkTimeBoundariesSec, chunkLengths);
 
     assertThat(TrackSelectionUtil.getAverageBitrate(iterator, /* maxDurationUs= */ 0))
         .isEqualTo(Format.NO_VALUE);
@@ -121,7 +128,7 @@ public class TrackSelectionUtilTest {
   public void getBitratesUsingFutureInfo_noIterator_returnsEmptyArray() {
     assertThat(
             TrackSelectionUtil.getBitratesUsingFutureInfo(
-                new MediaChunkIterator[0], new Format[0], MAX_DURATION_US))
+                new MediaChunkIterator[0], new Format[0], MAX_DURATION_US, /* bitrates= */ null))
         .hasLength(0);
   }
 
@@ -131,18 +138,19 @@ public class TrackSelectionUtilTest {
         TrackSelectionUtil.getBitratesUsingFutureInfo(
             new MediaChunkIterator[] {MediaChunkIterator.EMPTY},
             new Format[] {createFormatWithBitrate(10)},
-            MAX_DURATION_US);
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(Format.NO_VALUE);
   }
 
   @Test
   public void getBitratesUsingFutureInfo_twoTracksZeroMaxDuration_returnsNoValue() {
-    FakeIterator iterator1 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator1 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 10}, /* chunkLengths= */ new long[] {10});
-    FakeIterator iterator2 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator2 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 5, 15, 30},
             /* chunkLengths= */ new long[] {10, 20, 30});
 
@@ -150,18 +158,19 @@ public class TrackSelectionUtilTest {
         TrackSelectionUtil.getBitratesUsingFutureInfo(
             new MediaChunkIterator[] {iterator1, iterator2},
             new Format[] {createFormatWithBitrate(10), createFormatWithBitrate(20)},
-            /* maxDurationUs= */ 0);
+            /* maxDurationUs= */ 0,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(Format.NO_VALUE, Format.NO_VALUE);
   }
 
   @Test
   public void getBitratesUsingFutureInfo_twoTracks_returnsBitrates() {
-    FakeIterator iterator1 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator1 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 10}, /* chunkLengths= */ new long[] {10});
-    FakeIterator iterator2 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator2 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 5, 15, 30},
             /* chunkLengths= */ new long[] {10, 20, 30});
 
@@ -169,25 +178,47 @@ public class TrackSelectionUtilTest {
         TrackSelectionUtil.getBitratesUsingFutureInfo(
             new MediaChunkIterator[] {iterator1, iterator2},
             new Format[] {createFormatWithBitrate(10), createFormatWithBitrate(20)},
-            MAX_DURATION_US);
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(8, 16).inOrder();
   }
 
   @Test
+  public void getBitratesUsingFutureInfo_bitratesArrayGiven_returnsTheSameArray() {
+    FakeMediaChunkIterator iterator1 =
+        new FakeMediaChunkIterator(
+            /* chunkTimeBoundariesSec= */ new long[] {0, 10}, /* chunkLengths= */ new long[] {10});
+    FakeMediaChunkIterator iterator2 =
+        new FakeMediaChunkIterator(
+            /* chunkTimeBoundariesSec= */ new long[] {0, 5, 15, 30},
+            /* chunkLengths= */ new long[] {10, 20, 30});
+
+    int[] bitratesArrayToUse = new int[2];
+    int[] bitrates =
+        TrackSelectionUtil.getBitratesUsingFutureInfo(
+            new MediaChunkIterator[] {iterator1, iterator2},
+            new Format[] {createFormatWithBitrate(10), createFormatWithBitrate(20)},
+            MAX_DURATION_US,
+            bitratesArrayToUse);
+
+    assertThat(bitrates).isSameAs(bitratesArrayToUse);
+  }
+
+  @Test
   public void getBitratesUsingFutureInfo_emptyIterator_returnsEstimationUsingClosest() {
-    FakeIterator iterator1 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator1 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 5}, /* chunkLengths= */ new long[] {10});
     Format format1 = createFormatWithBitrate(10);
     MediaChunkIterator iterator2 = MediaChunkIterator.EMPTY;
     Format format2 = createFormatWithBitrate(20);
-    FakeIterator iterator3 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator3 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 5}, /* chunkLengths= */ new long[] {50});
     Format format3 = createFormatWithBitrate(25);
-    FakeIterator iterator4 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator4 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 5}, /* chunkLengths= */ new long[] {20});
     Format format4 = createFormatWithBitrate(30);
 
@@ -195,15 +226,16 @@ public class TrackSelectionUtilTest {
         TrackSelectionUtil.getBitratesUsingFutureInfo(
             new MediaChunkIterator[] {iterator1, iterator2, iterator3, iterator4},
             new Format[] {format1, format2, format3, format4},
-            MAX_DURATION_US);
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(16, 64, 80, 32).inOrder();
   }
 
   @Test
   public void getBitratesUsingFutureInfo_formatWithoutBitrate_returnsNoValueForEmpty() {
-    FakeIterator iterator1 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator1 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 5}, /* chunkLengths= */ new long[] {10});
     Format format1 = createFormatWithBitrate(10);
     MediaChunkIterator iterator2 = MediaChunkIterator.EMPTY;
@@ -213,7 +245,8 @@ public class TrackSelectionUtilTest {
         TrackSelectionUtil.getBitratesUsingFutureInfo(
             new MediaChunkIterator[] {iterator1, iterator2},
             new Format[] {format1, format2},
-            MAX_DURATION_US);
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(16, Format.NO_VALUE).inOrder();
   }
@@ -229,7 +262,7 @@ public class TrackSelectionUtilTest {
 
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastInfo(
-            Collections.singletonList(chunk), new Format[0], MAX_DURATION_US);
+            Collections.singletonList(chunk), new Format[0], MAX_DURATION_US, /* bitrates= */ null);
 
     assertThat(bitrates).hasLength(0);
   }
@@ -238,7 +271,10 @@ public class TrackSelectionUtilTest {
   public void getBitratesUsingPastInfo_emptyQueue_returnsNoValue() {
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastInfo(
-            Collections.emptyList(), new Format[] {createFormatWithBitrate(10)}, MAX_DURATION_US);
+            Collections.emptyList(),
+            new Format[] {createFormatWithBitrate(10)},
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(Format.NO_VALUE);
   }
@@ -251,7 +287,10 @@ public class TrackSelectionUtilTest {
 
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastInfo(
-            Collections.singletonList(chunk), new Format[] {format}, MAX_DURATION_US);
+            Collections.singletonList(chunk),
+            new Format[] {format},
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(Format.NO_VALUE);
   }
@@ -265,7 +304,10 @@ public class TrackSelectionUtilTest {
 
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastInfo(
-            Collections.singletonList(chunk), new Format[] {format}, MAX_DURATION_US);
+            Collections.singletonList(chunk),
+            new Format[] {format},
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(Format.NO_VALUE);
   }
@@ -278,7 +320,10 @@ public class TrackSelectionUtilTest {
 
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastInfo(
-            Collections.singletonList(chunk), new Format[] {format}, MAX_DURATION_US);
+            Collections.singletonList(chunk),
+            new Format[] {format},
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(8).inOrder();
   }
@@ -291,7 +336,10 @@ public class TrackSelectionUtilTest {
 
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastInfo(
-            Collections.singletonList(chunk), new Format[] {format}, /* maxDurationUs= */ 0);
+            Collections.singletonList(chunk),
+            new Format[] {format},
+            /* maxDurationUs= */ 0,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(Format.NO_VALUE).inOrder();
   }
@@ -306,7 +354,10 @@ public class TrackSelectionUtilTest {
 
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastInfo(
-            Arrays.asList(chunk, chunk2), new Format[] {format}, MAX_DURATION_US);
+            Arrays.asList(chunk, chunk2),
+            new Format[] {format},
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(12).inOrder();
   }
@@ -324,7 +375,8 @@ public class TrackSelectionUtilTest {
         TrackSelectionUtil.getBitratesUsingPastInfo(
             Collections.singletonList(chunk),
             new Format[] {createFormatWithBitrate(20)},
-            MAX_DURATION_US);
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(16).inOrder();
   }
@@ -342,7 +394,8 @@ public class TrackSelectionUtilTest {
         TrackSelectionUtil.getBitratesUsingPastInfo(
             Collections.singletonList(chunk),
             new Format[] {createFormatWithBitrate(Format.NO_VALUE)},
-            MAX_DURATION_US);
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(Format.NO_VALUE);
   }
@@ -360,9 +413,30 @@ public class TrackSelectionUtilTest {
         TrackSelectionUtil.getBitratesUsingPastInfo(
             Collections.singletonList(chunk),
             new Format[] {createFormatWithBitrate(20), createFormatWithBitrate(30)},
-            MAX_DURATION_US);
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(16, 24).inOrder();
+  }
+
+  @Test
+  public void getBitratesUsingPastInfo_bitratesArrayGiven_returnsTheSameArray() {
+    FakeMediaChunk chunk =
+        createChunk(
+            createFormatWithBitrate(10),
+            /* length= */ 10,
+            /* startTimeSec= */ 0,
+            /* endTimeSec= */ 10);
+
+    int[] bitratesArrayToUse = new int[2];
+    int[] bitrates =
+        TrackSelectionUtil.getBitratesUsingPastInfo(
+            Collections.singletonList(chunk),
+            new Format[] {createFormatWithBitrate(20), createFormatWithBitrate(30)},
+            MAX_DURATION_US,
+            bitratesArrayToUse);
+
+    assertThat(bitrates).isSameAs(bitratesArrayToUse);
   }
 
   @Test
@@ -378,7 +452,8 @@ public class TrackSelectionUtilTest {
         TrackSelectionUtil.getBitratesUsingPastInfo(
             Arrays.asList(chunk, chunk2),
             new Format[] {format},
-            /* maxDurationUs= */ 30 * C.MICROS_PER_SECOND);
+            /* maxDurationUs= */ 30 * C.MICROS_PER_SECOND,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(12).inOrder();
   }
@@ -403,29 +478,31 @@ public class TrackSelectionUtilTest {
         TrackSelectionUtil.getBitratesUsingPastInfo(
             Arrays.asList(chunk, chunk2),
             new Format[] {createFormatWithBitrate(10)},
-            MAX_DURATION_US);
+            MAX_DURATION_US,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(16).inOrder();
   }
 
   @Test
   public void getBitratesUsingPastAndFutureInfo_noPastInfo_returnsBitratesUsingOnlyFutureInfo() {
-    FakeIterator iterator1 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator1 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 10}, /* chunkLengths= */ new long[] {10});
-    FakeIterator iterator2 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator2 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 5, 15, 30},
             /* chunkLengths= */ new long[] {10, 20, 30});
 
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastAndFutureInfo(
-            new MediaChunkIterator[] {iterator1, iterator2},
-            Collections.emptyList(),
             new Format[] {createFormatWithBitrate(10), createFormatWithBitrate(20)},
+            Collections.emptyList(),
             MAX_DURATION_US,
+            new MediaChunkIterator[] {iterator1, iterator2},
             MAX_DURATION_US,
-            /* useFormatBitrateAsLowerBound= */ false);
+            /* useFormatBitrateAsLowerBound= */ false,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(8, 16).inOrder();
   }
@@ -441,12 +518,13 @@ public class TrackSelectionUtilTest {
 
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastAndFutureInfo(
-            new MediaChunkIterator[] {MediaChunkIterator.EMPTY, MediaChunkIterator.EMPTY},
-            Collections.singletonList(chunk),
             new Format[] {createFormatWithBitrate(20), createFormatWithBitrate(30)},
+            Collections.singletonList(chunk),
             MAX_DURATION_US,
+            new MediaChunkIterator[] {MediaChunkIterator.EMPTY, MediaChunkIterator.EMPTY},
             MAX_DURATION_US,
-            /* useFormatBitrateAsLowerBound= */ false);
+            /* useFormatBitrateAsLowerBound= */ false,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(16, 24).inOrder();
   }
@@ -460,22 +538,23 @@ public class TrackSelectionUtilTest {
             /* length= */ 10,
             /* startTimeSec= */ 0,
             /* endTimeSec= */ 10);
-    FakeIterator iterator1 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator1 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 10}, /* chunkLengths= */ new long[] {10});
-    FakeIterator iterator2 =
-        new FakeIterator(
+    FakeMediaChunkIterator iterator2 =
+        new FakeMediaChunkIterator(
             /* chunkTimeBoundariesSec= */ new long[] {0, 5, 15, 30},
             /* chunkLengths= */ new long[] {10, 20, 30});
 
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastAndFutureInfo(
-            new MediaChunkIterator[] {iterator1, iterator2},
-            Collections.singletonList(chunk),
             new Format[] {createFormatWithBitrate(10), createFormatWithBitrate(20)},
+            Collections.singletonList(chunk),
             MAX_DURATION_US,
+            new MediaChunkIterator[] {iterator1, iterator2},
             MAX_DURATION_US,
-            /* useFormatBitrateAsLowerBound= */ false);
+            /* useFormatBitrateAsLowerBound= */ false,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(8, 16).inOrder();
   }
@@ -484,12 +563,13 @@ public class TrackSelectionUtilTest {
   public void getBitratesUsingPastAndFutureInfo_noPastAndFutureInfo_returnsBitratesOfFormats() {
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastAndFutureInfo(
-            new MediaChunkIterator[] {MediaChunkIterator.EMPTY, MediaChunkIterator.EMPTY},
-            Collections.emptyList(),
             new Format[] {createFormatWithBitrate(10), createFormatWithBitrate(20)},
+            Collections.emptyList(),
             MAX_DURATION_US,
+            new MediaChunkIterator[] {MediaChunkIterator.EMPTY, MediaChunkIterator.EMPTY},
             MAX_DURATION_US,
-            /* useFormatBitrateAsLowerBound= */ false);
+            /* useFormatBitrateAsLowerBound= */ false,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(10, 20).inOrder();
   }
@@ -506,58 +586,32 @@ public class TrackSelectionUtilTest {
 
     int[] bitrates =
         TrackSelectionUtil.getBitratesUsingPastAndFutureInfo(
-            new MediaChunkIterator[] {MediaChunkIterator.EMPTY, MediaChunkIterator.EMPTY},
-            Collections.singletonList(chunk),
             new Format[] {createFormatWithBitrate(20), createFormatWithBitrate(30)},
+            Collections.singletonList(chunk),
             MAX_DURATION_US,
+            new MediaChunkIterator[] {MediaChunkIterator.EMPTY, MediaChunkIterator.EMPTY},
             MAX_DURATION_US,
-            /* useFormatBitrateAsLowerBound= */ true);
+            /* useFormatBitrateAsLowerBound= */ true,
+            /* bitrates= */ null);
 
     assertThat(bitrates).asList().containsExactly(20, 30).inOrder();
   }
 
   private static FakeMediaChunk createChunk(
       Format format, int length, int startTimeSec, int endTimeSec) {
-    DataSpec dataSpec = new DataSpec(Uri.EMPTY, 0, length, null, 0);
+    DataSpec dataSpec =
+        new DataSpec(
+            Uri.EMPTY, /* absoluteStreamPosition= */ 0, length, /* key= */ null, /* flags= */ 0);
     return new FakeMediaChunk(
         dataSpec, format, startTimeSec * C.MICROS_PER_SECOND, endTimeSec * C.MICROS_PER_SECOND);
   }
 
   private static Format createFormatWithBitrate(int bitrate) {
-    return Format.createSampleFormat(null, null, null, bitrate, null);
-  }
-
-  private static final class FakeIterator extends BaseMediaChunkIterator {
-
-    private final long[] chunkTimeBoundariesSec;
-    private final long[] chunkLengths;
-
-    public FakeIterator(long[] chunkTimeBoundariesSec, long[] chunkLengths) {
-      super(/* fromIndex= */ 0, /* toIndex= */ chunkTimeBoundariesSec.length - 2);
-      this.chunkTimeBoundariesSec = chunkTimeBoundariesSec;
-      this.chunkLengths = chunkLengths;
-    }
-
-    @Override
-    public DataSpec getDataSpec() {
-      checkInBounds();
-      return new DataSpec(
-          Uri.EMPTY,
-          /* absoluteStreamPosition= */ 0,
-          chunkLengths[(int) getCurrentIndex()],
-          /* key= */ null);
-    }
-
-    @Override
-    public long getChunkStartTimeUs() {
-      checkInBounds();
-      return chunkTimeBoundariesSec[(int) getCurrentIndex()] * C.MICROS_PER_SECOND;
-    }
-
-    @Override
-    public long getChunkEndTimeUs() {
-      checkInBounds();
-      return chunkTimeBoundariesSec[(int) getCurrentIndex() + 1] * C.MICROS_PER_SECOND;
-    }
+    return Format.createSampleFormat(
+        /* id= */ null,
+        /* sampleMimeType= */ null,
+        /* codecs= */ null,
+        bitrate,
+        /* drmInitData= */ null);
   }
 }
