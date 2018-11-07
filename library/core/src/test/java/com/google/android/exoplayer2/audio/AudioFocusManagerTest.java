@@ -58,7 +58,7 @@ public class AudioFocusManagerTest {
     assertThat(
             audioFocusManager.setAudioAttributes(
                 /* audioAttributes= */ null, /* playWhenReady= */ false, Player.STATE_IDLE))
-        .isEqualTo(PLAYER_COMMAND_WAIT_FOR_CALLBACK);
+        .isEqualTo(PLAYER_COMMAND_DO_NOT_PLAY);
     assertThat(
             audioFocusManager.setAudioAttributes(
                 /* audioAttributes= */ null, /* playWhenReady= */ true, Player.STATE_READY))
@@ -148,7 +148,7 @@ public class AudioFocusManagerTest {
     assertThat(
             audioFocusManager.setAudioAttributes(
                 media, /* playWhenReady= */ true, Player.STATE_IDLE))
-        .isEqualTo(PLAYER_COMMAND_WAIT_FOR_CALLBACK);
+        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
     assertThat(Shadows.shadowOf(audioManager).getLastAudioFocusRequest()).isNull();
     assertThat(audioFocusManager.handlePrepare(/* playWhenReady= */ true))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
