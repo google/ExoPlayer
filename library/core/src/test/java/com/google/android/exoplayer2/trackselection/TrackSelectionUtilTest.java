@@ -408,6 +408,114 @@ public class TrackSelectionUtilTest {
     assertThat(bitrates).asList().containsExactly(16).inOrder();
   }
 
+  @Test
+  public void getBitratesUsingPastAndFutureInfo_noPastInfo_returnsBitratesUsingOnlyFutureInfo() {
+    FakeIterator iterator1 =
+        new FakeIterator(
+            /* chunkTimeBoundariesSec= */ new long[] {0, 10}, /* chunkLengths= */ new long[] {10});
+    FakeIterator iterator2 =
+        new FakeIterator(
+            /* chunkTimeBoundariesSec= */ new long[] {0, 5, 15, 30},
+            /* chunkLengths= */ new long[] {10, 20, 30});
+
+    int[] bitrates =
+        TrackSelectionUtil.getBitratesUsingPastAndFutureInfo(
+            new MediaChunkIterator[] {iterator1, iterator2},
+            Collections.emptyList(),
+            new Format[] {createFormatWithBitrate(10), createFormatWithBitrate(20)},
+            MAX_DURATION_US,
+            MAX_DURATION_US,
+            /* useFormatBitrateAsLowerBound= */ false);
+
+    assertThat(bitrates).asList().containsExactly(8, 16).inOrder();
+  }
+
+  @Test
+  public void getBitratesUsingPastAndFutureInfo_noFutureInfo_returnsBitratesUsingOnlyPastInfo() {
+    FakeMediaChunk chunk =
+        createChunk(
+            createFormatWithBitrate(10),
+            /* length= */ 10,
+            /* startTimeSec= */ 0,
+            /* endTimeSec= */ 10);
+
+    int[] bitrates =
+        TrackSelectionUtil.getBitratesUsingPastAndFutureInfo(
+            new MediaChunkIterator[] {MediaChunkIterator.EMPTY, MediaChunkIterator.EMPTY},
+            Collections.singletonList(chunk),
+            new Format[] {createFormatWithBitrate(20), createFormatWithBitrate(30)},
+            MAX_DURATION_US,
+            MAX_DURATION_US,
+            /* useFormatBitrateAsLowerBound= */ false);
+
+    assertThat(bitrates).asList().containsExactly(16, 24).inOrder();
+  }
+
+  @Test
+  public void
+      getBitratesUsingPastAndFutureInfo_pastAndFutureInfo_returnsBitratesUsingOnlyFutureInfo() {
+    FakeMediaChunk chunk =
+        createChunk(
+            createFormatWithBitrate(5),
+            /* length= */ 10,
+            /* startTimeSec= */ 0,
+            /* endTimeSec= */ 10);
+    FakeIterator iterator1 =
+        new FakeIterator(
+            /* chunkTimeBoundariesSec= */ new long[] {0, 10}, /* chunkLengths= */ new long[] {10});
+    FakeIterator iterator2 =
+        new FakeIterator(
+            /* chunkTimeBoundariesSec= */ new long[] {0, 5, 15, 30},
+            /* chunkLengths= */ new long[] {10, 20, 30});
+
+    int[] bitrates =
+        TrackSelectionUtil.getBitratesUsingPastAndFutureInfo(
+            new MediaChunkIterator[] {iterator1, iterator2},
+            Collections.singletonList(chunk),
+            new Format[] {createFormatWithBitrate(10), createFormatWithBitrate(20)},
+            MAX_DURATION_US,
+            MAX_DURATION_US,
+            /* useFormatBitrateAsLowerBound= */ false);
+
+    assertThat(bitrates).asList().containsExactly(8, 16).inOrder();
+  }
+
+  @Test
+  public void getBitratesUsingPastAndFutureInfo_noPastAndFutureInfo_returnsBitratesOfFormats() {
+    int[] bitrates =
+        TrackSelectionUtil.getBitratesUsingPastAndFutureInfo(
+            new MediaChunkIterator[] {MediaChunkIterator.EMPTY, MediaChunkIterator.EMPTY},
+            Collections.emptyList(),
+            new Format[] {createFormatWithBitrate(10), createFormatWithBitrate(20)},
+            MAX_DURATION_US,
+            MAX_DURATION_US,
+            /* useFormatBitrateAsLowerBound= */ false);
+
+    assertThat(bitrates).asList().containsExactly(10, 20).inOrder();
+  }
+
+  @Test
+  public void
+      getBitratesUsingPastAndFutureInfo_estimatesLowerAndUseFormatBitrateAsLowerBoundTrue_returnsBitratesOfFormats() {
+    FakeMediaChunk chunk =
+        createChunk(
+            createFormatWithBitrate(10),
+            /* length= */ 10,
+            /* startTimeSec= */ 0,
+            /* endTimeSec= */ 10);
+
+    int[] bitrates =
+        TrackSelectionUtil.getBitratesUsingPastAndFutureInfo(
+            new MediaChunkIterator[] {MediaChunkIterator.EMPTY, MediaChunkIterator.EMPTY},
+            Collections.singletonList(chunk),
+            new Format[] {createFormatWithBitrate(20), createFormatWithBitrate(30)},
+            MAX_DURATION_US,
+            MAX_DURATION_US,
+            /* useFormatBitrateAsLowerBound= */ true);
+
+    assertThat(bitrates).asList().containsExactly(20, 30).inOrder();
+  }
+
   private static FakeMediaChunk createChunk(
       Format format, int length, int startTimeSec, int endTimeSec) {
     DataSpec dataSpec = new DataSpec(Uri.EMPTY, 0, length, null, 0);
