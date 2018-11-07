@@ -30,6 +30,7 @@ import android.support.annotation.AnyThread;
 import android.support.annotation.BinderThread;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 import android.view.Display;
 import android.view.Surface;
@@ -230,7 +231,7 @@ public final class SphericalSurfaceView extends GLSurfaceView {
    * Standard GL Renderer implementation. The notable code is the matrix multiplication in
    * onDrawFrame and updatePitchMatrix.
    */
-  // @VisibleForTesting
+  @VisibleForTesting
   /* package */ class Renderer
       implements GLSurfaceView.Renderer, TouchTracker.Listener, OrientationListener.Listener {
     private final SceneRenderer scene;
