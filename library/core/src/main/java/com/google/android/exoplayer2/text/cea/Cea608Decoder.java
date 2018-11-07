@@ -559,8 +559,19 @@ public final class Cea608Decoder extends CeaDecoder {
     int oldCaptionMode = this.captionMode;
     this.captionMode = captionMode;
 
-    // Clear the working memory.
+    // Clear the cues and cueBuilders except for Paint-on mode. Paint-on mode may modify characters
+    // already on the screen. This feature is not fully supported, but we need to keep the previous
+    // screen content shown
+    if (captionMode == CC_MODE_PAINT_ON) {
+      // update the Mode member of all existing cueBuilders even if we are mid-row
+      for (CueBuilder builder : cueBuilders) {
+        builder.setCaptionMode(captionMode);
+      }
+      return;
+    }
+
     resetCueBuilders();
+
     if (oldCaptionMode == CC_MODE_PAINT_ON || captionMode == CC_MODE_ROLL_UP
         || captionMode == CC_MODE_UNKNOWN) {
       // When switching from paint-on or to roll-up or unknown, we also need to clear the caption.
@@ -651,6 +662,10 @@ public final class Cea608Decoder extends CeaDecoder {
       captionStringBuilder = new StringBuilder();
       reset(captionMode);
       setCaptionRowCount(captionRowCount);
+    }
+
+    public void setCaptionMode(int captionMode) {
+      this.captionMode = captionMode;
     }
 
     public void reset(int captionMode) {
