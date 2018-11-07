@@ -79,7 +79,7 @@ public abstract class BasePlayer implements Player {
     return timeline.isEmpty()
         ? C.INDEX_UNSET
         : timeline.getNextWindowIndex(
-            getCurrentWindowIndex(), getRepeatMode(), getShuffleModeEnabled());
+            getCurrentWindowIndex(), getRepeatModeForNavigation(), getShuffleModeEnabled());
   }
 
   @Override
@@ -88,7 +88,7 @@ public abstract class BasePlayer implements Player {
     return timeline.isEmpty()
         ? C.INDEX_UNSET
         : timeline.getPreviousWindowIndex(
-            getCurrentWindowIndex(), getRepeatMode(), getShuffleModeEnabled());
+            getCurrentWindowIndex(), getRepeatModeForNavigation(), getShuffleModeEnabled());
   }
 
   @Override
@@ -128,5 +128,11 @@ public abstract class BasePlayer implements Player {
     return timeline.isEmpty()
         ? C.TIME_UNSET
         : timeline.getWindow(getCurrentWindowIndex(), window).getDurationMs();
+  }
+
+  @RepeatMode
+  private int getRepeatModeForNavigation() {
+    @RepeatMode int repeatMode = getRepeatMode();
+    return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
   }
 }
