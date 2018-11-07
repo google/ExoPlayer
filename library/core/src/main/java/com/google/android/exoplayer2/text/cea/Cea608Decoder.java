@@ -179,6 +179,41 @@ public final class Cea608Decoder extends CeaDecoder {
     0xC5, 0xE5, 0xD8, 0xF8, 0x250C, 0x2510, 0x2514, 0x2518
   };
 
+  private static final boolean ODD_PARITY_BYTE_TABLE[] = {
+    false,	true,	true,	false,	true,	false,	false,	true,	// for values 0 - 7
+    true,	false,	false,	true,	false,	true,	true,	false,	// for values 8 - 15
+    true,	false,	false,	true,	false,	true,	true,	false,	// for values 16 - 23
+    false,	true,	true,	false,	true,	false,	false,	true,	// for values 24 - 31
+    true,	false,	false,	true,	false,	true,	true,	false,	// for values 32 - 39
+    false,	true,	true,	false,	true,	false,	false,	true,	// for values 40 - 47
+    false,	true,	true,	false,	true,	false,	false,	true,	// for values 48 - 55
+    true,	false,	false,	true,	false,	true,	true,	false,	// for values 56 - 63
+    true,	false,	false,	true,	false,	true,	true,	false,	// for values 64 - 71
+    false,	true,	true,	false,	true,	false,	false,	true,	// for values 72 - 79
+    false,	true,	true,	false,	true,	false,	false,	true,	// for values 80 - 87
+    true,	false,	false,	true,	false,	true,	true,	false,	// for values 88 - 95
+    false,	true,	true,	false,	true,	false,	false,	true,	// for values 96 - 103
+    true,	false,	false,	true,	false,	true,	true,	false,	// for values 104 - 111
+    true,	false,	false,	true,	false,	true,	true,	false,	// for values 112 - 119
+    false,	true,	true,	false,	true,	false,	false,	true,	// for values 120 - 127
+    false,	false,	true,	false,	false,	false,	false,	true,	// for values 128 - 135
+    false,	false,	false,	true,	false,	true,	false,	false,	// for values 136 - 143
+    true,	false,	false,	true,	false,	true,	false,	false,	// for values 144 - 151
+    true,	true,	false,	false,	true,	false,	true,	true,	// for values 152 - 159
+    false,	false,	false,	true,	false,	true,	false,	false,	// for values 160 - 167
+    true,	true,	false,	false,	true,	false,	true,	true,	// for values 168 - 175
+    false,	true,	false,	false,	true,	false,	true,	true,	// for values 176 - 183
+    false,	false,	true,	true,	false,	true,	false,	false,	// for values 184 - 191
+    true,	false,	false,	true,	false,	true,	false,	false,	// for values 192 - 199
+    true,	true,	false,	false,	true,	false,	true,	true,	// for values 200 - 207
+    false,	true,	false,	false,	true,	false,	true,	true,	// for values 208 - 215
+    false,	false,	true,	true,	false,	true,	false,	false,	// for values 216 - 223
+    true,	true,	false,	false,	true,	false,	true,	true,	// for values 224 - 231
+    false,	false,	true,	true,	false,	true,	false,	false,	// for values 232 - 239
+    true,	false,	true,	true,	false,	true,	false,	false,	// for values 240 - 247
+    true,	true,	false,	false,	true,	false,	true,	true,	// for values 248 - 255
+  };
+
   private final ParsableByteArray ccData;
   private final int packetLength;
   private final int selectedField;
@@ -259,14 +294,23 @@ public final class Cea608Decoder extends CeaDecoder {
     while (ccData.bytesLeft() >= packetLength) {
       byte ccDataHeader = packetLength == 2 ? CC_IMPLICIT_DATA_HEADER
           : (byte) ccData.readUnsignedByte();
-      byte ccData1 = (byte) (ccData.readUnsignedByte() & 0x7F); // strip the parity bit
-      byte ccData2 = (byte) (ccData.readUnsignedByte() & 0x7F); // strip the parity bit
+
+      byte ccFullByte1 = (byte) (ccData.readUnsignedByte());
+      byte ccFullByte2 = (byte) (ccData.readUnsignedByte());
+
+      boolean byte1ParityBit = (ccFullByte1 & 0x80) != 0;
+      boolean byte2ParityBit = (ccFullByte2 & 0x80) != 0;
+
+      byte ccData1 = (byte) (ccFullByte1 & 0x7F); // strip the parity bit
+      byte ccData2 = (byte) (ccFullByte2 & 0x7F); // strip the parity bit
 
       // Only examine valid CEA-608 packets
       // TODO: We're currently ignoring the top 5 marker bits, which should all be 1s according
       // to the CEA-608 specification. We need to determine if the data should be handled
       // differently when that is not the case.
-      if ((ccDataHeader & (CC_VALID_FLAG | CC_TYPE_FLAG)) != CC_VALID_608_ID) {
+
+      if ((ccDataHeader & CC_TYPE_FLAG) != 0) {
+        // do not process anything that is not part of the 608 byte stream
         continue;
       }
 
@@ -283,6 +327,24 @@ public final class Cea608Decoder extends CeaDecoder {
 
       // If we've reached this point then there is data to process; flag that work has been done.
       captionDataProcessed = true;
+
+      if ((ccDataHeader & CC_VALID_FLAG) != CC_VALID_FLAG) {
+        // The screen needs to be cleared when the closed captions are turned off
+        // (the encoder flips the validity bit)
+        resetCueBuilders();
+        continue;
+      }
+
+      // When transmission is digital and reliable (TCP) we should not meet any data corruption.
+      // But any over-the-air content and test streams might give the decoder corrupted data, so we
+      // need to drop those. When corrupt data is met the screen needs to be cleared, so we:
+      // - reset the cue builders
+      // - update the screen (by having this check after having captionDataProcessed set above)
+      if (byte1ParityBit == ODD_PARITY_BYTE_TABLE[ccData1]
+              || byte2ParityBit == ODD_PARITY_BYTE_TABLE[ccData2]) {
+        resetCueBuilders();
+        continue;
+      }
 
       // Special North American character set.
       // ccData1 - 0|0|0|1|C|0|0|1
