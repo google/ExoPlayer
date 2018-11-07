@@ -544,8 +544,27 @@ public final class Cea608Decoder extends CeaDecoder {
 
   private List<Cue> getDisplayCues() {
     List<Cue> displayCues = new ArrayList<>();
-    for (int i = 0; i < cueBuilders.size(); i++) {
-      Cue cue = cueBuilders.get(i).build();
+
+    // CEA608 Does not define Center and right alignment, content providers artificially introduced
+    // it by adding whitespaces before the real caption characters to get more visually appealing
+    // results. This decoder tries to optimise the alignment by comparing the number of whitespaces
+    // on the left and right side of the lines. This works in many cases, but has a side effect:
+    // consecutive lines on the screen might be differently aligned depending in the leftover
+    // space and the accuracy of the whitespace balancing of the caption provider.
+    // Here we add a new rule: lines shown at the same time, should be aligned the same way with
+    // the left most alignment being the highest priority. This will result in any exoPlayer
+    // optimisation only kick in when all lines can be re-aligned.
+    // LEFT is dominant as that was the only existing option in the original CEA608 standard, so
+    // the new worst case scenario is "showing the content exactly as the content provider
+    // intended"
+    int leftMostAnchor = Cue.ANCHOR_TYPE_END;
+    int cueCount = cueBuilders.size();
+    for (int i = 0; i < cueCount; i++) {
+      leftMostAnchor = Math.min(cueBuilders.get(i).calculatePreferredAlignment(), leftMostAnchor);
+    }
+
+    for (int i = 0; i < cueCount; i++) {
+      Cue cue = cueBuilders.get(i).build(leftMostAnchor);
       if (cue != null) {
         displayCues.add(cue);
       }
@@ -658,12 +677,19 @@ public final class Cea608Decoder extends CeaDecoder {
     private int captionMode;
     private int captionRowCount;
 
+    private SpannableStringBuilder finalCueString;
+    private int startPadding;
+    private int endPadding;
     public CueBuilder(int captionMode, int captionRowCount) {
       cueStyles = new ArrayList<>();
       rolledUpCaptions = new ArrayList<>();
       captionStringBuilder = new StringBuilder();
       reset(captionMode);
       setCaptionRowCount(captionRowCount);
+    }
+
+    public void setCaptionMode(int captionMode) {
+      this.captionMode = captionMode;
     }
 
     public void setCaptionMode(int captionMode) {
@@ -807,35 +833,60 @@ public final class Cea608Decoder extends CeaDecoder {
       return new SpannableString(builder);
     }
 
-    public Cue build() {
-      SpannableStringBuilder cueString = new SpannableStringBuilder();
+    public int calculatePreferredAlignment() {
+      finalCueString = new SpannableStringBuilder();
+
       // Add any rolled up captions, separated by new lines.
       for (int i = 0; i < rolledUpCaptions.size(); i++) {
-        cueString.append(rolledUpCaptions.get(i));
-        cueString.append('\n');
+        finalCueString.append(rolledUpCaptions.get(i));
+        finalCueString.append('\n');
       }
       // Add the current line.
-      cueString.append(buildSpannableString());
+      finalCueString.append(buildSpannableString());
 
-      if (cueString.length() == 0) {
+      if (finalCueString.length() == 0) {
+        // The cue is empty, it does not influence alignment
+        return Cue.ANCHOR_TYPE_END;
+      }
+
+      // The number of empty columns before the start of the text, in the range [0-31].
+      startPadding = indent + tabOffset;
+      // The number of empty columns after the end of the text, in the same range.
+      endPadding = SCREEN_CHARWIDTH - startPadding - finalCueString.length();
+      int startEndPaddingDelta = startPadding - endPadding;
+
+      if (captionMode == CC_MODE_POP_ON && (Math.abs(startEndPaddingDelta) < 3 || endPadding < 0)) {
+        return Cue.ANCHOR_TYPE_MIDDLE;
+      } else if (captionMode == CC_MODE_POP_ON && startEndPaddingDelta > 0 && endPadding < 4) {
+        // endPadding check added to avoid RIGHT aligning short texts close to the middle of the
+        // screen
+        return Cue.ANCHOR_TYPE_END;
+      }
+      return Cue.ANCHOR_TYPE_START;
+    }
+
+    public Cue build(int preferredAnchor) {
+
+      // Making sure, no-one calls build() without having the alignment function called first
+      if (finalCueString == null) {
+        calculatePreferredAlignment();
+      }
+
+      if (finalCueString.length() == 0) {
         // The cue is empty.
         return null;
       }
 
       float position;
       int positionAnchor;
-      // The number of empty columns before the start of the text, in the range [0-31].
-      int startPadding = indent + tabOffset;
-      // The number of empty columns after the end of the text, in the same range.
-      int endPadding = SCREEN_CHARWIDTH - startPadding - cueString.length();
-      int startEndPaddingDelta = startPadding - endPadding;
-      if (captionMode == CC_MODE_POP_ON && (Math.abs(startEndPaddingDelta) < 3 || endPadding < 0)) {
+
+      if (preferredAnchor == Cue.ANCHOR_TYPE_MIDDLE) {
         // Treat approximately centered pop-on captions as middle aligned. We also treat captions
         // that are wider than they should be in this way. See
-        // https://github.com/google/ExoPlayer/issues/3534.
+        // https://github.com/google/ExoPlayer/issues/3534
         position = 0.5f;
         positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-      } else if (captionMode == CC_MODE_POP_ON && startEndPaddingDelta > 0) {
+      } else if (preferredAnchor == Cue.ANCHOR_TYPE_END) {
         // Treat pop-on captions with less padding at the end than the start as end aligned.
         position = (float) (SCREEN_CHARWIDTH - endPadding) / SCREEN_CHARWIDTH;
         // Adjust the position to fit within the safe area.
@@ -865,8 +916,10 @@ public final class Cea608Decoder extends CeaDecoder {
         line = row;
       }
 
-      return new Cue(cueString, Alignment.ALIGN_NORMAL, line, Cue.LINE_TYPE_NUMBER, lineAnchor,
-          position, positionAnchor, Cue.DIMEN_UNSET);
+      Cue result = new Cue(finalCueString, Alignment.ALIGN_NORMAL, line, Cue.LINE_TYPE_NUMBER,
+              lineAnchor, position, positionAnchor, Cue.DIMEN_UNSET);
+      finalCueString = null;
+      return result;
     }
 
     @Override
