@@ -139,7 +139,8 @@ public final class AudioFocusManager {
    * @param playerState The current player state; {@link ExoPlayer#getPlaybackState()}.
    * @return A {@link PlayerCommand} to execute on the player.
    */
-  public @PlayerCommand int setAudioAttributes(
+  @PlayerCommand
+  public int setAudioAttributes(
       @Nullable AudioAttributes audioAttributes, boolean playWhenReady, int playerState) {
     if (!Util.areEqual(this.audioAttributes, audioAttributes)) {
       this.audioAttributes = audioAttributes;
@@ -154,11 +155,9 @@ public final class AudioFocusManager {
       }
     }
 
-    if (playerState == Player.STATE_IDLE) {
-      return PLAYER_COMMAND_WAIT_FOR_CALLBACK;
-    } else {
-      return handlePrepare(playWhenReady);
-    }
+    return playerState == Player.STATE_IDLE
+        ? handleIdle(playWhenReady)
+        : handlePrepare(playWhenReady);
   }
 
   /**
@@ -167,7 +166,8 @@ public final class AudioFocusManager {
    * @param playWhenReady The current state of {@link ExoPlayer#getPlayWhenReady()}.
    * @return A {@link PlayerCommand} to execute on the player.
    */
-  public @PlayerCommand int handlePrepare(boolean playWhenReady) {
+  @PlayerCommand
+  public int handlePrepare(boolean playWhenReady) {
     return playWhenReady ? requestAudioFocus() : PLAYER_COMMAND_DO_NOT_PLAY;
   }
 
@@ -178,16 +178,14 @@ public final class AudioFocusManager {
    * @param playerState The current state of the player.
    * @return A {@link PlayerCommand} to execute on the player.
    */
-  public @PlayerCommand int handleSetPlayWhenReady(boolean playWhenReady, int playerState) {
+  @PlayerCommand
+  public int handleSetPlayWhenReady(boolean playWhenReady, int playerState) {
     if (!playWhenReady) {
       abandonAudioFocus();
       return PLAYER_COMMAND_DO_NOT_PLAY;
-    } else if (playerState != Player.STATE_IDLE) {
-      return requestAudioFocus();
     }
-    return focusGain != C.AUDIOFOCUS_NONE
-        ? PLAYER_COMMAND_WAIT_FOR_CALLBACK
-        : PLAYER_COMMAND_PLAY_WHEN_READY;
+
+    return playerState == Player.STATE_IDLE ? handleIdle(playWhenReady) : requestAudioFocus();
   }
 
   /** Called by the player as part of {@link ExoPlayer#stop(boolean)}. */
@@ -197,7 +195,13 @@ public final class AudioFocusManager {
 
   // Internal methods.
 
-  private @PlayerCommand int requestAudioFocus() {
+  @PlayerCommand
+  private int handleIdle(boolean playWhenReady) {
+    return playWhenReady ? PLAYER_COMMAND_PLAY_WHEN_READY : PLAYER_COMMAND_DO_NOT_PLAY;
+  }
+
+  @PlayerCommand
+  private int requestAudioFocus() {
     int focusRequestResult;
 
     if (focusGain == C.AUDIOFOCUS_NONE) {
