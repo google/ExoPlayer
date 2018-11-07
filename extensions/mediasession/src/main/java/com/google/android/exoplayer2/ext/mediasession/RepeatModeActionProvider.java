@@ -26,6 +26,11 @@ import com.google.android.exoplayer2.util.RepeatModeUtil;
  */
 public final class RepeatModeActionProvider implements MediaSessionConnector.CustomActionProvider {
 
+  /** The default repeat toggle modes. */
+  @RepeatModeUtil.RepeatToggleModes
+  public static final int DEFAULT_REPEAT_TOGGLE_MODES =
+      RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE | RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL;
+
   private static final String ACTION_REPEAT_MODE = "ACTION_EXO_REPEAT_MODE";
 
   private final Player player;
@@ -45,7 +50,7 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
    * @param player The player on which to toggle the repeat mode.
    */
   public RepeatModeActionProvider(Context context, Player player) {
-    this(context, player, MediaSessionConnector.DEFAULT_REPEAT_TOGGLE_MODES);
+    this(context, player, DEFAULT_REPEAT_TOGGLE_MODES);
   }
 
   /**
