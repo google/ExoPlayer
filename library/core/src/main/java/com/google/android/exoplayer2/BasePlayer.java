@@ -62,7 +62,7 @@ public abstract class BasePlayer implements Player {
 
   @Override
   public final void next() {
-    int nextWindowIndex = getPreviousWindowIndex();
+    int nextWindowIndex = getNextWindowIndex();
     if (nextWindowIndex != C.INDEX_UNSET) {
       seekToDefaultPosition(nextWindowIndex);
     }
