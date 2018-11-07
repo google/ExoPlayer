@@ -529,6 +529,7 @@ public class PlayerControlView extends FrameLayout {
         controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_ALL);
       }
     }
+    updateRepeatModeButton();
   }
 
   /** Returns whether the shuffle button is shown. */
