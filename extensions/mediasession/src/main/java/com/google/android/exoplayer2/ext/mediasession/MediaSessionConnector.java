@@ -39,7 +39,6 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
-import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Collections;
 import java.util.HashMap;
@@ -75,13 +74,6 @@ public final class MediaSessionConnector {
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.mediasession");
   }
-
-  /**
-   * The default repeat toggle modes which is the bitmask of {@link
-   * RepeatModeUtil#REPEAT_TOGGLE_MODE_ONE} and {@link RepeatModeUtil#REPEAT_TOGGLE_MODE_ALL}.
-   */
-  public static final @RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES =
-      RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE | RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL;
 
   public static final String EXTRAS_PITCH = "EXO_PITCH";
   private static final int BASE_MEDIA_SESSION_FLAGS =
@@ -167,7 +159,7 @@ public final class MediaSessionConnector {
     /** See {@link MediaSessionCompat.Callback#onPause()}. */
     void onPause(Player player);
     /** See {@link MediaSessionCompat.Callback#onSeekTo(long)}. */
-    void onSeekTo(Player player, long position);
+    void onSeekTo(Player player, long positionMs);
     /** See {@link MediaSessionCompat.Callback#onFastForward()}. */
     void onFastForward(Player player);
     /** See {@link MediaSessionCompat.Callback#onRewind()}. */
@@ -857,9 +849,9 @@ public final class MediaSessionConnector {
     }
 
     @Override
-    public void onSeekTo(long position) {
+    public void onSeekTo(long positionMs) {
       if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_SEEK_TO)) {
-        playbackController.onSeekTo(player, position);
+        playbackController.onSeekTo(player, positionMs);
       }
     }
 
