@@ -29,6 +29,8 @@
 * Fix issue with blind seeking to windows with non-zero offset in a
   `ConcatenatingMediaSource`
   ([#4873](https://github.com/google/ExoPlayer/issues/4873)).
+* Fix logic for enabling next and previous actions in `TimelineQueueNavigator`
+  ([#5065](https://github.com/google/ExoPlayer/issues/5065)).
 * Fix issue where audio focus handling could not be disabled after enabling it
   ([#5055](https://github.com/google/ExoPlayer/issues/5055)).
 * Fix issue where subtitles were positioned incorrectly if `SubtitleView` had a

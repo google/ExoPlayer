@@ -348,7 +348,7 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
       if (timeline.getPeriodCount() != 1) {
         throw new IllegalClippingException(IllegalClippingException.REASON_INVALID_PERIOD_COUNT);
       }
-      Window window = timeline.getWindow(0, new Window(), false);
+      Window window = timeline.getWindow(0, new Window());
       startUs = Math.max(0, startUs);
       long resolvedEndUs = endUs == C.TIME_END_OF_SOURCE ? window.durationUs : Math.max(0, endUs);
       if (window.durationUs != C.TIME_UNSET) {
