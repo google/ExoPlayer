@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -74,20 +75,25 @@ public final class TrackSelectionUtil {
    * @param formats The track formats.
    * @param maxDurationUs Maximum duration of chunks to be included in average bitrate values, in
    *     microseconds.
+   * @param bitrates If not null, stores bitrate values in this array.
    * @return Average bitrate values for the tracks. If for a track, an average bitrate or an
    *     estimation can't be calculated, {@link Format#NO_VALUE} is set.
    * @see #getAverageBitrate(MediaChunkIterator, long)
    */
   @VisibleForTesting
   /* package */ static int[] getBitratesUsingFutureInfo(
-      MediaChunkIterator[] iterators, Format[] formats, long maxDurationUs) {
+      MediaChunkIterator[] iterators,
+      Format[] formats,
+      long maxDurationUs,
+      @Nullable int[] bitrates) {
     int trackCount = iterators.length;
     Assertions.checkArgument(trackCount == formats.length);
     if (trackCount == 0) {
       return new int[0];
     }
-
-    int[] bitrates = new int[trackCount];
+    if (bitrates == null) {
+      bitrates = new int[trackCount];
+    }
     if (maxDurationUs == 0) {
       Arrays.fill(bitrates, Format.NO_VALUE);
       return bitrates;
@@ -127,15 +133,22 @@ public final class TrackSelectionUtil {
    * @param formats The track formats.
    * @param maxDurationUs Maximum duration of chunks to be included in average bitrate values, in
    *     microseconds.
+   * @param bitrates If not null, calculates bitrate values only for indexes set to Format.NO_VALUE
+   *     and stores result in this array.
    * @return Bitrate values for the tracks. If for a track, a bitrate value can't be calculated,
    *     {@link Format#NO_VALUE} is set.
-   * @see #getBitratesUsingFutureInfo(MediaChunkIterator[], Format[], long)
+   * @see #getBitratesUsingFutureInfo(MediaChunkIterator[], Format[], long, int[])
    */
   @VisibleForTesting
   /* package */ static int[] getBitratesUsingPastInfo(
-      List<? extends MediaChunk> queue, Format[] formats, long maxDurationUs) {
-    int[] bitrates = new int[formats.length];
-    Arrays.fill(bitrates, Format.NO_VALUE);
+      List<? extends MediaChunk> queue,
+      Format[] formats,
+      long maxDurationUs,
+      @Nullable int[] bitrates) {
+    if (bitrates == null) {
+      bitrates = new int[formats.length];
+      Arrays.fill(bitrates, Format.NO_VALUE);
+    }
     if (maxDurationUs == 0) {
       return bitrates;
     }
@@ -156,40 +169,58 @@ public final class TrackSelectionUtil {
    * Returns bitrate values for a set of tracks whose formats are given, using the given upcoming
    * media chunk iterators and the queue of already buffered {@link MediaChunk}s.
    *
+   * @param formats The track formats.
+   * @param queue The queue of already buffered {@link MediaChunk}s. Must not be modified.
+   * @param maxPastDurationUs Maximum duration of past chunks to be included in average bitrate
+   *     values, in microseconds.
    * @param iterators An array of {@link MediaChunkIterator}s providing information about the
    *     sequence of upcoming media chunks for each track.
-   * @param queue The queue of already buffered {@link MediaChunk}s. Must not be modified.
-   * @param formats The track formats.
    * @param maxFutureDurationUs Maximum duration of future chunks to be included in average bitrate
-   *     values, in microseconds.
-   * @param maxPastDurationUs Maximum duration of past chunks to be included in average bitrate
    *     values, in microseconds.
    * @param useFormatBitrateAsLowerBound Whether to return the estimated bitrate only if it's higher
    *     than the bitrate of the track's format.
-   * @return Bitrate values for the tracks. If for a track, a bitrate value can't be calculated,
-   *     {@link Format#NO_VALUE} is set.
+   * @param bitrates An array into which the bitrate values will be written. If non-null, this array
+   *     is the one that will be returned.
+   * @return Bitrate values for the tracks. As long as the format of a track has set bitrate, a
+   *     bitrate value is set in the returned array. Otherwise it might be set to {@link
+   *     Format#NO_VALUE}.
    */
   public static int[] getBitratesUsingPastAndFutureInfo(
-      MediaChunkIterator[] iterators,
-      List<? extends MediaChunk> queue,
       Format[] formats,
-      long maxFutureDurationUs,
+      List<? extends MediaChunk> queue,
       long maxPastDurationUs,
-      boolean useFormatBitrateAsLowerBound) {
-    int[] bitrates = getBitratesUsingFutureInfo(iterators, formats, maxFutureDurationUs);
-    int[] bitratesUsingPastInfo = getBitratesUsingPastInfo(queue, formats, maxPastDurationUs);
+      MediaChunkIterator[] iterators,
+      long maxFutureDurationUs,
+      boolean useFormatBitrateAsLowerBound,
+      @Nullable int[] bitrates) {
+    bitrates = getBitratesUsingFutureInfo(iterators, formats, maxFutureDurationUs, bitrates);
+    getBitratesUsingPastInfo(queue, formats, maxPastDurationUs, bitrates);
     for (int i = 0; i < bitrates.length; i++) {
       int bitrate = bitrates[i];
-      if (bitrate == Format.NO_VALUE) {
-        bitrate = bitratesUsingPastInfo[i];
-      }
       if (bitrate == Format.NO_VALUE
           || (useFormatBitrateAsLowerBound
               && formats[i].bitrate != Format.NO_VALUE
               && bitrate < formats[i].bitrate)) {
-        bitrate = formats[i].bitrate;
+        bitrates[i] = formats[i].bitrate;
       }
-      bitrates[i] = bitrate;
+    }
+    return bitrates;
+  }
+
+  /**
+   * Returns an array containing {@link Format#bitrate} values for given each format in order.
+   *
+   * @param formats The format array to copy {@link Format#bitrate} values.
+   * @param bitrates If not null, stores bitrate values in this array.
+   * @return An array containing {@link Format#bitrate} values for given each format in order.
+   */
+  public static int[] getFormatBitrates(Format[] formats, @Nullable int[] bitrates) {
+    int trackCount = formats.length;
+    if (bitrates == null) {
+      bitrates = new int[trackCount];
+    }
+    for (int i = 0; i < trackCount; i++) {
+      bitrates[i] = formats[i].bitrate;
     }
     return bitrates;
   }
