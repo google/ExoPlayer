@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Fix logic for enabling next and previous actions in `TimelineQueueNavigator`
+  ([#5065](https://github.com/google/ExoPlayer/issues/5065)).
 * Fix issue where audio focus handling could not be disabled after enabling
   it ([#5055](https://github.com/google/ExoPlayer/issues/5055)).
 * Support for playing spherical videos on Daydream.
