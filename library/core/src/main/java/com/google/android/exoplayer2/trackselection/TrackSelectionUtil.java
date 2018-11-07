@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.support.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
@@ -77,7 +78,8 @@ public final class TrackSelectionUtil {
    *     estimation can't be calculated, {@link Format#NO_VALUE} is set.
    * @see #getAverageBitrate(MediaChunkIterator, long)
    */
-  public static int[] getBitratesUsingFutureInfo(
+  @VisibleForTesting
+  /* package */ static int[] getBitratesUsingFutureInfo(
       MediaChunkIterator[] iterators, Format[] formats, long maxDurationUs) {
     int trackCount = iterators.length;
     Assertions.checkArgument(trackCount == formats.length);
@@ -86,6 +88,11 @@ public final class TrackSelectionUtil {
     }
 
     int[] bitrates = new int[trackCount];
+    if (maxDurationUs == 0) {
+      Arrays.fill(bitrates, Format.NO_VALUE);
+      return bitrates;
+    }
+
     int[] formatBitrates = new int[trackCount];
     float[] bitrateRatios = new float[trackCount];
     boolean needEstimateBitrate = false;
@@ -124,10 +131,14 @@ public final class TrackSelectionUtil {
    *     {@link Format#NO_VALUE} is set.
    * @see #getBitratesUsingFutureInfo(MediaChunkIterator[], Format[], long)
    */
-  public static int[] getBitratesUsingPastInfo(
+  @VisibleForTesting
+  /* package */ static int[] getBitratesUsingPastInfo(
       List<? extends MediaChunk> queue, Format[] formats, long maxDurationUs) {
     int[] bitrates = new int[formats.length];
     Arrays.fill(bitrates, Format.NO_VALUE);
+    if (maxDurationUs == 0) {
+      return bitrates;
+    }
     int queueAverageBitrate = getAverageQueueBitrate(queue, maxDurationUs);
     if (queueAverageBitrate == Format.NO_VALUE) {
       return bitrates;
@@ -139,6 +150,75 @@ public final class TrackSelectionUtil {
           bitrates, formats, new int[] {queueFormatBitrate}, new float[] {queueBitrateRatio});
     }
     return bitrates;
+  }
+
+  /**
+   * Returns bitrate values for a set of tracks whose formats are given, using the given upcoming
+   * media chunk iterators and the queue of already buffered {@link MediaChunk}s.
+   *
+   * @param iterators An array of {@link MediaChunkIterator}s providing information about the
+   *     sequence of upcoming media chunks for each track.
+   * @param queue The queue of already buffered {@link MediaChunk}s. Must not be modified.
+   * @param formats The track formats.
+   * @param maxFutureDurationUs Maximum duration of future chunks to be included in average bitrate
+   *     values, in microseconds.
+   * @param maxPastDurationUs Maximum duration of past chunks to be included in average bitrate
+   *     values, in microseconds.
+   * @param useFormatBitrateAsLowerBound Whether to return the estimated bitrate only if it's higher
+   *     than the bitrate of the track's format.
+   * @return Bitrate values for the tracks. If for a track, a bitrate value can't be calculated,
+   *     {@link Format#NO_VALUE} is set.
+   */
+  public static int[] getBitratesUsingPastAndFutureInfo(
+      MediaChunkIterator[] iterators,
+      List<? extends MediaChunk> queue,
+      Format[] formats,
+      long maxFutureDurationUs,
+      long maxPastDurationUs,
+      boolean useFormatBitrateAsLowerBound) {
+    int[] bitrates = getBitratesUsingFutureInfo(iterators, formats, maxFutureDurationUs);
+    int[] bitratesUsingPastInfo = getBitratesUsingPastInfo(queue, formats, maxPastDurationUs);
+    for (int i = 0; i < bitrates.length; i++) {
+      int bitrate = bitrates[i];
+      if (bitrate == Format.NO_VALUE) {
+        bitrate = bitratesUsingPastInfo[i];
+      }
+      if (bitrate == Format.NO_VALUE
+          || (useFormatBitrateAsLowerBound
+              && formats[i].bitrate != Format.NO_VALUE
+              && bitrate < formats[i].bitrate)) {
+        bitrate = formats[i].bitrate;
+      }
+      bitrates[i] = bitrate;
+    }
+    return bitrates;
+  }
+
+  /**
+   * Fills missing values in the given {@code bitrates} array by calculates an estimation using the
+   * closest reference bitrate value.
+   *
+   * @param bitrates An array of bitrates to be filled with estimations. Missing values are set to
+   *     {@link Format#NO_VALUE}.
+   * @param formats An array of formats, one for each bitrate.
+   * @param referenceBitrates An array of reference bitrates which are used to calculate
+   *     estimations.
+   * @param referenceBitrateRatios An array containing ratio of reference bitrates to their bitrate
+   *     estimates.
+   */
+  private static void estimateBitrates(
+      int[] bitrates, Format[] formats, int[] referenceBitrates, float[] referenceBitrateRatios) {
+    for (int i = 0; i < bitrates.length; i++) {
+      if (bitrates[i] == Format.NO_VALUE) {
+        int formatBitrate = formats[i].bitrate;
+        if (formatBitrate != Format.NO_VALUE) {
+          int closestReferenceBitrateIndex =
+              getClosestBitrateIndex(formatBitrate, referenceBitrates);
+          bitrates[i] =
+              (int) (referenceBitrateRatios[closestReferenceBitrateIndex] * formatBitrate);
+        }
+      }
+    }
   }
 
   private static int getAverageQueueBitrate(List<? extends MediaChunk> queue, long maxDurationUs) {
@@ -160,19 +240,6 @@ public final class TrackSelectionUtil {
       }
     }
     return queue;
-  }
-
-  private static void estimateBitrates(
-      int[] bitrates, Format[] formats, int[] formatBitrates, float[] bitrateRatios) {
-    for (int i = 0; i < bitrates.length; i++) {
-      if (bitrates[i] == Format.NO_VALUE) {
-        int formatBitrate = formats[i].bitrate;
-        if (formatBitrate != Format.NO_VALUE) {
-          int closestFormat = getClosestBitrateIndex(formatBitrate, formatBitrates);
-          bitrates[i] = (int) (bitrateRatios[closestFormat] * formatBitrate);
-        }
-      }
-    }
   }
 
   private static int getClosestBitrateIndex(int formatBitrate, int[] formatBitrates) {
