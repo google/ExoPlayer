@@ -1113,7 +1113,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#generateAudioSessionIdV21-android.content.Context-">generateAudioSessionIdV21</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</code>
-<div class="block">Returns a newly generated <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a> session identifier.</div>
+<div class="block">Returns a newly generated audio session identifier, or <a href="https://developer.android.com/reference/android/media/AudioManager.html?is-external=true#ERROR" title="class or interface in android.media"><code>AudioManager.ERROR</code></a> if an error
+ occurred in which case audio playback may fail.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -3457,7 +3458,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>generateAudioSessionIdV21</h4>
 <pre>public static&nbsp;int&nbsp;generateAudioSessionIdV21(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</pre>
-<div class="block">Returns a newly generated <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a> session identifier.</div>
+<div class="block">Returns a newly generated audio session identifier, or <a href="https://developer.android.com/reference/android/media/AudioManager.html?is-external=true#ERROR" title="class or interface in android.media"><code>AudioManager.ERROR</code></a> if an error
+ occurred in which case audio playback may fail.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/AudioManager.html?is-external=true#generateAudioSessionId--" title="class or interface in android.media"><code>AudioManager.generateAudioSessionId()</code></a></dd>
+</dl>
 </li>
 </ul>
 </li>

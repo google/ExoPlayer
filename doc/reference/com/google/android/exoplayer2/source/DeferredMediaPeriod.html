@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -250,62 +250,74 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 </td>
 </tr>
 <tr id="i6" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#getPreparePositionUs--">getPreparePositionUs</a></span>()</code>
+<div class="block">Returns the position at which the deferred media period was prepared, in microseconds.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#getTrackGroups--">getTrackGroups</a></span>()</code>
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s exposed by the period.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#maybeThrowPrepareError--">maybeThrowPrepareError</a></span>()</code>
 <div class="block">Throws an error that's preventing the period from becoming prepared.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#onContinueLoadingRequested-com.google.android.exoplayer2.source.MediaPeriod-">onContinueLoadingRequested</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;source)</code>
 <div class="block">Called by the loader to indicate that it wishes for its <a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#continueLoading-long-"><code>SequenceableLoader.continueLoading(long)</code></a> method
  to be called when it can continue to load data.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#onPrepared-com.google.android.exoplayer2.source.MediaPeriod-">onPrepared</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code>
 <div class="block">Called when preparation completes.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#overridePreparePositionUs-long-">overridePreparePositionUs</a></span>(long&nbsp;defaultPreparePositionUs)</code>
+<div class="block">Overrides the default prepare position at which to prepare the media period.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-">prepare</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>&nbsp;callback,
        long&nbsp;preparePositionUs)</code>
 <div class="block">Prepares this media period asynchronously.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#readDiscontinuity--">readDiscontinuity</a></span>()</code>
 <div class="block">Attempts to read a discontinuity.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#reevaluateBuffer-long-">reevaluateBuffer</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Re-evaluates the buffer given the playback position.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#releasePeriod--">releasePeriod</a></span>()</code>
 <div class="block">Releases the period.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#seekToUs-long-">seekToUs</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Attempts to seek to the specified position in microseconds.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#selectTracks-com.google.android.exoplayer2.trackselection.TrackSelection:A-boolean:A-com.google.android.exoplayer2.source.SampleStream:A-boolean:A-long-">selectTracks</a></span>(<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>[]&nbsp;selections,
             boolean[]&nbsp;mayRetainStreamFlags,
@@ -315,13 +327,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <div class="block">Performs a track selection.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#setDefaultPreparePositionUs-long-">setDefaultPreparePositionUs</a></span>(long&nbsp;defaultPreparePositionUs)</code>
-<div class="block">Sets the default prepare position at which to prepare the media period.</div>
-</td>
-</tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#setPrepareErrorListener-com.google.android.exoplayer2.source.DeferredMediaPeriod.PrepareErrorListener-">setPrepareErrorListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source">DeferredMediaPeriod.PrepareErrorListener</a>&nbsp;listener)</code>
 <div class="block">Sets a listener for preparation errors.</div>
@@ -419,24 +425,28 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 </dl>
 </li>
 </ul>
-<a name="setDefaultPreparePositionUs-long-">
+<a name="getPreparePositionUs--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setDefaultPreparePositionUs</h4>
-<pre>public&nbsp;void&nbsp;setDefaultPreparePositionUs(long&nbsp;defaultPreparePositionUs)</pre>
-<div class="block">Sets the default prepare position at which to prepare the media period. This value is only used
- if the call to <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> is being deferred and the call was
- made with a (presumably default) prepare position of 0.
-
- <p>Note that this will override an intentional seek to zero in the corresponding non-seekable
- timeline window. This is unlikely to be a problem as a non-zero default position usually only
- occurs for live playbacks and seeking to zero in a live window would cause
- BehindLiveWindowExceptions anyway.</div>
+<h4>getPreparePositionUs</h4>
+<pre>public&nbsp;long&nbsp;getPreparePositionUs()</pre>
+<div class="block">Returns the position at which the deferred media period was prepared, in microseconds.</div>
+</li>
+</ul>
+<a name="overridePreparePositionUs-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>overridePreparePositionUs</h4>
+<pre>public&nbsp;void&nbsp;overridePreparePositionUs(long&nbsp;defaultPreparePositionUs)</pre>
+<div class="block">Overrides the default prepare position at which to prepare the media period. This value is only
+ used if the call to <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> is being deferred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>defaultPreparePositionUs</code> - The actual default prepare position, in microseconds.</dd>
+<dd><code>defaultPreparePositionUs</code> - The default prepare position to use, in microseconds.</dd>
 </dl>
 </li>
 </ul>

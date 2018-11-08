@@ -172,27 +172,33 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#programInformation">programInformation</a></span></code>
+<div class="block">The <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>ProgramInformation</code></a>, or null if not present.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#publishTimeMs">publishTimeMs</a></span></code>
 <div class="block">The <code>publishTime</code> value in milliseconds since epoch, or <a href="../../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
  not present.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#suggestedPresentationDelayMs">suggestedPresentationDelayMs</a></span></code>
 <div class="block">The <code>suggestedPresentationDelay</code> value in milliseconds, or <a href="../../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
  present.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#timeShiftBufferDepthMs">timeShiftBufferDepthMs</a></span></code>
 <div class="block">The <code>timeShiftBufferDepth</code> value in milliseconds, or <a href="../../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
  present.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#utcTiming">utcTiming</a></span></code>
 <div class="block">The <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>UtcTimingElement</code></a>, or null if not present.</div>
@@ -213,6 +219,20 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#DashManifest-long-long-long-boolean-long-long-long-long-com.google.android.exoplayer2.source.dash.manifest.ProgramInformation-com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement-android.net.Uri-java.util.List-">DashManifest</a></span>(long&nbsp;availabilityStartTimeMs,
+            long&nbsp;durationMs,
+            long&nbsp;minBufferTimeMs,
+            boolean&nbsp;dynamic,
+            long&nbsp;minUpdatePeriodMs,
+            long&nbsp;timeShiftBufferDepthMs,
+            long&nbsp;suggestedPresentationDelayMs,
+            long&nbsp;publishTimeMs,
+            <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a>&nbsp;programInformation,
+            <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;utcTiming,
+            <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;location,
+            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>&gt;&nbsp;periods)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#DashManifest-long-long-long-boolean-long-long-long-long-com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement-android.net.Uri-java.util.List-">DashManifest</a></span>(long&nbsp;availabilityStartTimeMs,
             long&nbsp;durationMs,
             long&nbsp;minBufferTimeMs,
@@ -223,7 +243,12 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
             long&nbsp;publishTimeMs,
             <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;utcTiming,
             <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;location,
-            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>&gt;&nbsp;periods)</code>&nbsp;</td>
+            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>&gt;&nbsp;periods)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#DashManifest-long-long-long-boolean-long-long-long-long-com.google.android.exoplayer2.source.dash.manifest.ProgramInformation-com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement-android.net.Uri-java.util.List-"><code>DashManifest(long, long, long, boolean, long, long, long, long,
+     ProgramInformation, UtcTimingElement, Uri, List)</code></a>.</span></div>
+</div>
+</td>
 </tr>
 </table>
 </li>
@@ -383,11 +408,22 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
 <a name="location">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>location</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a> location</pre>
 <div class="block">The location of this manifest.</div>
+</li>
+</ul>
+<a name="programInformation">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>programInformation</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a> programInformation</pre>
+<div class="block">The <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>ProgramInformation</code></a>, or null if not present.</div>
 </li>
 </ul>
 </li>
@@ -401,6 +437,28 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
 <a name="DashManifest-long-long-long-boolean-long-long-long-long-com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement-android.net.Uri-java.util.List-">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DashManifest</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DashManifest(long&nbsp;availabilityStartTimeMs,
+                                long&nbsp;durationMs,
+                                long&nbsp;minBufferTimeMs,
+                                boolean&nbsp;dynamic,
+                                long&nbsp;minUpdatePeriodMs,
+                                long&nbsp;timeShiftBufferDepthMs,
+                                long&nbsp;suggestedPresentationDelayMs,
+                                long&nbsp;publishTimeMs,
+                                <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;utcTiming,
+                                <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;location,
+                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>&gt;&nbsp;periods)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#DashManifest-long-long-long-boolean-long-long-long-long-com.google.android.exoplayer2.source.dash.manifest.ProgramInformation-com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement-android.net.Uri-java.util.List-"><code>DashManifest(long, long, long, boolean, long, long, long, long,
+     ProgramInformation, UtcTimingElement, Uri, List)</code></a>.</span></div>
+</li>
+</ul>
+<a name="DashManifest-long-long-long-boolean-long-long-long-long-com.google.android.exoplayer2.source.dash.manifest.ProgramInformation-com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement-android.net.Uri-java.util.List-">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DashManifest</h4>
@@ -412,6 +470,8 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/offline/F
                     long&nbsp;timeShiftBufferDepthMs,
                     long&nbsp;suggestedPresentationDelayMs,
                     long&nbsp;publishTimeMs,
+                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                    <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a>&nbsp;programInformation,
                     <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;utcTiming,
                     <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;location,
                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>&gt;&nbsp;periods)</pre>

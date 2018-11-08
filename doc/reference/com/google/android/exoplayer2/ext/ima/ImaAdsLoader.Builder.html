@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -170,17 +170,35 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdUiElements-java.util.Set-">setAdUiElements</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Set.html" target="_top" title="class or interface in java.util">Set</a>&lt;com.google.ads.interactivemedia.v3.api.UiElement&gt;&nbsp;adUiElements)</code>
+<div class="block">Sets the ad UI elements to be rendered by the IMA SDK.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setFocusSkipButtonWhenAvailable-boolean-">setFocusSkipButtonWhenAvailable</a></span>(boolean&nbsp;focusSkipButtonWhenAvailable)</code>
+<div class="block">Sets whether to focus the skip button (when available) on Android TV devices.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setImaSdkSettings-com.google.ads.interactivemedia.v3.api.ImaSdkSettings-">setImaSdkSettings</a></span>(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</code>
 <div class="block">Sets the IMA SDK settings.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMaxMediaBitrate-int-">setMaxMediaBitrate</a></span>(int&nbsp;bitrate)</code>
+<div class="block">Sets the media maximum recommended bitrate for ads, in bps.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMediaLoadTimeoutMs-int-">setMediaLoadTimeoutMs</a></span>(int&nbsp;mediaLoadTimeoutMs)</code>
 <div class="block">Sets the ad media load timeout, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setVastLoadTimeoutMs-int-">setVastLoadTimeoutMs</a></span>(int&nbsp;vastLoadTimeoutMs)</code>
 <div class="block">Sets the VAST load timeout, in milliseconds.</div>
@@ -265,6 +283,24 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
+<a name="setAdUiElements-java.util.Set-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdUiElements</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdUiElements(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Set.html" target="_top" title="class or interface in java.util">Set</a>&lt;com.google.ads.interactivemedia.v3.api.UiElement&gt;&nbsp;adUiElements)</pre>
+<div class="block">Sets the ad UI elements to be rendered by the IMA SDK.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adUiElements</code> - The ad UI elements to be rendered by the IMA SDK.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>AdsRenderingSettings.setUiElements(Set)</code></dd>
+</dl>
+</li>
+</ul>
 <a name="setVastLoadTimeoutMs-int-">
 <!--   -->
 </a>
@@ -298,6 +334,44 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd>This builder, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><code>AdsRenderingSettings.setLoadVideoTimeout(int)</code></dd>
+</dl>
+</li>
+</ul>
+<a name="setMaxMediaBitrate-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMaxMediaBitrate</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setMaxMediaBitrate(int&nbsp;bitrate)</pre>
+<div class="block">Sets the media maximum recommended bitrate for ads, in bps.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bitrate</code> - The media maximum recommended bitrate for ads, in bps.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>AdsRenderingSettings.setBitrateKbps(int)</code></dd>
+</dl>
+</li>
+</ul>
+<a name="setFocusSkipButtonWhenAvailable-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFocusSkipButtonWhenAvailable</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setFocusSkipButtonWhenAvailable(boolean&nbsp;focusSkipButtonWhenAvailable)</pre>
+<div class="block">Sets whether to focus the skip button (when available) on Android TV devices. The default
+ setting is <code>true</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>focusSkipButtonWhenAvailable</code> - Whether to focus the skip button (when available) on
+     Android TV devices.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>AdsRenderingSettings.setFocusSkipButtonWhenAvailable(boolean)</code></dd>
 </dl>
 </li>
 </ul>

@@ -142,29 +142,33 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/hls/H
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#EC3_FILE_EXTENSION">EC3_FILE_EXTENSION</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#CMF_FILE_EXTENSION_PREFIX">CMF_FILE_EXTENSION_PREFIX</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#EC3_FILE_EXTENSION">EC3_FILE_EXTENSION</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#M4_FILE_EXTENSION_PREFIX">M4_FILE_EXTENSION_PREFIX</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#MP3_FILE_EXTENSION">MP3_FILE_EXTENSION</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#MP4_FILE_EXTENSION">MP4_FILE_EXTENSION</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#MP4_FILE_EXTENSION_PREFIX">MP4_FILE_EXTENSION_PREFIX</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#VTT_FILE_EXTENSION">VTT_FILE_EXTENSION</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#WEBVTT_FILE_EXTENSION">WEBVTT_FILE_EXTENSION</a></span></code>&nbsp;</td>
 </tr>
@@ -190,7 +194,14 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/hls/H
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#DefaultHlsExtractorFactory--">DefaultHlsExtractorFactory</a></span>()</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#DefaultHlsExtractorFactory--">DefaultHlsExtractorFactory</a></span>()</code>
+<div class="block">Creates a factory for HLS segment extractors.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/DefaultHlsExtractorFactory.html#DefaultHlsExtractorFactory-int-">DefaultHlsExtractorFactory</a></span>(int&nbsp;payloadReaderFactoryFlags)</code>
+<div class="block">Creates a factory for HLS segment extractors.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -333,6 +344,19 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/hls/H
 </dl>
 </li>
 </ul>
+<a name="CMF_FILE_EXTENSION_PREFIX">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>CMF_FILE_EXTENSION_PREFIX</h4>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> CMF_FILE_EXTENSION_PREFIX</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.hls.DefaultHlsExtractorFactory.CMF_FILE_EXTENSION_PREFIX">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a name="VTT_FILE_EXTENSION">
 <!--   -->
 </a>
@@ -370,10 +394,25 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/hls/H
 <a name="DefaultHlsExtractorFactory--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DefaultHlsExtractorFactory</h4>
 <pre>public&nbsp;DefaultHlsExtractorFactory()</pre>
+<div class="block">Creates a factory for HLS segment extractors.</div>
+</li>
+</ul>
+<a name="DefaultHlsExtractorFactory-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DefaultHlsExtractorFactory</h4>
+<pre>public&nbsp;DefaultHlsExtractorFactory(int&nbsp;payloadReaderFactoryFlags)</pre>
+<div class="block">Creates a factory for HLS segment extractors.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>payloadReaderFactoryFlags</code> - Flags to add when constructing any <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a> instances. Other flags may be added on top of <code>payloadReaderFactoryFlags</code> when creating <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a>.</dd>
+</dl>
 </li>
 </ul>
 </li>

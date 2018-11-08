@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -132,6 +132,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#Builder--">Builder</a></span>()</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>#Builder(Context)</code> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#Builder-android.content.Context-">Builder</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</code>
 <div class="block">Creates a builder with default parameters and without listener.</div>
 </td>
 </tr>
@@ -171,12 +178,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#setInitialBitrateEstimate-int-long-">setInitialBitrateEstimate</a></span>(int&nbsp;networkType,
+                         long&nbsp;initialBitrateEstimate)</code>
+<div class="block">Sets the initial bitrate estimate in bits per second for a network type that should be
+ assumed when a bandwidth estimate is unavailable and the current network connection is of the
+ specified type.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#setInitialBitrateEstimate-long-">setInitialBitrateEstimate</a></span>(long&nbsp;initialBitrateEstimate)</code>
 <div class="block">Sets the initial bitrate estimate in bits per second that should be assumed when a bandwidth
  estimate is unavailable.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#setInitialBitrateEstimate-java.lang.String-">setInitialBitrateEstimate</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;countryCode)</code>
+<div class="block">Sets the initial bitrate estimates to the default values of the specified country.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html#setSlidingWindowMaxWeight-int-">setSlidingWindowMaxWeight</a></span>(int&nbsp;slidingWindowMaxWeight)</code>
 <div class="block">Sets the maximum weight for the sliding window.</div>
@@ -207,11 +229,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <a name="Builder--">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Builder</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;Builder()</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#Builder(Context)</code> instead.</span></div>
+</li>
+</ul>
+<a name="Builder-android.content.Context-">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Builder</h4>
-<pre>public&nbsp;Builder()</pre>
+<pre>public&nbsp;Builder(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+               <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</pre>
 <div class="block">Creates a builder with default parameters and without listener.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A context.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -270,6 +308,45 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>initialBitrateEstimate</code> - The initial bitrate estimate in bits per second.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a name="setInitialBitrateEstimate-int-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setInitialBitrateEstimate</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setInitialBitrateEstimate(<a href="../../../../../com/google/android/exoplayer2/C.NetworkType.html" title="annotation in com.google.android.exoplayer2">@C.NetworkType</a>
+                                                               int&nbsp;networkType,
+                                                               long&nbsp;initialBitrateEstimate)</pre>
+<div class="block">Sets the initial bitrate estimate in bits per second for a network type that should be
+ assumed when a bandwidth estimate is unavailable and the current network connection is of the
+ specified type.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>networkType</code> - The <code>C.NetworkType</code> this initial estimate is for.</dd>
+<dd><code>initialBitrateEstimate</code> - The initial bitrate estimate in bits per second.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a name="setInitialBitrateEstimate-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setInitialBitrateEstimate</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a>&nbsp;setInitialBitrateEstimate(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;countryCode)</pre>
+<div class="block">Sets the initial bitrate estimates to the default values of the specified country. The
+ initial estimates are used when a bandwidth estimate is unavailable.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>countryCode</code> - The ISO 3166-1 alpha-2 country code of the country whose default bitrate
+     estimates should be used.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>

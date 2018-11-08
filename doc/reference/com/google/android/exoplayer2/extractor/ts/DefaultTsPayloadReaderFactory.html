@@ -155,27 +155,42 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES">FLAG_ALLOW_NON_IDR_KEYFRAMES</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES">FLAG_ALLOW_NON_IDR_KEYFRAMES</a></span></code>
+<div class="block">When extracting H.264 samples, whether to treat samples consisting of non-IDR I slices as
+ synchronization samples (key-frames).</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS">FLAG_DETECT_ACCESS_UNITS</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS">FLAG_DETECT_ACCESS_UNITS</a></span></code>
+<div class="block">When extracting H.264 samples, whether to split the input stream into access units (samples)
+ based on slice headers.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_AAC_STREAM">FLAG_IGNORE_AAC_STREAM</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_AAC_STREAM">FLAG_IGNORE_AAC_STREAM</a></span></code>
+<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/AdtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsReader</code></a> and <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/LatmReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>LatmReader</code></a> instances.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_H264_STREAM">FLAG_IGNORE_H264_STREAM</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_H264_STREAM">FLAG_IGNORE_H264_STREAM</a></span></code>
+<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/H264Reader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>H264Reader</code></a> instances.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_SPLICE_INFO_STREAM">FLAG_IGNORE_SPLICE_INFO_STREAM</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_SPLICE_INFO_STREAM">FLAG_IGNORE_SPLICE_INFO_STREAM</a></span></code>
+<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/SpliceInfoSectionReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>SpliceInfoSectionReader</code></a> instances.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_OVERRIDE_CAPTION_DESCRIPTORS">FLAG_OVERRIDE_CAPTION_DESCRIPTORS</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_OVERRIDE_CAPTION_DESCRIPTORS">FLAG_OVERRIDE_CAPTION_DESCRIPTORS</a></span></code>
+<div class="block">Whether the list of <code>closedCaptionFormats</code> passed to <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#DefaultTsPayloadReaderFactory-int-java.util.List-"><code>DefaultTsPayloadReaderFactory(int, List)</code></a> should be used in spite
+ of any closed captions service descriptors.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -258,6 +273,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <li class="blockList">
 <h4>FLAG_ALLOW_NON_IDR_KEYFRAMES</h4>
 <pre>public static final&nbsp;int FLAG_ALLOW_NON_IDR_KEYFRAMES</pre>
+<div class="block">When extracting H.264 samples, whether to treat samples consisting of non-IDR I slices as
+ synchronization samples (key-frames).</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES">Constant Field Values</a></dd>
@@ -271,6 +288,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <li class="blockList">
 <h4>FLAG_IGNORE_AAC_STREAM</h4>
 <pre>public static final&nbsp;int FLAG_IGNORE_AAC_STREAM</pre>
+<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/AdtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsReader</code></a> and <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/LatmReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>LatmReader</code></a> instances. This flag should
+ be enabled if the transport stream contains no packets for an AAC elementary stream that is
+ declared in the PMT.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_IGNORE_AAC_STREAM">Constant Field Values</a></dd>
@@ -284,6 +304,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <li class="blockList">
 <h4>FLAG_IGNORE_H264_STREAM</h4>
 <pre>public static final&nbsp;int FLAG_IGNORE_H264_STREAM</pre>
+<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/H264Reader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>H264Reader</code></a> instances. This flag should be enabled if the
+ transport stream contains no packets for an H.264 elementary stream that is declared in the
+ PMT.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_IGNORE_H264_STREAM">Constant Field Values</a></dd>
@@ -297,6 +320,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <li class="blockList">
 <h4>FLAG_DETECT_ACCESS_UNITS</h4>
 <pre>public static final&nbsp;int FLAG_DETECT_ACCESS_UNITS</pre>
+<div class="block">When extracting H.264 samples, whether to split the input stream into access units (samples)
+ based on slice headers. This flag should be disabled if the stream contains access unit
+ delimiters (AUDs).</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_DETECT_ACCESS_UNITS">Constant Field Values</a></dd>
@@ -310,6 +336,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <li class="blockList">
 <h4>FLAG_IGNORE_SPLICE_INFO_STREAM</h4>
 <pre>public static final&nbsp;int FLAG_IGNORE_SPLICE_INFO_STREAM</pre>
+<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/SpliceInfoSectionReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>SpliceInfoSectionReader</code></a> instances.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_IGNORE_SPLICE_INFO_STREAM">Constant Field Values</a></dd>
@@ -323,6 +350,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <li class="blockList">
 <h4>FLAG_OVERRIDE_CAPTION_DESCRIPTORS</h4>
 <pre>public static final&nbsp;int FLAG_OVERRIDE_CAPTION_DESCRIPTORS</pre>
+<div class="block">Whether the list of <code>closedCaptionFormats</code> passed to <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#DefaultTsPayloadReaderFactory-int-java.util.List-"><code>DefaultTsPayloadReaderFactory(int, List)</code></a> should be used in spite
+ of any closed captions service descriptors. If this flag is disabled, <code>closedCaptionFormats</code> will be ignored if the PMT contains closed captions service descriptors.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_OVERRIDE_CAPTION_DESCRIPTORS">Constant Field Values</a></dd>

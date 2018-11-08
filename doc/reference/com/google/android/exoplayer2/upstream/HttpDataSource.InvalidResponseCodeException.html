@@ -180,6 +180,12 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <div class="block">The response code that was outside of the 2xx range.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#responseMessage">responseMessage</a></span></code>
+<div class="block">The http status message.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException">
@@ -203,6 +209,16 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-">InvalidResponseCodeException</a></span>(int&nbsp;responseCode,
+                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;&nbsp;headerFields,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>#InvalidResponseCodeException(int, String, Map, DataSpec)</code>.</span></div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-">InvalidResponseCodeException</a></span>(int&nbsp;responseCode,
+                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;responseMessage,
                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;&nbsp;headerFields,
                             <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>&nbsp;</td>
 </tr>
@@ -253,6 +269,17 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <div class="block">The response code that was outside of the 2xx range.</div>
 </li>
 </ul>
+<a name="responseMessage">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>responseMessage</h4>
+<pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+public final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> responseMessage</pre>
+<div class="block">The http status message.</div>
+</li>
+</ul>
 <a name="headerFields">
 <!--   -->
 </a>
@@ -274,10 +301,25 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <a name="InvalidResponseCodeException-int-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>InvalidResponseCodeException</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;InvalidResponseCodeException(int&nbsp;responseCode,
+                                                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;&nbsp;headerFields,
+                                                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#InvalidResponseCodeException(int, String, Map, DataSpec)</code>.</span></div>
+</li>
+</ul>
+<a name="InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>InvalidResponseCodeException</h4>
 <pre>public&nbsp;InvalidResponseCodeException(int&nbsp;responseCode,
+                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;responseMessage,
                                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;&nbsp;headerFields,
                                     <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
 </li>
