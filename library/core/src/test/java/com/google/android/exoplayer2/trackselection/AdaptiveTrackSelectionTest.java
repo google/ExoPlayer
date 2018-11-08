@@ -16,6 +16,9 @@
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -32,11 +35,13 @@ import com.google.android.exoplayer2.testutil.FakeMediaChunk;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
 
@@ -221,6 +226,52 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
+  public void testUpdateSelectedTrackSwitchUpIfTrackBitrateEstimateIsLow() {
+    Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
+    Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
+    Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
+    TrackGroup trackGroup = new TrackGroup(format1, format2, format3);
+
+    // The second measurement onward returns 1500L, which isn't enough to switch up to format3 as
+    // the format bitrate is 2000.
+    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(1000L, 1500L);
+
+    // But TrackBitrateEstimator returns 1500 for 3rd track so it should switch up.
+    TrackBitrateEstimator estimator = mock(TrackBitrateEstimator.class);
+    when(estimator.getBitrates(any(), any(), any(), any())).thenReturn(new int[] {500, 1000, 1500});
+
+    adaptiveTrackSelection = adaptiveTrackSelection(trackGroup);
+    adaptiveTrackSelection.experimental_setTrackBitrateEstimator(estimator);
+
+    adaptiveTrackSelection.updateSelectedTrack(
+        /* playbackPositionUs= */ 0,
+        /* bufferedDurationUs= */ AdaptiveTrackSelection
+                .DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS
+            * 1000,
+        /* availableDurationUs= */ C.TIME_UNSET,
+        /* queue= */ Collections.emptyList(),
+        /* mediaChunkIterators= */ THREE_EMPTY_MEDIA_CHUNK_ITERATORS);
+
+    ArgumentMatcher<Format[]> matcher =
+        new ArgumentMatcher<Format[]>() {
+          @Override
+          public boolean matches(Object argument) {
+            Format[] formats = (Format[]) argument;
+            return formats.length == 3
+                && Arrays.asList(formats).containsAll(Arrays.asList(format1, format2, format3));
+          }
+        };
+    verify(estimator)
+        .getBitrates(
+            argThat(matcher),
+            eq(Collections.emptyList()),
+            eq(THREE_EMPTY_MEDIA_CHUNK_ITERATORS),
+            any());
+    assertThat(adaptiveTrackSelection.getSelectedFormat()).isEqualTo(format3);
+    assertThat(adaptiveTrackSelection.getSelectionReason()).isEqualTo(C.SELECTION_REASON_ADAPTIVE);
+  }
+
+  @Test
   public void testEvaluateQueueSizeReturnQueueSizeIfBandwidthIsNotImproved() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
@@ -322,17 +373,8 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   private AdaptiveTrackSelection adaptiveTrackSelection(TrackGroup trackGroup) {
-    return new AdaptiveTrackSelection(
-        trackGroup,
-        selectedAllTracksInGroup(trackGroup),
-        mockBandwidthMeter,
-        AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
-        AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
-        AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
-        /* bandwidthFraction= */ 1.0f,
-        AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-        AdaptiveTrackSelection.DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
-        fakeClock);
+    return adaptiveTrackSelectionWithMinDurationForQualityIncreaseMs(
+        trackGroup, AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS);
   }
 
   private AdaptiveTrackSelection adaptiveTrackSelectionWithMinDurationForQualityIncreaseMs(
