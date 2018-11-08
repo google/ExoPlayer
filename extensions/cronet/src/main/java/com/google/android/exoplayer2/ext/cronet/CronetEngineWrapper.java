@@ -19,6 +19,7 @@ import android.content.Context;
 import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
@@ -43,6 +44,7 @@ public final class CronetEngineWrapper {
    * Source of {@link CronetEngine}. One of {@link #SOURCE_NATIVE}, {@link #SOURCE_GMS}, {@link
    * #SOURCE_UNKNOWN}, {@link #SOURCE_USER_PROVIDED} or {@link #SOURCE_UNAVAILABLE}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({SOURCE_NATIVE, SOURCE_GMS, SOURCE_UNKNOWN, SOURCE_USER_PROVIDED, SOURCE_UNAVAILABLE})
   public @interface CronetEngineSource {}

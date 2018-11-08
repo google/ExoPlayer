@@ -19,6 +19,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -31,6 +32,7 @@ public final class Track {
    * The transformation to apply to samples in the track, if any. One of {@link
    * #TRANSFORMATION_NONE} or {@link #TRANSFORMATION_CEA608_CDAT}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TRANSFORMATION_NONE, TRANSFORMATION_CEA608_CDAT})
   public @interface Transformation {}

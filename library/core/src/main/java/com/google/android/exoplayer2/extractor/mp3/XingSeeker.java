@@ -75,17 +75,17 @@ import com.google.android.exoplayer2.util.Util;
     if (inputLength != C.LENGTH_UNSET && inputLength != position + dataSize) {
       Log.w(TAG, "XING data size mismatch: " + inputLength + ", " + (position + dataSize));
     }
-    return new XingSeeker(position, mpegAudioHeader.frameSize, durationUs, dataSize,
-        tableOfContents);
+    return new XingSeeker(
+        position, mpegAudioHeader.frameSize, durationUs, dataSize, tableOfContents);
   }
 
   private final long dataStartPosition;
   private final int xingFrameSize;
   private final long durationUs;
-  /**
-   * Data size, including the XING frame.
-   */
+  /** Data size, including the XING frame. */
   private final long dataSize;
+
+  private final long dataEndPosition;
   /**
    * Entries are in the range [0, 255], but are stored as long integers for convenience. Null if the
    * table of contents was missing from the header, in which case seeking is not be supported.
@@ -93,7 +93,12 @@ import com.google.android.exoplayer2.util.Util;
   private final @Nullable long[] tableOfContents;
 
   private XingSeeker(long dataStartPosition, int xingFrameSize, long durationUs) {
-    this(dataStartPosition, xingFrameSize, durationUs, C.LENGTH_UNSET, null);
+    this(
+        dataStartPosition,
+        xingFrameSize,
+        durationUs,
+        /* dataSize= */ C.LENGTH_UNSET,
+        /* tableOfContents= */ null);
   }
 
   private XingSeeker(
@@ -105,8 +110,9 @@ import com.google.android.exoplayer2.util.Util;
     this.dataStartPosition = dataStartPosition;
     this.xingFrameSize = xingFrameSize;
     this.durationUs = durationUs;
-    this.dataSize = dataSize;
     this.tableOfContents = tableOfContents;
+    this.dataSize = dataSize;
+    dataEndPosition = dataSize == C.LENGTH_UNSET ? C.POSITION_UNSET : dataStartPosition + dataSize;
   }
 
   @Override
@@ -164,6 +170,11 @@ import com.google.android.exoplayer2.util.Util;
   @Override
   public long getDurationUs() {
     return durationUs;
+  }
+
+  @Override
+  public long getDataEndPosition() {
+    return dataEndPosition;
   }
 
   /**

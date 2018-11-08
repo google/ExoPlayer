@@ -532,6 +532,11 @@ import com.google.android.exoplayer2.util.Assertions;
     // until the timeline is updated. Store whether the next timeline period is ready when the
     // timeline is updated, to avoid repeatedly checking the same timeline.
     MediaPeriodInfo mediaPeriodInfo = mediaPeriodHolder.info;
+    // The expected delay until playback transitions to the new period is equal the duration of
+    // media that's currently buffered (assuming no interruptions). This is used to project forward
+    // the start position for transitions to new windows.
+    long bufferedDurationUs =
+        mediaPeriodHolder.getRendererOffset() + mediaPeriodInfo.durationUs - rendererPositionUs;
     if (mediaPeriodInfo.isLastInTimelinePeriod) {
       int currentPeriodIndex = timeline.getIndexOfPeriod(mediaPeriodInfo.id.periodUid);
       int nextPeriodIndex =
@@ -549,19 +554,15 @@ import com.google.android.exoplayer2.util.Assertions;
       long windowSequenceNumber = mediaPeriodInfo.id.windowSequenceNumber;
       if (timeline.getWindow(nextWindowIndex, window).firstPeriodIndex == nextPeriodIndex) {
         // We're starting to buffer a new window. When playback transitions to this window we'll
-        // want it to be from its default start position. The expected delay until playback
-        // transitions is equal the duration of media that's currently buffered (assuming no
-        // interruptions). Hence we project the default start position forward by the duration of
-        // the buffer, and start buffering from this point.
-        long defaultPositionProjectionUs =
-            mediaPeriodHolder.getRendererOffset() + mediaPeriodInfo.durationUs - rendererPositionUs;
+        // want it to be from its default start position, so project the default start position
+        // forward by the duration of the buffer, and start buffering from this point.
         Pair<Object, Long> defaultPosition =
             timeline.getPeriodPosition(
                 window,
                 period,
                 nextWindowIndex,
-                C.TIME_UNSET,
-                Math.max(0, defaultPositionProjectionUs));
+                /* windowPositionUs= */ C.TIME_UNSET,
+                /* defaultPositionProjectionUs= */ Math.max(0, bufferedDurationUs));
         if (defaultPosition == null) {
           return null;
         }
@@ -601,11 +602,27 @@ import com.google.android.exoplayer2.util.Assertions;
                 mediaPeriodInfo.contentPositionUs,
                 currentPeriodId.windowSequenceNumber);
       } else {
-        // Play content from the ad group position.
+        // Play content from the ad group position. As a special case, if we're transitioning from a
+        // preroll ad group to content and there are no other ad groups, project the start position
+        // forward as if this were a transition to a new window. No attempt is made to handle
+        // midrolls in live streams, as it's unclear what content position should play after an ad
+        // (server-side dynamic ad insertion is more appropriate for this use case).
+        long startPositionUs = mediaPeriodInfo.contentPositionUs;
+        if (period.getAdGroupCount() == 1 && period.getAdGroupTimeUs(0) == 0) {
+          Pair<Object, Long> defaultPosition =
+              timeline.getPeriodPosition(
+                  window,
+                  period,
+                  period.windowIndex,
+                  /* windowPositionUs= */ C.TIME_UNSET,
+                  /* defaultPositionProjectionUs= */ Math.max(0, bufferedDurationUs));
+          if (defaultPosition == null) {
+            return null;
+          }
+          startPositionUs = defaultPosition.second;
+        }
         return getMediaPeriodInfoForContent(
-            currentPeriodId.periodUid,
-            mediaPeriodInfo.contentPositionUs,
-            currentPeriodId.windowSequenceNumber);
+            currentPeriodId.periodUid, startPositionUs, currentPeriodId.windowSequenceNumber);
       }
     } else if (mediaPeriodInfo.id.endPositionUs != C.TIME_END_OF_SOURCE) {
       // Play the next ad group if it's available.

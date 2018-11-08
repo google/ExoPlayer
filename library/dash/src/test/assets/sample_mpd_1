@@ -9,6 +9,12 @@
     xmlns="urn:mpeg:DASH:schema:MPD:2011"
     xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd"
     yt:earliestMediaSequence="1266404" >
+    <ProgramInformation lang="enUs"
+        moreInformationURL="www.example.com">
+        <Title>MediaTitle</Title>
+        <Source>MediaSource</Source>
+        <Copyright>MediaCopyright</Copyright>
+    </ProgramInformation>
     <Period start="PT6462826.784S" >
         <SegmentList
             presentationTimeOffset="34740095"

@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayDeque;
@@ -53,6 +54,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * Flags controlling the behavior of the extractor. Possible flag value is {@link
    * #FLAG_WORKAROUND_IGNORE_EDIT_LISTS}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -63,12 +65,12 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 1;
 
-  /**
-   * Parser states.
-   */
+  /** Parser states. */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_READING_ATOM_HEADER, STATE_READING_ATOM_PAYLOAD, STATE_READING_SAMPLE})
   private @interface State {}
+
   private static final int STATE_READING_ATOM_HEADER = 0;
   private static final int STATE_READING_ATOM_PAYLOAD = 1;
   private static final int STATE_READING_SAMPLE = 2;

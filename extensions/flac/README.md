@@ -28,18 +28,19 @@ EXOPLAYER_ROOT="$(pwd)"
 FLAC_EXT_PATH="${EXOPLAYER_ROOT}/extensions/flac/src/main"
 ```
 
-* Download the [Android NDK][] and set its location in an environment variable:
+* Download the [Android NDK][] (version <= 17c) and set its location in an
+  environment variable:
 
 ```
 NDK_PATH="<path to Android NDK>"
 ```
 
-* Download and extract flac-1.3.1 as "${FLAC_EXT_PATH}/jni/flac" folder:
+* Download and extract flac-1.3.2 as "${FLAC_EXT_PATH}/jni/flac" folder:
 
 ```
 cd "${FLAC_EXT_PATH}/jni" && \
-curl https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.3.1.tar.xz | tar xJ && \
-mv flac-1.3.1 flac
+curl https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.3.2.tar.xz | tar xJ && \
+mv flac-1.3.2 flac
 ```
 
 * Build the JNI native libraries from the command line:

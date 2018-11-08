@@ -117,19 +117,6 @@ public final class DefaultAllocator implements Allocator {
           Math.max(availableAllocations.length * 2, availableCount + allocations.length));
     }
     for (Allocation allocation : allocations) {
-      // Weak sanity check that the allocation probably originated from this pool.
-      if (allocation.data != initialAllocationBlock
-          && allocation.data.length != individualAllocationSize) {
-        throw new IllegalArgumentException(
-            "Unexpected allocation: "
-                + System.identityHashCode(allocation.data)
-                + ", "
-                + System.identityHashCode(initialAllocationBlock)
-                + ", "
-                + allocation.data.length
-                + ", "
-                + individualAllocationSize);
-      }
       availableAllocations[availableCount++] = allocation;
     }
     allocatedCount -= allocations.length;

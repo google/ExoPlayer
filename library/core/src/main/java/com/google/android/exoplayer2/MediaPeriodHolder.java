@@ -117,23 +117,18 @@ import com.google.android.exoplayer2.util.Log;
   }
 
   /**
-   * Returns the buffered position in microseconds. If the period is buffered to the end then
-   * {@link C#TIME_END_OF_SOURCE} is returned unless {@code convertEosToDuration} is true, in which
-   * case the period duration is returned.
+   * Returns the buffered position in microseconds. If the period is buffered to the end, then the
+   * period duration is returned.
    *
-   * @param convertEosToDuration Whether to return the period duration rather than
-   *     {@link C#TIME_END_OF_SOURCE} if the period is fully buffered.
    * @return The buffered position in microseconds.
    */
-  public long getBufferedPositionUs(boolean convertEosToDuration) {
+  public long getBufferedPositionUs() {
     if (!prepared) {
       return info.startPositionUs;
     }
     long bufferedPositionUs =
         hasEnabledTracks ? mediaPeriod.getBufferedPositionUs() : C.TIME_END_OF_SOURCE;
-    return bufferedPositionUs == C.TIME_END_OF_SOURCE && convertEosToDuration
-        ? info.durationUs
-        : bufferedPositionUs;
+    return bufferedPositionUs == C.TIME_END_OF_SOURCE ? info.durationUs : bufferedPositionUs;
   }
 
   public long getNextLoadPositionUs() {

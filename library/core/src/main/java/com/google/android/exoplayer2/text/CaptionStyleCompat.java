@@ -22,6 +22,7 @@ import android.support.annotation.IntDef;
 import android.view.accessibility.CaptioningManager;
 import android.view.accessibility.CaptioningManager.CaptionStyle;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -35,6 +36,7 @@ public final class CaptionStyleCompat {
    * #EDGE_TYPE_OUTLINE}, {@link #EDGE_TYPE_DROP_SHADOW}, {@link #EDGE_TYPE_RAISED} or {@link
    * #EDGE_TYPE_DEPRESSED}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     EDGE_TYPE_NONE,

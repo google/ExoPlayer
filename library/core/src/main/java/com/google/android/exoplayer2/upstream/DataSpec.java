@@ -20,6 +20,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
@@ -33,6 +34,7 @@ public final class DataSpec {
    * The flags that apply to any request for data. Possible flag values are {@link #FLAG_ALLOW_GZIP}
    * and {@link #FLAG_ALLOW_CACHING_UNKNOWN_LENGTH}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -61,6 +63,7 @@ public final class DataSpec {
    * The set of HTTP methods that are supported by ExoPlayer {@link HttpDataSource}s. One of {@link
    * #HTTP_METHOD_GET}, {@link #HTTP_METHOD_POST} or {@link #HTTP_METHOD_HEAD}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({HTTP_METHOD_GET, HTTP_METHOD_POST, HTTP_METHOD_HEAD})
   public @interface HttpMethod {}

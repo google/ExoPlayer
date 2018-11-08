@@ -31,8 +31,10 @@ import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +61,7 @@ public final class CacheDataSource implements DataSource {
    * Flags controlling the cache's behavior. Possible flag values are {@link #FLAG_BLOCK_ON_CACHE},
    * {@link #FLAG_IGNORE_CACHE_ON_ERROR} and {@link #FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
@@ -91,6 +94,7 @@ public final class CacheDataSource implements DataSource {
    * Reasons the cache may be ignored. One of {@link #CACHE_IGNORED_REASON_ERROR} or {@link
    * #CACHE_IGNORED_REASON_UNSET_LENGTH}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({CACHE_IGNORED_REASON_ERROR, CACHE_IGNORED_REASON_UNSET_LENGTH})
   public @interface CacheIgnoredReason {}
@@ -358,7 +362,7 @@ public final class CacheDataSource implements DataSource {
     // TODO: Implement.
     return isReadingFromUpstream()
         ? upstreamDataSource.getResponseHeaders()
-        : DataSource.super.getResponseHeaders();
+        : Collections.emptyMap();
   }
 
   @Override

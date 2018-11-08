@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.testutil.Action.SetShuffleModeEnabled;
 import com.google.android.exoplayer2.testutil.Action.SetVideoSurface;
 import com.google.android.exoplayer2.testutil.Action.Stop;
 import com.google.android.exoplayer2.testutil.Action.ThrowPlaybackException;
+import com.google.android.exoplayer2.testutil.Action.WaitForIsLoading;
 import com.google.android.exoplayer2.testutil.Action.WaitForPlaybackState;
 import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
 import com.google.android.exoplayer2.testutil.Action.WaitForSeekProcessed;
@@ -376,13 +377,22 @@ public final class ActionSchedule {
     }
 
     /**
+     * Schedules a delay until any timeline change.
+     *
+     * @return The builder, for convenience.
+     */
+    public Builder waitForTimelineChanged() {
+      return apply(new WaitForTimelineChanged(tag, /* expectedTimeline= */ null));
+    }
+
+    /**
      * Schedules a delay until the timeline changed to a specified expected timeline.
      *
      * @param expectedTimeline The expected timeline to wait for. If null, wait for any timeline
      *     change.
      * @return The builder, for convenience.
      */
-    public Builder waitForTimelineChanged(@Nullable Timeline expectedTimeline) {
+    public Builder waitForTimelineChanged(Timeline expectedTimeline) {
       return apply(new WaitForTimelineChanged(tag, expectedTimeline));
     }
 
@@ -403,6 +413,16 @@ public final class ActionSchedule {
      */
     public Builder waitForPlaybackState(int targetPlaybackState) {
       return apply(new WaitForPlaybackState(tag, targetPlaybackState));
+    }
+
+    /**
+     * Schedules a delay until {@code player.isLoading()} changes to the specified value.
+     *
+     * @param targetIsLoading The target value of {@code player.isLoading()}.
+     * @return The builder, for convenience.
+     */
+    public Builder waitForIsLoading(boolean targetIsLoading) {
+      return apply(new WaitForIsLoading(tag, targetIsLoading));
     }
 
     /**

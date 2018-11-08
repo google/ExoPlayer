@@ -58,7 +58,38 @@ public class AudioFocusManagerTest {
     assertThat(
             audioFocusManager.setAudioAttributes(
                 /* audioAttributes= */ null, /* playWhenReady= */ false, Player.STATE_IDLE))
+        .isEqualTo(PLAYER_COMMAND_DO_NOT_PLAY);
+    assertThat(
+            audioFocusManager.setAudioAttributes(
+                /* audioAttributes= */ null, /* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
+    ShadowAudioManager.AudioFocusRequest request =
+        Shadows.shadowOf(audioManager).getLastAudioFocusRequest();
+    assertThat(request).isNull();
+  }
+
+  @Test
+  public void setAudioAttributes_withNullUsage_releasesAudioFocus() {
+    // Create attributes and request audio focus.
+    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
+    Shadows.shadowOf(audioManager)
+        .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+    assertThat(
+            audioFocusManager.setAudioAttributes(
+                media, /* playWhenReady= */ true, Player.STATE_READY))
+        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
+    ShadowAudioManager.AudioFocusRequest request =
+        Shadows.shadowOf(audioManager).getLastAudioFocusRequest();
+    assertThat(request.durationHint).isEqualTo(AudioManager.AUDIOFOCUS_GAIN);
+
+    // Ensure that setting null audio attributes with audio focus releases audio focus.
+    assertThat(
+            audioFocusManager.setAudioAttributes(
+                /* audioAttributes= */ null, /* playWhenReady= */ true, Player.STATE_READY))
+        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
+    AudioManager.OnAudioFocusChangeListener lastRequest =
+        Shadows.shadowOf(audioManager).getLastAbandonedAudioFocusListener();
+    assertThat(lastRequest).isNotNull();
   }
 
   @Test
@@ -117,7 +148,7 @@ public class AudioFocusManagerTest {
     assertThat(
             audioFocusManager.setAudioAttributes(
                 media, /* playWhenReady= */ true, Player.STATE_IDLE))
-        .isEqualTo(PLAYER_COMMAND_WAIT_FOR_CALLBACK);
+        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
     assertThat(Shadows.shadowOf(audioManager).getLastAudioFocusRequest()).isNull();
     assertThat(audioFocusManager.handlePrepare(/* playWhenReady= */ true))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -296,7 +327,7 @@ public class AudioFocusManagerTest {
     assertThat(
             audioFocusManager.setAudioAttributes(
                 /* audioAttributes= */ null, /* playWhenReady= */ false, Player.STATE_READY))
-        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
+        .isEqualTo(PLAYER_COMMAND_DO_NOT_PLAY);
     assertThat(Shadows.shadowOf(audioManager).getLastAbandonedAudioFocusListener()).isNull();
     ShadowAudioManager.AudioFocusRequest request =
         Shadows.shadowOf(audioManager).getLastAudioFocusRequest();

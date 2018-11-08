@@ -529,6 +529,7 @@ public class PlayerControlView extends FrameLayout {
         controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_ALL);
       }
     }
+    updateRepeatModeButton();
   }
 
   /** Returns whether the shuffle button is shown. */
@@ -633,9 +634,8 @@ public class PlayerControlView extends FrameLayout {
       int windowIndex = player.getCurrentWindowIndex();
       timeline.getWindow(windowIndex, window);
       isSeekable = window.isSeekable;
-      enablePrevious =
-          isSeekable || !window.isDynamic || player.getPreviousWindowIndex() != C.INDEX_UNSET;
-      enableNext = window.isDynamic || player.getNextWindowIndex() != C.INDEX_UNSET;
+      enablePrevious = isSeekable || !window.isDynamic || player.hasPrevious();
+      enableNext = window.isDynamic || player.hasNext();
     }
     setButtonEnabled(enablePrevious, previousButton);
     setButtonEnabled(enableNext, nextButton);
@@ -830,7 +830,7 @@ public class PlayerControlView extends FrameLayout {
 
   private void previous() {
     Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty()) {
+    if (timeline.isEmpty() || player.isPlayingAd()) {
       return;
     }
     int windowIndex = player.getCurrentWindowIndex();
@@ -847,14 +847,14 @@ public class PlayerControlView extends FrameLayout {
 
   private void next() {
     Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty()) {
+    if (timeline.isEmpty() || player.isPlayingAd()) {
       return;
     }
     int windowIndex = player.getCurrentWindowIndex();
     int nextWindowIndex = player.getNextWindowIndex();
     if (nextWindowIndex != C.INDEX_UNSET) {
       seekTo(nextWindowIndex, C.TIME_UNSET);
-    } else if (timeline.getWindow(windowIndex, window, false).isDynamic) {
+    } else if (timeline.getWindow(windowIndex, window).isDynamic) {
       seekTo(windowIndex, C.TIME_UNSET);
     }
   }
