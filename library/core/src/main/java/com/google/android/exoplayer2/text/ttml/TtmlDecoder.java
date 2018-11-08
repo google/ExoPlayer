@@ -479,7 +479,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     long startTime = C.TIME_UNSET;
     long endTime = C.TIME_UNSET;
     String regionId = TtmlNode.ANONYMOUS_REGION_ID;
-    String imageId = "";
+    String imageId = null;
     String[] styleIds = null;
     int attributeCount = parser.getAttributeCount();
     TtmlStyle style = parseStyleAttributes(parser, null);
@@ -511,7 +511,11 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           }
           break;
         case ATTR_IMAGE:
-          imageId = value.substring(1);
+          // Parse URI reference only if refers to an element in the same document (it must start with '#')
+          // Resolving URIs from external sources is not supported
+          if (value.startsWith("#")) {
+            imageId = value.substring(1);
+          }
           break;
         default:
           // Do nothing.

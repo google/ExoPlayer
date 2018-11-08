@@ -159,7 +159,8 @@ import java.util.TreeSet;
 
   private void getEventTimes(TreeSet<Long> out, boolean descendsPNode) {
     boolean isPNode = TAG_P.equals(tag);
-    if (descendsPNode || isPNode) {
+    boolean isDivNode = TAG_DIV.equals(tag);
+    if (descendsPNode || isPNode || (isDivNode && imageId != null)) {
       if (startTimeUs != C.TIME_UNSET) {
         out.add(startTimeUs);
       }
@@ -180,7 +181,7 @@ import java.util.TreeSet;
   }
 
   public List<Cue> getCues(long timeUs, Map<String, TtmlStyle> globalStyles,
-                           Map<String, TtmlRegion> regionMap, Map<String, String> imageMap) {
+      Map<String, TtmlRegion> regionMap, Map<String, String> imageMap) {
 
     TreeMap<String, SpannableStringBuilder> regionOutputs = new TreeMap<>();
     List<Pair<String, String>> regionImageList = new ArrayList<>();
@@ -204,7 +205,7 @@ import java.util.TreeSet;
               Cue.TYPE_UNSET,
               region.line,
               region.lineAnchor,
-              region.width,
+              region.width == Cue.DIMEN_UNSET ? 0.5f : region.width,
               Cue.DIMEN_UNSET
           )
       );
@@ -229,12 +230,17 @@ import java.util.TreeSet;
     return cues;
   }
 
-  private void traverseForImage(long timeUs, String inheritedRegion, List<Pair<String, String>> regionImageList) {
-      // TODO isActive needed?
+  private void traverseForImage(
+      long timeUs,
+      String inheritedRegion,
+      List<Pair<String, String>> regionImageList) {
 
     String resolvedRegionId = ANONYMOUS_REGION_ID.equals(regionId) ? inheritedRegion : regionId;
-    if (TAG_DIV.equals(tag) && imageId != null) {
-      regionImageList.add(new Pair<>(resolvedRegionId, imageId));
+
+    if (isActive(timeUs)) {
+      if (TAG_DIV.equals(tag) && imageId != null) {
+        regionImageList.add(new Pair<>(resolvedRegionId, imageId));
+      }
     }
 
     for (int i = 0; i < getChildCount(); ++i) {
