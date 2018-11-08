@@ -328,6 +328,12 @@ public class PlayerNotificationManager {
    * Creates a notification manager and a low-priority notification channel with the specified
    * {@code channelId} and {@code channelName}.
    *
+   * <p>If the player notification manager is intended to be used within a foreground service,
+   * {@link #createWithNotificationChannel(Context, String, int, int, MediaDescriptionAdapter,
+   * NotificationListener)} should be used to which a {@link NotificationListener} can be passed.
+   * This way you'll receive the notification to put the service into the foreground by calling
+   * {@link android.app.Service#startForeground(int, Notification)}.
+   *
    * @param context The {@link Context}.
    * @param channelId The id of the notification channel.
    * @param channelName A string resource identifier for the user visible name of the channel. The
@@ -348,8 +354,38 @@ public class PlayerNotificationManager {
   }
 
   /**
+   * Creates a notification manager and a low-priority notification channel with the specified
+   * {@code channelId} and {@code channelName}. The {@link NotificationListener} passed as the last
+   * parameter will be notified when the notification is created and cancelled.
+   *
+   * @param context The {@link Context}.
+   * @param channelId The id of the notification channel.
+   * @param channelName A string resource identifier for the user visible name of the channel. The
+   *     recommended maximum length is 40 characters; the value may be truncated if it is too long.
+   * @param notificationId The id of the notification.
+   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
+   * @param notificationListener The {@link NotificationListener}.
+   */
+  public static PlayerNotificationManager createWithNotificationChannel(
+      Context context,
+      String channelId,
+      @StringRes int channelName,
+      int notificationId,
+      MediaDescriptionAdapter mediaDescriptionAdapter,
+      @Nullable NotificationListener notificationListener) {
+    NotificationUtil.createNotificationChannel(
+        context, channelId, channelName, NotificationUtil.IMPORTANCE_LOW);
+    return new PlayerNotificationManager(
+        context, channelId, notificationId, mediaDescriptionAdapter, notificationListener);
+  }
+
+  /**
    * Creates a notification manager using the specified notification {@code channelId}. The caller
    * is responsible for creating the notification channel.
+   *
+   * <p>When used within a service, consider using {@link #PlayerNotificationManager(Context,
+   * String, int, MediaDescriptionAdapter, NotificationListener)} to which a {@link
+   * NotificationListener} can be passed.
    *
    * @param context The {@link Context}.
    * @param channelId The id of the notification channel.
@@ -366,12 +402,42 @@ public class PlayerNotificationManager {
         channelId,
         notificationId,
         mediaDescriptionAdapter,
-        /* customActionReceiver= */ null);
+        /* notificationListener= */ null,
+        /* customActionReceiver */ null);
+  }
+
+  /**
+   * Creates a notification manager using the specified notification {@code channelId} and {@link
+   * NotificationListener}. The caller is responsible for creating the notification channel.
+   *
+   * @param context The {@link Context}.
+   * @param channelId The id of the notification channel.
+   * @param notificationId The id of the notification.
+   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
+   * @param notificationListener The {@link NotificationListener}.
+   */
+  public PlayerNotificationManager(
+      Context context,
+      String channelId,
+      int notificationId,
+      MediaDescriptionAdapter mediaDescriptionAdapter,
+      @Nullable NotificationListener notificationListener) {
+    this(
+        context,
+        channelId,
+        notificationId,
+        mediaDescriptionAdapter,
+        notificationListener,
+        /* customActionReceiver*/ null);
   }
 
   /**
    * Creates a notification manager using the specified notification {@code channelId} and {@link
    * CustomActionReceiver}. The caller is responsible for creating the notification channel.
+   *
+   * <p>When used within a service, consider using {@link #PlayerNotificationManager(Context,
+   * String, int, MediaDescriptionAdapter, NotificationListener, CustomActionReceiver)} to which a
+   * {@link NotificationListener} can be passed.
    *
    * @param context The {@link Context}.
    * @param channelId The id of the notification channel.
@@ -385,10 +451,39 @@ public class PlayerNotificationManager {
       int notificationId,
       MediaDescriptionAdapter mediaDescriptionAdapter,
       @Nullable CustomActionReceiver customActionReceiver) {
+    this(
+        context,
+        channelId,
+        notificationId,
+        mediaDescriptionAdapter,
+        /* notificationListener */ null,
+        customActionReceiver);
+  }
+
+  /**
+   * Creates a notification manager using the specified notification {@code channelId}, {@link
+   * NotificationListener} and {@link CustomActionReceiver}. The caller is responsible for creating
+   * the notification channel.
+   *
+   * @param context The {@link Context}.
+   * @param channelId The id of the notification channel.
+   * @param notificationId The id of the notification.
+   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
+   * @param notificationListener The {@link NotificationListener}.
+   * @param customActionReceiver The {@link CustomActionReceiver}.
+   */
+  public PlayerNotificationManager(
+      Context context,
+      String channelId,
+      int notificationId,
+      MediaDescriptionAdapter mediaDescriptionAdapter,
+      @Nullable NotificationListener notificationListener,
+      @Nullable CustomActionReceiver customActionReceiver) {
     this.context = context.getApplicationContext();
     this.channelId = channelId;
     this.notificationId = notificationId;
     this.mediaDescriptionAdapter = mediaDescriptionAdapter;
+    this.notificationListener = notificationListener;
     this.customActionReceiver = customActionReceiver;
     this.controlDispatcher = new DefaultControlDispatcher();
     instanceId = instanceIdCounter++;
@@ -479,8 +574,14 @@ public class PlayerNotificationManager {
   /**
    * Sets the {@link NotificationListener}.
    *
+   * <p>Please note that you should call this method before you call {@link #setPlayer(Player)} or
+   * you may not get the {@link NotificationListener#onNotificationStarted(int, Notification)}
+   * called on your listener.
+   *
    * @param notificationListener The {@link NotificationListener}.
+   * @deprecated Pass the notification listener to the constructor instead.
    */
+  @Deprecated
   public final void setNotificationListener(NotificationListener notificationListener) {
     this.notificationListener = notificationListener;
   }
