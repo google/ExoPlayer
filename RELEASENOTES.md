@@ -7,6 +7,8 @@
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
 * Add options for controlling audio track selections to `DefaultTrackSelector`
   ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
+* Include channel count in audio capabilities check
+  ([#4690](https://github.com/google/ExoPlayer/issues/4690)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
 
 ### 2.9.1 ###
