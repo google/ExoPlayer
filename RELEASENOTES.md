@@ -2,18 +2,11 @@
 
 ### dev-v2 (not yet released) ###
 
-* Fix logic for enabling next and previous actions in `TimelineQueueNavigator`
-  ([#5065](https://github.com/google/ExoPlayer/issues/5065)).
-* Fix issue where audio focus handling could not be disabled after enabling
-  it ([#5055](https://github.com/google/ExoPlayer/issues/5055)).
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
 * Add options for controlling audio track selections to `DefaultTrackSelector`
   ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
-* Work around an issue where a non-empty end-of-stream audio buffer would be
-  output with timestamp zero, causing the player position to jump backwards
-  ([#5045](https://github.com/google/ExoPlayer/issues/5045)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
 
 ### 2.9.1 ###
@@ -45,19 +38,26 @@
 * Fix issue with blind seeking to windows with non-zero offset in a
   `ConcatenatingMediaSource`
   ([#4873](https://github.com/google/ExoPlayer/issues/4873)).
+* Fix logic for enabling next and previous actions in `TimelineQueueNavigator`
+  ([#5065](https://github.com/google/ExoPlayer/issues/5065)).
+* Fix issue where audio focus handling could not be disabled after enabling it
+  ([#5055](https://github.com/google/ExoPlayer/issues/5055)).
 * Fix issue where subtitles were positioned incorrectly if `SubtitleView` had a
   non-zero position offset to its parent
   ([#4788](https://github.com/google/ExoPlayer/issues/4788)).
 * Fix issue where the buffered position was not updated correctly when
   transitioning between periods
   ([#4899](https://github.com/google/ExoPlayer/issues/4899)).
+* Fix issue where a `NullPointerException` is thrown when removing an unprepared
+  media source from a `ConcatenatingMediaSource` with the `useLazyPreparation`
+  option enabled ([#4986](https://github.com/google/ExoPlayer/issues/4986)).
+* Work around an issue where a non-empty end-of-stream audio buffer would be
+  output with timestamp zero, causing the player position to jump backwards
+  ([#5045](https://github.com/google/ExoPlayer/issues/5045)).
 * Suppress a spurious assertion failure on some Samsung devices
   ([#4532](https://github.com/google/ExoPlayer/issues/4532)).
 * Suppress spurious "references unknown class member" shrinking warning
   ([#4890](https://github.com/google/ExoPlayer/issues/4890)).
-* Fix issue where a `NullPointerException` is thrown when removing an unprepared
-  media source from a `ConcatenatingMediaSource` with the `useLazyPreparation`
-  option enabled ([#4986](https://github.com/google/ExoPlayer/issues/4986)).
 * Swap recommended order for google() and jcenter() in gradle config
   ([#4997](https://github.com/google/ExoPlayer/issues/4997)).
 
