@@ -1,5 +1,10 @@
 # Release notes #
 
+### 2.9.2 ###
+
+* Include channel count in audio capabilities check
+  ([#4690](https://github.com/google/ExoPlayer/issues/4690)).
+
 ### 2.9.1 ###
 
 * Add convenience methods `Player.next`, `Player.previous`, `Player.hasNext`
