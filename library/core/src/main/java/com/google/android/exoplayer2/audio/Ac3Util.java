@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
@@ -40,6 +41,7 @@ public final class Ac3Util {
      * AC3 stream types. See also ETSI TS 102 366 E.1.3.1.1. One of {@link #STREAM_TYPE_UNDEFINED},
      * {@link #STREAM_TYPE_TYPE0}, {@link #STREAM_TYPE_TYPE1} or {@link #STREAM_TYPE_TYPE2}.
      */
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({STREAM_TYPE_UNDEFINED, STREAM_TYPE_TYPE0, STREAM_TYPE_TYPE1, STREAM_TYPE_TYPE2})
     public @interface StreamType {}

@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -446,6 +447,7 @@ public interface Player {
    * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
    * #REPEAT_MODE_ALL}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({REPEAT_MODE_OFF, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
   @interface RepeatMode {}
@@ -467,6 +469,7 @@ public interface Player {
    * {@link #DISCONTINUITY_REASON_SEEK}, {@link #DISCONTINUITY_REASON_SEEK_ADJUSTMENT}, {@link
    * #DISCONTINUITY_REASON_AD_INSERTION} or {@link #DISCONTINUITY_REASON_INTERNAL}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     DISCONTINUITY_REASON_PERIOD_TRANSITION,
@@ -497,6 +500,7 @@ public interface Player {
    * Reasons for timeline and/or manifest changes. One of {@link #TIMELINE_CHANGE_REASON_PREPARED},
    * {@link #TIMELINE_CHANGE_REASON_RESET} or {@link #TIMELINE_CHANGE_REASON_DYNAMIC}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     TIMELINE_CHANGE_REASON_PREPARED,
@@ -654,6 +658,32 @@ public interface Player {
    *     {@code windowIndex} is not within the bounds of the current timeline.
    */
   void seekTo(int windowIndex, long positionMs);
+
+  /**
+   * Returns whether a previous window exists, which may depend on the current repeat mode and
+   * whether shuffle mode is enabled.
+   */
+  boolean hasPrevious();
+
+  /**
+   * Seeks to the default position of the previous window in the timeline, which may depend on the
+   * current repeat mode and whether shuffle mode is enabled. Does nothing if {@link #hasPrevious()}
+   * is {@code false}.
+   */
+  void previous();
+
+  /**
+   * Returns whether a next window exists, which may depend on the current repeat mode and whether
+   * shuffle mode is enabled.
+   */
+  boolean hasNext();
+
+  /**
+   * Seeks to the default position of the next window in the timeline, which may depend on the
+   * current repeat mode and whether shuffle mode is enabled. Does nothing if {@link #hasNext()} is
+   * {@code false}.
+   */
+  void next();
 
   /**
    * Attempts to set the playback parameters. Passing {@code null} sets the parameters to the

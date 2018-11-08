@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
@@ -171,6 +172,9 @@ public final class DefaultAudioSink implements AudioSink {
    */
   private static final int BUFFER_MULTIPLICATION_FACTOR = 4;
 
+  /** To avoid underruns on some devices (e.g., Broadcom 7271), scale up the AC3 buffer duration. */
+  private static final int AC3_BUFFER_MULTIPLICATION_FACTOR = 2;
+
   /**
    * @see AudioTrack#ERROR_BAD_VALUE
    */
@@ -195,12 +199,12 @@ public final class DefaultAudioSink implements AudioSink {
 
   private static final String TAG = "AudioTrack";
 
-  /**
-   * Represents states of the {@link #startMediaTimeUs} value.
-   */
+  /** Represents states of the {@link #startMediaTimeUs} value. */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({START_NOT_SET, START_IN_SYNC, START_NEED_SYNC})
   private @interface StartMediaTimeState {}
+
   private static final int START_NOT_SET = 0;
   private static final int START_IN_SYNC = 1;
   private static final int START_NEED_SYNC = 2;
@@ -483,6 +487,9 @@ public final class DefaultAudioSink implements AudioSink {
       return Util.constrainValue(multipliedBufferSize, minAppBufferSize, maxAppBufferSize);
     } else {
       int rate = getMaximumEncodedRateBytesPerSecond(outputEncoding);
+      if (outputEncoding == C.ENCODING_AC3) {
+        rate *= AC3_BUFFER_MULTIPLICATION_FACTOR;
+      }
       return (int) (PASSTHROUGH_BUFFER_DURATION_US * rate / C.MICROS_PER_SECOND);
     }
   }

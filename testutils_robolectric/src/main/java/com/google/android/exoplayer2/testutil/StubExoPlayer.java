@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Looper;
-import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -32,7 +32,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
  * An abstract {@link ExoPlayer} implementation that throws {@link UnsupportedOperationException}
  * from every method.
  */
-public abstract class StubExoPlayer implements ExoPlayer {
+public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public AudioComponent getAudioComponent() {
@@ -130,21 +130,6 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public void seekToDefaultPosition() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void seekToDefaultPosition(int windowIndex) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void seekTo(long positionMs) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void seekTo(int windowIndex, long positionMs) {
     throw new UnsupportedOperationException();
   }
@@ -166,16 +151,6 @@ public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
   public SeekParameters getSeekParameters() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public @Nullable Object getCurrentTag() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void stop() {
     throw new UnsupportedOperationException();
   }
 
@@ -249,16 +224,6 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public int getNextWindowIndex() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public int getPreviousWindowIndex() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public long getDuration() {
     throw new UnsupportedOperationException();
   }
@@ -274,22 +239,7 @@ public abstract class StubExoPlayer implements ExoPlayer {
   }
 
   @Override
-  public int getBufferedPercentage() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public long getTotalBufferedDuration() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public boolean isCurrentWindowDynamic() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public boolean isCurrentWindowSeekable() {
     throw new UnsupportedOperationException();
   }
 
@@ -305,11 +255,6 @@ public abstract class StubExoPlayer implements ExoPlayer {
 
   @Override
   public int getCurrentAdIndexInAdGroup() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public long getContentDuration() {
     throw new UnsupportedOperationException();
   }
 

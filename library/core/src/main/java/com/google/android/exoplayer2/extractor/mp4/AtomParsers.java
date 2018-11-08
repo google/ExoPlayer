@@ -221,10 +221,21 @@ import java.util.List;
 
       for (int i = 0; i < sampleCount; i++) {
         // Advance to the next chunk if necessary.
-        while (remainingSamplesInChunk == 0) {
-          Assertions.checkState(chunkIterator.moveNext());
+        boolean chunkDataComplete = true;
+        while (remainingSamplesInChunk == 0 && (chunkDataComplete = chunkIterator.moveNext())) {
           offset = chunkIterator.offset;
           remainingSamplesInChunk = chunkIterator.numSamples;
+        }
+        if (!chunkDataComplete) {
+          Log.w(TAG, "Unexpected end of chunk data");
+          sampleCount = i;
+          offsets = Arrays.copyOf(offsets, sampleCount);
+          sizes = Arrays.copyOf(sizes, sampleCount);
+          timestamps = Arrays.copyOf(timestamps, sampleCount);
+          flags = Arrays.copyOf(flags, sampleCount);
+          remainingSamplesAtTimestampOffset = 0;
+          remainingTimestampOffsetChanges = 0;
+          break;
         }
 
         // Add on the timestamp offset if ctts is present.

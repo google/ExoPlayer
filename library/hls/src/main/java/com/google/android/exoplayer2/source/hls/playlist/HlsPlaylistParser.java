@@ -341,6 +341,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       String name = parseStringAttr(line, REGEX_NAME, variableDefinitions);
       String language = parseOptionalStringAttr(line, REGEX_LANGUAGE, variableDefinitions);
       String groupId = parseOptionalStringAttr(line, REGEX_GROUP_ID, variableDefinitions);
+      String id = groupId + ":" + name;
       Format format;
       switch (parseStringAttr(line, REGEX_TYPE, variableDefinitions)) {
         case TYPE_AUDIO:
@@ -348,7 +349,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           String sampleMimeType = codecs != null ? MimeTypes.getMediaMimeType(codecs) : null;
           format =
               Format.createAudioContainerFormat(
-                  /* id= */ name,
+                  /* id= */ id,
                   /* label= */ name,
                   /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
                   sampleMimeType,
@@ -368,7 +369,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         case TYPE_SUBTITLES:
           format =
               Format.createTextContainerFormat(
-                  /* id= */ name,
+                  /* id= */ id,
                   /* label= */ name,
                   /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
                   /* sampleMimeType= */ MimeTypes.TEXT_VTT,
@@ -394,7 +395,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           }
           muxedCaptionFormats.add(
               Format.createTextContainerFormat(
-                  /* id= */ name,
+                  /* id= */ id,
                   /* label= */ name,
                   /* containerMimeType= */ null,
                   /* sampleMimeType= */ mimeType,

@@ -585,7 +585,7 @@ public final class AnalyticsCollectorTest {
                 () ->
                     concatenatedMediaSource.moveMediaSource(
                         /* currentIndex= */ 0, /* newIndex= */ 1))
-            .waitForTimelineChanged(/* expectedTimeline= */ null)
+            .waitForTimelineChanged()
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(concatenatedMediaSource, actionSchedule);

@@ -2141,7 +2141,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   /** Represents how well an audio track matches the selection {@link Parameters}. */
-  private static final class AudioTrackScore implements Comparable<AudioTrackScore> {
+  protected static final class AudioTrackScore implements Comparable<AudioTrackScore> {
 
     private final Parameters parameters;
     private final int withinRendererCapabilitiesScore;

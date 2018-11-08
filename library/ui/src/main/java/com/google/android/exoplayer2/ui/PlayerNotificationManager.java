@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -250,6 +251,7 @@ public class PlayerNotificationManager {
    * NotificationCompat#VISIBILITY_PRIVATE}, {@link NotificationCompat#VISIBILITY_PUBLIC} or {@link
    * NotificationCompat#VISIBILITY_SECRET}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     NotificationCompat.VISIBILITY_PRIVATE,
@@ -264,6 +266,7 @@ public class PlayerNotificationManager {
    * NotificationCompat#PRIORITY_HIGH}, {@link NotificationCompat#PRIORITY_LOW }or {@link
    * NotificationCompat#PRIORITY_MIN}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     NotificationCompat.PRIORITY_DEFAULT,
