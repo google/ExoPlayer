@@ -23,6 +23,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -194,7 +195,12 @@ public final class TimelineQueueEditor
   // CommandReceiver implementation.
 
   @Override
-  public boolean onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+  public boolean onCommand(
+      Player player,
+      ControlDispatcher controlDispatcher,
+      String command,
+      Bundle extras,
+      ResultReceiver cb) {
     if (!COMMAND_MOVE_QUEUE_ITEM.equals(command)) {
       return false;
     }
