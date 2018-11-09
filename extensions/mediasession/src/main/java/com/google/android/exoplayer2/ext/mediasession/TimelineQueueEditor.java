@@ -193,20 +193,18 @@ public final class TimelineQueueEditor
 
   // CommandReceiver implementation.
 
-  @NonNull
   @Override
-  public String[] getCommands() {
-    return new String[] {COMMAND_MOVE_QUEUE_ITEM};
-  }
-
-  @Override
-  public void onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+  public boolean onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+    if (!COMMAND_MOVE_QUEUE_ITEM.equals(command)) {
+      return false;
+    }
     int from = extras.getInt(EXTRA_FROM_INDEX, C.INDEX_UNSET);
     int to = extras.getInt(EXTRA_TO_INDEX, C.INDEX_UNSET);
     if (from != C.INDEX_UNSET && to != C.INDEX_UNSET) {
       queueDataAdapter.move(from, to);
       queueMediaSource.moveMediaSource(from, to);
     }
+    return true;
   }
 
 }

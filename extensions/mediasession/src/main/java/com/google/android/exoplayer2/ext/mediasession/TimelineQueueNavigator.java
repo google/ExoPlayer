@@ -171,14 +171,11 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   // CommandReceiver implementation.
 
   @Override
-  public String[] getCommands() {
-    return null;
+  public boolean onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+    return false;
   }
 
-  @Override
-  public void onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
-    // Do nothing.
-  }
+  // Helper methods.
 
   private void publishFloatingQueueWindow(Player player) {
     if (player.getCurrentTimeline().isEmpty()) {
