@@ -151,13 +151,8 @@ public class DefaultPlaybackController implements MediaSessionConnector.Playback
   // CommandReceiver implementation.
 
   @Override
-  public String[] getCommands() {
-    return null;
-  }
-
-  @Override
-  public void onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
-    // Do nothing.
+  public boolean onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+    return false;
   }
 
 }

@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -85,11 +86,11 @@ public final class MediaSessionConnector {
   /** Receiver of media commands sent by a media controller. */
   public interface CommandReceiver {
     /**
-     * Returns the commands the receiver handles, or {@code null} if no commands need to be handled.
+     * See {@link MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)}.
+     *
+     * @return Whether the command was handled by the receiver.
      */
-    String[] getCommands();
-    /** See {@link MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)}. */
-    void onCommand(Player player, String command, Bundle extras, ResultReceiver cb);
+    boolean onCommand(Player player, String command, Bundle extras, ResultReceiver cb);
   }
 
   /** Interface to which playback preparation actions are delegated. */
@@ -247,8 +248,6 @@ public final class MediaSessionConnector {
   /** Callback receiving a user rating for the active media item. */
   public interface RatingCallback extends CommandReceiver {
 
-    long ACTIONS = PlaybackStateCompat.ACTION_SET_RATING;
-
     /** See {@link MediaSessionCompat.Callback#onSetRating(RatingCompat)}. */
     void onSetRating(Player player, RatingCompat rating);
 
@@ -297,7 +296,7 @@ public final class MediaSessionConnector {
   private final ExoPlayerEventListener exoPlayerEventListener;
   private final MediaSessionCallback mediaSessionCallback;
   private final PlaybackController playbackController;
-  private final Map<String, CommandReceiver> commandMap;
+  private final ArrayList<CommandReceiver> commandReceivers;
 
   private Player player;
   private CustomActionProvider[] customActionProviders;
@@ -385,7 +384,7 @@ public final class MediaSessionConnector {
     mediaSessionCallback = new MediaSessionCallback();
     exoPlayerEventListener = new ExoPlayerEventListener();
     customActionMap = Collections.emptyMap();
-    commandMap = new HashMap<>();
+    commandReceivers = new ArrayList<>();
     registerCommandReceiver(playbackController);
   }
 
@@ -593,19 +592,13 @@ public final class MediaSessionConnector {
   }
 
   private void registerCommandReceiver(CommandReceiver commandReceiver) {
-    if (commandReceiver != null && commandReceiver.getCommands() != null) {
-      for (String command : commandReceiver.getCommands()) {
-        commandMap.put(command, commandReceiver);
-      }
+    if (!commandReceivers.contains(commandReceiver)) {
+      commandReceivers.add(commandReceiver);
     }
   }
 
   private void unregisterCommandReceiver(CommandReceiver commandReceiver) {
-    if (commandReceiver != null && commandReceiver.getCommands() != null) {
-      for (String command : commandReceiver.getCommands()) {
-        commandMap.remove(command);
-      }
-    }
+    commandReceivers.remove(commandReceiver);
   }
 
   private long buildPlaybackActions() {
@@ -619,7 +612,7 @@ public final class MediaSessionConnector {
           (QueueNavigator.ACTIONS & queueNavigator.getSupportedQueueNavigatorActions(player));
     }
     if (ratingCallback != null) {
-      actions |= RatingCallback.ACTIONS;
+      actions |= PlaybackStateCompat.ACTION_SET_RATING;
     }
     return actions;
   }
@@ -640,10 +633,6 @@ public final class MediaSessionConnector {
   private boolean canDispatchToPlaybackPreparer(long action) {
     return playbackPreparer != null
         && (playbackPreparer.getSupportedPrepareActions() & PlaybackPreparer.ACTIONS & action) != 0;
-  }
-
-  private boolean canDispatchToRatingCallback(long action) {
-    return ratingCallback != null && (RatingCallback.ACTIONS & action) != 0;
   }
 
   private boolean canDispatchToPlaybackController(long action) {
@@ -913,18 +902,18 @@ public final class MediaSessionConnector {
 
     @Override
     public void onCustomAction(@NonNull String action, @Nullable Bundle extras) {
-      Map<String, CustomActionProvider> actionMap = customActionMap;
-      if (actionMap.containsKey(action)) {
-        actionMap.get(action).onCustomAction(action, extras);
+      if (customActionMap.containsKey(action)) {
+        customActionMap.get(action).onCustomAction(action, extras);
         invalidateMediaSessionPlaybackState();
       }
     }
 
     @Override
     public void onCommand(String command, Bundle extras, ResultReceiver cb) {
-      CommandReceiver commandReceiver = commandMap.get(command);
-      if (commandReceiver != null) {
-        commandReceiver.onCommand(player, command, extras, cb);
+      for (int i = 0; i < commandReceivers.size(); i++) {
+        if (commandReceivers.get(i).onCommand(player, command, extras, cb)) {
+          return;
+        }
       }
     }
 
@@ -993,14 +982,14 @@ public final class MediaSessionConnector {
 
     @Override
     public void onSetRating(RatingCompat rating) {
-      if (canDispatchToRatingCallback(PlaybackStateCompat.ACTION_SET_RATING)) {
+      if (ratingCallback != null) {
         ratingCallback.onSetRating(player, rating);
       }
     }
 
     @Override
     public void onSetRating(RatingCompat rating, Bundle extras) {
-      if (canDispatchToRatingCallback(PlaybackStateCompat.ACTION_SET_RATING)) {
+      if (ratingCallback != null) {
         ratingCallback.onSetRating(player, rating, extras);
       }
     }
