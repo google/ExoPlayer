@@ -22,6 +22,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Util;
@@ -124,7 +125,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
   @Override
-  public void onSkipToPrevious(Player player) {
+  public void onSkipToPrevious(Player player, ControlDispatcher controlDispatcher) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty() || player.isPlayingAd()) {
       return;
@@ -135,26 +136,26 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
     if (previousWindowIndex != C.INDEX_UNSET
         && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
             || (window.isDynamic && !window.isSeekable))) {
-      player.seekTo(previousWindowIndex, C.TIME_UNSET);
+      controlDispatcher.dispatchSeekTo(player, previousWindowIndex, C.TIME_UNSET);
     } else {
-      player.seekTo(0);
+      controlDispatcher.dispatchSeekTo(player, windowIndex, 0);
     }
   }
 
   @Override
-  public void onSkipToQueueItem(Player player, long id) {
+  public void onSkipToQueueItem(Player player, ControlDispatcher controlDispatcher, long id) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty() || player.isPlayingAd()) {
       return;
     }
     int windowIndex = (int) id;
     if (0 <= windowIndex && windowIndex < timeline.getWindowCount()) {
-      player.seekTo(windowIndex, C.TIME_UNSET);
+      controlDispatcher.dispatchSeekTo(player, windowIndex, C.TIME_UNSET);
     }
   }
 
   @Override
-  public void onSkipToNext(Player player) {
+  public void onSkipToNext(Player player, ControlDispatcher controlDispatcher) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty() || player.isPlayingAd()) {
       return;
@@ -162,16 +163,21 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
     int windowIndex = player.getCurrentWindowIndex();
     int nextWindowIndex = player.getNextWindowIndex();
     if (nextWindowIndex != C.INDEX_UNSET) {
-      player.seekTo(nextWindowIndex, C.TIME_UNSET);
+      controlDispatcher.dispatchSeekTo(player, nextWindowIndex, C.TIME_UNSET);
     } else if (timeline.getWindow(windowIndex, window).isDynamic) {
-      player.seekTo(windowIndex, C.TIME_UNSET);
+      controlDispatcher.dispatchSeekTo(player, windowIndex, C.TIME_UNSET);
     }
   }
 
   // CommandReceiver implementation.
 
   @Override
-  public boolean onCommand(Player player, String command, Bundle extras, ResultReceiver cb) {
+  public boolean onCommand(
+      Player player,
+      ControlDispatcher controlDispatcher,
+      String command,
+      Bundle extras,
+      ResultReceiver cb) {
     return false;
   }
 
@@ -197,4 +203,3 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   }
 
 }
-

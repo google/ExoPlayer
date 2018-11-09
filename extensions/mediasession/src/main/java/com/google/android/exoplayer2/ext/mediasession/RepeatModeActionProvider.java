@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.mediasession;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.session.PlaybackStateCompat;
+import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 
@@ -33,7 +34,6 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
 
   private static final String ACTION_REPEAT_MODE = "ACTION_EXO_REPEAT_MODE";
 
-  private final Player player;
   @RepeatModeUtil.RepeatToggleModes
   private final int repeatToggleModes;
   private final CharSequence repeatAllDescription;
@@ -42,27 +42,23 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
 
   /**
    * Creates a new instance.
-   * <p>
-   * Equivalent to {@code RepeatModeActionProvider(context, player,
-   *     MediaSessionConnector.DEFAULT_REPEAT_TOGGLE_MODES)}.
+   *
+   * <p>Equivalent to {@code RepeatModeActionProvider(context, DEFAULT_REPEAT_TOGGLE_MODES)}.
    *
    * @param context The context.
-   * @param player The player on which to toggle the repeat mode.
    */
-  public RepeatModeActionProvider(Context context, Player player) {
-    this(context, player, DEFAULT_REPEAT_TOGGLE_MODES);
+  public RepeatModeActionProvider(Context context) {
+    this(context, DEFAULT_REPEAT_TOGGLE_MODES);
   }
 
   /**
    * Creates a new instance enabling the given repeat toggle modes.
    *
    * @param context The context.
-   * @param player The player on which to toggle the repeat mode.
    * @param repeatToggleModes The toggle modes to enable.
    */
-  public RepeatModeActionProvider(Context context, Player player,
-      @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
-    this.player = player;
+  public RepeatModeActionProvider(
+      Context context, @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     this.repeatToggleModes = repeatToggleModes;
     repeatAllDescription = context.getString(R.string.exo_media_action_repeat_all_description);
     repeatOneDescription = context.getString(R.string.exo_media_action_repeat_one_description);
@@ -70,16 +66,17 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
   }
 
   @Override
-  public void onCustomAction(String action, Bundle extras) {
+  public void onCustomAction(
+      Player player, ControlDispatcher controlDispatcher, String action, Bundle extras) {
     int mode = player.getRepeatMode();
     int proposedMode = RepeatModeUtil.getNextRepeatMode(mode, repeatToggleModes);
     if (mode != proposedMode) {
-      player.setRepeatMode(proposedMode);
+      controlDispatcher.dispatchSetRepeatMode(player, proposedMode);
     }
   }
 
   @Override
-  public PlaybackStateCompat.CustomAction getCustomAction() {
+  public PlaybackStateCompat.CustomAction getCustomAction(Player player) {
     CharSequence actionLabel;
     int iconResourceId;
     switch (player.getRepeatMode()) {
