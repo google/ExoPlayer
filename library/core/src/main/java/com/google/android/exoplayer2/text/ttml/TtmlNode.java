@@ -202,10 +202,10 @@ import java.util.TreeSet;
       cues.add(
           new Cue(decodedByte,
               region.position,
-              Cue.TYPE_UNSET,
+              Cue.ANCHOR_TYPE_MIDDLE,
               region.line,
               region.lineAnchor,
-              region.width == Cue.DIMEN_UNSET ? 0.5f : region.width,
+              region.width,
               Cue.DIMEN_UNSET
           )
       );
