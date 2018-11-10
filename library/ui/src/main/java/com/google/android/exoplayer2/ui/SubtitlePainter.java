@@ -355,6 +355,22 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   private void setupBitmapLayout() {
+    // Default position
+    if (cuePosition == Cue.DIMEN_UNSET) {
+      cuePosition = 0.5f;
+    }
+
+    // Default line
+    if (cueLine == Cue.DIMEN_UNSET) {
+      cueLineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
+      cueLine = 0.85f;
+    }
+
+    // Default width
+    if (cueSize == Cue.DIMEN_UNSET) {
+      cueSize = 0.5f;
+    }
+
     int parentWidth = parentRight - parentLeft;
     int parentHeight = parentBottom - parentTop;
     float anchorX = parentLeft + (parentWidth * cuePosition);
