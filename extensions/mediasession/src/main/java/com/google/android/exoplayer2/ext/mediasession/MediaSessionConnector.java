@@ -703,7 +703,7 @@ public final class MediaSessionConnector {
       case Player.STATE_READY:
         return playWhenReady ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
       case Player.STATE_ENDED:
-        return PlaybackStateCompat.STATE_PAUSED;
+        return PlaybackStateCompat.STATE_STOPPED;
       default:
         return PlaybackStateCompat.STATE_NONE;
     }
@@ -934,6 +934,13 @@ public final class MediaSessionConnector {
     @Override
     public void onPlay() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_PLAY)) {
+        if (player.getPlaybackState() == Player.STATE_IDLE) {
+          if (playbackPreparer != null) {
+            playbackPreparer.onPrepare();
+          }
+        } else if (player.getPlaybackState() == Player.STATE_ENDED) {
+          controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+        }
         controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
       }
     }
