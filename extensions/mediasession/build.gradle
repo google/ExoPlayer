@@ -31,7 +31,7 @@ android {
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
-    implementation 'com.android.support:support-media-compat:' + supportLibraryVersion
+    api 'com.android.support:support-media-compat:' + supportLibraryVersion
 }
 
 ext {
