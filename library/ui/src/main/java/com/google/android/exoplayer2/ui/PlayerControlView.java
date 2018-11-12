@@ -894,35 +894,28 @@ public class PlayerControlView extends FrameLayout {
   }
 
   private void rewind() {
-    if (rewindMs <= 0) {
-      return;
+    if (rewindMs > 0) {
+      seekTo(player.getCurrentPosition() - rewindMs);
     }
-    seekTo(Math.max(player.getCurrentPosition() - rewindMs, 0));
   }
 
   private void fastForward() {
-    if (fastForwardMs <= 0) {
-      return;
+    if (fastForwardMs > 0) {
+      seekTo(player.getCurrentPosition() + fastForwardMs);
     }
-    long durationMs = player.getDuration();
-    long seekPositionMs = player.getCurrentPosition() + fastForwardMs;
-    if (durationMs != C.TIME_UNSET) {
-      seekPositionMs = Math.min(seekPositionMs, durationMs);
-    }
-    seekTo(seekPositionMs);
   }
 
   private void seekTo(long positionMs) {
     seekTo(player.getCurrentWindowIndex(), positionMs);
   }
 
-  private void seekTo(int windowIndex, long positionMs) {
-    boolean dispatched = controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
-    if (!dispatched) {
-      // The seek wasn't dispatched. If the progress bar was dragged by the user to perform the
-      // seek then it'll now be in the wrong position. Trigger a progress update to snap it back.
-      updateProgress();
+  private boolean seekTo(int windowIndex, long positionMs) {
+    long durationMs = player.getDuration();
+    if (durationMs != C.TIME_UNSET) {
+      positionMs = Math.min(positionMs, durationMs);
     }
+    positionMs = Math.max(positionMs, 0);
+    return controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
   }
 
   private void seekToTimeBarPosition(long positionMs) {
@@ -946,7 +939,12 @@ public class PlayerControlView extends FrameLayout {
     } else {
       windowIndex = player.getCurrentWindowIndex();
     }
-    seekTo(windowIndex, positionMs);
+    boolean dispatched = seekTo(windowIndex, positionMs);
+    if (!dispatched) {
+      // The seek wasn't dispatched then the progress bar scrubber will be in the wrong position.
+      // Trigger a progress update to snap it back.
+      updateProgress();
+    }
   }
 
   @Override
