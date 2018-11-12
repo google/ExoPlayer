@@ -79,6 +79,23 @@ public final class ShuffleOrderTest {
     }
   }
 
+  @Test
+  public void testSideloadedShuffleOrder() {
+    int[] shuffledIndices = new int[] {2, 1, 0, 4, 3};
+    ShuffleOrder shuffleOrder = new DefaultShuffleOrder(shuffledIndices, RANDOM_SEED);
+    assertThat(shuffleOrder.getFirstIndex()).isEqualTo(2);
+    assertThat(shuffleOrder.getLastIndex()).isEqualTo(3);
+    for (int i = 0; i < 4; i++) {
+      assertThat(shuffleOrder.getNextIndex(shuffledIndices[i])).isEqualTo(shuffledIndices[i + 1]);
+    }
+    assertThat(shuffleOrder.getNextIndex(3)).isEqualTo(C.INDEX_UNSET);
+    for (int i = 4; i > 0; i--) {
+      assertThat(shuffleOrder.getPreviousIndex(shuffledIndices[i]))
+          .isEqualTo(shuffledIndices[i - 1]);
+    }
+    assertThat(shuffleOrder.getPreviousIndex(2)).isEqualTo(C.INDEX_UNSET);
+  }
+
   private static void assertShuffleOrderCorrectness(ShuffleOrder shuffleOrder, int length) {
     assertThat(shuffleOrder.getLength()).isEqualTo(length);
     if (length == 0) {

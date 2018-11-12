@@ -55,6 +55,17 @@ public interface ShuffleOrder {
       this(length, new Random(randomSeed));
     }
 
+    /**
+     * Creates an instance with a specified shuffle order and the specified random seed. The random
+     * seed is used for {@link #cloneAndInsert(int, int)} invocations.
+     *
+     * @param shuffledIndices The shuffled indices to use as order.
+     * @param randomSeed A random seed.
+     */
+    public DefaultShuffleOrder(int[] shuffledIndices, long randomSeed) {
+      this(Arrays.copyOf(shuffledIndices, shuffledIndices.length), new Random(randomSeed));
+    }
+
     private DefaultShuffleOrder(int length, Random random) {
       this(createShuffledList(length, random), random);
     }
