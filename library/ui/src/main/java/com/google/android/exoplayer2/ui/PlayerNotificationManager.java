@@ -299,8 +299,9 @@ public class PlayerNotificationManager {
   private final Map<String, NotificationCompat.Action> playbackActions;
   private final Map<String, NotificationCompat.Action> customActions;
   private final int instanceId;
+  private final Timeline.Window window;
 
-  private @Nullable Player player;
+  @Nullable private Player player;
   private ControlDispatcher controlDispatcher;
   private boolean isNotificationStarted;
   private int currentNotificationTag;
@@ -485,7 +486,8 @@ public class PlayerNotificationManager {
     this.mediaDescriptionAdapter = mediaDescriptionAdapter;
     this.notificationListener = notificationListener;
     this.customActionReceiver = customActionReceiver;
-    this.controlDispatcher = new DefaultControlDispatcher();
+    controlDispatcher = new DefaultControlDispatcher();
+    window = new Timeline.Window();
     instanceId = instanceIdCounter++;
     mainHandler = new Handler(Looper.getMainLooper());
     notificationManager = NotificationManagerCompat.from(context);
@@ -968,15 +970,25 @@ public class PlayerNotificationManager {
    * action name is ignored.
    */
   protected List<String> getActions(Player player) {
-    boolean isPlayingAd = player.isPlayingAd();
+    boolean enablePrevious = false;
+    boolean enableRewind = false;
+    boolean enableFastForward = false;
+    boolean enableNext = false;
+    Timeline timeline = player.getCurrentTimeline();
+    if (!timeline.isEmpty() && !player.isPlayingAd()) {
+      timeline.getWindow(player.getCurrentWindowIndex(), window);
+      enablePrevious = window.isSeekable || !window.isDynamic || player.hasPrevious();
+      enableRewind = rewindMs > 0;
+      enableFastForward = fastForwardMs > 0;
+      enableNext = window.isDynamic || player.hasNext();
+    }
+
     List<String> stringActions = new ArrayList<>();
-    if (!isPlayingAd) {
-      if (useNavigationActions) {
-        stringActions.add(ACTION_PREVIOUS);
-      }
-      if (rewindMs > 0) {
-        stringActions.add(ACTION_REWIND);
-      }
+    if (useNavigationActions && enablePrevious) {
+      stringActions.add(ACTION_PREVIOUS);
+    }
+    if (enableRewind) {
+      stringActions.add(ACTION_REWIND);
     }
     if (usePlayPauseActions) {
       if (player.getPlayWhenReady()) {
@@ -985,13 +997,11 @@ public class PlayerNotificationManager {
         stringActions.add(ACTION_PLAY);
       }
     }
-    if (!isPlayingAd) {
-      if (fastForwardMs > 0) {
-        stringActions.add(ACTION_FAST_FORWARD);
-      }
-      if (useNavigationActions && player.getNextWindowIndex() != C.INDEX_UNSET) {
-        stringActions.add(ACTION_NEXT);
-      }
+    if (enableFastForward) {
+      stringActions.add(ACTION_FAST_FORWARD);
+    }
+    if (useNavigationActions && enableNext) {
+      stringActions.add(ACTION_NEXT);
     }
     if (customActionReceiver != null) {
       stringActions.addAll(customActionReceiver.getCustomActions(player));
@@ -1011,6 +1021,7 @@ public class PlayerNotificationManager {
    * @param actionNames The names of the actions included in the notification.
    * @param player The player for which state to build a notification.
    */
+  @SuppressWarnings("unused")
   protected int[] getActionIndicesForCompactView(List<String> actionNames, Player player) {
     int pauseActionIndex = actionNames.indexOf(ACTION_PAUSE);
     int playActionIndex = actionNames.indexOf(ACTION_PLAY);
@@ -1067,6 +1078,62 @@ public class PlayerNotificationManager {
     return actions;
   }
 
+  private void previous(Player player) {
+    Timeline timeline = player.getCurrentTimeline();
+    if (timeline.isEmpty() || player.isPlayingAd()) {
+      return;
+    }
+    int windowIndex = player.getCurrentWindowIndex();
+    timeline.getWindow(windowIndex, window);
+    int previousWindowIndex = player.getPreviousWindowIndex();
+    if (previousWindowIndex != C.INDEX_UNSET
+        && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
+            || (window.isDynamic && !window.isSeekable))) {
+      seekTo(player, previousWindowIndex, C.TIME_UNSET);
+    } else {
+      seekTo(player, 0);
+    }
+  }
+
+  private void next(Player player) {
+    Timeline timeline = player.getCurrentTimeline();
+    if (timeline.isEmpty() || player.isPlayingAd()) {
+      return;
+    }
+    int windowIndex = player.getCurrentWindowIndex();
+    int nextWindowIndex = player.getNextWindowIndex();
+    if (nextWindowIndex != C.INDEX_UNSET) {
+      seekTo(player, nextWindowIndex, C.TIME_UNSET);
+    } else if (timeline.getWindow(windowIndex, window).isDynamic) {
+      seekTo(player, windowIndex, C.TIME_UNSET);
+    }
+  }
+
+  private void rewind(Player player) {
+    if (player.isCurrentWindowSeekable() && rewindMs > 0) {
+      seekTo(player, Math.max(player.getCurrentPosition() - rewindMs, 0));
+    }
+  }
+
+  private void fastForward(Player player) {
+    if (player.isCurrentWindowSeekable() && fastForwardMs > 0) {
+      seekTo(player, player.getCurrentPosition() + fastForwardMs);
+    }
+  }
+
+  private void seekTo(Player player, long positionMs) {
+    seekTo(player, player.getCurrentWindowIndex(), positionMs);
+  }
+
+  private void seekTo(Player player, int windowIndex, long positionMs) {
+    long duration = player.getDuration();
+    if (duration != C.TIME_UNSET) {
+      positionMs = Math.min(positionMs, duration);
+    }
+    positionMs = Math.max(positionMs, 0);
+    controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
+  }
+
   private static PendingIntent createBroadcastIntent(
       String action, Context context, int instanceId) {
     Intent intent = new Intent(action).setPackage(context.getPackageName());
@@ -1119,13 +1186,6 @@ public class PlayerNotificationManager {
 
   private class NotificationBroadcastReceiver extends BroadcastReceiver {
 
-    private final Timeline.Window window;
-
-    /** Creates the broadcast receiver. */
-    public NotificationBroadcastReceiver() {
-      window = new Timeline.Window();
-    }
-
     @Override
     public void onReceive(Context context, Intent intent) {
       Player player = PlayerNotificationManager.this.player;
@@ -1137,25 +1197,14 @@ public class PlayerNotificationManager {
       String action = intent.getAction();
       if (ACTION_PLAY.equals(action) || ACTION_PAUSE.equals(action)) {
         controlDispatcher.dispatchSetPlayWhenReady(player, ACTION_PLAY.equals(action));
-      } else if (ACTION_FAST_FORWARD.equals(action) || ACTION_REWIND.equals(action)) {
-        long increment = ACTION_FAST_FORWARD.equals(action) ? fastForwardMs : -rewindMs;
-        controlDispatcher.dispatchSeekTo(
-            player, player.getCurrentWindowIndex(), player.getCurrentPosition() + increment);
-      } else if (ACTION_NEXT.equals(action)) {
-        int nextWindowIndex = player.getNextWindowIndex();
-        if (nextWindowIndex != C.INDEX_UNSET) {
-          controlDispatcher.dispatchSeekTo(player, nextWindowIndex, C.TIME_UNSET);
-        }
       } else if (ACTION_PREVIOUS.equals(action)) {
-        player.getCurrentTimeline().getWindow(player.getCurrentWindowIndex(), window);
-        int previousWindowIndex = player.getPreviousWindowIndex();
-        if (previousWindowIndex != C.INDEX_UNSET
-            && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
-                || (window.isDynamic && !window.isSeekable))) {
-          controlDispatcher.dispatchSeekTo(player, previousWindowIndex, C.TIME_UNSET);
-        } else {
-          controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
-        }
+        previous(player);
+      } else if (ACTION_REWIND.equals(action)) {
+        rewind(player);
+      } else if (ACTION_FAST_FORWARD.equals(action)) {
+        fastForward(player);
+      } else if (ACTION_NEXT.equals(action)) {
+        next(player);
       } else if (ACTION_STOP.equals(action)) {
         controlDispatcher.dispatchStop(player, true);
         stopNotification();
