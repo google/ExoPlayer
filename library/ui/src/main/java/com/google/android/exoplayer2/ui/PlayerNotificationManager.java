@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
@@ -302,6 +303,7 @@ public class PlayerNotificationManager {
   private final Timeline.Window window;
 
   @Nullable private Player player;
+  @Nullable private PlaybackPreparer playbackPreparer;
   private ControlDispatcher controlDispatcher;
   private boolean isNotificationStarted;
   private int currentNotificationTag;
@@ -560,6 +562,15 @@ public class PlayerNotificationManager {
         startOrUpdateNotification();
       }
     }
+  }
+
+  /**
+   * Sets the {@link PlaybackPreparer}.
+   *
+   * @param playbackPreparer The {@link PlaybackPreparer}.
+   */
+  public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
+    this.playbackPreparer = playbackPreparer;
   }
 
   /**
@@ -991,7 +1002,7 @@ public class PlayerNotificationManager {
       stringActions.add(ACTION_REWIND);
     }
     if (usePlayPauseActions) {
-      if (player.getPlayWhenReady()) {
+      if (isPlaying(player)) {
         stringActions.add(ACTION_PAUSE);
       } else {
         stringActions.add(ACTION_PLAY);
@@ -1134,6 +1145,12 @@ public class PlayerNotificationManager {
     controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
   }
 
+  private boolean isPlaying(Player player) {
+    return player.getPlaybackState() != Player.STATE_ENDED
+        && player.getPlaybackState() != Player.STATE_IDLE
+        && player.getPlayWhenReady();
+  }
+
   private static PendingIntent createBroadcastIntent(
       String action, Context context, int instanceId) {
     Intent intent = new Intent(action).setPackage(context.getPackageName());
@@ -1195,8 +1212,17 @@ public class PlayerNotificationManager {
         return;
       }
       String action = intent.getAction();
-      if (ACTION_PLAY.equals(action) || ACTION_PAUSE.equals(action)) {
-        controlDispatcher.dispatchSetPlayWhenReady(player, ACTION_PLAY.equals(action));
+      if (ACTION_PLAY.equals(action)) {
+        if (player.getPlaybackState() == Player.STATE_IDLE) {
+          if (playbackPreparer != null) {
+            playbackPreparer.preparePlayback();
+          }
+        } else if (player.getPlaybackState() == Player.STATE_ENDED) {
+          controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+        }
+        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
+      } else if (ACTION_PAUSE.equals(action)) {
+        controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
       } else if (ACTION_PREVIOUS.equals(action)) {
         previous(player);
       } else if (ACTION_REWIND.equals(action)) {
