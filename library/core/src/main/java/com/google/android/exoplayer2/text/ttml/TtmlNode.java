@@ -183,18 +183,24 @@ import java.util.TreeSet;
   public List<Cue> getCues(long timeUs, Map<String, TtmlStyle> globalStyles,
       Map<String, TtmlRegion> regionMap, Map<String, String> imageMap) {
 
-    TreeMap<String, SpannableStringBuilder> regionOutputs = new TreeMap<>();
-    List<Pair<String, String>> regionImageList = new ArrayList<>();
+    TreeMap<String, SpannableStringBuilder> regionTextOutputs = new TreeMap<>();
+    List<Pair<String, String>> regionImageOutputs = new ArrayList<>();
 
-    traverseForText(timeUs, false, regionId, regionOutputs);
-    traverseForStyle(timeUs, globalStyles, regionOutputs);
-    traverseForImage(timeUs, regionId, regionImageList);
+    traverseForText(timeUs, false, regionId, regionTextOutputs);
+    traverseForStyle(timeUs, globalStyles, regionTextOutputs);
+    traverseForImage(timeUs, regionId, regionImageOutputs);
 
     List<Cue> cues = new ArrayList<>();
 
     // Create image based cues
-    for (Pair<String, String> regionImagePair : regionImageList) {
+    for (Pair<String, String> regionImagePair : regionImageOutputs) {
       String base64 = imageMap.get(regionImagePair.second);
+
+      if (base64 == null) {
+        // Image ref points to invalid image, do nothing
+        continue;
+      }
+
       byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
       Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
       TtmlRegion region = regionMap.get(regionImagePair.first);
@@ -206,13 +212,13 @@ import java.util.TreeSet;
               region.line,
               region.lineAnchor,
               region.width,
-              Cue.DIMEN_UNSET
+              /* height= */ Cue.DIMEN_UNSET
           )
       );
     }
 
     // Create text based cues
-    for (Entry<String, SpannableStringBuilder> entry : regionOutputs.entrySet()) {
+    for (Entry<String, SpannableStringBuilder> entry : regionTextOutputs.entrySet()) {
       TtmlRegion region = regionMap.get(entry.getKey());
       cues.add(
           new Cue(

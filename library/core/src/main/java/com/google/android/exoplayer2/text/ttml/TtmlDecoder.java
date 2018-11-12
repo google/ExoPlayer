@@ -70,7 +70,6 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   private static final String ATTR_REGION = "region";
   private static final String ATTR_IMAGE = "backgroundImage";
 
-
   private static final Pattern CLOCK_TIME =
       Pattern.compile("^([0-9][0-9]+):([0-9][0-9]):([0-9][0-9])"
           + "(?:(\\.[0-9]+)|:([0-9][0-9])(?:\\.([0-9]+))?)?$");
@@ -130,7 +129,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               Log.i(TAG, "Ignoring unsupported tag: " + xmlParser.getName());
               unsupportedNodeDepth++;
             } else if (TtmlNode.TAG_HEAD.equals(name)) {
-              parseHeader(xmlParser, globalStyles, regionMap, cellResolution, imageMap);
+              parseHeader(xmlParser, globalStyles, cellResolution, regionMap, imageMap);
             } else {
               try {
                 TtmlNode node = parseNode(xmlParser, parent, regionMap, frameAndTickRate);
@@ -232,8 +231,8 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   private Map<String, TtmlStyle> parseHeader(
       XmlPullParser xmlParser,
       Map<String, TtmlStyle> globalStyles,
-      Map<String, TtmlRegion> globalRegions,
       CellResolution cellResolution,
+      Map<String, TtmlRegion> globalRegions,
       Map<String, String> imageMap)
       throws IOException, XmlPullParserException {
     do {
@@ -255,23 +254,21 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           globalRegions.put(ttmlRegion.id, ttmlRegion);
         }
       } else if(XmlPullParserUtil.isStartTag(xmlParser, TtmlNode.TAG_METADATA)){
-        parseMetaData(xmlParser, imageMap);
+        parseMetadata(xmlParser, imageMap);
       }
 
     } while (!XmlPullParserUtil.isEndTag(xmlParser, TtmlNode.TAG_HEAD));
     return globalStyles;
   }
 
-  public void parseMetaData(XmlPullParser xmlParser, Map<String, String> imageMap) throws IOException, XmlPullParserException {
+  private void parseMetadata(XmlPullParser xmlParser, Map<String, String> imageMap) throws IOException, XmlPullParserException {
     do {
       xmlParser.next();
       if (XmlPullParserUtil.isStartTag(xmlParser, TtmlNode.TAG_SMPTE_IMAGE)) {
-        for (int i = 0; i < xmlParser.getAttributeCount(); i++) {
-          String id = XmlPullParserUtil.getAttributeValue(xmlParser, "id");
-          if(id != null){
-            String base64 = xmlParser.nextText();
-            imageMap.put(id, base64);
-          }
+        String id = XmlPullParserUtil.getAttributeValue(xmlParser, "id");
+        if (id != null) {
+          String base64 = xmlParser.nextText();
+          imageMap.put(id, base64);
         }
       }
     } while (!XmlPullParserUtil.isEndTag(xmlParser, TtmlNode.TAG_METADATA));
