@@ -84,21 +84,25 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
 
   @Override
   public long getSupportedQueueNavigatorActions(Player player) {
-    if (player == null) {
-      return 0;
-    }
+    boolean enableSkipTo = false;
+    boolean enablePrevious = false;
+    boolean enableNext = false;
     Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty() || player.isPlayingAd()) {
-      return 0;
+    if (!timeline.isEmpty() && !player.isPlayingAd()) {
+      timeline.getWindow(player.getCurrentWindowIndex(), window);
+      enableSkipTo = timeline.getWindowCount() > 1;
+      enablePrevious = window.isSeekable || !window.isDynamic || player.hasPrevious();
+      enableNext = window.isDynamic || player.hasNext();
     }
+
     long actions = 0;
-    if (timeline.getWindowCount() > 1) {
+    if (enableSkipTo) {
       actions |= PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM;
     }
-    if (window.isSeekable || !window.isDynamic || player.hasPrevious()) {
+    if (enablePrevious) {
       actions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
     }
-    if (window.isDynamic || player.hasNext()) {
+    if (enableNext) {
       actions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
     }
     return actions;

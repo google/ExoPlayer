@@ -212,7 +212,7 @@ public final class MediaSessionConnector {
      * @param player The player connected to the media session.
      * @return The bitmask of the supported media actions.
      */
-    long getSupportedQueueNavigatorActions(@Nullable Player player);
+    long getSupportedQueueNavigatorActions(Player player);
     /**
      * Called when the timeline of the player has changed.
      *
@@ -586,7 +586,7 @@ public final class MediaSessionConnector {
   public final void invalidateMediaSessionPlaybackState() {
     PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();
     if (player == null) {
-      builder.setActions(buildPlaybackActions()).setState(PlaybackStateCompat.STATE_NONE, 0, 0, 0);
+      builder.setActions(/* capabilities= */ 0).setState(PlaybackStateCompat.STATE_NONE, 0, 0, 0);
       mediaSession.setPlaybackState(builder.build());
       return;
     }
@@ -622,7 +622,7 @@ public final class MediaSessionConnector {
     Bundle extras = new Bundle();
     extras.putFloat(EXTRAS_PITCH, player.getPlaybackParameters().pitch);
     builder
-        .setActions(buildPlaybackActions())
+        .setActions(buildPlaybackActions(player))
         .setActiveQueueItemId(activeQueueItemId)
         .setBufferedPosition(player.getBufferedPosition())
         .setState(
@@ -657,21 +657,32 @@ public final class MediaSessionConnector {
     commandReceivers.remove(commandReceiver);
   }
 
-  private long buildPlaybackActions() {
-    long actions = 0;
-    if (player != null && !player.getCurrentTimeline().isEmpty()) {
-      long playbackActions = BASE_PLAYBACK_ACTIONS;
-      if (player.isCurrentWindowSeekable()) {
-        playbackActions |= PlaybackStateCompat.ACTION_SEEK_TO;
-        if (fastForwardMs > 0) {
-          playbackActions |= PlaybackStateCompat.ACTION_FAST_FORWARD;
-        }
-        if (rewindMs > 0) {
-          playbackActions |= PlaybackStateCompat.ACTION_REWIND;
-        }
-      }
-      actions |= (playbackActions & enabledPlaybackActions);
+  private long buildPlaybackActions(Player player) {
+    boolean enableSeeking = false;
+    boolean enableRewind = false;
+    boolean enableFastForward = false;
+    boolean enableSetRating = false;
+    Timeline timeline = player.getCurrentTimeline();
+    if (!timeline.isEmpty() && !player.isPlayingAd()) {
+      enableSeeking = player.isCurrentWindowSeekable();
+      enableRewind = enableSeeking && rewindMs > 0;
+      enableFastForward = enableSeeking && fastForwardMs > 0;
+      enableSetRating = true;
     }
+
+    long playbackActions = BASE_PLAYBACK_ACTIONS;
+    if (enableSeeking) {
+      playbackActions |= PlaybackStateCompat.ACTION_SEEK_TO;
+    }
+    if (enableFastForward) {
+      playbackActions |= PlaybackStateCompat.ACTION_FAST_FORWARD;
+    }
+    if (enableRewind) {
+      playbackActions |= PlaybackStateCompat.ACTION_REWIND;
+    }
+    playbackActions &= enabledPlaybackActions;
+
+    long actions = playbackActions;
     if (playbackPreparer != null) {
       actions |= (PlaybackPreparer.ACTIONS & playbackPreparer.getSupportedPrepareActions());
     }
@@ -679,7 +690,7 @@ public final class MediaSessionConnector {
       actions |=
           (QueueNavigator.ACTIONS & queueNavigator.getSupportedQueueNavigatorActions(player));
     }
-    if (ratingCallback != null) {
+    if (ratingCallback != null && enableSetRating) {
       actions |= PlaybackStateCompat.ACTION_SET_RATING;
     }
     return actions;
@@ -699,39 +710,46 @@ public final class MediaSessionConnector {
   }
 
   private boolean canDispatchPlaybackAction(long action) {
-    return (enabledPlaybackActions & action) != 0;
+    return player != null && (enabledPlaybackActions & action) != 0;
   }
 
   private boolean canDispatchToPlaybackPreparer(long action) {
-    return playbackPreparer != null
-        && (playbackPreparer.getSupportedPrepareActions() & PlaybackPreparer.ACTIONS & action) != 0;
+    return player != null
+        && playbackPreparer != null
+        && (playbackPreparer.getSupportedPrepareActions() & action) != 0;
   }
 
   private boolean canDispatchToQueueNavigator(long action) {
-    return queueNavigator != null
-        && (queueNavigator.getSupportedQueueNavigatorActions(player)
-                & QueueNavigator.ACTIONS
-                & action)
-            != 0;
+    return player != null
+        && queueNavigator != null
+        && (queueNavigator.getSupportedQueueNavigatorActions(player) & action) != 0;
   }
 
-  private void rewind() {
-    if (rewindMs > 0) {
-      seekTo(player.getCurrentPosition() - rewindMs);
+  private boolean canDispatchSetRating() {
+    return player != null && ratingCallback != null;
+  }
+
+  private boolean canDispatchQueueEdit() {
+    return player != null && queueEditor != null;
+  }
+
+  private void rewind(Player player) {
+    if (player.isCurrentWindowSeekable() && rewindMs > 0) {
+      seekTo(player, player.getCurrentPosition() - rewindMs);
     }
   }
 
-  private void fastForward() {
-    if (fastForwardMs > 0) {
-      seekTo(player.getCurrentPosition() + fastForwardMs);
+  private void fastForward(Player player) {
+    if (player.isCurrentWindowSeekable() && fastForwardMs > 0) {
+      seekTo(player, player.getCurrentPosition() + fastForwardMs);
     }
   }
 
-  private void seekTo(long positionMs) {
-    seekTo(player.getCurrentWindowIndex(), positionMs);
+  private void seekTo(Player player, long positionMs) {
+    seekTo(player, player.getCurrentWindowIndex(), positionMs);
   }
 
-  private void seekTo(int windowIndex, long positionMs) {
+  private void seekTo(Player player, int windowIndex, long positionMs) {
     long durationMs = player.getDuration();
     if (durationMs != C.TIME_UNSET) {
       positionMs = Math.min(positionMs, durationMs);
@@ -930,21 +948,21 @@ public final class MediaSessionConnector {
     @Override
     public void onSeekTo(long positionMs) {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SEEK_TO)) {
-        seekTo(positionMs);
+        seekTo(player, positionMs);
       }
     }
 
     @Override
     public void onFastForward() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_FAST_FORWARD)) {
-        fastForward();
+        fastForward(player);
       }
     }
 
     @Override
     public void onRewind() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_REWIND)) {
-        rewind();
+        rewind(player);
       }
     }
 
@@ -1008,7 +1026,7 @@ public final class MediaSessionConnector {
 
     @Override
     public void onCustomAction(@NonNull String action, @Nullable Bundle extras) {
-      if (customActionMap.containsKey(action)) {
+      if (player != null && customActionMap.containsKey(action)) {
         customActionMap.get(action).onCustomAction(player, controlDispatcher, action, extras);
         invalidateMediaSessionPlaybackState();
       }
@@ -1016,9 +1034,11 @@ public final class MediaSessionConnector {
 
     @Override
     public void onCommand(String command, Bundle extras, ResultReceiver cb) {
-      for (int i = 0; i < commandReceivers.size(); i++) {
-        if (commandReceivers.get(i).onCommand(player, controlDispatcher, command, extras, cb)) {
-          return;
+      if (player != null) {
+        for (int i = 0; i < commandReceivers.size(); i++) {
+          if (commandReceivers.get(i).onCommand(player, controlDispatcher, command, extras, cb)) {
+            return;
+          }
         }
       }
     }
@@ -1088,35 +1108,35 @@ public final class MediaSessionConnector {
 
     @Override
     public void onSetRating(RatingCompat rating) {
-      if (ratingCallback != null) {
+      if (canDispatchSetRating()) {
         ratingCallback.onSetRating(player, rating);
       }
     }
 
     @Override
     public void onSetRating(RatingCompat rating, Bundle extras) {
-      if (ratingCallback != null) {
+      if (canDispatchSetRating()) {
         ratingCallback.onSetRating(player, rating, extras);
       }
     }
 
     @Override
     public void onAddQueueItem(MediaDescriptionCompat description) {
-      if (queueEditor != null) {
+      if (canDispatchQueueEdit()) {
         queueEditor.onAddQueueItem(player, description);
       }
     }
 
     @Override
     public void onAddQueueItem(MediaDescriptionCompat description, int index) {
-      if (queueEditor != null) {
+      if (canDispatchQueueEdit()) {
         queueEditor.onAddQueueItem(player, description, index);
       }
     }
 
     @Override
     public void onRemoveQueueItem(MediaDescriptionCompat description) {
-      if (queueEditor != null) {
+      if (canDispatchQueueEdit()) {
         queueEditor.onRemoveQueueItem(player, description);
       }
     }
