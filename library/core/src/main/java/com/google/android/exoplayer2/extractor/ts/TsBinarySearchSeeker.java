@@ -33,10 +33,8 @@ import java.io.IOException;
 /* package */ final class TsBinarySearchSeeker extends BinarySearchSeeker {
 
   private static final long SEEK_TOLERANCE_US = 100_000;
-  private static final int MINIMUM_SEARCH_RANGE_BYTES = TsExtractor.TS_PACKET_SIZE * 5;
-  private static final int TIMESTAMP_SEARCH_PACKETS = 200;
-  private static final int TIMESTAMP_SEARCH_BYTES =
-      TsExtractor.TS_PACKET_SIZE * TIMESTAMP_SEARCH_PACKETS;
+  private static final int MINIMUM_SEARCH_RANGE_BYTES = 5 * TsExtractor.TS_PACKET_SIZE;
+  private static final int TIMESTAMP_SEARCH_BYTES = 200 * TsExtractor.TS_PACKET_SIZE;
 
   public TsBinarySearchSeeker(
       TimestampAdjuster pcrTimestampAdjuster, long streamDurationUs, long inputLength, int pcrPid) {
@@ -56,10 +54,10 @@ import java.io.IOException;
    * A {@link TimestampSeeker} implementation that looks for a given PCR timestamp at a given
    * position in a TS stream.
    *
-   * <p>Given a PCR timestamp, and a position within a TS stream, this seeker will try to read up to
-   * {@link #TIMESTAMP_SEARCH_PACKETS} TS packets from that stream position, look for all packet
-   * with PID equals to PCR_PID, and then compare the PCR timestamps (if available) of these packets
-   * vs the target timestamp.
+   * <p>Given a PCR timestamp, and a position within a TS stream, this seeker will peek up to {@link
+   * #TIMESTAMP_SEARCH_BYTES} from that stream position, look for all packets with PID equal to
+   * PCR_PID, and then compare the PCR timestamps (if available) of these packets to the target
+   * timestamp.
    */
   private static final class TsPcrSeeker implements TimestampSeeker {
 
@@ -78,10 +76,10 @@ import java.io.IOException;
         ExtractorInput input, long targetTimestamp, OutputFrameHolder outputFrameHolder)
         throws IOException, InterruptedException {
       long inputPosition = input.getPosition();
-      int bytesToRead =
-          (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength() - input.getPosition());
-      packetBuffer.reset(bytesToRead);
-      input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToRead);
+      int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength() - inputPosition);
+
+      input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
+      packetBuffer.reset(bytesToSearch);
 
       return searchForPcrValueInBuffer(packetBuffer, targetTimestamp, inputPosition);
     }
