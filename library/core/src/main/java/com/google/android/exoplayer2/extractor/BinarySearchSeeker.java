@@ -58,6 +58,9 @@ public abstract class BinarySearchSeeker {
     TimestampSearchResult searchForTimestamp(
         ExtractorInput input, long targetTimestamp, OutputFrameHolder outputFrameHolder)
         throws IOException, InterruptedException;
+
+    /** Called when a seek operation finishes. */
+    default void onSeekFinished() {}
   }
 
   /**
@@ -255,6 +258,7 @@ public abstract class BinarySearchSeeker {
 
   protected final void markSeekOperationFinished(boolean foundTargetFrame, long resultPosition) {
     seekOperationParams = null;
+    timestampSeeker.onSeekFinished();
     onSeekOperationFinished(foundTargetFrame, resultPosition);
   }
 

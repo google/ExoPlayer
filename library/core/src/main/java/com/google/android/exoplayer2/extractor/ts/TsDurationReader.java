@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -35,7 +36,7 @@ import java.io.IOException;
  */
 /* package */ final class TsDurationReader {
 
-  private static final int TIMESTAMP_SEARCH_BYTES = 200 * TsExtractor.TS_PACKET_SIZE;
+  private static final int TIMESTAMP_SEARCH_BYTES = 600 * TsExtractor.TS_PACKET_SIZE;
 
   private final TimestampAdjuster pcrTimestampAdjuster;
   private final ParsableByteArray packetBuffer;
@@ -53,7 +54,7 @@ import java.io.IOException;
     firstPcrValue = C.TIME_UNSET;
     lastPcrValue = C.TIME_UNSET;
     durationUs = C.TIME_UNSET;
-    packetBuffer = new ParsableByteArray(TIMESTAMP_SEARCH_BYTES);
+    packetBuffer = new ParsableByteArray();
   }
 
   /** Returns true if a TS duration has been read. */
@@ -116,6 +117,7 @@ import java.io.IOException;
   }
 
   private int finishReadDuration(ExtractorInput input) {
+    packetBuffer.reset(Util.EMPTY_BYTE_ARRAY);
     isDurationRead = true;
     input.resetPeekPosition();
     return Extractor.RESULT_CONTINUE;
@@ -130,9 +132,9 @@ import java.io.IOException;
       return Extractor.RESULT_SEEK;
     }
 
+    packetBuffer.reset(bytesToSearch);
     input.resetPeekPosition();
     input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
-    packetBuffer.reset(bytesToSearch);
 
     firstPcrValue = readFirstPcrValueFromBuffer(packetBuffer, pcrPid);
     isFirstPcrValueRead = true;
@@ -166,9 +168,9 @@ import java.io.IOException;
       return Extractor.RESULT_SEEK;
     }
 
+    packetBuffer.reset(bytesToSearch);
     input.resetPeekPosition();
     input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
-    packetBuffer.reset(bytesToSearch);
 
     lastPcrValue = readLastPcrValueFromBuffer(packetBuffer, pcrPid);
     isLastPcrValueRead = true;
