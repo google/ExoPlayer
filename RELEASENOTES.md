@@ -2,6 +2,8 @@
 
 ### 2.9.2 ###
 
+* DASH: Fix detecting the end of live events
+  ([#4780](https://github.com/google/ExoPlayer/issues/4780)).
 * Include channel count in audio capabilities check
   ([#4690](https://github.com/google/ExoPlayer/issues/4690)).
 
