@@ -2,6 +2,8 @@
 
 ### 2.9.2 ###
 
+* Support seeking for a wider range of MPEG-TS streams
+  ([#5097](https://github.com/google/ExoPlayer/issues/5097)).
 * DASH: Fix detecting the end of live events
   ([#4780](https://github.com/google/ExoPlayer/issues/4780)).
 * Include channel count in audio capabilities check

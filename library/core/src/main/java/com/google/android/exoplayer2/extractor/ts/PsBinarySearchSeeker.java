@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.extractor.BinarySearchSeeker;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -64,7 +65,7 @@ import java.io.IOException;
 
     private PsScrSeeker(TimestampAdjuster scrTimestampAdjuster) {
       this.scrTimestampAdjuster = scrTimestampAdjuster;
-      packetBuffer = new ParsableByteArray(TIMESTAMP_SEARCH_BYTES);
+      packetBuffer = new ParsableByteArray();
     }
 
     @Override
@@ -74,10 +75,15 @@ import java.io.IOException;
       long inputPosition = input.getPosition();
       int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength() - inputPosition);
 
-      input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
       packetBuffer.reset(bytesToSearch);
+      input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
 
       return searchForScrValueInBuffer(packetBuffer, targetTimestamp, inputPosition);
+    }
+
+    @Override
+    public void onSeekFinished() {
+      packetBuffer.reset(Util.EMPTY_BYTE_ARRAY);
     }
 
     private TimestampSearchResult searchForScrValueInBuffer(
