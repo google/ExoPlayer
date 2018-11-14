@@ -67,6 +67,12 @@ public final class ParsableByteArray {
     this.limit = limit;
   }
 
+  /** Sets the position and limit to zero. */
+  public void reset() {
+    position = 0;
+    limit = 0;
+  }
+
   /**
    * Resets the position to zero and the limit to the specified value. If the limit exceeds the
    * capacity, {@code data} is replaced with a new array of sufficient size.
@@ -75,6 +81,16 @@ public final class ParsableByteArray {
    */
   public void reset(int limit) {
     reset(capacity() < limit ? new byte[limit] : data, limit);
+  }
+
+  /**
+   * Updates the instance to wrap {@code data}, and resets the position to zero and the limit to
+   * {@code data.length}.
+   *
+   * @param data The array to wrap.
+   */
+  public void reset(byte[] data) {
+    reset(data, data.length);
   }
 
   /**
@@ -87,14 +103,6 @@ public final class ParsableByteArray {
     this.data = data;
     this.limit = limit;
     position = 0;
-  }
-
-  /**
-   * Sets the position and limit to zero.
-   */
-  public void reset() {
-    position = 0;
-    limit = 0;
   }
 
   /**
