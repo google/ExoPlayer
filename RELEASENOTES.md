@@ -4,6 +4,8 @@
 
 * DASH: Fix detecting the end of live events
   ([#4780](https://github.com/google/ExoPlayer/issues/4780)).
+* Support seeking for a wider range of MPEG-TS streams
+  ([#5097](https://github.com/google/ExoPlayer/issues/5097)).
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).

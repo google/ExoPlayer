@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -56,7 +57,7 @@ import java.io.IOException;
     firstScrValue = C.TIME_UNSET;
     lastScrValue = C.TIME_UNSET;
     durationUs = C.TIME_UNSET;
-    packetBuffer = new ParsableByteArray(TIMESTAMP_SEARCH_BYTES);
+    packetBuffer = new ParsableByteArray();
   }
 
   /** Returns true if a PS duration has been read. */
@@ -129,6 +130,7 @@ import java.io.IOException;
   }
 
   private int finishReadDuration(ExtractorInput input) {
+    packetBuffer.reset(Util.EMPTY_BYTE_ARRAY);
     isDurationRead = true;
     input.resetPeekPosition();
     return Extractor.RESULT_CONTINUE;
@@ -143,9 +145,9 @@ import java.io.IOException;
       return Extractor.RESULT_SEEK;
     }
 
+    packetBuffer.reset(bytesToSearch);
     input.resetPeekPosition();
     input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
-    packetBuffer.reset(bytesToSearch);
 
     firstScrValue = readFirstScrValueFromBuffer(packetBuffer);
     isFirstScrValueRead = true;
@@ -180,9 +182,9 @@ import java.io.IOException;
       return Extractor.RESULT_SEEK;
     }
 
+    packetBuffer.reset(bytesToSearch);
     input.resetPeekPosition();
     input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
-    packetBuffer.reset(bytesToSearch);
 
     lastScrValue = readLastScrValueFromBuffer(packetBuffer);
     isLastScrValueRead = true;

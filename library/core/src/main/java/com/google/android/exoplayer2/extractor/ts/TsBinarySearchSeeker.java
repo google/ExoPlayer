@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.extractor.BinarySearchSeeker;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -34,7 +35,7 @@ import java.io.IOException;
 
   private static final long SEEK_TOLERANCE_US = 100_000;
   private static final int MINIMUM_SEARCH_RANGE_BYTES = 5 * TsExtractor.TS_PACKET_SIZE;
-  private static final int TIMESTAMP_SEARCH_BYTES = 200 * TsExtractor.TS_PACKET_SIZE;
+  private static final int TIMESTAMP_SEARCH_BYTES = 600 * TsExtractor.TS_PACKET_SIZE;
 
   public TsBinarySearchSeeker(
       TimestampAdjuster pcrTimestampAdjuster, long streamDurationUs, long inputLength, int pcrPid) {
@@ -68,7 +69,7 @@ import java.io.IOException;
     public TsPcrSeeker(int pcrPid, TimestampAdjuster pcrTimestampAdjuster) {
       this.pcrPid = pcrPid;
       this.pcrTimestampAdjuster = pcrTimestampAdjuster;
-      packetBuffer = new ParsableByteArray(TIMESTAMP_SEARCH_BYTES);
+      packetBuffer = new ParsableByteArray();
     }
 
     @Override
@@ -78,8 +79,8 @@ import java.io.IOException;
       long inputPosition = input.getPosition();
       int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength() - inputPosition);
 
-      input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
       packetBuffer.reset(bytesToSearch);
+      input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
 
       return searchForPcrValueInBuffer(packetBuffer, targetTimestamp, inputPosition);
     }
@@ -130,6 +131,11 @@ import java.io.IOException;
       } else {
         return TimestampSearchResult.NO_TIMESTAMP_IN_RANGE_RESULT;
       }
+    }
+
+    @Override
+    public void onSeekFinished() {
+      packetBuffer.reset(Util.EMPTY_BYTE_ARRAY);
     }
   }
 }
