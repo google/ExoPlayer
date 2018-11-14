@@ -139,9 +139,12 @@ public abstract class Timeline {
      */
     public boolean isSeekable;
 
-    /**
-     * Whether this window may change when the timeline is updated.
-     */
+    // TODO: Split this to better describe which parts of the window might change. For example it
+    // should be possible to individually determine whether the start and end positions of the
+    // window may change relative to the underlying periods. For an example of where it's useful to
+    // know that the end position is fixed whilst the start position may still change, see:
+    // https://github.com/google/ExoPlayer/issues/4780.
+    /** Whether this window may change when the timeline is updated. */
     public boolean isDynamic;
 
     /**
