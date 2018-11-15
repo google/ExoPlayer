@@ -385,7 +385,7 @@ public class DefaultLoadControl implements LoadControl {
     }
     if (bufferedDurationUs < minBufferUs) {
       isBuffering = prioritizeTimeOverSizeThresholds || !targetBufferSizeReached;
-    } else if (bufferedDurationUs > maxBufferUs || targetBufferSizeReached) {
+    } else if (bufferedDurationUs >= maxBufferUs || targetBufferSizeReached) {
       isBuffering = false;
     } // Else don't change the buffering state
     if (priorityTaskManager != null && isBuffering != wasBuffering) {
