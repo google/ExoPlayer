@@ -53,10 +53,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Extracts data from the FMP4 container format.
- */
-public final class FragmentedMp4Extractor implements Extractor {
+/** Extracts data from the FMP4 container format. */
+public class FragmentedMp4Extractor implements Extractor {
 
   /** Factory for {@link FragmentedMp4Extractor} instances. */
   public static final ExtractorsFactory FACTORY =
@@ -486,8 +484,15 @@ public final class FragmentedMp4Extractor implements Extractor {
     for (int i = 0; i < moovContainerChildrenSize; i++) {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
       if (atom.type == Atom.TYPE_trak) {
-        Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd), duration,
-            drmInitData, (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0, false);
+        Track track =
+            modifyTrack(
+                AtomParsers.parseTrak(
+                    atom,
+                    moov.getLeafAtomOfType(Atom.TYPE_mvhd),
+                    duration,
+                    drmInitData,
+                    (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0,
+                    false));
         if (track != null) {
           tracks.put(track.id, track);
         }
@@ -515,6 +520,11 @@ public final class FragmentedMp4Extractor implements Extractor {
             .init(track, getDefaultSampleValues(defaultSampleValuesArray, track.id));
       }
     }
+  }
+
+  @Nullable
+  protected Track modifyTrack(@Nullable Track track) {
+    return track;
   }
 
   private DefaultSampleValues getDefaultSampleValues(
