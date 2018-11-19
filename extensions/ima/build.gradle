@@ -31,13 +31,13 @@ android {
 }
 
 dependencies {
-    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.4'
+    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.2'
     implementation project(modulePrefix + 'library-core')
-    implementation 'com.google.android.gms:play-services-ads:15.0.1'
+    implementation 'com.google.android.gms:play-services-ads:17.1.1'
     // These dependencies are necessary to force the supportLibraryVersion of
     // com.android.support:support-v4 and com.android.support:customtabs to be
     // used. Else older versions are used, for example via:
-    // com.google.android.gms:play-services-ads:15.0.1
+    // com.google.android.gms:play-services-ads:17.1.1
     // |-- com.android.support:customtabs:26.1.0
     implementation 'com.android.support:support-v4:' + supportLibraryVersion
     implementation 'com.android.support:customtabs:' + supportLibraryVersion
