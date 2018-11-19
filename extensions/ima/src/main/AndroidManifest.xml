@@ -15,6 +15,10 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer2.ext.ima">
-  <meta-data android:name="com.google.android.gms.version"
-      android:value="@integer/google_play_services_version"/>
+  <application>
+    <meta-data android:name="com.google.android.gms.ads.AD_MANAGER_APP"
+        android:value="true"/>
+    <meta-data android:name="com.google.android.gms.version"
+        android:value="@integer/google_play_services_version"/>
+  </application>
 </manifest>
