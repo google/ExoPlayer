@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.trackselection;
 
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
@@ -25,22 +26,22 @@ import java.util.List;
 /** A {@link TrackBitrateEstimator} which derives estimates from a window of time. */
 public final class WindowedTrackBitrateEstimator implements TrackBitrateEstimator {
 
-  private final long maxFutureDurationUs;
   private final long maxPastDurationUs;
+  private final long maxFutureDurationUs;
   private final boolean useFormatBitrateAsLowerBound;
 
   /**
-   * @param maxFutureDurationUs Maximum duration of future chunks to be included in average bitrate
-   *     values, in microseconds.
-   * @param maxPastDurationUs Maximum duration of past chunks to be included in average bitrate
-   *     values, in microseconds.
-   * @param useFormatBitrateAsLowerBound Whether to return the estimated bitrate only if it's higher
-   *     than the bitrate of the track's format.
+   * @param maxPastDurationMs Maximum duration of past chunks to be included in average bitrate
+   *     values, in milliseconds.
+   * @param maxFutureDurationMs Maximum duration of future chunks to be included in average bitrate
+   *     values, in milliseconds.
+   * @param useFormatBitrateAsLowerBound Whether to use the bitrate of the track's format as a lower
+   *     bound for the estimated bitrate.
    */
   public WindowedTrackBitrateEstimator(
-      long maxFutureDurationUs, long maxPastDurationUs, boolean useFormatBitrateAsLowerBound) {
-    this.maxFutureDurationUs = maxFutureDurationUs;
-    this.maxPastDurationUs = maxPastDurationUs;
+      long maxPastDurationMs, long maxFutureDurationMs, boolean useFormatBitrateAsLowerBound) {
+    this.maxPastDurationUs = C.msToUs(maxPastDurationMs);
+    this.maxFutureDurationUs = C.msToUs(maxFutureDurationMs);
     this.useFormatBitrateAsLowerBound = useFormatBitrateAsLowerBound;
   }
 

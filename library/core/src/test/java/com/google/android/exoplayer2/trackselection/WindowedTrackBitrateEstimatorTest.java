@@ -35,14 +35,14 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class WindowedTrackBitrateEstimatorTest {
 
-  private static final long MAX_DURATION_US = 30 * C.MICROS_PER_SECOND;
+  private static final long MAX_DURATION_MS = 30_000;
 
   @Test
   public void getBitrates_zeroMaxDuration_returnsFormatBitrates() {
     WindowedTrackBitrateEstimator estimator =
         new WindowedTrackBitrateEstimator(
-            /* maxFutureDurationUs= */ 0,
-            /* maxPastDurationUs= */ 0,
+            /* maxPastDurationMs= */ 0,
+            /* maxFutureDurationMs= */ 0,
             /* useFormatBitrateAsLowerBound= */ false);
     MediaChunk chunk = createMediaChunk(/* formatBitrate= */ 5, /* actualBitrate= */ 10);
     MediaChunkIterator iterator1 = createMediaChunkIteratorWithBitrate(8);
@@ -64,7 +64,7 @@ public class WindowedTrackBitrateEstimatorTest {
   public void getBitrates_futureMaxDurationSet_returnsEstimateUsingFutureChunks() {
     WindowedTrackBitrateEstimator estimator =
         new WindowedTrackBitrateEstimator(
-            MAX_DURATION_US, /* maxPastDurationUs= */ 0, /* useFormatBitrateAsLowerBound= */ false);
+            /* maxPastDurationMs= */ 0, MAX_DURATION_MS, /* useFormatBitrateAsLowerBound= */ false);
     MediaChunk chunk = createMediaChunk(/* formatBitrate= */ 5, /* actualBitrate= */ 10);
     MediaChunkIterator iterator1 = createMediaChunkIteratorWithBitrate(8);
     MediaChunkIterator iterator2 = createMediaChunkIteratorWithBitrate(16);
@@ -85,8 +85,8 @@ public class WindowedTrackBitrateEstimatorTest {
   public void getBitrates_pastMaxDurationSet_returnsEstimateUsingPastChunks() {
     WindowedTrackBitrateEstimator estimator =
         new WindowedTrackBitrateEstimator(
-            /* maxFutureDurationUs= */ 0,
-            MAX_DURATION_US,
+            MAX_DURATION_MS,
+            /* maxFutureDurationMs= */ 0,
             /* useFormatBitrateAsLowerBound= */ false);
     MediaChunk chunk = createMediaChunk(/* formatBitrate= */ 5, /* actualBitrate= */ 10);
     MediaChunkIterator iterator1 = createMediaChunkIteratorWithBitrate(8);
@@ -109,7 +109,7 @@ public class WindowedTrackBitrateEstimatorTest {
       getBitrates_useFormatBitrateAsLowerBoundSetTrue_returnsEstimateIfOnlyHigherThanFormat() {
     WindowedTrackBitrateEstimator estimator =
         new WindowedTrackBitrateEstimator(
-            MAX_DURATION_US, MAX_DURATION_US, /* useFormatBitrateAsLowerBound= */ true);
+            MAX_DURATION_MS, MAX_DURATION_MS, /* useFormatBitrateAsLowerBound= */ true);
     MediaChunk chunk = createMediaChunk(/* formatBitrate= */ 5, /* actualBitrate= */ 10);
     MediaChunkIterator iterator1 = createMediaChunkIteratorWithBitrate(80);
     MediaChunkIterator iterator2 = createMediaChunkIteratorWithBitrate(16);
@@ -130,7 +130,7 @@ public class WindowedTrackBitrateEstimatorTest {
   public void getBitrates_bitratesArrayGiven_returnsTheSameArray() {
     WindowedTrackBitrateEstimator estimator =
         new WindowedTrackBitrateEstimator(
-            MAX_DURATION_US, MAX_DURATION_US, /* useFormatBitrateAsLowerBound= */ true);
+            MAX_DURATION_MS, MAX_DURATION_MS, /* useFormatBitrateAsLowerBound= */ true);
     MediaChunk chunk = createMediaChunk(/* formatBitrate= */ 5, /* actualBitrate= */ 10);
     MediaChunkIterator iterator1 = createMediaChunkIteratorWithBitrate(8);
     MediaChunkIterator iterator2 = createMediaChunkIteratorWithBitrate(16);
