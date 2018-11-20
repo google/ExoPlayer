@@ -19,10 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.offline.DownloadAction;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.upstream.DummyDataSource;
-import com.google.android.exoplayer2.upstream.cache.Cache;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -33,11 +30,10 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 
-/** Unit tests for {@link DashDownloadAction}. */
+// TODO: Merge into DownloadActionTest
+/** Unit tests for DASH {@link DownloadAction}s. */
 @RunWith(RobolectricTestRunner.class)
 public class DashDownloadActionTest {
 
@@ -60,15 +56,6 @@ public class DashDownloadActionTest {
   public void testRemoveActionIsRemoveAction() {
     DownloadAction action2 = createRemoveAction(uri1);
     assertThat(action2.isRemoveAction).isTrue();
-  }
-
-  @Test
-  public void testCreateDownloader() {
-    MockitoAnnotations.initMocks(this);
-    DownloadAction action = createDownloadAction(uri1);
-    DownloaderConstructorHelper constructorHelper =
-        new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
-    assertThat(action.createDownloader(constructorHelper)).isNotNull();
   }
 
   @Test
@@ -141,6 +128,14 @@ public class DashDownloadActionTest {
         createDownloadAction(uri2, new StreamKey(0, 0, 0), new StreamKey(1, 1, 1)));
   }
 
+  @Test
+  public void testSerializerVersion0() throws Exception {
+    doTestLegacySerializationRoundTrip(createDownloadAction(uri1));
+    doTestLegacySerializationRoundTrip(createRemoveAction(uri1));
+    doTestLegacySerializationRoundTrip(
+        createDownloadAction(uri2, new StreamKey(0, 0, 0), new StreamKey(1, 1, 1)));
+  }
+
   private static void assertNotEqual(DownloadAction action1, DownloadAction action2) {
     assertThat(action1).isNotEqualTo(action2);
     assertThat(action2).isNotEqualTo(action1);
@@ -154,24 +149,53 @@ public class DashDownloadActionTest {
   private static void doTestSerializationRoundTrip(DownloadAction action) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(out);
-    DownloadAction.serializeToStream(action, output);
+    action.serializeToStream(output);
 
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
     DataInputStream input = new DataInputStream(in);
-    DownloadAction action2 =
-        DownloadAction.deserializeFromStream(
-            new DownloadAction.Deserializer[] {DashDownloadAction.DESERIALIZER}, input);
+    DownloadAction action2 = DownloadAction.deserializeFromStream(input);
 
     assertThat(action).isEqualTo(action2);
+  }
+
+  private static void doTestLegacySerializationRoundTrip(DownloadAction action) throws IOException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    DataOutputStream output = new DataOutputStream(out);
+    DataOutputStream dataOutputStream = new DataOutputStream(output);
+    dataOutputStream.writeUTF(action.type);
+    dataOutputStream.writeInt(/* version= */ 0);
+    dataOutputStream.writeUTF(action.uri.toString());
+    dataOutputStream.writeBoolean(action.isRemoveAction);
+    dataOutputStream.writeInt(action.data.length);
+    dataOutputStream.write(action.data);
+    dataOutputStream.writeInt(action.keys.size());
+    for (int i = 0; i < action.keys.size(); i++) {
+      StreamKey key = action.keys.get(i);
+      dataOutputStream.writeInt(key.periodIndex);
+      dataOutputStream.writeInt(key.groupIndex);
+      dataOutputStream.writeInt(key.trackIndex);
+    }
+    dataOutputStream.flush();
+
+    assertEqual(action, deserializeActionFromStream(out));
+  }
+
+  private static DownloadAction deserializeActionFromStream(ByteArrayOutputStream out)
+      throws IOException {
+    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    DataInputStream input = new DataInputStream(in);
+    return DownloadAction.deserializeFromStream(input);
   }
 
   private static DownloadAction createDownloadAction(Uri uri, StreamKey... keys) {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    return DashDownloadAction.createDownloadAction(uri, null, keysList);
+    return DownloadAction.createDownloadAction(
+        DownloadAction.TYPE_DASH, uri, keysList, /* customCacheKey= */ null, /* data= */ null);
   }
 
   private static DownloadAction createRemoveAction(Uri uri) {
-    return DashDownloadAction.createRemoveAction(uri, null);
+    return DownloadAction.createRemoveAction(
+        DownloadAction.TYPE_DASH, uri, /* customCacheKey= */ null, /* data= */ null);
   }
 }

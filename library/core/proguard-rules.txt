@@ -30,10 +30,19 @@
   <init>();
 }
 
-# Constructors accessed via reflection in DownloadAction
--dontnote com.google.android.exoplayer2.source.dash.offline.DashDownloadAction
--dontnote com.google.android.exoplayer2.source.hls.offline.HlsDownloadAction
--dontnote com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction
+# Constructors accessed via reflection in DefaultDownloaderFactory
+-dontnote com.google.android.exoplayer2.source.dash.offline.DashDownloader
+-keepclassmembers class com.google.android.exoplayer2.source.dash.offline.DashDownloader {
+  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offlineDownloaderConstructorHelper);
+}
+-dontnote com.google.android.exoplayer2.source.hls.offline.HlsDownloader
+-keepclassmembers class com.google.android.exoplayer2.source.hls.offline.HlsDownloader {
+  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offlineDownloaderConstructorHelper);
+}
+-dontnote com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloader
+-keepclassmembers class com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloader {
+  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offlineDownloaderConstructorHelper);
+}
 
 # Don't warn about checkerframework
 -dontwarn org.checkerframework.**

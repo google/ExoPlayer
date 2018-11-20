@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.cache.Cache;
@@ -47,7 +48,7 @@ public final class ProgressiveDownloader implements Downloader {
    * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
    */
   public ProgressiveDownloader(
-      Uri uri, String customCacheKey, DownloaderConstructorHelper constructorHelper) {
+      Uri uri, @Nullable String customCacheKey, DownloaderConstructorHelper constructorHelper) {
     this.dataSpec = new DataSpec(uri, 0, C.LENGTH_UNSET, customCacheKey, 0);
     this.cache = constructorHelper.getCache();
     this.dataSource = constructorHelper.createCacheDataSource();

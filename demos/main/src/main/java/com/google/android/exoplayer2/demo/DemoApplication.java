@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Application;
+import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -87,10 +88,10 @@ public class DemoApplication extends Application {
           new DownloaderConstructorHelper(getDownloadCache(), buildHttpDataSourceFactory());
       downloadManager =
           new DownloadManager(
-              downloaderConstructorHelper,
+              new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE),
+              new DefaultDownloaderFactory(downloaderConstructorHelper),
               MAX_SIMULTANEOUS_DOWNLOADS,
-              DownloadManager.DEFAULT_MIN_RETRY_COUNT,
-              new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE));
+              DownloadManager.DEFAULT_MIN_RETRY_COUNT);
       downloadTracker =
           new DownloadTracker(
               /* context= */ this,

@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.offline.TrackKey;
@@ -97,15 +98,20 @@ public final class HlsDownloadHelper extends DownloadHelper {
   }
 
   @Override
-  public HlsDownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
+  public DownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
     Assertions.checkNotNull(renditionGroups);
-    return HlsDownloadAction.createDownloadAction(
-        uri, data, toStreamKeys(trackKeys, renditionGroups));
+    return DownloadAction.createDownloadAction(
+        DownloadAction.TYPE_HLS,
+        uri,
+        toStreamKeys(trackKeys, renditionGroups),
+        /* customCacheKey= */ null,
+        data);
   }
 
   @Override
-  public HlsDownloadAction getRemoveAction(@Nullable byte[] data) {
-    return HlsDownloadAction.createRemoveAction(uri, data);
+  public DownloadAction getRemoveAction(@Nullable byte[] data) {
+    return DownloadAction.createRemoveAction(
+        DownloadAction.TYPE_HLS, uri, /* customCacheKey= */ null, data);
   }
 
   private static Format[] toFormats(List<HlsMasterPlaylist.HlsUrl> hlsUrls) {
