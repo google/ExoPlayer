@@ -238,8 +238,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
     if (this.playWhenReady != playWhenReady) {
       this.playWhenReady = playWhenReady;
-      notifyListeners(
-          new PlayWhenReadyUpdate(listeners, playWhenReady, playbackInfo.playbackState));
+      int playbackState = playbackInfo.playbackState;
+      notifyListeners(listener -> listener.onPlayerStateChanged(playWhenReady, playbackState));
     }
   }
 
@@ -253,9 +253,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (this.repeatMode != repeatMode) {
       this.repeatMode = repeatMode;
       internalPlayer.setRepeatMode(repeatMode);
-      for (Player.EventListener listener : listeners) {
-        listener.onRepeatModeChanged(repeatMode);
-      }
+      notifyListeners(listener -> listener.onRepeatModeChanged(repeatMode));
     }
   }
 
@@ -269,9 +267,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     if (this.shuffleModeEnabled != shuffleModeEnabled) {
       this.shuffleModeEnabled = shuffleModeEnabled;
       internalPlayer.setShuffleModeEnabled(shuffleModeEnabled);
-      for (Player.EventListener listener : listeners) {
-        listener.onShuffleModeEnabledChanged(shuffleModeEnabled);
-      }
+      notifyListeners(listener -> listener.onShuffleModeEnabledChanged(shuffleModeEnabled));
     }
   }
 
@@ -320,9 +316,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       maskingPeriodIndex = timeline.getIndexOfPeriod(periodUidAndPosition.first);
     }
     internalPlayer.seekTo(timeline, windowIndex, C.msToUs(positionMs));
-    for (Player.EventListener listener : listeners) {
-      listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK);
-    }
+    notifyListeners(listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK));
   }
 
   @Override
@@ -594,17 +588,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
         PlaybackParameters playbackParameters = (PlaybackParameters) msg.obj;
         if (!this.playbackParameters.equals(playbackParameters)) {
           this.playbackParameters = playbackParameters;
-          for (Player.EventListener listener : listeners) {
-            listener.onPlaybackParametersChanged(playbackParameters);
-          }
+          notifyListeners(listener -> listener.onPlaybackParametersChanged(playbackParameters));
         }
         break;
       case ExoPlayerImplInternal.MSG_ERROR:
         ExoPlaybackException playbackError = (ExoPlaybackException) msg.obj;
         this.playbackError = playbackError;
-        for (Player.EventListener listener : listeners) {
-          listener.onPlayerError(playbackError);
-        }
+        notifyListeners(listener -> listener.onPlayerError(playbackError));
         break;
       default:
         throw new IllegalStateException();
@@ -701,6 +691,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
             timelineChangeReason,
             seekProcessed,
             playWhenReady));
+  }
+
+  private void notifyListeners(ListenerInvocation listenerInvocation) {
+    notifyListeners(
+        () -> {
+          for (Player.EventListener listener : listeners) {
+            listenerInvocation.invokeListener(listener);
+          }
+        });
   }
 
   private void notifyListeners(Runnable listenerNotificationRunnable) {
@@ -806,24 +805,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
   }
 
-  private static final class PlayWhenReadyUpdate implements Runnable {
+  private interface ListenerInvocation {
 
-    private final Set<Player.EventListener> listeners;
-    private final boolean playWhenReady;
-    private final int playbackState;
-
-    public PlayWhenReadyUpdate(
-        Set<Player.EventListener> listeners, boolean playWhenReady, int playbackState) {
-      this.listeners = listeners;
-      this.playWhenReady = playWhenReady;
-      this.playbackState = playbackState;
-    }
-
-    @Override
-    public void run() {
-      for (Player.EventListener listener : listeners) {
-        listener.onPlayerStateChanged(playWhenReady, playbackState);
-      }
-    }
+    void invokeListener(Player.EventListener listener);
   }
 }
