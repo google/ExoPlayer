@@ -22,7 +22,9 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.util.Assertions;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * A track selection consisting of a static subset of selected tracks belonging to a {@link
@@ -34,6 +36,24 @@ import java.util.List;
  * happens between calls to {@link #enable()} and {@link #disable()}.
  */
 public interface TrackSelection {
+
+  /** Contains of a subset of selected tracks belonging to a {@link TrackGroup}. */
+  final class Definition {
+    /** The {@link TrackGroup} which tracks belong to. */
+    public final TrackGroup group;
+    /** The indices of the selected tracks in {@link #group}. */
+    public final int[] tracks;
+
+    /**
+     * @param group The {@link TrackGroup}. Must not be null.
+     * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
+     *     null or empty. May be in any order.
+     */
+    public Definition(TrackGroup group, int... tracks) {
+      this.group = group;
+      this.tracks = tracks;
+    }
+  }
 
   /**
    * Factory for {@link TrackSelection} instances.
@@ -51,6 +71,33 @@ public interface TrackSelection {
      */
     TrackSelection createTrackSelection(
         TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks);
+
+    /**
+     * Creates a new selection for each {@link Definition}.
+     *
+     * @param definitions A {@link Definition} array. May include null values.
+     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
+     * @return The created selections. For null entries in {@code definitions} returns null values.
+     */
+    default @NullableType TrackSelection[] createTrackSelections(
+        @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+      TrackSelection[] selections = new TrackSelection[definitions.length];
+      boolean createdAdaptiveTrackSelection = false;
+      for (int i = 0; i < definitions.length; i++) {
+        Definition definition = definitions[i];
+        if (definition == null) {
+          continue;
+        }
+        if (definition.tracks.length > 1) {
+          Assertions.checkState(!createdAdaptiveTrackSelection);
+          createdAdaptiveTrackSelection = true;
+          selections[i] = createTrackSelection(definition.group, bandwidthMeter, definition.tracks);
+        } else {
+          selections[i] = new FixedTrackSelection(definition.group, definition.tracks[0]);
+        }
+      }
+      return selections;
+    }
   }
 
   /**

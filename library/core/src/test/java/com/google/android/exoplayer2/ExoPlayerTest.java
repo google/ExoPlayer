@@ -773,7 +773,7 @@ public final class ExoPlayerTest {
     }
     // There are 2 renderers, and track selections are made twice. The second time one renderer is
     // disabled, so only one out of the two track selections is enabled.
-    assertThat(createdTrackSelections).hasSize(4);
+    assertThat(createdTrackSelections).hasSize(3);
     assertThat(numSelectionsEnabled).isEqualTo(3);
   }
 
