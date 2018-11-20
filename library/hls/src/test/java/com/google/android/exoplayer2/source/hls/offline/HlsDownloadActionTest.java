@@ -19,10 +19,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.offline.DownloadAction;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.upstream.DummyDataSource;
-import com.google.android.exoplayer2.upstream.cache.Cache;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -33,11 +31,10 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 
-/** Unit tests for {@link HlsDownloadAction}. */
+// TODO: Merge into DownloadActionTest
+/** Unit tests for HLS {@link DownloadAction}s. */
 @RunWith(RobolectricTestRunner.class)
 public class HlsDownloadActionTest {
 
@@ -60,15 +57,6 @@ public class HlsDownloadActionTest {
   public void testRemoveActionIsRemoveAction() {
     DownloadAction action2 = createRemoveAction(uri1);
     assertThat(action2.isRemoveAction).isTrue();
-  }
-
-  @Test
-  public void testCreateDownloader() {
-    MockitoAnnotations.initMocks(this);
-    DownloadAction action = createDownloadAction(uri1);
-    DownloaderConstructorHelper constructorHelper =
-        new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
-    assertThat(action.createDownloader(constructorHelper)).isNotNull();
   }
 
   @Test
@@ -140,10 +128,18 @@ public class HlsDownloadActionTest {
 
   @Test
   public void testSerializerVersion0() throws Exception {
-    doTestSerializationV0RoundTrip(createDownloadAction(uri1));
-    doTestSerializationV0RoundTrip(createRemoveAction(uri1));
-    doTestSerializationV0RoundTrip(
-        createDownloadAction(uri2, new StreamKey(0, 0), new StreamKey(1, 1)));
+    doTestLegacySerializationRoundTrip(createDownloadAction(uri1), /* version= */ 0);
+    doTestLegacySerializationRoundTrip(createRemoveAction(uri1), /* version= */ 0);
+    doTestLegacySerializationRoundTrip(
+        createDownloadAction(uri2, new StreamKey(0, 0), new StreamKey(1, 1)), /* version= */ 0);
+  }
+
+  @Test
+  public void testSerializerVersion1() throws Exception {
+    doTestLegacySerializationRoundTrip(createDownloadAction(uri1), /* version= */ 1);
+    doTestLegacySerializationRoundTrip(createRemoveAction(uri1), /* version= */ 1);
+    doTestLegacySerializationRoundTrip(
+        createDownloadAction(uri2, new StreamKey(0, 0), new StreamKey(1, 1)), /* version= */ 1);
   }
 
   private static void assertNotEqual(DownloadAction action1, DownloadAction action2) {
@@ -159,17 +155,19 @@ public class HlsDownloadActionTest {
   private static void doTestSerializationRoundTrip(DownloadAction action) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(out);
-    DownloadAction.serializeToStream(action, output);
+    action.serializeToStream(output);
 
     assertEqual(action, deserializeActionFromStream(out));
   }
 
-  private static void doTestSerializationV0RoundTrip(HlsDownloadAction action) throws IOException {
+  private static void doTestLegacySerializationRoundTrip(DownloadAction action, int version)
+      throws IOException {
+    Assertions.checkState(version == 0 || version == 1);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(out);
     DataOutputStream dataOutputStream = new DataOutputStream(output);
     dataOutputStream.writeUTF(action.type);
-    dataOutputStream.writeInt(/* version */ 0);
+    dataOutputStream.writeInt(version);
     dataOutputStream.writeUTF(action.uri.toString());
     dataOutputStream.writeBoolean(action.isRemoveAction);
     dataOutputStream.writeInt(action.data.length);
@@ -177,6 +175,9 @@ public class HlsDownloadActionTest {
     dataOutputStream.writeInt(action.keys.size());
     for (int i = 0; i < action.keys.size(); i++) {
       StreamKey key = action.keys.get(i);
+      if (version == 1) {
+        dataOutputStream.writeInt(key.periodIndex);
+      }
       dataOutputStream.writeInt(key.groupIndex);
       dataOutputStream.writeInt(key.trackIndex);
     }
@@ -189,17 +190,18 @@ public class HlsDownloadActionTest {
       throws IOException {
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
     DataInputStream input = new DataInputStream(in);
-    return DownloadAction.deserializeFromStream(
-        new DownloadAction.Deserializer[] {HlsDownloadAction.DESERIALIZER}, input);
+    return DownloadAction.deserializeFromStream(input);
   }
 
-  private static HlsDownloadAction createDownloadAction(Uri uri, StreamKey... keys) {
+  private static DownloadAction createDownloadAction(Uri uri, StreamKey... keys) {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    return HlsDownloadAction.createDownloadAction(uri, null, keysList);
+    return DownloadAction.createDownloadAction(
+        DownloadAction.TYPE_HLS, uri, keysList, /* customCacheKey= */ null, /* data= */ null);
   }
 
-  private static HlsDownloadAction createRemoveAction(Uri uri) {
-    return HlsDownloadAction.createRemoveAction(uri, null);
+  private static DownloadAction createRemoveAction(Uri uri) {
+    return DownloadAction.createRemoveAction(
+        DownloadAction.TYPE_HLS, uri, /* customCacheKey= */ null, /* data= */ null);
   }
 }

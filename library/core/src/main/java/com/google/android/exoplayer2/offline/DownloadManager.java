@@ -28,9 +28,6 @@ import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -85,11 +82,10 @@ public final class DownloadManager {
   private static final String TAG = "DownloadManager";
   private static final boolean DEBUG = false;
 
-  private final DownloaderConstructorHelper downloaderConstructorHelper;
   private final int maxActiveDownloadTasks;
   private final int minRetryCount;
   private final ActionFile actionFile;
-  private final DownloadAction.Deserializer[] deserializers;
+  private final DownloaderFactory downloaderFactory;
   private final ArrayList<Task> tasks;
   private final ArrayList<Task> activeDownloadTasks;
   private final Handler handler;
@@ -103,70 +99,33 @@ public final class DownloadManager {
   private boolean downloadsStopped;
 
   /**
-   * Creates a {@link DownloadManager}.
-   *
-   * @param cache Cache instance to be used to store downloaded data.
-   * @param upstreamDataSourceFactory A {@link DataSource.Factory} for creating data sources for
-   *     downloading upstream data.
-   * @param actionSaveFile File to save active actions.
-   * @param deserializers Used to deserialize {@link DownloadAction}s. If empty, {@link
-   *     DownloadAction#getDefaultDeserializers()} is used instead.
-   */
-  public DownloadManager(
-      Cache cache,
-      DataSource.Factory upstreamDataSourceFactory,
-      File actionSaveFile,
-      Deserializer... deserializers) {
-    this(
-        new DownloaderConstructorHelper(cache, upstreamDataSourceFactory),
-        actionSaveFile,
-        deserializers);
-  }
-
-  /**
    * Constructs a {@link DownloadManager}.
    *
-   * @param constructorHelper A {@link DownloaderConstructorHelper} to create {@link Downloader}s
-   *     for downloading data.
    * @param actionFile The file in which active actions are saved.
-   * @param deserializers Used to deserialize {@link DownloadAction}s. If empty, {@link
-   *     DownloadAction#getDefaultDeserializers()} is used instead.
+   * @param downloaderFactory A factory for creating {@link Downloader}s.
    */
-  public DownloadManager(
-      DownloaderConstructorHelper constructorHelper,
-      File actionFile,
-      Deserializer... deserializers) {
+  public DownloadManager(File actionFile, DownloaderFactory downloaderFactory) {
     this(
-        constructorHelper,
-        DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS,
-        DEFAULT_MIN_RETRY_COUNT,
-        actionFile,
-        deserializers);
+        actionFile, downloaderFactory, DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS, DEFAULT_MIN_RETRY_COUNT);
   }
 
   /**
    * Constructs a {@link DownloadManager}.
    *
-   * @param constructorHelper A {@link DownloaderConstructorHelper} to create {@link Downloader}s
-   *     for downloading data.
+   * @param actionFile The file in which active actions are saved.
+   * @param downloaderFactory A factory for creating {@link Downloader}s.
    * @param maxSimultaneousDownloads The maximum number of simultaneous download tasks.
    * @param minRetryCount The minimum number of times a task must be retried before failing.
-   * @param actionFile The file in which active actions are saved.
-   * @param deserializers Used to deserialize {@link DownloadAction}s. If empty, {@link
-   *     DownloadAction#getDefaultDeserializers()} is used instead.
    */
   public DownloadManager(
-      DownloaderConstructorHelper constructorHelper,
-      int maxSimultaneousDownloads,
-      int minRetryCount,
       File actionFile,
-      Deserializer... deserializers) {
-    this.downloaderConstructorHelper = constructorHelper;
+      DownloaderFactory downloaderFactory,
+      int maxSimultaneousDownloads,
+      int minRetryCount) {
+    this.actionFile = new ActionFile(actionFile);
+    this.downloaderFactory = downloaderFactory;
     this.maxActiveDownloadTasks = maxSimultaneousDownloads;
     this.minRetryCount = minRetryCount;
-    this.actionFile = new ActionFile(actionFile);
-    this.deserializers =
-        deserializers.length > 0 ? deserializers : DownloadAction.getDefaultDeserializers();
     this.downloadsStopped = true;
 
     tasks = new ArrayList<>();
@@ -239,7 +198,7 @@ public final class DownloadManager {
   public int handleAction(byte[] actionData) throws IOException {
     Assertions.checkState(!released);
     ByteArrayInputStream input = new ByteArrayInputStream(actionData);
-    DownloadAction action = DownloadAction.deserializeFromStream(deserializers, input);
+    DownloadAction action = DownloadAction.deserializeFromStream(input);
     return handleAction(action);
   }
 
@@ -344,7 +303,7 @@ public final class DownloadManager {
   }
 
   private Task addTaskForAction(DownloadAction action) {
-    Task task = new Task(nextTaskId++, this, action, minRetryCount);
+    Task task = new Task(nextTaskId++, this, downloaderFactory, action, minRetryCount);
     tasks.add(task);
     logd("Task is added", task);
     return task;
@@ -450,7 +409,7 @@ public final class DownloadManager {
         () -> {
           DownloadAction[] loadedActions;
           try {
-            loadedActions = actionFile.load(DownloadManager.this.deserializers);
+            loadedActions = actionFile.load();
             logd("Action file is loaded.");
           } catch (Throwable e) {
             Log.e(TAG, "Action file loading failed.", e);
@@ -642,6 +601,7 @@ public final class DownloadManager {
 
     private final int id;
     private final DownloadManager downloadManager;
+    private final DownloaderFactory downloaderFactory;
     private final DownloadAction action;
     private final int minRetryCount;
     private volatile @InternalState int currentState;
@@ -650,9 +610,14 @@ public final class DownloadManager {
     private Throwable error;
 
     private Task(
-        int id, DownloadManager downloadManager, DownloadAction action, int minRetryCount) {
+        int id,
+        DownloadManager downloadManager,
+        DownloaderFactory downloaderFactory,
+        DownloadAction action,
+        int minRetryCount) {
       this.id = id;
       this.downloadManager = downloadManager;
+      this.downloaderFactory = downloaderFactory;
       this.action = action;
       this.currentState = STATE_QUEUED;
       this.minRetryCount = minRetryCount;
@@ -807,7 +772,7 @@ public final class DownloadManager {
       logd("Task is started", this);
       Throwable error = null;
       try {
-        downloader = action.createDownloader(downloadManager.downloaderConstructorHelper);
+        downloader = downloaderFactory.createDownloader(action);
         if (action.isRemoveAction) {
           downloader.remove();
         } else {

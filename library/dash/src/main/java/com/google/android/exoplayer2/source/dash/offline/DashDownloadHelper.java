@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.offline.TrackKey;
@@ -86,13 +87,15 @@ public final class DashDownloadHelper extends DownloadHelper {
   }
 
   @Override
-  public DashDownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
-    return DashDownloadAction.createDownloadAction(uri, data, toStreamKeys(trackKeys));
+  public DownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
+    return DownloadAction.createDownloadAction(
+        DownloadAction.TYPE_DASH, uri, toStreamKeys(trackKeys), /* customCacheKey= */ null, data);
   }
 
   @Override
-  public DashDownloadAction getRemoveAction(@Nullable byte[] data) {
-    return DashDownloadAction.createRemoveAction(uri, data);
+  public DownloadAction getRemoveAction(@Nullable byte[] data) {
+    return DownloadAction.createRemoveAction(
+        DownloadAction.TYPE_DASH, uri, /* customCacheKey= */ null, data);
   }
 
   private static List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {

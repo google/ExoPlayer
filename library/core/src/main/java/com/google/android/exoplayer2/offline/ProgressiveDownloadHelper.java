@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.offline;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import java.util.Collections;
 import java.util.List;
 
 /** A {@link DownloadHelper} for progressive streams. */
@@ -51,13 +52,18 @@ public final class ProgressiveDownloadHelper extends DownloadHelper {
   }
 
   @Override
-  public ProgressiveDownloadAction getDownloadAction(
-      @Nullable byte[] data, List<TrackKey> trackKeys) {
-    return ProgressiveDownloadAction.createDownloadAction(uri, data, customCacheKey);
+  public DownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
+    return DownloadAction.createDownloadAction(
+        DownloadAction.TYPE_PROGRESSIVE,
+        uri,
+        /* keys= */ Collections.emptyList(),
+        customCacheKey,
+        data);
   }
 
   @Override
-  public ProgressiveDownloadAction getRemoveAction(@Nullable byte[] data) {
-    return ProgressiveDownloadAction.createRemoveAction(uri, data, customCacheKey);
+  public DownloadAction getRemoveAction(@Nullable byte[] data) {
+    return DownloadAction.createRemoveAction(
+        DownloadAction.TYPE_PROGRESSIVE, uri, customCacheKey, data);
   }
 }

@@ -81,11 +81,7 @@ public class DownloadTracker implements DownloadManager.Listener {
   private final ActionFile actionFile;
   private final Handler actionFileWriteHandler;
 
-  public DownloadTracker(
-      Context context,
-      DataSource.Factory dataSourceFactory,
-      File actionFile,
-      DownloadAction.Deserializer... deserializers) {
+  public DownloadTracker(Context context, DataSource.Factory dataSourceFactory, File actionFile) {
     this.context = context.getApplicationContext();
     this.dataSourceFactory = dataSourceFactory;
     this.actionFile = new ActionFile(actionFile);
@@ -95,8 +91,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     HandlerThread actionFileWriteThread = new HandlerThread("DownloadTracker");
     actionFileWriteThread.start();
     actionFileWriteHandler = new Handler(actionFileWriteThread.getLooper());
-    loadTrackedActions(
-        deserializers.length > 0 ? deserializers : DownloadAction.getDefaultDeserializers());
+    loadTrackedActions();
   }
 
   public void addListener(Listener listener) {
@@ -158,9 +153,9 @@ public class DownloadTracker implements DownloadManager.Listener {
 
   // Internal methods
 
-  private void loadTrackedActions(DownloadAction.Deserializer[] deserializers) {
+  private void loadTrackedActions() {
     try {
-      DownloadAction[] allActions = actionFile.load(deserializers);
+      DownloadAction[] allActions = actionFile.load();
       for (DownloadAction action : allActions) {
         trackedDownloadStates.put(action.uri, action);
       }

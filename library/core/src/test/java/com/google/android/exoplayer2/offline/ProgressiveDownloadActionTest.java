@@ -18,21 +18,19 @@ package com.google.android.exoplayer2.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
-import com.google.android.exoplayer2.upstream.DummyDataSource;
-import com.google.android.exoplayer2.upstream.cache.Cache;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 
-/** Unit tests for {@link ProgressiveDownloadAction}. */
+// TODO: Merge into DownloadActionTest
+/** Unit tests for progressive {@link DownloadAction}s. */
 @RunWith(RobolectricTestRunner.class)
 public class ProgressiveDownloadActionTest {
 
@@ -55,15 +53,6 @@ public class ProgressiveDownloadActionTest {
   public void testRemoveActionisRemoveAction() throws Exception {
     DownloadAction action2 = createRemoveAction(uri1, null);
     assertThat(action2.isRemoveAction).isTrue();
-  }
-
-  @Test
-  public void testCreateDownloader() throws Exception {
-    MockitoAnnotations.initMocks(this);
-    DownloadAction action = createDownloadAction(uri1, null);
-    DownloaderConstructorHelper constructorHelper =
-        new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
-    assertThat(action.createDownloader(constructorHelper)).isNotNull();
   }
 
   @Test
@@ -139,6 +128,13 @@ public class ProgressiveDownloadActionTest {
     doTestSerializationRoundTrip(createRemoveAction(uri2, "key"));
   }
 
+  @Test
+  public void testSerializerVersion0() throws Exception {
+    doTestLegacySerializationRoundTrip(createDownloadAction(uri1, "key"));
+    doTestLegacySerializationRoundTrip(createRemoveAction(uri1, "key"));
+    doTestLegacySerializationRoundTrip(createDownloadAction(uri2, "key"));
+  }
+
   private void assertSameMedia(DownloadAction action1, DownloadAction action2) {
     assertThat(action1.isSameMedia(action2)).isTrue();
     assertThat(action2.isSameMedia(action1)).isTrue();
@@ -149,25 +145,61 @@ public class ProgressiveDownloadActionTest {
     assertThat(action2.isSameMedia(action1)).isFalse();
   }
 
+  private static void assertEqual(DownloadAction action1, DownloadAction action2) {
+    assertThat(action1).isEqualTo(action2);
+    assertThat(action2).isEqualTo(action1);
+  }
+
   private static void doTestSerializationRoundTrip(DownloadAction action) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(out);
-    DownloadAction.serializeToStream(action, output);
+    action.serializeToStream(output);
 
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
     DataInputStream input = new DataInputStream(in);
-    DownloadAction action2 =
-        DownloadAction.deserializeFromStream(
-            new DownloadAction.Deserializer[] {ProgressiveDownloadAction.DESERIALIZER}, input);
+    DownloadAction action2 = DownloadAction.deserializeFromStream(input);
 
     assertThat(action2).isEqualTo(action);
   }
 
+  private static void doTestLegacySerializationRoundTrip(DownloadAction action) throws IOException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    DataOutputStream output = new DataOutputStream(out);
+    DataOutputStream dataOutputStream = new DataOutputStream(output);
+    dataOutputStream.writeUTF(action.type);
+    dataOutputStream.writeInt(/* version= */ 0);
+    dataOutputStream.writeUTF(action.uri.toString());
+    dataOutputStream.writeBoolean(action.isRemoveAction);
+    dataOutputStream.writeInt(action.data.length);
+    dataOutputStream.write(action.data);
+    boolean customCacheKeySet = action.customCacheKey != null;
+    output.writeBoolean(customCacheKeySet);
+    if (customCacheKeySet) {
+      output.writeUTF(action.customCacheKey);
+    }
+    dataOutputStream.flush();
+
+    assertEqual(action, deserializeActionFromStream(out));
+  }
+
+  private static DownloadAction deserializeActionFromStream(ByteArrayOutputStream out)
+      throws IOException {
+    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    DataInputStream input = new DataInputStream(in);
+    return DownloadAction.deserializeFromStream(input);
+  }
+
   private static DownloadAction createDownloadAction(Uri uri1, String customCacheKey) {
-    return ProgressiveDownloadAction.createDownloadAction(uri1, null, customCacheKey);
+    return DownloadAction.createDownloadAction(
+        DownloadAction.TYPE_PROGRESSIVE,
+        uri1,
+        /* keys= */ Collections.emptyList(),
+        customCacheKey,
+        /* data= */ null);
   }
 
   private static DownloadAction createRemoveAction(Uri uri1, String customCacheKey) {
-    return ProgressiveDownloadAction.createRemoveAction(uri1, null, customCacheKey);
+    return DownloadAction.createRemoveAction(
+        DownloadAction.TYPE_PROGRESSIVE, uri1, customCacheKey, /* data= */ null);
   }
 }

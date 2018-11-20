@@ -25,6 +25,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.ConditionVariable;
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
@@ -238,11 +239,11 @@ public class DownloadManagerDashTest {
           Factory fakeDataSourceFactory = new FakeDataSource.Factory().setFakeDataSet(fakeDataSet);
           downloadManager =
               new DownloadManager(
-                  new DownloaderConstructorHelper(cache, fakeDataSourceFactory),
-                  /* maxSimultaneousDownloads= */ 1,
-                  /* minRetryCount= */ 3,
                   actionFile,
-                  DashDownloadAction.DESERIALIZER);
+                  new DefaultDownloaderFactory(
+                      new DownloaderConstructorHelper(cache, fakeDataSourceFactory)),
+                  /* maxSimultaneousDownloads= */ 1,
+                  /* minRetryCount= */ 3);
 
           downloadManagerListener =
               new TestDownloadManagerListener(downloadManager, dummyMainThread);
@@ -257,9 +258,13 @@ public class DownloadManagerDashTest {
     Collections.addAll(keysList, keys);
     DownloadAction result;
     if (isRemoveAction) {
-      result = DashDownloadAction.createRemoveAction(uri, data);
+      result =
+          DownloadAction.createRemoveAction(
+              DownloadAction.TYPE_DASH, uri, /* customCacheKey= */ null, data);
     } else {
-      result = DashDownloadAction.createDownloadAction(uri, data, keysList);
+      result =
+          DownloadAction.createDownloadAction(
+              DownloadAction.TYPE_DASH, uri, keysList, /* customCacheKey= */ null, data);
     }
     return result;
   }
