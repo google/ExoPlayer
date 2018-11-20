@@ -155,6 +155,13 @@ public interface TrackSelection {
   void onPlaybackSpeed(float speed);
 
   /**
+   * Called to notify the selection of a position discontinuity.
+   *
+   * <p>This happens when the playback position jumps, e.g., as a result of a seek being performed.
+   */
+  default void onDiscontinuity() {}
+
+  /**
    * @deprecated Use and implement {@link #updateSelectedTrack(long, long, long, List,
    *     MediaChunkIterator[])} instead.
    */

@@ -774,6 +774,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     for (Renderer renderer : enabledRenderers) {
       renderer.resetPosition(rendererPositionUs);
     }
+    notifyTrackSelectionDiscontinuity();
   }
 
   private void setPlaybackParametersInternal(PlaybackParameters playbackParameters) {
@@ -1166,6 +1167,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
       for (TrackSelection trackSelection : trackSelections) {
         if (trackSelection != null) {
           trackSelection.onPlaybackSpeed(playbackSpeed);
+        }
+      }
+      periodHolder = periodHolder.getNext();
+    }
+  }
+
+  private void notifyTrackSelectionDiscontinuity() {
+    MediaPeriodHolder periodHolder = queue.getFrontPeriod();
+    while (periodHolder != null) {
+      TrackSelectorResult trackSelectorResult = periodHolder.getTrackSelectorResult();
+      if (trackSelectorResult != null) {
+        TrackSelection[] trackSelections = trackSelectorResult.selections.getAll();
+        for (TrackSelection trackSelection : trackSelections) {
+          if (trackSelection != null) {
+            trackSelection.onDiscontinuity();
+          }
         }
       }
       periodHolder = periodHolder.getNext();
