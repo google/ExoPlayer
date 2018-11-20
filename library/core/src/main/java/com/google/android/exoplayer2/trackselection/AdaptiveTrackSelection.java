@@ -225,11 +225,10 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           new AdaptiveTrackSelection(
               group,
               tracks,
-              bandwidthMeter,
+              new DefaultBandwidthProvider(bandwidthMeter, bandwidthFraction),
               minDurationForQualityIncreaseMs,
               maxDurationForQualityDecreaseMs,
               minDurationToRetainAfterDiscardMs,
-              bandwidthFraction,
               bufferedFractionToLiveEdgeForQualityIncrease,
               minTimeBetweenBufferReevaluationMs,
               clock);
@@ -245,11 +244,10 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   public static final float DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE = 0.75f;
   public static final long DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS = 2000;
 
-  private final BandwidthMeter bandwidthMeter;
+  private final BandwidthProvider bandwidthProvider;
   private final long minDurationForQualityIncreaseUs;
   private final long maxDurationForQualityDecreaseUs;
   private final long minDurationToRetainAfterDiscardUs;
-  private final float bandwidthFraction;
   private final float bufferedFractionToLiveEdgeForQualityIncrease;
   private final long minTimeBetweenBufferReevaluationMs;
   private final Clock clock;
@@ -322,12 +320,33 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       float bufferedFractionToLiveEdgeForQualityIncrease,
       long minTimeBetweenBufferReevaluationMs,
       Clock clock) {
+    this(
+        group,
+        tracks,
+        new DefaultBandwidthProvider(bandwidthMeter, bandwidthFraction),
+        minDurationForQualityIncreaseMs,
+        maxDurationForQualityDecreaseMs,
+        minDurationToRetainAfterDiscardMs,
+        bufferedFractionToLiveEdgeForQualityIncrease,
+        minTimeBetweenBufferReevaluationMs,
+        clock);
+  }
+
+  private AdaptiveTrackSelection(
+      TrackGroup group,
+      int[] tracks,
+      BandwidthProvider bandwidthProvider,
+      long minDurationForQualityIncreaseMs,
+      long maxDurationForQualityDecreaseMs,
+      long minDurationToRetainAfterDiscardMs,
+      float bufferedFractionToLiveEdgeForQualityIncrease,
+      long minTimeBetweenBufferReevaluationMs,
+      Clock clock) {
     super(group, tracks);
-    this.bandwidthMeter = bandwidthMeter;
+    this.bandwidthProvider = bandwidthProvider;
     this.minDurationForQualityIncreaseUs = minDurationForQualityIncreaseMs * 1000L;
     this.maxDurationForQualityDecreaseUs = maxDurationForQualityDecreaseMs * 1000L;
     this.minDurationToRetainAfterDiscardUs = minDurationToRetainAfterDiscardMs * 1000L;
-    this.bandwidthFraction = bandwidthFraction;
     this.bufferedFractionToLiveEdgeForQualityIncrease =
         bufferedFractionToLiveEdgeForQualityIncrease;
     this.minTimeBetweenBufferReevaluationMs = minTimeBetweenBufferReevaluationMs;
@@ -517,7 +536,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    *     accurate estimates of the current track bitrates are available.
    */
   private int determineIdealSelectedIndex(long nowMs, int[] trackBitrates) {
-    long effectiveBitrate = (long) (bandwidthMeter.getBitrateEstimate() * bandwidthFraction);
+    long effectiveBitrate = bandwidthProvider.getAllocatedBandwidth();
     int lowestBitrateNonBlacklistedIndex = 0;
     for (int i = 0; i < length; i++) {
       if (nowMs == Long.MIN_VALUE || !isBlacklisted(i, nowMs)) {
@@ -538,5 +557,28 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     return isAvailableDurationTooShort
         ? (long) (availableDurationUs * bufferedFractionToLiveEdgeForQualityIncrease)
         : minDurationForQualityIncreaseUs;
+  }
+
+  /** Provides the allocated bandwidth. */
+  private interface BandwidthProvider {
+
+    /** Returns the allocated bitrate. */
+    long getAllocatedBandwidth();
+  }
+
+  private static final class DefaultBandwidthProvider implements BandwidthProvider {
+
+    private final BandwidthMeter bandwidthMeter;
+    private final float bandwidthFraction;
+
+    /* package */ DefaultBandwidthProvider(BandwidthMeter bandwidthMeter, float bandwidthFraction) {
+      this.bandwidthMeter = bandwidthMeter;
+      this.bandwidthFraction = bandwidthFraction;
+    }
+
+    @Override
+    public long getAllocatedBandwidth() {
+      return (long) (bandwidthMeter.getBitrateEstimate() * bandwidthFraction);
+    }
   }
 }
