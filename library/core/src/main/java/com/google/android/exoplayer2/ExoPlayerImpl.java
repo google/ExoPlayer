@@ -37,8 +37,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayerFactory}. */
 /* package */ final class ExoPlayerImpl extends BasePlayer implements ExoPlayer {
@@ -59,7 +58,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final Handler eventHandler;
   private final ExoPlayerImplInternal internalPlayer;
   private final Handler internalPlayerHandler;
-  private final CopyOnWriteArraySet<Player.EventListener> listeners;
+  private final CopyOnWriteArrayList<ListenerHolder> listeners;
   private final Timeline.Period period;
   private final ArrayDeque<Runnable> pendingListenerNotifications;
 
@@ -111,7 +110,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.playWhenReady = false;
     this.repeatMode = Player.REPEAT_MODE_OFF;
     this.shuffleModeEnabled = false;
-    this.listeners = new CopyOnWriteArraySet<>();
+    this.listeners = new CopyOnWriteArrayList<>();
     emptyTrackSelectorResult =
         new TrackSelectorResult(
             new RendererConfiguration[renderers.length],
@@ -172,12 +171,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void addListener(Player.EventListener listener) {
-    listeners.add(listener);
+    listeners.addIfAbsent(new ListenerHolder(listener));
   }
 
   @Override
   public void removeListener(Player.EventListener listener) {
-    listeners.remove(listener);
+    for (ListenerHolder listenerHolder : listeners) {
+      if (listenerHolder.listener.equals(listener)) {
+        listenerHolder.release();
+        listeners.remove(listenerHolder);
+      }
+    }
   }
 
   @Override
@@ -694,12 +698,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   private void notifyListeners(ListenerInvocation listenerInvocation) {
-    notifyListeners(
-        () -> {
-          for (Player.EventListener listener : listeners) {
-            listenerInvocation.invokeListener(listener);
-          }
-        });
+    CopyOnWriteArrayList<ListenerHolder> listenerSnapshot = new CopyOnWriteArrayList<>(listeners);
+    notifyListeners(() -> invokeAll(listenerSnapshot, listenerInvocation));
   }
 
   private void notifyListeners(Runnable listenerNotificationRunnable) {
@@ -728,7 +728,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private static final class PlaybackInfoUpdate implements Runnable {
 
     private final PlaybackInfo playbackInfo;
-    private final Set<Player.EventListener> listeners;
+    private final CopyOnWriteArrayList<ListenerHolder> listenerSnapshot;
     private final TrackSelector trackSelector;
     private final boolean positionDiscontinuity;
     private final @Player.DiscontinuityReason int positionDiscontinuityReason;
@@ -743,7 +743,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     public PlaybackInfoUpdate(
         PlaybackInfo playbackInfo,
         PlaybackInfo previousPlaybackInfo,
-        Set<Player.EventListener> listeners,
+        CopyOnWriteArrayList<ListenerHolder> listeners,
         TrackSelector trackSelector,
         boolean positionDiscontinuity,
         @Player.DiscontinuityReason int positionDiscontinuityReason,
@@ -751,7 +751,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         boolean seekProcessed,
         boolean playWhenReady) {
       this.playbackInfo = playbackInfo;
-      this.listeners = listeners;
+      this.listenerSnapshot = new CopyOnWriteArrayList<>(listeners);
       this.trackSelector = trackSelector;
       this.positionDiscontinuity = positionDiscontinuity;
       this.positionDiscontinuityReason = positionDiscontinuityReason;
@@ -770,43 +770,85 @@ import java.util.concurrent.CopyOnWriteArraySet;
     @Override
     public void run() {
       if (timelineOrManifestChanged || timelineChangeReason == TIMELINE_CHANGE_REASON_PREPARED) {
-        for (Player.EventListener listener : listeners) {
-          listener.onTimelineChanged(
-              playbackInfo.timeline, playbackInfo.manifest, timelineChangeReason);
-        }
+        invokeAll(
+            listenerSnapshot,
+            listener ->
+                listener.onTimelineChanged(
+                    playbackInfo.timeline, playbackInfo.manifest, timelineChangeReason));
       }
       if (positionDiscontinuity) {
-        for (Player.EventListener listener : listeners) {
-          listener.onPositionDiscontinuity(positionDiscontinuityReason);
-        }
+        invokeAll(
+            listenerSnapshot,
+            listener -> listener.onPositionDiscontinuity(positionDiscontinuityReason));
       }
       if (trackSelectorResultChanged) {
         trackSelector.onSelectionActivated(playbackInfo.trackSelectorResult.info);
-        for (Player.EventListener listener : listeners) {
-          listener.onTracksChanged(
-              playbackInfo.trackGroups, playbackInfo.trackSelectorResult.selections);
-        }
+        invokeAll(
+            listenerSnapshot,
+            listener ->
+                listener.onTracksChanged(
+                    playbackInfo.trackGroups, playbackInfo.trackSelectorResult.selections));
       }
       if (isLoadingChanged) {
-        for (Player.EventListener listener : listeners) {
-          listener.onLoadingChanged(playbackInfo.isLoading);
-        }
+        invokeAll(listenerSnapshot, listener -> listener.onLoadingChanged(playbackInfo.isLoading));
       }
       if (playbackStateChanged) {
-        for (Player.EventListener listener : listeners) {
-          listener.onPlayerStateChanged(playWhenReady, playbackInfo.playbackState);
-        }
+        invokeAll(
+            listenerSnapshot,
+            listener -> listener.onPlayerStateChanged(playWhenReady, playbackInfo.playbackState));
       }
       if (seekProcessed) {
-        for (Player.EventListener listener : listeners) {
-          listener.onSeekProcessed();
-        }
+        invokeAll(listenerSnapshot, EventListener::onSeekProcessed);
       }
+    }
+  }
+
+  private static void invokeAll(
+      CopyOnWriteArrayList<ListenerHolder> listeners, ListenerInvocation listenerInvocation) {
+    for (ListenerHolder listenerHolder : listeners) {
+      listenerHolder.invoke(listenerInvocation);
     }
   }
 
   private interface ListenerInvocation {
 
     void invokeListener(Player.EventListener listener);
+  }
+
+  private static final class ListenerHolder {
+
+    private final Player.EventListener listener;
+
+    private boolean released;
+
+    public ListenerHolder(Player.EventListener listener) {
+      this.listener = listener;
+    }
+
+    public void release() {
+      released = true;
+    }
+
+    public void invoke(ListenerInvocation listenerInvocation) {
+      if (!released) {
+        listenerInvocation.invokeListener(listener);
+      }
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      if (this == other) {
+        return true;
+      }
+      if (other == null || getClass() != other.getClass()) {
+        return false;
+      }
+      return listener.equals(((ListenerHolder) other).listener);
+    }
+
+    @Override
+    public int hashCode() {
+      return listener.hashCode();
+    }
   }
 }
