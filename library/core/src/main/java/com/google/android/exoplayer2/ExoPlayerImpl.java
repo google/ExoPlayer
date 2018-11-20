@@ -61,7 +61,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final Handler internalPlayerHandler;
   private final CopyOnWriteArraySet<Player.EventListener> listeners;
   private final Timeline.Period period;
-  private final ArrayDeque<PlaybackInfoUpdate> pendingPlaybackInfoUpdates;
+  private final ArrayDeque<Runnable> pendingListenerNotifications;
 
   private MediaSource mediaSource;
   private boolean playWhenReady;
@@ -128,7 +128,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
           }
         };
     playbackInfo = PlaybackInfo.createDummy(/* startPositionUs= */ 0, emptyTrackSelectorResult);
-    pendingPlaybackInfoUpdates = new ArrayDeque<>();
+    pendingListenerNotifications = new ArrayDeque<>();
     internalPlayer =
         new ExoPlayerImplInternal(
             renderers,
@@ -222,8 +222,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         TIMELINE_CHANGE_REASON_RESET,
-        /* seekProcessed= */ false,
-        /* playWhenReadyChanged= */ false);
+        /* seekProcessed= */ false);
   }
 
   @Override
@@ -239,13 +238,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
     }
     if (this.playWhenReady != playWhenReady) {
       this.playWhenReady = playWhenReady;
-      updatePlaybackInfo(
-          playbackInfo,
-          /* positionDiscontinuity= */ false,
-          /* ignored */ DISCONTINUITY_REASON_INTERNAL,
-          /* ignored */ TIMELINE_CHANGE_REASON_RESET,
-          /* seekProcessed= */ false,
-          /* playWhenReadyChanged= */ true);
+      notifyListeners(
+          new PlayWhenReadyUpdate(listeners, playWhenReady, playbackInfo.playbackState));
     }
   }
 
@@ -390,8 +384,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         /* positionDiscontinuity= */ false,
         /* ignored */ DISCONTINUITY_REASON_INTERNAL,
         TIMELINE_CHANGE_REASON_RESET,
-        /* seekProcessed= */ false,
-        /* playWhenReadyChanged= */ false);
+        /* seekProcessed= */ false);
   }
 
   @Override
@@ -651,8 +644,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
           positionDiscontinuity,
           positionDiscontinuityReason,
           timelineChangeReason,
-          seekProcessed,
-          /* playWhenReadyChanged= */ false);
+          seekProcessed);
     }
   }
 
@@ -694,29 +686,32 @@ import java.util.concurrent.CopyOnWriteArraySet;
       boolean positionDiscontinuity,
       @Player.DiscontinuityReason int positionDiscontinuityReason,
       @Player.TimelineChangeReason int timelineChangeReason,
-      boolean seekProcessed,
-      boolean playWhenReadyChanged) {
-    boolean isRunningRecursiveListenerNotification = !pendingPlaybackInfoUpdates.isEmpty();
-    pendingPlaybackInfoUpdates.addLast(
+      boolean seekProcessed) {
+    // Assign playback info immediately such that all getters return the right values.
+    PlaybackInfo previousPlaybackInfo = this.playbackInfo;
+    this.playbackInfo = playbackInfo;
+    notifyListeners(
         new PlaybackInfoUpdate(
             playbackInfo,
-            /* previousPlaybackInfo= */ this.playbackInfo,
+            previousPlaybackInfo,
             listeners,
             trackSelector,
             positionDiscontinuity,
             positionDiscontinuityReason,
             timelineChangeReason,
             seekProcessed,
-            playWhenReady,
-            playWhenReadyChanged));
-    // Assign playback info immediately such that all getters return the right values.
-    this.playbackInfo = playbackInfo;
+            playWhenReady));
+  }
+
+  private void notifyListeners(Runnable listenerNotificationRunnable) {
+    boolean isRunningRecursiveListenerNotification = !pendingListenerNotifications.isEmpty();
+    pendingListenerNotifications.addLast(listenerNotificationRunnable);
     if (isRunningRecursiveListenerNotification) {
       return;
     }
-    while (!pendingPlaybackInfoUpdates.isEmpty()) {
-      pendingPlaybackInfoUpdates.peekFirst().notifyListeners();
-      pendingPlaybackInfoUpdates.removeFirst();
+    while (!pendingListenerNotifications.isEmpty()) {
+      pendingListenerNotifications.peekFirst().run();
+      pendingListenerNotifications.removeFirst();
     }
   }
 
@@ -731,7 +726,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return playbackInfo.timeline.isEmpty() || pendingOperationAcks > 0;
   }
 
-  private static final class PlaybackInfoUpdate {
+  private static final class PlaybackInfoUpdate implements Runnable {
 
     private final PlaybackInfo playbackInfo;
     private final Set<Player.EventListener> listeners;
@@ -740,11 +735,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
     private final @Player.DiscontinuityReason int positionDiscontinuityReason;
     private final @Player.TimelineChangeReason int timelineChangeReason;
     private final boolean seekProcessed;
-    private final boolean playWhenReady;
-    private final boolean playbackStateOrPlayWhenReadyChanged;
+    private final boolean playbackStateChanged;
     private final boolean timelineOrManifestChanged;
     private final boolean isLoadingChanged;
     private final boolean trackSelectorResultChanged;
+    private final boolean playWhenReady;
 
     public PlaybackInfoUpdate(
         PlaybackInfo playbackInfo,
@@ -755,8 +750,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         @Player.DiscontinuityReason int positionDiscontinuityReason,
         @Player.TimelineChangeReason int timelineChangeReason,
         boolean seekProcessed,
-        boolean playWhenReady,
-        boolean playWhenReadyChanged) {
+        boolean playWhenReady) {
       this.playbackInfo = playbackInfo;
       this.listeners = listeners;
       this.trackSelector = trackSelector;
@@ -765,8 +759,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
       this.timelineChangeReason = timelineChangeReason;
       this.seekProcessed = seekProcessed;
       this.playWhenReady = playWhenReady;
-      playbackStateOrPlayWhenReadyChanged =
-          playWhenReadyChanged || previousPlaybackInfo.playbackState != playbackInfo.playbackState;
+      playbackStateChanged = previousPlaybackInfo.playbackState != playbackInfo.playbackState;
       timelineOrManifestChanged =
           previousPlaybackInfo.timeline != playbackInfo.timeline
               || previousPlaybackInfo.manifest != playbackInfo.manifest;
@@ -775,7 +768,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
           previousPlaybackInfo.trackSelectorResult != playbackInfo.trackSelectorResult;
     }
 
-    public void notifyListeners() {
+    @Override
+    public void run() {
       if (timelineOrManifestChanged || timelineChangeReason == TIMELINE_CHANGE_REASON_PREPARED) {
         for (Player.EventListener listener : listeners) {
           listener.onTimelineChanged(
@@ -799,7 +793,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
           listener.onLoadingChanged(playbackInfo.isLoading);
         }
       }
-      if (playbackStateOrPlayWhenReadyChanged) {
+      if (playbackStateChanged) {
         for (Player.EventListener listener : listeners) {
           listener.onPlayerStateChanged(playWhenReady, playbackInfo.playbackState);
         }
@@ -808,6 +802,27 @@ import java.util.concurrent.CopyOnWriteArraySet;
         for (Player.EventListener listener : listeners) {
           listener.onSeekProcessed();
         }
+      }
+    }
+  }
+
+  private static final class PlayWhenReadyUpdate implements Runnable {
+
+    private final Set<Player.EventListener> listeners;
+    private final boolean playWhenReady;
+    private final int playbackState;
+
+    public PlayWhenReadyUpdate(
+        Set<Player.EventListener> listeners, boolean playWhenReady, int playbackState) {
+      this.listeners = listeners;
+      this.playWhenReady = playWhenReady;
+      this.playbackState = playbackState;
+    }
+
+    @Override
+    public void run() {
+      for (Player.EventListener listener : listeners) {
+        listener.onPlayerStateChanged(playWhenReady, playbackState);
       }
     }
   }
