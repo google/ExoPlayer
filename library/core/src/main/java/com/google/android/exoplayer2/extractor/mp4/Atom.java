@@ -145,6 +145,10 @@ import java.util.List;
   public static final int TYPE_alac = Util.getIntegerCodeForString("alac");
   public static final int TYPE_alaw = Util.getIntegerCodeForString("alaw");
   public static final int TYPE_ulaw = Util.getIntegerCodeForString("ulaw");
+  public static final int TYPE_Opus = Util.getIntegerCodeForString("Opus");
+  public static final int TYPE_dOps = Util.getIntegerCodeForString("dOps");
+  public static final int TYPE_fLaC = Util.getIntegerCodeForString("fLaC");
+  public static final int TYPE_dfLa = Util.getIntegerCodeForString("dfLa");
 
   public final int type;
 
