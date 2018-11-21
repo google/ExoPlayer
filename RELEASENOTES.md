@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* MP4: Support Opus and FLAC in the MP4 container, and in DASH
+  ([#4883](https://github.com/google/ExoPlayer/issues/4883)).
 * DASH: Fix detecting the end of live events
   ([#4780](https://github.com/google/ExoPlayer/issues/4780)).
 * Support seeking for a wider range of MPEG-TS streams
