@@ -61,8 +61,8 @@ public final class FakeShuffleOrder implements ShuffleOrder {
   }
 
   @Override
-  public ShuffleOrder cloneAndRemove(int removalIndex) {
-    return new FakeShuffleOrder(length - 1);
+  public ShuffleOrder cloneAndRemove(int indexFrom, int indexToExclusive) {
+    return new FakeShuffleOrder(length - indexToExclusive + indexFrom);
   }
 
   @Override
