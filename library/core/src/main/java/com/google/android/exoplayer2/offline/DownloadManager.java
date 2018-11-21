@@ -85,7 +85,7 @@ public final class DownloadManager {
   private static final String TAG = "DownloadManager";
   private static final boolean DEBUG = false;
 
-  private final DownloaderConstructorHelper downloaderConstructorHelper;
+  private final DownloaderConstructorHelper.Factory downloaderConstructorHelperFactory;
   private final int maxActiveDownloadTasks;
   private final int minRetryCount;
   private final ActionFile actionFile;
@@ -118,7 +118,7 @@ public final class DownloadManager {
       File actionSaveFile,
       Deserializer... deserializers) {
     this(
-        new DownloaderConstructorHelper(cache, upstreamDataSourceFactory),
+        action -> new DownloaderConstructorHelper(cache, upstreamDataSourceFactory),
         actionSaveFile,
         deserializers);
   }
@@ -126,18 +126,18 @@ public final class DownloadManager {
   /**
    * Constructs a {@link DownloadManager}.
    *
-   * @param constructorHelper A {@link DownloaderConstructorHelper} to create {@link Downloader}s
-   *     for downloading data.
+   * @param constructorHelperFactory A {@link DownloaderConstructorHelper.Factory} that helps to create {@link Downloader}s
+   *    *     for downloading data.
    * @param actionFile The file in which active actions are saved.
    * @param deserializers Used to deserialize {@link DownloadAction}s. If empty, {@link
    *     DownloadAction#getDefaultDeserializers()} is used instead.
    */
   public DownloadManager(
-      DownloaderConstructorHelper constructorHelper,
+      DownloaderConstructorHelper.Factory constructorHelperFactory,
       File actionFile,
       Deserializer... deserializers) {
     this(
-        constructorHelper,
+        constructorHelperFactory,
         DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS,
         DEFAULT_MIN_RETRY_COUNT,
         actionFile,
@@ -147,7 +147,7 @@ public final class DownloadManager {
   /**
    * Constructs a {@link DownloadManager}.
    *
-   * @param constructorHelper A {@link DownloaderConstructorHelper} to create {@link Downloader}s
+   * @param constructorHelperFactory A {@link DownloaderConstructorHelper.Factory} that helps to create {@link Downloader}s
    *     for downloading data.
    * @param maxSimultaneousDownloads The maximum number of simultaneous download tasks.
    * @param minRetryCount The minimum number of times a task must be retried before failing.
@@ -156,12 +156,12 @@ public final class DownloadManager {
    *     DownloadAction#getDefaultDeserializers()} is used instead.
    */
   public DownloadManager(
-      DownloaderConstructorHelper constructorHelper,
+      DownloaderConstructorHelper.Factory constructorHelperFactory,
       int maxSimultaneousDownloads,
       int minRetryCount,
       File actionFile,
       Deserializer... deserializers) {
-    this.downloaderConstructorHelper = constructorHelper;
+    this.downloaderConstructorHelperFactory = constructorHelperFactory;
     this.maxActiveDownloadTasks = maxSimultaneousDownloads;
     this.minRetryCount = minRetryCount;
     this.actionFile = new ActionFile(actionFile);
@@ -810,7 +810,9 @@ public final class DownloadManager {
       logd("Task is started", this);
       Throwable error = null;
       try {
-        downloader = action.createDownloader(downloadManager.downloaderConstructorHelper);
+        downloader = action.createDownloader(
+          downloadManager.downloaderConstructorHelperFactory.createDownloaderConstructorHelper(action)
+        );
         if (action.isRemoveAction) {
           downloader.remove();
         } else {

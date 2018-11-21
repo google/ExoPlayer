@@ -19,7 +19,6 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSource.Factory;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.PriorityDataSource;
@@ -32,17 +31,21 @@ import com.google.android.exoplayer2.util.PriorityTaskManager;
 /** A helper class that holds necessary parameters for {@link Downloader} construction. */
 public final class DownloaderConstructorHelper {
 
+  public interface Factory {
+    DownloaderConstructorHelper createDownloaderConstructorHelper(DownloadAction action);
+  }
+
   private final Cache cache;
-  private final Factory upstreamDataSourceFactory;
-  private final Factory cacheReadDataSourceFactory;
+  private final DataSource.Factory upstreamDataSourceFactory;
+  private final DataSource.Factory cacheReadDataSourceFactory;
   private final DataSink.Factory cacheWriteDataSinkFactory;
   private final PriorityTaskManager priorityTaskManager;
 
   /**
    * @param cache Cache instance to be used to store downloaded data.
-   * @param upstreamDataSourceFactory A {@link Factory} for downloading data.
+   * @param upstreamDataSourceFactory A {@link DataSource.Factory} for downloading data.
    */
-  public DownloaderConstructorHelper(Cache cache, Factory upstreamDataSourceFactory) {
+  public DownloaderConstructorHelper(Cache cache, DataSource.Factory upstreamDataSourceFactory) {
     this(cache, upstreamDataSourceFactory, null, null, null);
   }
 
@@ -59,8 +62,8 @@ public final class DownloaderConstructorHelper {
    */
   public DownloaderConstructorHelper(
       Cache cache,
-      Factory upstreamDataSourceFactory,
-      @Nullable Factory cacheReadDataSourceFactory,
+      DataSource.Factory upstreamDataSourceFactory,
+      @Nullable DataSource.Factory cacheReadDataSourceFactory,
       @Nullable DataSink.Factory cacheWriteDataSinkFactory,
       @Nullable PriorityTaskManager priorityTaskManager) {
     Assertions.checkNotNull(upstreamDataSourceFactory);
