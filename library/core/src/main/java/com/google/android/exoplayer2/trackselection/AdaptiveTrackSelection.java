@@ -380,6 +380,18 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     this.trackBitrateEstimator = trackBitrateEstimator;
   }
 
+  /**
+   * Sets the non-allocatable bandwidth, which shouldn't be considered available.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   *
+   * @param nonAllocatableBandwidth The non-allocatable bandwidth in bits per second.
+   */
+  public void experimental_setNonAllocatableBandwidth(long nonAllocatableBandwidth) {
+    ((DefaultBandwidthProvider) bandwidthProvider)
+        .experimental_setNonAllocatableBandwidth(nonAllocatableBandwidth);
+  }
+
   @Override
   public void enable() {
     lastBufferEvaluationMs = C.TIME_UNSET;
@@ -571,6 +583,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     private final BandwidthMeter bandwidthMeter;
     private final float bandwidthFraction;
 
+    private long nonAllocatableBandwidth;
+
     /* package */ DefaultBandwidthProvider(BandwidthMeter bandwidthMeter, float bandwidthFraction) {
       this.bandwidthMeter = bandwidthMeter;
       this.bandwidthFraction = bandwidthFraction;
@@ -578,7 +592,12 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
 
     @Override
     public long getAllocatedBandwidth() {
-      return (long) (bandwidthMeter.getBitrateEstimate() * bandwidthFraction);
+      long totalBandwidth = (long) (bandwidthMeter.getBitrateEstimate() * bandwidthFraction);
+      return Math.max(0L, totalBandwidth - nonAllocatableBandwidth);
+    }
+
+    /* package */ void experimental_setNonAllocatableBandwidth(long nonAllocatableBandwidth) {
+      this.nonAllocatableBandwidth = nonAllocatableBandwidth;
     }
   }
 }
