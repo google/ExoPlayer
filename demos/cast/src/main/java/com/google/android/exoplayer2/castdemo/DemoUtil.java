@@ -70,7 +70,6 @@ import java.util.List;
             .setMimeType(MIME_TYPE_VIDEO_MP4)
             .setMedia("https://html5demos.com/assets/dizzy.mp4")
             .buildAndClear());
-
     SAMPLES = Collections.unmodifiableList(samples);
 
   }
