@@ -357,38 +357,6 @@ import com.google.android.exoplayer2.util.Util;
   private void setupBitmapLayout() {
     int parentWidth = parentRight - parentLeft;
     int parentHeight = parentBottom - parentTop;
-
-    // Default position
-    if (cuePosition == Cue.DIMEN_UNSET) {
-      cuePositionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-      cuePosition = 0.5f;
-    }
-
-    // Default line
-    if (cueLine == Cue.DIMEN_UNSET) {
-      cueLineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-      cueLine = 0.85f;
-    }
-
-    // Default width and height
-    if (cueSize == Cue.DIMEN_UNSET) {
-      // Scale up by height to be 10% of the parent's height
-      cueBitmapHeight = 0.1f;
-
-      float heightInParent = parentHeight * cueBitmapHeight;
-      float widthInParent = heightInParent * ((float) cueBitmap.getWidth() / cueBitmap.getHeight());
-      cueSize = widthInParent / parentWidth;
-
-      // If by the previous scaling the width exceeds 50% of the parent's width
-      // then scale back to 50% by width and adjust its height to keep the aspect ratio
-      if (cueSize > 0.5f) {
-        cueSize = 0.5f;
-        widthInParent = parentWidth * cueSize;
-        heightInParent = widthInParent * ((float) cueBitmap.getHeight() / cueBitmap.getWidth());
-        cueBitmapHeight = heightInParent / parentHeight;
-      }
-    }
-
     float anchorX = parentLeft + (parentWidth * cuePosition);
     float anchorY = parentTop + (parentHeight * cueLine);
     int width = Math.round(parentWidth * cueSize);

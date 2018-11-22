@@ -63,7 +63,8 @@ public final class TtmlDecoderTest {
   private static final String FONT_SIZE_INVALID_TTML_FILE = "ttml/font_size_invalid.xml";
   private static final String FONT_SIZE_EMPTY_TTML_FILE = "ttml/font_size_empty.xml";
   private static final String FRAME_RATE_TTML_FILE = "ttml/frame_rate.xml";
-  private static final String BITMAP_REGION_FILE = "ttml/bitmap_region.xml";
+  private static final String BITMAP_REGION_FILE = "ttml/bitmap_percentage_region.xml";
+  private static final String BITMAP_PIXEL_REGION_FILE = "ttml/bitmap_pixel_region.xml";
   private static final String BITMAP_UNSUPPORTED_REGION_FILE = "ttml/bitmap_unsupported_region.xml";
 
   @Test
@@ -502,7 +503,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testBitmapWithRegion() throws IOException, SubtitleDecoderException{
+  public void testBitmapPercentageRegion() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(BITMAP_REGION_FILE);
     List<Cue> output = subtitle.getCues(1000000);
     assertThat(output).hasSize(1);
@@ -540,7 +541,34 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testBitmapWithUnsupportedRegion() throws IOException, SubtitleDecoderException{
+  public void testBitmapPixelRegion() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(BITMAP_PIXEL_REGION_FILE);
+    List<Cue> output = subtitle.getCues(1000000);
+    assertThat(output).hasSize(1);
+    Cue ttmlCue = output.get(0);
+
+    assertThat(ttmlCue.text).isEqualTo(null);
+    assertThat(ttmlCue.bitmap).isNotNull();
+    assertThat(ttmlCue.position).isEqualTo(307f / 1280f);
+    assertThat(ttmlCue.line).isEqualTo(562f / 720f);
+    assertThat(ttmlCue.size).isEqualTo(653f / 1280f);
+    // bitmap should be displayed at its natural height for the specified width (= size)
+    assertThat(ttmlCue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+
+    output = subtitle.getCues(4000000);
+    ttmlCue = output.get(0);
+
+    assertThat(ttmlCue.text).isEqualTo(null);
+    assertThat(ttmlCue.bitmap).isNotNull();
+    assertThat(ttmlCue.position).isEqualTo(269f / 1280f);
+    assertThat(ttmlCue.line).isEqualTo(612f / 720f);
+    assertThat(ttmlCue.size).isEqualTo(730f / 1280f);
+    // bitmap should be displayed at its natural height for the specified width (= size)
+    assertThat(ttmlCue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+  }
+
+  @Test
+  public void testBitmapUnsupportedRegion() throws IOException, SubtitleDecoderException{
     TtmlSubtitle subtitle = getSubtitle(BITMAP_UNSUPPORTED_REGION_FILE);
     List<Cue> output = subtitle.getCues(1000000);
     assertThat(output).hasSize(1);
