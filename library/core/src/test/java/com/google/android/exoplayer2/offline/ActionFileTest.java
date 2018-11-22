@@ -149,6 +149,7 @@ public class ActionFileTest {
     assertThat(actionFile.load()).isEqualTo(actions);
   }
 
+  // TODO: Remove this method and add assets for invalid and legacy serialized action files.
   private DownloadAction[] loadActions(Object[] values) throws IOException {
     FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
     DataOutputStream dataOutputStream = new DataOutputStream(fileOutputStream);
