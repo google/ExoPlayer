@@ -81,8 +81,6 @@ import java.util.List;
         + "hls/TearsOfSteel.m3u8", "Tears of Steel (HLS)", MIME_TYPE_HLS));
     samples.add(new Sample("https://html5demos.com/assets/dizzy.mp4", "Dizzy (MP4)",
         MIME_TYPE_VIDEO_MP4));
-
-
     SAMPLES = Collections.unmodifiableList(samples);
 
   }
