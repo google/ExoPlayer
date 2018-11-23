@@ -365,6 +365,9 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   public final synchronized void moveMediaSource(
       int currentIndex, int newIndex, @Nullable Runnable actionOnCompletion) {
     if (currentIndex == newIndex) {
+      if (actionOnCompletion != null) {
+        actionOnCompletion.run();
+      }
       return;
     }
     mediaSourcesPublic.add(newIndex, mediaSourcesPublic.remove(currentIndex));
