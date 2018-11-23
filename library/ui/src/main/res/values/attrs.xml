@@ -53,8 +53,8 @@
     <attr name="auto_show" format="boolean"/>
     <attr name="show_buffering" format="enum">
       <enum name="never" value="0"/>
-      <enum name="always" value="1"/>
-      <enum name="when_playing" value="2"/>
+      <enum name="when_playing" value="1"/>
+      <enum name="always" value="2"/>
     </attr>
     <attr name="keep_content_on_player_reset" format="boolean"/>
     <attr name="resize_mode"/>
