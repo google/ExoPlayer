@@ -135,4 +135,58 @@ public abstract class BasePlayer implements Player {
     @RepeatMode int repeatMode = getRepeatMode();
     return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
   }
+
+  /** Holds a listener reference. */
+  protected static final class ListenerHolder {
+
+    /**
+     * The listener on which {link #invoke} will execute {@link ListenerInvocation listener
+     * invocations}.
+     */
+    public final Player.EventListener listener;
+
+    private boolean released;
+
+    public ListenerHolder(Player.EventListener listener) {
+      this.listener = listener;
+    }
+
+    /** Prevents any further {@link ListenerInvocation} to be executed on {@link #listener}. */
+    public void release() {
+      released = true;
+    }
+
+    /**
+     * Executes the given {@link ListenerInvocation} on {@link #listener}. Does nothing if {@link
+     * #release} has been called on this instance.
+     */
+    public void invoke(ListenerInvocation listenerInvocation) {
+      if (!released) {
+        listenerInvocation.invokeListener(listener);
+      }
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+      if (this == other) {
+        return true;
+      }
+      if (other == null || getClass() != other.getClass()) {
+        return false;
+      }
+      return listener.equals(((ListenerHolder) other).listener);
+    }
+
+    @Override
+    public int hashCode() {
+      return listener.hashCode();
+    }
+  }
+
+  /** Parameterized invocation of a {@link Player.EventListener} method. */
+  protected interface ListenerInvocation {
+
+    /** Executes the invocation on the given {@link Player.EventListener}. */
+    void invokeListener(Player.EventListener listener);
+  }
 }

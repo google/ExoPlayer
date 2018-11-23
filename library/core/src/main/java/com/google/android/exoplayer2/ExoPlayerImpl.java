@@ -809,46 +809,4 @@ import java.util.concurrent.CopyOnWriteArrayList;
       listenerHolder.invoke(listenerInvocation);
     }
   }
-
-  private interface ListenerInvocation {
-
-    void invokeListener(Player.EventListener listener);
-  }
-
-  private static final class ListenerHolder {
-
-    private final Player.EventListener listener;
-
-    private boolean released;
-
-    public ListenerHolder(Player.EventListener listener) {
-      this.listener = listener;
-    }
-
-    public void release() {
-      released = true;
-    }
-
-    public void invoke(ListenerInvocation listenerInvocation) {
-      if (!released) {
-        listenerInvocation.invokeListener(listener);
-      }
-    }
-
-    @Override
-    public boolean equals(Object other) {
-      if (this == other) {
-        return true;
-      }
-      if (other == null || getClass() != other.getClass()) {
-        return false;
-      }
-      return listener.equals(((ListenerHolder) other).listener);
-    }
-
-    @Override
-    public int hashCode() {
-      return listener.hashCode();
-    }
-  }
 }
