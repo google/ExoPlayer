@@ -1,7 +1,0 @@
-# Proguard rules specific to the smoothstreaming module.
-
-# Constructors accessed via reflection in SegmentDownloadAction
--dontnote com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction
--keepclassmembers class com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadAction {
-  static ** DESERIALIZER;
-}
