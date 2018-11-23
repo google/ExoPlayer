@@ -293,27 +293,26 @@ public final class Cea608Decoder extends CeaDecoder {
     boolean captionDataProcessed = false;
     boolean isRepeatableControl = false;
     while (ccData.bytesLeft() >= packetLength) {
-      byte ccDataHeader = packetLength == 2 ? CC_IMPLICIT_DATA_HEADER
+      byte ccHeader = packetLength == 2 ? CC_IMPLICIT_DATA_HEADER
           : (byte) ccData.readUnsignedByte();
+      int ccByte1 = ccData.readUnsignedByte();
+      int ccByte2 = ccData.readUnsignedByte();
 
       // Only examine valid CEA-608 packets
       // TODO: We're currently ignoring the top 5 marker bits, which should all be 1s according
       // to the CEA-608 specification. We need to determine if the data should be handled
       // differently when that is not the case.
 
-      if ((ccDataHeader & CC_TYPE_FLAG) != 0) {
+      if ((ccHeader & CC_TYPE_FLAG) != 0) {
         // Do not process anything that is not part of the 608 byte stream.
         continue;
       }
 
-      if ((selectedField == 1 && (ccDataHeader & CC_FIELD_FLAG) != NTSC_CC_FIELD_1)
-          || (selectedField == 2 && (ccDataHeader & CC_FIELD_FLAG) != NTSC_CC_FIELD_2)) {
+      if ((selectedField == 1 && (ccHeader & CC_FIELD_FLAG) != NTSC_CC_FIELD_1)
+          || (selectedField == 2 && (ccHeader & CC_FIELD_FLAG) != NTSC_CC_FIELD_2)) {
         // Do not process packets not within the selected field.
         continue;
       }
-
-      int ccByte1 = ccData.readUnsignedByte();
-      int ccByte2 = ccData.readUnsignedByte();
 
       // Strip the parity bit from each byte to get CC data.
       byte ccData1 = (byte) (ccByte1 & 0x7F);
@@ -324,9 +323,9 @@ public final class Cea608Decoder extends CeaDecoder {
         continue;
       }
 
-      if ((ccDataHeader & CC_VALID_FLAG) != CC_VALID_FLAG) {
+      if ((ccHeader & CC_VALID_FLAG) != CC_VALID_FLAG) {
         if (captionValid) {
-          // The encoder has flipped the validity bit to indicate closed captions are being turned.
+          // The encoder has flipped the validity bit to indicate captions are being turned off.
           resetCueBuilders();
           captionValid = false;
           captionDataProcessed = true;
