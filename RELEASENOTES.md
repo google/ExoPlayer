@@ -10,6 +10,8 @@
   ([#4780](https://github.com/google/ExoPlayer/issues/4780)).
 * Include channel count in audio capabilities check
   ([#4690](https://github.com/google/ExoPlayer/issues/4690)).
+* Fix issue with applying the `show_buffering` attribute in `PlayerView`
+  ([#5139](https://github.com/google/ExoPlayer/issues/5139)).
 
 ### 2.9.1 ###
 
