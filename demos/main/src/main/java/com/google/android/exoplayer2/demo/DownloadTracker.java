@@ -116,8 +116,7 @@ public class DownloadTracker implements DownloadManager.Listener {
 
   public void toggleDownload(Activity activity, String name, Uri uri, String extension) {
     if (isDownloaded(uri)) {
-      DownloadAction removeAction =
-          getDownloadHelper(uri, extension).getRemoveAction(Util.getUtf8Bytes(name));
+      DownloadAction removeAction = getDownloadHelper(uri, extension).getRemoveAction();
       startServiceWithAction(removeAction);
     } else {
       StartDownloadDialogHelper helper =

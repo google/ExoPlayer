@@ -103,8 +103,7 @@ public abstract class DownloadHelper {
   /**
    * Builds a {@link DownloadAction} for removing the media. May be called in any state.
    *
-   * @param data Application provided data to store in {@link DownloadAction#data}.
    * @return The built {@link DownloadAction}.
    */
-  public abstract DownloadAction getRemoveAction(@Nullable byte[] data);
+  public abstract DownloadAction getRemoveAction();
 }

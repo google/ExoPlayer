@@ -466,10 +466,7 @@ public class DownloadManagerTest {
       action =
           isRemoveAction
               ? DownloadAction.createRemoveAction(
-                  DownloadAction.TYPE_PROGRESSIVE,
-                  uri,
-                  /* customCacheKey= */ null,
-                  /* data= */ null)
+                  DownloadAction.TYPE_PROGRESSIVE, uri, /* customCacheKey= */ null)
               : DownloadAction.createDownloadAction(
                   DownloadAction.TYPE_PROGRESSIVE,
                   uri,

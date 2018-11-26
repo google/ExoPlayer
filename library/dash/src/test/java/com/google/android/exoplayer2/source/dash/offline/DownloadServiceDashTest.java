@@ -214,7 +214,7 @@ public class DownloadServiceDashTest {
     if (isRemoveAction) {
       result =
           DownloadAction.createRemoveAction(
-              DownloadAction.TYPE_DASH, uri, /* customCacheKey= */ null, data);
+              DownloadAction.TYPE_DASH, uri, /* customCacheKey= */ null);
     } else {
       result =
           DownloadAction.createDownloadAction(
