@@ -259,7 +259,7 @@ public abstract class DownloadService extends Service {
           Log.e(TAG, "Ignoring ADD action with no action data");
         } else {
           try {
-            downloadManager.handleAction(actionData);
+            downloadManager.handleAction(DownloadAction.fromByteArray(actionData));
           } catch (IOException e) {
             Log.e(TAG, "Failed to handle ADD action", e);
           }

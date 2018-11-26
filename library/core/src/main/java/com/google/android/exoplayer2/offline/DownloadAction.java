@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -45,6 +46,18 @@ public final class DownloadAction {
   private static final int VERSION = 2;
 
   /**
+   * Deserializes an action from the {@code data}.
+   *
+   * @param data The action data to deserialize.
+   * @return The deserialized action.
+   * @throws IOException If the data could not be deserialized.
+   */
+  public static DownloadAction fromByteArray(byte[] data) throws IOException {
+    ByteArrayInputStream input = new ByteArrayInputStream(data);
+    return deserializeFromStream(input);
+  }
+
+  /**
    * Deserializes one action that was serialized with {@link #serializeToStream(OutputStream)} from
    * the {@code input}.
    *
@@ -52,8 +65,8 @@ public final class DownloadAction {
    *
    * @param input The stream from which to read.
    * @return The deserialized action.
-   * @throws IOException If there is an IO error reading from {@code input}, or if the action type
-   *     isn't supported by any of the {@code deserializers}.
+   * @throws IOException If there is an IO error reading from {@code input}, or if the data could
+   *     not be deserialized.
    */
   public static DownloadAction deserializeFromStream(InputStream input) throws IOException {
     return readFromStream(new DataInputStream(input));
