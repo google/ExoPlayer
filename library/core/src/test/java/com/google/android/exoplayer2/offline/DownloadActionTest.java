@@ -19,17 +19,16 @@ import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_DASH;
 import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_HLS;
 import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_PROGRESSIVE;
 import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_SS;
-import static com.google.android.exoplayer2.offline.DownloadAction.fromByteArray;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.util.Assertions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link DownloadAction}. */
 @RunWith(RobolectricTestRunner.class)
@@ -143,7 +143,7 @@ public class DownloadActionTest {
   }
 
   @Test
-  public void testStreamSerialization() throws Exception {
+  public void testSerializerWriteRead() throws Exception {
     assertStreamSerializationRoundTrip(
         DownloadAction.createDownloadAction(
             TYPE_DASH,
@@ -170,88 +170,88 @@ public class DownloadActionTest {
 
   @Test
   public void testSerializerProgressiveVersion0() throws Exception {
-    assertLegacySerializationRoundTrip(
+    assertDeserialization(
+        "progressive-download-v0",
         DownloadAction.createDownloadAction(
-            TYPE_PROGRESSIVE, uri1, Collections.emptyList(), "key123", data),
-        /* version= */ 0);
-    assertLegacySerializationRoundTrip(
-        DownloadAction.createRemoveAction(TYPE_PROGRESSIVE, uri1, "key123", data),
-        /* version= */ 0);
+            TYPE_PROGRESSIVE, uri1, Collections.emptyList(), "key123", data));
+    assertDeserialization(
+        "progressive-remove-v0",
+        DownloadAction.createRemoveAction(TYPE_PROGRESSIVE, uri1, "key123", data));
   }
 
   @Test
   public void testSerializerDashVersion0() throws Exception {
-    assertLegacySerializationRoundTrip(
+    assertDeserialization(
+        "dash-download-v0",
         DownloadAction.createDownloadAction(
             TYPE_DASH,
             uri1,
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
             /* customCacheKey= */ null,
-            data),
-        /* version= */ 0);
-    assertLegacySerializationRoundTrip(
-        DownloadAction.createRemoveAction(TYPE_DASH, uri1, /* customCacheKey= */ null, data),
-        /* version= */ 0);
+            data));
+    assertDeserialization(
+        "dash-remove-v0",
+        DownloadAction.createRemoveAction(TYPE_DASH, uri1, /* customCacheKey= */ null, data));
   }
 
   @Test
   public void testSerializerHlsVersion0() throws Exception {
-    assertLegacySerializationRoundTrip(
+    assertDeserialization(
+        "hls-download-v0",
         DownloadAction.createDownloadAction(
             TYPE_HLS,
             uri1,
             toList(new StreamKey(0, 1), new StreamKey(2, 3)),
             /* customCacheKey= */ null,
-            data),
-        /* version= */ 0);
-    assertLegacySerializationRoundTrip(
-        DownloadAction.createRemoveAction(TYPE_HLS, uri1, /* customCacheKey= */ null, data),
-        /* version= */ 0);
+            data));
+    assertDeserialization(
+        "hls-remove-v0",
+        DownloadAction.createRemoveAction(TYPE_HLS, uri1, /* customCacheKey= */ null, data));
   }
 
   @Test
   public void testSerializerHlsVersion1() throws Exception {
-    assertLegacySerializationRoundTrip(
+    assertDeserialization(
+        "hls-download-v1",
         DownloadAction.createDownloadAction(
             TYPE_HLS,
             uri1,
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
             /* customCacheKey= */ null,
-            data),
-        /* version= */ 1);
-    assertLegacySerializationRoundTrip(
-        DownloadAction.createRemoveAction(TYPE_HLS, uri1, /* customCacheKey= */ null, data),
-        /* version= */ 1);
+            data));
+    assertDeserialization(
+        "hls-remove-v1",
+        DownloadAction.createRemoveAction(TYPE_HLS, uri1, /* customCacheKey= */ null, data));
   }
 
   @Test
   public void testSerializerSsVersion0() throws Exception {
-    assertLegacySerializationRoundTrip(
+    assertDeserialization(
+        "ss-download-v0",
         DownloadAction.createDownloadAction(
             TYPE_SS,
             uri1,
             toList(new StreamKey(0, 1), new StreamKey(2, 3)),
             /* customCacheKey= */ null,
-            data),
-        /* version= */ 0);
-    assertLegacySerializationRoundTrip(
-        DownloadAction.createRemoveAction(TYPE_SS, uri1, /* customCacheKey= */ null, data),
-        /* version= */ 0);
+            data));
+    assertDeserialization(
+        "ss-remove-v0",
+        DownloadAction.createRemoveAction(TYPE_SS, uri1, /* customCacheKey= */ null, data));
   }
 
   @Test
   public void testSerializerSsVersion1() throws Exception {
-    assertLegacySerializationRoundTrip(
+    assertDeserialization(
+        "ss-download-v1",
         DownloadAction.createDownloadAction(
             TYPE_SS,
             uri1,
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
             /* customCacheKey= */ null,
-            data),
-        /* version= */ 1);
-    assertLegacySerializationRoundTrip(
-        DownloadAction.createRemoveAction(TYPE_SS, uri1, /* customCacheKey= */ null, data),
-        /* version= */ 1);
+            data));
+    assertDeserialization(
+        "ss-remove-v1",
+        DownloadAction.createRemoveAction(TYPE_SS, uri1, /* customCacheKey= */ null, data));
   }
 
   private DownloadAction createDownloadAction(Uri uri, StreamKey... keys) {
@@ -278,69 +278,24 @@ public class DownloadActionTest {
     DataOutputStream output = new DataOutputStream(out);
     action.serializeToStream(output);
 
-    assertEqual(action, deserializeActionFromStream(out));
+    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    DataInputStream input = new DataInputStream(in);
+    DownloadAction deserializedAction = DownloadAction.deserializeFromStream(input);
+
+    assertEqual(action, deserializedAction);
   }
 
   private static void assertArraySerializationRoundTrip(DownloadAction action) throws IOException {
-    assertEqual(action, fromByteArray(action.toByteArray()));
+    assertEqual(action, DownloadAction.fromByteArray(action.toByteArray()));
   }
 
-  // TODO: Remove this method and add assets for legacy serialized actions.
-  private static void assertLegacySerializationRoundTrip(DownloadAction action, int version)
+  private static void assertDeserialization(String fileName, DownloadAction expectedAction)
       throws IOException {
-    String type = action.type;
-    Assertions.checkState(
-        version == 0 || ((TYPE_HLS.equals(type) || TYPE_SS.equals(type)) && version == 1));
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    DataOutputStream output = new DataOutputStream(out);
-    DataOutputStream dataOutputStream = new DataOutputStream(output);
-    dataOutputStream.writeUTF(type);
-    dataOutputStream.writeInt(version);
-    dataOutputStream.writeUTF(action.uri.toString());
-    dataOutputStream.writeBoolean(action.isRemoveAction);
-    dataOutputStream.writeInt(action.data.length);
-    dataOutputStream.write(action.data);
-    boolean isLegacyProgressive = version == 0 && TYPE_PROGRESSIVE.equals(type);
-    if (isLegacyProgressive) {
-      // Serialized version 0 progressive actions did not contain keys.
-      Assertions.checkState(action.keys.isEmpty());
-    } else {
-      dataOutputStream.writeInt(action.keys.size());
-      for (int i = 0; i < action.keys.size(); i++) {
-        StreamKey key = action.keys.get(i);
-        // Serialized version 0 HLS/SS actions did not contain key period indices.
-        boolean isLegacyHlsOrSs = version == 0 && (TYPE_HLS.equals(type) || TYPE_SS.equals(type));
-        if (isLegacyHlsOrSs) {
-          // Serialized version 0 progressive actions did not contain keys.
-          Assertions.checkState(key.periodIndex == 0);
-        } else {
-          dataOutputStream.writeInt(key.periodIndex);
-        }
-        dataOutputStream.writeInt(key.groupIndex);
-        dataOutputStream.writeInt(key.trackIndex);
-      }
-    }
-    boolean isLegacySegmented =
-        version < 2 && (TYPE_DASH.equals(type) || TYPE_HLS.equals(type) || TYPE_SS.equals(type));
-    if (isLegacySegmented) {
-      // Serialized version 0 and 1 DASH/HLS/SS actions did not contain a custom cache key.
-      Assertions.checkState(action.customCacheKey == null);
-    } else {
-      dataOutputStream.writeBoolean(action.customCacheKey != null);
-      if (action.customCacheKey != null) {
-        dataOutputStream.writeUTF(action.customCacheKey);
-      }
-    }
-    dataOutputStream.flush();
+    InputStream input =
+        TestUtil.getInputStream(RuntimeEnvironment.application, "download-actions/" + fileName);
+    DownloadAction deserializedAction = DownloadAction.deserializeFromStream(input);
 
-    assertEqual(action, deserializeActionFromStream(out));
-  }
-
-  private static DownloadAction deserializeActionFromStream(ByteArrayOutputStream out)
-      throws IOException {
-    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-    DataInputStream input = new DataInputStream(in);
-    return DownloadAction.deserializeFromStream(input);
+    assertEqual(deserializedAction, expectedAction);
   }
 
   private static List<StreamKey> toList(StreamKey... keys) {
