@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_DASH;
 import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_HLS;
 import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_PROGRESSIVE;
 import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_SS;
+import static com.google.android.exoplayer2.offline.DownloadAction.fromByteArray;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -142,15 +143,28 @@ public class DownloadActionTest {
   }
 
   @Test
-  public void testSerializerWriteRead() throws Exception {
-    assertSerializationRoundTrip(
+  public void testStreamSerialization() throws Exception {
+    assertStreamSerializationRoundTrip(
         DownloadAction.createDownloadAction(
             TYPE_DASH,
             uri1,
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
             "key123",
             data));
-    assertSerializationRoundTrip(
+    assertStreamSerializationRoundTrip(
+        DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123", data));
+  }
+
+  @Test
+  public void testArraySerialization() throws Exception {
+    assertArraySerializationRoundTrip(
+        DownloadAction.createDownloadAction(
+            TYPE_DASH,
+            uri1,
+            toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
+            "key123",
+            data));
+    assertArraySerializationRoundTrip(
         DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123", data));
   }
 
@@ -259,12 +273,16 @@ public class DownloadActionTest {
     assertThat(action2).isEqualTo(action1);
   }
 
-  private static void assertSerializationRoundTrip(DownloadAction action) throws IOException {
+  private static void assertStreamSerializationRoundTrip(DownloadAction action) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(out);
     action.serializeToStream(output);
 
     assertEqual(action, deserializeActionFromStream(out));
+  }
+
+  private static void assertArraySerializationRoundTrip(DownloadAction action) throws IOException {
+    assertEqual(action, fromByteArray(action.toByteArray()));
   }
 
   // TODO: Remove this method and add assets for legacy serialized actions.

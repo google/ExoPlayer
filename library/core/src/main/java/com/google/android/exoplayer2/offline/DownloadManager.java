@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -185,21 +184,6 @@ public final class DownloadManager {
       }
       logd("Downloads are stopping");
     }
-  }
-
-  /**
-   * Deserializes an action from {@code actionData}, and calls {@link
-   * #handleAction(DownloadAction)}.
-   *
-   * @param actionData Serialized version of the action to be executed.
-   * @return The id of the newly created task.
-   * @throws IOException If an error occurs deserializing the action.
-   */
-  public int handleAction(byte[] actionData) throws IOException {
-    Assertions.checkState(!released);
-    ByteArrayInputStream input = new ByteArrayInputStream(actionData);
-    DownloadAction action = DownloadAction.deserializeFromStream(input);
-    return handleAction(action);
   }
 
   /**
