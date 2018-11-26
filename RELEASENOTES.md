@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* HLS: Fix issue causing unnecessary media playlist requests when playing live
+  streams ([#5059](https://github.com/google/ExoPlayer/issues/5059)).
 * MP4: Support Opus and FLAC in the MP4 container, and in DASH
   ([#4883](https://github.com/google/ExoPlayer/issues/4883)).
 * DASH: Fix detecting the end of live events
