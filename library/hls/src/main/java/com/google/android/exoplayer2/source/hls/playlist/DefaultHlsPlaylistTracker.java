@@ -162,9 +162,9 @@ public final class DefaultHlsPlaylistTracker
   }
 
   @Override
-  public HlsMediaPlaylist getPlaylistSnapshot(HlsUrl url) {
+  public HlsMediaPlaylist getPlaylistSnapshot(HlsUrl url, boolean isForPlayback) {
     HlsMediaPlaylist snapshot = playlistBundles.get(url).getPlaylistSnapshot();
-    if (snapshot != null) {
+    if (snapshot != null && isForPlayback) {
       maybeSetPrimaryUrl(url);
     }
     return snapshot;
