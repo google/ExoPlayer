@@ -298,7 +298,6 @@ public final class Cea608Decoder extends CeaDecoder {
       int ccByte1 = ccData.readUnsignedByte();
       int ccByte2 = ccData.readUnsignedByte();
 
-      // Only examine valid CEA-608 packets
       // TODO: We're currently ignoring the top 5 marker bits, which should all be 1s according
       // to the CEA-608 specification. We need to determine if the data should be handled
       // differently when that is not the case.
@@ -323,11 +322,12 @@ public final class Cea608Decoder extends CeaDecoder {
         continue;
       }
 
-      if ((ccHeader & CC_VALID_FLAG) != CC_VALID_FLAG) {
-        if (captionValid) {
+      boolean previousCaptionValid = captionValid;
+      captionValid = (ccHeader & CC_VALID_FLAG) == CC_VALID_FLAG;
+      if (!captionValid) {
+        if (previousCaptionValid) {
           // The encoder has flipped the validity bit to indicate captions are being turned off.
           resetCueBuilders();
-          captionValid = false;
           captionDataProcessed = true;
         }
         continue;
