@@ -62,8 +62,7 @@ public final class ProgressiveDownloadHelper extends DownloadHelper {
   }
 
   @Override
-  public DownloadAction getRemoveAction(@Nullable byte[] data) {
-    return DownloadAction.createRemoveAction(
-        DownloadAction.TYPE_PROGRESSIVE, uri, customCacheKey, data);
+  public DownloadAction getRemoveAction() {
+    return DownloadAction.createRemoveAction(DownloadAction.TYPE_PROGRESSIVE, uri, customCacheKey);
   }
 }

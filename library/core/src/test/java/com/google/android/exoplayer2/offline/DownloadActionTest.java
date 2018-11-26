@@ -88,15 +88,15 @@ public class DownloadActionTest {
 
   @Test
   public void testSameCacheKeyDifferentUri_IsSameMedia() {
-    DownloadAction action1 = DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123", data);
-    DownloadAction action2 = DownloadAction.createRemoveAction(TYPE_DASH, uri2, "key123", data);
+    DownloadAction action1 = DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123");
+    DownloadAction action2 = DownloadAction.createRemoveAction(TYPE_DASH, uri2, "key123");
     assertThat(action1.isSameMedia(action2)).isTrue();
   }
 
   @Test
   public void testDifferentCacheDifferentUri_IsNotSameMedia() {
-    DownloadAction action1 = DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123", data);
-    DownloadAction action2 = DownloadAction.createRemoveAction(TYPE_DASH, uri2, "key456", data);
+    DownloadAction action1 = DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123");
+    DownloadAction action2 = DownloadAction.createRemoveAction(TYPE_DASH, uri2, "key456");
     assertThat(action1.isSameMedia(action2)).isFalse();
   }
 
@@ -152,7 +152,7 @@ public class DownloadActionTest {
             "key123",
             data));
     assertStreamSerializationRoundTrip(
-        DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123", data));
+        DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123"));
   }
 
   @Test
@@ -164,8 +164,7 @@ public class DownloadActionTest {
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
             "key123",
             data));
-    assertArraySerializationRoundTrip(
-        DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123", data));
+    assertArraySerializationRoundTrip(DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123"));
   }
 
   @Test
@@ -176,7 +175,7 @@ public class DownloadActionTest {
             TYPE_PROGRESSIVE, uri1, Collections.emptyList(), "key123", data));
     assertDeserialization(
         "progressive-remove-v0",
-        DownloadAction.createRemoveAction(TYPE_PROGRESSIVE, uri1, "key123", data));
+        DownloadAction.createRemoveAction(TYPE_PROGRESSIVE, uri1, "key123"));
   }
 
   @Test
@@ -191,7 +190,7 @@ public class DownloadActionTest {
             data));
     assertDeserialization(
         "dash-remove-v0",
-        DownloadAction.createRemoveAction(TYPE_DASH, uri1, /* customCacheKey= */ null, data));
+        DownloadAction.createRemoveAction(TYPE_DASH, uri1, /* customCacheKey= */ null));
   }
 
   @Test
@@ -206,7 +205,7 @@ public class DownloadActionTest {
             data));
     assertDeserialization(
         "hls-remove-v0",
-        DownloadAction.createRemoveAction(TYPE_HLS, uri1, /* customCacheKey= */ null, data));
+        DownloadAction.createRemoveAction(TYPE_HLS, uri1, /* customCacheKey= */ null));
   }
 
   @Test
@@ -221,7 +220,7 @@ public class DownloadActionTest {
             data));
     assertDeserialization(
         "hls-remove-v1",
-        DownloadAction.createRemoveAction(TYPE_HLS, uri1, /* customCacheKey= */ null, data));
+        DownloadAction.createRemoveAction(TYPE_HLS, uri1, /* customCacheKey= */ null));
   }
 
   @Test
@@ -236,7 +235,7 @@ public class DownloadActionTest {
             data));
     assertDeserialization(
         "ss-remove-v0",
-        DownloadAction.createRemoveAction(TYPE_SS, uri1, /* customCacheKey= */ null, data));
+        DownloadAction.createRemoveAction(TYPE_SS, uri1, /* customCacheKey= */ null));
   }
 
   @Test
@@ -251,7 +250,7 @@ public class DownloadActionTest {
             data));
     assertDeserialization(
         "ss-remove-v1",
-        DownloadAction.createRemoveAction(TYPE_SS, uri1, /* customCacheKey= */ null, data));
+        DownloadAction.createRemoveAction(TYPE_SS, uri1, /* customCacheKey= */ null));
   }
 
   private DownloadAction createDownloadAction(Uri uri, StreamKey... keys) {
@@ -260,7 +259,7 @@ public class DownloadActionTest {
   }
 
   private DownloadAction createRemoveAction(Uri uri) {
-    return DownloadAction.createRemoveAction(TYPE_DASH, uri, /* customCacheKey= */ null, data);
+    return DownloadAction.createRemoveAction(TYPE_DASH, uri, /* customCacheKey= */ null);
   }
 
   private static void assertNotEqual(DownloadAction action1, DownloadAction action2) {

@@ -109,9 +109,9 @@ public final class HlsDownloadHelper extends DownloadHelper {
   }
 
   @Override
-  public DownloadAction getRemoveAction(@Nullable byte[] data) {
+  public DownloadAction getRemoveAction() {
     return DownloadAction.createRemoveAction(
-        DownloadAction.TYPE_HLS, uri, /* customCacheKey= */ null, data);
+        DownloadAction.TYPE_HLS, uri, /* customCacheKey= */ null);
   }
 
   private static Format[] toFormats(List<HlsMasterPlaylist.HlsUrl> hlsUrls) {

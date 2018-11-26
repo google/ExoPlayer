@@ -96,12 +96,16 @@ public final class DownloadAction {
    * @param type The type of the action.
    * @param uri The URI of the media to be removed.
    * @param customCacheKey A custom key for cache indexing, or null.
-   * @param data Optional custom data for this action. If {@code null} an empty array will be used.
    */
   public static DownloadAction createRemoveAction(
-      String type, Uri uri, @Nullable String customCacheKey, @Nullable byte[] data) {
+      String type, Uri uri, @Nullable String customCacheKey) {
     return new DownloadAction(
-        type, uri, /* isRemoveAction= */ true, Collections.emptyList(), customCacheKey, data);
+        type,
+        uri,
+        /* isRemoveAction= */ true,
+        Collections.emptyList(),
+        customCacheKey,
+        /* data= */ null);
   }
 
   /** The type of the action. */
@@ -127,7 +131,7 @@ public final class DownloadAction {
    * @param keys Keys of tracks to be downloaded. If empty, all tracks will be downloaded. Empty if
    *     this action is a remove action.
    * @param customCacheKey A custom key for cache indexing, or null.
-   * @param data Optional custom data for this action.
+   * @param data Custom data for this action. Null if this action is a remove action.
    */
   private DownloadAction(
       String type,
@@ -140,14 +144,16 @@ public final class DownloadAction {
     this.uri = uri;
     this.isRemoveAction = isRemoveAction;
     this.customCacheKey = customCacheKey;
-    this.data = data != null ? data : Util.EMPTY_BYTE_ARRAY;
     if (isRemoveAction) {
       Assertions.checkArgument(keys.isEmpty());
+      Assertions.checkArgument(data == null);
       this.keys = Collections.emptyList();
+      this.data = Util.EMPTY_BYTE_ARRAY;
     } else {
       ArrayList<StreamKey> mutableKeys = new ArrayList<>(keys);
       Collections.sort(mutableKeys);
       this.keys = Collections.unmodifiableList(mutableKeys);
+      this.data = data != null ? data : Util.EMPTY_BYTE_ARRAY;
     }
   }
 
@@ -236,9 +242,19 @@ public final class DownloadAction {
 
     Uri uri = Uri.parse(input.readUTF());
     boolean isRemoveAction = input.readBoolean();
+
     int dataLength = input.readInt();
-    byte[] data = new byte[dataLength];
-    input.readFully(data);
+    byte[] data;
+    if (dataLength != 0) {
+      data = new byte[dataLength];
+      input.readFully(data);
+      if (isRemoveAction) {
+        // Remove actions are no longer permitted to have data.
+        data = null;
+      }
+    } else {
+      data = null;
+    }
 
     // Serialized version 0 progressive actions did not contain keys.
     boolean isLegacyProgressive = version == 0 && TYPE_PROGRESSIVE.equals(type);

@@ -83,9 +83,9 @@ public final class SsDownloadHelper extends DownloadHelper {
   }
 
   @Override
-  public DownloadAction getRemoveAction(@Nullable byte[] data) {
+  public DownloadAction getRemoveAction() {
     return DownloadAction.createRemoveAction(
-        DownloadAction.TYPE_SS, uri, /* customCacheKey= */ null, data);
+        DownloadAction.TYPE_SS, uri, /* customCacheKey= */ null);
   }
 
   private static List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
