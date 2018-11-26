@@ -110,7 +110,7 @@ public final class WebvttDecoder extends SimpleSubtitleDecoder {
         foundEvent = EVENT_END_OF_FILE;
       } else if (STYLE_START.equals(line)) {
         foundEvent = EVENT_STYLE_BLOCK;
-      } else if (COMMENT_START.startsWith(line)) {
+      } else if (line.startsWith(COMMENT_START)) {
         foundEvent = EVENT_COMMENT;
       } else {
         foundEvent = EVENT_CUE;
