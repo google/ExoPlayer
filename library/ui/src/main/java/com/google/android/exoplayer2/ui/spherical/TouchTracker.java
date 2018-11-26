@@ -19,7 +19,6 @@ import android.content.Context;
 import android.graphics.PointF;
 import android.support.annotation.BinderThread;
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -45,7 +44,6 @@ import android.view.View;
  * a nicer UI. An even more advanced UI would reproject the user's touch point into 3D and drag the
  * Mesh as the user moves their finger. However, that requires quaternion interpolation.
  */
-@VisibleForTesting
 /* package */ class TouchTracker extends GestureDetector.SimpleOnGestureListener
     implements View.OnTouchListener, OrientationListener.Listener {
 
