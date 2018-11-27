@@ -15,12 +15,13 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import static com.google.android.exoplayer2.upstream.cache.CacheAsserts.assertCacheEmpty;
+import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.testutil.CacheAsserts;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -566,8 +567,7 @@ public final class CacheDataSourceTest {
     cacheDataSource.close();
 
     byte[] expected = Arrays.copyOfRange(TEST_DATA, position, position + testDataLength);
-    CacheAsserts.assertReadData(
-        cacheDataSource, dataSpec, expected, "Cached data doesn't match the original data");
+    CacheAsserts.assertReadData(cacheDataSource, dataSpec, expected);
   }
 
   private CacheDataSource createCacheDataSource(boolean setReadException,
