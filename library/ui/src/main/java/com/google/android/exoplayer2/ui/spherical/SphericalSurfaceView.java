@@ -104,12 +104,18 @@ public final class SphericalSurfaceView extends GLSurfaceView {
     // Configure sensors and touch.
     sensorManager =
         (SensorManager) Assertions.checkNotNull(context.getSystemService(Context.SENSOR_SERVICE));
-    // TYPE_GAME_ROTATION_VECTOR is the easiest sensor since it handles all the complex math for
-    // fusion. It's used instead of TYPE_ROTATION_VECTOR since the latter uses the magnetometer on
-    // devices. When used indoors, the magnetometer can take some time to settle depending on the
-    // device and amount of metal in the environment.
-    int type = Util.SDK_INT >= 18 ? Sensor.TYPE_GAME_ROTATION_VECTOR : Sensor.TYPE_ROTATION_VECTOR;
-    orientationSensor = sensorManager.getDefaultSensor(type);
+    Sensor orientationSensor = null;
+    if (Util.SDK_INT >= 18) {
+      // TYPE_GAME_ROTATION_VECTOR is the easiest sensor since it handles all the complex math for
+      // fusion. It's used instead of TYPE_ROTATION_VECTOR since the latter uses the magnetometer on
+      // devices. When used indoors, the magnetometer can take some time to settle depending on the
+      // device and amount of metal in the environment.
+      orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+    }
+    if (orientationSensor == null) {
+      orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+    }
+    this.orientationSensor = orientationSensor;
 
     scene = new SceneRenderer();
     renderer = new Renderer(scene);
