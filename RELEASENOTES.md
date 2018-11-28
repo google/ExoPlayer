@@ -2,6 +2,15 @@
 
 ### dev-v2 (not yet released) ###
 
+* Support for playing spherical videos on Daydream.
+* Improve decoder re-use between playbacks. TODO: Write and link a blog post
+  here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
+* Add options for controlling audio track selections to `DefaultTrackSelector`
+  ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
+* Do not retry failed loads whose error is `FileNotFoundException`.
+
+### 2.9.2 ###
+
 * HLS:
   * Fix issue causing unnecessary media playlist requests when playing live
     streams ([#5059](https://github.com/google/ExoPlayer/issues/5059)).
@@ -16,14 +25,8 @@
   ([#5119](https://github.com/google/ExoPlayer/issues/5119)).
 * Support seeking for a wider range of MPEG-TS streams
   ([#5097](https://github.com/google/ExoPlayer/issues/5097)).
-* Support for playing spherical videos on Daydream.
-* Improve decoder re-use between playbacks. TODO: Write and link a blog post
-  here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
-* Add options for controlling audio track selections to `DefaultTrackSelector`
-  ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
 * Include channel count in audio capabilities check
   ([#4690](https://github.com/google/ExoPlayer/issues/4690)).
-* Do not retry failed loads whose error is `FileNotFoundException`.
 * Fix issue with applying the `show_buffering` attribute in `PlayerView`
   ([#5139](https://github.com/google/ExoPlayer/issues/5139)).
 * Fix issue where null `Metadata` was output when it failed to decode
