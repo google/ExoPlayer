@@ -31,6 +31,9 @@
   ([#5139](https://github.com/google/ExoPlayer/issues/5139)).
 * Fix issue where null `Metadata` was output when it failed to decode
   ([#5149](https://github.com/google/ExoPlayer/issues/5149)).
+* Fix playback of some invalid but playable MP4 streams by replacing assertions
+  with logged warnings in sample table parsing code
+  ([#5162](https://github.com/google/ExoPlayer/issues/5162)).
 
 ### 2.9.1 ###
 
