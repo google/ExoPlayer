@@ -236,8 +236,6 @@ import java.util.List;
           sizes = Arrays.copyOf(sizes, sampleCount);
           timestamps = Arrays.copyOf(timestamps, sampleCount);
           flags = Arrays.copyOf(flags, sampleCount);
-          remainingSamplesAtTimestampOffset = 0;
-          remainingTimestampOffsetChanges = 0;
           break;
         }
 
@@ -293,23 +291,38 @@ import java.util.List;
       }
       duration = timestampTimeUnits + timestampOffset;
 
-      Assertions.checkArgument(remainingSamplesAtTimestampOffset == 0);
-      // Remove trailing ctts entries with 0-valued sample counts.
+      // If the stbl's child boxes are not consistent the container is malformed, but the stream may
+      // still be playable.
+      boolean isCttsValid = true;
       while (remainingTimestampOffsetChanges > 0) {
-        Assertions.checkArgument(ctts.readUnsignedIntToInt() == 0);
+        if (ctts.readUnsignedIntToInt() != 0) {
+          isCttsValid = false;
+          break;
+        }
         ctts.readInt(); // Ignore offset.
         remainingTimestampOffsetChanges--;
       }
-
-      // If the stbl's child boxes are not consistent the container is malformed, but the stream may
-      // still be playable.
-      if (remainingSynchronizationSamples != 0 || remainingSamplesAtTimestampDelta != 0
-          || remainingSamplesInChunk != 0 || remainingTimestampDeltaChanges != 0) {
-        Log.w(TAG, "Inconsistent stbl box for track " + track.id
-            + ": remainingSynchronizationSamples " + remainingSynchronizationSamples
-            + ", remainingSamplesAtTimestampDelta " + remainingSamplesAtTimestampDelta
-            + ", remainingSamplesInChunk " + remainingSamplesInChunk
-            + ", remainingTimestampDeltaChanges " + remainingTimestampDeltaChanges);
+      if (remainingSynchronizationSamples != 0
+          || remainingSamplesAtTimestampDelta != 0
+          || remainingSamplesInChunk != 0
+          || remainingTimestampDeltaChanges != 0
+          || remainingSamplesAtTimestampOffset != 0
+          || !isCttsValid) {
+        Log.w(
+            TAG,
+            "Inconsistent stbl box for track "
+                + track.id
+                + ": remainingSynchronizationSamples "
+                + remainingSynchronizationSamples
+                + ", remainingSamplesAtTimestampDelta "
+                + remainingSamplesAtTimestampDelta
+                + ", remainingSamplesInChunk "
+                + remainingSamplesInChunk
+                + ", remainingTimestampDeltaChanges "
+                + remainingTimestampDeltaChanges
+                + ", remainingSamplesAtTimestampOffset "
+                + remainingSamplesAtTimestampOffset
+                + (!isCttsValid ? ", ctts invalid" : ""));
       }
     } else {
       long[] chunkOffsetsBytes = new long[chunkIterator.length];
