@@ -55,7 +55,7 @@
 * DASH: Parse ProgramInformation element if present in the manifest.
 * HLS:
   * Add constructor to `DefaultHlsExtractorFactory` for adding TS payload
-    reader factory flags
+    reader factory flags.
   * Fix bug in segment sniffing
     ([#5039](https://github.com/google/ExoPlayer/issues/5039)).
   ([#4861](https://github.com/google/ExoPlayer/issues/4861)).
