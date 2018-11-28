@@ -20,6 +20,8 @@
   ([#4690](https://github.com/google/ExoPlayer/issues/4690)).
 * Fix issue with applying the `show_buffering` attribute in `PlayerView`
   ([#5139](https://github.com/google/ExoPlayer/issues/5139)).
+* Fix issue where null `Metadata` was output when it failed to decode
+  ([#5149](https://github.com/google/ExoPlayer/issues/5149)).
 
 ### 2.9.1 ###
 
