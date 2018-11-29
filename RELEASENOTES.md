@@ -25,6 +25,7 @@
 * Fix playback of some invalid but playable MP4 streams by replacing assertions
   with logged warnings in sample table parsing code
   ([#5162](https://github.com/google/ExoPlayer/issues/5162)).
+* Fix UUID passed to `MediaCrypto` when using `C.CLEARKEY_UUID` before API 27.
 
 ### 2.9.1 ###
 
