@@ -43,7 +43,7 @@ public final class DownloadAction {
   /** Type for SmoothStreaming downloads. */
   public static final String TYPE_SS = "ss";
 
-  private static final int VERSION = 2;
+  private static final int VERSION = 3;
 
   /**
    * Deserializes an action from the {@code data}.
@@ -87,7 +87,7 @@ public final class DownloadAction {
       List<StreamKey> keys,
       @Nullable String customCacheKey,
       @Nullable byte[] data) {
-    return new DownloadAction(type, uri, /* isRemoveAction= */ false, keys, customCacheKey, data);
+    return new DownloadAction(type, uri, /* isRemoveAction= */ false, false, keys, customCacheKey, data);
   }
 
   /**
@@ -103,6 +103,7 @@ public final class DownloadAction {
         type,
         uri,
         /* isRemoveAction= */ true,
+        false,
         Collections.emptyList(),
         customCacheKey,
         /* data= */ null);
@@ -114,6 +115,8 @@ public final class DownloadAction {
   public final Uri uri;
   /** Whether this is a remove action. If false, this is a download action. */
   public final boolean isRemoveAction;
+  /** Whether this action is paused. */
+  public final boolean isPaused;
   /**
    * Keys of tracks to be downloaded. If empty, all tracks will be downloaded. Empty if this action
    * is a remove action.
@@ -137,12 +140,14 @@ public final class DownloadAction {
       String type,
       Uri uri,
       boolean isRemoveAction,
+      boolean isPaused,
       List<StreamKey> keys,
       @Nullable String customCacheKey,
       @Nullable byte[] data) {
     this.type = type;
     this.uri = uri;
     this.isRemoveAction = isRemoveAction;
+    this.isPaused = isPaused;
     this.customCacheKey = customCacheKey;
     if (isRemoveAction) {
       Assertions.checkArgument(keys.isEmpty());
@@ -190,6 +195,7 @@ public final class DownloadAction {
     return type.equals(that.type)
         && uri.equals(that.uri)
         && isRemoveAction == that.isRemoveAction
+        && isPaused == that.isPaused
         && keys.equals(that.keys)
         && Util.areEqual(customCacheKey, that.customCacheKey)
         && Arrays.equals(data, that.data);
@@ -200,6 +206,7 @@ public final class DownloadAction {
     int result = type.hashCode();
     result = 31 * result + uri.hashCode();
     result = 31 * result + (isRemoveAction ? 1 : 0);
+    result = 31 * result + (isPaused ? 1 : 0);
     result = 31 * result + keys.hashCode();
     result = 31 * result + (customCacheKey != null ? customCacheKey.hashCode() : 0);
     result = 31 * result + Arrays.hashCode(data);
@@ -220,6 +227,7 @@ public final class DownloadAction {
     dataOutputStream.writeInt(VERSION);
     dataOutputStream.writeUTF(uri.toString());
     dataOutputStream.writeBoolean(isRemoveAction);
+    dataOutputStream.writeBoolean(isPaused);
     dataOutputStream.writeInt(data.length);
     dataOutputStream.write(data);
     dataOutputStream.writeInt(keys.size());
@@ -236,12 +244,35 @@ public final class DownloadAction {
     dataOutputStream.flush();
   }
 
+  /**
+   * Create new action with {@link DownloadAction#isPaused} set to true.
+   *
+   * @return paused action
+   */
+  final DownloadAction createPauseAction() {
+    return new DownloadAction(type, uri, isRemoveAction, true, keys, customCacheKey, data);
+  }
+
+  /**
+   * Create new action with {@link DownloadAction#isPaused} set to false.
+   *
+   * @return resumed action
+   */
+  final DownloadAction createResumeAction() {
+    return new DownloadAction(type, uri, isRemoveAction, false, keys, customCacheKey, data);
+  }
+
   private static DownloadAction readFromStream(DataInputStream input) throws IOException {
     String type = input.readUTF();
     int version = input.readInt();
 
     Uri uri = Uri.parse(input.readUTF());
     boolean isRemoveAction = input.readBoolean();
+
+    boolean isPauseAction = false;
+    if (version == 3) {
+      isPauseAction = input.readBoolean();
+    }
 
     int dataLength = input.readInt();
     byte[] data;
@@ -274,7 +305,7 @@ public final class DownloadAction {
       customCacheKey = input.readBoolean() ? input.readUTF() : null;
     }
 
-    return new DownloadAction(type, uri, isRemoveAction, keys, customCacheKey, data);
+    return new DownloadAction(type, uri, isRemoveAction, isPauseAction, keys, customCacheKey, data);
   }
 
   private static StreamKey readKey(String type, int version, DataInputStream input)
