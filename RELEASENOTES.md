@@ -8,6 +8,7 @@
 * Add options for controlling audio track selections to `DefaultTrackSelector`
   ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
+* Fix UUID passed to `MediaCrypto` when using `C.CLEARKEY_UUID` before API 27.
 
 ### 2.9.2 ###
 
