@@ -65,7 +65,7 @@ import java.util.List;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final @Nullable TransferListener transferListener;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
-  private final long elapsedRealtimeOffset;
+  private final long elapsedRealtimeOffsetMs;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final Allocator allocator;
   private final TrackGroupArray trackGroups;
@@ -93,7 +93,7 @@ import java.util.List;
       @Nullable TransferListener transferListener,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
-      long elapsedRealtimeOffset,
+      long elapsedRealtimeOffsetMs,
       LoaderErrorThrower manifestLoaderErrorThrower,
       Allocator allocator,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
@@ -105,7 +105,7 @@ import java.util.List;
     this.transferListener = transferListener;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
-    this.elapsedRealtimeOffset = elapsedRealtimeOffset;
+    this.elapsedRealtimeOffsetMs = elapsedRealtimeOffsetMs;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.allocator = allocator;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
@@ -593,7 +593,7 @@ import java.util.List;
             trackGroupInfo.adaptationSetIndices,
             selection,
             trackGroupInfo.trackType,
-            elapsedRealtimeOffset,
+            elapsedRealtimeOffsetMs,
             enableEventMessageTrack,
             enableCea608Track,
             trackPlayerEmsgHandler,
