@@ -204,7 +204,8 @@ public final class Util {
     }
     for (Uri uri : uris) {
       if ("http".equals(uri.getScheme())
-          && !NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted(uri.getHost())) {
+          && !NetworkSecurityPolicy.getInstance()
+              .isCleartextTrafficPermitted(Assertions.checkNotNull(uri.getHost()))) {
         // The security policy prevents cleartext traffic.
         return false;
       }
