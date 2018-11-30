@@ -35,19 +35,10 @@ public abstract class Representation {
   public static final long REVISION_ID_DEFAULT = -1;
 
   /**
-   * Identifies the piece of content to which this {@link Representation} belongs.
-   * <p>
-   * For example, all {@link Representation}s belonging to a video should have the same content
-   * identifier that uniquely identifies that video.
-   */
-  public final String contentId;
-  /**
-   * Identifies the revision of the content.
-   * <p>
-   * If the media for a given ({@link #contentId} can change over time without a change to the
-   * {@link #format}'s {@link Format#id} (e.g. as a result of re-encoding the media with an
-   * updated encoder), then this identifier must uniquely identify the revision of the media. The
-   * timestamp at which the media was encoded is often a suitable.
+   * Identifies the revision of the media contained within the representation. If the content can
+   * change over time (e.g. as a result of re-encoding the media with an updated encoder), then this
+   * identified can be set to uniquely identify the revision of the media. The timestamp at which
+   * the media was encoded is often a suitable.
    */
   public final long revisionId;
   /**
@@ -121,17 +112,20 @@ public abstract class Representation {
       return new SingleSegmentRepresentation(contentId, revisionId, format, baseUrl,
           (SingleSegmentBase) segmentBase, inbandEventStreams, customCacheKey, C.LENGTH_UNSET);
     } else if (segmentBase instanceof MultiSegmentBase) {
-      return new MultiSegmentRepresentation(contentId, revisionId, format, baseUrl,
-          (MultiSegmentBase) segmentBase, inbandEventStreams);
+      return new MultiSegmentRepresentation(
+          revisionId, format, baseUrl, (MultiSegmentBase) segmentBase, inbandEventStreams);
     } else {
       throw new IllegalArgumentException("segmentBase must be of type SingleSegmentBase or "
           + "MultiSegmentBase");
     }
   }
 
-  private Representation(String contentId, long revisionId, Format format, String baseUrl,
-      SegmentBase segmentBase, List<Descriptor> inbandEventStreams) {
-    this.contentId = contentId;
+  private Representation(
+      long revisionId,
+      Format format,
+      String baseUrl,
+      SegmentBase segmentBase,
+      List<Descriptor> inbandEventStreams) {
     this.revisionId = revisionId;
     this.format = format;
     this.baseUrl = baseUrl;
@@ -225,7 +219,7 @@ public abstract class Representation {
     public SingleSegmentRepresentation(String contentId, long revisionId, Format format,
         String baseUrl, SingleSegmentBase segmentBase, List<Descriptor> inbandEventStreams,
         String customCacheKey, long contentLength) {
-      super(contentId, revisionId, format, baseUrl, segmentBase, inbandEventStreams);
+      super(revisionId, format, baseUrl, segmentBase, inbandEventStreams);
       this.uri = Uri.parse(baseUrl);
       this.indexUri = segmentBase.getIndex();
       this.cacheKey = customCacheKey != null ? customCacheKey
@@ -263,16 +257,19 @@ public abstract class Representation {
     private final MultiSegmentBase segmentBase;
 
     /**
-     * @param contentId Identifies the piece of content to which this representation belongs.
      * @param revisionId Identifies the revision of the content.
      * @param format The format of the representation.
      * @param baseUrl The base URL of the representation.
      * @param segmentBase The segment base underlying the representation.
      * @param inbandEventStreams The in-band event streams in the representation. May be null.
      */
-    public MultiSegmentRepresentation(String contentId, long revisionId, Format format,
-        String baseUrl, MultiSegmentBase segmentBase, List<Descriptor> inbandEventStreams) {
-      super(contentId, revisionId, format, baseUrl, segmentBase, inbandEventStreams);
+    public MultiSegmentRepresentation(
+        long revisionId,
+        Format format,
+        String baseUrl,
+        MultiSegmentBase segmentBase,
+        List<Descriptor> inbandEventStreams) {
+      super(revisionId, format, baseUrl, segmentBase, inbandEventStreams);
       this.segmentBase = segmentBase;
     }
 
