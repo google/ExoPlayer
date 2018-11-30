@@ -18,8 +18,6 @@ package com.google.android.exoplayer2.upstream.cache;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,13 +29,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link SimpleCacheSpan}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
 public class SimpleCacheSpanTest {
-
-  private CachedContentIndex index;
-  private File cacheDir;
 
   public static File createCacheSpanFile(File cacheDir, int id, long offset, int length,
       long lastAccessTimestamp) throws IOException {
@@ -46,17 +43,13 @@ public class SimpleCacheSpanTest {
     return cacheFile;
   }
 
-  public static CacheSpan createCacheSpan(CachedContentIndex index, File cacheDir, String key,
-      long offset, int length, long lastAccessTimestamp) throws IOException {
-    int id = index.assignIdForKey(key);
-    File cacheFile = createCacheSpanFile(cacheDir, id, offset, length, lastAccessTimestamp);
-    return SimpleCacheSpan.createCacheEntry(cacheFile, index);
-  }
+  private CachedContentIndex index;
+  private File cacheDir;
 
   @Before
   public void setUp() throws Exception {
     cacheDir =
-        Util.createTempDirectory(InstrumentationRegistry.getTargetContext(), "ExoPlayerTest");
+        Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
   }
 
@@ -86,12 +79,12 @@ public class SimpleCacheSpanTest {
 
   @Test
   public void testUpgradeFileName() throws Exception {
-    String key = "asd\u00aa";
+    String key = "abc%def";
     int id = index.assignIdForKey(key);
     File v3file = createTestFile(id + ".0.1.v3.exo");
-    File v2file = createTestFile("asd%aa.1.2.v2.exo");
-    File wrongEscapedV2file = createTestFile("asd%za.3.4.v2.exo");
-    File v1File = createTestFile("asd\u00aa.5.6.v1.exo");
+    File v2file = createTestFile("abc%25def.1.2.v2.exo"); // %25 is '%' after escaping
+    File wrongEscapedV2file = createTestFile("abc%2Gdef.3.4.v2.exo"); // 2G is invalid hex
+    File v1File = createTestFile("abc%def.5.6.v1.exo"); // V1 did not escape
 
     for (File file : cacheDir.listFiles()) {
       SimpleCacheSpan cacheEntry = SimpleCacheSpan.createCacheEntry(file, index);
