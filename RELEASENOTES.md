@@ -8,6 +8,7 @@
 * Add options for controlling audio track selections to `DefaultTrackSelector`
   ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
+* Prevent Cea608Decoder from generating Subtitles with null Cues list
 
 ### 2.9.2 ###
 
