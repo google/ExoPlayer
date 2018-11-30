@@ -20,8 +20,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.net.Uri;
 import android.util.SparseArray;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
@@ -34,9 +32,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 /** Tests {@link CachedContentIndex}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
 public class CachedContentIndexTest {
 
   private final byte[] testIndexV1File = {
@@ -79,7 +79,7 @@ public class CachedContentIndexTest {
   @Before
   public void setUp() throws Exception {
     cacheDir =
-        Util.createTempDirectory(InstrumentationRegistry.getTargetContext(), "ExoPlayerTest");
+        Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
     index = new CachedContentIndex(cacheDir);
   }
 
