@@ -656,7 +656,7 @@
 <dd>
 <div class="block">Whether to allow adaptive selections where adaptation may not be completely seamless.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html#allowPassthrough-java.lang.String-">allowPassthrough(String)</a></span> - Method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html#allowPassthrough-int-java.lang.String-">allowPassthrough(int, String)</a></span> - Method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a></dt>
 <dd>
 <div class="block">Returns whether encoded audio passthrough should be used for playing back the input format.</div>
 </dd>
@@ -2445,13 +2445,13 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ShuffleOrder.UnshuffledShuffleOrder.html#cloneAndInsert-int-int-">cloneAndInsert(int, int)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ShuffleOrder.UnshuffledShuffleOrder.html" title="class in com.google.android.exoplayer2.source">ShuffleOrder.UnshuffledShuffleOrder</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ShuffleOrder.html#cloneAndRemove-int-">cloneAndRemove(int)</a></span> - Method in interface com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ShuffleOrder.html#cloneAndRemove-int-int-">cloneAndRemove(int, int)</a></span> - Method in interface com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a></dt>
 <dd>
-<div class="block">Returns a copy of the shuffle order with one element removed.</div>
+<div class="block">Returns a copy of the shuffle order with a range of elements removed.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ShuffleOrder.DefaultShuffleOrder.html#cloneAndRemove-int-">cloneAndRemove(int)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ShuffleOrder.DefaultShuffleOrder.html" title="class in com.google.android.exoplayer2.source">ShuffleOrder.DefaultShuffleOrder</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ShuffleOrder.DefaultShuffleOrder.html#cloneAndRemove-int-int-">cloneAndRemove(int, int)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ShuffleOrder.DefaultShuffleOrder.html" title="class in com.google.android.exoplayer2.source">ShuffleOrder.DefaultShuffleOrder</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ShuffleOrder.UnshuffledShuffleOrder.html#cloneAndRemove-int-">cloneAndRemove(int)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ShuffleOrder.UnshuffledShuffleOrder.html" title="class in com.google.android.exoplayer2.source">ShuffleOrder.UnshuffledShuffleOrder</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ShuffleOrder.UnshuffledShuffleOrder.html#cloneAndRemove-int-int-">cloneAndRemove(int, int)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ShuffleOrder.UnshuffledShuffleOrder.html" title="class in com.google.android.exoplayer2.source">ShuffleOrder.UnshuffledShuffleOrder</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#close--">close()</a></span> - Method in class com.google.android.exoplayer2.ext.cronet.<a href="com/google/android/exoplayer2/ext/cronet/CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource</a></dt>
 <dd>&nbsp;</dd>
@@ -5088,6 +5088,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ShuffleOrder.DefaultShuffleOrder.html#DefaultShuffleOrder-int-long-">DefaultShuffleOrder(int, long)</a></span> - Constructor for class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ShuffleOrder.DefaultShuffleOrder.html" title="class in com.google.android.exoplayer2.source">ShuffleOrder.DefaultShuffleOrder</a></dt>
 <dd>
 <div class="block">Creates an instance with a specified length and the specified random seed.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ShuffleOrder.DefaultShuffleOrder.html#DefaultShuffleOrder-int:A-long-">DefaultShuffleOrder(int[], long)</a></span> - Constructor for class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ShuffleOrder.DefaultShuffleOrder.html" title="class in com.google.android.exoplayer2.source">ShuffleOrder.DefaultShuffleOrder</a></dt>
+<dd>
+<div class="block">Creates an instance with a specified shuffle order and the specified random seed.</div>
 </dd>
 <dt><a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><span class="typeNameLink">DefaultSsChunkSource</span></a> - Class in <a href="com/google/android/exoplayer2/source/smoothstreaming/package-summary.html">com.google.android.exoplayer2.source.smoothstreaming</a></dt>
 <dd>
@@ -7793,6 +7797,14 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/SimpleExoPlayer.html#getCurrentTrackSelections--">getCurrentTrackSelections()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#getCurrentUrlRequest--">getCurrentUrlRequest()</a></span> - Method in class com.google.android.exoplayer2.ext.cronet.<a href="com/google/android/exoplayer2/ext/cronet/CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource</a></dt>
+<dd>
+<div class="block">Returns current <code>UrlRequest</code>.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#getCurrentUrlResponseInfo--">getCurrentUrlResponseInfo()</a></span> - Method in class com.google.android.exoplayer2.ext.cronet.<a href="com/google/android/exoplayer2/ext/cronet/CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource</a></dt>
+<dd>
+<div class="block">Returns current <code>UrlResponseInfo</code>.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/cast/CastPlayer.html#getCurrentWindowIndex--">getCurrentWindowIndex()</a></span> - Method in class com.google.android.exoplayer2.ext.cast.<a href="com/google/android/exoplayer2/ext/cast/CastPlayer.html" title="class in com.google.android.exoplayer2.ext.cast">CastPlayer</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Player.html#getCurrentWindowIndex--">getCurrentWindowIndex()</a></span> - Method in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></dt>
@@ -8802,9 +8814,9 @@
 <dd>
 <div class="block">Returns the HLS playlist.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">getPlaylistSnapshot(HlsMasterPlaylist.HlsUrl)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">getPlaylistSnapshot(HlsMasterPlaylist.HlsUrl, boolean)</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistTracker</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-">getPlaylistSnapshot(HlsMasterPlaylist.HlsUrl)</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#getPlaylistSnapshot-com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl-boolean-">getPlaylistSnapshot(HlsMasterPlaylist.HlsUrl, boolean)</a></span> - Method in interface com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></dt>
 <dd>
 <div class="block">Returns the most recent snapshot available of the playlist referenced by the provided <a href="com/google/android/exoplayer2/source/hls/playlist/HlsMasterPlaylist.HlsUrl.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMasterPlaylist.HlsUrl</code></a>.</div>
 </dd>
@@ -10844,12 +10856,6 @@
 <dd>
 <div class="block">Returns whether <code>encoding</code> is one of the linear PCM encodings.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/AudioSink.html#isEncodingSupported-int-">isEncodingSupported(int)</a></span> - Method in interface com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></dt>
-<dd>
-<div class="block">Returns whether it's possible to play audio in the specified encoding.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/DefaultAudioSink.html#isEncodingSupported-int-">isEncodingSupported(int)</a></span> - Method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#isEncrypted--">isEncrypted()</a></span> - Method in class com.google.android.exoplayer2.decoder.<a href="com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a></dt>
 <dd>
 <div class="block">Returns whether the <a href="com/google/android/exoplayer2/C.html#BUFFER_FLAG_ENCRYPTED"><code>C.BUFFER_FLAG_ENCRYPTED</code></a> flag is set.</div>
@@ -13266,10 +13272,6 @@
 <dd>
 <div class="block">Called when a custom action has been received.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerEmsgCallback.html#onDashLiveMediaPresentationEndSignalEncountered--">onDashLiveMediaPresentationEndSignalEncountered()</a></span> - Method in interface com.google.android.exoplayer2.source.dash.<a href="com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerEmsgCallback.html" title="interface in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerEmsgCallback</a></dt>
-<dd>
-<div class="block">Called when a media presentation end signal is encountered during live stream.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerEmsgCallback.html#onDashManifestPublishTimeExpired-long-">onDashManifestPublishTimeExpired(long)</a></span> - Method in interface com.google.android.exoplayer2.source.dash.<a href="com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.PlayerEmsgCallback.html" title="interface in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerEmsgCallback</a></dt>
 <dd>
 <div class="block">Called when the manifest with the publish time has been expired.</div>
@@ -13991,6 +13993,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/TimeBar.OnScrubListener.html#onScrubStop-com.google.android.exoplayer2.ui.TimeBar-long-boolean-">onScrubStop(TimeBar, long, boolean)</a></span> - Method in interface com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a></dt>
 <dd>
 <div class="block">Called when the user stops moving the scrubber.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html#onSeekFinished--">onSeekFinished()</a></span> - Method in interface com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSeeker</a></dt>
+<dd>
+<div class="block">Called when a seek operation finishes.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.html#onSeekOperationFinished-boolean-long-">onSeekOperationFinished(boolean, long)</a></span> - Method in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker</a></dt>
 <dd>&nbsp;</dd>
@@ -16868,17 +16874,22 @@
 <dd>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/ParsableByteArray.html#reset--">reset()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a></dt>
+<dd>
+<div class="block">Sets the position and limit to zero.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/ParsableByteArray.html#reset-int-">reset(int)</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a></dt>
 <dd>
 <div class="block">Resets the position to zero and the limit to the specified value.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/ParsableByteArray.html#reset-byte:A-">reset(byte[])</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a></dt>
+<dd>
+<div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero and the limit to
+ <code>data.length</code>.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/ParsableByteArray.html#reset-byte:A-int-">reset(byte[], int)</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a></dt>
 <dd>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/ParsableByteArray.html#reset--">reset()</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a></dt>
-<dd>
-<div class="block">Sets the position and limit to zero.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/ParsableNalUnitBitArray.html#reset-byte:A-int-int-">reset(byte[], int, int)</a></span> - Method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/ParsableNalUnitBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableNalUnitBitArray</a></dt>
 <dd>
@@ -17006,24 +17017,16 @@
 <dd>
 <div class="block">A return value for methods where the length of parsed data exceeds the maximum length allowed.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_NO_TIMESTAMP">RESULT_NO_TIMESTAMP</a></span> - Static variable in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/C.html#RESULT_NOTHING_READ">RESULT_NOTHING_READ</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2">C</a></dt>
 <dd>
 <div class="block">A return value for methods where nothing was read.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_POSITION_OVERESTIMATED">RESULT_POSITION_OVERESTIMATED</a></span> - Static variable in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_POSITION_UNDERESTIMATED">RESULT_POSITION_UNDERESTIMATED</a></span> - Static variable in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/Extractor.html#RESULT_SEEK">RESULT_SEEK</a></span> - Static variable in interface com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a></dt>
 <dd>
 <div class="block">Returned by <a href="com/google/android/exoplayer2/extractor/Extractor.html#read-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-"><code>Extractor.read(ExtractorInput, PositionHolder)</code></a> if the <a href="com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> passed
  to the next <a href="com/google/android/exoplayer2/extractor/Extractor.html#read-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-"><code>Extractor.read(ExtractorInput, PositionHolder)</code></a> is required to provide data starting
  from a specified position in the stream.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_TARGET_TIMESTAMP_FOUND">RESULT_TARGET_TIMESTAMP_FOUND</a></span> - Static variable in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#resumeAd--">resumeAd()</a></span> - Method in class com.google.android.exoplayer2.ext.ima.<a href="com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultLoadControl.html#retainBackBufferFromKeyframe--">retainBackBufferFromKeyframe()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultLoadControl.html" title="class in com.google.android.exoplayer2">DefaultLoadControl</a></dt>
@@ -17275,7 +17278,7 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html#searchForTimestamp-com.google.android.exoplayer2.extractor.ExtractorInput-long-com.google.android.exoplayer2.extractor.BinarySearchSeeker.OutputFrameHolder-">searchForTimestamp(ExtractorInput, long, BinarySearchSeeker.OutputFrameHolder)</a></span> - Method in interface com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSeeker</a></dt>
 <dd>
-<div class="block">Searches for a given timestamp from the input.</div>
+<div class="block">Searches a limited window of the provided input for a target timestamp.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html#second">second</a></span> - Variable in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a></dt>
 <dd>
@@ -20238,9 +20241,15 @@
 <div class="block">Returns the extent to which the <a href="com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports adapting between supported formats
  that have different mime types.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsOutputEncoding-int-">supportsOutputEncoding(int)</a></span> - Method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/AudioSink.html#supportsOutput-int-int-">supportsOutput(int, int)</a></span> - Method in interface com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></dt>
 <dd>
-<div class="block">Returns whether the audio sink can accept audio in the specified encoding.</div>
+<div class="block">Returns whether the sink supports the audio format.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/DefaultAudioSink.html#supportsOutput-int-int-">supportsOutput(int, int)</a></span> - Method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsOutput-int-int-">supportsOutput(int, int)</a></span> - Method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a></dt>
+<dd>
+<div class="block">Returns whether the sink supports the audio format.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/spherical/SphericalSurfaceView.SurfaceListener.html#surfaceChanged-android.view.Surface-">surfaceChanged(Surface)</a></span> - Method in interface com.google.android.exoplayer2.ui.spherical.<a href="com/google/android/exoplayer2/ui/spherical/SphericalSurfaceView.SurfaceListener.html" title="interface in com.google.android.exoplayer2.ui.spherical">SphericalSurfaceView.SurfaceListener</a></dt>
 <dd>
@@ -20287,7 +20296,7 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#targetFoundResult-long-">targetFoundResult(long)</a></span> - Static method in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></dt>
 <dd>
-<div class="block">Returns a result to signal that the target timestamp has been found at the <code>resultBytePosition</code>, and the seek operation can stop.</div>
+<div class="block">Returns a result to signal that the target timestamp has been found at <code>resultBytePosition</code>, and the seek operation can stop.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/offline/DownloadManager.TaskState.html#taskId">taskId</a></span> - Variable in class com.google.android.exoplayer2.offline.<a href="com/google/android/exoplayer2/offline/DownloadManager.TaskState.html" title="class in com.google.android.exoplayer2.offline">DownloadManager.TaskState</a></dt>
 <dd>
@@ -21060,12 +21069,24 @@
 <dd>
 <div class="block">Value returned by <a href="com/google/android/exoplayer2/util/Util.html#inferContentType-java.lang.String-"><code>Util.inferContentType(String)</code></a> for HLS manifests.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_NO_TIMESTAMP">TYPE_NO_TIMESTAMP</a></span> - Static variable in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></dt>
+<dd>
+<div class="block">The search didn't find any timestamps.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html#TYPE_OPEN">TYPE_OPEN</a></span> - Static variable in exception com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/C.html#TYPE_OTHER">TYPE_OTHER</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2">C</a></dt>
 <dd>
 <div class="block">Value returned by <a href="com/google/android/exoplayer2/util/Util.html#inferContentType-java.lang.String-"><code>Util.inferContentType(String)</code></a> for files other than DASH, HLS or
  Smooth Streaming manifests.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_POSITION_OVERESTIMATED">TYPE_POSITION_OVERESTIMATED</a></span> - Static variable in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></dt>
+<dd>
+<div class="block">The search found only timestamps larger than the target timestamp.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_POSITION_UNDERESTIMATED">TYPE_POSITION_UNDERESTIMATED</a></span> - Static variable in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></dt>
+<dd>
+<div class="block">The search found only timestamps smaller than the target timestamp.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html#TYPE_READ">TYPE_READ</a></span> - Static variable in exception com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></dt>
 <dd>&nbsp;</dd>
@@ -21080,6 +21101,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/C.html#TYPE_SS">TYPE_SS</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2">C</a></dt>
 <dd>
 <div class="block">Value returned by <a href="com/google/android/exoplayer2/util/Util.html#inferContentType-java.lang.String-"><code>Util.inferContentType(String)</code></a> for Smooth Streaming manifests.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_TARGET_TIMESTAMP_FOUND">TYPE_TARGET_TIMESTAMP_FOUND</a></span> - Static variable in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></dt>
+<dd>
+<div class="block">The search found a timestamp that it deems close enough to the given target.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_UNEXPECTED">TYPE_UNEXPECTED</a></span> - Static variable in exception com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></dt>
 <dd>

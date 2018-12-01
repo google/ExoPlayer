@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":18,"i1":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -117,17 +117,23 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html#onSeekFinished--">onSeekFinished</a></span>()</code>
+<div class="block">Called when a seek operation finishes.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html#searchForTimestamp-com.google.android.exoplayer2.extractor.ExtractorInput-long-com.google.android.exoplayer2.extractor.BinarySearchSeeker.OutputFrameHolder-">searchForTimestamp</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
                   long&nbsp;targetTimestamp,
                   <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.OutputFrameHolder.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.OutputFrameHolder</a>&nbsp;outputFrameHolder)</code>
-<div class="block">Searches for a given timestamp from the input.</div>
+<div class="block">Searches a limited window of the provided input for a target timestamp.</div>
 </td>
 </tr>
 </table>
@@ -148,7 +154,7 @@ var activeTableTab = "activeTableTab";
 <a name="searchForTimestamp-com.google.android.exoplayer2.extractor.ExtractorInput-long-com.google.android.exoplayer2.extractor.BinarySearchSeeker.OutputFrameHolder-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>searchForTimestamp</h4>
 <pre><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a>&nbsp;searchForTimestamp(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
@@ -156,35 +162,32 @@ var activeTableTab = "activeTableTab";
                                                             <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.OutputFrameHolder.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.OutputFrameHolder</a>&nbsp;outputFrameHolder)
                                                      throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
                                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
-<div class="block">Searches for a given timestamp from the input.
-
- <p>Given a target timestamp and an input stream, this seeker will try to read up to a range
- of <code>searchRangeBytes</code> bytes from that input, look for all available timestamps from all
- frames in that range, compare those with the target timestamp, and return one of the <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.TimestampSearchResult</code></a>.</div>
+<div class="block">Searches a limited window of the provided input for a target timestamp. The size of the
+ window is implementation specific, but should be small enough such that it's reasonable for
+ multiple such reads to occur during a seek operation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>input</code> - The <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> from which data should be read.</dd>
-<dd><code>targetTimestamp</code> - The target timestamp that we are looking for.</dd>
-<dd><code>outputFrameHolder</code> - If <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_TARGET_TIMESTAMP_FOUND"><code>BinarySearchSeeker.TimestampSearchResult.RESULT_TARGET_TIMESTAMP_FOUND</code></a> is
+<dd><code>input</code> - The <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> from which data should be peeked.</dd>
+<dd><code>targetTimestamp</code> - The target timestamp.</dd>
+<dd><code>outputFrameHolder</code> - If <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_TARGET_TIMESTAMP_FOUND"><code>BinarySearchSeeker.TimestampSearchResult.TYPE_TARGET_TIMESTAMP_FOUND</code></a> is
      returned, this holder may be updated to hold the extracted frame that contains the target
      frame/sample associated with the target timestamp.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.TimestampSearchResult</code></a>, that includes a <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#result"><code>BinarySearchSeeker.TimestampSearchResult.result</code></a>
-     value, and other necessary info:
-     <ul>
-       <li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_NO_TIMESTAMP"><code>BinarySearchSeeker.TimestampSearchResult.RESULT_NO_TIMESTAMP</code></a> is returned if there is no
-           timestamp in the reading range.
-       <li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_POSITION_UNDERESTIMATED"><code>BinarySearchSeeker.TimestampSearchResult.RESULT_POSITION_UNDERESTIMATED</code></a> is returned if all
-           timestamps in the range are smaller than the target timestamp.
-       <li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_POSITION_OVERESTIMATED"><code>BinarySearchSeeker.TimestampSearchResult.RESULT_POSITION_OVERESTIMATED</code></a> is returned if all
-           timestamps in the range are larger than the target timestamp.
-       <li><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_TARGET_TIMESTAMP_FOUND"><code>BinarySearchSeeker.TimestampSearchResult.RESULT_TARGET_TIMESTAMP_FOUND</code></a> is returned if this
-           seeker can find a timestamp that it deems close enough to the given target.
-     </ul></dd>
+<dd>A <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.TimestampSearchResult</code></a> that describes the result of the search.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurred reading from the input.</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If the thread was interrupted.</dd>
 </dl>
+</li>
+</ul>
+<a name="onSeekFinished--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onSeekFinished</h4>
+<pre>default&nbsp;void&nbsp;onSeekFinished()</pre>
+<div class="block">Called when a seek operation finishes.</div>
 </li>
 </ul>
 </li>

@@ -110,6 +110,11 @@ var activeTableTab = "activeTableTab";
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></pre>
 <div class="block">Connects a <a href="https://developer.android.com/reference/android/support.v4.media.session.MediaSessionCompat.html" target="_top" title="class or interface in android"><code>MediaSessionCompat</code></a> to a <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.
 
+ <p>This connector does <em>not</em> call <code>MediaSessionCompat.setActive(boolean)</code>, and so
+ application code is responsible for making the session active when desired. A session must be
+ active for transport controls to be displayed (e.g. on the lock screen) and for it to receive
+ media button events.
+
  <p>The connector listens for actions sent by the media session's controller and implements these
  actions by calling appropriate player methods. The playback state of the media session is
  automatically synced with the player. The connector can also be optionally extended by providing

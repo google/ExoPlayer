@@ -362,8 +362,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsOutputEncoding-int-">supportsOutputEncoding</a></span>(int&nbsp;encoding)</code>
-<div class="block">Returns whether the audio sink can accept audio in the specified encoding.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsOutput-int-int-">supportsOutput</a></span>(int&nbsp;channelCount,
+              int&nbsp;encoding)</code>
+<div class="block">Returns whether the sink supports the audio format.</div>
 </td>
 </tr>
 </table>
@@ -600,20 +601,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 </dl>
 </li>
 </ul>
-<a name="supportsOutputEncoding-int-">
+<a name="supportsOutput-int-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>supportsOutputEncoding</h4>
-<pre>protected final&nbsp;boolean&nbsp;supportsOutputEncoding(<a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2">@C.Encoding</a>
-                                               int&nbsp;encoding)</pre>
-<div class="block">Returns whether the audio sink can accept audio in the specified encoding.</div>
+<h4>supportsOutput</h4>
+<pre>protected final&nbsp;boolean&nbsp;supportsOutput(int&nbsp;channelCount,
+                                       <a href="../../../../../com/google/android/exoplayer2/C.Encoding.html" title="annotation in com.google.android.exoplayer2">@C.Encoding</a>
+                                       int&nbsp;encoding)</pre>
+<div class="block">Returns whether the sink supports the audio format.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>encoding</code> - The audio encoding.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the audio sink can accept audio in the specified encoding.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#supportsOutput-int-int-"><code>AudioSink.supportsOutput(int, int)</code></a></dd>
 </dl>
 </li>
 </ul>

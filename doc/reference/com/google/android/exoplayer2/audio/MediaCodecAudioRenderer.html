@@ -266,7 +266,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html#allowPassthrough-java.lang.String-">allowPassthrough</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html#allowPassthrough-int-java.lang.String-">allowPassthrough</a></span>(int&nbsp;channelCount,
+                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType)</code>
 <div class="block">Returns whether encoded audio passthrough should be used for playing back the input format.</div>
 </td>
 </tr>
@@ -751,18 +752,21 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/MediaClock
 </dl>
 </li>
 </ul>
-<a name="allowPassthrough-java.lang.String-">
+<a name="allowPassthrough-int-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>allowPassthrough</h4>
-<pre>protected&nbsp;boolean&nbsp;allowPassthrough(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType)</pre>
+<pre>protected&nbsp;boolean&nbsp;allowPassthrough(int&nbsp;channelCount,
+                                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;mimeType)</pre>
 <div class="block">Returns whether encoded audio passthrough should be used for playing back the input format.
  This implementation returns true if the <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> indicates that encoded audio output
  is supported.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>channelCount</code> - The number of channels in the input media, or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if
+     not known.</dd>
 <dd><code>mimeType</code> - The type of input media.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether passthrough playback is supported.</dd>

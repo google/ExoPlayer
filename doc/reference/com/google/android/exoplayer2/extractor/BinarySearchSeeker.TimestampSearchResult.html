@@ -137,19 +137,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_NO_TIMESTAMP">RESULT_NO_TIMESTAMP</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_NO_TIMESTAMP">TYPE_NO_TIMESTAMP</a></span></code>
+<div class="block">The search didn't find any timestamps.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_POSITION_OVERESTIMATED">RESULT_POSITION_OVERESTIMATED</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_POSITION_OVERESTIMATED">TYPE_POSITION_OVERESTIMATED</a></span></code>
+<div class="block">The search found only timestamps larger than the target timestamp.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_POSITION_UNDERESTIMATED">RESULT_POSITION_UNDERESTIMATED</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_POSITION_UNDERESTIMATED">TYPE_POSITION_UNDERESTIMATED</a></span></code>
+<div class="block">The search found only timestamps smaller than the target timestamp.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#RESULT_TARGET_TIMESTAMP_FOUND">RESULT_TARGET_TIMESTAMP_FOUND</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_TARGET_TIMESTAMP_FOUND">TYPE_TARGET_TIMESTAMP_FOUND</a></span></code>
+<div class="block">The search found a timestamp that it deems close enough to the given target.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -178,7 +186,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#targetFoundResult-long-">targetFoundResult</a></span>(long&nbsp;resultBytePosition)</code>
-<div class="block">Returns a result to signal that the target timestamp has been found at the <code>resultBytePosition</code>, and the seek operation can stop.</div>
+<div class="block">Returns a result to signal that the target timestamp has been found at <code>resultBytePosition</code>, and the seek operation can stop.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -212,55 +220,59 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="RESULT_TARGET_TIMESTAMP_FOUND">
+<a name="TYPE_TARGET_TIMESTAMP_FOUND">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>RESULT_TARGET_TIMESTAMP_FOUND</h4>
-<pre>public static final&nbsp;int RESULT_TARGET_TIMESTAMP_FOUND</pre>
+<h4>TYPE_TARGET_TIMESTAMP_FOUND</h4>
+<pre>public static final&nbsp;int TYPE_TARGET_TIMESTAMP_FOUND</pre>
+<div class="block">The search found a timestamp that it deems close enough to the given target.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.BinarySearchSeeker.TimestampSearchResult.RESULT_TARGET_TIMESTAMP_FOUND">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.BinarySearchSeeker.TimestampSearchResult.TYPE_TARGET_TIMESTAMP_FOUND">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
-<a name="RESULT_POSITION_OVERESTIMATED">
+<a name="TYPE_POSITION_OVERESTIMATED">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>RESULT_POSITION_OVERESTIMATED</h4>
-<pre>public static final&nbsp;int RESULT_POSITION_OVERESTIMATED</pre>
+<h4>TYPE_POSITION_OVERESTIMATED</h4>
+<pre>public static final&nbsp;int TYPE_POSITION_OVERESTIMATED</pre>
+<div class="block">The search found only timestamps larger than the target timestamp.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.BinarySearchSeeker.TimestampSearchResult.RESULT_POSITION_OVERESTIMATED">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.BinarySearchSeeker.TimestampSearchResult.TYPE_POSITION_OVERESTIMATED">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
-<a name="RESULT_POSITION_UNDERESTIMATED">
+<a name="TYPE_POSITION_UNDERESTIMATED">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>RESULT_POSITION_UNDERESTIMATED</h4>
-<pre>public static final&nbsp;int RESULT_POSITION_UNDERESTIMATED</pre>
+<h4>TYPE_POSITION_UNDERESTIMATED</h4>
+<pre>public static final&nbsp;int TYPE_POSITION_UNDERESTIMATED</pre>
+<div class="block">The search found only timestamps smaller than the target timestamp.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.BinarySearchSeeker.TimestampSearchResult.RESULT_POSITION_UNDERESTIMATED">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.BinarySearchSeeker.TimestampSearchResult.TYPE_POSITION_UNDERESTIMATED">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
-<a name="RESULT_NO_TIMESTAMP">
+<a name="TYPE_NO_TIMESTAMP">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>RESULT_NO_TIMESTAMP</h4>
-<pre>public static final&nbsp;int RESULT_NO_TIMESTAMP</pre>
+<h4>TYPE_NO_TIMESTAMP</h4>
+<pre>public static final&nbsp;int TYPE_NO_TIMESTAMP</pre>
+<div class="block">The search didn't find any timestamps.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.BinarySearchSeeker.TimestampSearchResult.RESULT_NO_TIMESTAMP">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.BinarySearchSeeker.TimestampSearchResult.TYPE_NO_TIMESTAMP">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -314,7 +326,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>targetFoundResult</h4>
 <pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a>&nbsp;targetFoundResult(long&nbsp;resultBytePosition)</pre>
-<div class="block">Returns a result to signal that the target timestamp has been found at the <code>resultBytePosition</code>, and the seek operation can stop.
+<div class="block">Returns a result to signal that the target timestamp has been found at <code>resultBytePosition</code>, and the seek operation can stop.
 
  <p>Note that when this value is returned from <code>TimestampSeeker#searchForTimestamp(ExtractorInput, long, OutputFrameHolder)</code>, the <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.OutputFrameHolder.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.OutputFrameHolder</code></a> may be updated to hold the target frame as an optimization.</div>
 </li>
