@@ -307,7 +307,11 @@ import com.google.android.exoplayer2.util.Assertions;
     MediaPeriodHolder periodHolder = getFrontPeriod();
     while (periodHolder != null) {
       if (previousPeriodHolder == null) {
+        long previousDurationUs = periodHolder.info.durationUs;
         periodHolder.info = getUpdatedMediaPeriodInfo(periodHolder.info);
+        if (!canKeepAfterMediaPeriodHolder(periodHolder, previousDurationUs)) {
+          return !removeAfter(periodHolder);
+        }
       } else {
         // Check this period holder still follows the previous one, based on the new timeline.
         if (periodIndex == C.INDEX_UNSET
@@ -326,6 +330,8 @@ import com.google.android.exoplayer2.util.Assertions;
         // Check the media period information matches the new timeline.
         if (!canKeepMediaPeriodHolder(periodHolder, periodInfo)) {
           return !removeAfter(previousPeriodHolder);
+        } else if (!canKeepAfterMediaPeriodHolder(periodHolder, periodInfo.durationUs)) {
+          return !removeAfter(periodHolder);
         }
       }
 
@@ -466,6 +472,15 @@ import com.google.android.exoplayer2.util.Assertions;
     MediaPeriodInfo periodHolderInfo = periodHolder.info;
     return periodHolderInfo.startPositionUs == info.startPositionUs
         && periodHolderInfo.id.equals(info.id);
+  }
+
+  /**
+   * Returns whether periods after {@code periodHolder} can be kept for playing given its previous
+   * duration.
+   */
+  private boolean canKeepAfterMediaPeriodHolder(
+      MediaPeriodHolder periodHolder, long previousDurationUs) {
+    return previousDurationUs == C.TIME_UNSET || previousDurationUs == periodHolder.info.durationUs;
   }
 
   /**
