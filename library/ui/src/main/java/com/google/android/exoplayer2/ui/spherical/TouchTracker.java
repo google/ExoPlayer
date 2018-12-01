@@ -44,11 +44,10 @@ import android.view.View;
  * a nicer UI. An even more advanced UI would reproject the user's touch point into 3D and drag the
  * Mesh as the user moves their finger. However, that requires quaternion interpolation.
  */
-// @VisibleForTesting
-/*package*/ class TouchTracker extends GestureDetector.SimpleOnGestureListener
+/* package */ class TouchTracker extends GestureDetector.SimpleOnGestureListener
     implements View.OnTouchListener {
 
-  /*package*/ interface Listener {
+  /* package */ interface Listener {
     void onScrollChange(PointF scrollOffsetDegrees);
   }
 

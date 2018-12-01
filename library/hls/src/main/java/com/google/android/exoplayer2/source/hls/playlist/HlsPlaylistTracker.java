@@ -167,11 +167,13 @@ public interface HlsPlaylistTracker {
    * HlsUrl}.
    *
    * @param url The {@link HlsUrl} corresponding to the requested media playlist.
+   * @param isForPlayback Whether the caller might use the snapshot to request media segments for
+   *     playback. If true, the primary playlist may be updated to the one requested.
    * @return The most recent snapshot of the playlist referenced by the provided {@link HlsUrl}. May
    *     be null if no snapshot has been loaded yet.
    */
   @Nullable
-  HlsMediaPlaylist getPlaylistSnapshot(HlsUrl url);
+  HlsMediaPlaylist getPlaylistSnapshot(HlsUrl url, boolean isForPlayback);
 
   /**
    * Returns the start time of the first loaded primary playlist, or {@link C#TIME_UNSET} if no

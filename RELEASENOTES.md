@@ -1,5 +1,32 @@
 # Release notes #
 
+### 2.9.2 ###
+
+* HLS:
+  * Fix issue causing unnecessary media playlist requests when playing live
+    streams ([#5059](https://github.com/google/ExoPlayer/issues/5059)).
+  * Fix decoder re-instantiation issue for packed audio streams
+    ([#5063](https://github.com/google/ExoPlayer/issues/5063)).
+* MP4: Support Opus and FLAC in the MP4 container, and in DASH
+  ([#4883](https://github.com/google/ExoPlayer/issues/4883)).
+* DASH: Fix detecting the end of live events
+  ([#4780](https://github.com/google/ExoPlayer/issues/4780)).
+* Spherical video: Fall back to `TYPE_ROTATION_VECTOR` if
+  `TYPE_GAME_ROTATION_VECTOR` is unavailable
+  ([#5119](https://github.com/google/ExoPlayer/issues/5119)).
+* Support seeking for a wider range of MPEG-TS streams
+  ([#5097](https://github.com/google/ExoPlayer/issues/5097)).
+* Include channel count in audio capabilities check
+  ([#4690](https://github.com/google/ExoPlayer/issues/4690)).
+* Fix issue with applying the `show_buffering` attribute in `PlayerView`
+  ([#5139](https://github.com/google/ExoPlayer/issues/5139)).
+* Fix issue where null `Metadata` was output when it failed to decode
+  ([#5149](https://github.com/google/ExoPlayer/issues/5149)).
+* Fix playback of some invalid but playable MP4 streams by replacing assertions
+  with logged warnings in sample table parsing code
+  ([#5162](https://github.com/google/ExoPlayer/issues/5162)).
+* Fix UUID passed to `MediaCrypto` when using `C.CLEARKEY_UUID` before API 27.
+
 ### 2.9.1 ###
 
 * Add convenience methods `Player.next`, `Player.previous`, `Player.hasNext`
@@ -20,7 +47,7 @@
 * DASH: Parse ProgramInformation element if present in the manifest.
 * HLS:
   * Add constructor to `DefaultHlsExtractorFactory` for adding TS payload
-    reader factory flags
+    reader factory flags.
   * Fix bug in segment sniffing
     ([#5039](https://github.com/google/ExoPlayer/issues/5039)).
   ([#4861](https://github.com/google/ExoPlayer/issues/4861)).

@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -38,7 +39,7 @@ import java.io.IOException;
  */
 /* package */ final class PsDurationReader {
 
-  private static final int DURATION_READ_BYTES = 20000;
+  private static final int TIMESTAMP_SEARCH_BYTES = 20000;
 
   private final TimestampAdjuster scrTimestampAdjuster;
   private final ParsableByteArray packetBuffer;
@@ -56,7 +57,7 @@ import java.io.IOException;
     firstScrValue = C.TIME_UNSET;
     lastScrValue = C.TIME_UNSET;
     durationUs = C.TIME_UNSET;
-    packetBuffer = new ParsableByteArray(DURATION_READ_BYTES);
+    packetBuffer = new ParsableByteArray();
   }
 
   /** Returns true if a PS duration has been read. */
@@ -129,6 +130,7 @@ import java.io.IOException;
   }
 
   private int finishReadDuration(ExtractorInput input) {
+    packetBuffer.reset(Util.EMPTY_BYTE_ARRAY);
     isDurationRead = true;
     input.resetPeekPosition();
     return Extractor.RESULT_CONTINUE;
@@ -136,16 +138,16 @@ import java.io.IOException;
 
   private int readFirstScrValue(ExtractorInput input, PositionHolder seekPositionHolder)
       throws IOException, InterruptedException {
-    if (input.getPosition() != 0) {
-      seekPositionHolder.position = 0;
+    int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength());
+    int searchStartPosition = 0;
+    if (input.getPosition() != searchStartPosition) {
+      seekPositionHolder.position = searchStartPosition;
       return Extractor.RESULT_SEEK;
     }
 
-    int bytesToRead = (int) Math.min(DURATION_READ_BYTES, input.getLength());
+    packetBuffer.reset(bytesToSearch);
     input.resetPeekPosition();
-    input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToRead);
-    packetBuffer.setPosition(0);
-    packetBuffer.setLimit(bytesToRead);
+    input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
 
     firstScrValue = readFirstScrValueFromBuffer(packetBuffer);
     isFirstScrValueRead = true;
@@ -172,17 +174,17 @@ import java.io.IOException;
 
   private int readLastScrValue(ExtractorInput input, PositionHolder seekPositionHolder)
       throws IOException, InterruptedException {
-    int bytesToRead = (int) Math.min(DURATION_READ_BYTES, input.getLength());
-    long bufferStartStreamPosition = input.getLength() - bytesToRead;
-    if (input.getPosition() != bufferStartStreamPosition) {
-      seekPositionHolder.position = bufferStartStreamPosition;
+    long inputLength = input.getLength();
+    int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, inputLength);
+    long searchStartPosition = inputLength - bytesToSearch;
+    if (input.getPosition() != searchStartPosition) {
+      seekPositionHolder.position = searchStartPosition;
       return Extractor.RESULT_SEEK;
     }
 
+    packetBuffer.reset(bytesToSearch);
     input.resetPeekPosition();
-    input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToRead);
-    packetBuffer.setPosition(0);
-    packetBuffer.setLimit(bytesToRead);
+    input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
 
     lastScrValue = readLastScrValueFromBuffer(packetBuffer);
     isLastScrValueRead = true;

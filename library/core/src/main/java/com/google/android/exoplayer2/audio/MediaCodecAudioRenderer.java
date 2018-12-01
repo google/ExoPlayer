@@ -272,12 +272,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     boolean supportsFormatDrm = supportsFormatDrm(drmSessionManager, format.drmInitData);
-    if (supportsFormatDrm && allowPassthrough(mimeType)
+    if (supportsFormatDrm
+        && allowPassthrough(format.channelCount, mimeType)
         && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
       return ADAPTIVE_NOT_SEAMLESS | tunnelingSupport | FORMAT_HANDLED;
     }
-    if ((MimeTypes.AUDIO_RAW.equals(mimeType) && !audioSink.isEncodingSupported(format.pcmEncoding))
-        || !audioSink.isEncodingSupported(C.ENCODING_PCM_16BIT)) {
+    if ((MimeTypes.AUDIO_RAW.equals(mimeType)
+            && !audioSink.supportsOutput(format.channelCount, format.pcmEncoding))
+        || !audioSink.supportsOutput(format.channelCount, C.ENCODING_PCM_16BIT)) {
       // Assume the decoder outputs 16-bit PCM, unless the input is raw.
       return FORMAT_UNSUPPORTED_SUBTYPE;
     }
@@ -316,7 +318,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected List<MediaCodecInfo> getDecoderInfos(
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
       throws DecoderQueryException {
-    if (allowPassthrough(format.sampleMimeType)) {
+    if (allowPassthrough(format.channelCount, format.sampleMimeType)) {
       MediaCodecInfo passthroughDecoderInfo = mediaCodecSelector.getPassthroughDecoderInfo();
       if (passthroughDecoderInfo != null) {
         return Collections.singletonList(passthroughDecoderInfo);
@@ -330,12 +332,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * This implementation returns true if the {@link AudioSink} indicates that encoded audio output
    * is supported.
    *
+   * @param channelCount The number of channels in the input media, or {@link Format#NO_VALUE} if
+   *     not known.
    * @param mimeType The type of input media.
    * @return Whether passthrough playback is supported.
    */
-  protected boolean allowPassthrough(String mimeType) {
-    @C.Encoding int encoding = MimeTypes.getEncoding(mimeType);
-    return encoding != C.ENCODING_INVALID && audioSink.isEncodingSupported(encoding);
+  protected boolean allowPassthrough(int channelCount, String mimeType) {
+    return audioSink.supportsOutput(channelCount, MimeTypes.getEncoding(mimeType));
   }
 
   @Override
