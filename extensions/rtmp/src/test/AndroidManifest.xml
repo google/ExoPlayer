@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2017 The Android Open Source Project
+<!-- Copyright (C) 2018 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,12 +13,5 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.exoplayer2.ext.ima">
-  <application>
-    <meta-data android:name="com.google.android.gms.ads.AD_MANAGER_APP"
-        android:value="true"/>
-    <meta-data android:name="com.google.android.gms.version"
-        android:value="@integer/google_play_services_version"/>
-  </application>
-</manifest>
+
+<manifest package="com.google.android.exoplayer2.ext.rtmp"/>

@@ -377,14 +377,18 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public boolean isEncodingSupported(@C.Encoding int encoding) {
+  public boolean supportsOutput(int channelCount, @C.Encoding int encoding) {
     if (Util.isEncodingLinearPcm(encoding)) {
       // AudioTrack supports 16-bit integer PCM output in all platform API versions, and float
       // output from platform API version 21 only. Other integer PCM encodings are resampled by this
-      // sink to 16-bit PCM.
+      // sink to 16-bit PCM. We assume that the audio framework will downsample any number of
+      // channels to the output device's required number of channels.
       return encoding != C.ENCODING_PCM_FLOAT || Util.SDK_INT >= 21;
     } else {
-      return audioCapabilities != null && audioCapabilities.supportsEncoding(encoding);
+      return audioCapabilities != null
+          && audioCapabilities.supportsEncoding(encoding)
+          && (channelCount == Format.NO_VALUE
+              || channelCount <= audioCapabilities.getMaxChannelCount());
     }
   }
 
@@ -415,7 +419,7 @@ public final class DefaultAudioSink implements AudioSink {
     isInputPcm = Util.isEncodingLinearPcm(inputEncoding);
     shouldConvertHighResIntPcmToFloat =
         enableConvertHighResIntPcmToFloat
-            && isEncodingSupported(C.ENCODING_PCM_32BIT)
+            && supportsOutput(channelCount, C.ENCODING_PCM_32BIT)
             && Util.isEncodingHighResolutionIntegerPcm(inputEncoding);
     if (isInputPcm) {
       pcmFrameSize = Util.getPcmFrameSize(inputEncoding, channelCount);

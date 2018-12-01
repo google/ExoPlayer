@@ -378,8 +378,12 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         DrmInitData drmInitData = new DrmInitData(new SchemeData(protectionElement.uuid,
             MimeTypes.VIDEO_MP4, protectionElement.data));
         for (StreamElement streamElement : streamElementArray) {
-          for (int i = 0; i < streamElement.formats.length; i++) {
-            streamElement.formats[i] = streamElement.formats[i].copyWithDrmInitData(drmInitData);
+          int type = streamElement.type;
+          if (type == C.TRACK_TYPE_VIDEO || type == C.TRACK_TYPE_AUDIO) {
+            Format[] formats = streamElement.formats;
+            for (int i = 0; i < formats.length; i++) {
+              formats[i] = formats[i].copyWithDrmInitData(drmInitData);
+            }
           }
         }
       }

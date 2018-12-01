@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.extractor.BinarySearchSeeker;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -53,10 +54,9 @@ import java.io.IOException;
   /**
    * A seeker that looks for a given SCR timestamp at a given position in a PS stream.
    *
-   * <p>Given a SCR timestamp, and a position within a PS stream, this seeker will try to read a
-   * range of up to {@link #TIMESTAMP_SEARCH_BYTES} bytes from that stream position, look for all
-   * packs in that range, and then compare the SCR timestamps (if available) of these packets vs the
-   * target timestamp.
+   * <p>Given a SCR timestamp, and a position within a PS stream, this seeker will peek up to {@link
+   * #TIMESTAMP_SEARCH_BYTES} bytes from that stream position, look for all packs in that range, and
+   * then compare the SCR timestamps (if available) of these packets to the target timestamp.
    */
   private static final class PsScrSeeker implements TimestampSeeker {
 
@@ -65,7 +65,7 @@ import java.io.IOException;
 
     private PsScrSeeker(TimestampAdjuster scrTimestampAdjuster) {
       this.scrTimestampAdjuster = scrTimestampAdjuster;
-      packetBuffer = new ParsableByteArray(TIMESTAMP_SEARCH_BYTES);
+      packetBuffer = new ParsableByteArray();
     }
 
     @Override
@@ -73,12 +73,17 @@ import java.io.IOException;
         ExtractorInput input, long targetTimestamp, OutputFrameHolder outputFrameHolder)
         throws IOException, InterruptedException {
       long inputPosition = input.getPosition();
-      int bytesToRead =
-          (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength() - input.getPosition());
-      packetBuffer.reset(bytesToRead);
-      input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToRead);
+      int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength() - inputPosition);
+
+      packetBuffer.reset(bytesToSearch);
+      input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
 
       return searchForScrValueInBuffer(packetBuffer, targetTimestamp, inputPosition);
+    }
+
+    @Override
+    public void onSeekFinished() {
+      packetBuffer.reset(Util.EMPTY_BYTE_ARRAY);
     }
 
     private TimestampSearchResult searchForScrValueInBuffer(

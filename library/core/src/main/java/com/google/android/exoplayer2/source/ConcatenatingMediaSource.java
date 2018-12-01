@@ -365,6 +365,9 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   public final synchronized void moveMediaSource(
       int currentIndex, int newIndex, @Nullable Runnable actionOnCompletion) {
     if (currentIndex == newIndex) {
+      if (actionOnCompletion != null) {
+        actionOnCompletion.run();
+      }
       return;
     }
     mediaSourcesPublic.add(newIndex, mediaSourcesPublic.remove(currentIndex));
@@ -570,9 +573,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         if (fromIndex == 0 && toIndex == shuffleOrder.getLength()) {
           shuffleOrder = shuffleOrder.cloneAndClear();
         } else {
-          for (int index = toIndex - 1; index >= fromIndex; index--) {
-            shuffleOrder = shuffleOrder.cloneAndRemove(index);
-          }
+          shuffleOrder = shuffleOrder.cloneAndRemove(fromIndex, toIndex);
         }
         for (int index = toIndex - 1; index >= fromIndex; index--) {
           removeMediaSourceInternal(index);
@@ -581,7 +582,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         break;
       case MSG_MOVE:
         MessageData<Integer> moveMessage = (MessageData<Integer>) Util.castNonNull(message);
-        shuffleOrder = shuffleOrder.cloneAndRemove(moveMessage.index);
+        shuffleOrder = shuffleOrder.cloneAndRemove(moveMessage.index, moveMessage.index + 1);
         shuffleOrder = shuffleOrder.cloneAndInsert(moveMessage.customData, 1);
         moveMediaSourceInternal(moveMessage.index, moveMessage.customData);
         scheduleListenerNotification(moveMessage.actionOnCompletion);

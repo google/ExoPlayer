@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,8 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 /* package */ final class HlsMediaChunk extends MediaChunk {
 
-
-  private static final String PRIV_TIMESTAMP_FRAME_OWNER =
+  public static final String PRIV_TIMESTAMP_FRAME_OWNER =
       "com.apple.streaming.transportStreamTimestamp";
 
   private static final AtomicInteger uidSource = new AtomicInteger();
@@ -313,8 +313,10 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   private long peekId3PrivTimestamp(ExtractorInput input) throws IOException, InterruptedException {
     input.resetPeekPosition();
-    if (input.getLength() < Id3Decoder.ID3_HEADER_LENGTH
-        || !input.peekFully(id3Data.data, 0, Id3Decoder.ID3_HEADER_LENGTH, true)) {
+    try {
+      input.peekFully(id3Data.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
+    } catch (EOFException e) {
+      // The input isn't long enough for there to be any ID3 data.
       return C.TIME_UNSET;
     }
     id3Data.reset(Id3Decoder.ID3_HEADER_LENGTH);
@@ -330,9 +332,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       id3Data.reset(requiredCapacity);
       System.arraycopy(data, 0, id3Data.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
     }
-    if (!input.peekFully(id3Data.data, Id3Decoder.ID3_HEADER_LENGTH, id3Size, true)) {
-      return C.TIME_UNSET;
-    }
+    input.peekFully(id3Data.data, Id3Decoder.ID3_HEADER_LENGTH, id3Size);
     Metadata metadata = id3Decoder.decode(id3Data.data, id3Size);
     if (metadata == null) {
       return C.TIME_UNSET;

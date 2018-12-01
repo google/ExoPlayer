@@ -70,9 +70,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     Assertions.checkNotNull(uuid);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
     this.uuid = uuid;
-    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
-    this.mediaDrm =
-        new MediaDrm(Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid);
+    this.mediaDrm = new MediaDrm(adjustUuid(uuid));
     if (C.WIDEVINE_UUID.equals(uuid) && needsForceWidevineL3Workaround()) {
       forceWidevineL3(mediaDrm);
     }
@@ -152,7 +150,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   @Override
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException {
-
     if (C.CLEARKEY_UUID.equals(uuid)) {
       response = ClearKeyUtil.adjustResponseData(response);
     }
@@ -212,8 +209,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     // indicate that it required secure video decoders [Internal ref: b/11428937].
     boolean forceAllowInsecureDecoderComponents = Util.SDK_INT < 21
         && C.WIDEVINE_UUID.equals(uuid) && "L3".equals(getPropertyString("securityLevel"));
-    return new FrameworkMediaCrypto(new MediaCrypto(uuid, initData),
-        forceAllowInsecureDecoderComponents);
+    return new FrameworkMediaCrypto(
+        new MediaCrypto(adjustUuid(uuid), initData), forceAllowInsecureDecoderComponents);
   }
 
   private static SchemeData getSchemeData(UUID uuid, List<SchemeData> schemeDatas) {
@@ -267,6 +264,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
 
     // If all else fails, use the first scheme data.
     return schemeDatas.get(0);
+  }
+
+  private static UUID adjustUuid(UUID uuid) {
+    // ClearKey had to be accessed using the Common PSSH UUID prior to API level 27.
+    return Util.SDK_INT < 27 && C.CLEARKEY_UUID.equals(uuid) ? C.COMMON_PSSH_UUID : uuid;
   }
 
   private static byte[] adjustRequestInitData(UUID uuid, byte[] initData) {

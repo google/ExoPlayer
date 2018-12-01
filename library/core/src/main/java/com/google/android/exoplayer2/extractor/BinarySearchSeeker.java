@@ -42,37 +42,25 @@ public abstract class BinarySearchSeeker {
   protected interface TimestampSeeker {
 
     /**
-     * Searches for a given timestamp from the input.
+     * Searches a limited window of the provided input for a target timestamp. The size of the
+     * window is implementation specific, but should be small enough such that it's reasonable for
+     * multiple such reads to occur during a seek operation.
      *
-     * <p>Given a target timestamp and an input stream, this seeker will try to read up to a range
-     * of {@code searchRangeBytes} bytes from that input, look for all available timestamps from all
-     * frames in that range, compare those with the target timestamp, and return one of the {@link
-     * TimestampSearchResult}.
-     *
-     * @param input The {@link ExtractorInput} from which data should be read.
-     * @param targetTimestamp The target timestamp that we are looking for.
-     * @param outputFrameHolder If {@link TimestampSearchResult#RESULT_TARGET_TIMESTAMP_FOUND} is
+     * @param input The {@link ExtractorInput} from which data should be peeked.
+     * @param targetTimestamp The target timestamp.
+     * @param outputFrameHolder If {@link TimestampSearchResult#TYPE_TARGET_TIMESTAMP_FOUND} is
      *     returned, this holder may be updated to hold the extracted frame that contains the target
      *     frame/sample associated with the target timestamp.
-     * @return A {@link TimestampSearchResult}, that includes a {@link TimestampSearchResult#result}
-     *     value, and other necessary info:
-     *     <ul>
-     *       <li>{@link TimestampSearchResult#RESULT_NO_TIMESTAMP} is returned if there is no
-     *           timestamp in the reading range.
-     *       <li>{@link TimestampSearchResult#RESULT_POSITION_UNDERESTIMATED} is returned if all
-     *           timestamps in the range are smaller than the target timestamp.
-     *       <li>{@link TimestampSearchResult#RESULT_POSITION_OVERESTIMATED} is returned if all
-     *           timestamps in the range are larger than the target timestamp.
-     *       <li>{@link TimestampSearchResult#RESULT_TARGET_TIMESTAMP_FOUND} is returned if this
-     *           seeker can find a timestamp that it deems close enough to the given target.
-     *     </ul>
-     *
+     * @return A {@link TimestampSearchResult} that describes the result of the search.
      * @throws IOException If an error occurred reading from the input.
      * @throws InterruptedException If the thread was interrupted.
      */
     TimestampSearchResult searchForTimestamp(
         ExtractorInput input, long targetTimestamp, OutputFrameHolder outputFrameHolder)
         throws IOException, InterruptedException;
+
+    /** Called when a seek operation finishes. */
+    default void onSeekFinished() {}
   }
 
   /**
@@ -231,22 +219,22 @@ public abstract class BinarySearchSeeker {
           timestampSeeker.searchForTimestamp(
               input, seekOperationParams.getTargetTimePosition(), outputFrameHolder);
 
-      switch (timestampSearchResult.result) {
-        case TimestampSearchResult.RESULT_POSITION_OVERESTIMATED:
+      switch (timestampSearchResult.type) {
+        case TimestampSearchResult.TYPE_POSITION_OVERESTIMATED:
           seekOperationParams.updateSeekCeiling(
               timestampSearchResult.timestampToUpdate, timestampSearchResult.bytePositionToUpdate);
           break;
-        case TimestampSearchResult.RESULT_POSITION_UNDERESTIMATED:
+        case TimestampSearchResult.TYPE_POSITION_UNDERESTIMATED:
           seekOperationParams.updateSeekFloor(
               timestampSearchResult.timestampToUpdate, timestampSearchResult.bytePositionToUpdate);
           break;
-        case TimestampSearchResult.RESULT_TARGET_TIMESTAMP_FOUND:
+        case TimestampSearchResult.TYPE_TARGET_TIMESTAMP_FOUND:
           markSeekOperationFinished(
               /* foundTargetFrame= */ true, timestampSearchResult.bytePositionToUpdate);
           skipInputUntilPosition(input, timestampSearchResult.bytePositionToUpdate);
           return seekToPosition(
               input, timestampSearchResult.bytePositionToUpdate, seekPositionHolder);
-        case TimestampSearchResult.RESULT_NO_TIMESTAMP:
+        case TimestampSearchResult.TYPE_NO_TIMESTAMP:
           // We can't find any timestamp in the search range from the search position.
           // Give up, and just continue reading from the last search position in this case.
           markSeekOperationFinished(/* foundTargetFrame= */ false, searchPosition);
@@ -270,6 +258,7 @@ public abstract class BinarySearchSeeker {
 
   protected final void markSeekOperationFinished(boolean foundTargetFrame, long resultPosition) {
     seekOperationParams = null;
+    timestampSeeker.onSeekFinished();
     onSeekOperationFinished(foundTargetFrame, resultPosition);
   }
 
@@ -433,45 +422,49 @@ public abstract class BinarySearchSeeker {
    */
   public static final class TimestampSearchResult {
 
-    public static final int RESULT_TARGET_TIMESTAMP_FOUND = 0;
-    public static final int RESULT_POSITION_OVERESTIMATED = -1;
-    public static final int RESULT_POSITION_UNDERESTIMATED = -2;
-    public static final int RESULT_NO_TIMESTAMP = -3;
+    /** The search found a timestamp that it deems close enough to the given target. */
+    public static final int TYPE_TARGET_TIMESTAMP_FOUND = 0;
+    /** The search found only timestamps larger than the target timestamp. */
+    public static final int TYPE_POSITION_OVERESTIMATED = -1;
+    /** The search found only timestamps smaller than the target timestamp. */
+    public static final int TYPE_POSITION_UNDERESTIMATED = -2;
+    /** The search didn't find any timestamps. */
+    public static final int TYPE_NO_TIMESTAMP = -3;
 
     @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
-      RESULT_TARGET_TIMESTAMP_FOUND,
-      RESULT_POSITION_OVERESTIMATED,
-      RESULT_POSITION_UNDERESTIMATED,
-      RESULT_NO_TIMESTAMP
+      TYPE_TARGET_TIMESTAMP_FOUND,
+      TYPE_POSITION_OVERESTIMATED,
+      TYPE_POSITION_UNDERESTIMATED,
+      TYPE_NO_TIMESTAMP
     })
-    @interface SearchResult {}
+    @interface Type {}
 
     public static final TimestampSearchResult NO_TIMESTAMP_IN_RANGE_RESULT =
-        new TimestampSearchResult(RESULT_NO_TIMESTAMP, C.TIME_UNSET, C.POSITION_UNSET);
+        new TimestampSearchResult(TYPE_NO_TIMESTAMP, C.TIME_UNSET, C.POSITION_UNSET);
 
-    /** @see TimestampSeeker */
-    private final @SearchResult int result;
+    /** The type of the result. */
+    @Type private final int type;
 
     /**
-     * When {@code result} is {@link #RESULT_POSITION_OVERESTIMATED}, the {@link
-     * SeekOperationParams#ceilingTimePosition} should be updated with this value. When {@code
-     * result} is {@link #RESULT_POSITION_UNDERESTIMATED}, the {@link
+     * When {@link #type} is {@link #TYPE_POSITION_OVERESTIMATED}, the {@link
+     * SeekOperationParams#ceilingTimePosition} should be updated with this value. When {@link
+     * #type} is {@link #TYPE_POSITION_UNDERESTIMATED}, the {@link
      * SeekOperationParams#floorTimePosition} should be updated with this value.
      */
     private final long timestampToUpdate;
     /**
-     * When {@code result} is {@link #RESULT_POSITION_OVERESTIMATED}, the {@link
-     * SeekOperationParams#ceilingBytePosition} should be updated with this value. When {@code
-     * result} is {@link #RESULT_POSITION_UNDERESTIMATED}, the {@link
+     * When {@link #type} is {@link #TYPE_POSITION_OVERESTIMATED}, the {@link
+     * SeekOperationParams#ceilingBytePosition} should be updated with this value. When {@link
+     * #type} is {@link #TYPE_POSITION_UNDERESTIMATED}, the {@link
      * SeekOperationParams#floorBytePosition} should be updated with this value.
      */
     private final long bytePositionToUpdate;
 
     private TimestampSearchResult(
-        @SearchResult int result, long timestampToUpdate, long bytePositionToUpdate) {
-      this.result = result;
+        @Type int type, long timestampToUpdate, long bytePositionToUpdate) {
+      this.type = type;
       this.timestampToUpdate = timestampToUpdate;
       this.bytePositionToUpdate = bytePositionToUpdate;
     }
@@ -484,7 +477,7 @@ public abstract class BinarySearchSeeker {
     public static TimestampSearchResult overestimatedResult(
         long newCeilingTimestamp, long newCeilingBytePosition) {
       return new TimestampSearchResult(
-          RESULT_POSITION_OVERESTIMATED, newCeilingTimestamp, newCeilingBytePosition);
+          TYPE_POSITION_OVERESTIMATED, newCeilingTimestamp, newCeilingBytePosition);
     }
 
     /**
@@ -495,11 +488,11 @@ public abstract class BinarySearchSeeker {
     public static TimestampSearchResult underestimatedResult(
         long newFloorTimestamp, long newCeilingBytePosition) {
       return new TimestampSearchResult(
-          RESULT_POSITION_UNDERESTIMATED, newFloorTimestamp, newCeilingBytePosition);
+          TYPE_POSITION_UNDERESTIMATED, newFloorTimestamp, newCeilingBytePosition);
     }
 
     /**
-     * Returns a result to signal that the target timestamp has been found at the {@code
+     * Returns a result to signal that the target timestamp has been found at {@code
      * resultBytePosition}, and the seek operation can stop.
      *
      * <p>Note that when this value is returned from {@link
@@ -508,7 +501,7 @@ public abstract class BinarySearchSeeker {
      */
     public static TimestampSearchResult targetFoundResult(long resultBytePosition) {
       return new TimestampSearchResult(
-          RESULT_TARGET_TIMESTAMP_FOUND, C.TIME_UNSET, resultBytePosition);
+          TYPE_TARGET_TIMESTAMP_FOUND, C.TIME_UNSET, resultBytePosition);
     }
   }
 

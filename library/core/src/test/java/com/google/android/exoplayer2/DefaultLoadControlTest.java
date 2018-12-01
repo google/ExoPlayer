@@ -48,15 +48,15 @@ public class DefaultLoadControlTest {
     createDefaultLoadControl();
     assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isTrue();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isTrue();
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isTrue();
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US + 1, SPEED)).isFalse();
+    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US - 1, SPEED)).isTrue();
+    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
   }
 
   @Test
   public void testShouldNotContinueLoadingOnceBufferingStopped_untilBelowMinBuffer() {
     createDefaultLoadControl();
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US + 1, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
+    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US - 1, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US - 1, SPEED)).isTrue();
   }
@@ -69,7 +69,7 @@ public class DefaultLoadControlTest {
     assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isTrue();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US - 1, SPEED)).isTrue();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US + 1, SPEED)).isFalse();
+    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
   }
 
   @Test
@@ -82,7 +82,7 @@ public class DefaultLoadControlTest {
 
     assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US + 1, SPEED)).isFalse();
+    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
   }
 
   @Test
@@ -100,7 +100,7 @@ public class DefaultLoadControlTest {
   public void testShouldNotContinueLoadingWithMaxBufferReached_inFastPlayback() {
     createDefaultLoadControl();
 
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US + 1, /* playbackSpeed= */ 100f))
+    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, /* playbackSpeed= */ 100f))
         .isFalse();
   }
 
