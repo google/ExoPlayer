@@ -276,6 +276,11 @@ public interface MediaSource {
   void releasePeriod(MediaPeriod mediaPeriod);
 
   /**
+   * Returns the tag set on media source, or null when none was set.
+   */
+  Object getTag();
+
+  /**
    * Removes a listener for timeline and/or manifest updates and releases the source if no longer
    * required.
    *

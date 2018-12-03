@@ -659,6 +659,12 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return tag;
+  }
+
+  @Override
   public void releaseSourceInternal() {
     manifestLoadPending = false;
     dataSource = null;

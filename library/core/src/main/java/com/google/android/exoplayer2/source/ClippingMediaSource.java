@@ -225,6 +225,12 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return mediaSource.getTag();
+  }
+
+  @Override
   public void releaseSourceInternal() {
     super.releaseSourceInternal();
     clippingError = null;
