@@ -99,6 +99,12 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return mediaSources.length > 0 ? mediaSources[0].getTag() : null;
+  }
+
+  @Override
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
@@ -135,12 +141,6 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     for (int i = 0; i < mediaSources.length; i++) {
       mediaSources[i].releasePeriod(mergingPeriod.periods[i]);
     }
-  }
-
-  @Override
-  @Nullable
-  public Object getTag() {
-    return mediaSources.length > 0 ? mediaSources[0].getTag() : null;
   }
 
   @Override

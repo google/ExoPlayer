@@ -504,6 +504,12 @@ public final class SsMediaSource extends BaseMediaSource
   // MediaSource implementation.
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return tag;
+  }
+
+  @Override
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
@@ -547,12 +553,6 @@ public final class SsMediaSource extends BaseMediaSource
   public void releasePeriod(MediaPeriod period) {
     ((SsMediaPeriod) period).release();
     mediaPeriods.remove(period);
-  }
-
-  @Override
-  @Nullable
-  public Object getTag() {
-    return tag;
   }
 
   @Override

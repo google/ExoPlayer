@@ -77,6 +77,12 @@ public final class ImaAdsMediaSource extends BaseMediaSource implements SourceIn
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return adsMediaSource.getTag();
+  }
+
+  @Override
   public void prepareSourceInternal(
       final ExoPlayer player,
       boolean isTopLevelSource,
@@ -98,12 +104,6 @@ public final class ImaAdsMediaSource extends BaseMediaSource implements SourceIn
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
     adsMediaSource.releasePeriod(mediaPeriod);
-  }
-
-  @Override
-  @Nullable
-  public Object getTag() {
-    return adsMediaSource.getTag();
   }
 
   @Override

@@ -391,6 +391,12 @@ public final class HlsMediaSource extends BaseMediaSource
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return tag;
+  }
+
+  @Override
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
@@ -423,12 +429,6 @@ public final class HlsMediaSource extends BaseMediaSource
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
     ((HlsMediaPeriod) mediaPeriod).release();
-  }
-
-  @Override
-  @Nullable
-  public Object getTag() {
-    return tag;
   }
 
   @Override

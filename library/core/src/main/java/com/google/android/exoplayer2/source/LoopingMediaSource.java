@@ -65,6 +65,12 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return childSource.getTag();
+  }
+
+  @Override
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
@@ -93,12 +99,6 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
     if (childMediaPeriodId != null) {
       childMediaPeriodIdToMediaPeriodId.remove(childMediaPeriodId);
     }
-  }
-
-  @Override
-  @Nullable
-  public Object getTag() {
-    return childSource.getTag();
   }
 
   @Override

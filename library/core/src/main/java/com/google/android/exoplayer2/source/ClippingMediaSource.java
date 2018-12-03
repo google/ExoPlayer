@@ -187,6 +187,12 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return mediaSource.getTag();
+  }
+
+  @Override
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
@@ -222,12 +228,6 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     if (mediaPeriods.isEmpty() && !allowDynamicClippingUpdates) {
       refreshClippedTimeline(clippingTimeline.timeline);
     }
-  }
-
-  @Override
-  @Nullable
-  public Object getTag() {
-    return mediaSource.getTag();
   }
 
   @Override
