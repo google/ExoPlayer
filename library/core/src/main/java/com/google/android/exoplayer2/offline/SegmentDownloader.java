@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
+import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
@@ -62,10 +63,11 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private static final int BUFFER_SIZE_BYTES = 128 * 1024;
 
   private final Uri manifestUri;
-  private final PriorityTaskManager priorityTaskManager;
   private final Cache cache;
   private final CacheDataSource dataSource;
   private final CacheDataSource offlineDataSource;
+  private final CacheKeyFactory cacheKeyFactory;
+  private final PriorityTaskManager priorityTaskManager;
   private final ArrayList<StreamKey> streamKeys;
   private final AtomicBoolean isCanceled;
 
@@ -87,6 +89,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     this.cache = constructorHelper.getCache();
     this.dataSource = constructorHelper.createCacheDataSource();
     this.offlineDataSource = constructorHelper.createOfflineCacheDataSource();
+    this.cacheKeyFactory = constructorHelper.getCacheKeyFactory();
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
     totalSegments = C.LENGTH_UNSET;
     totalBytes = C.LENGTH_UNSET;
@@ -117,6 +120,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
           CacheUtil.cache(
               segments.get(i).dataSpec,
               cache,
+              cacheKeyFactory,
               dataSource,
               buffer,
               priorityTaskManager,
@@ -170,13 +174,13 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       M manifest = getManifest(offlineDataSource, manifestUri);
       List<Segment> segments = getSegments(offlineDataSource, manifest, true);
       for (int i = 0; i < segments.size(); i++) {
-        removeUri(segments.get(i).dataSpec.uri);
+        removeDataSpec(segments.get(i).dataSpec);
       }
     } catch (IOException e) {
       // Ignore exceptions when removing.
     } finally {
       // Always attempt to remove the manifest.
-      removeUri(manifestUri);
+      removeDataSpec(new DataSpec(manifestUri));
     }
   }
 
@@ -225,7 +229,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     long totalBytes = 0;
     for (int i = segments.size() - 1; i >= 0; i--) {
       Segment segment = segments.get(i);
-      CacheUtil.getCached(segment.dataSpec, cache, cachingCounters);
+      CacheUtil.getCached(segment.dataSpec, cache, cacheKeyFactory, cachingCounters);
       downloadedBytes += cachingCounters.alreadyCachedBytes;
       if (cachingCounters.contentLength != C.LENGTH_UNSET) {
         if (cachingCounters.alreadyCachedBytes == cachingCounters.contentLength) {
@@ -244,8 +248,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     return segments;
   }
 
-  private void removeUri(Uri uri) {
-    CacheUtil.remove(cache, CacheUtil.generateKey(uri));
+  private void removeDataSpec(DataSpec dataSpec) {
+    CacheUtil.remove(dataSpec, cache, cacheKeyFactory);
   }
 
 }

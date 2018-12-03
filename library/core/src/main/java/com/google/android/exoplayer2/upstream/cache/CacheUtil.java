@@ -54,8 +54,9 @@ public final class CacheUtil {
   /** Default buffer size to be used while caching. */
   public static final int DEFAULT_BUFFER_SIZE_BYTES = 128 * 1024;
 
-  /** Default {@link CacheKeyFactory} that calls through to {@link #getKey}. */
-  public static final CacheKeyFactory DEFAULT_CACHE_KEY_FACTORY = CacheUtil::getKey;
+  /** Default {@link CacheKeyFactory}. */
+  public static final CacheKeyFactory DEFAULT_CACHE_KEY_FACTORY =
+      (dataSpec) -> dataSpec.key != null ? dataSpec.key : generateKey(dataSpec.uri);
 
   /**
    * Generates a cache key out of the given {@link Uri}.
@@ -67,26 +68,21 @@ public final class CacheUtil {
   }
 
   /**
-   * Returns the {@code dataSpec.key} if not null, otherwise generates a cache key out of {@code
-   * dataSpec.uri}
-   *
-   * @param dataSpec Defines a content which the requested key is for.
-   */
-  public static String getKey(DataSpec dataSpec) {
-    return dataSpec.key != null ? dataSpec.key : generateKey(dataSpec.uri);
-  }
-
-  /**
-   * Sets a {@link CachingCounters} to contain the number of bytes already downloaded and the
-   * length for the content defined by a {@code dataSpec}. {@link CachingCounters#newlyCachedBytes}
-   * is reset to 0.
+   * Sets a {@link CachingCounters} to contain the number of bytes already downloaded and the length
+   * for the content defined by a {@code dataSpec}. {@link CachingCounters#newlyCachedBytes} is
+   * reset to 0.
    *
    * @param dataSpec Defines the data to be checked.
    * @param cache A {@link Cache} which has the data.
+   * @param cacheKeyFactory An optional factory for cache keys.
    * @param counters The {@link CachingCounters} to update.
    */
-  public static void getCached(DataSpec dataSpec, Cache cache, CachingCounters counters) {
-    String key = getKey(dataSpec);
+  public static void getCached(
+      DataSpec dataSpec,
+      Cache cache,
+      @Nullable CacheKeyFactory cacheKeyFactory,
+      CachingCounters counters) {
+    String key = buildCacheKey(dataSpec, cacheKeyFactory);
     long start = dataSpec.absoluteStreamPosition;
     long left = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : cache.getContentLength(key);
     counters.contentLength = left;
@@ -114,6 +110,7 @@ public final class CacheUtil {
    *
    * @param dataSpec Defines the data to be cached.
    * @param cache A {@link Cache} to store the data.
+   * @param cacheKeyFactory An optional factory for cache keys.
    * @param upstream A {@link DataSource} for reading data not in the cache.
    * @param counters If not null, updated during caching.
    * @param isCanceled An optional flag that will interrupt caching if set to true.
@@ -123,6 +120,7 @@ public final class CacheUtil {
   public static void cache(
       DataSpec dataSpec,
       Cache cache,
+      @Nullable CacheKeyFactory cacheKeyFactory,
       DataSource upstream,
       @Nullable CachingCounters counters,
       @Nullable AtomicBoolean isCanceled)
@@ -130,6 +128,7 @@ public final class CacheUtil {
     cache(
         dataSpec,
         cache,
+        cacheKeyFactory,
         new CacheDataSource(cache, upstream),
         new byte[DEFAULT_BUFFER_SIZE_BYTES],
         /* priorityTaskManager= */ null,
@@ -151,6 +150,7 @@ public final class CacheUtil {
    *
    * @param dataSpec Defines the data to be cached.
    * @param cache A {@link Cache} to store the data.
+   * @param cacheKeyFactory An optional factory for cache keys.
    * @param dataSource A {@link CacheDataSource} that works on the {@code cache}.
    * @param buffer The buffer to be used while caching.
    * @param priorityTaskManager If not null it's used to check whether it is allowed to proceed with
@@ -166,6 +166,7 @@ public final class CacheUtil {
   public static void cache(
       DataSpec dataSpec,
       Cache cache,
+      @Nullable CacheKeyFactory cacheKeyFactory,
       CacheDataSource dataSource,
       byte[] buffer,
       PriorityTaskManager priorityTaskManager,
@@ -179,13 +180,13 @@ public final class CacheUtil {
 
     if (counters != null) {
       // Initialize the CachingCounter values.
-      getCached(dataSpec, cache, counters);
+      getCached(dataSpec, cache, cacheKeyFactory, counters);
     } else {
       // Dummy CachingCounters. No need to initialize as they will not be visible to the caller.
       counters = new CachingCounters();
     }
 
-    String key = getKey(dataSpec);
+    String key = buildCacheKey(dataSpec, cacheKeyFactory);
     long start = dataSpec.absoluteStreamPosition;
     long left = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : cache.getContentLength(key);
     while (left != 0) {
@@ -296,16 +297,39 @@ public final class CacheUtil {
     }
   }
 
-  /** Removes all of the data in the {@code cache} pointed by the {@code key}. */
+  /**
+   * Removes all of the data specified by the {@code dataSpec}.
+   *
+   * @param dataSpec Defines the data to be removed.
+   * @param cache A {@link Cache} to store the data.
+   * @param cacheKeyFactory An optional factory for cache keys.
+   */
+  public static void remove(
+      DataSpec dataSpec, Cache cache, @Nullable CacheKeyFactory cacheKeyFactory) {
+    remove(cache, buildCacheKey(dataSpec, cacheKeyFactory));
+  }
+
+  /**
+   * Removes all of the data specified by the {@code key}.
+   *
+   * @param cache A {@link Cache} to store the data.
+   * @param key The key whose data should be removed.
+   */
   public static void remove(Cache cache, String key) {
     NavigableSet<CacheSpan> cachedSpans = cache.getCachedSpans(key);
     for (CacheSpan cachedSpan : cachedSpans) {
       try {
         cache.removeSpan(cachedSpan);
       } catch (Cache.CacheException e) {
-        // do nothing
+        // Do nothing.
       }
     }
+  }
+
+  private static String buildCacheKey(
+      DataSpec dataSpec, @Nullable CacheKeyFactory cacheKeyFactory) {
+    return (cacheKeyFactory != null ? cacheKeyFactory : DEFAULT_CACHE_KEY_FACTORY)
+        .buildCacheKey(dataSpec);
   }
 
   private static void throwExceptionIfInterruptedOrCancelled(AtomicBoolean isCanceled)

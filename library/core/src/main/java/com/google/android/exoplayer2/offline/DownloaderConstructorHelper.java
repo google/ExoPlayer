@@ -27,12 +27,14 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSinkFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
+import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 
 /** A helper class that holds necessary parameters for {@link Downloader} construction. */
 public final class DownloaderConstructorHelper {
 
   private final Cache cache;
+  @Nullable private final CacheKeyFactory cacheKeyFactory;
   @Nullable private final PriorityTaskManager priorityTaskManager;
   private final CacheDataSourceFactory onlineCacheDataSourceFactory;
   private final CacheDataSourceFactory offlineCacheDataSourceFactory;
@@ -130,11 +132,17 @@ public final class DownloaderConstructorHelper {
             cacheKeyFactory);
     this.cache = cache;
     this.priorityTaskManager = priorityTaskManager;
+    this.cacheKeyFactory = cacheKeyFactory;
   }
 
   /** Returns the {@link Cache} instance. */
   public Cache getCache() {
     return cache;
+  }
+
+  /** Returns the {@link CacheKeyFactory}. */
+  public CacheKeyFactory getCacheKeyFactory() {
+    return cacheKeyFactory != null ? cacheKeyFactory : CacheUtil.DEFAULT_CACHE_KEY_FACTORY;
   }
 
   /** Returns a {@link PriorityTaskManager} instance. */
