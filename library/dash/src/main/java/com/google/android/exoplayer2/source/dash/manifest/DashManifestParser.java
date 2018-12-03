@@ -671,7 +671,6 @@ public class DashManifestParser extends DefaultHandler
     ArrayList<Descriptor> inbandEventStreams = representationInfo.inbandEventStreams;
     inbandEventStreams.addAll(extraInbandEventStreams);
     return Representation.newInstance(
-        /* contentId= */ null,
         representationInfo.revisionId,
         format,
         representationInfo.baseUrl,
