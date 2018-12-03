@@ -624,8 +624,13 @@ public class DownloadManagerTest {
     }
 
     @Override
+    public long getTotalBytes() {
+      return C.LENGTH_UNSET;
+    }
+
+    @Override
     public float getDownloadPercentage() {
-      return Float.NaN;
+      return C.PERCENTAGE_UNSET;
     }
   }
 }

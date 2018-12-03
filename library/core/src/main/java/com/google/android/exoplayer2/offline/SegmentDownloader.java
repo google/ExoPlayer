@@ -72,6 +72,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private volatile int totalSegments;
   private volatile int downloadedSegments;
   private volatile long downloadedBytes;
+  private volatile long totalBytes;
 
   /**
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
@@ -88,6 +89,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     this.offlineDataSource = constructorHelper.createOfflineCacheDataSource();
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
     totalSegments = C.LENGTH_UNSET;
+    totalBytes = C.LENGTH_UNSET;
     isCanceled = new AtomicBoolean();
   }
 
@@ -143,8 +145,17 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   }
 
   @Override
+  public long getTotalBytes() {
+    return totalBytes;
+  }
+
+  @Override
   public final float getDownloadPercentage() {
     // Take local snapshot of the volatile fields
+    long totalBytes = this.totalBytes;
+    if (totalBytes != C.LENGTH_UNSET) {
+      return totalBytes == 0 ? 100f : (downloadedBytes * 100f) / totalBytes;
+    }
     int totalSegments = this.totalSegments;
     int downloadedSegments = this.downloadedSegments;
     if (totalSegments == C.LENGTH_UNSET || downloadedSegments == C.LENGTH_UNSET) {
@@ -211,16 +222,25 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     totalSegments = segments.size();
     downloadedSegments = 0;
     downloadedBytes = 0;
+    long totalBytes = 0;
     for (int i = segments.size() - 1; i >= 0; i--) {
       Segment segment = segments.get(i);
       CacheUtil.getCached(segment.dataSpec, cache, cachingCounters);
       downloadedBytes += cachingCounters.alreadyCachedBytes;
-      if (cachingCounters.alreadyCachedBytes == cachingCounters.contentLength) {
-        // The segment is fully downloaded.
-        downloadedSegments++;
-        segments.remove(i);
+      if (cachingCounters.contentLength != C.LENGTH_UNSET) {
+        if (cachingCounters.alreadyCachedBytes == cachingCounters.contentLength) {
+          // The segment is fully downloaded.
+          downloadedSegments++;
+          segments.remove(i);
+        }
+        if (totalBytes != C.LENGTH_UNSET) {
+          totalBytes += cachingCounters.contentLength;
+        }
+      } else {
+        totalBytes = C.LENGTH_UNSET;
       }
     }
+    this.totalBytes = totalBytes;
     return segments;
   }
 

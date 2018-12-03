@@ -87,6 +87,11 @@ public final class ProgressiveDownloader implements Downloader {
   }
 
   @Override
+  public long getTotalBytes() {
+    return cachingCounters.contentLength;
+  }
+
+  @Override
   public float getDownloadPercentage() {
     long contentLength = cachingCounters.contentLength;
     return contentLength == C.LENGTH_UNSET
