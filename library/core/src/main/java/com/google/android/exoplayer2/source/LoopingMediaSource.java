@@ -96,6 +96,12 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return childSource.getTag();
+  }
+
+  @Override
   protected void onChildSourceInfoRefreshed(
       Void id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest) {
     Timeline loopingTimeline =

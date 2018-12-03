@@ -134,6 +134,14 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    boolean hasTimeline = timeline != null && !timeline.isEmpty();
+
+    return hasTimeline ? timeline.getWindow(0, new Timeline.Window()).tag : null;
+  }
+
+  @Override
   public void releaseSourceInternal() {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();

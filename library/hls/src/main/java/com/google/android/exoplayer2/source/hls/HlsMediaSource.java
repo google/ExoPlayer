@@ -426,6 +426,12 @@ public final class HlsMediaSource extends BaseMediaSource
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return tag;
+  }
+
+  @Override
   public void releaseSourceInternal() {
     playlistTracker.stop();
   }

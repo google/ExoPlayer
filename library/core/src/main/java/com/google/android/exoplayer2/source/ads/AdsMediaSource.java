@@ -388,6 +388,12 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return contentMediaSource.getTag();
+  }
+
+  @Override
   public void releaseSourceInternal() {
     super.releaseSourceInternal();
     componentListener.release();
