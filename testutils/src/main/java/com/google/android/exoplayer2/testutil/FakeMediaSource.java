@@ -89,6 +89,14 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    boolean hasTimeline = timeline != null && !timeline.isEmpty();
+
+    return hasTimeline ? timeline.getWindow(0, new Timeline.Window()).tag : null;
+  }
+
+  @Override
   public synchronized void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
@@ -131,14 +139,6 @@ public class FakeMediaSource extends BaseMediaSource {
     FakeMediaPeriod fakeMediaPeriod = (FakeMediaPeriod) mediaPeriod;
     assertThat(activeMediaPeriods.remove(fakeMediaPeriod)).isTrue();
     fakeMediaPeriod.release();
-  }
-
-  @Override
-  @Nullable
-  public Object getTag() {
-    boolean hasTimeline = timeline != null && !timeline.isEmpty();
-
-    return hasTimeline ? timeline.getWindow(0, new Timeline.Window()).tag : null;
   }
 
   @Override

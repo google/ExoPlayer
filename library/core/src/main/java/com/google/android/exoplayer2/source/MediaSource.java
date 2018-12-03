@@ -220,6 +220,11 @@ public interface MediaSource {
   void removeEventListener(MediaSourceEventListener eventListener);
 
   /**
+   * Returns the tag set on the media source, or null when none was set.
+   */
+  @Nullable Object getTag();
+
+  /**
    * Starts source preparation if not yet started, and adds a listener for timeline and/or manifest
    * updates.
    *
@@ -274,11 +279,6 @@ public interface MediaSource {
    * @param mediaPeriod The period to release.
    */
   void releasePeriod(MediaPeriod mediaPeriod);
-
-  /**
-   * Returns the tag set on media source, or null when none was set.
-   */
-  Object getTag();
 
   /**
    * Removes a listener for timeline and/or manifest updates and releases the source if no longer
