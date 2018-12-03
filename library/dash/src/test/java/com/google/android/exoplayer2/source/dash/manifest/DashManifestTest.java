@@ -214,7 +214,8 @@ public class DashManifestTest {
   }
 
   private static Representation newRepresentation() {
-    return Representation.newInstance("", 0, DUMMY_FORMAT, "", DUMMY_SEGMENT_BASE);
+    return Representation.newInstance(
+        /* revisionId= */ 0, DUMMY_FORMAT, /* baseUrl= */ "", DUMMY_SEGMENT_BASE);
   }
 
   private static DashManifest newDashManifest(int duration, Period... periods) {
