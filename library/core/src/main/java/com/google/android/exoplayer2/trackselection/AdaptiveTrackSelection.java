@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * A bandwidth based adaptive {@link TrackSelection}, whose selected track is updated to be the one
@@ -48,6 +49,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     private final Clock clock;
 
     private TrackBitrateEstimator trackBitrateEstimator;
+    private boolean blockFixedTrackSelectionBandwidth;
 
     /** Creates an adaptive track selection factory with default parameters. */
     public Factory() {
@@ -215,6 +217,15 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       this.trackBitrateEstimator = trackBitrateEstimator;
     }
 
+    /**
+     * Enables blocking of the total fixed track selection bandwidth.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     */
+    public void experimental_enableBlockFixedTrackSelectionBandwidth() {
+      this.blockFixedTrackSelectionBandwidth = true;
+    }
+
     @Override
     public AdaptiveTrackSelection createTrackSelection(
         TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks) {
@@ -234,6 +245,34 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
               clock);
       adaptiveTrackSelection.experimental_setTrackBitrateEstimator(trackBitrateEstimator);
       return adaptiveTrackSelection;
+    }
+
+    @Override
+    public @NullableType TrackSelection[] createTrackSelections(
+        @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+      TrackSelection[] selections = new TrackSelection[definitions.length];
+      AdaptiveTrackSelection adaptiveSelection = null;
+      int totalFixedBandwidth = 0;
+      for (int i = 0; i < definitions.length; i++) {
+        Definition definition = definitions[i];
+        if (definition == null) {
+          continue;
+        }
+        if (definition.tracks.length > 1) {
+          selections[i] = createTrackSelection(definition.group, bandwidthMeter, definition.tracks);
+          adaptiveSelection = (AdaptiveTrackSelection) selections[i];
+        } else {
+          selections[i] = new FixedTrackSelection(definition.group, definition.tracks[0]);
+          int trackBitrate = definition.group.getFormat(definition.tracks[0]).bitrate;
+          if (trackBitrate != Format.NO_VALUE) {
+            totalFixedBandwidth += trackBitrate;
+          }
+        }
+      }
+      if (blockFixedTrackSelectionBandwidth && adaptiveSelection != null) {
+        adaptiveSelection.experimental_setNonAllocatableBandwidth(totalFixedBandwidth);
+      }
+      return selections;
     }
   }
 
