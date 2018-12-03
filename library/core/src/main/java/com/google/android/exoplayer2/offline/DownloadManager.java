@@ -631,19 +631,20 @@ public final class DownloadManager {
     /**
      * Task states. One of {@link TaskState#STATE_QUEUED}, {@link TaskState#STATE_STARTED}, {@link
      * TaskState#STATE_COMPLETED}, {@link TaskState#STATE_CANCELED}, {@link TaskState#STATE_FAILED},
-     * {@link #STATE_QUEUED_CANCELING}, {@link #STATE_STARTED_PAUSING}, {@link #STATE_STARTED_CANCELING} or {@link
-     * #STATE_STARTED_STOPPING}.
+     * {@link #STATE_QUEUED_CANCELING}, {@link #STATE_STARTED_PAUSING}, {@link #STATE_STARTED_CANCELING},
+     * {@link #STATE_STARTED_STOPPING} or {@link #STATE_PAUSED_CANCELING}.
      *
      * <p>Transition diagram:
      *
      * <pre>
-     *    ┌───→ q_canceling ┬→ canceled
-     *    │     s_canceling ┘
-     *    │         ↑
-     * queued → started ────┬→ completed
-     *    ↑         ↓       ├→ failed
-     *    ├──── s_stopping  └→ s_pausing
-     *    └──── paused ←───────────┘
+     * ┌────────→ p_canceling ┐
+     * │    ┌───→ q_canceling ┼→ canceled
+     * │    │     s_canceling ┘
+     * │    │         ↑
+     * │ queued → started ────┬→ completed
+     * │    ↑         ↓       ├→ failed
+     * │    ├──── s_stopping  └→ s_pausing
+     * └────┴──── paused ←───────────┘
      * </pre>
      */
     @Documented
@@ -658,7 +659,8 @@ public final class DownloadManager {
       STATE_QUEUED_CANCELING,
       STATE_STARTED_PAUSING,
       STATE_STARTED_CANCELING,
-      STATE_STARTED_STOPPING
+      STATE_STARTED_STOPPING,
+      STATE_PAUSED_CANCELING
     })
     public @interface InternalState {}
     /** The task is about to be canceled. */
@@ -669,6 +671,8 @@ public final class DownloadManager {
     public static final int STATE_STARTED_CANCELING = 8;
     /** The task is about to be stopped. */
     public static final int STATE_STARTED_STOPPING = 9;
+    /** The task is about to be canceled. */
+    public static final int STATE_PAUSED_CANCELING = 10;
 
     private final int id;
     private final DownloadManager downloadManager;
@@ -716,7 +720,8 @@ public final class DownloadManager {
       return currentState == STATE_QUEUED_CANCELING
           || currentState == STATE_STARTED
           || currentState == STATE_STARTED_STOPPING
-          || currentState == STATE_STARTED_CANCELING;
+          || currentState == STATE_STARTED_CANCELING
+          || currentState == STATE_PAUSED_CANCELING;
     }
 
     /** Returns whether the task is paused. */
@@ -774,6 +779,7 @@ public final class DownloadManager {
     private String getStateString() {
       switch (currentState) {
         case STATE_QUEUED_CANCELING:
+        case STATE_PAUSED_CANCELING:
         case STATE_STARTED_CANCELING:
           return "CANCELING";
         case STATE_STARTED_STOPPING:
@@ -799,6 +805,8 @@ public final class DownloadManager {
         case STATE_STARTED_PAUSING:
         case STATE_STARTED_STOPPING:
           return STATE_STARTED;
+        case STATE_PAUSED_CANCELING:
+          return STATE_PAUSED;
         case STATE_QUEUED:
         case STATE_STARTED:
         case STATE_COMPLETED:
@@ -827,6 +835,9 @@ public final class DownloadManager {
             () -> changeStateAndNotify(STATE_QUEUED_CANCELING, STATE_CANCELED));
       } else if (changeStateAndNotify(STATE_STARTED, STATE_STARTED_CANCELING)) {
         cancelDownload();
+      } else if (changeStateAndNotify(STATE_PAUSED, STATE_PAUSED_CANCELING)) {
+        downloadManager.handler.post(
+                () -> changeStateAndNotify(STATE_PAUSED_CANCELING, STATE_CANCELED));
       }
     }
 
