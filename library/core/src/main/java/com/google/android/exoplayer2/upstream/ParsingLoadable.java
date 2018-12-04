@@ -70,6 +70,24 @@ public final class ParsingLoadable<T> implements Loadable {
   }
 
   /**
+   * Loads a single parsable object.
+   *
+   * @param dataSource The {@link DataSource} through which the object should be read.
+   * @param parser The {@link Parser} to parse the object from the response.
+   * @param dataSpec The {@link DataSpec} of the object to read.
+   * @param type The type of the data. One of the {@link C}{@code DATA_TYPE_*} constants.
+   * @return The parsed object
+   * @throws IOException Thrown if there is an error while loading or parsing.
+   */
+  public static <T> T load(
+      DataSource dataSource, Parser<? extends T> parser, DataSpec dataSpec, int type)
+      throws IOException {
+    ParsingLoadable<T> loadable = new ParsingLoadable<>(dataSource, dataSpec, type, parser);
+    loadable.load();
+    return Assertions.checkNotNull(loadable.getResult());
+  }
+
+  /**
    * The {@link DataSpec} that defines the data to be loaded.
    */
   public final DataSpec dataSpec;
