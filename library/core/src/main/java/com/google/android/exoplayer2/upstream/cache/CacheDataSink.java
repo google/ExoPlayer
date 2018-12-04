@@ -121,7 +121,7 @@ public final class CacheDataSink implements DataSink {
   @Override
   public void open(DataSpec dataSpec) throws CacheDataSinkException {
     if (dataSpec.length == C.LENGTH_UNSET
-        && !dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH)) {
+        && dataSpec.isFlagSet(DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN)) {
       this.dataSpec = null;
       return;
     }
