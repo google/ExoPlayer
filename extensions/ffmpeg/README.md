@@ -46,7 +46,7 @@ HOST_PLATFORM="linux-x86_64"
   be supported. See the [Supported formats][] page for more details of the
   available flags.
 
-For example, to fetch and build for armeabi-v7a,
+For example, to fetch and build FFmpeg release 4.0 for armeabi-v7a,
   arm64-v8a and x86 on Linux x86_64:
 
 ```
@@ -71,7 +71,7 @@ COMMON_OPTIONS="\
     " && \
 cd "${FFMPEG_EXT_PATH}/jni" && \
 (git -C ffmpeg pull || git clone git://source.ffmpeg.org/ffmpeg ffmpeg) && \
-cd ffmpeg && \
+cd ffmpeg && git checkout release/4.0 && \
 ./configure \
     --libdir=android-libs/armeabi-v7a \
     --arch=arm \

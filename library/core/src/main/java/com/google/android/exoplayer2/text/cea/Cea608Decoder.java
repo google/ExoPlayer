@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -509,7 +510,7 @@ public final class Cea608Decoder extends CeaDecoder {
 
     switch (cc2) {
       case CTRL_ERASE_DISPLAYED_MEMORY:
-        cues = null;
+        cues = Collections.emptyList();
         if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
           resetCueBuilders();
         }
@@ -559,12 +560,20 @@ public final class Cea608Decoder extends CeaDecoder {
     int oldCaptionMode = this.captionMode;
     this.captionMode = captionMode;
 
+    if (captionMode == CC_MODE_PAINT_ON) {
+      // Switching to paint-on mode should have no effect except to select the mode.
+      for (int i = 0; i < cueBuilders.size(); i++) {
+        cueBuilders.get(i).setCaptionMode(captionMode);
+      }
+      return;
+    }
+
     // Clear the working memory.
     resetCueBuilders();
     if (oldCaptionMode == CC_MODE_PAINT_ON || captionMode == CC_MODE_ROLL_UP
         || captionMode == CC_MODE_UNKNOWN) {
       // When switching from paint-on or to roll-up or unknown, we also need to clear the caption.
-      cues = null;
+      cues = Collections.emptyList();
     }
   }
 
@@ -661,6 +670,10 @@ public final class Cea608Decoder extends CeaDecoder {
       row = BASE_ROW;
       indent = 0;
       tabOffset = 0;
+    }
+
+    public void setCaptionMode(int captionMode) {
+      this.captionMode = captionMode;
     }
 
     public void setCaptionRowCount(int captionRowCount) {

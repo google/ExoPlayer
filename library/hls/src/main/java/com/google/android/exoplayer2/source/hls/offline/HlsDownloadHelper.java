@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.offline.DownloadAction;
@@ -36,46 +35,31 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link DownloadHelper} for HLS streams. */
-public final class HlsDownloadHelper extends DownloadHelper {
+public final class HlsDownloadHelper extends DownloadHelper<HlsPlaylist> {
 
-  private final Uri uri;
   private final DataSource.Factory manifestDataSourceFactory;
 
-  private @MonotonicNonNull HlsPlaylist playlist;
   private int[] renditionGroups;
 
   public HlsDownloadHelper(Uri uri, DataSource.Factory manifestDataSourceFactory) {
-    this.uri = uri;
+    super(DownloadAction.TYPE_HLS, uri, /* cacheKey= */ null);
     this.manifestDataSourceFactory = manifestDataSourceFactory;
   }
 
   @Override
-  protected void prepareInternal() throws IOException {
+  protected HlsPlaylist loadManifest(Uri uri) throws IOException {
     DataSource dataSource = manifestDataSourceFactory.createDataSource();
-    playlist = ParsingLoadable.load(dataSource, new HlsPlaylistParser(), uri, C.DATA_TYPE_MANIFEST);
-  }
-
-  /** Returns the HLS playlist. Must not be called until after preparation completes. */
-  public HlsPlaylist getPlaylist() {
-    Assertions.checkNotNull(playlist);
-    return playlist;
+    return ParsingLoadable.load(dataSource, new HlsPlaylistParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
   @Override
-  public int getPeriodCount() {
-    Assertions.checkNotNull(playlist);
-    return 1;
-  }
-
-  @Override
-  public TrackGroupArray getTrackGroups(int periodIndex) {
+  protected TrackGroupArray[] getTrackGroupArrays(HlsPlaylist playlist) {
     Assertions.checkNotNull(playlist);
     if (playlist instanceof HlsMediaPlaylist) {
       renditionGroups = new int[0];
-      return TrackGroupArray.EMPTY;
+      return new TrackGroupArray[] {TrackGroupArray.EMPTY};
     }
     // TODO: Generate track groups as in playback. Reverse the mapping in getDownloadAction.
     HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
@@ -94,24 +78,18 @@ public final class HlsDownloadHelper extends DownloadHelper {
       renditionGroups[trackGroupIndex] = HlsMasterPlaylist.GROUP_INDEX_SUBTITLE;
       trackGroups[trackGroupIndex++] = new TrackGroup(toFormats(masterPlaylist.subtitles));
     }
-    return new TrackGroupArray(Arrays.copyOf(trackGroups, trackGroupIndex));
+    return new TrackGroupArray[] {new TrackGroupArray(Arrays.copyOf(trackGroups, trackGroupIndex))};
   }
 
   @Override
-  public DownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
-    Assertions.checkNotNull(renditionGroups);
-    return DownloadAction.createDownloadAction(
-        DownloadAction.TYPE_HLS,
-        uri,
-        toStreamKeys(trackKeys, renditionGroups),
-        /* customCacheKey= */ null,
-        data);
-  }
-
-  @Override
-  public DownloadAction getRemoveAction() {
-    return DownloadAction.createRemoveAction(
-        DownloadAction.TYPE_HLS, uri, /* customCacheKey= */ null);
+  protected List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
+    List<StreamKey> representationKeys = new ArrayList<>(trackKeys.size());
+    for (int i = 0; i < trackKeys.size(); i++) {
+      TrackKey trackKey = trackKeys.get(i);
+      representationKeys.add(
+          new StreamKey(renditionGroups[trackKey.groupIndex], trackKey.trackIndex));
+    }
+    return representationKeys;
   }
 
   private static Format[] toFormats(List<HlsMasterPlaylist.HlsUrl> hlsUrls) {
@@ -120,14 +98,5 @@ public final class HlsDownloadHelper extends DownloadHelper {
       formats[i] = hlsUrls.get(i).format;
     }
     return formats;
-  }
-
-  private static List<StreamKey> toStreamKeys(List<TrackKey> trackKeys, int[] groups) {
-    List<StreamKey> representationKeys = new ArrayList<>(trackKeys.size());
-    for (int i = 0; i < trackKeys.size(); i++) {
-      TrackKey trackKey = trackKeys.get(i);
-      representationKeys.add(new StreamKey(groups[trackKey.groupIndex], trackKey.trackIndex));
-    }
-    return representationKeys;
   }
 }

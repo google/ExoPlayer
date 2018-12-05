@@ -8,6 +8,10 @@
 * Add options for controlling audio track selections to `DefaultTrackSelector`
   ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
+* Prevent Cea608Decoder from generating Subtitles with null Cues list
+* Caching: Cache data with unknown length by default. The previous flag to opt in
+  to this behavior (`DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH`) has been
+  replaced with an opt out flag (`DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN`).
 
 ### 2.9.2 ###
 
@@ -31,6 +35,10 @@
   ([#5139](https://github.com/google/ExoPlayer/issues/5139)).
 * Fix issue where null `Metadata` was output when it failed to decode
   ([#5149](https://github.com/google/ExoPlayer/issues/5149)).
+* Fix playback of some invalid but playable MP4 streams by replacing assertions
+  with logged warnings in sample table parsing code
+  ([#5162](https://github.com/google/ExoPlayer/issues/5162)).
+* Fix UUID passed to `MediaCrypto` when using `C.CLEARKEY_UUID` before API 27.
 
 ### 2.9.1 ###
 
@@ -52,7 +60,7 @@
 * DASH: Parse ProgramInformation element if present in the manifest.
 * HLS:
   * Add constructor to `DefaultHlsExtractorFactory` for adding TS payload
-    reader factory flags
+    reader factory flags.
   * Fix bug in segment sniffing
     ([#5039](https://github.com/google/ExoPlayer/issues/5039)).
   ([#4861](https://github.com/google/ExoPlayer/issues/4861)).

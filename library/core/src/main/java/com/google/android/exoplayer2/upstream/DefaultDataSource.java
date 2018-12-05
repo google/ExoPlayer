@@ -228,7 +228,8 @@ public final class DefaultDataSource implements DataSource {
     // Choose the correct source for the scheme.
     String scheme = dataSpec.uri.getScheme();
     if (Util.isLocalFileUri(dataSpec.uri)) {
-      if (dataSpec.uri.getPath().startsWith("/android_asset/")) {
+      String uriPath = dataSpec.uri.getPath();
+      if (uriPath != null && uriPath.startsWith("/android_asset/")) {
         dataSource = getAssetDataSource();
       } else {
         dataSource = getFileDataSource();

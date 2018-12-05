@@ -185,6 +185,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final boolean treatLoadErrorsAsEndOfStream;
   private final Timeline timeline;
+  @Nullable private final Object tag;
 
   private @Nullable TransferListener transferListener;
 
@@ -287,13 +288,19 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     this.durationUs = durationUs;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
-    dataSpec =
-        new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP | DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
+    this.tag = tag;
+    dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_GZIP);
     timeline =
         new SinglePeriodTimeline(durationUs, /* isSeekable= */ true, /* isDynamic= */ false, tag);
   }
 
   // MediaSource implementation.
+
+  @Override
+  @Nullable
+  public Object getTag() {
+    return tag;
+  }
 
   @Override
   public void prepareSourceInternal(

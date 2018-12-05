@@ -66,21 +66,9 @@ public class DashManifestParser extends DefaultHandler
   private static final Pattern CEA_708_ACCESSIBILITY_PATTERN =
       Pattern.compile("([1-9]|[1-5][0-9]|6[0-3])=.*");
 
-  private final String contentId;
   private final XmlPullParserFactory xmlParserFactory;
 
-  /**
-   * Equivalent to calling {@code new DashManifestParser(null)}.
-   */
   public DashManifestParser() {
-    this(null);
-  }
-
-  /**
-   * @param contentId An optional content identifier to include in the parsed manifest.
-   */
-  public DashManifestParser(String contentId) {
-    this.contentId = contentId;
     try {
       xmlParserFactory = XmlPullParserFactory.newInstance();
     } catch (XmlPullParserException e) {
@@ -355,8 +343,9 @@ public class DashManifestParser extends DefaultHandler
     // Build the representations.
     List<Representation> representations = new ArrayList<>(representationInfos.size());
     for (int i = 0; i < representationInfos.size(); i++) {
-      representations.add(buildRepresentation(representationInfos.get(i), contentId,
-          drmSchemeType, drmSchemeDatas, inbandEventStreams));
+      representations.add(
+          buildRepresentation(
+              representationInfos.get(i), drmSchemeType, drmSchemeDatas, inbandEventStreams));
     }
 
     return buildAdaptationSet(id, contentType, representations, accessibilityDescriptors,
@@ -664,8 +653,10 @@ public class DashManifestParser extends DefaultHandler
         id, label, containerMimeType, sampleMimeType, codecs, bitrate, selectionFlags, language);
   }
 
-  protected Representation buildRepresentation(RepresentationInfo representationInfo,
-      String contentId, String extraDrmSchemeType, ArrayList<SchemeData> extraDrmSchemeDatas,
+  protected Representation buildRepresentation(
+      RepresentationInfo representationInfo,
+      String extraDrmSchemeType,
+      ArrayList<SchemeData> extraDrmSchemeDatas,
       ArrayList<Descriptor> extraInbandEventStreams) {
     Format format = representationInfo.format;
     String drmSchemeType = representationInfo.drmSchemeType != null
@@ -679,8 +670,12 @@ public class DashManifestParser extends DefaultHandler
     }
     ArrayList<Descriptor> inbandEventStreams = representationInfo.inbandEventStreams;
     inbandEventStreams.addAll(extraInbandEventStreams);
-    return Representation.newInstance(contentId, representationInfo.revisionId, format,
-        representationInfo.baseUrl, representationInfo.segmentBase, inbandEventStreams);
+    return Representation.newInstance(
+        representationInfo.revisionId,
+        format,
+        representationInfo.baseUrl,
+        representationInfo.segmentBase,
+        inbandEventStreams);
   }
 
   // SegmentBase, SegmentList and SegmentTemplate parsing.

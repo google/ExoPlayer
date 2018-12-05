@@ -89,7 +89,7 @@ public final class DashUtilTest {
     if (drmInitData != null) {
       format = format.copyWithDrmInitData(drmInitData);
     }
-    return Representation.newInstance("", 0, format, "", new SingleSegmentBase());
+    return Representation.newInstance(0, format, "", new SingleSegmentBase());
   }
 
   private static DrmInitData newDrmInitData() {
