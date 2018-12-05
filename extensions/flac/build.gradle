@@ -18,10 +18,16 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.txt'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     sourceSets.main {
@@ -31,8 +37,11 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    androidTestCompile project(modulePrefix + 'testutils')
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation project(modulePrefix + 'library-core')
+    androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
+    androidTestImplementation project(modulePrefix + 'testutils')
+    testImplementation project(modulePrefix + 'testutils-robolectric')
 }
 
 ext {

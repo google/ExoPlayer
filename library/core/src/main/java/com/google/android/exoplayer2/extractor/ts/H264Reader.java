@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.NalUnitUtil.SpsData;
@@ -180,9 +181,23 @@ public final class H264Reader implements ElementaryStreamReader {
           initializationData.add(Arrays.copyOf(pps.nalData, pps.nalLength));
           NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(sps.nalData, 3, sps.nalLength);
           NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(pps.nalData, 3, pps.nalLength);
-          output.format(Format.createVideoSampleFormat(formatId, MimeTypes.VIDEO_H264, null,
-              Format.NO_VALUE, Format.NO_VALUE, spsData.width, spsData.height, Format.NO_VALUE,
-              initializationData, Format.NO_VALUE, spsData.pixelWidthAspectRatio, null));
+          output.format(
+              Format.createVideoSampleFormat(
+                  formatId,
+                  MimeTypes.VIDEO_H264,
+                  CodecSpecificDataUtil.buildAvcCodecString(
+                      spsData.profileIdc,
+                      spsData.constraintsFlagsAndReservedZero2Bits,
+                      spsData.levelIdc),
+                  /* bitrate= */ Format.NO_VALUE,
+                  /* maxInputSize= */ Format.NO_VALUE,
+                  spsData.width,
+                  spsData.height,
+                  /* frameRate= */ Format.NO_VALUE,
+                  initializationData,
+                  /* rotationDegrees= */ Format.NO_VALUE,
+                  spsData.pixelWidthAspectRatio,
+                  /* drmInitData= */ null));
           hasOutputFormat = true;
           sampleReader.putSps(spsData);
           sampleReader.putPps(ppsData);

@@ -16,13 +16,14 @@
 package com.google.android.exoplayer2.text.ssa;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -52,15 +53,16 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   }
 
   /**
-   * @param initializationData Optional initialization data for the decoder. If not null, the
-   *     initialization data must consist of two byte arrays. The first must contain an SSA format
-   *     line. The second must contain an SSA header that will be assumed common to all samples.
+   * @param initializationData Optional initialization data for the decoder. If not null or empty,
+   *     the initialization data must consist of two byte arrays. The first must contain an SSA
+   *     format line. The second must contain an SSA header that will be assumed common to all
+   *     samples.
    */
   public SsaDecoder(List<byte[]> initializationData) {
     super("SsaDecoder");
-    if (initializationData != null) {
+    if (initializationData != null && !initializationData.isEmpty()) {
       haveInitializationData = true;
-      String formatLine = new String(initializationData.get(0));
+      String formatLine = Util.fromUtf8Bytes(initializationData.get(0));
       Assertions.checkArgument(formatLine.startsWith(FORMAT_LINE_PREFIX));
       parseFormatLine(formatLine);
       parseHeader(new ParsableByteArray(initializationData.get(1)));
@@ -132,7 +134,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     formatEndIndex = C.INDEX_UNSET;
     formatTextIndex = C.INDEX_UNSET;
     for (int i = 0; i < formatKeyCount; i++) {
-      String key = values[i].trim().toLowerCase();
+      String key = Util.toLowerInvariant(values[i].trim());
       switch (key) {
         case "start":
           formatStartIndex = i;
@@ -148,6 +150,12 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
           break;
       }
     }
+    if (formatStartIndex == C.INDEX_UNSET
+        || formatEndIndex == C.INDEX_UNSET
+        || formatTextIndex == C.INDEX_UNSET) {
+      // Set to 0 so that parseDialogueLine skips lines until a complete format line is found.
+      formatKeyCount = 0;
+    }
   }
 
   /**
@@ -159,12 +167,17 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    */
   private void parseDialogueLine(String dialogueLine, List<Cue> cues, LongArray cueTimesUs) {
     if (formatKeyCount == 0) {
-      Log.w(TAG, "Skipping dialogue line before format: " + dialogueLine);
+      Log.w(TAG, "Skipping dialogue line before complete format: " + dialogueLine);
       return;
     }
 
     String[] lineValues = dialogueLine.substring(DIALOGUE_LINE_PREFIX.length())
         .split(",", formatKeyCount);
+    if (lineValues.length != formatKeyCount) {
+      Log.w(TAG, "Skipping dialogue line with fewer columns than format: " + dialogueLine);
+      return;
+    }
+
     long startTimeUs = SsaDecoder.parseTimecodeUs(lineValues[formatStartIndex]);
     if (startTimeUs == C.TIME_UNSET) {
       Log.w(TAG, "Skipping invalid timing: " + dialogueLine);

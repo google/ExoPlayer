@@ -18,13 +18,30 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
     }
+
+    lintOptions {
+        // Truth depends on JUnit, which depends on java.lang.management, which
+        // is not part of Android. Remove this when JUnit 4.13 or later is used.
+        // See: https://github.com/junit-team/junit4/pull/1187.
+        disable 'InvalidPackage'
+    }
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile 'org.mockito:mockito-core:' + mockitoVersion
+    api 'org.mockito:mockito-core:' + mockitoVersion
+    api 'com.google.truth:truth:' + truthVersion
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation project(modulePrefix + 'library-core')
+    implementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion
+    annotationProcessor 'com.google.auto.value:auto-value:' + autoValueVersion
+    testImplementation project(modulePrefix + 'testutils-robolectric')
 }

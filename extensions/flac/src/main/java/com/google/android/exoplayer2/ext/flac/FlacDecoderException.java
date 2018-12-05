@@ -26,4 +26,7 @@ public final class FlacDecoderException extends AudioDecoderException {
     super(message);
   }
 
+  /* package */ FlacDecoderException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

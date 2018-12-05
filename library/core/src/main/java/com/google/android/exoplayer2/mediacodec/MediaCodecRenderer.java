@@ -21,10 +21,12 @@ import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.os.Bundle;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.support.annotation.CheckResult;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -32,7 +34,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -40,10 +41,16 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.NalUnitUtil;
+import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,22 +89,64 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
      */
     public final String diagnosticInfo;
 
+    /**
+     * If the decoder failed to initialize and another decoder being used as a fallback also failed
+     * to initialize, the {@link DecoderInitializationException} for the fallback decoder. Null if
+     * there was no fallback decoder or no suitable decoders were found.
+     */
+    public final @Nullable DecoderInitializationException fallbackDecoderInitializationException;
+
     public DecoderInitializationException(Format format, Throwable cause,
         boolean secureDecoderRequired, int errorCode) {
-      super("Decoder init failed: [" + errorCode + "], " + format, cause);
-      this.mimeType = format.sampleMimeType;
-      this.secureDecoderRequired = secureDecoderRequired;
-      this.decoderName = null;
-      this.diagnosticInfo = buildCustomDiagnosticInfo(errorCode);
+      this(
+          "Decoder init failed: [" + errorCode + "], " + format,
+          cause,
+          format.sampleMimeType,
+          secureDecoderRequired,
+          /* decoderName= */ null,
+          buildCustomDiagnosticInfo(errorCode),
+          /* fallbackDecoderInitializationException= */ null);
     }
 
     public DecoderInitializationException(Format format, Throwable cause,
         boolean secureDecoderRequired, String decoderName) {
-      super("Decoder init failed: " + decoderName + ", " + format, cause);
-      this.mimeType = format.sampleMimeType;
+      this(
+          "Decoder init failed: " + decoderName + ", " + format,
+          cause,
+          format.sampleMimeType,
+          secureDecoderRequired,
+          decoderName,
+          Util.SDK_INT >= 21 ? getDiagnosticInfoV21(cause) : null,
+          /* fallbackDecoderInitializationException= */ null);
+    }
+
+    private DecoderInitializationException(
+        String message,
+        Throwable cause,
+        String mimeType,
+        boolean secureDecoderRequired,
+        @Nullable String decoderName,
+        @Nullable String diagnosticInfo,
+        @Nullable DecoderInitializationException fallbackDecoderInitializationException) {
+      super(message, cause);
+      this.mimeType = mimeType;
       this.secureDecoderRequired = secureDecoderRequired;
       this.decoderName = decoderName;
-      this.diagnosticInfo = Util.SDK_INT >= 21 ? getDiagnosticInfoV21(cause) : null;
+      this.diagnosticInfo = diagnosticInfo;
+      this.fallbackDecoderInitializationException = fallbackDecoderInitializationException;
+    }
+
+    @CheckResult
+    private DecoderInitializationException copyWithFallbackException(
+        DecoderInitializationException fallbackException) {
+      return new DecoderInitializationException(
+          getMessage(),
+          getCause(),
+          mimeType,
+          secureDecoderRequired,
+          decoderName,
+          diagnosticInfo,
+          fallbackException);
     }
 
     @TargetApi(21)
@@ -115,6 +164,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   }
 
+  /** Indicates no codec operating rate should be set. */
+  protected static final float CODEC_OPERATING_RATE_UNSET = -1;
+
   private static final String TAG = "MediaCodecRenderer";
 
   /**
@@ -127,6 +179,39 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static final long MAX_CODEC_HOTSWAP_TIME_MS = 1000;
 
+  /**
+   * The possible return values for {@link #canKeepCodec(MediaCodec, MediaCodecInfo, Format,
+   * Format)}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    KEEP_CODEC_RESULT_NO,
+    KEEP_CODEC_RESULT_YES_WITH_FLUSH,
+    KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION,
+    KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
+  })
+  protected @interface KeepCodecResult {}
+  /** The codec cannot be kept. */
+  protected static final int KEEP_CODEC_RESULT_NO = 0;
+  /** The codec can be kept, but must be flushed. */
+  protected static final int KEEP_CODEC_RESULT_YES_WITH_FLUSH = 1;
+  /**
+   * The codec can be kept. It does not need to be flushed, but must be reconfigured by prefixing
+   * the next input buffer with the new format's configuration data.
+   */
+  protected static final int KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION = 2;
+  /** The codec can be kept. It does not need to be flushed and no reconfiguration is required. */
+  protected static final int KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION = 3;
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    RECONFIGURATION_STATE_NONE,
+    RECONFIGURATION_STATE_WRITE_PENDING,
+    RECONFIGURATION_STATE_QUEUE_PENDING
+  })
+  private @interface ReconfigurationState {}
   /**
    * There is no pending adaptive reconfiguration work.
    */
@@ -141,26 +226,52 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static final int RECONFIGURATION_STATE_QUEUE_PENDING = 2;
 
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({DRAIN_STATE_NONE, DRAIN_STATE_SIGNAL_END_OF_STREAM, DRAIN_STATE_WAIT_END_OF_STREAM})
+  private @interface DrainState {}
+  /** The codec is not being drained. */
+  private static final int DRAIN_STATE_NONE = 0;
+  /** The codec needs to be drained, but we haven't signaled an end of stream to it yet. */
+  private static final int DRAIN_STATE_SIGNAL_END_OF_STREAM = 1;
+  /** The codec needs to be drained, and we're waiting for it to output an end of stream. */
+  private static final int DRAIN_STATE_WAIT_END_OF_STREAM = 2;
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({DRAIN_ACTION_NONE, DRAIN_ACTION_FLUSH, DRAIN_ACTION_REINITIALIZE})
+  private @interface DrainAction {}
+  /** No special action should be taken. */
+  private static final int DRAIN_ACTION_NONE = 0;
+  /** The codec should be flushed. */
+  private static final int DRAIN_ACTION_FLUSH = 1;
+  /** The codec should be re-initialized. */
+  private static final int DRAIN_ACTION_REINITIALIZE = 2;
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    ADAPTATION_WORKAROUND_MODE_NEVER,
+    ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION,
+    ADAPTATION_WORKAROUND_MODE_ALWAYS
+  })
+  private @interface AdaptationWorkaroundMode {}
   /**
-   * The codec does not need to be re-initialized.
+   * The adaptation workaround is never used.
    */
-  private static final int REINITIALIZATION_STATE_NONE = 0;
+  private static final int ADAPTATION_WORKAROUND_MODE_NEVER = 0;
   /**
-   * The input format has changed in a way that requires the codec to be re-initialized, but we
-   * haven't yet signaled an end of stream to the existing codec. We need to do so in order to
-   * ensure that it outputs any remaining buffers before we release it.
+   * The adaptation workaround is used when adapting between formats of the same resolution only.
    */
-  private static final int REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM = 1;
+  private static final int ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION = 1;
   /**
-   * The input format has changed in a way that requires the codec to be re-initialized, and we've
-   * signaled an end of stream to the existing codec. We're waiting for the codec to output an end
-   * of stream signal to indicate that it has output any remaining buffers before we release it.
+   * The adaptation workaround is always used when adapting between formats.
    */
-  private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
+  private static final int ADAPTATION_WORKAROUND_MODE_ALWAYS = 2;
 
   /**
    * H.264/AVC buffer to queue when using the adaptation workaround (see
-   * {@link #codecNeedsAdaptationWorkaround(String)}. Consists of three NAL units with start codes:
+   * {@link #codecAdaptationWorkaroundMode(String)}. Consists of three NAL units with start codes:
    * Baseline sequence/picture parameter sets and a 32 * 32 pixel IDR slice. This stream can be
    * queued to force a resolution change when adapting to a new format.
    */
@@ -169,44 +280,57 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private static final int ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT = 32;
 
   private final MediaCodecSelector mediaCodecSelector;
-  private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
+  @Nullable private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
+  private final float assumedMinimumCodecOperatingRate;
   private final DecoderInputBuffer buffer;
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final FormatHolder formatHolder;
+  private final TimedValueQueue<Format> formatQueue;
   private final List<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
 
-  private Format format;
+  @Nullable private Format inputFormat;
+  private Format outputFormat;
   private DrmSession<FrameworkMediaCrypto> drmSession;
   private DrmSession<FrameworkMediaCrypto> pendingDrmSession;
-  private MediaCodec codec;
-  private MediaCodecInfo codecInfo;
+  private long renderTimeLimitMs;
+  private float rendererOperatingRate;
+  @Nullable private MediaCodec codec;
+  @Nullable private Format codecFormat;
+  private float codecOperatingRate;
+  @Nullable private ArrayDeque<MediaCodecInfo> availableCodecInfos;
+  @Nullable private DecoderInitializationException preferredDecoderInitializationException;
+  @Nullable private MediaCodecInfo codecInfo;
+  @AdaptationWorkaroundMode private int codecAdaptationWorkaroundMode;
+  private boolean codecNeedsReconfigureWorkaround;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
-  private boolean codecNeedsAdaptationWorkaround;
-  private boolean codecNeedsEosPropagationWorkaround;
   private boolean codecNeedsEosFlushWorkaround;
   private boolean codecNeedsEosOutputExceptionWorkaround;
   private boolean codecNeedsMonoChannelCountWorkaround;
   private boolean codecNeedsAdaptationWorkaroundBuffer;
   private boolean shouldSkipAdaptationWorkaroundOutputBuffer;
+  private boolean codecNeedsEosPropagation;
   private ByteBuffer[] inputBuffers;
   private ByteBuffer[] outputBuffers;
   private long codecHotswapDeadlineMs;
   private int inputIndex;
   private int outputIndex;
+  private ByteBuffer outputBuffer;
   private boolean shouldSkipOutputBuffer;
   private boolean codecReconfigured;
-  private int codecReconfigurationState;
-  private int codecReinitializationState;
+  @ReconfigurationState private int codecReconfigurationState;
+  @DrainState private int codecDrainState;
+  @DrainAction private int codecDrainAction;
   private boolean codecReceivedBuffers;
   private boolean codecReceivedEos;
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
-  private boolean waitingForFirstSyncFrame;
+  private boolean waitingForFirstSyncSample;
+  private boolean waitingForFirstSampleInFormat;
 
   protected DecoderCounters decoderCounters;
 
@@ -221,22 +345,48 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @param assumedMinimumCodecOperatingRate A codec operating rate that all codecs instantiated by
+   *     this renderer are assumed to meet implicitly (i.e. without the operating rate being set
+   *     explicitly using {@link MediaFormat#KEY_OPERATING_RATE}).
    */
-  public MediaCodecRenderer(int trackType, MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys) {
+  public MediaCodecRenderer(
+      int trackType,
+      MediaCodecSelector mediaCodecSelector,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys,
+      float assumedMinimumCodecOperatingRate) {
     super(trackType);
     Assertions.checkState(Util.SDK_INT >= 16);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
+    this.assumedMinimumCodecOperatingRate = assumedMinimumCodecOperatingRate;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
     formatHolder = new FormatHolder();
+    formatQueue = new TimedValueQueue<>();
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-    codecReinitializationState = REINITIALIZATION_STATE_NONE;
+    codecDrainState = DRAIN_STATE_NONE;
+    codecDrainAction = DRAIN_ACTION_NONE;
+    codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
+    rendererOperatingRate = 1f;
+    renderTimeLimitMs = C.TIME_UNSET;
+  }
+
+  /**
+   * Set a limit on the time a single {@link #render(long, long)} call can spend draining and
+   * filling the decoder.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release. It should
+   * only be called before the renderer is used.
+   *
+   * @param renderTimeLimitMs The render time limit in milliseconds, or {@link C#TIME_UNSET} for no
+   *     limit.
+   */
+  public void experimental_setRenderTimeLimitMs(long renderTimeLimitMs) {
+    this.renderTimeLimitMs = renderTimeLimitMs;
   }
 
   @Override
@@ -247,14 +397,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   public final int supportsFormat(Format format) throws ExoPlaybackException {
     try {
-      int formatSupport = supportsFormat(mediaCodecSelector, format);
-      if ((formatSupport & FORMAT_SUPPORT_MASK) > FORMAT_UNSUPPORTED_DRM
-          && !isDrmSchemeSupported(drmSessionManager, format.drmInitData)) {
-        // The renderer advertises higher support than FORMAT_UNSUPPORTED_DRM but the DRM scheme is
-        // not supported. The format support is truncated to reflect this.
-        formatSupport = (formatSupport & ~FORMAT_SUPPORT_MASK) | FORMAT_UNSUPPORTED_DRM;
-      }
-      return formatSupport;
+      return supportsFormat(mediaCodecSelector, drmSessionManager, format);
     } catch (DecoderQueryException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
@@ -264,27 +407,29 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * Returns the extent to which the renderer is capable of supporting a given format.
    *
    * @param mediaCodecSelector The decoder selector.
+   * @param drmSessionManager The renderer's {@link DrmSessionManager}.
    * @param format The format.
    * @return The extent to which the renderer is capable of supporting the given format. See
    *     {@link #supportsFormat(Format)} for more detail.
    * @throws DecoderQueryException If there was an error querying decoders.
    */
-  protected abstract int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
+  protected abstract int supportsFormat(MediaCodecSelector mediaCodecSelector,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, Format format)
       throws DecoderQueryException;
 
   /**
-   * Returns a {@link MediaCodecInfo} for a given format.
+   * Returns a list of decoders that can decode media in the specified format, in priority order.
    *
    * @param mediaCodecSelector The decoder selector.
    * @param format The format for which a decoder is required.
    * @param requiresSecureDecoder Whether a secure decoder is required.
-   * @return A {@link MediaCodecInfo} describing the decoder to instantiate, or null if no
-   *     suitable decoder exists.
+   * @return A list of {@link MediaCodecInfo}s corresponding to decoders. May be empty.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  protected MediaCodecInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
-      Format format, boolean requiresSecureDecoder) throws DecoderQueryException {
-    return mediaCodecSelector.getDecoderInfo(format.sampleMimeType, requiresSecureDecoder);
+  protected List<MediaCodecInfo> getDecoderInfos(
+      MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
+      throws DecoderQueryException {
+    return mediaCodecSelector.getDecoderInfos(format.sampleMimeType, requiresSecureDecoder);
   }
 
   /**
@@ -294,20 +439,26 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param codec The {@link MediaCodec} to configure.
    * @param format The format for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
+   * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
+   *     no codec operating rate should be set.
    * @throws DecoderQueryException If an error occurs querying {@code codecInfo}.
    */
-  protected abstract void configureCodec(MediaCodecInfo codecInfo, MediaCodec codec, Format format,
-      MediaCrypto crypto) throws DecoderQueryException;
+  protected abstract void configureCodec(
+      MediaCodecInfo codecInfo,
+      MediaCodec codec,
+      Format format,
+      MediaCrypto crypto,
+      float codecOperatingRate)
+      throws DecoderQueryException;
 
-  @SuppressWarnings("deprecation")
   protected final void maybeInitCodec() throws ExoPlaybackException {
-    if (codec != null || format == null) {
+    if (codec != null || inputFormat == null) {
       // We have a codec already, or we don't have a format with which to instantiate one.
       return;
     }
 
     drmSession = pendingDrmSession;
-    String mimeType = format.sampleMimeType;
+    String mimeType = inputFormat.sampleMimeType;
     MediaCrypto wrappedMediaCrypto = null;
     boolean drmSessionRequiresSecureDecoder = false;
     if (drmSession != null) {
@@ -315,95 +466,65 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (mediaCrypto == null) {
         DrmSessionException drmError = drmSession.getError();
         if (drmError != null) {
-          throw ExoPlaybackException.createForRenderer(drmError, getIndex());
+          // Continue for now. We may be able to avoid failure if the session recovers, or if a new
+          // input format causes the session to be replaced before it's used.
+        } else {
+          // The drm session isn't open yet.
+          return;
         }
-        // The drm session isn't open yet.
-        return;
+      } else {
+        wrappedMediaCrypto = mediaCrypto.getWrappedMediaCrypto();
+        drmSessionRequiresSecureDecoder = mediaCrypto.requiresSecureDecoderComponent(mimeType);
       }
-      wrappedMediaCrypto = mediaCrypto.getWrappedMediaCrypto();
-      drmSessionRequiresSecureDecoder = mediaCrypto.requiresSecureDecoderComponent(mimeType);
-    }
-
-    if (codecInfo == null) {
-      try {
-        codecInfo = getDecoderInfo(mediaCodecSelector, format, drmSessionRequiresSecureDecoder);
-        if (codecInfo == null && drmSessionRequiresSecureDecoder) {
-          // The drm session indicates that a secure decoder is required, but the device does not
-          // have one. Assuming that supportsFormat indicated support for the media being played, we
-          // know that it does not require a secure output path. Most CDM implementations allow
-          // playback to proceed with a non-secure decoder in this case, so we try our luck.
-          codecInfo = getDecoderInfo(mediaCodecSelector, format, false);
-          if (codecInfo != null) {
-            Log.w(TAG, "Drm session requires secure decoder for " + mimeType + ", but "
-                + "no secure decoder available. Trying to proceed with " + codecInfo.name + ".");
-          }
+      if (deviceNeedsDrmKeysToConfigureCodecWorkaround()) {
+        @DrmSession.State int drmSessionState = drmSession.getState();
+        if (drmSessionState == DrmSession.STATE_ERROR) {
+          throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+        } else if (drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS) {
+          // Wait for keys.
+          return;
         }
-      } catch (DecoderQueryException e) {
-        throwDecoderInitError(new DecoderInitializationException(format, e,
-            drmSessionRequiresSecureDecoder, DecoderInitializationException.DECODER_QUERY_ERROR));
-      }
-
-      if (codecInfo == null) {
-        throwDecoderInitError(new DecoderInitializationException(format, null,
-            drmSessionRequiresSecureDecoder,
-            DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
       }
     }
 
-    if (!shouldInitCodec(codecInfo)) {
-      return;
-    }
-
-    String codecName = codecInfo.name;
-    codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
-    codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
-    codecNeedsAdaptationWorkaround = codecNeedsAdaptationWorkaround(codecName);
-    codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(codecName);
-    codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
-    codecNeedsEosOutputExceptionWorkaround = codecNeedsEosOutputExceptionWorkaround(codecName);
-    codecNeedsMonoChannelCountWorkaround = codecNeedsMonoChannelCountWorkaround(codecName, format);
     try {
-      long codecInitializingTimestamp = SystemClock.elapsedRealtime();
-      TraceUtil.beginSection("createCodec:" + codecName);
-      codec = MediaCodec.createByCodecName(codecName);
-      TraceUtil.endSection();
-      TraceUtil.beginSection("configureCodec");
-      configureCodec(codecInfo, codec, format, wrappedMediaCrypto);
-      TraceUtil.endSection();
-      TraceUtil.beginSection("startCodec");
-      codec.start();
-      TraceUtil.endSection();
-      long codecInitializedTimestamp = SystemClock.elapsedRealtime();
-      onCodecInitialized(codecName, codecInitializedTimestamp,
-          codecInitializedTimestamp - codecInitializingTimestamp);
-      inputBuffers = codec.getInputBuffers();
-      outputBuffers = codec.getOutputBuffers();
-    } catch (Exception e) {
-      throwDecoderInitError(new DecoderInitializationException(format, e,
-          drmSessionRequiresSecureDecoder, codecName));
+      maybeInitCodecWithFallback(wrappedMediaCrypto, drmSessionRequiresSecureDecoder);
+    } catch (DecoderInitializationException e) {
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
-    codecHotswapDeadlineMs = getState() == STATE_STARTED
-        ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS) : C.TIME_UNSET;
-    inputIndex = C.INDEX_UNSET;
-    outputIndex = C.INDEX_UNSET;
-    waitingForFirstSyncFrame = true;
-    decoderCounters.decoderInitCount++;
-  }
-
-  private void throwDecoderInitError(DecoderInitializationException e)
-      throws ExoPlaybackException {
-    throw ExoPlaybackException.createForRenderer(e, getIndex());
   }
 
   protected boolean shouldInitCodec(MediaCodecInfo codecInfo) {
     return true;
   }
 
+  /**
+   * Returns whether the codec needs the renderer to propagate the end-of-stream signal directly,
+   * rather than by using an end-of-stream buffer queued to the codec.
+   */
+  protected boolean getCodecNeedsEosPropagation() {
+    return false;
+  }
+
+  /**
+   * Polls the pending output format queue for a given buffer timestamp. If a format is present, it
+   * is removed and returned. Otherwise returns {@code null}. Subclasses should only call this
+   * method if they are taking over responsibility for output format propagation (e.g., when using
+   * video tunneling).
+   */
+  protected final @Nullable Format updateOutputFormatForTime(long presentationTimeUs) {
+    Format format = formatQueue.pollFloor(presentationTimeUs);
+    if (format != null) {
+      outputFormat = format;
+    }
+    return format;
+  }
+
   protected final MediaCodec getCodec() {
     return codec;
   }
 
-  protected final MediaCodecInfo getCodecInfo() {
+  protected final @Nullable MediaCodecInfo getCodecInfo() {
     return codecInfo;
   }
 
@@ -416,14 +537,31 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;
-    if (codec != null) {
-      flushCodec();
+    flushOrReinitCodec();
+    formatQueue.clear();
+  }
+
+  @Override
+  public final void setOperatingRate(float operatingRate) throws ExoPlaybackException {
+    rendererOperatingRate = operatingRate;
+    if (codec != null && codecDrainAction != DRAIN_ACTION_REINITIALIZE) {
+      updateCodecOperatingRate();
     }
   }
 
   @Override
   protected void onDisabled() {
-    format = null;
+    inputFormat = null;
+    if (drmSession != null || pendingDrmSession != null) {
+      // TODO: Do something better with this case.
+      onReset();
+    } else {
+      flushOrReleaseCodec();
+    }
+  }
+
+  @Override
+  protected void onReset() {
     try {
       releaseCodec();
     } finally {
@@ -445,30 +583,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   protected void releaseCodec() {
-    codecHotswapDeadlineMs = C.TIME_UNSET;
-    inputIndex = C.INDEX_UNSET;
-    outputIndex = C.INDEX_UNSET;
-    waitingForKeys = false;
-    shouldSkipOutputBuffer = false;
-    decodeOnlyPresentationTimestamps.clear();
-    inputBuffers = null;
-    outputBuffers = null;
-    codecInfo = null;
-    codecReconfigured = false;
-    codecReceivedBuffers = false;
-    codecNeedsDiscardToSpsWorkaround = false;
-    codecNeedsFlushWorkaround = false;
-    codecNeedsAdaptationWorkaround = false;
-    codecNeedsEosPropagationWorkaround = false;
-    codecNeedsEosFlushWorkaround = false;
-    codecNeedsMonoChannelCountWorkaround = false;
-    codecNeedsAdaptationWorkaroundBuffer = false;
-    shouldSkipAdaptationWorkaroundOutputBuffer = false;
-    codecReceivedEos = false;
-    codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-    codecReinitializationState = REINITIALIZATION_STATE_NONE;
-    buffer.data = null;
+    availableCodecInfos = null;
     if (codec != null) {
+      codecInfo = null;
+      codecFormat = null;
+      resetInputBuffer();
+      resetOutputBuffer();
+      resetCodecBuffers();
+      waitingForKeys = false;
+      codecHotswapDeadlineMs = C.TIME_UNSET;
+      decodeOnlyPresentationTimestamps.clear();
       decoderCounters.decoderReleaseCount++;
       try {
         codec.stop();
@@ -505,7 +629,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       renderToEndOfStream();
       return;
     }
-    if (format == null) {
+    if (inputFormat == null) {
       // We don't have a format yet, so try and read one.
       flagsOnlyBuffer.clear();
       int result = readSource(formatHolder, flagsOnlyBuffer, true);
@@ -525,12 +649,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // We have a format.
     maybeInitCodec();
     if (codec != null) {
+      long drainStartTimeMs = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("drainAndFeed");
       while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-      while (feedInputBuffer()) {}
+      while (feedInputBuffer() && shouldContinueFeeding(drainStartTimeMs)) {}
       TraceUtil.endSection();
     } else {
-      skipSource(positionUs);
+      decoderCounters.skippedInputBufferCount += skipSource(positionUs);
       // We need to read any format changes despite not having a codec so that drmSession can be
       // updated, and so that we have the most recent format should the codec be initialized. We may
       // also reach the end of the stream. Note that readSource will not read a sample into a
@@ -548,34 +673,259 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     decoderCounters.ensureUpdated();
   }
 
-  protected void flushCodec() throws ExoPlaybackException {
+  /**
+   * Flushes the codec. If flushing is not possible, the codec will be released and re-instantiated.
+   * This method is a no-op if the codec is {@code null}.
+   *
+   * <p>The implementation of this method calls {@link #flushOrReleaseCodec()}, and {@link
+   * #maybeInitCodec()} if the codec needs to be re-instantiated.
+   *
+   * @throws ExoPlaybackException If an error occurs re-instantiating the codec.
+   */
+  protected final void flushOrReinitCodec() throws ExoPlaybackException {
+    if (flushOrReleaseCodec()) {
+      maybeInitCodec();
+    }
+  }
+
+  /**
+   * Flushes the codec. If flushing is not possible, the codec will be released. This method is a
+   * no-op if the codec is {@code null}.
+   *
+   * @return Whether the codec was released.
+   */
+  protected boolean flushOrReleaseCodec() {
+    if (codec == null) {
+      return false;
+    }
+    if (codecDrainAction == DRAIN_ACTION_REINITIALIZE
+        || codecNeedsFlushWorkaround
+        || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
+      releaseCodec();
+      return true;
+    }
+
+    codec.flush();
+    resetInputBuffer();
+    resetOutputBuffer();
     codecHotswapDeadlineMs = C.TIME_UNSET;
-    inputIndex = C.INDEX_UNSET;
-    outputIndex = C.INDEX_UNSET;
-    waitingForFirstSyncFrame = true;
-    waitingForKeys = false;
-    shouldSkipOutputBuffer = false;
-    decodeOnlyPresentationTimestamps.clear();
+    codecReceivedEos = false;
+    codecReceivedBuffers = false;
+    waitingForFirstSyncSample = true;
     codecNeedsAdaptationWorkaroundBuffer = false;
     shouldSkipAdaptationWorkaroundOutputBuffer = false;
-    if (codecNeedsFlushWorkaround || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
-      releaseCodec();
-      maybeInitCodec();
-    } else if (codecReinitializationState != REINITIALIZATION_STATE_NONE) {
-      // We're already waiting to release and re-initialize the codec. Since we're now flushing,
-      // there's no need to wait any longer.
-      releaseCodec();
-      maybeInitCodec();
+    shouldSkipOutputBuffer = false;
+
+    waitingForKeys = false;
+    decodeOnlyPresentationTimestamps.clear();
+    codecDrainState = DRAIN_STATE_NONE;
+    codecDrainAction = DRAIN_ACTION_NONE;
+    // Reconfiguration data sent shortly before the flush may not have been processed by the
+    // decoder. If the codec has been reconfigured we always send reconfiguration data again to
+    // guarantee that it's processed.
+    codecReconfigurationState =
+        codecReconfigured ? RECONFIGURATION_STATE_WRITE_PENDING : RECONFIGURATION_STATE_NONE;
+    return false;
+  }
+
+  private void maybeInitCodecWithFallback(
+      MediaCrypto crypto, boolean drmSessionRequiresSecureDecoder)
+      throws DecoderInitializationException {
+    if (availableCodecInfos == null) {
+      try {
+        availableCodecInfos =
+            new ArrayDeque<>(getAvailableCodecInfos(drmSessionRequiresSecureDecoder));
+        preferredDecoderInitializationException = null;
+      } catch (DecoderQueryException e) {
+        throw new DecoderInitializationException(
+            inputFormat,
+            e,
+            drmSessionRequiresSecureDecoder,
+            DecoderInitializationException.DECODER_QUERY_ERROR);
+      }
+    }
+
+    if (availableCodecInfos.isEmpty()) {
+      throw new DecoderInitializationException(
+          inputFormat,
+          /* cause= */ null,
+          drmSessionRequiresSecureDecoder,
+          DecoderInitializationException.NO_SUITABLE_DECODER_ERROR);
+    }
+
+    while (codec == null) {
+      MediaCodecInfo codecInfo = availableCodecInfos.peekFirst();
+      if (!shouldInitCodec(codecInfo)) {
+        return;
+      }
+      try {
+        initCodec(codecInfo, crypto);
+      } catch (Exception e) {
+        Log.w(TAG, "Failed to initialize decoder: " + codecInfo, e);
+        // This codec failed to initialize, so fall back to the next codec in the list (if any). We
+        // won't try to use this codec again unless there's a format change or the renderer is
+        // disabled and re-enabled.
+        availableCodecInfos.removeFirst();
+        DecoderInitializationException exception =
+            new DecoderInitializationException(
+                inputFormat, e, drmSessionRequiresSecureDecoder, codecInfo.name);
+        if (preferredDecoderInitializationException == null) {
+          preferredDecoderInitializationException = exception;
+        } else {
+          preferredDecoderInitializationException =
+              preferredDecoderInitializationException.copyWithFallbackException(exception);
+        }
+        if (availableCodecInfos.isEmpty()) {
+          throw preferredDecoderInitializationException;
+        }
+      }
+    }
+
+    availableCodecInfos = null;
+  }
+
+  private List<MediaCodecInfo> getAvailableCodecInfos(boolean drmSessionRequiresSecureDecoder)
+      throws DecoderQueryException {
+    List<MediaCodecInfo> codecInfos =
+        getDecoderInfos(mediaCodecSelector, inputFormat, drmSessionRequiresSecureDecoder);
+    if (codecInfos.isEmpty() && drmSessionRequiresSecureDecoder) {
+      // The drm session indicates that a secure decoder is required, but the device does not
+      // have one. Assuming that supportsFormat indicated support for the media being played, we
+      // know that it does not require a secure output path. Most CDM implementations allow
+      // playback to proceed with a non-secure decoder in this case, so we try our luck.
+      codecInfos =
+          getDecoderInfos(mediaCodecSelector, inputFormat, /* requiresSecureDecoder= */ false);
+      if (!codecInfos.isEmpty()) {
+        Log.w(
+            TAG,
+            "Drm session requires secure decoder for "
+                + inputFormat.sampleMimeType
+                + ", but no secure decoder available. Trying to proceed with "
+                + codecInfos
+                + ".");
+      }
+    }
+    return codecInfos;
+  }
+
+  private void initCodec(MediaCodecInfo codecInfo, MediaCrypto crypto) throws Exception {
+    long codecInitializingTimestamp;
+    long codecInitializedTimestamp;
+    MediaCodec codec = null;
+    String codecName = codecInfo.name;
+
+    float codecOperatingRate =
+        Util.SDK_INT < 23
+            ? CODEC_OPERATING_RATE_UNSET
+            : getCodecOperatingRateV23(rendererOperatingRate, inputFormat, getStreamFormats());
+    if (codecOperatingRate <= assumedMinimumCodecOperatingRate) {
+      codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
+    }
+    try {
+      codecInitializingTimestamp = SystemClock.elapsedRealtime();
+      TraceUtil.beginSection("createCodec:" + codecName);
+      codec = MediaCodec.createByCodecName(codecName);
+      TraceUtil.endSection();
+      TraceUtil.beginSection("configureCodec");
+      configureCodec(codecInfo, codec, inputFormat, crypto, codecOperatingRate);
+      TraceUtil.endSection();
+      TraceUtil.beginSection("startCodec");
+      codec.start();
+      TraceUtil.endSection();
+      codecInitializedTimestamp = SystemClock.elapsedRealtime();
+      getCodecBuffers(codec);
+    } catch (Exception e) {
+      if (codec != null) {
+        resetCodecBuffers();
+        codec.release();
+      }
+      throw e;
+    }
+
+    this.codec = codec;
+    this.codecInfo = codecInfo;
+    this.codecOperatingRate = codecOperatingRate;
+    codecFormat = inputFormat;
+    codecAdaptationWorkaroundMode = codecAdaptationWorkaroundMode(codecName);
+    codecNeedsReconfigureWorkaround = codecNeedsReconfigureWorkaround(codecName);
+    codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, codecFormat);
+    codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
+    codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
+    codecNeedsEosOutputExceptionWorkaround = codecNeedsEosOutputExceptionWorkaround(codecName);
+    codecNeedsMonoChannelCountWorkaround =
+        codecNeedsMonoChannelCountWorkaround(codecName, codecFormat);
+    codecNeedsEosPropagation =
+        codecNeedsEosPropagationWorkaround(codecInfo) || getCodecNeedsEosPropagation();
+
+    resetInputBuffer();
+    resetOutputBuffer();
+    codecHotswapDeadlineMs =
+        getState() == STATE_STARTED
+            ? (SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS)
+            : C.TIME_UNSET;
+    codecReconfigured = false;
+    codecReconfigurationState = RECONFIGURATION_STATE_NONE;
+    codecReceivedEos = false;
+    codecReceivedBuffers = false;
+    codecDrainState = DRAIN_STATE_NONE;
+    codecDrainAction = DRAIN_ACTION_NONE;
+    codecNeedsAdaptationWorkaroundBuffer = false;
+    shouldSkipAdaptationWorkaroundOutputBuffer = false;
+    shouldSkipOutputBuffer = false;
+    waitingForFirstSyncSample = true;
+
+    decoderCounters.decoderInitCount++;
+    long elapsed = codecInitializedTimestamp - codecInitializingTimestamp;
+    onCodecInitialized(codecName, codecInitializedTimestamp, elapsed);
+  }
+
+  private boolean shouldContinueFeeding(long drainStartTimeMs) {
+    return renderTimeLimitMs == C.TIME_UNSET
+        || SystemClock.elapsedRealtime() - drainStartTimeMs < renderTimeLimitMs;
+  }
+
+  private void getCodecBuffers(MediaCodec codec) {
+    if (Util.SDK_INT < 21) {
+      inputBuffers = codec.getInputBuffers();
+      outputBuffers = codec.getOutputBuffers();
+    }
+  }
+
+  private void resetCodecBuffers() {
+    if (Util.SDK_INT < 21) {
+      inputBuffers = null;
+      outputBuffers = null;
+    }
+  }
+
+  private ByteBuffer getInputBuffer(int inputIndex) {
+    if (Util.SDK_INT >= 21) {
+      return codec.getInputBuffer(inputIndex);
     } else {
-      // We can flush and re-use the existing decoder.
-      codec.flush();
-      codecReceivedBuffers = false;
+      return inputBuffers[inputIndex];
     }
-    if (codecReconfigured && format != null) {
-      // Any reconfiguration data that we send shortly before the flush may be discarded. We
-      // avoid this issue by sending reconfiguration data following every flush.
-      codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+  }
+
+  private ByteBuffer getOutputBuffer(int outputIndex) {
+    if (Util.SDK_INT >= 21) {
+      return codec.getOutputBuffer(outputIndex);
+    } else {
+      return outputBuffers[outputIndex];
     }
+  }
+
+  private boolean hasOutputBuffer() {
+    return outputIndex >= 0;
+  }
+
+  private void resetInputBuffer() {
+    inputIndex = C.INDEX_UNSET;
+    buffer.data = null;
+  }
+
+  private void resetOutputBuffer() {
+    outputIndex = C.INDEX_UNSET;
+    outputBuffer = null;
   }
 
   /**
@@ -583,9 +933,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
   private boolean feedInputBuffer() throws ExoPlaybackException {
-    if (codec == null || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
-        || inputStreamEnded) {
-      // We need to reinitialize the codec or the input stream has ended.
+    if (codec == null || codecDrainState == DRAIN_STATE_WAIT_END_OF_STREAM || inputStreamEnded) {
       return false;
     }
 
@@ -594,21 +942,21 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (inputIndex < 0) {
         return false;
       }
-      buffer.data = inputBuffers[inputIndex];
+      buffer.data = getInputBuffer(inputIndex);
       buffer.clear();
     }
 
-    if (codecReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
+    if (codecDrainState == DRAIN_STATE_SIGNAL_END_OF_STREAM) {
       // We need to re-initialize the codec. Send an end of stream signal to the existing codec so
       // that it outputs any remaining buffers before we release it.
-      if (codecNeedsEosPropagationWorkaround) {
+      if (codecNeedsEosPropagation) {
         // Do nothing.
       } else {
         codecReceivedEos = true;
         codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-        inputIndex = C.INDEX_UNSET;
+        resetInputBuffer();
       }
-      codecReinitializationState = REINITIALIZATION_STATE_WAIT_END_OF_STREAM;
+      codecDrainState = DRAIN_STATE_WAIT_END_OF_STREAM;
       return false;
     }
 
@@ -616,7 +964,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecNeedsAdaptationWorkaroundBuffer = false;
       buffer.data.put(ADAPTATION_WORKAROUND_BUFFER);
       codec.queueInputBuffer(inputIndex, 0, ADAPTATION_WORKAROUND_BUFFER.length, 0, 0);
-      inputIndex = C.INDEX_UNSET;
+      resetInputBuffer();
       codecReceivedBuffers = true;
       return true;
     }
@@ -630,8 +978,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       // For adaptive reconfiguration OMX decoders expect all reconfiguration data to be supplied
       // at the start of the buffer that also contains the first frame in the new format.
       if (codecReconfigurationState == RECONFIGURATION_STATE_WRITE_PENDING) {
-        for (int i = 0; i < format.initializationData.size(); i++) {
-          byte[] data = format.initializationData.get(i);
+        for (int i = 0; i < codecFormat.initializationData.size(); i++) {
+          byte[] data = codecFormat.initializationData.get(i);
           buffer.data.put(data);
         }
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
@@ -669,19 +1017,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         return false;
       }
       try {
-        if (codecNeedsEosPropagationWorkaround) {
+        if (codecNeedsEosPropagation) {
           // Do nothing.
         } else {
           codecReceivedEos = true;
           codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-          inputIndex = C.INDEX_UNSET;
+          resetInputBuffer();
         }
       } catch (CryptoException e) {
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
       return false;
     }
-    if (waitingForFirstSyncFrame && !buffer.isKeyFrame()) {
+    if (waitingForFirstSyncSample && !buffer.isKeyFrame()) {
       buffer.clear();
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
         // The buffer we just cleared contained reconfiguration data. We need to re-write this
@@ -690,7 +1038,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
       return true;
     }
-    waitingForFirstSyncFrame = false;
+    waitingForFirstSyncSample = false;
     boolean bufferEncrypted = buffer.isEncrypted();
     waitingForKeys = shouldWaitForKeys(bufferEncrypted);
     if (waitingForKeys) {
@@ -708,6 +1056,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (buffer.isDecodeOnly()) {
         decodeOnlyPresentationTimestamps.add(presentationTimeUs);
       }
+      if (waitingForFirstSampleInFormat) {
+        formatQueue.add(presentationTimeUs, inputFormat);
+        waitingForFirstSampleInFormat = false;
+      }
 
       buffer.flip();
       onQueueInputBuffer(buffer);
@@ -719,7 +1071,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       } else {
         codec.queueInputBuffer(inputIndex, 0, buffer.data.limit(), presentationTimeUs, 0);
       }
-      inputIndex = C.INDEX_UNSET;
+      resetInputBuffer();
       codecReceivedBuffers = true;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
       decoderCounters.inputBufferCount++;
@@ -727,22 +1079,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
     return true;
-  }
-
-  private static MediaCodec.CryptoInfo getFrameworkCryptoInfo(DecoderInputBuffer buffer,
-      int adaptiveReconfigurationBytes) {
-    MediaCodec.CryptoInfo cryptoInfo = buffer.cryptoInfo.getFrameworkCryptoInfoV16();
-    if (adaptiveReconfigurationBytes == 0) {
-      return cryptoInfo;
-    }
-    // There must be at least one sub-sample, although numBytesOfClearData is permitted to be
-    // null if it contains no clear data. Instantiate it if needed, and add the reconfiguration
-    // bytes to the clear byte count of the first sub-sample.
-    if (cryptoInfo.numBytesOfClearData == null) {
-      cryptoInfo.numBytesOfClearData = new int[1];
-    }
-    cryptoInfo.numBytesOfClearData[0] += adaptiveReconfigurationBytes;
-    return cryptoInfo;
   }
 
   private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
@@ -775,21 +1111,23 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * Called when a new format is read from the upstream {@link MediaPeriod}.
    *
    * @param newFormat The new format.
-   * @throws ExoPlaybackException If an error occurs reinitializing the {@link MediaCodec}.
+   * @throws ExoPlaybackException If an error occurs re-initializing the {@link MediaCodec}.
    */
   protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
-    Format oldFormat = format;
-    format = newFormat;
+    Format oldFormat = inputFormat;
+    inputFormat = newFormat;
+    waitingForFirstSampleInFormat = true;
 
-    boolean drmInitDataChanged = !Util.areEqual(format.drmInitData, oldFormat == null ? null
-        : oldFormat.drmInitData);
+    boolean drmInitDataChanged =
+        !Util.areEqual(newFormat.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
     if (drmInitDataChanged) {
-      if (format.drmInitData != null) {
+      if (newFormat.drmInitData != null) {
         if (drmSessionManager == null) {
           throw ExoPlaybackException.createForRenderer(
               new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
         }
-        pendingDrmSession = drmSessionManager.acquireSession(Looper.myLooper(), format.drmInitData);
+        pendingDrmSession =
+            drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
         if (pendingDrmSession == drmSession) {
           drmSessionManager.releaseSession(pendingDrmSession);
         }
@@ -798,20 +1136,46 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
     }
 
-    if (pendingDrmSession == drmSession && codec != null
-        && canReconfigureCodec(codec, codecInfo.adaptive, oldFormat, format)) {
-      codecReconfigured = true;
-      codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
-      codecNeedsAdaptationWorkaroundBuffer = codecNeedsAdaptationWorkaround
-          && format.width == oldFormat.width && format.height == oldFormat.height;
+    if (codec == null) {
+      maybeInitCodec();
+      return;
+    }
+
+    // We have an existing codec that we may need to reconfigure or re-initialize. If the existing
+    // codec instance is being kept then its operating rate may need to be updated.
+    if (pendingDrmSession != drmSession) {
+      drainAndReinitializeCodec();
     } else {
-      if (codecReceivedBuffers) {
-        // Signal end of stream and wait for any final output buffers before re-initialization.
-        codecReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
-      } else {
-        // There aren't any final output buffers, so perform re-initialization immediately.
-        releaseCodec();
-        maybeInitCodec();
+      switch (canKeepCodec(codec, codecInfo, codecFormat, newFormat)) {
+        case KEEP_CODEC_RESULT_NO:
+          drainAndReinitializeCodec();
+          break;
+        case KEEP_CODEC_RESULT_YES_WITH_FLUSH:
+          drainAndFlushCodec();
+          codecFormat = newFormat;
+          updateCodecOperatingRate();
+          break;
+        case KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION:
+          if (codecNeedsReconfigureWorkaround) {
+            drainAndReinitializeCodec();
+          } else {
+            codecReconfigured = true;
+            codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+            codecNeedsAdaptationWorkaroundBuffer =
+                codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_ALWAYS
+                    || (codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION
+                        && newFormat.width == codecFormat.width
+                        && newFormat.height == codecFormat.height);
+            codecFormat = newFormat;
+            updateCodecOperatingRate();
+          }
+          break;
+        case KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION:
+          codecFormat = newFormat;
+          updateCodecOperatingRate();
+          break;
+        default:
+          throw new IllegalStateException(); // Never happens.
       }
     }
   }
@@ -853,23 +1217,20 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Determines whether the existing {@link MediaCodec} should be reconfigured for a new format by
-   * sending codec specific initialization data at the start of the next input buffer. If true is
-   * returned then the {@link MediaCodec} instance will be reconfigured in this way. If false is
-   * returned then the instance will be released, and a new instance will be created for the new
-   * format.
-   * <p>
-   * The default implementation returns false.
+   * Determines whether the existing {@link MediaCodec} can be kept for a new format, and if it can
+   * whether it requires reconfiguration.
+   *
+   * <p>The default implementation returns {@link #KEEP_CODEC_RESULT_NO}.
    *
    * @param codec The existing {@link MediaCodec} instance.
-   * @param codecIsAdaptive Whether the codec is adaptive.
+   * @param codecInfo A {@link MediaCodecInfo} describing the decoder.
    * @param oldFormat The format for which the existing instance is configured.
    * @param newFormat The new format.
-   * @return Whether the existing instance can be reconfigured.
+   * @return Whether the instance can be kept, and if it can whether it requires reconfiguration.
    */
-  protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive, Format oldFormat,
-      Format newFormat) {
-    return false;
+  protected @KeepCodecResult int canKeepCodec(
+      MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
+    return KEEP_CODEC_RESULT_NO;
   }
 
   @Override
@@ -879,9 +1240,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Override
   public boolean isReady() {
-    return format != null && !waitingForKeys && (isSourceReady() || outputIndex >= 0
-        || (codecHotswapDeadlineMs != C.TIME_UNSET
-        && SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
+    return inputFormat != null
+        && !waitingForKeys
+        && (isSourceReady()
+            || hasOutputBuffer()
+            || (codecHotswapDeadlineMs != C.TIME_UNSET
+                && SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
   }
 
   /**
@@ -894,17 +1258,88 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
+   * Returns the {@link MediaFormat#KEY_OPERATING_RATE} value for a given renderer operating rate,
+   * current format and set of possible stream formats.
+   *
+   * <p>The default implementation returns {@link #CODEC_OPERATING_RATE_UNSET}.
+   *
+   * @param operatingRate The renderer operating rate.
+   * @param format The format for which the codec is being configured.
+   * @param streamFormats The possible stream formats.
+   * @return The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if no codec operating
+   *     rate should be set.
+   */
+  protected float getCodecOperatingRateV23(
+      float operatingRate, Format format, Format[] streamFormats) {
+    return CODEC_OPERATING_RATE_UNSET;
+  }
+
+  /**
+   * Updates the codec operating rate.
+   *
+   * @throws ExoPlaybackException If an error occurs releasing or initializing a codec.
+   */
+  private void updateCodecOperatingRate() throws ExoPlaybackException {
+    if (Util.SDK_INT < 23) {
+      return;
+    }
+
+    float newCodecOperatingRate =
+        getCodecOperatingRateV23(rendererOperatingRate, codecFormat, getStreamFormats());
+    if (codecOperatingRate == newCodecOperatingRate) {
+      // No change.
+    } else if (newCodecOperatingRate == CODEC_OPERATING_RATE_UNSET) {
+      // The only way to clear the operating rate is to instantiate a new codec instance. See
+      // [Internal ref: b/71987865].
+      drainAndReinitializeCodec();
+    } else if (codecOperatingRate != CODEC_OPERATING_RATE_UNSET
+        || newCodecOperatingRate > assumedMinimumCodecOperatingRate) {
+      // We need to set the operating rate, either because we've set it previously or because it's
+      // above the assumed minimum rate.
+      Bundle codecParameters = new Bundle();
+      codecParameters.putFloat(MediaFormat.KEY_OPERATING_RATE, newCodecOperatingRate);
+      codec.setParameters(codecParameters);
+      codecOperatingRate = newCodecOperatingRate;
+    }
+  }
+
+  /** Starts draining the codec for flush. */
+  private void drainAndFlushCodec() {
+    if (codecReceivedBuffers) {
+      codecDrainState = DRAIN_STATE_SIGNAL_END_OF_STREAM;
+      codecDrainAction = DRAIN_ACTION_FLUSH;
+    }
+  }
+
+  /**
+   * Starts draining the codec for re-initialization. Re-initialization may occur immediately if no
+   * buffers have been queued to the codec.
+   *
+   * @throws ExoPlaybackException If an error occurs re-initializing a codec.
+   */
+  private void drainAndReinitializeCodec() throws ExoPlaybackException {
+    if (codecReceivedBuffers) {
+      codecDrainState = DRAIN_STATE_SIGNAL_END_OF_STREAM;
+      codecDrainAction = DRAIN_ACTION_REINITIALIZE;
+    } else {
+      // Nothing has been queued to the decoder, so we can re-initialize immediately.
+      releaseCodec();
+      maybeInitCodec();
+    }
+  }
+
+  /**
    * @return Whether it may be possible to drain more output data.
    * @throws ExoPlaybackException If an error occurs draining the output buffer.
    */
-  @SuppressWarnings("deprecation")
   private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
-    if (outputIndex < 0) {
+    if (!hasOutputBuffer()) {
+      int outputIndex;
       if (codecNeedsEosOutputExceptionWorkaround && codecReceivedEos) {
         try {
-          outputIndex = codec.dequeueOutputBuffer(outputBufferInfo,
-              getDequeueOutputBufferTimeoutUs());
+          outputIndex =
+              codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
         } catch (IllegalStateException e) {
           processEndOfStream();
           if (outputStreamEnded) {
@@ -914,53 +1349,64 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           return false;
         }
       } else {
-        outputIndex = codec.dequeueOutputBuffer(outputBufferInfo,
-            getDequeueOutputBufferTimeoutUs());
+        outputIndex =
+            codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
       }
-      if (outputIndex >= 0) {
-        // We've dequeued a buffer.
-        if (shouldSkipAdaptationWorkaroundOutputBuffer) {
-          shouldSkipAdaptationWorkaroundOutputBuffer = false;
-          codec.releaseOutputBuffer(outputIndex, false);
-          outputIndex = C.INDEX_UNSET;
+
+      if (outputIndex < 0) {
+        if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED /* (-2) */) {
+          processOutputFormat();
+          return true;
+        } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED /* (-3) */) {
+          processOutputBuffersChanged();
           return true;
         }
-        if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-          // The dequeued buffer indicates the end of the stream. Process it immediately.
-          processEndOfStream();
-          outputIndex = C.INDEX_UNSET;
-          return false;
-        } else {
-          // The dequeued buffer is a media buffer. Do some initial setup. The buffer will be
-          // processed by calling processOutputBuffer (possibly multiple times) below.
-          ByteBuffer outputBuffer = outputBuffers[outputIndex];
-          if (outputBuffer != null) {
-            outputBuffer.position(outputBufferInfo.offset);
-            outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
-          }
-          shouldSkipOutputBuffer = shouldSkipOutputBuffer(outputBufferInfo.presentationTimeUs);
-        }
-      } else if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED /* (-2) */) {
-        processOutputFormat();
-        return true;
-      } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED /* (-3) */) {
-        processOutputBuffersChanged();
-        return true;
-      } else /* MediaCodec.INFO_TRY_AGAIN_LATER (-1) or unknown negative return value */ {
-        if (codecNeedsEosPropagationWorkaround && (inputStreamEnded
-            || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM)) {
+        /* MediaCodec.INFO_TRY_AGAIN_LATER (-1) or unknown negative return value */
+        if (codecNeedsEosPropagation
+            && (inputStreamEnded || codecDrainState == DRAIN_STATE_WAIT_END_OF_STREAM)) {
           processEndOfStream();
         }
         return false;
       }
+
+      // We've dequeued a buffer.
+      if (shouldSkipAdaptationWorkaroundOutputBuffer) {
+        shouldSkipAdaptationWorkaroundOutputBuffer = false;
+        codec.releaseOutputBuffer(outputIndex, false);
+        return true;
+      } else if (outputBufferInfo.size == 0
+          && (outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+        // The dequeued buffer indicates the end of the stream. Process it immediately.
+        processEndOfStream();
+        return false;
+      }
+
+      this.outputIndex = outputIndex;
+      outputBuffer = getOutputBuffer(outputIndex);
+      // The dequeued buffer is a media buffer. Do some initial setup.
+      // It will be processed by calling processOutputBuffer (possibly multiple times).
+      if (outputBuffer != null) {
+        outputBuffer.position(outputBufferInfo.offset);
+        outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
+      }
+      shouldSkipOutputBuffer = shouldSkipOutputBuffer(outputBufferInfo.presentationTimeUs);
+      updateOutputFormatForTime(outputBufferInfo.presentationTimeUs);
     }
 
     boolean processedOutputBuffer;
     if (codecNeedsEosOutputExceptionWorkaround && codecReceivedEos) {
       try {
-        processedOutputBuffer = processOutputBuffer(positionUs, elapsedRealtimeUs, codec,
-            outputBuffers[outputIndex], outputIndex, outputBufferInfo.flags,
-            outputBufferInfo.presentationTimeUs, shouldSkipOutputBuffer);
+        processedOutputBuffer =
+            processOutputBuffer(
+                positionUs,
+                elapsedRealtimeUs,
+                codec,
+                outputBuffer,
+                outputIndex,
+                outputBufferInfo.flags,
+                outputBufferInfo.presentationTimeUs,
+                shouldSkipOutputBuffer,
+                outputFormat);
       } catch (IllegalStateException e) {
         processEndOfStream();
         if (outputStreamEnded) {
@@ -970,15 +1416,27 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         return false;
       }
     } else {
-      processedOutputBuffer = processOutputBuffer(positionUs, elapsedRealtimeUs, codec,
-          outputBuffers[outputIndex], outputIndex, outputBufferInfo.flags,
-          outputBufferInfo.presentationTimeUs, shouldSkipOutputBuffer);
+      processedOutputBuffer =
+          processOutputBuffer(
+              positionUs,
+              elapsedRealtimeUs,
+              codec,
+              outputBuffer,
+              outputIndex,
+              outputBufferInfo.flags,
+              outputBufferInfo.presentationTimeUs,
+              shouldSkipOutputBuffer,
+              outputFormat);
     }
 
     if (processedOutputBuffer) {
       onProcessedOutputBuffer(outputBufferInfo.presentationTimeUs);
-      outputIndex = C.INDEX_UNSET;
-      return true;
+      boolean isEndOfStream = (outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
+      resetOutputBuffer();
+      if (!isEndOfStream) {
+        return true;
+      }
+      processEndOfStream();
     }
 
     return false;
@@ -989,7 +1447,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private void processOutputFormat() throws ExoPlaybackException {
     MediaFormat format = codec.getOutputFormat();
-    if (codecNeedsAdaptationWorkaround
+    if (codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER
         && format.getInteger(MediaFormat.KEY_WIDTH) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT
         && format.getInteger(MediaFormat.KEY_HEIGHT) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT) {
       // We assume this format changed event was caused by the adaptation workaround.
@@ -1005,43 +1463,51 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /**
    * Processes a change in the output buffers.
    */
-  @SuppressWarnings("deprecation")
   private void processOutputBuffersChanged() {
-    outputBuffers = codec.getOutputBuffers();
+    if (Util.SDK_INT < 21) {
+      outputBuffers = codec.getOutputBuffers();
+    }
   }
 
   /**
    * Processes an output media buffer.
-   * <p>
-   * When a new {@link ByteBuffer} is passed to this method its position and limit delineate the
+   *
+   * <p>When a new {@link ByteBuffer} is passed to this method its position and limit delineate the
    * data to be processed. The return value indicates whether the buffer was processed in full. If
    * true is returned then the next call to this method will receive a new buffer to be processed.
    * If false is returned then the same buffer will be passed to the next call. An implementation of
    * this method is free to modify the buffer and can assume that the buffer will not be externally
    * modified between successive calls. Hence an implementation can, for example, modify the
    * buffer's position to keep track of how much of the data it has processed.
-   * <p>
-   * Note that the first call to this method following a call to
-   * {@link #onPositionReset(long, boolean)} will always receive a new {@link ByteBuffer} to be
-   * processed.
    *
-   * @param positionUs The current media time in microseconds, measured at the start of the
-   *     current iteration of the rendering loop.
-   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
-   *     measured at the start of the current iteration of the rendering loop.
+   * <p>Note that the first call to this method following a call to {@link #onPositionReset(long,
+   * boolean)} will always receive a new {@link ByteBuffer} to be processed.
+   *
+   * @param positionUs The current media time in microseconds, measured at the start of the current
+   *     iteration of the rendering loop.
+   * @param elapsedRealtimeUs {@link SystemClock#elapsedRealtime()} in microseconds, measured at the
+   *     start of the current iteration of the rendering loop.
    * @param codec The {@link MediaCodec} instance.
    * @param buffer The output buffer to process.
    * @param bufferIndex The index of the output buffer.
    * @param bufferFlags The flags attached to the output buffer.
    * @param bufferPresentationTimeUs The presentation time of the output buffer in microseconds.
    * @param shouldSkip Whether the buffer should be skipped (i.e. not rendered).
-   *
+   * @param format The format associated with the buffer.
    * @return Whether the output buffer was fully processed (e.g. rendered or skipped).
    * @throws ExoPlaybackException If an error occurs processing the output buffer.
    */
-  protected abstract boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs,
-      MediaCodec codec, ByteBuffer buffer, int bufferIndex, int bufferFlags,
-      long bufferPresentationTimeUs, boolean shouldSkip) throws ExoPlaybackException;
+  protected abstract boolean processOutputBuffer(
+      long positionUs,
+      long elapsedRealtimeUs,
+      MediaCodec codec,
+      ByteBuffer buffer,
+      int bufferIndex,
+      int bufferFlags,
+      long bufferPresentationTimeUs,
+      boolean shouldSkip,
+      Format format)
+      throws ExoPlaybackException;
 
   /**
    * Incrementally renders any remaining output.
@@ -1060,13 +1526,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs processing the signal.
    */
   private void processEndOfStream() throws ExoPlaybackException {
-    if (codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
-      // We're waiting to re-initialize the codec, and have now processed all final buffers.
-      releaseCodec();
-      maybeInitCodec();
-    } else {
-      outputStreamEnded = true;
-      renderToEndOfStream();
+    switch (codecDrainAction) {
+      case DRAIN_ACTION_REINITIALIZE:
+        releaseCodec();
+        maybeInitCodec();
+        break;
+      case DRAIN_ACTION_FLUSH:
+        flushOrReinitCodec();
+        break;
+      case DRAIN_ACTION_NONE:
+      default:
+        outputStreamEnded = true;
+        renderToEndOfStream();
+        break;
     }
   }
 
@@ -1083,23 +1555,30 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return false;
   }
 
-  /**
-   * Returns whether the encryption scheme is supported, or true if {@code drmInitData} is null.
-   *
-   * @param drmSessionManager The drm session manager associated with the renderer.
-   * @param drmInitData {@link DrmInitData} of the format to check for support.
-   * @return Whether the encryption scheme is supported, or true if {@code drmInitData} is null.
-   */
-  private static boolean isDrmSchemeSupported(DrmSessionManager drmSessionManager,
-      @Nullable DrmInitData drmInitData) {
-    if (drmInitData == null) {
-      // Content is unencrypted.
-      return true;
-    } else if (drmSessionManager == null) {
-      // Content is encrypted, but no drm session manager is available.
-      return false;
+  private static MediaCodec.CryptoInfo getFrameworkCryptoInfo(
+      DecoderInputBuffer buffer, int adaptiveReconfigurationBytes) {
+    MediaCodec.CryptoInfo cryptoInfo = buffer.cryptoInfo.getFrameworkCryptoInfoV16();
+    if (adaptiveReconfigurationBytes == 0) {
+      return cryptoInfo;
     }
-    return drmSessionManager.canAcquireSession(drmInitData);
+    // There must be at least one sub-sample, although numBytesOfClearData is permitted to be
+    // null if it contains no clear data. Instantiate it if needed, and add the reconfiguration
+    // bytes to the clear byte count of the first sub-sample.
+    if (cryptoInfo.numBytesOfClearData == null) {
+      cryptoInfo.numBytesOfClearData = new int[1];
+    }
+    cryptoInfo.numBytesOfClearData[0] += adaptiveReconfigurationBytes;
+    return cryptoInfo;
+  }
+
+  /**
+   * Returns whether the device needs keys to have been loaded into the {@link DrmSession} before
+   * codec configuration.
+   */
+  private boolean deviceNeedsDrmKeysToConfigureCodecWorkaround() {
+    return "Amazon".equals(Util.MANUFACTURER)
+        && ("AFTM".equals(Util.MODEL) // Fire TV Stick Gen 1
+            || "AFTB".equals(Util.MODEL)); // Fire TV Gen 1
   }
 
   /**
@@ -1122,22 +1601,46 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Returns whether the decoder is known to get stuck during some adaptations where the resolution
-   * does not change.
-   * <p>
-   * If true is returned, the renderer will work around the issue by queueing and discarding a blank
-   * frame at a different resolution, which resets the codec's internal state.
-   * <p>
-   * See [Internal: b/27807182].
+   * Returns a mode that specifies when the adaptation workaround should be enabled.
+   *
+   * <p>When enabled, the workaround queues and discards a blank frame with a resolution whose width
+   * and height both equal {@link #ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT}, to reset the decoder's
+   * internal state when a format change occurs.
+   *
+   * <p>See [Internal: b/27807182]. See <a
+   * href="https://github.com/google/ExoPlayer/issues/3257">GitHub issue #3257</a>.
    *
    * @param name The name of the decoder.
-   * @return True if the decoder is known to get stuck during some adaptations.
+   * @return The mode specifying when the adaptation workaround should be enabled.
    */
-  private static boolean codecNeedsAdaptationWorkaround(String name) {
-    return Util.SDK_INT < 24
+  private @AdaptationWorkaroundMode int codecAdaptationWorkaroundMode(String name) {
+    if (Util.SDK_INT <= 25 && "OMX.Exynos.avc.dec.secure".equals(name)
+        && (Util.MODEL.startsWith("SM-T585") || Util.MODEL.startsWith("SM-A510")
+        || Util.MODEL.startsWith("SM-A520") || Util.MODEL.startsWith("SM-J700"))) {
+      return ADAPTATION_WORKAROUND_MODE_ALWAYS;
+    } else if (Util.SDK_INT < 24
         && ("OMX.Nvidia.h264.decode".equals(name) || "OMX.Nvidia.h264.decode.secure".equals(name))
         && ("flounder".equals(Util.DEVICE) || "flounder_lte".equals(Util.DEVICE)
-        || "grouper".equals(Util.DEVICE) || "tilapia".equals(Util.DEVICE));
+        || "grouper".equals(Util.DEVICE) || "tilapia".equals(Util.DEVICE))) {
+      return ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION;
+    } else {
+      return ADAPTATION_WORKAROUND_MODE_NEVER;
+    }
+  }
+
+  /**
+   * Returns whether the decoder is known to fail when an attempt is made to reconfigure it with a
+   * new format's configuration data.
+   *
+   * <p>When enabled, the workaround will always release and recreate the decoder, rather than
+   * attempting to reconfigure the existing instance.
+   *
+   * @param name The name of the decoder.
+   * @return True if the decoder is known to fail when an attempt is made to reconfigure it with a
+   *     new format's configuration data.
+   */
+  private static boolean codecNeedsReconfigureWorkaround(String name) {
+    return Util.MODEL.startsWith("SM-T230") && "OMX.MARVELL.VIDEO.HW.CODA7542DECODER".equals(name);
   }
 
   /**
@@ -1156,20 +1659,23 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Returns whether the decoder is known to handle the propagation of the
-   * {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag incorrectly on the host device.
-   * <p>
-   * If true is returned, the renderer will work around the issue by approximating end of stream
+   * Returns whether the decoder is known to handle the propagation of the {@link
+   * MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag incorrectly on the host device.
+   *
+   * <p>If true is returned, the renderer will work around the issue by approximating end of stream
    * behavior without relying on the flag being propagated through to an output buffer by the
    * underlying decoder.
    *
-   * @param name The name of the decoder.
+   * @param codecInfo Information about the {@link MediaCodec}.
    * @return True if the decoder is known to handle {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM}
    *     propagation incorrectly on the host device. False otherwise.
    */
-  private static boolean codecNeedsEosPropagationWorkaround(String name) {
-    return Util.SDK_INT <= 17 && ("OMX.rk.video_decoder.avc".equals(name)
-        || "OMX.allwinner.video.decoder.avc".equals(name));
+  private static boolean codecNeedsEosPropagationWorkaround(MediaCodecInfo codecInfo) {
+    String name = codecInfo.name;
+    return (Util.SDK_INT <= 17
+            && ("OMX.rk.video_decoder.avc".equals(name)
+                || "OMX.allwinner.video.decoder.avc".equals(name)))
+        || ("Amazon".equals(Util.MANUFACTURER) && "AFTS".equals(Util.MODEL) && codecInfo.secure);
   }
 
   /**

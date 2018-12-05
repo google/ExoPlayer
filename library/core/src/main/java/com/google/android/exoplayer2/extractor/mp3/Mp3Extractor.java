@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp3;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -24,41 +25,40 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
+import com.google.android.exoplayer2.extractor.Id3Peeker;
 import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
+import com.google.android.exoplayer2.metadata.id3.Id3Decoder.FramePredicate;
+import com.google.android.exoplayer2.metadata.id3.MlltFrame;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Extracts data from an MP3 file.
+ * Extracts data from the MP3 container format.
  */
 public final class Mp3Extractor implements Extractor {
 
-  /**
-   * Factory for {@link Mp3Extractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new Mp3Extractor()};
-    }
-
-  };
+  /** Factory for {@link Mp3Extractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new Mp3Extractor()};
 
   /**
-   * Flags controlling the behavior of the extractor.
+   * Flags controlling the behavior of the extractor. Possible flag values are {@link
+   * #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING} and {@link #FLAG_DISABLE_ID3_METADATA}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {FLAG_ENABLE_CONSTANT_BITRATE_SEEKING, FLAG_DISABLE_ID3_METADATA})
+  @IntDef(
+      flag = true,
+      value = {FLAG_ENABLE_CONSTANT_BITRATE_SEEKING, FLAG_DISABLE_ID3_METADATA})
   public @interface Flags {}
   /**
    * Flag to force enable seeking using a constant bitrate assumption in cases where seeking would
@@ -70,6 +70,12 @@ public final class Mp3Extractor implements Extractor {
    * required.
    */
   public static final int FLAG_DISABLE_ID3_METADATA = 2;
+
+  /** Predicate that matches ID3 frames containing only required gapless/seeking metadata. */
+  private static final FramePredicate REQUIRED_ID3_FRAME_PREDICATE =
+      (majorVersion, id0, id1, id2, id3) ->
+          ((id0 == 'C' && id1 == 'O' && id2 == 'M' && (id3 == 'M' || majorVersion == 2))
+              || (id0 == 'M' && id1 == 'L' && id2 == 'L' && (id3 == 'T' || majorVersion == 2)));
 
   /**
    * The maximum number of bytes to search when synchronizing, before giving up.
@@ -99,6 +105,7 @@ public final class Mp3Extractor implements Extractor {
   private final ParsableByteArray scratch;
   private final MpegAudioHeader synchronizedHeader;
   private final GaplessInfoHolder gaplessInfoHolder;
+  private final Id3Peeker id3Peeker;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
@@ -112,16 +119,11 @@ public final class Mp3Extractor implements Extractor {
   private long samplesRead;
   private int sampleBytesRemaining;
 
-  /**
-   * Constructs a new {@link Mp3Extractor}.
-   */
   public Mp3Extractor() {
     this(0);
   }
 
   /**
-   * Constructs a new {@link Mp3Extractor}.
-   *
    * @param flags Flags that control the extractor's behavior.
    */
   public Mp3Extractor(@Flags int flags) {
@@ -129,8 +131,6 @@ public final class Mp3Extractor implements Extractor {
   }
 
   /**
-   * Constructs a new {@link Mp3Extractor}.
-   *
    * @param flags Flags that control the extractor's behavior.
    * @param forcedFirstSampleTimestampUs A timestamp to force for the first sample, or
    *     {@link C#TIME_UNSET} if forcing is not required.
@@ -142,7 +142,10 @@ public final class Mp3Extractor implements Extractor {
     synchronizedHeader = new MpegAudioHeader();
     gaplessInfoHolder = new GaplessInfoHolder();
     basisTimeUs = C.TIME_UNSET;
+    id3Peeker = new Id3Peeker();
   }
+
+  // Extractor implementation.
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
@@ -180,25 +183,47 @@ public final class Mp3Extractor implements Extractor {
       }
     }
     if (seeker == null) {
-      seeker = maybeReadSeekFrame(input);
+      // Read past any seek frame and set the seeker based on metadata or a seek frame. Metadata
+      // takes priority as it can provide greater precision.
+      Seeker seekFrameSeeker = maybeReadSeekFrame(input);
+      Seeker metadataSeeker = maybeHandleSeekMetadata(metadata, input.getPosition());
+      if (metadataSeeker != null) {
+        seeker = metadataSeeker;
+      } else if (seekFrameSeeker != null) {
+        seeker = seekFrameSeeker;
+      }
       if (seeker == null
           || (!seeker.isSeekable() && (flags & FLAG_ENABLE_CONSTANT_BITRATE_SEEKING) != 0)) {
         seeker = getConstantBitrateSeeker(input);
       }
       extractorOutput.seekMap(seeker);
-      trackOutput.format(Format.createAudioSampleFormat(null, synchronizedHeader.mimeType, null,
-          Format.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, synchronizedHeader.channels,
-          synchronizedHeader.sampleRate, Format.NO_VALUE, gaplessInfoHolder.encoderDelay,
-          gaplessInfoHolder.encoderPadding, null, null, 0, null,
-          (flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata));
+      trackOutput.format(
+          Format.createAudioSampleFormat(
+              /* id= */ null,
+              synchronizedHeader.mimeType,
+              /* codecs= */ null,
+              /* bitrate= */ Format.NO_VALUE,
+              MpegAudioHeader.MAX_FRAME_SIZE_BYTES,
+              synchronizedHeader.channels,
+              synchronizedHeader.sampleRate,
+              /* pcmEncoding= */ Format.NO_VALUE,
+              gaplessInfoHolder.encoderDelay,
+              gaplessInfoHolder.encoderPadding,
+              /* initializationData= */ null,
+              /* drmInitData= */ null,
+              /* selectionFlags= */ 0,
+              /* language= */ null,
+              (flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata));
     }
     return readSample(input);
   }
 
+  // Internal methods.
+
   private int readSample(ExtractorInput extractorInput) throws IOException, InterruptedException {
     if (sampleBytesRemaining == 0) {
       extractorInput.resetPeekPosition();
-      if (!extractorInput.peekFully(scratch.data, 0, 4, true)) {
+      if (peekEndOfStreamOrHeader(extractorInput)) {
         return RESULT_END_OF_INPUT;
       }
       scratch.setPosition(0);
@@ -245,16 +270,27 @@ public final class Mp3Extractor implements Extractor {
     int searchLimitBytes = sniffing ? MAX_SNIFF_BYTES : MAX_SYNC_BYTES;
     input.resetPeekPosition();
     if (input.getPosition() == 0) {
-      peekId3Data(input);
+      // We need to parse enough ID3 metadata to retrieve any gapless/seeking playback information
+      // even if ID3 metadata parsing is disabled.
+      boolean parseAllId3Frames = (flags & FLAG_DISABLE_ID3_METADATA) == 0;
+      Id3Decoder.FramePredicate id3FramePredicate =
+          parseAllId3Frames ? null : REQUIRED_ID3_FRAME_PREDICATE;
+      metadata = id3Peeker.peekId3Data(input, id3FramePredicate);
+      if (metadata != null) {
+        gaplessInfoHolder.setFromMetadata(metadata);
+      }
       peekedId3Bytes = (int) input.getPeekPosition();
       if (!sniffing) {
         input.skipFully(peekedId3Bytes);
       }
     }
     while (true) {
-      if (!input.peekFully(scratch.data, 0, 4, validFrameCount > 0)) {
-        // We reached the end of the stream but found at least one valid frame.
-        break;
+      if (peekEndOfStreamOrHeader(input)) {
+        if (validFrameCount > 0) {
+          // We reached the end of the stream but found at least one valid frame.
+          break;
+        }
+        throw new EOFException();
       }
       scratch.setPosition(0);
       int headerData = scratch.readInt();
@@ -300,46 +336,14 @@ public final class Mp3Extractor implements Extractor {
   }
 
   /**
-   * Peeks ID3 data from the input, including gapless playback information.
-   *
-   * @param input The {@link ExtractorInput} from which data should be peeked.
-   * @throws IOException If an error occurred peeking from the input.
-   * @throws InterruptedException If the thread was interrupted.
+   * Returns whether the extractor input is peeking the end of the stream. If {@code false},
+   * populates the scratch buffer with the next four bytes.
    */
-  private void peekId3Data(ExtractorInput input) throws IOException, InterruptedException {
-    int peekedId3Bytes = 0;
-    while (true) {
-      input.peekFully(scratch.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
-      scratch.setPosition(0);
-      if (scratch.readUnsignedInt24() != Id3Decoder.ID3_TAG) {
-        // Not an ID3 tag.
-        break;
-      }
-      scratch.skipBytes(3); // Skip major version, minor version and flags.
-      int framesLength = scratch.readSynchSafeInt();
-      int tagLength = Id3Decoder.ID3_HEADER_LENGTH + framesLength;
-
-      if (metadata == null) {
-        byte[] id3Data = new byte[tagLength];
-        System.arraycopy(scratch.data, 0, id3Data, 0, Id3Decoder.ID3_HEADER_LENGTH);
-        input.peekFully(id3Data, Id3Decoder.ID3_HEADER_LENGTH, framesLength);
-        // We need to parse enough ID3 metadata to retrieve any gapless playback information even
-        // if ID3 metadata parsing is disabled.
-        Id3Decoder.FramePredicate id3FramePredicate = (flags & FLAG_DISABLE_ID3_METADATA) != 0
-            ? GaplessInfoHolder.GAPLESS_INFO_ID3_FRAME_PREDICATE : null;
-        metadata = new Id3Decoder(id3FramePredicate).decode(id3Data, tagLength);
-        if (metadata != null) {
-          gaplessInfoHolder.setFromMetadata(metadata);
-        }
-      } else {
-        input.advancePeekPosition(framesLength);
-      }
-
-      peekedId3Bytes += tagLength;
-    }
-
-    input.resetPeekPosition();
-    input.advancePeekPosition(peekedId3Bytes);
+  private boolean peekEndOfStreamOrHeader(ExtractorInput extractorInput)
+      throws IOException, InterruptedException {
+    return (seeker != null && extractorInput.getPeekPosition() == seeker.getDataEndPosition())
+        || !extractorInput.peekFully(
+            scratch.data, /* offset= */ 0, /* length= */ 4, /* allowEndOfInput= */ true);
   }
 
   /**
@@ -363,7 +367,7 @@ public final class Mp3Extractor implements Extractor {
     int seekHeader = getSeekFrameHeader(frame, xingBase);
     Seeker seeker;
     if (seekHeader == SEEK_HEADER_XING || seekHeader == SEEK_HEADER_INFO) {
-      seeker = XingSeeker.create(synchronizedHeader, frame, input.getPosition(), input.getLength());
+      seeker = XingSeeker.create(input.getLength(), input.getPosition(), synchronizedHeader, frame);
       if (seeker != null && !gaplessInfoHolder.hasGaplessInfo()) {
         // If there is a Xing header, read gapless playback metadata at a fixed offset.
         input.resetPeekPosition();
@@ -378,7 +382,7 @@ public final class Mp3Extractor implements Extractor {
         return getConstantBitrateSeeker(input);
       }
     } else if (seekHeader == SEEK_HEADER_VBRI) {
-      seeker = VbriSeeker.create(synchronizedHeader, frame, input.getPosition(), input.getLength());
+      seeker = VbriSeeker.create(input.getLength(), input.getPosition(), synchronizedHeader, frame);
       input.skipFully(synchronizedHeader.frameSize);
     } else { // seekerHeader == SEEK_HEADER_UNSET
       // This frame doesn't contain seeking information, so reset the peek position.
@@ -396,8 +400,7 @@ public final class Mp3Extractor implements Extractor {
     input.peekFully(scratch.data, 0, 4);
     scratch.setPosition(0);
     MpegAudioHeader.populateHeader(scratch.readInt(), synchronizedHeader);
-    return new ConstantBitrateSeeker(input.getPosition(), synchronizedHeader.bitrate,
-        input.getLength());
+    return new ConstantBitrateSeeker(input.getLength(), input.getPosition(), synchronizedHeader);
   }
 
   /**
@@ -429,9 +432,24 @@ public final class Mp3Extractor implements Extractor {
     return SEEK_HEADER_UNSET;
   }
 
+  @Nullable
+  private static MlltSeeker maybeHandleSeekMetadata(Metadata metadata, long firstFramePosition) {
+    if (metadata != null) {
+      int length = metadata.length();
+      for (int i = 0; i < length; i++) {
+        Metadata.Entry entry = metadata.get(i);
+        if (entry instanceof MlltFrame) {
+          return MlltSeeker.create(firstFramePosition, (MlltFrame) entry);
+        }
+      }
+    }
+    return null;
+  }
+
   /**
-   * {@link SeekMap} that also allows mapping from position (byte offset) back to time, which can be
-   * used to work out the new sample basis timestamp after seeking and resynchronization.
+   * {@link SeekMap} that provides the end position of audio data and also allows mapping from
+   * position (byte offset) back to time, which can be used to work out the new sample basis
+   * timestamp after seeking and resynchronization.
    */
   /* package */ interface Seeker extends SeekMap {
 
@@ -443,6 +461,11 @@ public final class Mp3Extractor implements Extractor {
      */
     long getTimeUs(long position);
 
+    /**
+     * Returns the position (byte offset) in the stream that is immediately after audio data, or
+     * {@link C#POSITION_UNSET} if not known.
+     */
+    long getDataEndPosition();
   }
 
 }

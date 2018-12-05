@@ -1,0 +1,7 @@
+# Proguard rules specific to the dash module.
+
+# Constructors accessed via reflection in SegmentDownloadAction
+-dontnote com.google.android.exoplayer2.source.dash.offline.DashDownloadAction
+-keepclassmembers class com.google.android.exoplayer2.source.dash.offline.DashDownloadAction {
+  static ** DESERIALIZER;
+}

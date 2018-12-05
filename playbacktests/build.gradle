@@ -18,15 +18,24 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 }
 
 dependencies {
-    androidTestCompile project(modulePrefix + 'library-core')
-    androidTestCompile project(modulePrefix + 'library-dash')
-    androidTestCompile project(modulePrefix + 'library-hls')
-    androidTestCompile project(modulePrefix + 'testutils')
+    androidTestImplementation 'androidx.test:rules:' + testRunnerVersion
+    androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
+    androidTestImplementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    androidTestImplementation project(modulePrefix + 'library-core')
+    androidTestImplementation project(modulePrefix + 'library-dash')
+    androidTestImplementation project(modulePrefix + 'library-hls')
+    androidTestImplementation project(modulePrefix + 'testutils')
 }

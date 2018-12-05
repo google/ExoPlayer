@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import android.util.Log;
+import android.support.annotation.VisibleForTesting;
 import android.util.SparseArray;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.AtomicFile;
@@ -27,7 +26,6 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,7 +34,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Random;
 import java.util.Set;
 import javax.crypto.Cipher;
@@ -46,24 +43,21 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-/**
- * This class maintains the index of cached content.
- */
-/*package*/ final class CachedContentIndex {
+/** Maintains the index of cached content. */
+/* package */ class CachedContentIndex {
 
   public static final String FILE_NAME = "cached_content_index.exi";
 
-  private static final int VERSION = 1;
+  private static final int VERSION = 2;
 
   private static final int FLAG_ENCRYPTED_INDEX = 1;
-
-  private static final String TAG = "CachedContentIndex";
 
   private final HashMap<String, CachedContent> keyToContent;
   private final SparseArray<String> idToKey;
   private final AtomicFile atomicFile;
   private final Cipher cipher;
   private final SecretKeySpec secretKeySpec;
+  private final boolean encrypt;
   private boolean changed;
   private ReusableBufferedOutputStream bufferedOutputStream;
 
@@ -80,19 +74,32 @@ import javax.crypto.spec.SecretKeySpec;
    * Creates a CachedContentIndex which works on the index file in the given cacheDir.
    *
    * @param cacheDir Directory where the index file is kept.
-   * @param secretKey If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
-   *     The key must be 16 bytes long.
+   * @param secretKey 16 byte AES key for reading and writing the cache index.
    */
   public CachedContentIndex(File cacheDir, byte[] secretKey) {
+    this(cacheDir, secretKey, secretKey != null);
+  }
+
+  /**
+   * Creates a CachedContentIndex which works on the index file in the given cacheDir.
+   *
+   * @param cacheDir Directory where the index file is kept.
+   * @param secretKey 16 byte AES key for reading, and optionally writing, the cache index.
+   * @param encrypt Whether the index will be encrypted when written. Must be false if {@code
+   *     secretKey} is null.
+   */
+  public CachedContentIndex(File cacheDir, byte[] secretKey, boolean encrypt) {
+    this.encrypt = encrypt;
     if (secretKey != null) {
       Assertions.checkArgument(secretKey.length == 16);
       try {
-        cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher = getCipher();
         secretKeySpec = new SecretKeySpec(secretKey, "AES");
       } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
         throw new IllegalStateException(e); // Should never happen.
       }
     } else {
+      Assertions.checkState(!encrypt);
       cipher = null;
       secretKeySpec = null;
     }
@@ -126,12 +133,9 @@ import javax.crypto.spec.SecretKeySpec;
    * @param key The cache key that uniquely identifies the original stream.
    * @return A new or existing CachedContent instance with the given key.
    */
-  public CachedContent add(String key) {
+  public CachedContent getOrAdd(String key) {
     CachedContent cachedContent = keyToContent.get(key);
-    if (cachedContent == null) {
-      cachedContent = addNew(key, C.LENGTH_UNSET);
-    }
-    return cachedContent;
+    return cachedContent == null ? addNew(key) : cachedContent;
   }
 
   /** Returns a CachedContent instance with the given key or null if there isn't one. */
@@ -152,7 +156,7 @@ import javax.crypto.spec.SecretKeySpec;
 
   /** Returns an existing or new id assigned to the given key. */
   public int assignIdForKey(String key) {
-    return add(key).id;
+    return getOrAdd(key).id;
   }
 
   /** Returns the key which has the given id assigned. */
@@ -160,30 +164,22 @@ import javax.crypto.spec.SecretKeySpec;
     return idToKey.get(id);
   }
 
-  /**
-   * Removes {@link CachedContent} with the given key from index. It shouldn't contain any spans.
-   *
-   * @throws IllegalStateException If {@link CachedContent} isn't empty.
-   */
-  public void removeEmpty(String key) {
-    CachedContent cachedContent = keyToContent.remove(key);
-    if (cachedContent != null) {
-      Assertions.checkState(cachedContent.isEmpty());
+  /** Removes {@link CachedContent} with the given key from index if it's empty and not locked. */
+  public void maybeRemove(String key) {
+    CachedContent cachedContent = keyToContent.get(key);
+    if (cachedContent != null && cachedContent.isEmpty() && !cachedContent.isLocked()) {
+      keyToContent.remove(key);
       idToKey.remove(cachedContent.id);
       changed = true;
     }
   }
 
-  /** Removes empty {@link CachedContent} instances from index. */
+  /** Removes empty and not locked {@link CachedContent} instances from index. */
   public void removeEmpty() {
-    LinkedList<String> cachedContentToBeRemoved = new LinkedList<>();
-    for (CachedContent cachedContent : keyToContent.values()) {
-      if (cachedContent.isEmpty()) {
-        cachedContentToBeRemoved.add(cachedContent.key);
-      }
-    }
-    for (String key : cachedContentToBeRemoved) {
-      removeEmpty(key);
+    String[] keys = new String[keyToContent.size()];
+    keyToContent.keySet().toArray(keys);
+    for (String key : keys) {
+      maybeRemove(key);
     }
   }
 
@@ -198,28 +194,20 @@ import javax.crypto.spec.SecretKeySpec;
   }
 
   /**
-   * Sets the content length for the given key. A new {@link CachedContent} is added if there isn't
-   * one already with the given key.
+   * Applies {@code mutations} to the {@link ContentMetadata} for the given key. A new {@link
+   * CachedContent} is added if there isn't one already with the given key.
    */
-  public void setContentLength(String key, long length) {
-    CachedContent cachedContent = get(key);
-    if (cachedContent != null) {
-      if (cachedContent.getLength() != length) {
-        cachedContent.setLength(length);
-        changed = true;
-      }
-    } else {
-      addNew(key, length);
+  public void applyContentMetadataMutations(String key, ContentMetadataMutations mutations) {
+    CachedContent cachedContent = getOrAdd(key);
+    if (cachedContent.applyMetadataMutations(mutations)) {
+      changed = true;
     }
   }
 
-  /**
-   * Returns the content length for the given key if one set, or {@link
-   * com.google.android.exoplayer2.C#LENGTH_UNSET} otherwise.
-   */
-  public long getContentLength(String key) {
+  /** Returns a {@link ContentMetadata} for the given key. */
+  public ContentMetadata getContentMetadata(String key) {
     CachedContent cachedContent = get(key);
-    return cachedContent == null ? C.LENGTH_UNSET : cachedContent.getLength();
+    return cachedContent != null ? cachedContent.getMetadata() : DefaultContentMetadata.EMPTY;
   }
 
   private boolean readFile() {
@@ -228,8 +216,7 @@ import javax.crypto.spec.SecretKeySpec;
       InputStream inputStream = new BufferedInputStream(atomicFile.openRead());
       input = new DataInputStream(inputStream);
       int version = input.readInt();
-      if (version != VERSION) {
-        // Currently there is no other version
+      if (version < 0 || version > VERSION) {
         return false;
       }
 
@@ -247,26 +234,23 @@ import javax.crypto.spec.SecretKeySpec;
           throw new IllegalStateException(e);
         }
         input = new DataInputStream(new CipherInputStream(inputStream, cipher));
-      } else {
-        if (cipher != null) {
-          changed = true; // Force index to be rewritten encrypted after read.
-        }
+      } else if (encrypt) {
+        changed = true; // Force index to be rewritten encrypted after read.
       }
 
       int count = input.readInt();
       int hashCode = 0;
       for (int i = 0; i < count; i++) {
-        CachedContent cachedContent = new CachedContent(input);
+        CachedContent cachedContent = CachedContent.readFromStream(version, input);
         add(cachedContent);
-        hashCode += cachedContent.headerHashCode();
+        hashCode += cachedContent.headerHashCode(version);
       }
-      if (input.readInt() != hashCode) {
+      int fileHashCode = input.readInt();
+      boolean isEOF = input.read() == -1;
+      if (fileHashCode != hashCode || !isEOF) {
         return false;
       }
-    } catch (FileNotFoundException e) {
-      return false;
     } catch (IOException e) {
-      Log.e(TAG, "Error reading cache content index file.", e);
       return false;
     } finally {
       if (input != null) {
@@ -288,10 +272,10 @@ import javax.crypto.spec.SecretKeySpec;
       output = new DataOutputStream(bufferedOutputStream);
       output.writeInt(VERSION);
 
-      int flags = cipher != null ? FLAG_ENCRYPTED_INDEX : 0;
+      int flags = encrypt ? FLAG_ENCRYPTED_INDEX : 0;
       output.writeInt(flags);
 
-      if (cipher != null) {
+      if (encrypt) {
         byte[] initializationVector = new byte[16];
         new Random().nextBytes(initializationVector);
         output.write(initializationVector);
@@ -309,7 +293,7 @@ import javax.crypto.spec.SecretKeySpec;
       int hashCode = 0;
       for (CachedContent cachedContent : keyToContent.values()) {
         cachedContent.writeToStream(output);
-        hashCode += cachedContent.headerHashCode();
+        hashCode += cachedContent.headerHashCode(VERSION);
       }
       output.writeInt(hashCode);
       atomicFile.endWrite(output);
@@ -323,22 +307,29 @@ import javax.crypto.spec.SecretKeySpec;
     }
   }
 
+  private CachedContent addNew(String key) {
+    int id = getNewId(idToKey);
+    CachedContent cachedContent = new CachedContent(id, key);
+    add(cachedContent);
+    changed = true;
+    return cachedContent;
+  }
+
   private void add(CachedContent cachedContent) {
     keyToContent.put(cachedContent.key, cachedContent);
     idToKey.put(cachedContent.id, cachedContent.key);
   }
 
-  /** Adds the given CachedContent to the index. */
-  /*package*/ void addNew(CachedContent cachedContent) {
-    add(cachedContent);
-    changed = true;
-  }
-
-  private CachedContent addNew(String key, long length) {
-    int id = getNewId(idToKey);
-    CachedContent cachedContent = new CachedContent(id, key, length);
-    addNew(cachedContent);
-    return cachedContent;
+  private static Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+    // Workaround for https://issuetracker.google.com/issues/36976726
+    if (Util.SDK_INT == 18) {
+      try {
+        return Cipher.getInstance("AES/CBC/PKCS5PADDING", "BC");
+      } catch (Throwable ignored) {
+        // ignored
+      }
+    }
+    return Cipher.getInstance("AES/CBC/PKCS5PADDING");
   }
 
   /**
@@ -346,7 +337,7 @@ import javax.crypto.spec.SecretKeySpec;
    * than {@link java.lang.Integer#MAX_VALUE} it just returns the next bigger integer. Otherwise it
    * returns the smallest unused non-negative integer.
    */
-  //@VisibleForTesting
+  @VisibleForTesting
   public static int getNewId(SparseArray<String> idToKey) {
     int size = idToKey.size();
     int id = size == 0 ? 0 : (idToKey.keyAt(size - 1) + 1);

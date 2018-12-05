@@ -47,4 +47,4 @@ endif
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include
 
-include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)

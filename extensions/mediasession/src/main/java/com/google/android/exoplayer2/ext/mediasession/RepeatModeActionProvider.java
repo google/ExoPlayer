@@ -1,6 +1,5 @@
-package com.google.android.exoplayer2.ext.mediasession;
 /*
- * Copyright (c) 2017 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +13,12 @@ package com.google.android.exoplayer2.ext.mediasession;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.exoplayer2.ext.mediasession;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.session.PlaybackStateCompat;
-import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 
@@ -27,12 +27,13 @@ import com.google.android.exoplayer2.util.RepeatModeUtil;
  */
 public final class RepeatModeActionProvider implements MediaSessionConnector.CustomActionProvider {
 
-  private static final String ACTION_REPEAT_MODE = "ACTION_EXO_REPEAT_MODE";
+  /** The default repeat toggle modes. */
   @RepeatModeUtil.RepeatToggleModes
-  private static final int DEFAULT_REPEAT_MODES = RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE
-      | RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL;
+  public static final int DEFAULT_REPEAT_TOGGLE_MODES =
+      RepeatModeUtil.REPEAT_TOGGLE_MODE_ONE | RepeatModeUtil.REPEAT_TOGGLE_MODE_ALL;
 
-  private final ExoPlayer player;
+  private static final String ACTION_REPEAT_MODE = "ACTION_EXO_REPEAT_MODE";
+
   @RepeatModeUtil.RepeatToggleModes
   private final int repeatToggleModes;
   private final CharSequence repeatAllDescription;
@@ -40,28 +41,24 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
   private final CharSequence repeatOffDescription;
 
   /**
-   * Creates a new {@link RepeatModeActionProvider}.
-   * <p>
-   * This is equivalent to calling the two argument constructor with
-   * {@code RepeatModeUtil#REPEAT_TOGGLE_MODE_ONE | RepeatModeUtil#REPEAT_TOGGLE_MODE_ALL}.
+   * Creates a new instance.
+   *
+   * <p>Equivalent to {@code RepeatModeActionProvider(context, DEFAULT_REPEAT_TOGGLE_MODES)}.
    *
    * @param context The context.
-   * @param player The player on which to toggle the repeat mode.
    */
-  public RepeatModeActionProvider(Context context, ExoPlayer player) {
-    this(context, player, DEFAULT_REPEAT_MODES);
+  public RepeatModeActionProvider(Context context) {
+    this(context, DEFAULT_REPEAT_TOGGLE_MODES);
   }
 
   /**
-   * Creates a new {@link RepeatModeActionProvider} for the given repeat toggle modes.
+   * Creates a new instance enabling the given repeat toggle modes.
    *
    * @param context The context.
-   * @param player The player on which to toggle the repeat mode.
    * @param repeatToggleModes The toggle modes to enable.
    */
-  public RepeatModeActionProvider(Context context, ExoPlayer player,
-      @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
-    this.player = player;
+  public RepeatModeActionProvider(
+      Context context, @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     this.repeatToggleModes = repeatToggleModes;
     repeatAllDescription = context.getString(R.string.exo_media_action_repeat_all_description);
     repeatOneDescription = context.getString(R.string.exo_media_action_repeat_one_description);
@@ -69,16 +66,17 @@ public final class RepeatModeActionProvider implements MediaSessionConnector.Cus
   }
 
   @Override
-  public void onCustomAction(String action, Bundle extras) {
+  public void onCustomAction(
+      Player player, ControlDispatcher controlDispatcher, String action, Bundle extras) {
     int mode = player.getRepeatMode();
     int proposedMode = RepeatModeUtil.getNextRepeatMode(mode, repeatToggleModes);
     if (mode != proposedMode) {
-      player.setRepeatMode(proposedMode);
+      controlDispatcher.dispatchSetRepeatMode(player, proposedMode);
     }
   }
 
   @Override
-  public PlaybackStateCompat.CustomAction getCustomAction() {
+  public PlaybackStateCompat.CustomAction getCustomAction(Player player) {
     CharSequence actionLabel;
     int iconResourceId;
     switch (player.getRepeatMode()) {

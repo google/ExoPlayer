@@ -15,8 +15,11 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -39,13 +42,13 @@ public final class CommentFrame extends Id3Frame {
 
   /* package */ CommentFrame(Parcel in) {
     super(ID);
-    language = in.readString();
-    description = in.readString();
-    text = in.readString();
+    language = castNonNull(in.readString());
+    description = castNonNull(in.readString());
+    text = castNonNull(in.readString());
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }
@@ -65,6 +68,13 @@ public final class CommentFrame extends Id3Frame {
     result = 31 * result + (text != null ? text.hashCode() : 0);
     return result;
   }
+
+  @Override
+  public String toString() {
+    return id + ": language=" + language + ", description=" + description;
+  }
+
+  // Parcelable implementation.
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {

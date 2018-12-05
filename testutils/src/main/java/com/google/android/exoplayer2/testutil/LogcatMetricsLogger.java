@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.util.Log;
+import com.google.android.exoplayer2.util.Log;
 
 /**
  * Implementation of {@link MetricsLogger} that prints the metrics to logcat.

@@ -27,33 +27,32 @@ public final class ExoPlayerLibraryInfo {
    */
   public static final String TAG = "ExoPlayer";
 
-  /**
-   * The version of the library expressed as a string, for example "1.2.3".
-   */
+  /** The version of the library expressed as a string, for example "1.2.3". */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION_INT) or vice versa.
-  public static final String VERSION = "2.4.4";
+  public static final String VERSION = "2.9.2";
 
-  /**
-   * The version of the library expressed as {@code "ExoPlayerLib/" + VERSION}.
-   */
+  /** The version of the library expressed as {@code "ExoPlayerLib/" + VERSION}. */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final String VERSION_SLASHY = "ExoPlayerLib/2.4.4";
+  public static final String VERSION_SLASHY = "ExoPlayerLib/2.9.2";
 
   /**
    * The version of the library expressed as an integer, for example 1002003.
-   * <p>
-   * Three digits are used for each component of {@link #VERSION}. For example "1.2.3" has the
+   *
+   * <p>Three digits are used for each component of {@link #VERSION}. For example "1.2.3" has the
    * corresponding integer version 1002003 (001-002-003), and "123.45.6" has the corresponding
    * integer version 123045006 (123-045-006).
    */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final int VERSION_INT = 2004004;
+  public static final int VERSION_INT = 2009002;
 
   /**
    * Whether the library was compiled with {@link com.google.android.exoplayer2.util.Assertions}
    * checks enabled.
    */
   public static final boolean ASSERTIONS_ENABLED = true;
+
+  /** Whether an exception should be thrown in case of an OpenGl error. */
+  public static final boolean GL_ASSERTIONS_ENABLED = false;
 
   /**
    * Whether the library was compiled with {@link com.google.android.exoplayer2.util.TraceUtil}

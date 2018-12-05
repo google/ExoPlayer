@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.metadata;
 
+import android.support.annotation.Nullable;
+
 /**
  * Decodes metadata from binary data.
  */
@@ -24,9 +26,8 @@ public interface MetadataDecoder {
    * Decodes a {@link Metadata} element from the provided input buffer.
    *
    * @param inputBuffer The input buffer to decode.
-   * @return The decoded metadata object.
-   * @throws MetadataDecoderException If a problem occurred decoding the data.
+   * @return The decoded metadata object, or null if the metadata could not be decoded.
    */
-  Metadata decode(MetadataInputBuffer inputBuffer) throws MetadataDecoderException;
-
+  @Nullable
+  Metadata decode(MetadataInputBuffer inputBuffer);
 }

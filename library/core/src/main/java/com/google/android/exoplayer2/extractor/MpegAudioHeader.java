@@ -153,7 +153,9 @@ public final class MpegAudioHeader {
     }
 
     int padding = (headerData >>> 9) & 1;
-    int bitrate, frameSize, samplesPerFrame;
+    int bitrate;
+    int frameSize;
+    int samplesPerFrame;
     if (layer == 3) {
       // Layer I (layer == 3)
       bitrate = version == 3 ? BITRATE_V1_L1[bitrateIndex - 1] : BITRATE_V2_L1[bitrateIndex - 1];

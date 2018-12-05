@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.os.Parcel;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
@@ -53,7 +56,7 @@ public final class ChapterFrame extends Id3Frame {
 
   /* package */ ChapterFrame(Parcel in) {
     super(ID);
-    this.chapterId = in.readString();
+    this.chapterId = castNonNull(in.readString());
     this.startTimeMs = in.readInt();
     this.endTimeMs = in.readInt();
     this.startOffset = in.readLong();
@@ -80,7 +83,7 @@ public final class ChapterFrame extends Id3Frame {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }
