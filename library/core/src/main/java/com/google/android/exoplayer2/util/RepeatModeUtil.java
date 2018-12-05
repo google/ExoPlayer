@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 package com.google.android.exoplayer2.util;
 
 import android.support.annotation.IntDef;
-
-import com.google.android.exoplayer2.ExoPlayer;
-
+import com.google.android.exoplayer2.Player;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -27,12 +26,17 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class RepeatModeUtil {
 
+  // LINT.IfChange
   /**
-   * Set of repeat toggle modes. Can be combined using bit-wise operations.
+   * Set of repeat toggle modes. Can be combined using bit-wise operations. Possible flag values are
+   * {@link #REPEAT_TOGGLE_MODE_NONE}, {@link #REPEAT_TOGGLE_MODE_ONE} and {@link
+   * #REPEAT_TOGGLE_MODE_ALL}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {REPEAT_TOGGLE_MODE_NONE, REPEAT_TOGGLE_MODE_ONE,
-      REPEAT_TOGGLE_MODE_ALL})
+  @IntDef(
+      flag = true,
+      value = {REPEAT_TOGGLE_MODE_NONE, REPEAT_TOGGLE_MODE_ONE, REPEAT_TOGGLE_MODE_ALL})
   public @interface RepeatToggleModes {}
   /**
    * All repeat mode buttons disabled.
@@ -42,10 +46,9 @@ public final class RepeatModeUtil {
    * "Repeat One" button enabled.
    */
   public static final int REPEAT_TOGGLE_MODE_ONE = 1;
-  /**
-   * "Repeat All" button enabled.
-   */
-  public static final int REPEAT_TOGGLE_MODE_ALL = 2;
+  /** "Repeat All" button enabled. */
+  public static final int REPEAT_TOGGLE_MODE_ALL = 1 << 1; // 2
+  // LINT.ThenChange(../../../../../../../../../ui/src/main/res/values/attrs.xml)
 
   private RepeatModeUtil() {
     // Prevent instantiation.
@@ -58,10 +61,10 @@ public final class RepeatModeUtil {
    * @param enabledModes Bitmask of enabled modes.
    * @return The next repeat mode.
    */
-  public static @ExoPlayer.RepeatMode int getNextRepeatMode(
-      @ExoPlayer.RepeatMode int currentMode, int enabledModes) {
+  public static @Player.RepeatMode int getNextRepeatMode(@Player.RepeatMode int currentMode,
+      int enabledModes) {
     for (int offset = 1; offset <= 2; offset++) {
-      @ExoPlayer.RepeatMode int proposedMode = (currentMode + offset) % 3;
+      @Player.RepeatMode int proposedMode = (currentMode + offset) % 3;
       if (isRepeatModeEnabled(proposedMode, enabledModes)) {
         return proposedMode;
       }
@@ -76,14 +79,13 @@ public final class RepeatModeUtil {
    * @param enabledModes The bitmask representing the enabled modes.
    * @return {@code true} if enabled.
    */
-  public static boolean isRepeatModeEnabled(@ExoPlayer.RepeatMode int repeatMode,
-      int enabledModes) {
+  public static boolean isRepeatModeEnabled(@Player.RepeatMode int repeatMode, int enabledModes) {
     switch (repeatMode) {
-      case ExoPlayer.REPEAT_MODE_OFF:
+      case Player.REPEAT_MODE_OFF:
         return true;
-      case ExoPlayer.REPEAT_MODE_ONE:
+      case Player.REPEAT_MODE_ONE:
         return (enabledModes & REPEAT_TOGGLE_MODE_ONE) != 0;
-      case ExoPlayer.REPEAT_MODE_ALL:
+      case Player.REPEAT_MODE_ALL:
         return (enabledModes & REPEAT_TOGGLE_MODE_ALL) != 0;
       default:
         return false;

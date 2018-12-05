@@ -24,42 +24,45 @@ import com.google.android.exoplayer2.util.Util;
  */
 /* package */ final class TrackSampleTable {
 
-  /**
-   * Number of samples.
-   */
+  /** The track corresponding to this sample table. */
+  public final Track track;
+  /** Number of samples. */
   public final int sampleCount;
-  /**
-   * Sample offsets in bytes.
-   */
+  /** Sample offsets in bytes. */
   public final long[] offsets;
-  /**
-   * Sample sizes in bytes.
-   */
+  /** Sample sizes in bytes. */
   public final int[] sizes;
-  /**
-   * Maximum sample size in {@link #sizes}.
-   */
+  /** Maximum sample size in {@link #sizes}. */
   public final int maximumSize;
-  /**
-   * Sample timestamps in microseconds.
-   */
+  /** Sample timestamps in microseconds. */
   public final long[] timestampsUs;
-  /**
-   * Sample flags.
-   */
+  /** Sample flags. */
   public final int[] flags;
+  /**
+   * The duration of the track sample table in microseconds, or {@link C#TIME_UNSET} if the sample
+   * table is empty.
+   */
+  public final long durationUs;
 
-  public TrackSampleTable(long[] offsets, int[] sizes, int maximumSize, long[] timestampsUs,
-      int[] flags) {
+  public TrackSampleTable(
+      Track track,
+      long[] offsets,
+      int[] sizes,
+      int maximumSize,
+      long[] timestampsUs,
+      int[] flags,
+      long durationUs) {
     Assertions.checkArgument(sizes.length == timestampsUs.length);
     Assertions.checkArgument(offsets.length == timestampsUs.length);
     Assertions.checkArgument(flags.length == timestampsUs.length);
 
+    this.track = track;
     this.offsets = offsets;
     this.sizes = sizes;
     this.maximumSize = maximumSize;
     this.timestampsUs = timestampsUs;
     this.flags = flags;
+    this.durationUs = durationUs;
     sampleCount = offsets.length;
   }
 

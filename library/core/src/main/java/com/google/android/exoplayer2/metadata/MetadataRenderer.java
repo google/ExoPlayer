@@ -19,12 +19,14 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
 /**
@@ -33,28 +35,20 @@ import java.util.Arrays;
 public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   /**
-   * Receives output from a {@link MetadataRenderer}.
+   * @deprecated Use {@link MetadataOutput}.
    */
-  public interface Output {
-
-    /**
-     * Called each time there is a metadata associated with current playback time.
-     *
-     * @param metadata The metadata.
-     */
-    void onMetadata(Metadata metadata);
-
-  }
+  @Deprecated
+  public interface Output extends MetadataOutput {}
 
   private static final int MSG_INVOKE_RENDERER = 0;
   // TODO: Holding multiple pending metadata objects is temporary mitigation against
-  // https://github.com/google/ExoPlayer/issues/1874
-  // It should be removed once this issue has been addressed.
+  // https://github.com/google/ExoPlayer/issues/1874. It should be removed once this issue has been
+  // addressed.
   private static final int MAX_PENDING_METADATA_COUNT = 5;
 
   private final MetadataDecoderFactory decoderFactory;
-  private final Output output;
-  private final Handler outputHandler;
+  private final MetadataOutput output;
+  private final @Nullable Handler outputHandler;
   private final FormatHolder formatHolder;
   private final MetadataInputBuffer buffer;
   private final Metadata[] pendingMetadata;
@@ -69,11 +63,11 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
    * @param output The output.
    * @param outputLooper The looper associated with the thread on which the output should be called.
    *     If the output makes use of standard Android UI components, then this should normally be the
-   *     looper associated with the application's main thread, which can be obtained using
-   *     {@link android.app.Activity#getMainLooper()}. Null may be passed if the output should be
-   *     called directly on the player's internal rendering thread.
+   *     looper associated with the application's main thread, which can be obtained using {@link
+   *     android.app.Activity#getMainLooper()}. Null may be passed if the output should be called
+   *     directly on the player's internal rendering thread.
    */
-  public MetadataRenderer(Output output, Looper outputLooper) {
+  public MetadataRenderer(MetadataOutput output, @Nullable Looper outputLooper) {
     this(output, outputLooper, MetadataDecoderFactory.DEFAULT);
   }
 
@@ -81,16 +75,17 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
    * @param output The output.
    * @param outputLooper The looper associated with the thread on which the output should be called.
    *     If the output makes use of standard Android UI components, then this should normally be the
-   *     looper associated with the application's main thread, which can be obtained using
-   *     {@link android.app.Activity#getMainLooper()}. Null may be passed if the output should be
-   *     called directly on the player's internal rendering thread.
+   *     looper associated with the application's main thread, which can be obtained using {@link
+   *     android.app.Activity#getMainLooper()}. Null may be passed if the output should be called
+   *     directly on the player's internal rendering thread.
    * @param decoderFactory A factory from which to obtain {@link MetadataDecoder} instances.
    */
-  public MetadataRenderer(Output output, Looper outputLooper,
-      MetadataDecoderFactory decoderFactory) {
+  public MetadataRenderer(
+      MetadataOutput output, @Nullable Looper outputLooper, MetadataDecoderFactory decoderFactory) {
     super(C.TRACK_TYPE_METADATA);
     this.output = Assertions.checkNotNull(output);
-    this.outputHandler = outputLooper == null ? null : new Handler(outputLooper, this);
+    this.outputHandler =
+        outputLooper == null ? null : Util.createHandler(outputLooper, /* callback= */ this);
     this.decoderFactory = Assertions.checkNotNull(decoderFactory);
     formatHolder = new FormatHolder();
     buffer = new MetadataInputBuffer();
@@ -100,7 +95,11 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   @Override
   public int supportsFormat(Format format) {
-    return decoderFactory.supportsFormat(format) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_TYPE;
+    if (decoderFactory.supportsFormat(format)) {
+      return supportsFormatDrm(null, format.drmInitData) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM;
+    } else {
+      return FORMAT_UNSUPPORTED_TYPE;
+    }
   }
 
   @Override
@@ -129,13 +128,12 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
         } else {
           buffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
           buffer.flip();
-          try {
-            int index = (pendingMetadataIndex + pendingMetadataCount) % MAX_PENDING_METADATA_COUNT;
-            pendingMetadata[index] = decoder.decode(buffer);
+          int index = (pendingMetadataIndex + pendingMetadataCount) % MAX_PENDING_METADATA_COUNT;
+          Metadata metadata = decoder.decode(buffer);
+          if (metadata != null) {
+            pendingMetadata[index] = metadata;
             pendingMetadataTimestamps[index] = buffer.timeUs;
             pendingMetadataCount++;
-          } catch (MetadataDecoderException e) {
-            throw ExoPlaybackException.createForRenderer(e, getIndex());
           }
         }
       }

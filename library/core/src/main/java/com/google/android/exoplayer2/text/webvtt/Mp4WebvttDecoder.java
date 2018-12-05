@@ -78,14 +78,14 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
       int boxType = sampleData.readInt();
       remainingCueBoxBytes -= BOX_HEADER_SIZE;
       int payloadLength = boxSize - BOX_HEADER_SIZE;
-      String boxPayload = new String(sampleData.data, sampleData.getPosition(), payloadLength);
+      String boxPayload =
+          Util.fromUtf8Bytes(sampleData.data, sampleData.getPosition(), payloadLength);
       sampleData.skipBytes(payloadLength);
       remainingCueBoxBytes -= payloadLength;
       if (boxType == TYPE_sttg) {
         WebvttCueParser.parseCueSettingsList(boxPayload, builder);
       } else if (boxType == TYPE_payl) {
-        WebvttCueParser.parseCueText(null, boxPayload.trim(), builder,
-            Collections.<WebvttCssStyle>emptyList());
+        WebvttCueParser.parseCueText(null, boxPayload.trim(), builder, Collections.emptyList());
       } else {
         // Other VTTCueBox children are still not supported and are ignored.
       }

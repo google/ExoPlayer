@@ -26,4 +26,7 @@ public final class FfmpegDecoderException extends AudioDecoderException {
     super(message);
   }
 
+  /* package */ FfmpegDecoderException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

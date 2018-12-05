@@ -17,8 +17,10 @@ package com.google.android.exoplayer2.video;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
 /**
@@ -48,10 +50,8 @@ public final class ColorInfo implements Parcelable {
   @C.ColorTransfer
   public final int colorTransfer;
 
-  /**
-   * HdrStaticInfo as defined in CTA-861.3.
-   */
-  public final byte[] hdrStaticInfo;
+  /** HdrStaticInfo as defined in CTA-861.3, or null if none specified. */
+  public final @Nullable byte[] hdrStaticInfo;
 
   // Lazily initialized hashcode.
   private int hashCode;
@@ -62,10 +62,13 @@ public final class ColorInfo implements Parcelable {
    * @param colorSpace The color space of the video.
    * @param colorRange The color range of the video.
    * @param colorTransfer The color transfer characteristics of the video.
-   * @param hdrStaticInfo HdrStaticInfo as defined in CTA-861.3.
+   * @param hdrStaticInfo HdrStaticInfo as defined in CTA-861.3, or null if none specified.
    */
-  public ColorInfo(@C.ColorSpace int colorSpace, @C.ColorRange int colorRange,
-      @C.ColorTransfer int colorTransfer, byte[] hdrStaticInfo) {
+  public ColorInfo(
+      @C.ColorSpace int colorSpace,
+      @C.ColorRange int colorRange,
+      @C.ColorTransfer int colorTransfer,
+      @Nullable byte[] hdrStaticInfo) {
     this.colorSpace = colorSpace;
     this.colorRange = colorRange;
     this.colorTransfer = colorTransfer;
@@ -77,13 +80,13 @@ public final class ColorInfo implements Parcelable {
     colorSpace = in.readInt();
     colorRange = in.readInt();
     colorTransfer = in.readInt();
-    boolean hasHdrStaticInfo = in.readInt() != 0;
+    boolean hasHdrStaticInfo = Util.readBoolean(in);
     hdrStaticInfo = hasHdrStaticInfo ? in.createByteArray() : null;
   }
 
   // Parcelable implementation.
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }
@@ -91,12 +94,10 @@ public final class ColorInfo implements Parcelable {
       return false;
     }
     ColorInfo other = (ColorInfo) obj;
-    if (colorSpace != other.colorSpace || colorRange != other.colorRange
-        || colorTransfer != other.colorTransfer
-        || !Arrays.equals(hdrStaticInfo, other.hdrStaticInfo)) {
-      return false;
-    }
-    return true;
+    return colorSpace == other.colorSpace
+        && colorRange == other.colorRange
+        && colorTransfer == other.colorTransfer
+        && Arrays.equals(hdrStaticInfo, other.hdrStaticInfo);
   }
 
   @Override
@@ -128,7 +129,7 @@ public final class ColorInfo implements Parcelable {
     dest.writeInt(colorSpace);
     dest.writeInt(colorRange);
     dest.writeInt(colorTransfer);
-    dest.writeInt(hdrStaticInfo != null ? 1 : 0);
+    Util.writeBoolean(dest, hdrStaticInfo != null);
     if (hdrStaticInfo != null) {
       dest.writeByteArray(hdrStaticInfo);
     }

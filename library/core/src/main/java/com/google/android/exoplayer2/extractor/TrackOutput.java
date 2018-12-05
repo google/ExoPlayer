@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -69,7 +70,7 @@ public interface TrackOutput {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
       if (this == obj) {
         return true;
       }
@@ -124,21 +125,23 @@ public interface TrackOutput {
 
   /**
    * Called when metadata associated with a sample has been extracted from the stream.
-   * <p>
-   * The corresponding sample data will have already been passed to the output via calls to
-   * {@link #sampleData(ExtractorInput, int, boolean)} or
-   * {@link #sampleData(ParsableByteArray, int)}.
+   *
+   * <p>The corresponding sample data will have already been passed to the output via calls to
+   * {@link #sampleData(ExtractorInput, int, boolean)} or {@link #sampleData(ParsableByteArray,
+   * int)}.
    *
    * @param timeUs The media timestamp associated with the sample, in microseconds.
    * @param flags Flags associated with the sample. See {@code C.BUFFER_FLAG_*}.
    * @param size The size of the sample data, in bytes.
-   * @param offset The number of bytes that have been passed to
-   *     {@link #sampleData(ExtractorInput, int, boolean)} or
-   *     {@link #sampleData(ParsableByteArray, int)} since the last byte belonging to the sample
-   *     whose metadata is being passed.
+   * @param offset The number of bytes that have been passed to {@link #sampleData(ExtractorInput,
+   *     int, boolean)} or {@link #sampleData(ParsableByteArray, int)} since the last byte belonging
+   *     to the sample whose metadata is being passed.
    * @param encryptionData The encryption data required to decrypt the sample. May be null.
    */
-  void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
-      CryptoData encryptionData);
-
+  void sampleMetadata(
+      long timeUs,
+      @C.BufferFlags int flags,
+      int size,
+      int offset,
+      @Nullable CryptoData encryptionData);
 }

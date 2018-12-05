@@ -27,7 +27,7 @@ public final class VpxLibrary {
     ExoPlayerLibraryInfo.registerModule("goog.exo.vpx");
   }
 
-  private static final LibraryLoader LOADER = new LibraryLoader("vpx", "vpxJNI");
+  private static final LibraryLoader LOADER = new LibraryLoader("vpx", "vpxV2JNI");
 
   private VpxLibrary() {}
 
@@ -35,6 +35,8 @@ public final class VpxLibrary {
    * Override the names of the Vpx native libraries. If an application wishes to call this method,
    * it must do so before calling any other method defined by this class, and before instantiating a
    * {@link LibvpxVideoRenderer} instance.
+   *
+   * @param libraries The names of the Vpx native libraries.
    */
   public static void setLibraries(String... libraries) {
     LOADER.setLibraries(libraries);

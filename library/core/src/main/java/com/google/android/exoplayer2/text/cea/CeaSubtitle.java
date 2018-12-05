@@ -54,7 +54,7 @@ import java.util.List;
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    return timeUs >= 0 ? cues : Collections.<Cue>emptyList();
+    return timeUs >= 0 ? cues : Collections.emptyList();
   }
 
 }

@@ -15,82 +15,97 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-import android.test.ActivityInstrumentationTestCase2;
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
+
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.runner.AndroidJUnit4;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-/**
- * Test playback of encrypted DASH streams using different CENC scheme types.
- */
-public final class CommonEncryptionDrmTest extends ActivityInstrumentationTestCase2<HostActivity> {
+/** Test playback of encrypted DASH streams using different CENC scheme types. */
+@RunWith(AndroidJUnit4.class)
+public final class CommonEncryptionDrmTest {
 
   private static final String TAG = "CencDrmTest";
 
-  private static final String URL_cenc =
-      "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd";
-  private static final String URL_cbc1 =
-      "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1.mpd";
-  private static final String URL_cbcs =
-      "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd";
   private static final String ID_AUDIO = "0";
   private static final String[] IDS_VIDEO = new String[] {"1", "2"};
 
   // Seeks help reproduce playback issues in certain devices.
   private static final ActionSchedule ACTION_SCHEDULE_WITH_SEEKS = new ActionSchedule.Builder(TAG)
-      .delay(30000).seek(300000).delay(10000).seek(270000).delay(10000).seek(200000).delay(10000)
-      .stop().build();
+      .waitForPlaybackState(Player.STATE_READY).delay(30000).seekAndWait(300000).delay(10000)
+      .seekAndWait(270000).delay(10000).seekAndWait(200000).delay(10000).seekAndWait(732000)
+      .build();
+
+  @Rule public ActivityTestRule<HostActivity> testRule = new ActivityTestRule<>(HostActivity.class);
 
   private DashTestRunner testRunner;
 
-  public CommonEncryptionDrmTest() {
-    super(HostActivity.class);
+  @Before
+  public void setUp() {
+    testRunner =
+        new DashTestRunner(TAG, testRule.getActivity(), getInstrumentation())
+            .setWidevineInfo(MimeTypes.VIDEO_H264, false)
+            .setActionSchedule(ACTION_SCHEDULE_WITH_SEEKS)
+            .setAudioVideoFormats(ID_AUDIO, IDS_VIDEO)
+            .setCanIncludeAdditionalVideoFormats(true);
   }
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-
-    testRunner = new DashTestRunner(TAG, getActivity(), getInstrumentation())
-        .setWidevineInfo(MimeTypes.VIDEO_H264, false)
-        .setActionSchedule(ACTION_SCHEDULE_WITH_SEEKS)
-        .setAudioVideoFormats(ID_AUDIO, IDS_VIDEO)
-        .setCanIncludeAdditionalVideoFormats(true);
-  }
-
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     testRunner = null;
-    super.tearDown();
   }
 
-  public void testCencSchemeType() {
+  @Test
+  public void testCencSchemeTypeV18() {
     if (Util.SDK_INT < 18) {
       // Pass.
       return;
     }
-    testRunner.setStreamName("test_widevine_h264_scheme_cenc").setManifestUrl(URL_cenc).run();
+    testRunner
+        .setStreamName("test_widevine_h264_scheme_cenc")
+        .setManifestUrl(DashTestData.WIDEVINE_SCHEME_CENC)
+        .run();
   }
 
-  public void testCbc1SchemeType() {
-    if (Util.SDK_INT < 24) {
+  @Test
+  public void testCbc1SchemeTypeV25() {
+    if (Util.SDK_INT < 25) {
+      // cbc1 support was added in API 24, but it is stable from API 25 onwards.
+      // See [internal: b/65634809].
       // Pass.
       return;
     }
-    testRunner.setStreamName("test_widevine_h264_scheme_cbc1").setManifestUrl(URL_cbc1).run();
+    testRunner
+        .setStreamName("test_widevine_h264_scheme_cbc1")
+        .setManifestUrl(DashTestData.WIDEVINE_SCHEME_CBC1)
+        .run();
   }
 
-  public void testCbcsSchemeType() {
-    if (Util.SDK_INT < 24) {
+  @Test
+  public void testCbcsSchemeTypeV25() {
+    if (Util.SDK_INT < 25) {
+      // cbcs support was added in API 24, but it is stable from API 25 onwards.
+      // See [internal: b/65634809].
       // Pass.
       return;
     }
-    testRunner.setStreamName("test_widevine_h264_scheme_cbcs").setManifestUrl(URL_cbcs).run();
+    testRunner
+        .setStreamName("test_widevine_h264_scheme_cbcs")
+        .setManifestUrl(DashTestData.WIDEVINE_SCHEME_CBCS)
+        .run();
   }
 
-  public void testCensSchemeType() {
+  @Test
+  public void testCensSchemeTypeV25() {
     // TODO: Implement once content is available. Track [internal: b/31219813].
   }
-
 }

@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.extractor.flv;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,11 +43,8 @@ import java.util.Map;
 
   private long durationUs;
 
-  /**
-   * @param output A {@link TrackOutput} to which samples should be written.
-   */
-  public ScriptTagPayloadReader(TrackOutput output) {
-    super(output);
+  public ScriptTagPayloadReader() {
+    super(null);
     durationUs = C.TIME_UNSET;
   }
 

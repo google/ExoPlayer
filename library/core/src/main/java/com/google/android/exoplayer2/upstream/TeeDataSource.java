@@ -16,9 +16,12 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Tees data into a {@link DataSink} as the data is read.
@@ -27,6 +30,9 @@ public final class TeeDataSource implements DataSource {
 
   private final DataSource upstream;
   private final DataSink dataSink;
+
+  private boolean dataSinkNeedsClosing;
+  private long bytesRemaining;
 
   /**
    * @param upstream The upstream {@link DataSource}.
@@ -38,30 +44,49 @@ public final class TeeDataSource implements DataSource {
   }
 
   @Override
+  public void addTransferListener(TransferListener transferListener) {
+    upstream.addTransferListener(transferListener);
+  }
+
+  @Override
   public long open(DataSpec dataSpec) throws IOException {
-    long dataLength = upstream.open(dataSpec);
-    if (dataSpec.length == C.LENGTH_UNSET && dataLength != C.LENGTH_UNSET) {
-      // Reconstruct dataSpec in order to provide the resolved length to the sink.
-      dataSpec = new DataSpec(dataSpec.uri, dataSpec.absoluteStreamPosition, dataSpec.position,
-          dataLength, dataSpec.key, dataSpec.flags);
+    bytesRemaining = upstream.open(dataSpec);
+    if (bytesRemaining == 0) {
+      return 0;
     }
+    if (dataSpec.length == C.LENGTH_UNSET && bytesRemaining != C.LENGTH_UNSET) {
+      // Reconstruct dataSpec in order to provide the resolved length to the sink.
+      dataSpec = dataSpec.subrange(0, bytesRemaining);
+    }
+    dataSinkNeedsClosing = true;
     dataSink.open(dataSpec);
-    return dataLength;
+    return bytesRemaining;
   }
 
   @Override
   public int read(byte[] buffer, int offset, int max) throws IOException {
-    int num = upstream.read(buffer, offset, max);
-    if (num > 0) {
-      // TODO: Consider continuing even if disk writes fail.
-      dataSink.write(buffer, offset, num);
+    if (bytesRemaining == 0) {
+      return C.RESULT_END_OF_INPUT;
     }
-    return num;
+    int bytesRead = upstream.read(buffer, offset, max);
+    if (bytesRead > 0) {
+      // TODO: Consider continuing even if writes to the sink fail.
+      dataSink.write(buffer, offset, bytesRead);
+      if (bytesRemaining != C.LENGTH_UNSET) {
+        bytesRemaining -= bytesRead;
+      }
+    }
+    return bytesRead;
   }
 
   @Override
-  public Uri getUri() {
+  public @Nullable Uri getUri() {
     return upstream.getUri();
+  }
+
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    return upstream.getResponseHeaders();
   }
 
   @Override
@@ -69,7 +94,10 @@ public final class TeeDataSource implements DataSource {
     try {
       upstream.close();
     } finally {
-      dataSink.close();
+      if (dataSinkNeedsClosing) {
+        dataSinkNeedsClosing = false;
+        dataSink.close();
+      }
     }
   }
 

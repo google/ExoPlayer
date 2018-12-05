@@ -29,22 +29,12 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
- * Facilitates the extraction of AC-3 samples from elementary audio files formatted as AC-3
- * bitstreams.
+ * Extracts data from (E-)AC-3 bitstreams.
  */
 public final class Ac3Extractor implements Extractor {
 
-  /**
-   * Factory for {@link Ac3Extractor} instances.
-   */
-  public static final ExtractorsFactory FACTORY = new ExtractorsFactory() {
-
-    @Override
-    public Extractor[] createExtractors() {
-      return new Extractor[] {new Ac3Extractor()};
-    }
-
-  };
+  /** Factory for {@link Ac3Extractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new Ac3Extractor()};
 
   /**
    * The maximum number of bytes to search when sniffing, excluding ID3 information, before giving
@@ -56,9 +46,9 @@ public final class Ac3Extractor implements Extractor {
   private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
 
   private final long firstSampleTimestampUs;
+  private final Ac3Reader reader;
   private final ParsableByteArray sampleData;
 
-  private Ac3Reader reader;
   private boolean startedPacket;
 
   public Ac3Extractor() {
@@ -67,8 +57,11 @@ public final class Ac3Extractor implements Extractor {
 
   public Ac3Extractor(long firstSampleTimestampUs) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
+    reader = new Ac3Reader();
     sampleData = new ParsableByteArray(MAX_SYNC_FRAME_SIZE);
   }
+
+  // Extractor implementation.
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
@@ -92,7 +85,7 @@ public final class Ac3Extractor implements Extractor {
     int headerPosition = startPosition;
     int validFramesCount = 0;
     while (true) {
-      input.peekFully(scratch.data, 0, 5);
+      input.peekFully(scratch.data, 0, 6);
       scratch.setPosition(0);
       int syncBytes = scratch.readUnsignedShort();
       if (syncBytes != AC3_SYNC_WORD) {
@@ -110,14 +103,13 @@ public final class Ac3Extractor implements Extractor {
         if (frameSize == C.LENGTH_UNSET) {
           return false;
         }
-        input.advancePeekPosition(frameSize - 5);
+        input.advancePeekPosition(frameSize - 6);
       }
     }
   }
 
   @Override
   public void init(ExtractorOutput output) {
-    reader = new Ac3Reader(); // TODO: Add support for embedded ID3.
     reader.createTracks(output, new TrackIdGenerator(0, 1));
     output.endTracks();
     output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));

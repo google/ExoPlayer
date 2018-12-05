@@ -16,8 +16,8 @@ if (project.ext.has("exoplayerPublishEnabled")
     apply plugin: 'bintray-release'
     publish {
         artifactId = releaseArtifact
-        description = releaseDescription
-        version = releaseVersion
+        desc = releaseDescription
+        publishVersion = releaseVersion
         repoName = getBintrayRepo()
         userOrg = 'google'
         groupId = 'com.google.android.exoplayer'

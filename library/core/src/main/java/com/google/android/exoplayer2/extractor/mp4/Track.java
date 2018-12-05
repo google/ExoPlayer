@@ -19,6 +19,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -28,8 +29,10 @@ import java.lang.annotation.RetentionPolicy;
 public final class Track {
 
   /**
-   * The transformation to apply to samples in the track, if any.
+   * The transformation to apply to samples in the track, if any. One of {@link
+   * #TRANSFORMATION_NONE} or {@link #TRANSFORMATION_CEA608_CDAT}.
    */
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({TRANSFORMATION_NONE, TRANSFORMATION_CEA608_CDAT})
   public @interface Transformation {}
@@ -81,12 +84,12 @@ public final class Track {
   /**
    * Durations of edit list segments in the movie timescale. Null if there is no edit list.
    */
-  public final long[] editListDurations;
+  @Nullable public final long[] editListDurations;
 
   /**
    * Media times for edit list segments in the track timescale. Null if there is no edit list.
    */
-  public final long[] editListMediaTimes;
+  @Nullable public final long[] editListMediaTimes;
 
   /**
    * For H264 video tracks, the length in bytes of the NALUnitLength field in each sample. 0 for
@@ -99,7 +102,7 @@ public final class Track {
   public Track(int id, int type, long timescale, long movieTimescale, long durationUs,
       Format format, @Transformation int sampleTransformation,
       @Nullable TrackEncryptionBox[] sampleDescriptionEncryptionBoxes, int nalUnitLengthFieldLength,
-      long[] editListDurations, long[] editListMediaTimes) {
+      @Nullable long[] editListDurations, @Nullable long[] editListMediaTimes) {
     this.id = id;
     this.type = type;
     this.timescale = timescale;
@@ -125,4 +128,18 @@ public final class Track {
         : sampleDescriptionEncryptionBoxes[sampleDescriptionIndex];
   }
 
+  public Track copyWithFormat(Format format) {
+    return new Track(
+        id,
+        type,
+        timescale,
+        movieTimescale,
+        durationUs,
+        format,
+        sampleTransformation,
+        sampleDescriptionEncryptionBoxes,
+        nalUnitLengthFieldLength,
+        editListDurations,
+        editListMediaTimes);
+  }
 }

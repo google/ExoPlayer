@@ -15,12 +15,14 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
-import android.util.Log;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.metadata.id3.CommentFrame;
 import com.google.android.exoplayer2.metadata.id3.Id3Frame;
+import com.google.android.exoplayer2.metadata.id3.InternalFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 
@@ -68,6 +70,8 @@ import com.google.android.exoplayer2.util.Util;
   // Type for items that are intended for internal use by the player.
   private static final int TYPE_INTERNAL = Util.getIntegerCodeForString("----");
 
+  private static final int PICTURE_TYPE_FRONT_COVER = 3;
+
   // Standard genres.
   private static final String[] STANDARD_GENRES = new String[] {
       // These are the official ID3v1 genres.
@@ -103,13 +107,13 @@ import com.google.android.exoplayer2.util.Util;
 
   /**
    * Parses a single ilst element from a {@link ParsableByteArray}. The element is read starting
-   * from the current position of the {@link ParsableByteArray}, and the position is advanced by
-   * the size of the element. The position is advanced even if the element's type is unrecognized.
+   * from the current position of the {@link ParsableByteArray}, and the position is advanced by the
+   * size of the element. The position is advanced even if the element's type is unrecognized.
    *
    * @param ilst Holds the data to be parsed.
    * @return The parsed element, or null if the element's type was not recognized.
    */
-  public static Metadata.Entry parseIlstElement(ParsableByteArray ilst) {
+  public static @Nullable Metadata.Entry parseIlstElement(ParsableByteArray ilst) {
     int position = ilst.getPosition();
     int endPosition = position + ilst.readInt();
     int type = ilst.readInt();
@@ -181,20 +185,20 @@ import com.google.android.exoplayer2.util.Util;
     }
   }
 
-  private static TextInformationFrame parseTextAttribute(int type, String id,
-      ParsableByteArray data) {
+  private static @Nullable TextInformationFrame parseTextAttribute(
+      int type, String id, ParsableByteArray data) {
     int atomSize = data.readInt();
     int atomType = data.readInt();
     if (atomType == Atom.TYPE_data) {
       data.skipBytes(8); // version (1), flags (3), empty (4)
       String value = data.readNullTerminatedString(atomSize - 16);
-      return new TextInformationFrame(id, null, value);
+      return new TextInformationFrame(id, /* description= */ null, value);
     }
     Log.w(TAG, "Failed to parse text attribute: " + Atom.getAtomTypeString(type));
     return null;
   }
 
-  private static CommentFrame parseCommentAttribute(int type, ParsableByteArray data) {
+  private static @Nullable CommentFrame parseCommentAttribute(int type, ParsableByteArray data) {
     int atomSize = data.readInt();
     int atomType = data.readInt();
     if (atomType == Atom.TYPE_data) {
@@ -206,22 +210,27 @@ import com.google.android.exoplayer2.util.Util;
     return null;
   }
 
-  private static Id3Frame parseUint8Attribute(int type, String id, ParsableByteArray data,
-      boolean isTextInformationFrame, boolean isBoolean) {
+  private static @Nullable Id3Frame parseUint8Attribute(
+      int type,
+      String id,
+      ParsableByteArray data,
+      boolean isTextInformationFrame,
+      boolean isBoolean) {
     int value = parseUint8AttributeValue(data);
     if (isBoolean) {
       value = Math.min(1, value);
     }
     if (value >= 0) {
-      return isTextInformationFrame ? new TextInformationFrame(id, null, Integer.toString(value))
+      return isTextInformationFrame
+          ? new TextInformationFrame(id, /* description= */ null, Integer.toString(value))
           : new CommentFrame(LANGUAGE_UNDEFINED, id, Integer.toString(value));
     }
     Log.w(TAG, "Failed to parse uint8 attribute: " + Atom.getAtomTypeString(type));
     return null;
   }
 
-  private static TextInformationFrame parseIndexAndCountAttribute(int type, String attributeName,
-      ParsableByteArray data) {
+  private static @Nullable TextInformationFrame parseIndexAndCountAttribute(
+      int type, String attributeName, ParsableByteArray data) {
     int atomSize = data.readInt();
     int atomType = data.readInt();
     if (atomType == Atom.TYPE_data && atomSize >= 22) {
@@ -233,25 +242,26 @@ import com.google.android.exoplayer2.util.Util;
         if (count > 0) {
           value += "/" + count;
         }
-        return new TextInformationFrame(attributeName, null, value);
+        return new TextInformationFrame(attributeName, /* description= */ null, value);
       }
     }
     Log.w(TAG, "Failed to parse index/count attribute: " + Atom.getAtomTypeString(type));
     return null;
   }
 
-  private static TextInformationFrame parseStandardGenreAttribute(ParsableByteArray data) {
+  private static @Nullable TextInformationFrame parseStandardGenreAttribute(
+      ParsableByteArray data) {
     int genreCode = parseUint8AttributeValue(data);
     String genreString = (0 < genreCode && genreCode <= STANDARD_GENRES.length)
         ? STANDARD_GENRES[genreCode - 1] : null;
     if (genreString != null) {
-      return new TextInformationFrame("TCON", null, genreString);
+      return new TextInformationFrame("TCON", /* description= */ null, genreString);
     }
     Log.w(TAG, "Failed to parse standard genre code");
     return null;
   }
 
-  private static ApicFrame parseCoverArt(ParsableByteArray data) {
+  private static @Nullable ApicFrame parseCoverArt(ParsableByteArray data) {
     int atomSize = data.readInt();
     int atomType = data.readInt();
     if (atomType == Atom.TYPE_data) {
@@ -265,13 +275,18 @@ import com.google.android.exoplayer2.util.Util;
       data.skipBytes(4); // empty (4)
       byte[] pictureData = new byte[atomSize - 16];
       data.readBytes(pictureData, 0, pictureData.length);
-      return new ApicFrame(mimeType, null, 3 /* Cover (front) */, pictureData);
+      return new ApicFrame(
+          mimeType,
+          /* description= */ null,
+          /* pictureType= */ PICTURE_TYPE_FRONT_COVER,
+          pictureData);
     }
     Log.w(TAG, "Failed to parse cover art attribute");
     return null;
   }
 
-  private static Id3Frame parseInternalAttribute(ParsableByteArray data, int endPosition) {
+  private static @Nullable Id3Frame parseInternalAttribute(
+      ParsableByteArray data, int endPosition) {
     String domain = null;
     String name = null;
     int dataAtomPosition = -1;
@@ -293,14 +308,13 @@ import com.google.android.exoplayer2.util.Util;
         data.skipBytes(atomSize - 12);
       }
     }
-    if (!"com.apple.iTunes".equals(domain) || !"iTunSMPB".equals(name) || dataAtomPosition == -1) {
-      // We're only interested in iTunSMPB.
+    if (domain == null || name == null || dataAtomPosition == -1) {
       return null;
     }
     data.setPosition(dataAtomPosition);
     data.skipBytes(16); // size (4), type (4), version (1), flags (3), empty (4)
     String value = data.readNullTerminatedString(dataAtomSize - 16);
-    return new CommentFrame(LANGUAGE_UNDEFINED, name, value);
+    return new InternalFrame(domain, name, value);
   }
 
   private static int parseUint8AttributeValue(ParsableByteArray data) {

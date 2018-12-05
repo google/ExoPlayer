@@ -18,6 +18,11 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion project.ext.targetSdkVersion
@@ -25,8 +30,11 @@ android {
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile 'net.butterflytv.utils:rtmp-client:0.2.8'
+    implementation project(modulePrefix + 'library-core')
+    implementation 'net.butterflytv.utils:rtmp-client:3.0.1'
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    testImplementation 'junit:junit:' + junitVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {

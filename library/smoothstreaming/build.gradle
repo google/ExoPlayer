@@ -18,25 +18,31 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     buildToolsVersion project.ext.buildToolsVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
+        consumerProguardFiles 'proguard-rules.txt'
     }
 
     buildTypes {
-        debug {
-            testCoverageEnabled = true
-        }
+        // Re-enable test coverage when the following issue is fixed:
+        // https://issuetracker.google.com/issues/37019591
+        // debug {
+        //    testCoverageEnabled = true
+        // }
     }
 }
 
 dependencies {
-    compile project(modulePrefix + 'library-core')
-    compile 'com.android.support:support-annotations:' + supportLibraryVersion
-    androidTestCompile project(modulePrefix + 'testutils')
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
+    implementation project(modulePrefix + 'library-core')
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    testImplementation project(modulePrefix + 'testutils-robolectric')
 }
 
 ext {

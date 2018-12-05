@@ -24,7 +24,7 @@ public interface RendererCapabilities {
 
   /**
    * A mask to apply to the result of {@link #supportsFormat(Format)} to obtain one of
-   * {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES},
+   * {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_DRM},
    * {@link #FORMAT_UNSUPPORTED_SUBTYPE} and {@link #FORMAT_UNSUPPORTED_TYPE}.
    */
   int FORMAT_SUPPORT_MASK = 0b111;
@@ -34,7 +34,9 @@ public interface RendererCapabilities {
   int FORMAT_HANDLED = 0b100;
   /**
    * The {@link Renderer} is capable of rendering formats with the same mime type, but the
-   * properties of the format exceed the renderer's capability.
+   * properties of the format exceed the renderer's capabilities. There is a chance the renderer
+   * will be able to play the format in practice because some renderers report their capabilities
+   * conservatively, but the expected outcome is that playback will fail.
    * <p>
    * Example: The {@link Renderer} is capable of rendering H264 and the format's mime type is
    * {@link MimeTypes#VIDEO_H264}, but the format's resolution exceeds the maximum limit supported
@@ -42,12 +44,12 @@ public interface RendererCapabilities {
    */
   int FORMAT_EXCEEDS_CAPABILITIES = 0b011;
   /**
-   * The {@link Renderer} is capable of rendering formats with the same mime type, but the
-   * drm scheme used is not supported.
+   * The {@link Renderer} is capable of rendering formats with the same mime type, but is not
+   * capable of rendering the format because the format's drm protection is not supported.
    * <p>
    * Example: The {@link Renderer} is capable of rendering H264 and the format's mime type is
-   * {@link MimeTypes#VIDEO_H264}, but the format indicates cbcs encryption, which is not supported
-   * by the underlying content decryption module.
+   * {@link MimeTypes#VIDEO_H264}, but the format indicates PlayReady drm protection where-as the
+   * renderer only supports Widevine.
    */
   int FORMAT_UNSUPPORTED_DRM = 0b010;
   /**
@@ -117,13 +119,15 @@ public interface RendererCapabilities {
    * the bitwise OR of three properties:
    * <ul>
    * <li>The level of support for the format itself. One of {@link #FORMAT_HANDLED},
-   * {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_SUBTYPE} and
-   * {@link #FORMAT_UNSUPPORTED_TYPE}.</li>
+   * {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_DRM},
+   * {@link #FORMAT_UNSUPPORTED_SUBTYPE} and {@link #FORMAT_UNSUPPORTED_TYPE}.</li>
    * <li>The level of support for adapting from the format to another format of the same mime type.
    * One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
-   * {@link #ADAPTIVE_NOT_SUPPORTED}.</li>
+   * {@link #ADAPTIVE_NOT_SUPPORTED}. Only set if the level of support for the format itself is
+   * {@link #FORMAT_HANDLED} or {@link #FORMAT_EXCEEDS_CAPABILITIES}.</li>
    * <li>The level of support for tunneling. One of {@link #TUNNELING_SUPPORTED} and
-   * {@link #TUNNELING_NOT_SUPPORTED}.</li>
+   * {@link #TUNNELING_NOT_SUPPORTED}. Only set if the level of support for the format itself is
+   * {@link #FORMAT_HANDLED} or {@link #FORMAT_EXCEEDS_CAPABILITIES}.</li>
    * </ul>
    * The individual properties can be retrieved by performing a bitwise AND with
    * {@link #FORMAT_SUPPORT_MASK}, {@link #ADAPTIVE_SUPPORT_MASK} and

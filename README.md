@@ -9,52 +9,65 @@ and extend, and can be updated through Play Store application updates.
 
 ## Documentation ##
 
-* The [developer guide][] provides a wealth of information to help you get
-  started.
-* The [class reference][] documents the ExoPlayer library classes.
+* The [developer guide][] provides a wealth of information.
+* The [class reference][] documents ExoPlayer classes.
 * The [release notes][] document the major changes in each release.
+* Follow our [developer blog][] to keep up to date with the latest ExoPlayer
+  developments!
 
 [developer guide]: https://google.github.io/ExoPlayer/guide.html
 [class reference]: https://google.github.io/ExoPlayer/doc/reference
-[release notes]: https://github.com/google/ExoPlayer/blob/dev-v2/RELEASENOTES.md
+[release notes]: https://github.com/google/ExoPlayer/blob/release-v2/RELEASENOTES.md
+[developer blog]: https://medium.com/google-exoplayer
 
 ## Using ExoPlayer ##
 
-ExoPlayer modules can be obtained via jCenter. It's also possible to clone the
+ExoPlayer modules can be obtained from JCenter. It's also possible to clone the
 repository and depend on the modules locally.
 
-### Via jCenter ###
+### From JCenter ###
 
 The easiest way to get started using ExoPlayer is to add it as a gradle
-dependency. You need to make sure you have the jcenter repository included in
-the `build.gradle` file in the root of your project:
+dependency. You need to make sure you have the Google and JCenter repositories
+included in the `build.gradle` file in the root of your project:
 
 ```gradle
 repositories {
+    google()
     jcenter()
 }
 ```
 
-Next add a gradle compile dependency to the `build.gradle` file of your app
-module. The following will add a dependency to the full ExoPlayer library:
+Next add a dependency in the `build.gradle` file of your app module. The
+following will add a dependency to the full library:
 
 ```gradle
-compile 'com.google.android.exoplayer:exoplayer:r2.X.X'
+implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
 ```
 
-where `r2.X.X` is your preferred version. Alternatively, you can depend on only
-the library modules that you actually need. For example the following will add
-dependencies on the Core, DASH and UI library modules, as might be required for
-an app that plays DASH content:
+where `2.X.X` is your preferred version. If not enabled already, you also need
+to turn on Java 8 support in all `build.gradle` files depending on ExoPlayer, by
+adding the following to the `android` section:
 
 ```gradle
-compile 'com.google.android.exoplayer:exoplayer-core:r2.X.X'
-compile 'com.google.android.exoplayer:exoplayer-dash:r2.X.X'
-compile 'com.google.android.exoplayer:exoplayer-ui:r2.X.X'
+compileOptions {
+    targetCompatibility JavaVersion.VERSION_1_8
+}
 ```
 
-The available modules are listed below. Adding a dependency to the full
-ExoPlayer library is equivalent to adding dependencies on all of the modules
+As an alternative to the full library, you can depend on only the library
+modules that you actually need. For example the following will add dependencies
+on the Core, DASH and UI library modules, as might be required for an app that
+plays DASH content:
+
+```gradle
+implementation 'com.google.android.exoplayer:exoplayer-core:2.X.X'
+implementation 'com.google.android.exoplayer:exoplayer-dash:2.X.X'
+implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
+```
+
+The available library modules are listed below. Adding a dependency to the full
+library is equivalent to adding dependencies on all of the library modules
 individually.
 
 * `exoplayer-core`: Core functionality (required).
@@ -63,11 +76,16 @@ individually.
 * `exoplayer-smoothstreaming`: Support for SmoothStreaming content.
 * `exoplayer-ui`: UI components and resources for use with ExoPlayer.
 
-For more details, see the project on [Bintray][]. For information about the
-latest versions, see the [Release notes][].
+In addition to library modules, ExoPlayer has multiple extension modules that
+depend on external libraries to provide additional functionality. Some
+extensions are available from JCenter, whereas others must be built manually.
+Browse the [extensions directory][] and their individual READMEs for details.
 
+More information on the library and extension modules that are available from
+JCenter can be found on [Bintray][].
+
+[extensions directory]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/
 [Bintray]: https://bintray.com/google/exoplayer
-[Release notes]: https://github.com/google/ExoPlayer/blob/release-v2/RELEASENOTES.md
 
 ### Locally ###
 
@@ -97,24 +115,18 @@ You should now see the ExoPlayer modules appear as part of your project. You can
 depend on them as you would on any other local module, for example:
 
 ```gradle
-compile project(':exoplayer-library-core')
-compile project(':exoplayer-library-dash')
-compile project(':exoplayer-library-ui)
+implementation project(':exoplayer-library-core')
+implementation project(':exoplayer-library-dash')
+implementation project(':exoplayer-library-ui')
 ```
 
 ## Developing ExoPlayer ##
 
 #### Project branches ####
 
-  * The project has `dev-vX` and `release-vX` branches, where `X` is the major
-    version number.
-  * Most development work happens on the `dev-vX` branch with the highest major
-    version number. Pull requests should normally be made to this branch.
-  * Bug fixes may be submitted to older `dev-vX` branches. When doing this, the
-    same (or an equivalent) fix should also be submitted to all subsequent
-    `dev-vX` branches.
-  * A `release-vX` branch holds the most recent stable release for major version
-    `X`.
+* Development work happens on the `dev-v2` branch. Pull requests should
+  normally be made to this branch.
+* The `release-v2` branch holds the most recent release.
 
 #### Using Android Studio ####
 

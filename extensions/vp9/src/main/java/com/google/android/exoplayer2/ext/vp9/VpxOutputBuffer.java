@@ -19,10 +19,8 @@ import com.google.android.exoplayer2.decoder.OutputBuffer;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.nio.ByteBuffer;
 
-/**
- * Output buffer containing video frame data, populated by {@link VpxDecoder}.
- */
-/* package */ final class VpxOutputBuffer extends OutputBuffer {
+/** Output buffer containing video frame data, populated by {@link VpxDecoder}. */
+public final class VpxOutputBuffer extends OutputBuffer {
 
   public static final int COLORSPACE_UNKNOWN = 0;
   public static final int COLORSPACE_BT601 = 1;
@@ -30,6 +28,8 @@ import java.nio.ByteBuffer;
   public static final int COLORSPACE_BT2020 = 3;
 
   private final VpxDecoder owner;
+  /** Decoder private data. */
+  public int decoderPrivate;
 
   public int mode;
   /**

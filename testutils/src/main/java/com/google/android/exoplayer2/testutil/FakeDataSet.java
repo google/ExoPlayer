@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -28,11 +29,11 @@ import java.util.List;
 /**
  * Collection of {@link FakeData} to be served by a {@link FakeDataSource}.
  *
- * <p>Multiple fake data can be defined by {@link FakeDataSet#setData(String, byte[])} and {@link
- * FakeDataSet#newData(String)} methods. It's also possible to define a default data by {@link
+ * <p>Multiple fake data can be defined by {@link FakeDataSet#setData(Uri, byte[])} and {@link
+ * FakeDataSet#newData(Uri)} methods. It's also possible to define a default data by {@link
  * FakeDataSet#newDefaultData()}.
  *
- * <p>{@link FakeDataSet#newData(String)} and {@link FakeDataSet#newDefaultData()} return a {@link
+ * <p>{@link FakeDataSet#newData(Uri)} and {@link FakeDataSet#newDefaultData()} return a {@link
  * FakeData} instance which can be used to define specific results during
  * {@link FakeDataSource#read(byte[], int, int)} calls.
  *
@@ -104,8 +105,8 @@ public class FakeDataSet {
         this(null, 0, null, action, previousSegment);
       }
 
-      private Segment(byte[] data, int length, IOException exception, Runnable action,
-          Segment previousSegment) {
+      private Segment(@Nullable byte[] data, int length, @Nullable IOException exception,
+          @Nullable Runnable action, Segment previousSegment) {
         this.exception = exception;
         this.action = action;
         this.data = data;
@@ -125,12 +126,12 @@ public class FakeDataSet {
     }
 
     /** Uri of the data or null if this is the default FakeData. */
-    public final String uri;
+    public final Uri uri;
     private final ArrayList<Segment> segments;
     private final FakeDataSet dataSet;
     private boolean simulateUnknownLength;
 
-    private FakeData(FakeDataSet dataSet, String uri) {
+    private FakeData(FakeDataSet dataSet, Uri uri) {
       this.uri = uri;
       this.segments = new ArrayList<>();
       this.dataSet = dataSet;
@@ -162,8 +163,8 @@ public class FakeDataSet {
     }
 
     /**
-     * Appends data of the specified length. No actual data is available and this data should not
-     * be read.
+     * Appends a data segment of the specified length. No actual data is available and the
+     * {@link FakeDataSource} will perform no copy operations when this data is read.
      */
     public FakeData appendReadData(int length) {
       Assertions.checkState(length > 0);
@@ -219,7 +220,7 @@ public class FakeDataSet {
 
   }
 
-  private final HashMap<String, FakeData> dataMap;
+  private final HashMap<Uri, FakeData> dataMap;
   private FakeData defaultData;
 
   public FakeDataSet() {
@@ -234,16 +235,31 @@ public class FakeDataSet {
 
   /** Sets random data with the given {@code length} for the given {@code uri}. */
   public FakeDataSet setRandomData(String uri, int length) {
+    return setRandomData(Uri.parse(uri), length);
+  }
+
+  /** Sets random data with the given {@code length} for the given {@code uri}. */
+  public FakeDataSet setRandomData(Uri uri, int length) {
     return setData(uri, TestUtil.buildTestData(length));
   }
 
   /** Sets the given {@code data} for the given {@code uri}. */
   public FakeDataSet setData(String uri, byte[] data) {
+    return setData(Uri.parse(uri), data);
+  }
+
+  /** Sets the given {@code data} for the given {@code uri}. */
+  public FakeDataSet setData(Uri uri, byte[] data) {
     return newData(uri).appendReadData(data).endData();
   }
 
   /** Returns a new {@link FakeData} with the given {@code uri}. */
   public FakeData newData(String uri) {
+    return newData(Uri.parse(uri));
+  }
+
+  /** Returns a new {@link FakeData} with the given {@code uri}. */
+  public FakeData newData(Uri uri) {
     FakeData data = new FakeData(this, uri);
     dataMap.put(uri, data);
     return data;
@@ -251,6 +267,11 @@ public class FakeDataSet {
 
   /** Returns the data for the given {@code uri}, or {@code defaultData} if no data is set. */
   public FakeData getData(String uri) {
+    return getData(Uri.parse(uri));
+  }
+
+  /** Returns the data for the given {@code uri}, or {@code defaultData} if no data is set. */
+  public FakeData getData(Uri uri) {
     FakeData data = dataMap.get(uri);
     return data != null ? data : defaultData;
   }

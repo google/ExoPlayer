@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply from: "${buildscript.sourceFile.parentFile}/javadoc_util.gradle"
+
 class CombinedJavadocPlugin implements Plugin<Project> {
 
   static final String TASK_NAME = "generateCombinedJavadoc"
@@ -20,22 +22,32 @@ class CombinedJavadocPlugin implements Plugin<Project> {
     project.gradle.projectsEvaluated {
       Set<Project> libraryModules = getLibraryModules(project)
       if (!libraryModules.isEmpty()) {
-        String sdkDirectory = getSdkDirectory(libraryModules)
         project.task(TASK_NAME, type: Javadoc) {
           description = "Generates combined Javadoc."
           title = "ExoPlayer library"
           source = libraryModules.generateJavadoc.source
-          classpath = project.files(libraryModules.generateJavadoc.classpath)
+          classpath = project.files([])
           destinationDir = project.file("$project.buildDir/docs/javadoc")
           options {
-            links "http://docs.oracle.com/javase/7/docs/api/"
-            linksOffline "https://developer.android.com/reference",
-                         "${sdkDirectory}/docs/reference"
+            links "https://docs.oracle.com/javase/7/docs/api/",
+                "https://developer.android.com/reference"
             encoding = "UTF-8"
           }
           exclude "**/BuildConfig.java"
           exclude "**/R.java"
-          destinationDir project.file("$project.buildDir/docs/javadoc")
+          doFirst {
+            libraryModules.each { libraryModule ->
+              libraryModule.android.libraryVariants.all { variant ->
+                def name = variant.buildType.name
+                if (name == "release") {
+                  classpath +=
+                      libraryModule.project.files(
+                          variant.javaCompile.classpath.files,
+                          libraryModule.project.android.getBootClasspath())
+                }
+              }
+            }
+          }
           doLast {
             libraryModules.each { libraryModule ->
               project.copy {
@@ -43,6 +55,7 @@ class CombinedJavadocPlugin implements Plugin<Project> {
                 into "${project.buildDir}/docs/javadoc"
               }
             }
+            project.fixJavadoc()
           }
         }
       }
@@ -50,17 +63,11 @@ class CombinedJavadocPlugin implements Plugin<Project> {
   }
 
   // Returns Android library modules that declare a generateJavadoc task.
-  private Set<Project> getLibraryModules(Project project) {
+  private static Set<Project> getLibraryModules(Project project) {
     project.subprojects.findAll {
       it.plugins.findPlugin("com.android.library") &&
       it.tasks.findByName("generateJavadoc")
     }
-  }
-
-  // Returns the Android SDK directory given a set of Android library modules.
-  private String getSdkDirectory(Set<Project> libraryModules) {
-    // We can retrieve the Android SDK directory from any module.
-    return libraryModules.iterator().next().android.sdkDirectory
   }
 
 }
