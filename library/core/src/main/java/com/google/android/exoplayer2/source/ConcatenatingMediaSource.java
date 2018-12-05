@@ -454,6 +454,12 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return null;
+  }
+
+  @Override
   public final synchronized void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
@@ -1067,6 +1073,12 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         boolean isTopLevelSource,
         @Nullable TransferListener mediaTransferListener) {
       // Do nothing.
+    }
+
+    @Override
+    @Nullable
+    public Object getTag() {
+      return null;
     }
 
     @Override
