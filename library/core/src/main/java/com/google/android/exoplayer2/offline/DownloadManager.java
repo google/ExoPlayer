@@ -691,7 +691,7 @@ public final class DownloadManager {
 
     /** Returns whether the task is paused. */
     public boolean isPaused() {
-        return currentState == STATE_PAUSED;
+        return state == STATE_PAUSED;
     }
 
     /** Return new task with pause action. */
@@ -755,7 +755,7 @@ public final class DownloadManager {
     }
 
     private void resume() {
-      currentState = STATE_QUEUED;
+      state = STATE_QUEUED;
     }
 
     // Internal methods running on the main thread.
@@ -783,7 +783,8 @@ public final class DownloadManager {
       task.downloader = downloader;
       task.thread = thread;
       task.error = error;
-      task.currentState = currentState;
+      task.state = state;
+      task.targetState = targetState;
       return task;
     }
 
