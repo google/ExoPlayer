@@ -5,10 +5,13 @@
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
-* Add options for controlling audio track selections to `DefaultTrackSelector`
-  ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
+* Track selection:
+  * Add options for controlling audio track selections to `DefaultTrackSelector`
+    ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
+  * Update `TrackSelection.Factory` interface to support creating all track
+    selections together.
 * Do not retry failed loads whose error is `FileNotFoundException`.
-* Prevent Cea608Decoder from generating Subtitles with null Cues list
+* Prevent Cea608Decoder from generating Subtitles with null Cues list.
 * Caching: Cache data with unknown length by default. The previous flag to opt
   in to this behavior (`DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH`) has been
   replaced with an opt out flag (`DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN`).
