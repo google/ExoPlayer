@@ -23,7 +23,7 @@
       android:largeHeap="true" android:allowBackup="false">
 
     <meta-data android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-        android:value="com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider" />
+        android:value="${castOptionsProvider}" />
 
     <activity android:name="com.google.android.exoplayer2.castdemo.MainActivity"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
