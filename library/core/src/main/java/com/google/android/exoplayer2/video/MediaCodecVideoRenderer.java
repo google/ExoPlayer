@@ -98,7 +98,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private final EventDispatcher eventDispatcher;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
-  private final boolean deviceNeedsAutoFrcWorkaround;
+  private final boolean deviceNeedsNoPostProcessWorkaround;
   private final long[] pendingOutputStreamOffsetsUs;
   private final long[] pendingOutputStreamSwitchTimesUs;
 
@@ -226,7 +226,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     this.context = context.getApplicationContext();
     frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    deviceNeedsAutoFrcWorkaround = deviceNeedsAutoFrcWorkaround();
+    deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     outputStreamOffsetUs = C.TIME_UNSET;
@@ -484,7 +484,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             format,
             codecMaxValues,
             codecOperatingRate,
-            deviceNeedsAutoFrcWorkaround,
+            deviceNeedsNoPostProcessWorkaround,
             tunnelingAudioSessionId);
     if (surface == null) {
       Assertions.checkState(shouldUseDummySurface(codecInfo));
@@ -1036,8 +1036,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param codecMaxValues Codec max values that should be used when configuring the decoder.
    * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
    *     no codec operating rate should be set.
-   * @param deviceNeedsAutoFrcWorkaround Whether the device is known to enable frame-rate conversion
-   *     logic that negatively impacts ExoPlayer.
+   * @param deviceNeedsNoPostProcessWorkaround Whether the device is known to do post processing by
+   *     default that isn't compatible with ExoPlayer.
    * @param tunnelingAudioSessionId The audio session id to use for tunneling, or {@link
    *     C#AUDIO_SESSION_ID_UNSET} if tunneling should not be enabled.
    * @return The framework {@link MediaFormat} that should be used to configure the decoder.
@@ -1047,7 +1047,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       Format format,
       CodecMaxValues codecMaxValues,
       float codecOperatingRate,
-      boolean deviceNeedsAutoFrcWorkaround,
+      boolean deviceNeedsNoPostProcessWorkaround,
       int tunnelingAudioSessionId) {
     MediaFormat mediaFormat = new MediaFormat();
     // Set format parameters that should always be set.
@@ -1071,7 +1071,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         mediaFormat.setFloat(MediaFormat.KEY_OPERATING_RATE, codecOperatingRate);
       }
     }
-    if (deviceNeedsAutoFrcWorkaround) {
+    if (deviceNeedsNoPostProcessWorkaround) {
+      mediaFormat.setInteger("no-post-process", 1);
       mediaFormat.setInteger("auto-frc", 0);
     }
     if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
@@ -1265,21 +1266,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns whether the device is known to enable frame-rate conversion logic that negatively
-   * impacts ExoPlayer.
-   * <p>
-   * If true is returned then we explicitly disable the feature.
+   * Returns whether the device is known to do post processing by default that isn't compatible with
+   * ExoPlayer.
    *
-   * @return True if the device is known to enable frame-rate conversion logic that negatively
-   *     impacts ExoPlayer. False otherwise.
+   * @return Whether the device is known to do post processing by default that isn't compatible with
+   *     ExoPlayer.
    */
-  private static boolean deviceNeedsAutoFrcWorkaround() {
-    // nVidia Shield prior to M tries to adjust the playback rate to better map the frame-rate of
+  private static boolean deviceNeedsNoPostProcessWorkaround() {
+    // Nvidia devices prior to M try to adjust the playback rate to better map the frame-rate of
     // content to the refresh rate of the display. For example playback of 23.976fps content is
     // adjusted to play at 1.001x speed when the output display is 60Hz. Unfortunately the
     // implementation causes ExoPlayer's reported playback position to drift out of sync. Captions
-    // also lose sync [Internal: b/26453592].
-    return Util.SDK_INT <= 22 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER);
+    // also lose sync [Internal: b/26453592]. Even after M, the devices may apply post processing
+    // operations that can modify frame output timestamps, which is incompatible with ExoPlayer's
+    // logic for skipping decode-only frames.
+    return "NVIDIA".equals(Util.MANUFACTURER);
   }
 
   /*
