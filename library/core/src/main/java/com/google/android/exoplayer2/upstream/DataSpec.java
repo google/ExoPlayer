@@ -32,32 +32,29 @@ public final class DataSpec {
 
   /**
    * The flags that apply to any request for data. Possible flag values are {@link #FLAG_ALLOW_GZIP}
-   * and {@link #FLAG_ALLOW_CACHING_UNKNOWN_LENGTH}.
+   * and {@link #FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {FLAG_ALLOW_GZIP, FLAG_ALLOW_CACHING_UNKNOWN_LENGTH})
+      value = {FLAG_ALLOW_GZIP, FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN})
   public @interface Flags {}
   /**
-   * Permits an underlying network stack to request that the server use gzip compression.
-   * <p>
-   * Should not typically be set if the data being requested is already compressed (e.g. most audio
-   * and video requests). May be set when requesting other data.
-   * <p>
-   * When a {@link DataSource} is used to request data with this flag set, and if the
-   * {@link DataSource} does make a network request, then the value returned from
-   * {@link DataSource#open(DataSpec)} will typically be {@link C#LENGTH_UNSET}. The data read from
-   * {@link DataSource#read(byte[], int, int)} will be the decompressed data.
+   * Allows an underlying network stack to request that the server use gzip compression.
+   *
+   * <p>Should not typically be set if the data being requested is already compressed (e.g. most
+   * audio and video requests). May be set when requesting other data.
+   *
+   * <p>When a {@link DataSource} is used to request data with this flag set, and if the {@link
+   * DataSource} does make a network request, then the value returned from {@link
+   * DataSource#open(DataSpec)} will typically be {@link C#LENGTH_UNSET}. The data read from {@link
+   * DataSource#read(byte[], int, int)} will be the decompressed data.
    */
   public static final int FLAG_ALLOW_GZIP = 1;
 
-  /**
-   * Permits content to be cached even if its length can not be resolved. Typically this's the case
-   * for progressive live streams and when {@link #FLAG_ALLOW_GZIP} is used.
-   */
-  public static final int FLAG_ALLOW_CACHING_UNKNOWN_LENGTH = 1 << 1; // 2
+  /** Prevents caching if the length cannot be resolved when the {@link DataSource} is opened. */
+  public static final int FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN = 1 << 1; // 2
 
   /**
    * The set of HTTP methods that are supported by ExoPlayer {@link HttpDataSource}s. One of {@link

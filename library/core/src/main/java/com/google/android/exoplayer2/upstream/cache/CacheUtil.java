@@ -268,7 +268,7 @@ public final class CacheUtil {
                 dataSpec.position + absoluteStreamPosition - dataSpec.absoluteStreamPosition,
                 C.LENGTH_UNSET,
                 dataSpec.key,
-                dataSpec.flags | DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
+                dataSpec.flags);
         long resolvedLength = dataSource.open(dataSpec);
         if (counters.contentLength == C.LENGTH_UNSET && resolvedLength != C.LENGTH_UNSET) {
           counters.contentLength = dataSpec.absoluteStreamPosition + resolvedLength;

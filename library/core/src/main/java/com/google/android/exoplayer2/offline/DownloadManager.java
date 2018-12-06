@@ -565,7 +565,7 @@ public final class DownloadManager {
      */
     @TargetState private volatile int targetState;
 
-    @MonotonicNonNull private volatile Downloader downloader;
+    @MonotonicNonNull private Downloader downloader;
     @MonotonicNonNull private Thread thread;
     @MonotonicNonNull private Throwable error;
 
@@ -624,6 +624,7 @@ public final class DownloadManager {
         state = STATE_STARTED;
         targetState = STATE_COMPLETED;
         downloadManager.onTaskStateChange(this);
+        downloader = downloaderFactory.createDownloader(action);
         thread = new Thread(this);
         thread.start();
       }
@@ -648,11 +649,7 @@ public final class DownloadManager {
 
     private void stopDownloadThread(@TargetState int targetState) {
       this.targetState = targetState;
-      // TODO: The possibility of downloader being null here may prevent the download thread from
-      // stopping in a timely way. Fix this.
-      if (downloader != null) {
-        downloader.cancel();
-      }
+      Assertions.checkNotNull(downloader).cancel();
       Assertions.checkNotNull(thread).interrupt();
     }
 
@@ -675,7 +672,6 @@ public final class DownloadManager {
       logd("Task is started", this);
       Throwable error = null;
       try {
-        downloader = downloaderFactory.createDownloader(action);
         if (action.isRemoveAction) {
           downloader.remove();
         } else {

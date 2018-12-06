@@ -22,47 +22,28 @@ import java.util.Collections;
 import java.util.List;
 
 /** A {@link DownloadHelper} for progressive streams. */
-public final class ProgressiveDownloadHelper extends DownloadHelper {
-
-  private final Uri uri;
-  private final @Nullable String customCacheKey;
+public final class ProgressiveDownloadHelper extends DownloadHelper<Void> {
 
   public ProgressiveDownloadHelper(Uri uri) {
     this(uri, null);
   }
 
   public ProgressiveDownloadHelper(Uri uri, @Nullable String customCacheKey) {
-    this.uri = uri;
-    this.customCacheKey = customCacheKey;
+    super(DownloadAction.TYPE_PROGRESSIVE, uri, customCacheKey);
   }
 
   @Override
-  protected void prepareInternal() {
-    // Do nothing.
+  protected Void loadManifest(Uri uri) {
+    return null;
   }
 
   @Override
-  public int getPeriodCount() {
-    return 1;
+  protected TrackGroupArray[] getTrackGroupArrays(Void manifest) {
+    return new TrackGroupArray[] {TrackGroupArray.EMPTY};
   }
 
   @Override
-  public TrackGroupArray getTrackGroups(int periodIndex) {
-    return TrackGroupArray.EMPTY;
-  }
-
-  @Override
-  public DownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
-    return DownloadAction.createDownloadAction(
-        DownloadAction.TYPE_PROGRESSIVE,
-        uri,
-        /* keys= */ Collections.emptyList(),
-        customCacheKey,
-        data);
-  }
-
-  @Override
-  public DownloadAction getRemoveAction() {
-    return DownloadAction.createRemoveAction(DownloadAction.TYPE_PROGRESSIVE, uri, customCacheKey);
+  protected List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
+    return Collections.emptyList();
   }
 }
