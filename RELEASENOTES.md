@@ -9,9 +9,11 @@
   ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
 * Prevent Cea608Decoder from generating Subtitles with null Cues list
-* Caching: Cache data with unknown length by default. The previous flag to opt in
-  to this behavior (`DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH`) has been
+* Caching: Cache data with unknown length by default. The previous flag to opt
+  in to this behavior (`DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH`) has been
   replaced with an opt out flag (`DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN`).
+* Disable post processing on Nvidia devices, as it breaks decode-only frame
+  skippping.
 
 ### 2.9.2 ###
 
