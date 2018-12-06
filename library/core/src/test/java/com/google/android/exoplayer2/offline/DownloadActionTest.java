@@ -66,6 +66,30 @@ public class DownloadActionTest {
   }
 
   @Test
+  public void testDownloadActionIsNotPaused() {
+    DownloadAction action = createDownloadAction(uri1);
+    assertThat(action.isPaused).isFalse();
+  }
+
+  @Test
+  public void testRemoveActionIsNotPaused() {
+    DownloadAction action = createRemoveAction(uri1);
+    assertThat(action.isPaused).isFalse();
+  }
+
+  @Test
+  public void testPausedDownloadActionIsPaused() {
+    DownloadAction action = createPauseAction(uri1);
+    assertThat(action.isPaused).isTrue();
+  }
+
+  @Test
+  public void testResumedDownloadActionIsNotPaused() {
+    DownloadAction action = createResumeAction(uri1);
+    assertThat(action.isPaused).isFalse();
+  }
+
+  @Test
   public void testSameUri_IsSameMedia() {
     DownloadAction action1 = createDownloadAction(uri1);
     DownloadAction action2 = createDownloadAction(uri1);
@@ -140,6 +164,26 @@ public class DownloadActionTest {
     DownloadAction action16 = createDownloadAction(uri1);
     DownloadAction action17 = createDownloadAction(uri1);
     assertEqual(action16, action17);
+
+    DownloadAction action18 = createPauseAction(uri1);
+    DownloadAction action19 = createPauseAction(uri1);
+    assertEqual(action18, action19);
+
+    DownloadAction action20 = createResumeAction(uri1);
+    DownloadAction action21 = createResumeAction(uri1);
+    assertEqual(action20, action21);
+
+    DownloadAction action22 = createDownloadAction(uri1);
+    DownloadAction action23 = createPauseAction(uri1);
+    assertNotEqual(action22, action23);
+
+    DownloadAction action24 = createDownloadAction(uri1);
+    DownloadAction action25 = createResumeAction(uri1);
+    assertEqual(action24, action25);
+
+    DownloadAction action26 = createPauseAction(uri1);
+    DownloadAction action27 = createResumeAction(uri1);
+    assertNotEqual(action26, action27);
   }
 
   @Test
@@ -260,6 +304,14 @@ public class DownloadActionTest {
 
   private DownloadAction createRemoveAction(Uri uri) {
     return DownloadAction.createRemoveAction(TYPE_DASH, uri, /* customCacheKey= */ null);
+  }
+
+  private DownloadAction createPauseAction(Uri uri) {
+    return createDownloadAction(uri).createPauseAction();
+  }
+
+  private DownloadAction createResumeAction(Uri uri) {
+    return createPauseAction(uri).createResumeAction();
   }
 
   private static void assertNotEqual(DownloadAction action1, DownloadAction action2) {

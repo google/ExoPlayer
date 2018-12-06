@@ -269,9 +269,9 @@ public final class DownloadAction {
     Uri uri = Uri.parse(input.readUTF());
     boolean isRemoveAction = input.readBoolean();
 
-    boolean isPauseAction = false;
+    boolean isPaused = false;
     if (version == 3) {
-      isPauseAction = input.readBoolean();
+      isPaused = input.readBoolean();
     }
 
     int dataLength = input.readInt();
@@ -305,7 +305,7 @@ public final class DownloadAction {
       customCacheKey = input.readBoolean() ? input.readUTF() : null;
     }
 
-    return new DownloadAction(type, uri, isRemoveAction, isPauseAction, keys, customCacheKey, data);
+    return new DownloadAction(type, uri, isRemoveAction, isPaused, keys, customCacheKey, data);
   }
 
   private static StreamKey readKey(String type, int version, DataInputStream input)
