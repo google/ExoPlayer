@@ -1342,6 +1342,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           case "Aura_Note_2":
           case "BLACK-1X":
           case "BRAVIA_ATV2":
+          case "BRAVIA_ATV3_4K":
           case "C1":
           case "ComioS1":
           case "CP8676_I02":
