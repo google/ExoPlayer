@@ -320,6 +320,12 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return contentMediaSource.getTag();
+  }
+
+  @Override
   public void prepareSourceInternal(
       final ExoPlayer player,
       boolean isTopLevelSource,

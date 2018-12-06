@@ -359,6 +359,12 @@ public final class ExtractorMediaSource extends BaseMediaSource
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return tag;
+  }
+
+  @Override
   public void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,

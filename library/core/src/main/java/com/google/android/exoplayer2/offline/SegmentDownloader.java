@@ -62,7 +62,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
 
   private static final int BUFFER_SIZE_BYTES = 128 * 1024;
 
-  private final Uri manifestUri;
+  private final DataSpec manifestDataSpec;
   private final Cache cache;
   private final CacheDataSource dataSource;
   private final CacheDataSource offlineDataSource;
@@ -84,7 +84,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
    */
   public SegmentDownloader(
       Uri manifestUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
-    this.manifestUri = manifestUri;
+    this.manifestDataSpec = getCompressibleDataSpec(manifestUri);
     this.streamKeys = new ArrayList<>(streamKeys);
     this.cache = constructorHelper.getCache();
     this.dataSource = constructorHelper.createCacheDataSource();
@@ -171,7 +171,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   @Override
   public final void remove() throws InterruptedException {
     try {
-      M manifest = getManifest(offlineDataSource, manifestUri);
+      M manifest = getManifest(offlineDataSource, manifestDataSpec);
       List<Segment> segments = getSegments(offlineDataSource, manifest, true);
       for (int i = 0; i < segments.size(); i++) {
         removeDataSpec(segments.get(i).dataSpec);
@@ -180,7 +180,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       // Ignore exceptions when removing.
     } finally {
       // Always attempt to remove the manifest.
-      removeDataSpec(new DataSpec(manifestUri));
+      removeDataSpec(manifestDataSpec);
     }
   }
 
@@ -190,11 +190,11 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
    * Loads and parses the manifest.
    *
    * @param dataSource The {@link DataSource} through which to load.
-   * @param uri The manifest uri.
+   * @param dataSpec The manifest {@link DataSpec}.
    * @return The manifest.
    * @throws IOException If an error occurs reading data.
    */
-  protected abstract M getManifest(DataSource dataSource, Uri uri) throws IOException;
+  protected abstract M getManifest(DataSource dataSource, DataSpec dataSpec) throws IOException;
 
   /**
    * Returns a list of all downloadable {@link Segment}s for a given manifest.
@@ -217,7 +217,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   // Writes to downloadedSegments and downloadedBytes are safe. See the comment on download().
   @SuppressWarnings("NonAtomicVolatileUpdate")
   private List<Segment> initDownload() throws IOException, InterruptedException {
-    M manifest = getManifest(dataSource, manifestUri);
+    M manifest = getManifest(dataSource, manifestDataSpec);
     if (!streamKeys.isEmpty()) {
       manifest = manifest.copy(streamKeys);
     }
@@ -252,4 +252,12 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     CacheUtil.remove(dataSpec, cache, cacheKeyFactory);
   }
 
+  protected static DataSpec getCompressibleDataSpec(Uri uri) {
+    return new DataSpec(
+        uri,
+        /* absoluteStreamPosition= */ 0,
+        /* length= */ C.LENGTH_UNSET,
+        /* key= */ null,
+        /* flags= */ DataSpec.FLAG_ALLOW_GZIP);
+  }
 }

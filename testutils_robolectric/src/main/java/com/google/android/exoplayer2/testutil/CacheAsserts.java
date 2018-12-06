@@ -83,7 +83,7 @@ public final class CacheAsserts {
    * @throws IOException If an error occurred reading from the Cache.
    */
   public static void assertDataCached(Cache cache, Uri uri, byte[] expected) throws IOException {
-    DataSpec dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
+    DataSpec dataSpec = new DataSpec(uri);
     assertDataCached(cache, dataSpec, expected);
   }
 

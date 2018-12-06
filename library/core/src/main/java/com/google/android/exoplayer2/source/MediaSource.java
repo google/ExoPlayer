@@ -219,6 +219,12 @@ public interface MediaSource {
    */
   void removeEventListener(MediaSourceEventListener eventListener);
 
+  /** Returns the tag set on the media source, or null if none was set. */
+  @Nullable
+  default Object getTag() {
+    return null;
+  }
+
   /**
    * Starts source preparation if not yet started, and adds a listener for timeline and/or manifest
    * updates.

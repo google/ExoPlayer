@@ -602,7 +602,6 @@ public final class CacheDataSourceTest {
   }
 
   private DataSpec buildDataSpec(long position, long length, @Nullable String key) {
-    return new DataSpec(
-        testDataUri, position, length, key, DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH);
+    return new DataSpec(testDataUri, position, length, key);
   }
 }

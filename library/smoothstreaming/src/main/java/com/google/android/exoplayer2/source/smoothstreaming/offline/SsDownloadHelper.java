@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
@@ -28,67 +27,38 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
-import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link DownloadHelper} for SmoothStreaming streams. */
-public final class SsDownloadHelper extends DownloadHelper {
+public final class SsDownloadHelper extends DownloadHelper<SsManifest> {
 
-  private final Uri uri;
   private final DataSource.Factory manifestDataSourceFactory;
 
-  private @MonotonicNonNull SsManifest manifest;
-
   public SsDownloadHelper(Uri uri, DataSource.Factory manifestDataSourceFactory) {
-    this.uri = uri;
+    super(DownloadAction.TYPE_SS, uri, /* cacheKey= */ null);
     this.manifestDataSourceFactory = manifestDataSourceFactory;
   }
 
   @Override
-  protected void prepareInternal() throws IOException {
+  protected SsManifest loadManifest(Uri uri) throws IOException {
     DataSource dataSource = manifestDataSourceFactory.createDataSource();
-    manifest = ParsingLoadable.load(dataSource, new SsManifestParser(), uri, C.DATA_TYPE_MANIFEST);
-  }
-
-  /** Returns the SmoothStreaming manifest. Must not be called until after preparation completes. */
-  public SsManifest getManifest() {
-    Assertions.checkNotNull(manifest);
-    return manifest;
+    return ParsingLoadable.load(dataSource, new SsManifestParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
   @Override
-  public int getPeriodCount() {
-    Assertions.checkNotNull(manifest);
-    return 1;
-  }
-
-  @Override
-  public TrackGroupArray getTrackGroups(int periodIndex) {
-    Assertions.checkNotNull(manifest);
+  protected TrackGroupArray[] getTrackGroupArrays(SsManifest manifest) {
     SsManifest.StreamElement[] streamElements = manifest.streamElements;
     TrackGroup[] trackGroups = new TrackGroup[streamElements.length];
     for (int i = 0; i < streamElements.length; i++) {
       trackGroups[i] = new TrackGroup(streamElements[i].formats);
     }
-    return new TrackGroupArray(trackGroups);
+    return new TrackGroupArray[] {new TrackGroupArray(trackGroups)};
   }
 
   @Override
-  public DownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
-    return DownloadAction.createDownloadAction(
-        DownloadAction.TYPE_SS, uri, toStreamKeys(trackKeys), /* customCacheKey= */ null, data);
-  }
-
-  @Override
-  public DownloadAction getRemoveAction() {
-    return DownloadAction.createRemoveAction(
-        DownloadAction.TYPE_SS, uri, /* customCacheKey= */ null);
-  }
-
-  private static List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
+  protected List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
     List<StreamKey> representationKeys = new ArrayList<>(trackKeys.size());
     for (int i = 0; i < trackKeys.size(); i++) {
       TrackKey trackKey = trackKeys.get(i);

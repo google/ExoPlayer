@@ -850,6 +850,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private DataSpec dataSpec;
     private long length;
 
+    @SuppressWarnings("method.invocation.invalid")
     public ExtractingLoadable(
         Uri uri,
         DataSource dataSource,
@@ -864,7 +865,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       this.positionHolder = new PositionHolder();
       this.pendingExtractorSeek = true;
       this.length = C.LENGTH_UNSET;
-      dataSpec = new DataSpec(uri, positionHolder.position, C.LENGTH_UNSET, customCacheKey);
+      dataSpec = buildDataSpec(/* position= */ 0);
     }
 
     // Loadable implementation.
@@ -881,7 +882,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         ExtractorInput input = null;
         try {
           long position = positionHolder.position;
-          dataSpec = new DataSpec(uri, position, C.LENGTH_UNSET, customCacheKey);
+          dataSpec = buildDataSpec(position);
           length = dataSource.open(dataSpec);
           if (length != C.LENGTH_UNSET) {
             length += position;
@@ -914,6 +915,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     // Internal methods.
+
+    private DataSpec buildDataSpec(long position) {
+      // Disable caching if the content length cannot be resolved, since this is indicative of a
+      // progressive live stream.
+      return new DataSpec(
+          uri,
+          position,
+          C.LENGTH_UNSET,
+          customCacheKey,
+          DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN);
+    }
 
     private void setLoadPosition(long position, long timeUs) {
       positionHolder.position = position;
