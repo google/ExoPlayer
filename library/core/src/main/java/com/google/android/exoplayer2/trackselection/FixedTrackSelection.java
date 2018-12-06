@@ -21,8 +21,8 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.util.Assertions;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * A {@link TrackSelection} consisting of a single track.
@@ -56,10 +56,12 @@ public final class FixedTrackSelection extends BaseTrackSelection {
     }
 
     @Override
-    public FixedTrackSelection createTrackSelection(
-        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks) {
-      Assertions.checkArgument(tracks.length == 1);
-      return new FixedTrackSelection(group, tracks[0], reason, data);
+    public @NullableType TrackSelection[] createTrackSelections(
+        @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+      return TrackSelectionUtil.createTrackSelectionsForDefinitions(
+          definitions,
+          definition ->
+              new FixedTrackSelection(definition.group, definition.tracks[0], reason, data));
     }
   }
 
