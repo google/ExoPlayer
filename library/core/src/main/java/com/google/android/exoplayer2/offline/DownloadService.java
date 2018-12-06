@@ -281,17 +281,19 @@ public abstract class DownloadService extends Service {
     lastStartId = startId;
     taskRemoved = false;
     String intentAction = null;
+    byte[] actionData = null;
     if (intent != null) {
       intentAction = intent.getAction();
       startedInForeground |=
           intent.getBooleanExtra(KEY_FOREGROUND, false) || ACTION_RESTART.equals(intentAction);
+      actionData = intent.getByteArrayExtra(KEY_DOWNLOAD_ACTION);
     }
     // intentAction is null if the service is restarted or no action is specified.
     if (intentAction == null) {
       intentAction = ACTION_INIT;
     }
     logd("onStartCommand action: " + intentAction + " startId: " + startId);
-    byte[] actionData = intent.getByteArrayExtra(KEY_DOWNLOAD_ACTION);
+    
     switch (intentAction) {
       case ACTION_INIT:
       case ACTION_RESTART:
