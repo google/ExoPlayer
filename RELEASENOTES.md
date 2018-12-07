@@ -12,7 +12,8 @@
 * Caching: Cache data with unknown length by default. The previous flag to opt in
   to this behavior (`DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH`) has been
   replaced with an opt out flag (`DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN`).
-
+* MP3: Fix issue where streams would play twice on Samsung devices
+  ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
 ### 2.9.2 ###
 
 * HLS:
