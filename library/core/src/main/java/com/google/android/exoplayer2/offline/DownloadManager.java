@@ -544,7 +544,7 @@ public final class DownloadManager {
 
   }
 
-  private static final class Task implements Runnable {
+  private static final class Task {
 
     /** Target states for the download thread. */
     @Documented
@@ -566,7 +566,7 @@ public final class DownloadManager {
     @TargetState private volatile int targetState;
 
     @MonotonicNonNull private Downloader downloader;
-    @MonotonicNonNull private Thread thread;
+    @MonotonicNonNull private DownloadThread downloadThread;
     @MonotonicNonNull private Throwable error;
 
     private Task(
@@ -625,8 +625,9 @@ public final class DownloadManager {
         targetState = STATE_COMPLETED;
         downloadManager.onTaskStateChange(this);
         downloader = downloaderFactory.createDownloader(action);
-        thread = new Thread(this);
-        thread.start();
+        downloadThread =
+            new DownloadThread(
+                this, downloader, action.isRemoveAction, minRetryCount, downloadManager.handler);
       }
     }
 
@@ -649,8 +650,7 @@ public final class DownloadManager {
 
     private void stopDownloadThread(@TargetState int targetState) {
       this.targetState = targetState;
-      Assertions.checkNotNull(downloader).cancel();
-      Assertions.checkNotNull(thread).interrupt();
+      Assertions.checkNotNull(downloadThread).cancel();
     }
 
     private void onDownloadThreadStopped(@Nullable Throwable finalError) {
@@ -664,35 +664,67 @@ public final class DownloadManager {
       error = finalError;
       downloadManager.onTaskStateChange(this);
     }
+  }
+
+  private static class DownloadThread implements Runnable {
+
+    private final Task task;
+    private final Downloader downloader;
+    private final boolean remove;
+    private final int minRetryCount;
+    private final Handler callbackHandler;
+    private final Thread thread;
+    private volatile boolean isCanceled;
+
+    private DownloadThread(
+        Task task,
+        Downloader downloader,
+        boolean remove,
+        int minRetryCount,
+        Handler callbackHandler) {
+      this.task = task;
+      this.downloader = downloader;
+      this.remove = remove;
+      this.minRetryCount = minRetryCount;
+      this.callbackHandler = callbackHandler;
+      thread = new Thread(this);
+      thread.start();
+    }
+
+    public void cancel() {
+      isCanceled = true;
+      downloader.cancel();
+      thread.interrupt();
+    }
 
     // Methods running on download thread.
 
     @Override
     public void run() {
-      logd("Task is started", this);
+      logd("Task is started", task);
       Throwable error = null;
       try {
-        if (action.isRemoveAction) {
+        if (remove) {
           downloader.remove();
         } else {
           int errorCount = 0;
           long errorPosition = C.LENGTH_UNSET;
-          while (targetState == STATE_COMPLETED) {
+          while (!isCanceled) {
             try {
               downloader.download();
               break;
             } catch (IOException e) {
-              if (targetState == STATE_COMPLETED) {
+              if (!isCanceled) {
                 long downloadedBytes = downloader.getDownloadedBytes();
                 if (downloadedBytes != errorPosition) {
-                  logd("Reset error count. downloadedBytes = " + downloadedBytes, this);
+                  logd("Reset error count. downloadedBytes = " + downloadedBytes, task);
                   errorPosition = downloadedBytes;
                   errorCount = 0;
                 }
                 if (++errorCount > minRetryCount) {
                   throw e;
                 }
-                logd("Download error. Retry " + errorCount, this);
+                logd("Download error. Retry " + errorCount, task);
                 Thread.sleep(getRetryDelayMillis(errorCount));
               }
             }
@@ -702,7 +734,7 @@ public final class DownloadManager {
         error = e;
       }
       final Throwable finalError = error;
-      downloadManager.handler.post(() -> onDownloadThreadStopped(finalError));
+      callbackHandler.post(() -> task.onDownloadThreadStopped(isCanceled ? null : finalError));
     }
 
     private int getRetryDelayMillis(int errorCount) {
