@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.ST
 import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_PAUSED;
 import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_QUEUED;
 import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_STARTED;
+import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.getStateString;
 
 import android.content.Context;
 import android.os.ConditionVariable;
@@ -220,7 +221,7 @@ public final class DownloadManager {
 
   /**
    * Deserializes an action from {@code actionData}, and calls {@link
-   * #resumeDownload(DownloadAction)}.
+   * #handleResumeAction(DownloadAction)}.
    *
    * @param actionData Serialized version of the existing paused action to be executed.
    * @throws IOException If an error occurs deserializing the action.
@@ -228,7 +229,7 @@ public final class DownloadManager {
   public void handleResumeAction(byte[] actionData) throws IOException {
     Assertions.checkState(!released);
     DownloadAction action = createDownloadAction(actionData);
-    resumeDownload(action);
+    handleResumeAction(action);
   }
 
   /**
@@ -251,6 +252,28 @@ public final class DownloadManager {
       }
     }
     return task.id;
+  }
+
+  /**
+   * Handles the given paused action. A resumed task is created and repalce paused task.
+   *
+   * @param action Existing paused action to be resumed.
+   */
+  public void handleResumeAction(DownloadAction action) {
+    for (int i = 0; i < tasks.size(); i++) {
+      Task task = tasks.get(i);
+      if (task.isPaused() && task.action.equals(action)) {
+        Task toBeResumedTask = task.withResumeAction();
+        toBeResumedTask.resume();
+        tasks.set(i, toBeResumedTask);
+        saveActions();
+        notifyListenersTaskStateChange(toBeResumedTask);
+        maybeStartTasks();
+        notifyListenersTaskStateChange(toBeResumedTask);
+        break;
+      }
+    }
+    logd("Download is resuming");
   }
 
   /** Returns the number of tasks. */
@@ -433,6 +456,7 @@ public final class DownloadManager {
   private void notifyListenersTaskStateChange(Task task) {
     logd("Task state is changed", task);
     TaskState taskState = task.getTaskState();
+
     for (Listener listener : listeners) {
       listener.onTaskStateChanged(this, taskState);
     }
@@ -504,23 +528,6 @@ public final class DownloadManager {
   private DownloadAction createDownloadAction(byte[] actionData) throws IOException {
     ByteArrayInputStream input = new ByteArrayInputStream(actionData);
     return DownloadAction.deserializeFromStream(input);
-  }
-
-  private void resumeDownload(DownloadAction action) {
-    for (int i = 0; i < tasks.size(); i++) {
-      Task task = tasks.get(i);
-      if (task.action.equals(action)) {
-        Task toBeResumedTask = task.withResumeAction();
-        toBeResumedTask.resume();
-        tasks.set(i, toBeResumedTask);
-        saveActions();
-        notifyListenersTaskStateChange(toBeResumedTask);
-        maybeStartTasks();
-        notifyListenersTaskStateChange(toBeResumedTask);
-        break;
-      }
-    }
-    logd("Download is resuming");
   }
 
   private void replaceTask(Task oldTask, Task newTask) {
@@ -696,12 +703,12 @@ public final class DownloadManager {
 
     /** Return new task with pause action. */
     private Task withPauseAction() {
-      return withAction(action.createPauseAction());
+      return withAction(action.createPausedAction());
     }
 
     /** Return new task with resume action. */
     private Task withResumeAction() {
-      return withAction(action.createResumeAction());
+      return withAction(action.createResumedAction());
     }
 
     @Override
@@ -748,14 +755,27 @@ public final class DownloadManager {
     }
 
     private void pause() {
-      if (state == STATE_STARTED) {
+      if (state == STATE_STARTED && targetState == STATE_COMPLETED) {
         logd("Pausing", this);
-          stopDownloadThread(STATE_PAUSED);
+        stopDownloadThread(STATE_PAUSED);
       }
     }
 
     private void resume() {
-      state = STATE_QUEUED;
+      if (state == STATE_PAUSED) {
+        state = STATE_QUEUED;
+        targetState = STATE_COMPLETED;
+      }
+    }
+
+    private Task withAction(DownloadAction action){
+      Task task = new Task(id, downloadManager, downloaderFactory, action, minRetryCount);
+      task.downloader = downloader;
+      task.thread = thread;
+      task.error = error;
+      task.state = state;
+      task.targetState = state;
+      return task;
     }
 
     // Internal methods running on the main thread.
@@ -776,16 +796,6 @@ public final class DownloadManager {
       state = finalState;
       error = finalError;
       downloadManager.onTaskStateChange(this);
-    }
-
-    private Task withAction(DownloadAction action){
-      Task task = new Task(id, downloadManager, downloaderFactory, action, minRetryCount);
-      task.downloader = downloader;
-      task.thread = thread;
-      task.error = error;
-      task.state = state;
-      task.targetState = targetState;
-      return task;
     }
 
     // Methods running on download thread.

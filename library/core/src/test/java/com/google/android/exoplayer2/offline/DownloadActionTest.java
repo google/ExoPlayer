@@ -307,11 +307,11 @@ public class DownloadActionTest {
   }
 
   private DownloadAction createPauseAction(Uri uri) {
-    return createDownloadAction(uri).createPauseAction();
+    return createDownloadAction(uri).createPausedAction();
   }
 
   private DownloadAction createResumeAction(Uri uri) {
-    return createPauseAction(uri).createResumeAction();
+    return createPauseAction(uri).createResumedAction();
   }
 
   private static void assertNotEqual(DownloadAction action1, DownloadAction action2) {

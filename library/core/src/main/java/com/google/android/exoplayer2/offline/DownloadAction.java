@@ -249,7 +249,7 @@ public final class DownloadAction {
    *
    * @return paused action
    */
-  final DownloadAction createPauseAction() {
+  final DownloadAction createPausedAction() {
     return new DownloadAction(type, uri, isRemoveAction, true, keys, customCacheKey, data);
   }
 
@@ -258,7 +258,7 @@ public final class DownloadAction {
    *
    * @return resumed action
    */
-  final DownloadAction createResumeAction() {
+  final DownloadAction createResumedAction() {
     return new DownloadAction(type, uri, isRemoveAction, false, keys, customCacheKey, data);
   }
 
