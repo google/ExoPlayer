@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import android.support.annotation.Nullable;
+
 /**
  * Identifies a given track by the index of the containing period, the index of the containing group
  * within the period, and the index of the track within the group.
@@ -37,5 +39,24 @@ public final class TrackKey {
     this.periodIndex = periodIndex;
     this.groupIndex = groupIndex;
     this.trackIndex = trackIndex;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null || getClass() != other.getClass()) {
+      return false;
+    }
+    TrackKey that = (TrackKey) other;
+    return periodIndex == that.periodIndex
+        && groupIndex == that.groupIndex
+        && trackIndex == that.trackIndex;
+  }
+
+  @Override
+  public int hashCode() {
+    return 31 * (31 * periodIndex + groupIndex) + trackIndex;
   }
 }
