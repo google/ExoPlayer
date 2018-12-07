@@ -523,6 +523,8 @@ public final class DownloadManager {
     public final float downloadPercentage;
     /** The total number of downloaded bytes. */
     public final long downloadedBytes;
+    /** The total size of the media, or {@link C#LENGTH_UNSET} if unknown. */
+    public final long totalBytes;
 
     /** If {@link #state} is {@link #STATE_FAILED} then this is the cause, otherwise null. */
     @Nullable public final Throwable error;
@@ -533,12 +535,14 @@ public final class DownloadManager {
         @State int state,
         float downloadPercentage,
         long downloadedBytes,
+        long totalBytes,
         @Nullable Throwable error) {
       this.taskId = taskId;
       this.action = action;
       this.state = state;
       this.downloadPercentage = downloadPercentage;
       this.downloadedBytes = downloadedBytes;
+      this.totalBytes = totalBytes;
       this.error = error;
     }
 
@@ -587,11 +591,14 @@ public final class DownloadManager {
     public TaskState getTaskState() {
       float downloadPercentage = C.PERCENTAGE_UNSET;
       long downloadedBytes = 0;
+      long totalBytes = C.LENGTH_UNSET;
       if (downloader != null) {
         downloadPercentage = downloader.getDownloadPercentage();
         downloadedBytes = downloader.getDownloadedBytes();
+        totalBytes = downloader.getTotalBytes();
       }
-      return new TaskState(id, action, state, downloadPercentage, downloadedBytes, error);
+      return new TaskState(
+          id, action, state, downloadPercentage, downloadedBytes, totalBytes, error);
     }
 
     /** Returns whether the task is finished. */
