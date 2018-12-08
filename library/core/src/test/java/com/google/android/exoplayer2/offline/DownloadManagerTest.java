@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -391,6 +392,39 @@ public class DownloadManagerTest {
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
+  public void testPauseAndResume() throws Throwable {
+    DownloadRunner downloadRunner = createDownloadRunner(uri1);
+
+    downloadRunner.postAction().assertStarted();
+
+    DownloadRunner pausedDownloadRunner = downloadRunner.postPauseAction();
+    downloadRunner.assertPaused();
+
+    DownloadRunner resumedDownloadRunner = pausedDownloadRunner.postResumeAction();
+    resumedDownloadRunner.assertStarted();
+
+    resumedDownloadRunner.unblock().assertCompleted();
+
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+  }
+
+  @Test
+  public void testRemovePausedAction() throws Throwable {
+    DownloadRunner downloadRunner = createDownloadRunner(uri1);
+    downloadRunner.postAction().assertStarted();
+
+    DownloadRunner pausedDownloadRunner = downloadRunner.postPauseAction();
+    downloadRunner.assertPaused();
+
+    DownloadRunner removeRunner = createRemoveRunner(uri1).postAction();
+
+    removeRunner.unblock().assertCompleted();
+    pausedDownloadRunner.unblock().assertCanceled();
+
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+  }
+
   private void setUpDownloadManager(final int maxActiveDownloadTasks) throws Exception {
     if (downloadManager != null) {
       releaseDownloadManager();
@@ -462,24 +496,39 @@ public class DownloadManagerTest {
     public final DownloadAction action;
     public final FakeDownloader downloader;
 
-    private DownloadRunner(Uri uri, boolean isRemoveAction) {
-      action =
-          isRemoveAction
-              ? DownloadAction.createRemoveAction(
-                  DownloadAction.TYPE_PROGRESSIVE, uri, /* customCacheKey= */ null)
-              : DownloadAction.createDownloadAction(
-                  DownloadAction.TYPE_PROGRESSIVE,
-                  uri,
-                  /* keys= */ Collections.emptyList(),
-                  /* customCacheKey= */ null,
-                  /* data= */ null);
-      downloader = new FakeDownloader(isRemoveAction);
+    private DownloadRunner(DownloadAction action, boolean isRemoveAction) {
+      this.action = action;
+      this.downloader = new FakeDownloader(isRemoveAction);
       downloaderFactory.putFakeDownloader(action, downloader);
+    }
+
+    private DownloadRunner(Uri uri, boolean isRemoveAction) {
+      this(isRemoveAction
+              ? DownloadAction.createRemoveAction(
+              DownloadAction.TYPE_PROGRESSIVE, uri, /* customCacheKey= */ null)
+              : DownloadAction.createDownloadAction(
+              DownloadAction.TYPE_PROGRESSIVE,
+              uri,
+              /* keys= */ Collections.emptyList(),
+              /* customCacheKey= */ null,
+              /* data= */ null), isRemoveAction);
     }
 
     private DownloadRunner postAction() {
       runOnMainThread(() -> downloadManager.handleAction(action));
       return this;
+    }
+
+    private DownloadRunner postPauseAction() {
+      DownloadRunner downloadRunner = new DownloadRunner(action.createPausedAction(),false);
+      runOnMainThread(() -> downloadManager.pauseDownload(action));
+      return downloadRunner;
+    }
+
+    private DownloadRunner postResumeAction() {
+      DownloadRunner downloadRunner = new DownloadRunner(action.createResumedAction(),false);
+      runOnMainThread(() -> downloadManager.handleResumeAction(action));
+      return downloadRunner;
     }
 
     private DownloadRunner assertDoesNotStart() throws InterruptedException {
@@ -490,7 +539,7 @@ public class DownloadManagerTest {
 
     private DownloadRunner assertStarted() throws InterruptedException {
       downloader.assertStarted(ASSERT_TRUE_TIMEOUT);
-      return assertState(TaskState.STATE_STARTED);
+      return assertState(action, TaskState.STATE_STARTED);
     }
 
     private DownloadRunner assertCompleted() {
@@ -509,7 +558,15 @@ public class DownloadManagerTest {
       return assertState(TaskState.STATE_QUEUED);
     }
 
+    private DownloadRunner assertPaused() {
+      return assertState(action, TaskState.STATE_PAUSED);
+    }
+
     private DownloadRunner assertState(@State int expectedState) {
+      return assertState(action, expectedState);
+    }
+
+    private DownloadRunner assertState(DownloadAction action, @State int expectedState) {
       while (true) {
         Integer state = null;
         try {
@@ -537,18 +594,25 @@ public class DownloadManagerTest {
   private static class FakeDownloaderFactory implements DownloaderFactory {
 
     public IdentityHashMap<DownloadAction, FakeDownloader> downloaders;
+    public HashMap<DownloadAction, FakeDownloader> resumedDownloaders;
 
     public FakeDownloaderFactory() {
       downloaders = new IdentityHashMap<>();
+      resumedDownloaders = new HashMap<>();
     }
 
     public void putFakeDownloader(DownloadAction action, FakeDownloader downloader) {
       downloaders.put(action, downloader);
+      resumedDownloaders.put(action, downloader);
     }
 
     @Override
     public Downloader createDownloader(DownloadAction action) {
-      return downloaders.get(action);
+      if (downloaders.containsKey(action)) {
+        return downloaders.get(action);
+      }else {
+        return resumedDownloaders.get(action);
+      }
     }
   }
 

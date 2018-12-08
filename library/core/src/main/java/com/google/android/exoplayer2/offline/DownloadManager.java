@@ -21,7 +21,6 @@ import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.ST
 import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_PAUSED;
 import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_QUEUED;
 import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.STATE_STARTED;
-import static com.google.android.exoplayer2.offline.DownloadManager.TaskState.getStateString;
 
 import android.content.Context;
 import android.os.ConditionVariable;
