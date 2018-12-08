@@ -505,13 +505,13 @@ public class DownloadManagerTest {
     private DownloadRunner(Uri uri, boolean isRemoveAction) {
       this(isRemoveAction
               ? DownloadAction.createRemoveAction(
-              DownloadAction.TYPE_PROGRESSIVE, uri, /* customCacheKey= */ null)
-              : DownloadAction.createDownloadAction(
-              DownloadAction.TYPE_PROGRESSIVE,
-              uri,
-              /* keys= */ Collections.emptyList(),
-              /* customCacheKey= */ null,
-              /* data= */ null), isRemoveAction);
+                  DownloadAction.TYPE_PROGRESSIVE, uri, /* customCacheKey= */ null)
+                  : DownloadAction.createDownloadAction(
+                  DownloadAction.TYPE_PROGRESSIVE,
+                  uri,
+                  /* keys= */ Collections.emptyList(),
+                  /* customCacheKey= */ null,
+                  /* data= */ null), isRemoveAction);
     }
 
     private DownloadRunner postAction() {
@@ -610,7 +610,7 @@ public class DownloadManagerTest {
     public Downloader createDownloader(DownloadAction action) {
       if (downloaders.containsKey(action)) {
         return downloaders.get(action);
-      }else {
+      } else {
         return resumedDownloaders.get(action);
       }
     }
