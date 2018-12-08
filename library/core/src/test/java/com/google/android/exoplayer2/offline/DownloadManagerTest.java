@@ -506,12 +506,13 @@ public class DownloadManagerTest {
       this(isRemoveAction
               ? DownloadAction.createRemoveAction(
                   DownloadAction.TYPE_PROGRESSIVE, uri, /* customCacheKey= */ null)
-                  : DownloadAction.createDownloadAction(
+              : DownloadAction.createDownloadAction(
                   DownloadAction.TYPE_PROGRESSIVE,
                   uri,
                   /* keys= */ Collections.emptyList(),
                   /* customCacheKey= */ null,
-                  /* data= */ null), isRemoveAction);
+                  /* data= */ null),
+           isRemoveAction);
     }
 
     private DownloadRunner postAction() {
