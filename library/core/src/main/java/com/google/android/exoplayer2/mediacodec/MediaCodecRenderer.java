@@ -1622,7 +1622,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private static boolean codecNeedsEosFlushWorkaround(String name) {
     return (Util.SDK_INT <= 23 && "OMX.google.vorbis.decoder".equals(name))
-        || (Util.SDK_INT <= 19 && "hb2000".equals(Util.DEVICE)
+        || (Util.SDK_INT <= 19
+            && ("hb2000".equals(Util.DEVICE) || "stvm8".equals(Util.DEVICE))
             && ("OMX.amlogic.avc.decoder.awesome".equals(name)
                 || "OMX.amlogic.avc.decoder.awesome.secure".equals(name)));
   }
