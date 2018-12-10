@@ -42,10 +42,6 @@ import java.util.Map;
  * A {@link DataSource} that reads and writes a {@link Cache}. Requests are fulfilled from the cache
  * when possible. When data is not cached it is requested from an upstream {@link DataSource} and
  * written into the cache.
- *
- * <p>By default requests whose length can not be resolved are not cached. This is to prevent
- * caching of progressive live streams, which should usually not be cached. Caching of this kind of
- * requests can be enabled per request with {@link DataSpec#FLAG_ALLOW_CACHING_UNKNOWN_LENGTH}.
  */
 public final class CacheDataSource implements DataSource {
 
