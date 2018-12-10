@@ -146,13 +146,16 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized void release() throws CacheException {
+  public synchronized void release() {
     if (released) {
       return;
     }
     listeners.clear();
+    removeStaleSpans();
     try {
-      removeStaleSpansAndCachedContents();
+      index.store();
+    } catch (CacheException e) {
+      Log.e(TAG, "Storing index file failed", e);
     } finally {
       unlockFolder(cacheDir);
       released = true;
@@ -265,7 +268,7 @@ public final class SimpleCache implements Cache {
     if (!cacheDir.exists()) {
       // For some reason the cache directory doesn't exist. Make a best effort to create it.
       cacheDir.mkdirs();
-      removeStaleSpansAndCachedContents();
+      removeStaleSpans();
     }
     evictor.onStartFile(this, key, position, maxLength);
     return SimpleCacheSpan.getCacheFile(
@@ -311,9 +314,9 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized void removeSpan(CacheSpan span) throws CacheException {
+  public synchronized void removeSpan(CacheSpan span) {
     Assertions.checkState(!released);
-    removeSpan(span, true);
+    removeSpanInternal(span);
   }
 
   @Override
@@ -379,7 +382,7 @@ public final class SimpleCache implements Cache {
       if (span.isCached && !span.file.exists()) {
         // The file has been deleted from under us. It's likely that other files will have been
         // deleted too, so scan the whole in-memory representation.
-        removeStaleSpansAndCachedContents();
+        removeStaleSpans();
         continue;
       }
       return span;
@@ -431,27 +434,21 @@ public final class SimpleCache implements Cache {
     notifySpanAdded(span);
   }
 
-  private void removeSpan(CacheSpan span, boolean removeEmptyCachedContent) throws CacheException {
+  private void removeSpanInternal(CacheSpan span) {
     CachedContent cachedContent = index.get(span.key);
     if (cachedContent == null || !cachedContent.removeSpan(span)) {
       return;
     }
     totalSpace -= span.length;
-    try {
-      if (removeEmptyCachedContent) {
-        index.maybeRemove(cachedContent.key);
-        index.store();
-      }
-    } finally {
-      notifySpanRemoved(span);
-    }
+    index.maybeRemove(cachedContent.key);
+    notifySpanRemoved(span);
   }
 
   /**
    * Scans all of the cached spans in the in-memory representation, removing any for which files no
    * longer exist.
    */
-  private void removeStaleSpansAndCachedContents() throws CacheException {
+  private void removeStaleSpans() {
     ArrayList<CacheSpan> spansToBeRemoved = new ArrayList<>();
     for (CachedContent cachedContent : index.getAll()) {
       for (CacheSpan span : cachedContent.getSpans()) {
@@ -461,11 +458,8 @@ public final class SimpleCache implements Cache {
       }
     }
     for (int i = 0; i < spansToBeRemoved.size(); i++) {
-      // Remove span but not CachedContent to prevent multiple index.store() calls.
-      removeSpan(spansToBeRemoved.get(i), false);
+      removeSpanInternal(spansToBeRemoved.get(i));
     }
-    index.removeEmpty();
-    index.store();
   }
 
   private void notifySpanRemoved(CacheSpan span) {
