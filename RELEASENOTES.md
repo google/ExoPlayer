@@ -6,6 +6,8 @@
   ([#1583](https://github.com/google/ExoPlayer/issues/1583)).
 * MPEG-TS: Use random access indicators to minimize the need for
   `FLAG_ALLOW_NON_IDR_KEYFRAMES`.
+* Downloading: Reduce time taken to remove downloads
+  ([#5136](https://github.com/google/ExoPlayer/issues/5136)).
 * MP3:
   * Use the true bitrate for constant-bitrate MP3 seeking.
   * Fix issue where streams would play twice on some Samsung devices
