@@ -467,11 +467,7 @@ public final class CacheDataSourceTest {
     NavigableSet<CacheSpan> cachedSpans = cache.getCachedSpans(defaultCacheKey);
     for (CacheSpan cachedSpan : cachedSpans) {
       if (cachedSpan.position >= halfDataLength) {
-        try {
-          cache.removeSpan(cachedSpan);
-        } catch (Cache.CacheException e) {
-          // do nothing
-        }
+        cache.removeSpan(cachedSpan);
       }
     }
 
