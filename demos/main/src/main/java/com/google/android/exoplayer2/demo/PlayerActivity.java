@@ -35,11 +35,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
-import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -416,13 +416,8 @@ public class PlayerActivity extends Activity
 
       boolean preferExtensionDecoders =
           intent.getBooleanExtra(PREFER_EXTENSION_DECODERS_EXTRA, false);
-      @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode =
-          ((DemoApplication) getApplication()).useExtensionRenderers()
-              ? (preferExtensionDecoders ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
-              : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
-              : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
-      DefaultRenderersFactory renderersFactory =
-          new DefaultRenderersFactory(this, extensionRendererMode);
+      RenderersFactory renderersFactory =
+          ((DemoApplication) getApplication()).buildRenderersFactory(preferExtensionDecoders);
 
       trackSelector = new DefaultTrackSelector(trackSelectionFactory);
       trackSelector.setParameters(trackSelectorParameters);
