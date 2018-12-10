@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Application;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
+import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
@@ -70,6 +72,17 @@ public class DemoApplication extends Application {
   /** Returns whether extension renderers should be used. */
   public boolean useExtensionRenderers() {
     return "withExtensions".equals(BuildConfig.FLAVOR);
+  }
+
+  public RenderersFactory buildRenderersFactory(boolean preferExtensionRenderer) {
+    @DefaultRenderersFactory.ExtensionRendererMode
+    int extensionRendererMode =
+        useExtensionRenderers()
+            ? (preferExtensionRenderer
+                ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
+                : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+            : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
+    return new DefaultRenderersFactory(this, extensionRendererMode);
   }
 
   public DownloadManager getDownloadManager() {

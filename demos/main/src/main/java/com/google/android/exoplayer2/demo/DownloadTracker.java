@@ -28,6 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.ActionFile;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
@@ -114,13 +115,20 @@ public class DownloadTracker implements DownloadManager.Listener {
     return trackedDownloadStates.get(uri).getKeys();
   }
 
-  public void toggleDownload(Activity activity, String name, Uri uri, String extension) {
+  public void toggleDownload(
+      Activity activity,
+      String name,
+      Uri uri,
+      String extension,
+      RenderersFactory renderersFactory) {
     if (isDownloaded(uri)) {
-      DownloadAction removeAction = getDownloadHelper(uri, extension).getRemoveAction();
+      DownloadAction removeAction =
+          getDownloadHelper(uri, extension, renderersFactory).getRemoveAction();
       startServiceWithAction(removeAction);
     } else {
       StartDownloadDialogHelper helper =
-          new StartDownloadDialogHelper(activity, getDownloadHelper(uri, extension), name);
+          new StartDownloadDialogHelper(
+              activity, getDownloadHelper(uri, extension, renderersFactory), name);
       helper.prepare();
     }
   }
@@ -192,15 +200,16 @@ public class DownloadTracker implements DownloadManager.Listener {
     DownloadService.startWithAction(context, DemoDownloadService.class, action, false);
   }
 
-  private DownloadHelper getDownloadHelper(Uri uri, String extension) {
+  private DownloadHelper<?> getDownloadHelper(
+      Uri uri, String extension, RenderersFactory renderersFactory) {
     int type = Util.inferContentType(uri, extension);
     switch (type) {
       case C.TYPE_DASH:
-        return new DashDownloadHelper(uri, dataSourceFactory);
+        return new DashDownloadHelper(uri, dataSourceFactory, renderersFactory);
       case C.TYPE_SS:
-        return new SsDownloadHelper(uri, dataSourceFactory);
+        return new SsDownloadHelper(uri, dataSourceFactory, renderersFactory);
       case C.TYPE_HLS:
-        return new HlsDownloadHelper(uri, dataSourceFactory);
+        return new HlsDownloadHelper(uri, dataSourceFactory, renderersFactory);
       case C.TYPE_OTHER:
         return new ProgressiveDownloadHelper(uri);
       default:
@@ -211,7 +220,7 @@ public class DownloadTracker implements DownloadManager.Listener {
   private final class StartDownloadDialogHelper
       implements DownloadHelper.Callback, DialogInterface.OnClickListener {
 
-    private final DownloadHelper downloadHelper;
+    private final DownloadHelper<?> downloadHelper;
     private final String name;
 
     private final AlertDialog.Builder builder;
@@ -221,7 +230,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     private final ListView representationList;
 
     public StartDownloadDialogHelper(
-        Activity activity, DownloadHelper downloadHelper, String name) {
+        Activity activity, DownloadHelper<?> downloadHelper, String name) {
       this.downloadHelper = downloadHelper;
       this.name = name;
       builder =
@@ -248,7 +257,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
 
     @Override
-    public void onPrepared(DownloadHelper helper) {
+    public void onPrepared(DownloadHelper<?> helper) {
       for (int i = 0; i < downloadHelper.getPeriodCount(); i++) {
         TrackGroupArray trackGroups = downloadHelper.getTrackGroups(i);
         for (int j = 0; j < trackGroups.length; j++) {
@@ -266,7 +275,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
 
     @Override
-    public void onPrepareError(DownloadHelper helper, IOException e) {
+    public void onPrepareError(DownloadHelper<?> helper, IOException e) {
       Toast.makeText(
               context.getApplicationContext(), R.string.download_start_error, Toast.LENGTH_LONG)
           .show();

@@ -22,7 +22,6 @@ import android.support.annotation.Nullable;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
@@ -112,25 +111,6 @@ public abstract class DownloadHelper<T> {
   private MappedTrackInfo @MonotonicNonNull [] mappedTrackInfos;
   private List<TrackSelection> @MonotonicNonNull [][] trackSelectionsByPeriodAndRenderer;
   private List<TrackSelection> @MonotonicNonNull [][] immutableTrackSelectionsByPeriodAndRenderer;
-
-  /**
-   * Create download helper.
-   *
-   * @param downloadType A download type. This value will be used as {@link DownloadAction#type}.
-   * @param uri A {@link Uri}.
-   * @param cacheKey An optional cache key.
-   */
-  public DownloadHelper(String downloadType, Uri uri, @Nullable String cacheKey) {
-    // TODO: Remove as soon as all implementations have been updated to the new constructor.
-    this(
-        downloadType,
-        uri,
-        cacheKey,
-        DEFAULT_TRACK_SELECTOR_PARAMETERS,
-        /* renderersFactory= */ (handler, videoListener, audioListener, metadata, text, drm) ->
-            new Renderer[0],
-        /* drmSessionManager= */ null);
-  }
 
   /**
    * Creates download helper.
