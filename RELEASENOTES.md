@@ -25,6 +25,8 @@
   skippping.
 * Workaround for MiTV (dangal) issue when swapping output surface
   ([#5169](https://github.com/google/ExoPlayer/issues/5169)).
+* DownloadManager:
+  * Create only one task for all DownloadActions for the same content.
 
 ### 2.9.2 ###
 
