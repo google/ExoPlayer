@@ -53,7 +53,7 @@ public class DemoDownloadService extends DownloadService {
   protected Notification getForegroundNotification(TaskState[] taskStates) {
     return DownloadNotificationUtil.buildProgressNotification(
         /* context= */ this,
-        R.drawable.exo_controls_play,
+        R.drawable.ic_download,
         CHANNEL_ID,
         /* contentIntent= */ null,
         /* message= */ null,
@@ -70,7 +70,7 @@ public class DemoDownloadService extends DownloadService {
       notification =
           DownloadNotificationUtil.buildDownloadCompletedNotification(
               /* context= */ this,
-              R.drawable.exo_controls_play,
+              R.drawable.ic_download_done,
               CHANNEL_ID,
               /* contentIntent= */ null,
               Util.fromUtf8Bytes(taskState.action.data));
@@ -78,7 +78,7 @@ public class DemoDownloadService extends DownloadService {
       notification =
           DownloadNotificationUtil.buildDownloadFailedNotification(
               /* context= */ this,
-              R.drawable.exo_controls_play,
+              R.drawable.ic_download_done,
               CHANNEL_ID,
               /* contentIntent= */ null,
               Util.fromUtf8Bytes(taskState.action.data));
