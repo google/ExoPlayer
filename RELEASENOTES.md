@@ -23,6 +23,8 @@
     (`DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN`).
 * Disable post processing on Nvidia devices, as it breaks decode-only frame
   skippping.
+* Workaround for MiTV (dangal) issue when swapping output surface
+  ([#5169](https://github.com/google/ExoPlayer/issues/5169)).
 
 ### 2.9.2 ###
 
