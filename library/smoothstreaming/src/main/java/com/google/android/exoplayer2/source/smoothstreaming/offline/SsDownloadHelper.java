@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
@@ -93,7 +94,8 @@ public final class SsDownloadHelper extends DownloadHelper<SsManifest> {
   @Override
   protected SsManifest loadManifest(Uri uri) throws IOException {
     DataSource dataSource = manifestDataSourceFactory.createDataSource();
-    return ParsingLoadable.load(dataSource, new SsManifestParser(), uri, C.DATA_TYPE_MANIFEST);
+    Uri fixedUri = SsUtil.fixManifestUri(uri);
+    return ParsingLoadable.load(dataSource, new SsManifestParser(), fixedUri, C.DATA_TYPE_MANIFEST);
   }
 
   @Override
