@@ -1031,6 +1031,19 @@ public class PlayerView extends FrameLayout {
     return subtitleView;
   }
 
+  /**
+   * Called to notify the {@link AspectRatioFrameLayout} of the new video aspect ratio.
+   * The default implementation will simply forward the aspect ratio to
+   * {@link AspectRatioFrameLayout#setAspectRatio(float)}. Subclasses can override this
+   * method, for example, to apply aspect ratio constraints.
+   *
+   * @param aspectRatioFrameLayout the video surface view container
+   * @param widthHeightRatio the computed aspect ratio
+   */
+  protected void onDispatchVideoAspectRatio(@NonNull AspectRatioFrameLayout aspectRatioFrameLayout, float widthHeightRatio) {
+    aspectRatioFrameLayout.setAspectRatio(widthHeightRatio);
+  }
+
   @Override
   public boolean onTouchEvent(MotionEvent ev) {
     if (ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
@@ -1355,7 +1368,7 @@ public class PlayerView extends FrameLayout {
         videoAspectRatio = 0;
       }
 
-      contentFrame.setAspectRatio(videoAspectRatio);
+      onDispatchVideoAspectRatio(contentFrame, videoAspectRatio);
     }
 
     @Override
