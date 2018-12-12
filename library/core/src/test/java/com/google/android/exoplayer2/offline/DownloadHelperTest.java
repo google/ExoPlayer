@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
@@ -50,8 +49,6 @@ public class DownloadHelperTest {
   private static final String TEST_DOWNLOAD_TYPE = "downloadType";
   private static final String TEST_CACHE_KEY = "cacheKey";
   private static final ManifestType TEST_MANIFEST = new ManifestType();
-  private static final List<StreamKey> testStreamKeys =
-      Arrays.asList(new StreamKey(0, 1, 2), new StreamKey(1, 3, 4));
 
   private static final Format VIDEO_FORMAT_LOW = createVideoFormat(/* bitrate= */ 200_000);
   private static final Format VIDEO_FORMAT_HIGH = createVideoFormat(/* bitrate= */ 800_000);
@@ -313,16 +310,15 @@ public class DownloadHelperTest {
     assertThat(downloadAction.customCacheKey).isEqualTo(TEST_CACHE_KEY);
     assertThat(downloadAction.isRemoveAction).isFalse();
     assertThat(downloadAction.data).isEqualTo(data);
-    assertThat(downloadAction.keys).isEqualTo(testStreamKeys);
-    assertThat(downloadHelper.lastCreatedTrackKeys)
+    assertThat(downloadAction.keys)
         .containsExactly(
-            new TrackKey(/* periodIndex= */ 0, /* groupIndex= */ 0, /* trackIndex= */ 0),
-            new TrackKey(/* periodIndex= */ 0, /* groupIndex= */ 0, /* trackIndex= */ 1),
-            new TrackKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 0),
-            new TrackKey(/* periodIndex= */ 0, /* groupIndex= */ 2, /* trackIndex= */ 0),
-            new TrackKey(/* periodIndex= */ 0, /* groupIndex= */ 3, /* trackIndex= */ 0),
-            new TrackKey(/* periodIndex= */ 1, /* groupIndex= */ 0, /* trackIndex= */ 0),
-            new TrackKey(/* periodIndex= */ 1, /* groupIndex= */ 1, /* trackIndex= */ 0));
+            new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 0, /* trackIndex= */ 0),
+            new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 0, /* trackIndex= */ 1),
+            new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 0),
+            new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 2, /* trackIndex= */ 0),
+            new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 3, /* trackIndex= */ 0),
+            new StreamKey(/* periodIndex= */ 1, /* groupIndex= */ 0, /* trackIndex= */ 0),
+            new StreamKey(/* periodIndex= */ 1, /* groupIndex= */ 1, /* trackIndex= */ 0));
   }
 
   @Test
@@ -419,8 +415,6 @@ public class DownloadHelperTest {
 
   private static final class FakeDownloadHelper extends DownloadHelper<ManifestType> {
 
-    @Nullable public List<TrackKey> lastCreatedTrackKeys;
-
     public FakeDownloadHelper(Uri testUri, RenderersFactory renderersFactory) {
       super(
           TEST_DOWNLOAD_TYPE,
@@ -443,9 +437,9 @@ public class DownloadHelperTest {
     }
 
     @Override
-    protected List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
-      lastCreatedTrackKeys = trackKeys;
-      return testStreamKeys;
+    protected StreamKey toStreamKey(
+        int periodIndex, int trackGroupIndex, int trackIndexInTrackGroup) {
+      return new StreamKey(periodIndex, trackGroupIndex, trackIndexInTrackGroup);
     }
   }
 }

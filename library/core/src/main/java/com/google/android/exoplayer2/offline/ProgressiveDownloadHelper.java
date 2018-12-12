@@ -19,8 +19,6 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import java.util.Collections;
-import java.util.List;
 
 /** A {@link DownloadHelper} for progressive streams. */
 public final class ProgressiveDownloadHelper extends DownloadHelper<Void> {
@@ -61,7 +59,8 @@ public final class ProgressiveDownloadHelper extends DownloadHelper<Void> {
   }
 
   @Override
-  protected List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
-    return Collections.emptyList();
+  protected StreamKey toStreamKey(
+      int periodIndex, int trackGroupIndex, int trackIndexInTrackGroup) {
+    return new StreamKey(periodIndex, trackGroupIndex, trackIndexInTrackGroup);
   }
 }
