@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -56,12 +57,11 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   }
 
   @Override
-  public void onTaskStateChanged(
-      DownloadManager downloadManager, DownloadManager.TaskState taskState) {
-    if (taskState.state == DownloadManager.TaskState.STATE_FAILED && downloadError == null) {
-      downloadError = taskState.error;
+  public void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState) {
+    if (downloadState.state == DownloadState.STATE_FAILED && downloadError == null) {
+      downloadError = downloadState.error;
     }
-    getStateQueue(taskState.taskId).add(taskState.state);
+    getStateQueue(downloadState.id).add(downloadState.state);
   }
 
   @Override

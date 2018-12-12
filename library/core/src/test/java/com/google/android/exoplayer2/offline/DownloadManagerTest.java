@@ -20,8 +20,8 @@ import static org.junit.Assert.fail;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
-import com.google.android.exoplayer2.offline.DownloadManager.TaskState.State;
+import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
+import com.google.android.exoplayer2.offline.DownloadManager.DownloadState.State;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
@@ -371,11 +371,11 @@ public class DownloadManagerTest {
     TaskWrapper task2 = new DownloadRunner(uri2).postDownloadAction().getTask();
     TaskWrapper task3 = new DownloadRunner(uri3).postRemoveAction().getTask();
 
-    TaskState[] states = downloadManager.getAllTaskStates();
+    DownloadState[] states = downloadManager.getAllDownloadStates();
 
     assertThat(states).hasLength(3);
     int[] taskIds = {task1.taskId, task2.taskId, task3.taskId};
-    int[] stateTaskIds = {states[0].taskId, states[1].taskId, states[2].taskId};
+    int[] stateTaskIds = {states[0].id, states[1].id, states[2].id};
     assertThat(stateTaskIds).isEqualTo(taskIds);
   }
 
@@ -522,19 +522,19 @@ public class DownloadManagerTest {
     }
 
     private TaskWrapper assertStarted() throws InterruptedException {
-      return assertState(TaskState.STATE_STARTED);
+      return assertState(DownloadState.STATE_STARTED);
     }
 
     private TaskWrapper assertCompleted() {
-      return assertState(TaskState.STATE_COMPLETED);
+      return assertState(DownloadState.STATE_COMPLETED);
     }
 
     private TaskWrapper assertFailed() {
-      return assertState(TaskState.STATE_FAILED);
+      return assertState(DownloadState.STATE_FAILED);
     }
 
     private TaskWrapper assertQueued() {
-      return assertState(TaskState.STATE_QUEUED);
+      return assertState(DownloadState.STATE_QUEUED);
     }
 
     private TaskWrapper assertState(@State int expectedState) {

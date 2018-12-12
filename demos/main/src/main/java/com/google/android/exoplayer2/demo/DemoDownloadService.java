@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.demo;
 
 import android.app.Notification;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
+import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.scheduler.PlatformScheduler;
 import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
@@ -50,40 +50,40 @@ public class DemoDownloadService extends DownloadService {
   }
 
   @Override
-  protected Notification getForegroundNotification(TaskState[] taskStates) {
+  protected Notification getForegroundNotification(DownloadState[] downloadStates) {
     return DownloadNotificationUtil.buildProgressNotification(
         /* context= */ this,
         R.drawable.ic_download,
         CHANNEL_ID,
         /* contentIntent= */ null,
         /* message= */ null,
-        taskStates);
+        downloadStates);
   }
 
   @Override
-  protected void onTaskStateChanged(TaskState taskState) {
-    if (taskState.action.isRemoveAction) {
+  protected void onDownloadStateChanged(DownloadState downloadState) {
+    if (downloadState.action.isRemoveAction) {
       return;
     }
     Notification notification = null;
-    if (taskState.state == TaskState.STATE_COMPLETED) {
+    if (downloadState.state == DownloadState.STATE_COMPLETED) {
       notification =
           DownloadNotificationUtil.buildDownloadCompletedNotification(
               /* context= */ this,
               R.drawable.ic_download_done,
               CHANNEL_ID,
               /* contentIntent= */ null,
-              Util.fromUtf8Bytes(taskState.action.data));
-    } else if (taskState.state == TaskState.STATE_FAILED) {
+              Util.fromUtf8Bytes(downloadState.action.data));
+    } else if (downloadState.state == DownloadState.STATE_FAILED) {
       notification =
           DownloadNotificationUtil.buildDownloadFailedNotification(
               /* context= */ this,
               R.drawable.ic_download_done,
               CHANNEL_ID,
               /* contentIntent= */ null,
-              Util.fromUtf8Bytes(taskState.action.data));
+              Util.fromUtf8Bytes(downloadState.action.data));
     }
-    int notificationId = FOREGROUND_NOTIFICATION_ID + 1 + taskState.taskId;
+    int notificationId = FOREGROUND_NOTIFICATION_ID + 1 + downloadState.id;
     NotificationUtil.setNotification(this, notificationId, notification);
   }
 }
