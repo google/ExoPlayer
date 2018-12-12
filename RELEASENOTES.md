@@ -47,10 +47,10 @@
 * DASH: Parse ProgramInformation element if present in the manifest.
 * HLS:
   * Add constructor to `DefaultHlsExtractorFactory` for adding TS payload
-    reader factory flags.
+    reader factory flags
+    ([#4861](https://github.com/google/ExoPlayer/issues/4861)).
   * Fix bug in segment sniffing
     ([#5039](https://github.com/google/ExoPlayer/issues/5039)).
-  ([#4861](https://github.com/google/ExoPlayer/issues/4861)).
 * SubRip: Add support for alignment tags, and remove tags from the displayed
   captions ([#4306](https://github.com/google/ExoPlayer/issues/4306)).
 * Fix issue with blind seeking to windows with non-zero offset in a
