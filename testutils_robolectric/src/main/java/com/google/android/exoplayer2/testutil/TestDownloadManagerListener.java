@@ -34,7 +34,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   private final HashMap<Integer, ArrayBlockingQueue<Integer>> actionStates;
 
   private CountDownLatch downloadFinishedCondition;
-  private Throwable downloadError;
+  @DownloadState.FailureReason private int failureReason;
 
   public TestDownloadManagerListener(
       DownloadManager downloadManager, DummyMainThread dummyMainThread) {
@@ -48,7 +48,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   }
 
   public void clearDownloadError() {
-    this.downloadError = null;
+    this.failureReason = DownloadState.FAILURE_REASON_NONE;
   }
 
   @Override
@@ -58,8 +58,8 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
 
   @Override
   public void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState) {
-    if (downloadState.state == DownloadState.STATE_FAILED && downloadError == null) {
-      downloadError = downloadState.error;
+    if (downloadState.state == DownloadState.STATE_FAILED) {
+      failureReason = downloadState.failureReason;
     }
     getStateQueue(downloadState.id).add(downloadState.state);
   }
@@ -77,8 +77,8 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
    */
   public void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
     blockUntilTasksComplete();
-    if (downloadError != null) {
-      throw new Exception(downloadError);
+    if (failureReason != DownloadState.FAILURE_REASON_NONE) {
+      throw new Exception("Failure reason: " + DownloadState.getFailureString(failureReason));
     }
   }
 

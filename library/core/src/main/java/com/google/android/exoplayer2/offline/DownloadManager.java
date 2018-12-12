@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.FAILURE_REASON_NONE;
+import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.FAILURE_REASON_UNKNOWN;
 import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_COMPLETED;
 import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_FAILED;
 import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_QUEUED;
@@ -461,6 +463,16 @@ public final class DownloadManager {
     /** The download failed. */
     public static final int STATE_FAILED = 3;
 
+    /** Failure reasons. Either {@link #FAILURE_REASON_NONE} or {@link #FAILURE_REASON_UNKNOWN}. */
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({FAILURE_REASON_NONE, FAILURE_REASON_UNKNOWN})
+    public @interface FailureReason {}
+    /** The download isn't failed. */
+    public static final int FAILURE_REASON_NONE = 0;
+    /** The download is failed because of unknown reason. */
+    public static final int FAILURE_REASON_UNKNOWN = 1;
+
     /** Returns the state string for the given state value. */
     public static String getStateString(@State int state) {
       switch (state) {
@@ -472,6 +484,18 @@ public final class DownloadManager {
           return "COMPLETED";
         case STATE_FAILED:
           return "FAILED";
+        default:
+          throw new IllegalStateException();
+      }
+    }
+
+    /** Returns the failure string for the given failure reason value. */
+    public static String getFailureString(@FailureReason int failureReason) {
+      switch (failureReason) {
+        case FAILURE_REASON_NONE:
+          return "NO_REASON";
+        case FAILURE_REASON_UNKNOWN:
+          return "UNKNOWN_REASON";
         default:
           throw new IllegalStateException();
       }
@@ -493,8 +517,11 @@ public final class DownloadManager {
     /** The total size of the media, or {@link C#LENGTH_UNSET} if unknown. */
     public final long totalBytes;
 
-    /** If {@link #state} is {@link #STATE_FAILED} then this is the cause, otherwise null. */
-    @Nullable public final Throwable error;
+    /**
+     * If {@link #state} is {@link #STATE_FAILED} then this is the cause, otherwise {@link
+     * #FAILURE_REASON_NONE}.
+     */
+    @FailureReason public final int failureReason;
 
     private DownloadState(
         int id,
@@ -503,14 +530,16 @@ public final class DownloadManager {
         float downloadPercentage,
         long downloadedBytes,
         long totalBytes,
-        @Nullable Throwable error) {
+        @FailureReason int failureReason) {
+      Assertions.checkState(
+          failureReason == FAILURE_REASON_NONE ? state != STATE_FAILED : state == STATE_FAILED);
       this.id = id;
       this.action = action;
       this.state = state;
       this.downloadPercentage = downloadPercentage;
       this.downloadedBytes = downloadedBytes;
       this.totalBytes = totalBytes;
-      this.error = error;
+      this.failureReason = failureReason;
     }
 
   }
@@ -539,7 +568,7 @@ public final class DownloadManager {
 
     @MonotonicNonNull private Downloader downloader;
     @MonotonicNonNull private DownloadThread downloadThread;
-    @MonotonicNonNull private Throwable error;
+    @MonotonicNonNull @DownloadState.FailureReason private int failureReason;
 
     private Download(
         int id,
@@ -586,7 +615,7 @@ public final class DownloadManager {
         totalBytes = downloader.getTotalBytes();
       }
       return new DownloadState(
-          id, action, state, downloadPercentage, downloadedBytes, totalBytes, error);
+          id, action, state, downloadPercentage, downloadedBytes, totalBytes, failureReason);
     }
 
     /** Returns whether the download is finished. */
@@ -642,11 +671,11 @@ public final class DownloadManager {
 
     private void onDownloadThreadStopped(@Nullable Throwable finalError) {
       state = targetState;
-      error = null;
+      failureReason = FAILURE_REASON_NONE;
       if (targetState == STATE_COMPLETED) {
         if (finalError != null) {
           state = STATE_FAILED;
-          error = finalError;
+          failureReason = FAILURE_REASON_UNKNOWN;
         } else {
           actionQueue.remove();
           if (!actionQueue.isEmpty()) {
