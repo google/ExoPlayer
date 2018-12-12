@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.offline.TrackKey;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
@@ -37,7 +36,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -110,7 +108,7 @@ public final class HlsDownloadHelper extends DownloadHelper<HlsPlaylist> {
       renditionGroups = new int[0];
       return new TrackGroupArray[] {TrackGroupArray.EMPTY};
     }
-    // TODO: Generate track groups as in playback. Reverse the mapping in getDownloadAction.
+    // TODO: Generate track groups as in playback. Reverse the mapping in toStreamKey.
     HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
     TrackGroup[] trackGroups = new TrackGroup[3];
     renditionGroups = new int[3];
@@ -131,14 +129,9 @@ public final class HlsDownloadHelper extends DownloadHelper<HlsPlaylist> {
   }
 
   @Override
-  protected List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
-    List<StreamKey> representationKeys = new ArrayList<>(trackKeys.size());
-    for (int i = 0; i < trackKeys.size(); i++) {
-      TrackKey trackKey = trackKeys.get(i);
-      representationKeys.add(
-          new StreamKey(renditionGroups[trackKey.groupIndex], trackKey.trackIndex));
-    }
-    return representationKeys;
+  protected StreamKey toStreamKey(
+      int periodIndex, int trackGroupIndex, int trackIndexInTrackGroup) {
+    return new StreamKey(renditionGroups[trackGroupIndex], trackIndexInTrackGroup);
   }
 
   private static Format[] toFormats(List<HlsMasterPlaylist.HlsUrl> hlsUrls) {

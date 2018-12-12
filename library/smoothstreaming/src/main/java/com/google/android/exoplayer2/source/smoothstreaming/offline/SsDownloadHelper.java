@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.offline.TrackKey;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
@@ -34,8 +33,6 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /** A {@link DownloadHelper} for SmoothStreaming streams. */
 public final class SsDownloadHelper extends DownloadHelper<SsManifest> {
@@ -109,12 +106,8 @@ public final class SsDownloadHelper extends DownloadHelper<SsManifest> {
   }
 
   @Override
-  protected List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
-    List<StreamKey> representationKeys = new ArrayList<>(trackKeys.size());
-    for (int i = 0; i < trackKeys.size(); i++) {
-      TrackKey trackKey = trackKeys.get(i);
-      representationKeys.add(new StreamKey(trackKey.groupIndex, trackKey.trackIndex));
-    }
-    return representationKeys;
+  protected StreamKey toStreamKey(
+      int periodIndex, int trackGroupIndex, int trackIndexInTrackGroup) {
+    return new StreamKey(trackGroupIndex, trackIndexInTrackGroup);
   }
 }

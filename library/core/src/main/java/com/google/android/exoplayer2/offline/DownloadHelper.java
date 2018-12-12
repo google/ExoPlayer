@@ -281,7 +281,7 @@ public abstract class DownloadHelper<T> {
   public final DownloadAction getDownloadAction(@Nullable byte[] data) {
     Assertions.checkNotNull(trackSelectionsByPeriodAndRenderer);
     Assertions.checkNotNull(trackGroupArrays);
-    List<TrackKey> trackKeys = new ArrayList<>();
+    List<StreamKey> streamKeys = new ArrayList<>();
     int periodCount = trackSelectionsByPeriodAndRenderer.length;
     for (int periodIndex = 0; periodIndex < periodCount; periodIndex++) {
       int rendererCount = trackSelectionsByPeriodAndRenderer[periodIndex].length;
@@ -295,27 +295,12 @@ public abstract class DownloadHelper<T> {
           int trackCount = trackSelection.length();
           for (int trackListIndex = 0; trackListIndex < trackCount; trackListIndex++) {
             int trackIndex = trackSelection.getIndexInTrackGroup(trackListIndex);
-            trackKeys.add(new TrackKey(periodIndex, trackGroupIndex, trackIndex));
+            streamKeys.add(toStreamKey(periodIndex, trackGroupIndex, trackIndex));
           }
         }
       }
     }
-    return DownloadAction.createDownloadAction(
-        downloadType, uri, toStreamKeys(trackKeys), cacheKey, data);
-  }
-
-  /**
-   * Builds a {@link DownloadAction} for downloading the specified tracks. Must not be called until
-   * after preparation completes.
-   *
-   * @param data Application provided data to store in {@link DownloadAction#data}.
-   * @param trackKeys The selected tracks. If empty, all streams will be downloaded.
-   * @return The built {@link DownloadAction}.
-   */
-  public final DownloadAction getDownloadAction(@Nullable byte[] data, List<TrackKey> trackKeys) {
-    // TODO: Remove as soon as all usages have been updated to new getDownloadAction method.
-    return DownloadAction.createDownloadAction(
-        downloadType, uri, toStreamKeys(trackKeys), cacheKey, data);
+    return DownloadAction.createDownloadAction(downloadType, uri, streamKeys, cacheKey, data);
   }
 
   /**
@@ -344,12 +329,15 @@ public abstract class DownloadHelper<T> {
   protected abstract TrackGroupArray[] getTrackGroupArrays(T manifest);
 
   /**
-   * Converts a list of {@link TrackKey track keys} to {@link StreamKey stream keys}.
+   * Converts a track of a track group of a period to the corresponding {@link StreamKey}.
    *
-   * @param trackKeys A list of track keys.
-   * @return A corresponding list of stream keys.
+   * @param periodIndex The index of the containing period.
+   * @param trackGroupIndex The index of the containing track group within the period.
+   * @param trackIndexInTrackGroup The index of the track within the track group.
+   * @return The corresponding {@link StreamKey}.
    */
-  protected abstract List<StreamKey> toStreamKeys(List<TrackKey> trackKeys);
+  protected abstract StreamKey toStreamKey(
+      int periodIndex, int trackGroupIndex, int trackIndexInTrackGroup);
 
   @SuppressWarnings("unchecked")
   @EnsuresNonNull("trackSelectionsByPeriodAndRenderer")
