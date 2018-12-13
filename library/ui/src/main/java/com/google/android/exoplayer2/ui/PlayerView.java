@@ -188,7 +188,7 @@ import java.util.List;
  *   <li><b>{@code exo_shutter}</b> - A view that's made visible when video should be hidden. This
  *       view is typically an opaque view that covers the video surface, thereby obscuring it when
  *       visible. Obscuring the surface in this way also helps to prevent flicker at the start of
- *       playback when {@code surface_type="surface_view"}
+ *       playback when {@code surface_type="surface_view"}.
  *       <ul>
  *         <li>Type: {@link View}
  *       </ul>
