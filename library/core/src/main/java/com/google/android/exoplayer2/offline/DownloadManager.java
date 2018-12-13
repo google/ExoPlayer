@@ -508,15 +508,16 @@ public final class DownloadManager {
     public final DownloadAction action;
     /** The state of the download. */
     public final @State int state;
-
-    /**
-     * The estimated download percentage, or {@link C#PERCENTAGE_UNSET} if no estimate is available.
-     */
+    /** The estimated download percentage, or {@link C#PERCENTAGE_UNSET} if unavailable. */
     public final float downloadPercentage;
     /** The total number of downloaded bytes. */
     public final long downloadedBytes;
     /** The total size of the media, or {@link C#LENGTH_UNSET} if unknown. */
     public final long totalBytes;
+    /** The first time when download entry is created. */
+    public final long startTimeMs;
+    /** The last update time. */
+    public final long updateTimeMs;
 
     /**
      * If {@link #state} is {@link #STATE_FAILED} then this is the cause, otherwise {@link
@@ -530,7 +531,8 @@ public final class DownloadManager {
         float downloadPercentage,
         long downloadedBytes,
         long totalBytes,
-        @FailureReason int failureReason) {
+        @FailureReason int failureReason,
+        long startTimeMs) {
       Assertions.checkState(
           failureReason == FAILURE_REASON_NONE ? state != STATE_FAILED : state == STATE_FAILED);
       this.id = action.id;
@@ -540,6 +542,8 @@ public final class DownloadManager {
       this.downloadedBytes = downloadedBytes;
       this.totalBytes = totalBytes;
       this.failureReason = failureReason;
+      this.startTimeMs = startTimeMs;
+      updateTimeMs = System.currentTimeMillis();
     }
 
   }
@@ -556,6 +560,7 @@ public final class DownloadManager {
     private final DownloadManager downloadManager;
     private final DownloaderFactory downloaderFactory;
     private final int minRetryCount;
+    private final long startTimeMs;
     private final ArrayDeque<DownloadAction> actionQueue;
     private DownloadAction action;
     /** The current state of the download. */
@@ -580,6 +585,7 @@ public final class DownloadManager {
       this.downloaderFactory = downloaderFactory;
       this.action = action;
       this.minRetryCount = minRetryCount;
+      this.startTimeMs = System.currentTimeMillis();
       state = STATE_QUEUED;
       targetState = STATE_COMPLETED;
       actionQueue = new ArrayDeque<>();
@@ -614,7 +620,13 @@ public final class DownloadManager {
         totalBytes = downloader.getTotalBytes();
       }
       return new DownloadState(
-          action, state, downloadPercentage, downloadedBytes, totalBytes, failureReason);
+          action,
+          state,
+          downloadPercentage,
+          downloadedBytes,
+          totalBytes,
+          failureReason,
+          startTimeMs);
     }
 
     /** Returns whether the download is finished. */
