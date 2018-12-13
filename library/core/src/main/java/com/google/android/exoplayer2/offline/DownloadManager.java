@@ -94,7 +94,6 @@ public final class DownloadManager {
   private final Handler fileIOHandler;
   private final CopyOnWriteArraySet<Listener> listeners;
 
-  private int nextDownloadId;
   private boolean initialized;
   private boolean released;
   private boolean downloadsStopped;
@@ -192,9 +191,8 @@ public final class DownloadManager {
    * Handles the given action.
    *
    * @param action The action to be executed.
-   * @return The id of the newly created or the existing download.
    */
-  public int handleAction(DownloadAction action) {
+  public void handleAction(DownloadAction action) {
     Assertions.checkState(!released);
     Download download = getDownloadForAction(action);
     if (initialized) {
@@ -207,7 +205,6 @@ public final class DownloadManager {
         notifyListenersDownloadStateChange(download);
       }
     }
-    return download.id;
   }
 
   /** Returns the number of downloads. */
@@ -216,13 +213,18 @@ public final class DownloadManager {
     return downloads.size();
   }
 
-  /** Returns the state of a download, or null if no such download exists */
+  /**
+   * Returns {@link DownloadState} for the given content id, or null if no such download exists.
+   *
+   * @param id The unique content id.
+   * @return DownloadState for the given content id, or null if no such download exists.
+   */
   @Nullable
-  public DownloadState getDownloadState(int downloadId) {
+  public DownloadState getDownloadState(String id) {
     Assertions.checkState(!released);
     for (int i = 0; i < downloads.size(); i++) {
       Download download = downloads.get(i);
-      if (download.id == downloadId) {
+      if (download.id.equals(id)) {
         return download.getDownloadState();
       }
     }
@@ -288,8 +290,7 @@ public final class DownloadManager {
         return download;
       }
     }
-    Download download =
-        new Download(nextDownloadId++, this, downloaderFactory, action, minRetryCount);
+    Download download = new Download(this, downloaderFactory, action, minRetryCount);
     downloads.add(download);
     logd("Download is added", download);
     return download;
@@ -501,8 +502,8 @@ public final class DownloadManager {
       }
     }
 
-    /** The unique download id. */
-    public final int id;
+    /** The unique content id. */
+    public final String id;
     /** The action being executed. */
     public final DownloadAction action;
     /** The state of the download. */
@@ -524,7 +525,6 @@ public final class DownloadManager {
     @FailureReason public final int failureReason;
 
     private DownloadState(
-        int id,
         DownloadAction action,
         @State int state,
         float downloadPercentage,
@@ -533,7 +533,7 @@ public final class DownloadManager {
         @FailureReason int failureReason) {
       Assertions.checkState(
           failureReason == FAILURE_REASON_NONE ? state != STATE_FAILED : state == STATE_FAILED);
-      this.id = id;
+      this.id = action.id;
       this.action = action;
       this.state = state;
       this.downloadPercentage = downloadPercentage;
@@ -552,7 +552,7 @@ public final class DownloadManager {
     @IntDef({STATE_QUEUED, STATE_COMPLETED})
     public @interface TargetState {}
 
-    private final int id;
+    private final String id;
     private final DownloadManager downloadManager;
     private final DownloaderFactory downloaderFactory;
     private final int minRetryCount;
@@ -571,12 +571,11 @@ public final class DownloadManager {
     @MonotonicNonNull @DownloadState.FailureReason private int failureReason;
 
     private Download(
-        int id,
         DownloadManager downloadManager,
         DownloaderFactory downloaderFactory,
         DownloadAction action,
         int minRetryCount) {
-      this.id = id;
+      this.id = action.id;
       this.downloadManager = downloadManager;
       this.downloaderFactory = downloaderFactory;
       this.action = action;
@@ -615,7 +614,7 @@ public final class DownloadManager {
         totalBytes = downloader.getTotalBytes();
       }
       return new DownloadState(
-          id, action, state, downloadPercentage, downloadedBytes, totalBytes, failureReason);
+          action, state, downloadPercentage, downloadedBytes, totalBytes, failureReason);
     }
 
     /** Returns whether the download is finished. */

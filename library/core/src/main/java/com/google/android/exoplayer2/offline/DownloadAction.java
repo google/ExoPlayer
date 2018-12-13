@@ -108,6 +108,8 @@ public final class DownloadAction {
         /* data= */ null);
   }
 
+  /** The unique content id. */
+  public final String id;
   /** The type of the action. */
   public final String type;
   /** The uri being downloaded or removed. */
@@ -140,6 +142,7 @@ public final class DownloadAction {
       List<StreamKey> keys,
       @Nullable String customCacheKey,
       @Nullable byte[] data) {
+    this.id = customCacheKey != null ? customCacheKey : uri.toString();
     this.type = type;
     this.uri = uri;
     this.isRemoveAction = isRemoveAction;
@@ -171,9 +174,7 @@ public final class DownloadAction {
 
   /** Returns whether this is an action for the same media as the {@code other}. */
   public boolean isSameMedia(DownloadAction other) {
-    return customCacheKey == null
-        ? other.customCacheKey == null && uri.equals(other.uri)
-        : customCacheKey.equals(other.customCacheKey);
+    return id.equals(other.id);
   }
 
   /** Returns keys of tracks to be downloaded. */
@@ -187,7 +188,8 @@ public final class DownloadAction {
       return false;
     }
     DownloadAction that = (DownloadAction) o;
-    return type.equals(that.type)
+    return id.equals(that.id)
+        && type.equals(that.type)
         && uri.equals(that.uri)
         && isRemoveAction == that.isRemoveAction
         && keys.equals(that.keys)
@@ -198,6 +200,7 @@ public final class DownloadAction {
   @Override
   public final int hashCode() {
     int result = type.hashCode();
+    result = 31 * result + id.hashCode();
     result = 31 * result + uri.hashCode();
     result = 31 * result + (isRemoveAction ? 1 : 0);
     result = 31 * result + keys.hashCode();

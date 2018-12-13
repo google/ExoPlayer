@@ -31,7 +31,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
 
   private final DownloadManager downloadManager;
   private final DummyMainThread dummyMainThread;
-  private final HashMap<Integer, ArrayBlockingQueue<Integer>> actionStates;
+  private final HashMap<String, ArrayBlockingQueue<Integer>> actionStates;
 
   private CountDownLatch downloadFinishedCondition;
   @DownloadState.FailureReason private int failureReason;
@@ -43,7 +43,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     actionStates = new HashMap<>();
   }
 
-  public Integer pollStateChange(int taskId, long timeoutMs) throws InterruptedException {
+  public Integer pollStateChange(String taskId, long timeoutMs) throws InterruptedException {
     return getStateQueue(taskId).poll(timeoutMs, TimeUnit.MILLISECONDS);
   }
 
@@ -96,7 +96,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     assertThat(downloadFinishedCondition.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue();
   }
 
-  private ArrayBlockingQueue<Integer> getStateQueue(int taskId) {
+  private ArrayBlockingQueue<Integer> getStateQueue(String taskId) {
     synchronized (actionStates) {
       if (!actionStates.containsKey(taskId)) {
         actionStates.put(taskId, new ArrayBlockingQueue<>(10));
