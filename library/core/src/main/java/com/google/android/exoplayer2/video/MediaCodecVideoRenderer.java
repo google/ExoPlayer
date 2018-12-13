@@ -1371,6 +1371,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             case "F3215":
             case "F3311":
             case "flo":
+            case "fugu":
             case "GiONEE_CBL7513":
             case "GiONEE_GBL7319":
             case "GIONEE_GBL7360":
