@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -374,8 +373,8 @@ public class DownloadManagerTest {
     DownloadState[] states = downloadManager.getAllDownloadStates();
 
     assertThat(states).hasLength(3);
-    int[] taskIds = {task1.taskId, task2.taskId, task3.taskId};
-    int[] stateTaskIds = {states[0].id, states[1].id, states[2].id};
+    String[] taskIds = {task1.taskId, task2.taskId, task3.taskId};
+    String[] stateTaskIds = {states[0].id, states[1].id, states[2].id};
     assertThat(stateTaskIds).isEqualTo(taskIds);
   }
 
@@ -471,13 +470,11 @@ public class DownloadManagerTest {
     }
 
     private DownloadRunner postAction(DownloadAction action) {
-      AtomicInteger taskIdHolder = new AtomicInteger();
-      runOnMainThread(() -> taskIdHolder.set(downloadManager.handleAction(action)));
-      int taskId = taskIdHolder.get();
+      runOnMainThread(() -> downloadManager.handleAction(action));
       if (taskWrapper == null) {
-        taskWrapper = new TaskWrapper(taskId);
+        taskWrapper = new TaskWrapper(action.id);
       } else {
-        assertThat(taskId).isEqualTo(taskWrapper.taskId);
+        assertThat(action.id).isEqualTo(taskWrapper.taskId);
       }
       return this;
     }
@@ -515,9 +512,9 @@ public class DownloadManagerTest {
   }
 
   private final class TaskWrapper {
-    private final int taskId;
+    private final String taskId;
 
-    private TaskWrapper(int taskId) {
+    private TaskWrapper(String taskId) {
       this.taskId = taskId;
     }
 
@@ -559,12 +556,12 @@ public class DownloadManagerTest {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      return taskId == ((TaskWrapper) o).taskId;
+      return taskId.equals(((TaskWrapper) o).taskId);
     }
 
     @Override
     public int hashCode() {
-      return taskId;
+      return taskId.hashCode();
     }
   }
 

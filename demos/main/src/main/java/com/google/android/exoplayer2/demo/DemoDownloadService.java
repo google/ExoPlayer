@@ -31,12 +31,15 @@ public class DemoDownloadService extends DownloadService {
   private static final int JOB_ID = 1;
   private static final int FOREGROUND_NOTIFICATION_ID = 1;
 
+  private static int nextNotificationId = FOREGROUND_NOTIFICATION_ID + 1;
+
   public DemoDownloadService() {
     super(
         FOREGROUND_NOTIFICATION_ID,
         DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL,
         CHANNEL_ID,
         R.string.exo_download_notification_channel_name);
+    nextNotificationId = FOREGROUND_NOTIFICATION_ID + 1;
   }
 
   @Override
@@ -82,8 +85,9 @@ public class DemoDownloadService extends DownloadService {
               CHANNEL_ID,
               /* contentIntent= */ null,
               Util.fromUtf8Bytes(downloadState.action.data));
+    } else {
+      return;
     }
-    int notificationId = FOREGROUND_NOTIFICATION_ID + 1 + downloadState.id;
-    NotificationUtil.setNotification(this, notificationId, notification);
+    NotificationUtil.setNotification(this, nextNotificationId++, notification);
   }
 }
