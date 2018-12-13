@@ -19,8 +19,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
- * Identifies a given track by the index of the containing period, the index of the containing group
- * within the period, and the index of the track within the group.
+ * Identifies a stream in a {@link FilterableManifest} by the index of the containing period, the
+ * index of the containing group within the period, and the index of the track within the group.
+ *
+ * <p>Note that the interpretation of period, group and index depends on the type of manifest being
+ * filtered.
  */
 public final class StreamKey implements Comparable<StreamKey> {
 
