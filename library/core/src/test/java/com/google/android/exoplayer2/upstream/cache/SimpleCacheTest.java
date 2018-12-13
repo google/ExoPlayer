@@ -106,18 +106,26 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testSetGetLength() throws Exception {
+  public void testSetGetContentMetadata() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
 
-    assertThat(simpleCache.getContentLength(KEY_1)).isEqualTo(LENGTH_UNSET);
+    assertThat(ContentMetadata.getContentLength(simpleCache.getContentMetadata(KEY_1)))
+        .isEqualTo(LENGTH_UNSET);
 
-    simpleCache.setContentLength(KEY_1, 15);
-    assertThat(simpleCache.getContentLength(KEY_1)).isEqualTo(15);
+    ContentMetadataMutations mutations = new ContentMetadataMutations();
+    ContentMetadataMutations.setContentLength(mutations, 15);
+    simpleCache.applyContentMetadataMutations(KEY_1, mutations);
+    assertThat(ContentMetadata.getContentLength(simpleCache.getContentMetadata(KEY_1)))
+        .isEqualTo(15);
 
     simpleCache.startReadWrite(KEY_1, 0);
     addCache(simpleCache, KEY_1, 0, 15);
-    simpleCache.setContentLength(KEY_1, 150);
-    assertThat(simpleCache.getContentLength(KEY_1)).isEqualTo(150);
+
+    mutations = new ContentMetadataMutations();
+    ContentMetadataMutations.setContentLength(mutations, 150);
+    simpleCache.applyContentMetadataMutations(KEY_1, mutations);
+    assertThat(ContentMetadata.getContentLength(simpleCache.getContentMetadata(KEY_1)))
+        .isEqualTo(150);
 
     addCache(simpleCache, KEY_1, 140, 10);
 
@@ -125,14 +133,16 @@ public class SimpleCacheTest {
 
     // Check if values are kept after cache is reloaded.
     SimpleCache simpleCache2 = getSimpleCache();
-    assertThat(simpleCache2.getContentLength(KEY_1)).isEqualTo(150);
+    assertThat(ContentMetadata.getContentLength(simpleCache2.getContentMetadata(KEY_1)))
+        .isEqualTo(150);
 
     // Removing the last span shouldn't cause the length be change next time cache loaded
     SimpleCacheSpan lastSpan = simpleCache2.startReadWrite(KEY_1, 145);
     simpleCache2.removeSpan(lastSpan);
     simpleCache2.release();
     simpleCache2 = getSimpleCache();
-    assertThat(simpleCache2.getContentLength(KEY_1)).isEqualTo(150);
+    assertThat(ContentMetadata.getContentLength(simpleCache2.getContentMetadata(KEY_1)))
+        .isEqualTo(150);
   }
 
   @Test
