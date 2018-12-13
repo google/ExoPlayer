@@ -293,7 +293,7 @@ public final class SimpleCache implements Cache {
       return;
     }
     // Check if the span conflicts with the set content length
-    long length = ContentMetadataInternal.getContentLength(cachedContent.getMetadata());
+    long length = ContentMetadata.getContentLength(cachedContent.getMetadata());
     if (length != C.LENGTH_UNSET) {
       Assertions.checkState((span.position + span.length) <= length);
     }
@@ -331,18 +331,6 @@ public final class SimpleCache implements Cache {
     Assertions.checkState(!released);
     CachedContent cachedContent = index.get(key);
     return cachedContent != null ? cachedContent.getCachedBytesLength(position, length) : -length;
-  }
-
-  @Override
-  public synchronized void setContentLength(String key, long length) throws CacheException {
-    ContentMetadataMutations mutations = new ContentMetadataMutations();
-    ContentMetadataInternal.setContentLength(mutations, length);
-    applyContentMetadataMutations(key, mutations);
-  }
-
-  @Override
-  public synchronized long getContentLength(String key) {
-    return ContentMetadataInternal.getContentLength(getContentMetadata(key));
   }
 
   @Override
