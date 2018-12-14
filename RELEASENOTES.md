@@ -15,6 +15,8 @@
 * Offline:
   * Speed up removal of segmented downloads
     ([#5136](https://github.com/google/ExoPlayer/issues/5136)).
+  * Add `setStreamKeys` method to factories of DASH, SmoothStreaming and HLS
+    media sources to simplify filtering by downloaded streams.
 * Caching:
   * Improve performance of `SimpleCache`.
   * Cache data with unknown length by default. The previous flag to opt in to
