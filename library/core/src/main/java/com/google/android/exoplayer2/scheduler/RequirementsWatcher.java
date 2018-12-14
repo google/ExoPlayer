@@ -44,14 +44,15 @@ public final class RequirementsWatcher {
   public interface Listener {
 
     /**
-     * Called when the requirements are met.
+     * Called when all of the requirements are met.
      *
      * @param requirementsWatcher Calling instance.
      */
     void requirementsMet(RequirementsWatcher requirementsWatcher);
 
     /**
-     * Called when the requirements are not met.
+     * Called when there is at least one not met requirement and there is a change on which of the
+     * requirements are not met.
      *
      * @param requirementsWatcher Calling instance.
      */
@@ -65,7 +66,7 @@ public final class RequirementsWatcher {
   private final Requirements requirements;
   private DeviceStatusChangeReceiver receiver;
 
-  private boolean requirementsWereMet;
+  private int notMetRequirements;
   private CapabilityValidatedCallback networkCallback;
 
   /**
@@ -87,7 +88,7 @@ public final class RequirementsWatcher {
   public void start() {
     Assertions.checkNotNull(Looper.myLooper());
 
-    requirementsWereMet = requirements.checkRequirements(context);
+    notMetRequirements = requirements.getNotMetRequirements(context);
 
     IntentFilter filter = new IntentFilter();
     if (requirements.getRequiredNetworkType() != Requirements.NETWORK_TYPE_NONE) {
@@ -159,13 +160,13 @@ public final class RequirementsWatcher {
   }
 
   private void checkRequirements() {
-    boolean requirementsAreMet = requirements.checkRequirements(context);
-    if (requirementsAreMet == requirementsWereMet) {
-      logd("requirementsAreMet is still " + requirementsAreMet);
+    int notMetRequirements = requirements.getNotMetRequirements(context);
+    if (this.notMetRequirements == notMetRequirements) {
+      logd("notMetRequirements hasn't changed: " + notMetRequirements);
       return;
     }
-    requirementsWereMet = requirementsAreMet;
-    if (requirementsAreMet) {
+    this.notMetRequirements = notMetRequirements;
+    if (notMetRequirements == 0) {
       logd("start job");
       listener.requirementsMet(this);
     } else {
