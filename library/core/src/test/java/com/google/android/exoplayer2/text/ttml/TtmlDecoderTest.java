@@ -63,6 +63,9 @@ public final class TtmlDecoderTest {
   private static final String FONT_SIZE_INVALID_TTML_FILE = "ttml/font_size_invalid.xml";
   private static final String FONT_SIZE_EMPTY_TTML_FILE = "ttml/font_size_empty.xml";
   private static final String FRAME_RATE_TTML_FILE = "ttml/frame_rate.xml";
+  private static final String BITMAP_REGION_FILE = "ttml/bitmap_percentage_region.xml";
+  private static final String BITMAP_PIXEL_REGION_FILE = "ttml/bitmap_pixel_region.xml";
+  private static final String BITMAP_UNSUPPORTED_REGION_FILE = "ttml/bitmap_unsupported_region.xml";
 
   @Test
   public void testInlineAttributes() throws IOException, SubtitleDecoderException {
@@ -259,56 +262,56 @@ public final class TtmlDecoderTest {
   @Test
   public void testMultipleRegions() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(MULTIPLE_REGIONS_TTML_FILE);
-    List<Cue> output = subtitle.getCues(1000000);
-    assertThat(output).hasSize(2);
-    Cue ttmlCue = output.get(0);
-    assertThat(ttmlCue.text.toString()).isEqualTo("lorem");
-    assertThat(ttmlCue.position).isEqualTo(10f / 100f);
-    assertThat(ttmlCue.line).isEqualTo(10f / 100f);
-    assertThat(ttmlCue.size).isEqualTo(20f / 100f);
+    List<Cue> cues = subtitle.getCues(1000000);
+    assertThat(cues).hasSize(2);
+    Cue cue = cues.get(0);
+    assertThat(cue.text.toString()).isEqualTo("lorem");
+    assertThat(cue.position).isEqualTo(10f / 100f);
+    assertThat(cue.line).isEqualTo(10f / 100f);
+    assertThat(cue.size).isEqualTo(20f / 100f);
 
-    ttmlCue = output.get(1);
-    assertThat(ttmlCue.text.toString()).isEqualTo("amet");
-    assertThat(ttmlCue.position).isEqualTo(60f / 100f);
-    assertThat(ttmlCue.line).isEqualTo(10f / 100f);
-    assertThat(ttmlCue.size).isEqualTo(20f / 100f);
+    cue = cues.get(1);
+    assertThat(cue.text.toString()).isEqualTo("amet");
+    assertThat(cue.position).isEqualTo(60f / 100f);
+    assertThat(cue.line).isEqualTo(10f / 100f);
+    assertThat(cue.size).isEqualTo(20f / 100f);
 
-    output = subtitle.getCues(5000000);
-    assertThat(output).hasSize(1);
-    ttmlCue = output.get(0);
-    assertThat(ttmlCue.text.toString()).isEqualTo("ipsum");
-    assertThat(ttmlCue.position).isEqualTo(40f / 100f);
-    assertThat(ttmlCue.line).isEqualTo(40f / 100f);
-    assertThat(ttmlCue.size).isEqualTo(20f / 100f);
+    cues = subtitle.getCues(5000000);
+    assertThat(cues).hasSize(1);
+    cue = cues.get(0);
+    assertThat(cue.text.toString()).isEqualTo("ipsum");
+    assertThat(cue.position).isEqualTo(40f / 100f);
+    assertThat(cue.line).isEqualTo(40f / 100f);
+    assertThat(cue.size).isEqualTo(20f / 100f);
 
-    output = subtitle.getCues(9000000);
-    assertThat(output).hasSize(1);
-    ttmlCue = output.get(0);
-    assertThat(ttmlCue.text.toString()).isEqualTo("dolor");
-    assertThat(ttmlCue.position).isEqualTo(Cue.DIMEN_UNSET);
-    assertThat(ttmlCue.line).isEqualTo(Cue.DIMEN_UNSET);
-    assertThat(ttmlCue.size).isEqualTo(Cue.DIMEN_UNSET);
+    cues = subtitle.getCues(9000000);
+    assertThat(cues).hasSize(1);
+    cue = cues.get(0);
+    assertThat(cue.text.toString()).isEqualTo("dolor");
+    assertThat(cue.position).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.line).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.size).isEqualTo(Cue.DIMEN_UNSET);
     // TODO: Should be as below, once https://github.com/google/ExoPlayer/issues/2953 is fixed.
-    // assertEquals(10f / 100f, ttmlCue.position);
-    // assertEquals(80f / 100f, ttmlCue.line);
-    // assertEquals(1f, ttmlCue.size);
+    // assertEquals(10f / 100f, cue.position);
+    // assertEquals(80f / 100f, cue.line);
+    // assertEquals(1f, cue.size);
 
-    output = subtitle.getCues(21000000);
-    assertThat(output).hasSize(1);
-    ttmlCue = output.get(0);
-    assertThat(ttmlCue.text.toString()).isEqualTo("She first said this");
-    assertThat(ttmlCue.position).isEqualTo(45f / 100f);
-    assertThat(ttmlCue.line).isEqualTo(45f / 100f);
-    assertThat(ttmlCue.size).isEqualTo(35f / 100f);
-    output = subtitle.getCues(25000000);
-    ttmlCue = output.get(0);
-    assertThat(ttmlCue.text.toString()).isEqualTo("She first said this\nThen this");
-    output = subtitle.getCues(29000000);
-    assertThat(output).hasSize(1);
-    ttmlCue = output.get(0);
-    assertThat(ttmlCue.text.toString()).isEqualTo("She first said this\nThen this\nFinally this");
-    assertThat(ttmlCue.position).isEqualTo(45f / 100f);
-    assertThat(ttmlCue.line).isEqualTo(45f / 100f);
+    cues = subtitle.getCues(21000000);
+    assertThat(cues).hasSize(1);
+    cue = cues.get(0);
+    assertThat(cue.text.toString()).isEqualTo("She first said this");
+    assertThat(cue.position).isEqualTo(45f / 100f);
+    assertThat(cue.line).isEqualTo(45f / 100f);
+    assertThat(cue.size).isEqualTo(35f / 100f);
+    cues = subtitle.getCues(25000000);
+    cue = cues.get(0);
+    assertThat(cue.text.toString()).isEqualTo("She first said this\nThen this");
+    cues = subtitle.getCues(29000000);
+    assertThat(cues).hasSize(1);
+    cue = cues.get(0);
+    assertThat(cue.text.toString()).isEqualTo("She first said this\nThen this\nFinally this");
+    assertThat(cue.position).isEqualTo(45f / 100f);
+    assertThat(cue.line).isEqualTo(45f / 100f);
   }
 
   @Test
@@ -497,6 +500,91 @@ public final class TtmlDecoderTest {
     assertThat(subtitle.getEventTime(1)).isEqualTo(1_010_000);
     assertThat((double) subtitle.getEventTime(2)).isWithin(1000).of(1_001_000_000);
     assertThat((double) subtitle.getEventTime(3)).isWithin(2000).of(2_002_000_000);
+  }
+
+  @Test
+  public void testBitmapPercentageRegion() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(BITMAP_REGION_FILE);
+
+    List<Cue> cues = subtitle.getCues(1000000);
+    assertThat(cues).hasSize(1);
+    Cue cue = cues.get(0);
+    assertThat(cue.text).isNull();
+    assertThat(cue.bitmap).isNotNull();
+    assertThat(cue.position).isEqualTo(24f / 100f);
+    assertThat(cue.line).isEqualTo(28f / 100f);
+    assertThat(cue.size).isEqualTo(51f / 100f);
+    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+
+    cues = subtitle.getCues(4000000);
+    assertThat(cues).hasSize(1);
+    cue = cues.get(0);
+    assertThat(cue.text).isNull();
+    assertThat(cue.bitmap).isNotNull();
+    assertThat(cue.position).isEqualTo(21f / 100f);
+    assertThat(cue.line).isEqualTo(35f / 100f);
+    assertThat(cue.size).isEqualTo(57f / 100f);
+    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+
+    cues = subtitle.getCues(7500000);
+    assertThat(cues).hasSize(1);
+    cue = cues.get(0);
+    assertThat(cue.text).isNull();
+    assertThat(cue.bitmap).isNotNull();
+    assertThat(cue.position).isEqualTo(24f / 100f);
+    assertThat(cue.line).isEqualTo(28f / 100f);
+    assertThat(cue.size).isEqualTo(51f / 100f);
+    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+  }
+
+  @Test
+  public void testBitmapPixelRegion() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(BITMAP_PIXEL_REGION_FILE);
+
+    List<Cue> cues = subtitle.getCues(1000000);
+    assertThat(cues).hasSize(1);
+    Cue cue = cues.get(0);
+    assertThat(cue.text).isNull();
+    assertThat(cue.bitmap).isNotNull();
+    assertThat(cue.position).isEqualTo(307f / 1280f);
+    assertThat(cue.line).isEqualTo(562f / 720f);
+    assertThat(cue.size).isEqualTo(653f / 1280f);
+    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+
+    cues = subtitle.getCues(4000000);
+    assertThat(cues).hasSize(1);
+    cue = cues.get(0);
+    assertThat(cue.text).isNull();
+    assertThat(cue.bitmap).isNotNull();
+    assertThat(cue.position).isEqualTo(269f / 1280f);
+    assertThat(cue.line).isEqualTo(612f / 720f);
+    assertThat(cue.size).isEqualTo(730f / 1280f);
+    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+  }
+
+  @Test
+  public void testBitmapUnsupportedRegion() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(BITMAP_UNSUPPORTED_REGION_FILE);
+
+    List<Cue> cues = subtitle.getCues(1000000);
+    assertThat(cues).hasSize(1);
+    Cue cue = cues.get(0);
+    assertThat(cue.text).isNull();
+    assertThat(cue.bitmap).isNotNull();
+    assertThat(cue.position).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.line).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.size).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+
+    cues = subtitle.getCues(4000000);
+    assertThat(cues).hasSize(1);
+    cue = cues.get(0);
+    assertThat(cue.text).isNull();
+    assertThat(cue.bitmap).isNotNull();
+    assertThat(cue.position).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.line).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.size).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
   }
 
   private void assertSpans(
