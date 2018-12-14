@@ -10,6 +10,9 @@
     ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
   * Update `TrackSelection.Factory` interface to support creating all track
     selections together.
+* Captions:
+  * Support PNG subtitles in SMPTE-TT
+    ([#1583](https://github.com/google/ExoPlayer/issues/1583)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
 * Prevent Cea608Decoder from generating Subtitles with null Cues list.
 * Offline:
