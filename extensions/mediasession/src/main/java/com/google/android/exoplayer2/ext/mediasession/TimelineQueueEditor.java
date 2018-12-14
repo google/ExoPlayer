@@ -65,13 +65,6 @@ public final class TimelineQueueEditor
    */
   public interface QueueDataAdapter {
     /**
-     * Gets the {@link MediaDescriptionCompat} for a {@code position}.
-     *
-     * @param position The position in the queue for which to provide a description.
-     * @return A {@link MediaDescriptionCompat}.
-     */
-    MediaDescriptionCompat getMediaDescription(int position);
-    /**
      * Adds a {@link MediaDescriptionCompat} at the given {@code position}.
      *
      * @param position The position at which to add.
