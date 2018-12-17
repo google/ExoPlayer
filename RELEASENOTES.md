@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Use Transport Stream's random access indicator to minimize the need for
+  FLAG_ALLOW_NON_IDR_KEYFRAMES.
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
