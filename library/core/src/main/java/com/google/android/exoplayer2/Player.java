@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.C.VideoScalingMode;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -299,6 +300,24 @@ public interface Player {
     void removeTextOutput(TextOutput listener);
   }
 
+  /** The metadata component of a {@link Player}. */
+  interface MetadataComponent {
+
+    /**
+     * Adds a {@link MetadataOutput} to receive metadata.
+     *
+     * @param output The output to register.
+     */
+    void addMetadataOutput(MetadataOutput output);
+
+    /**
+     * Removes a {@link MetadataOutput}.
+     *
+     * @param output The output to remove.
+     */
+    void removeMetadataOutput(MetadataOutput output);
+  }
+
   /**
    * Listener of changes in player state. All methods have no-op default implementations to allow
    * selective overrides.
@@ -532,6 +551,12 @@ public interface Player {
   /** Returns the component of this player for text output, or null if text is not supported. */
   @Nullable
   TextComponent getTextComponent();
+
+  /**
+   * Returns the component of this player for metadata output, or null if metadata is not supported.
+   */
+  @Nullable
+  MetadataComponent getMetadataComponent();
 
   /**
    * Returns the {@link Looper} associated with the application thread that's used to access the
