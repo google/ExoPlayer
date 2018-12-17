@@ -77,7 +77,7 @@ public final class DownloadAction {
    *
    * @param type The type of the action.
    * @param uri The URI of the media to be downloaded.
-   * @param keys Keys of tracks to be downloaded. If empty, all tracks will be downloaded.
+   * @param keys Keys of streams to be downloaded. If empty, all streams will be downloaded.
    * @param customCacheKey A custom key for cache indexing, or null.
    * @param data Optional custom data for this action. If {@code null} an empty array will be used.
    */
@@ -108,6 +108,8 @@ public final class DownloadAction {
         /* data= */ null);
   }
 
+  /** The unique content id. */
+  public final String id;
   /** The type of the action. */
   public final String type;
   /** The uri being downloaded or removed. */
@@ -115,8 +117,8 @@ public final class DownloadAction {
   /** Whether this is a remove action. If false, this is a download action. */
   public final boolean isRemoveAction;
   /**
-   * Keys of tracks to be downloaded. If empty, all tracks will be downloaded. Empty if this action
-   * is a remove action.
+   * Keys of streams to be downloaded. If empty, all streams will be downloaded. Empty if this
+   * action is a remove action.
    */
   public final List<StreamKey> keys;
   /** A custom key for cache indexing, or null. */
@@ -128,8 +130,8 @@ public final class DownloadAction {
    * @param type The type of the action.
    * @param uri The uri being downloaded or removed.
    * @param isRemoveAction Whether this is a remove action. If false, this is a download action.
-   * @param keys Keys of tracks to be downloaded. If empty, all tracks will be downloaded. Empty if
-   *     this action is a remove action.
+   * @param keys Keys of streams to be downloaded. If empty, all streams will be downloaded. Empty
+   *     if this action is a remove action.
    * @param customCacheKey A custom key for cache indexing, or null.
    * @param data Custom data for this action. Null if this action is a remove action.
    */
@@ -140,6 +142,7 @@ public final class DownloadAction {
       List<StreamKey> keys,
       @Nullable String customCacheKey,
       @Nullable byte[] data) {
+    this.id = customCacheKey != null ? customCacheKey : uri.toString();
     this.type = type;
     this.uri = uri;
     this.isRemoveAction = isRemoveAction;
@@ -171,12 +174,10 @@ public final class DownloadAction {
 
   /** Returns whether this is an action for the same media as the {@code other}. */
   public boolean isSameMedia(DownloadAction other) {
-    return customCacheKey == null
-        ? other.customCacheKey == null && uri.equals(other.uri)
-        : customCacheKey.equals(other.customCacheKey);
+    return id.equals(other.id);
   }
 
-  /** Returns keys of tracks to be downloaded. */
+  /** Returns keys of streams to be downloaded. */
   public List<StreamKey> getKeys() {
     return keys;
   }
@@ -187,7 +188,8 @@ public final class DownloadAction {
       return false;
     }
     DownloadAction that = (DownloadAction) o;
-    return type.equals(that.type)
+    return id.equals(that.id)
+        && type.equals(that.type)
         && uri.equals(that.uri)
         && isRemoveAction == that.isRemoveAction
         && keys.equals(that.keys)
@@ -198,6 +200,7 @@ public final class DownloadAction {
   @Override
   public final int hashCode() {
     int result = type.hashCode();
+    result = 31 * result + id.hashCode();
     result = 31 * result + uri.hashCode();
     result = 31 * result + (isRemoveAction ? 1 : 0);
     result = 31 * result + keys.hashCode();

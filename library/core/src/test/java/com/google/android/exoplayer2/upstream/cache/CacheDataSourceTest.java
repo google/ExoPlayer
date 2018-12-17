@@ -247,7 +247,8 @@ public final class CacheDataSourceTest {
     // Read partial at EOS but don't cross it so length is unknown.
     CacheDataSource cacheDataSource = createCacheDataSource(false, true);
     assertReadData(cacheDataSource, dataSpec, true);
-    assertThat(cache.getContentLength(defaultCacheKey)).isEqualTo(C.LENGTH_UNSET);
+    assertThat(ContentMetadata.getContentLength(cache.getContentMetadata(defaultCacheKey)))
+        .isEqualTo(C.LENGTH_UNSET);
 
     // Now do an unbounded request for whole data. This will cause a bounded request from upstream.
     // End of data from upstream shouldn't be mixed up with EOS and cause length set wrong.
@@ -285,7 +286,8 @@ public final class CacheDataSourceTest {
     cacheDataSource.close();
 
     assertThat(upstream.getAndClearOpenedDataSpecs()).hasLength(1);
-    assertThat(cache.getContentLength(defaultCacheKey)).isEqualTo(TEST_DATA.length);
+    assertThat(ContentMetadata.getContentLength(cache.getContentMetadata(defaultCacheKey)))
+        .isEqualTo(TEST_DATA.length);
   }
 
   @Test
@@ -467,11 +469,7 @@ public final class CacheDataSourceTest {
     NavigableSet<CacheSpan> cachedSpans = cache.getCachedSpans(defaultCacheKey);
     for (CacheSpan cachedSpan : cachedSpans) {
       if (cachedSpan.position >= halfDataLength) {
-        try {
-          cache.removeSpan(cachedSpan);
-        } catch (Cache.CacheException e) {
-          // do nothing
-        }
+        cache.removeSpan(cachedSpan);
       }
     }
 
@@ -516,7 +514,9 @@ public final class CacheDataSourceTest {
     // If the request was unbounded then the content length should be cached, either because the
     // content length was known or because EOS was read. If the request was bounded then the content
     // length will not have been determined.
-    assertThat(cache.getContentLength(customCacheKey ? this.customCacheKey : defaultCacheKey))
+    ContentMetadata metadata =
+        cache.getContentMetadata(customCacheKey ? this.customCacheKey : defaultCacheKey);
+    assertThat(ContentMetadata.getContentLength(metadata))
         .isEqualTo(dataSpec.length == C.LENGTH_UNSET ? TEST_DATA.length : C.LENGTH_UNSET);
   }
 

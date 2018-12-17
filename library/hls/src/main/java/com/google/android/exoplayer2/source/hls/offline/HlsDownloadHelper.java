@@ -16,23 +16,26 @@
 package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.offline.TrackKey;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,8 +46,52 @@ public final class HlsDownloadHelper extends DownloadHelper<HlsPlaylist> {
 
   private int[] renditionGroups;
 
-  public HlsDownloadHelper(Uri uri, DataSource.Factory manifestDataSourceFactory) {
-    super(DownloadAction.TYPE_HLS, uri, /* cacheKey= */ null);
+  /**
+   * Creates a HLS download helper.
+   *
+   * <p>The helper uses {@link DownloadHelper#DEFAULT_TRACK_SELECTOR_PARAMETERS} for track selection
+   * and does not support drm protected content.
+   *
+   * @param uri A manifest {@link Uri}.
+   * @param manifestDataSourceFactory A {@link DataSource.Factory} used to load the manifest.
+   * @param renderersFactory The {@link RenderersFactory} creating the renderers for which tracks
+   *     are selected.
+   */
+  public HlsDownloadHelper(
+      Uri uri, DataSource.Factory manifestDataSourceFactory, RenderersFactory renderersFactory) {
+    this(
+        uri,
+        manifestDataSourceFactory,
+        DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
+        renderersFactory,
+        /* drmSessionManager= */ null);
+  }
+
+  /**
+   * Creates a HLS download helper.
+   *
+   * @param uri A manifest {@link Uri}.
+   * @param manifestDataSourceFactory A {@link DataSource.Factory} used to load the manifest.
+   * @param trackSelectorParameters {@link DefaultTrackSelector.Parameters} for selecting tracks for
+   *     downloading.
+   * @param renderersFactory The {@link RenderersFactory} creating the renderers for which tracks
+   *     are selected.
+   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers created by
+   *     {@code renderersFactory}.
+   */
+  public HlsDownloadHelper(
+      Uri uri,
+      DataSource.Factory manifestDataSourceFactory,
+      DefaultTrackSelector.Parameters trackSelectorParameters,
+      RenderersFactory renderersFactory,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    super(
+        DownloadAction.TYPE_HLS,
+        uri,
+        /* cacheKey= */ null,
+        trackSelectorParameters,
+        renderersFactory,
+        drmSessionManager);
     this.manifestDataSourceFactory = manifestDataSourceFactory;
   }
 
@@ -61,7 +108,7 @@ public final class HlsDownloadHelper extends DownloadHelper<HlsPlaylist> {
       renditionGroups = new int[0];
       return new TrackGroupArray[] {TrackGroupArray.EMPTY};
     }
-    // TODO: Generate track groups as in playback. Reverse the mapping in getDownloadAction.
+    // TODO: Generate track groups as in playback. Reverse the mapping in toStreamKey.
     HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
     TrackGroup[] trackGroups = new TrackGroup[3];
     renditionGroups = new int[3];
@@ -82,14 +129,9 @@ public final class HlsDownloadHelper extends DownloadHelper<HlsPlaylist> {
   }
 
   @Override
-  protected List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
-    List<StreamKey> representationKeys = new ArrayList<>(trackKeys.size());
-    for (int i = 0; i < trackKeys.size(); i++) {
-      TrackKey trackKey = trackKeys.get(i);
-      representationKeys.add(
-          new StreamKey(renditionGroups[trackKey.groupIndex], trackKey.trackIndex));
-    }
-    return representationKeys;
+  protected StreamKey toStreamKey(
+      int periodIndex, int trackGroupIndex, int trackIndexInTrackGroup) {
+    return new StreamKey(renditionGroups[trackGroupIndex], trackIndexInTrackGroup);
   }
 
   private static Format[] toFormats(List<HlsMasterPlaylist.HlsUrl> hlsUrls) {
