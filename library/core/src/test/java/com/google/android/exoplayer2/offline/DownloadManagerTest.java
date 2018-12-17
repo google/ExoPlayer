@@ -426,9 +426,9 @@ public class DownloadManagerTest {
                     actionFile, downloaderFactory, maxActiveDownloadTasks, MIN_RETRY_COUNT);
             downloadManagerListener =
                 new TestDownloadManagerListener(downloadManager, dummyMainThread);
-            downloadManager.addListener(downloadManagerListener);
             downloadManager.startDownloads();
           });
+      downloadManagerListener.waitUntilInitialized();
     } catch (Throwable throwable) {
       throw new Exception(throwable);
     }

@@ -247,7 +247,6 @@ public class DownloadManagerDashTest {
 
           downloadManagerListener =
               new TestDownloadManagerListener(downloadManager, dummyMainThread);
-          downloadManager.addListener(downloadManagerListener);
           downloadManager.startDownloads();
         });
   }
