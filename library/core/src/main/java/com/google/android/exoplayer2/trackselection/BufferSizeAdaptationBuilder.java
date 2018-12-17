@@ -24,12 +24,14 @@ import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
+import com.google.android.exoplayer2.trackselection.TrackSelection.Definition;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Builder for a {@link TrackSelection.Factory} and {@link LoadControl} that implement buffer size
@@ -273,19 +275,22 @@ public final class BufferSizeAdaptationBuilder {
     TrackSelection.Factory trackSelectionFactory =
         new TrackSelection.Factory() {
           @Override
-          public TrackSelection createTrackSelection(
-              TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks) {
-            return new BufferSizeAdaptiveTrackSelection(
-                group,
-                tracks,
-                bandwidthMeter,
-                minBufferMs,
-                maxBufferMs,
-                hysteresisBufferMs,
-                startUpBandwidthFraction,
-                startUpMinBufferForQualityIncreaseMs,
-                dynamicFormatFilter,
-                clock);
+          public @NullableType TrackSelection[] createTrackSelections(
+              @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+            return TrackSelectionUtil.createTrackSelectionsForDefinitions(
+                definitions,
+                definition ->
+                    new BufferSizeAdaptiveTrackSelection(
+                        definition.group,
+                        definition.tracks,
+                        bandwidthMeter,
+                        minBufferMs,
+                        maxBufferMs,
+                        hysteresisBufferMs,
+                        startUpBandwidthFraction,
+                        startUpMinBufferForQualityIncreaseMs,
+                        dynamicFormatFilter,
+                        clock));
           }
         };
 

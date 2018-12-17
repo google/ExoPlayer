@@ -5,15 +5,37 @@
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
-* Add options for controlling audio track selections to `DefaultTrackSelector`
-  ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
+* Track selection:
+  * Add options for controlling audio track selections to `DefaultTrackSelector`
+    ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
+  * Update `TrackSelection.Factory` interface to support creating all track
+    selections together.
+* Captions:
+  * Support PNG subtitles in SMPTE-TT
+    ([#1583](https://github.com/google/ExoPlayer/issues/1583)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
-* Prevent Cea608Decoder from generating Subtitles with null Cues list
-* Caching: Cache data with unknown length by default. The previous flag to opt in
-  to this behavior (`DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH`) has been
-  replaced with an opt out flag (`DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN`).
+* Prevent Cea608Decoder from generating Subtitles with null Cues list.
+* Offline:
+  * Speed up removal of segmented downloads
+    ([#5136](https://github.com/google/ExoPlayer/issues/5136)).
+  * Add `setStreamKeys` method to factories of DASH, SmoothStreaming and HLS
+    media sources to simplify filtering by downloaded streams.
+* Caching:
+  * Improve performance of `SimpleCache`.
+  * Cache data with unknown length by default. The previous flag to opt in to
+    this behavior (`DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH`) has been
+    replaced with an opt out flag
+    (`DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN`).
+* Disable post processing on Nvidia devices, as it breaks decode-only frame
+  skippping.
+* Workaround for MiTV (dangal) issue when swapping output surface
+  ([#5169](https://github.com/google/ExoPlayer/issues/5169)).
+* DownloadManager:
+  * Create only one task for all DownloadActions for the same content.
+  * Rename TaskState to DownloadState.
 * MP3: Fix issue where streams would play twice on Samsung devices
   ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
+
 ### 2.9.2 ###
 
 * HLS:
@@ -61,10 +83,10 @@
 * DASH: Parse ProgramInformation element if present in the manifest.
 * HLS:
   * Add constructor to `DefaultHlsExtractorFactory` for adding TS payload
-    reader factory flags.
+    reader factory flags
+    ([#4861](https://github.com/google/ExoPlayer/issues/4861)).
   * Fix bug in segment sniffing
     ([#5039](https://github.com/google/ExoPlayer/issues/5039)).
-  ([#4861](https://github.com/google/ExoPlayer/issues/4861)).
 * SubRip: Add support for alignment tags, and remove tags from the displayed
   captions ([#4306](https://github.com/google/ExoPlayer/issues/4306)).
 * Fix issue with blind seeking to windows with non-zero offset in a

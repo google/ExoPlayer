@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.demo;
 
 import android.app.Notification;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
+import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.scheduler.PlatformScheduler;
 import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
@@ -31,12 +31,15 @@ public class DemoDownloadService extends DownloadService {
   private static final int JOB_ID = 1;
   private static final int FOREGROUND_NOTIFICATION_ID = 1;
 
+  private static int nextNotificationId = FOREGROUND_NOTIFICATION_ID + 1;
+
   public DemoDownloadService() {
     super(
         FOREGROUND_NOTIFICATION_ID,
         DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL,
         CHANNEL_ID,
         R.string.exo_download_notification_channel_name);
+    nextNotificationId = FOREGROUND_NOTIFICATION_ID + 1;
   }
 
   @Override
@@ -50,40 +53,41 @@ public class DemoDownloadService extends DownloadService {
   }
 
   @Override
-  protected Notification getForegroundNotification(TaskState[] taskStates) {
+  protected Notification getForegroundNotification(DownloadState[] downloadStates) {
     return DownloadNotificationUtil.buildProgressNotification(
         /* context= */ this,
-        R.drawable.exo_controls_play,
+        R.drawable.ic_download,
         CHANNEL_ID,
         /* contentIntent= */ null,
         /* message= */ null,
-        taskStates);
+        downloadStates);
   }
 
   @Override
-  protected void onTaskStateChanged(TaskState taskState) {
-    if (taskState.action.isRemoveAction) {
+  protected void onDownloadStateChanged(DownloadState downloadState) {
+    if (downloadState.action.isRemoveAction) {
       return;
     }
     Notification notification = null;
-    if (taskState.state == TaskState.STATE_COMPLETED) {
+    if (downloadState.state == DownloadState.STATE_COMPLETED) {
       notification =
           DownloadNotificationUtil.buildDownloadCompletedNotification(
               /* context= */ this,
-              R.drawable.exo_controls_play,
+              R.drawable.ic_download_done,
               CHANNEL_ID,
               /* contentIntent= */ null,
-              Util.fromUtf8Bytes(taskState.action.data));
-    } else if (taskState.state == TaskState.STATE_FAILED) {
+              Util.fromUtf8Bytes(downloadState.action.data));
+    } else if (downloadState.state == DownloadState.STATE_FAILED) {
       notification =
           DownloadNotificationUtil.buildDownloadFailedNotification(
               /* context= */ this,
-              R.drawable.exo_controls_play,
+              R.drawable.ic_download_done,
               CHANNEL_ID,
               /* contentIntent= */ null,
-              Util.fromUtf8Bytes(taskState.action.data));
+              Util.fromUtf8Bytes(downloadState.action.data));
+    } else {
+      return;
     }
-    int notificationId = FOREGROUND_NOTIFICATION_ID + 1 + taskState.taskId;
-    NotificationUtil.setNotification(this, notificationId, notification);
+    NotificationUtil.setNotification(this, nextNotificationId++, notification);
   }
 }

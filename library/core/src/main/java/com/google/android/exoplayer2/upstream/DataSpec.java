@@ -108,10 +108,7 @@ public final class DataSpec {
    * {@link DataSpec} is not intended to be used in conjunction with a cache.
    */
   public final @Nullable String key;
-  /**
-   * Request flags. Currently {@link #FLAG_ALLOW_GZIP} and
-   * {@link #FLAG_ALLOW_CACHING_UNKNOWN_LENGTH} are the only supported flags.
-   */
+  /** Request {@link Flags flags}. */
   public final @Flags int flags;
 
   /**
