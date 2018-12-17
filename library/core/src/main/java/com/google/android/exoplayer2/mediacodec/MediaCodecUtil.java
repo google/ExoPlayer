@@ -318,14 +318,16 @@ public final class MediaCodecUtil {
     }
 
     // Work around https://github.com/google/ExoPlayer/issues/4519.
-    if (("OMX.SEC.mp3.dec".equals(name) || "OMX.brcm.audio.mp3.decoder".equals(name))
-        && ("GT-I9515".equals(Util.MODEL)
-        || "GT-I9152".equals(Util.MODEL)
+    if ("OMX.SEC.mp3.dec".equals(name) && ("GT-I9152".equals(Util.MODEL)
         || "GT-P5220".equals(Util.MODEL)
-        || "SM-G350".equals(Util.MODEL)
-        || "SM-S7580".equals(Util.MODEL)
         || "SM-T231".equals(Util.MODEL)
         || "SM-T530".equals(Util.MODEL))) {
+      return false;
+    }
+    if (("OMX.SEC.mp3.dec".equals(name) || "OMX.brcm.audio.mp3.decoder".equals(name))
+        && ("GT-I9515".equals(Util.MODEL)
+        || "GT-S7580".equals(Util.MODEL)
+        || "SM-G350".equals(Util.MODEL))) {
       return false;
     }
 
