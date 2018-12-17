@@ -553,12 +553,6 @@ public final class DownloadManager {
 
   private static final class Download {
 
-    /** Target states for the download thread. */
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({STATE_QUEUED, STATE_COMPLETED})
-    public @interface TargetState {}
-
     private final String id;
     private final DownloadManager downloadManager;
     private final DownloaderFactory downloaderFactory;
@@ -568,11 +562,6 @@ public final class DownloadManager {
     private DownloadAction action;
     /** The current state of the download. */
     @DownloadState.State private int state;
-    /**
-     * When started, this is the target state that the download will transition to when the download
-     * thread stops.
-     */
-    @TargetState private volatile int targetState;
 
     @MonotonicNonNull private Downloader downloader;
     @MonotonicNonNull private DownloadThread downloadThread;
@@ -590,7 +579,6 @@ public final class DownloadManager {
       this.minRetryCount = minRetryCount;
       this.startTimeMs = System.currentTimeMillis();
       state = STATE_QUEUED;
-      targetState = STATE_COMPLETED;
       actionQueue = new ArrayDeque<>();
       actionQueue.add(action);
     }
@@ -603,9 +591,7 @@ public final class DownloadManager {
         return;
       }
       if (state == STATE_STARTED) {
-        if (targetState == STATE_COMPLETED) {
-          stopDownloadThread();
-        }
+        stopDownloadThread();
       } else {
         Assertions.checkState(state == STATE_QUEUED);
         action = updatedAction;
@@ -648,9 +634,7 @@ public final class DownloadManager {
           + ' '
           + (action.isRemoveAction ? "remove" : "download")
           + ' '
-          + DownloadState.getStateString(state)
-          + ' '
-          + DownloadState.getStateString(targetState);
+          + DownloadState.getStateString(state);
     }
 
     public boolean canStart() {
@@ -661,7 +645,6 @@ public final class DownloadManager {
       if (state == STATE_QUEUED) {
         state = STATE_STARTED;
         action = actionQueue.peek();
-        targetState = STATE_COMPLETED;
         downloader = downloaderFactory.createDownloader(action);
         downloadThread =
             new DownloadThread(
@@ -679,14 +662,12 @@ public final class DownloadManager {
     // Internal methods running on the main thread.
 
     private void stopDownloadThread() {
-      this.targetState = DownloadState.STATE_QUEUED;
       Assertions.checkNotNull(downloadThread).cancel();
     }
 
     private void onDownloadThreadStopped(@Nullable Throwable finalError) {
-      state = targetState;
       failureReason = FAILURE_REASON_NONE;
-      if (targetState == STATE_COMPLETED) {
+      if (!downloadThread.isCanceled) {
         if (finalError != null) {
           state = STATE_FAILED;
           failureReason = FAILURE_REASON_UNKNOWN;
@@ -696,8 +677,12 @@ public final class DownloadManager {
             // Don't continue running. Wait to be restarted by maybeStartDownloads().
             state = STATE_QUEUED;
             action = actionQueue.peek();
+          } else {
+            state = STATE_COMPLETED;
           }
         }
+      } else {
+        state = STATE_QUEUED;
       }
       downloadManager.onDownloadStateChange(this);
     }
