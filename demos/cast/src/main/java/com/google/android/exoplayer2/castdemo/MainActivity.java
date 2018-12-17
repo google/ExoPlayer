@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.dynamite.DynamiteModule;
 
 /**
  * An activity that plays video using {@link SimpleExoPlayer} and supports casting using ExoPlayer's
@@ -68,7 +69,20 @@ public class MainActivity extends AppCompatActivity
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // Getting the cast context later than onStart can cause device discovery not to take place.
-    castContext = CastContext.getSharedInstance(this);
+    try {
+      castContext = CastContext.getSharedInstance(this);
+    } catch (RuntimeException e) {
+      Throwable cause = e.getCause();
+      while (cause != null) {
+        if (cause instanceof DynamiteModule.LoadingException) {
+          setContentView(R.layout.cast_context_error_message_layout);
+          return;
+        }
+        cause = cause.getCause();
+      }
+      // Unknown error. We propagate it.
+      throw e;
+    }
 
     setContentView(R.layout.main_activity);
 
@@ -98,6 +112,10 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void onResume() {
     super.onResume();
+    if (castContext == null) {
+      // There is no Cast context to work with. Do nothing.
+      return;
+    }
     String applicationId = castContext.getCastOptions().getReceiverApplicationId();
     switch (applicationId) {
       case CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID:
@@ -118,6 +136,10 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void onPause() {
     super.onPause();
+    if (castContext == null) {
+      // Nothing to release.
+      return;
+    }
     mediaQueueListAdapter.notifyItemRangeRemoved(0, mediaQueueListAdapter.getItemCount());
     mediaQueueList.setAdapter(null);
     playerManager.release();
