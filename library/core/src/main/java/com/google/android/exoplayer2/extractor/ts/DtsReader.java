@@ -80,7 +80,7 @@ public final class DtsReader implements ElementaryStreamReader {
   }
 
   @Override
-  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+  public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {
     timeUs = pesTimeUs;
   }
 
