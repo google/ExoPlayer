@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -31,10 +31,10 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
 
   private final DownloadManager downloadManager;
   private final DummyMainThread dummyMainThread;
-  private final HashMap<DownloadAction, ArrayBlockingQueue<Integer>> actionStates;
+  private final HashMap<String, ArrayBlockingQueue<Integer>> actionStates;
 
   private CountDownLatch downloadFinishedCondition;
-  private Throwable downloadError;
+  @DownloadState.FailureReason private int failureReason;
 
   public TestDownloadManagerListener(
       DownloadManager downloadManager, DummyMainThread dummyMainThread) {
@@ -43,12 +43,12 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     actionStates = new HashMap<>();
   }
 
-  public int pollStateChange(DownloadAction action, long timeoutMs) throws InterruptedException {
-    return getStateQueue(action).poll(timeoutMs, TimeUnit.MILLISECONDS);
+  public Integer pollStateChange(String taskId, long timeoutMs) throws InterruptedException {
+    return getStateQueue(taskId).poll(timeoutMs, TimeUnit.MILLISECONDS);
   }
 
   public void clearDownloadError() {
-    this.downloadError = null;
+    this.failureReason = DownloadState.FAILURE_REASON_NONE;
   }
 
   @Override
@@ -57,12 +57,11 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   }
 
   @Override
-  public void onTaskStateChanged(
-      DownloadManager downloadManager, DownloadManager.TaskState taskState) {
-    if (taskState.state == DownloadManager.TaskState.STATE_FAILED && downloadError == null) {
-      downloadError = taskState.error;
+  public void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState) {
+    if (downloadState.state == DownloadState.STATE_FAILED) {
+      failureReason = downloadState.failureReason;
     }
-    getStateQueue(taskState.action).add(taskState.state);
+    getStateQueue(downloadState.id).add(downloadState.state);
   }
 
   @Override
@@ -77,6 +76,14 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
    * error.
    */
   public void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
+    blockUntilTasksComplete();
+    if (failureReason != DownloadState.FAILURE_REASON_NONE) {
+      throw new Exception("Failure reason: " + DownloadState.getFailureString(failureReason));
+    }
+  }
+
+  /** Blocks until all remove and download tasks are complete. Task errors are ignored. */
+  public void blockUntilTasksComplete() throws InterruptedException {
     synchronized (this) {
       downloadFinishedCondition = new CountDownLatch(1);
     }
@@ -87,17 +94,14 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
           }
         });
     assertThat(downloadFinishedCondition.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue();
-    if (downloadError != null) {
-      throw new Exception(downloadError);
-    }
   }
 
-  private ArrayBlockingQueue<Integer> getStateQueue(DownloadAction action) {
+  private ArrayBlockingQueue<Integer> getStateQueue(String taskId) {
     synchronized (actionStates) {
-      if (!actionStates.containsKey(action)) {
-        actionStates.put(action, new ArrayBlockingQueue<>(10));
+      if (!actionStates.containsKey(taskId)) {
+        actionStates.put(taskId, new ArrayBlockingQueue<>(10));
       }
-      return actionStates.get(action);
+      return actionStates.get(taskId);
     }
   }
 }

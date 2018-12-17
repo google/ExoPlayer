@@ -154,11 +154,11 @@ public class CachedContentIndexTest {
 
     assertThat(index.assignIdForKey("ABCDE")).isEqualTo(5);
     ContentMetadata metadata = index.get("ABCDE").getMetadata();
-    assertThat(ContentMetadataInternal.getContentLength(metadata)).isEqualTo(10);
+    assertThat(ContentMetadata.getContentLength(metadata)).isEqualTo(10);
 
     assertThat(index.assignIdForKey("KLMNO")).isEqualTo(2);
     ContentMetadata metadata2 = index.get("KLMNO").getMetadata();
-    assertThat(ContentMetadataInternal.getContentLength(metadata2)).isEqualTo(2560);
+    assertThat(ContentMetadata.getContentLength(metadata2)).isEqualTo(2560);
   }
 
   @Test
@@ -172,12 +172,12 @@ public class CachedContentIndexTest {
 
     assertThat(index.assignIdForKey("ABCDE")).isEqualTo(5);
     ContentMetadata metadata = index.get("ABCDE").getMetadata();
-    assertThat(ContentMetadataInternal.getContentLength(metadata)).isEqualTo(10);
-    assertThat(ContentMetadataInternal.getRedirectedUri(metadata)).isEqualTo(Uri.parse("abcde"));
+    assertThat(ContentMetadata.getContentLength(metadata)).isEqualTo(10);
+    assertThat(ContentMetadata.getRedirectedUri(metadata)).isEqualTo(Uri.parse("abcde"));
 
     assertThat(index.assignIdForKey("KLMNO")).isEqualTo(2);
     ContentMetadata metadata2 = index.get("KLMNO").getMetadata();
-    assertThat(ContentMetadataInternal.getContentLength(metadata2)).isEqualTo(2560);
+    assertThat(ContentMetadata.getContentLength(metadata2)).isEqualTo(2560);
   }
 
   @Test
@@ -297,11 +297,11 @@ public class CachedContentIndexTest {
   private void assertStoredAndLoadedEqual(CachedContentIndex index, CachedContentIndex index2)
       throws IOException {
     ContentMetadataMutations mutations1 = new ContentMetadataMutations();
-    ContentMetadataInternal.setContentLength(mutations1, 2560);
+    ContentMetadataMutations.setContentLength(mutations1, 2560);
     index.getOrAdd("KLMNO").applyMetadataMutations(mutations1);
     ContentMetadataMutations mutations2 = new ContentMetadataMutations();
-    ContentMetadataInternal.setContentLength(mutations2, 10);
-    ContentMetadataInternal.setRedirectedUri(mutations2, Uri.parse("abcde"));
+    ContentMetadataMutations.setContentLength(mutations2, 10);
+    ContentMetadataMutations.setRedirectedUri(mutations2, Uri.parse("abcde"));
     index.getOrAdd("ABCDE").applyMetadataMutations(mutations2);
     index.store();
 

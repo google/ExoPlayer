@@ -79,8 +79,11 @@ public final class CacheUtilTest {
     }
 
     @Override
-    public long getContentLength(String key) {
-      return contentLength;
+    public ContentMetadata getContentMetadata(String key) {
+      DefaultContentMetadata metadata = new DefaultContentMetadata();
+      ContentMetadataMutations mutations = new ContentMetadataMutations();
+      ContentMetadataMutations.setContentLength(mutations, contentLength);
+      return metadata.copyWithMutationsApplied(mutations);
     }
   }
 

@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeMediaChunk;
+import com.google.android.exoplayer2.trackselection.TrackSelection.Definition;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
@@ -66,15 +67,20 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testFactoryUsesInitiallyProvidedBandwidthMeter() {
     BandwidthMeter initialBandwidthMeter = mock(BandwidthMeter.class);
     BandwidthMeter injectedBandwidthMeter = mock(BandwidthMeter.class);
-    Format format = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
-    @SuppressWarnings("deprecation")
-    AdaptiveTrackSelection adaptiveTrackSelection =
+    Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
+    Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
+    TrackSelection[] trackSelections =
         new AdaptiveTrackSelection.Factory(initialBandwidthMeter)
-            .createTrackSelection(new TrackGroup(format), injectedBandwidthMeter, /* tracks= */ 0);
-    adaptiveTrackSelection.updateSelectedTrack(
+            .createTrackSelections(
+                new Definition[] {
+                  new Definition(new TrackGroup(format1, format2), /* tracks= */ 0, 1)
+                },
+                injectedBandwidthMeter);
+    trackSelections[0].updateSelectedTrack(
         /* playbackPositionUs= */ 0,
         /* bufferedDurationUs= */ 0,
         /* availableDurationUs= */ C.TIME_UNSET,
