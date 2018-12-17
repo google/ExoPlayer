@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2017 The Android Open Source Project
+<!-- Copyright (C) 2018 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
      limitations under the License.
 -->
 
-<resources>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
 
-  <string name="application_name">Exo Cast Demo</string>
-
-  <string name="media_route_menu_title">Cast</string>
-
-  <string name="sample_list_dialog_title">Add samples</string>
-
-  <string name="cast_context_error">Failed to get Cast context. Try updating Google Play Services and restart the app.</string>
-
-</resources>
+  <TextView
+    android:id="@+id/textView"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:textSize="20sp"
+    android:gravity="center"
+    android:text="@string/cast_context_error"/>
+</LinearLayout>
