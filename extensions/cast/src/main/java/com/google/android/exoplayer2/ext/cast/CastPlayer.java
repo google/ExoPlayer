@@ -283,17 +283,26 @@ public final class CastPlayer extends BasePlayer {
   // Player implementation.
 
   @Override
+  @Nullable
   public AudioComponent getAudioComponent() {
     return null;
   }
 
   @Override
+  @Nullable
   public VideoComponent getVideoComponent() {
     return null;
   }
 
   @Override
+  @Nullable
   public TextComponent getTextComponent() {
+    return null;
+  }
+
+  @Override
+  @Nullable
+  public MetadataComponent getMetadataComponent() {
     return null;
   }
 

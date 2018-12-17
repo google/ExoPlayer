@@ -65,7 +65,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 @TargetApi(16)
 public class SimpleExoPlayer extends BasePlayer
-    implements ExoPlayer, Player.AudioComponent, Player.VideoComponent, Player.TextComponent {
+    implements ExoPlayer,
+        Player.AudioComponent,
+        Player.VideoComponent,
+        Player.TextComponent,
+        Player.MetadataComponent {
 
   /** @deprecated Use {@link com.google.android.exoplayer2.video.VideoListener}. */
   @Deprecated
@@ -243,17 +247,26 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  @Nullable
   public AudioComponent getAudioComponent() {
     return this;
   }
 
   @Override
+  @Nullable
   public VideoComponent getVideoComponent() {
     return this;
   }
 
   @Override
+  @Nullable
   public TextComponent getTextComponent() {
+    return this;
+  }
+
+  @Override
+  @Nullable
+  public MetadataComponent getMetadataComponent() {
     return this;
   }
 
@@ -713,20 +726,12 @@ public class SimpleExoPlayer extends BasePlayer
     removeTextOutput(output);
   }
 
-  /**
-   * Adds a {@link MetadataOutput} to receive metadata.
-   *
-   * @param listener The output to register.
-   */
+  @Override
   public void addMetadataOutput(MetadataOutput listener) {
     metadataOutputs.add(listener);
   }
 
-  /**
-   * Removes a {@link MetadataOutput}.
-   *
-   * @param listener The output to remove.
-   */
+  @Override
   public void removeMetadataOutput(MetadataOutput listener) {
     metadataOutputs.remove(listener);
   }
