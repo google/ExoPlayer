@@ -38,7 +38,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -93,6 +92,7 @@ public final class DownloadManager {
   private final HandlerThread fileIOThread;
   private final Handler fileIOHandler;
   private final CopyOnWriteArraySet<Listener> listeners;
+  private final ArrayDeque<DownloadAction> actionQueue;
 
   private boolean initialized;
   private boolean released;
@@ -142,6 +142,7 @@ public final class DownloadManager {
     fileIOHandler = new Handler(fileIOThread.getLooper());
 
     listeners = new CopyOnWriteArraySet<>();
+    actionQueue = new ArrayDeque<>();
 
     loadActions();
     logd("Created");
@@ -194,8 +195,8 @@ public final class DownloadManager {
    */
   public void handleAction(DownloadAction action) {
     Assertions.checkState(!released);
-    Download download = getDownloadForAction(action);
     if (initialized) {
+      Download download = getOrAddDownloadForAction(action);
       saveActions();
       maybeStartDownloads();
       if (download.state == STATE_QUEUED) {
@@ -204,6 +205,8 @@ public final class DownloadManager {
         // reported to listeners. Do so now.
         notifyListenersDownloadStateChange(download);
       }
+    } else {
+      actionQueue.add(action);
     }
   }
 
@@ -281,7 +284,7 @@ public final class DownloadManager {
     logd("Released");
   }
 
-  private Download getDownloadForAction(DownloadAction action) {
+  private Download getOrAddDownloadForAction(DownloadAction action) {
     for (int i = 0; i < downloads.size(); i++) {
       Download download = downloads.get(i);
       if (download.action.isSameMedia(action)) {
@@ -380,18 +383,18 @@ public final class DownloadManager {
                 if (released) {
                   return;
                 }
-                List<Download> pendingDownloads = new ArrayList<>(downloads);
-                downloads.clear();
                 for (DownloadAction action : actions) {
-                  getDownloadForAction(action);
+                  getOrAddDownloadForAction(action);
                 }
                 logd("Downloads are created.");
                 initialized = true;
                 for (Listener listener : listeners) {
                   listener.onInitialized(DownloadManager.this);
                 }
-                if (!pendingDownloads.isEmpty()) {
-                  downloads.addAll(pendingDownloads);
+                if (!actionQueue.isEmpty()) {
+                  while (!actionQueue.isEmpty()) {
+                    getOrAddDownloadForAction(actionQueue.remove());
+                  }
                   saveActions();
                 }
                 maybeStartDownloads();

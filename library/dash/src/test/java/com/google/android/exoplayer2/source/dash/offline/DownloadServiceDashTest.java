@@ -124,7 +124,6 @@ public class DownloadServiceDashTest {
                   /* minRetryCount= */ 3);
           downloadManagerListener =
               new TestDownloadManagerListener(dashDownloadManager, dummyMainThread);
-          dashDownloadManager.addListener(downloadManagerListener);
           dashDownloadManager.startDownloads();
 
           dashDownloadService =

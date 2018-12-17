@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.ConditionVariable;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import java.util.HashMap;
@@ -28,10 +29,12 @@ import java.util.concurrent.TimeUnit;
 public final class TestDownloadManagerListener implements DownloadManager.Listener {
 
   private static final int TIMEOUT = 1000;
+  private static final int INITIALIZATION_TIMEOUT = 10000;
 
   private final DownloadManager downloadManager;
   private final DummyMainThread dummyMainThread;
   private final HashMap<String, ArrayBlockingQueue<Integer>> actionStates;
+  private final ConditionVariable initializedCondition;
 
   private CountDownLatch downloadFinishedCondition;
   @DownloadState.FailureReason private int failureReason;
@@ -41,6 +44,8 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     this.downloadManager = downloadManager;
     this.dummyMainThread = dummyMainThread;
     actionStates = new HashMap<>();
+    initializedCondition = new ConditionVariable();
+    downloadManager.addListener(this);
   }
 
   public Integer pollStateChange(String taskId, long timeoutMs) throws InterruptedException {
@@ -53,7 +58,13 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
 
   @Override
   public void onInitialized(DownloadManager downloadManager) {
-    // Do nothing.
+    initializedCondition.open();
+  }
+
+  public void waitUntilInitialized() {
+    if (!downloadManager.isInitialized()) {
+      assertThat(initializedCondition.block(INITIALIZATION_TIMEOUT)).isTrue();
+    }
   }
 
   @Override
