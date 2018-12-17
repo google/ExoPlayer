@@ -49,6 +49,16 @@ android {
         disable 'MissingTranslation'
     }
 
+    flavorDimensions "receiver"
+
+    productFlavors {
+        defaultCast {
+            dimension "receiver"
+            manifestPlaceholders =
+                    [castOptionsProvider: "com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider"]
+        }
+    }
+
 }
 
 dependencies {

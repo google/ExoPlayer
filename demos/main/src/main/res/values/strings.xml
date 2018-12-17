@@ -51,6 +51,10 @@
 
   <string name="ima_not_loaded">Playing sample without ads, as the IMA extension was not loaded</string>
 
+  <string name="download_edit_track">Edit selection</string>
+
+  <string name="download_preparing">Preparing download…</string>
+
   <string name="download_start_error">Failed to start download</string>
 
   <string name="download_playlist_unsupported">This demo app does not support downloading playlists</string>

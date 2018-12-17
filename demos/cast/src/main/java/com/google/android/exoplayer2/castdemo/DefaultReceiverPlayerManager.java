@@ -268,7 +268,7 @@ import java.util.ArrayList;
   public void onTimelineChanged(
       Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
     updateCurrentItemIndex();
-    if (timeline.isEmpty()) {
+    if (currentPlayer == castPlayer && timeline.isEmpty()) {
       castMediaQueueCreationPending = true;
     }
   }

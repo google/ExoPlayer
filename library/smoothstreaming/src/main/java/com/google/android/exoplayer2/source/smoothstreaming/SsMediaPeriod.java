@@ -20,6 +20,7 @@ import android.util.Base64;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
@@ -37,12 +38,11 @@ import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * A SmoothStreaming {@link MediaPeriod}.
- */
-/* package */ final class SsMediaPeriod implements MediaPeriod,
-    SequenceableLoader.Callback<ChunkSampleStream<SsChunkSource>> {
+/** A SmoothStreaming {@link MediaPeriod}. */
+/* package */ final class SsMediaPeriod
+    implements MediaPeriod, SequenceableLoader.Callback<ChunkSampleStream<SsChunkSource>> {
 
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
@@ -112,6 +112,8 @@ import java.util.ArrayList;
     eventDispatcher.mediaPeriodReleased();
   }
 
+  // MediaPeriod implementation.
+
   @Override
   public void prepare(Callback callback, long positionUs) {
     this.callback = callback;
@@ -155,6 +157,16 @@ import java.util.ArrayList;
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
     return positionUs;
+  }
+
+  @Override
+  public List<StreamKey> getStreamKeys(TrackSelection trackSelection) {
+    List<StreamKey> streamKeys = new ArrayList<>(trackSelection.length());
+    int streamElementIndex = trackGroups.indexOf(trackSelection.getTrackGroup());
+    for (int i = 0; i < trackSelection.length(); i++) {
+      streamKeys.add(new StreamKey(streamElementIndex, trackSelection.getIndexInTrackGroup(i)));
+    }
+    return streamKeys;
   }
 
   @Override
@@ -211,7 +223,7 @@ import java.util.ArrayList;
     return positionUs;
   }
 
-  // SequenceableLoader.Callback implementation
+  // SequenceableLoader.Callback implementation.
 
   @Override
   public void onContinueLoadingRequested(ChunkSampleStream<SsChunkSource> sampleStream) {
@@ -277,5 +289,4 @@ import java.util.ArrayList;
     data[firstPosition] = data[secondPosition];
     data[secondPosition] = temp;
   }
-
 }

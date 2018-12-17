@@ -23,7 +23,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
+import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 
 /** Helper for creating download notifications. */
 public final class DownloadNotificationUtil {
@@ -33,7 +33,7 @@ public final class DownloadNotificationUtil {
   private DownloadNotificationUtil() {}
 
   /**
-   * Returns a progress notification for the given task states.
+   * Returns a progress notification for the given download states.
    *
    * @param context A context for accessing resources.
    * @param smallIcon A small icon for the notification.
@@ -41,7 +41,7 @@ public final class DownloadNotificationUtil {
    *     above.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
-   * @param taskStates The task states.
+   * @param downloadStates The download states.
    * @return The notification.
    */
   public static Notification buildProgressNotification(
@@ -50,28 +50,28 @@ public final class DownloadNotificationUtil {
       String channelId,
       @Nullable PendingIntent contentIntent,
       @Nullable String message,
-      TaskState[] taskStates) {
+      DownloadState[] downloadStates) {
     float totalPercentage = 0;
     int downloadTaskCount = 0;
     boolean allDownloadPercentagesUnknown = true;
     boolean haveDownloadedBytes = false;
     boolean haveDownloadTasks = false;
     boolean haveRemoveTasks = false;
-    for (TaskState taskState : taskStates) {
-      if (taskState.state != TaskState.STATE_STARTED
-          && taskState.state != TaskState.STATE_COMPLETED) {
+    for (DownloadState downloadState : downloadStates) {
+      if (downloadState.state != DownloadState.STATE_STARTED
+          && downloadState.state != DownloadState.STATE_COMPLETED) {
         continue;
       }
-      if (taskState.action.isRemoveAction) {
+      if (downloadState.action.isRemoveAction) {
         haveRemoveTasks = true;
         continue;
       }
       haveDownloadTasks = true;
-      if (taskState.downloadPercentage != C.PERCENTAGE_UNSET) {
+      if (downloadState.downloadPercentage != C.PERCENTAGE_UNSET) {
         allDownloadPercentagesUnknown = false;
-        totalPercentage += taskState.downloadPercentage;
+        totalPercentage += downloadState.downloadPercentage;
       }
-      haveDownloadedBytes |= taskState.downloadedBytes > 0;
+      haveDownloadedBytes |= downloadState.downloadedBytes > 0;
       downloadTaskCount++;
     }
 

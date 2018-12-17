@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.castdemo;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -50,12 +49,18 @@ import com.google.android.gms.cast.framework.CastContext;
 public class MainActivity extends AppCompatActivity
     implements OnClickListener, PlayerManager.QueuePositionListener {
 
+  private final MediaItem.Builder mediaItemBuilder;
+
   private PlayerView localPlayerView;
   private PlayerControlView castControlView;
   private PlayerManager playerManager;
   private RecyclerView mediaQueueList;
   private MediaQueueListAdapter mediaQueueListAdapter;
   private CastContext castContext;
+
+  public MainActivity() {
+    mediaItemBuilder = new MediaItem.Builder();
+  }
 
   // Activity lifecycle methods.
 
@@ -154,7 +159,14 @@ public class MainActivity extends AppCompatActivity
     sampleList.setAdapter(new SampleListAdapter(this));
     sampleList.setOnItemClickListener(
         (parent, view, position, id) -> {
-          playerManager.addItem(DemoUtil.SAMPLES.get(position));
+          DemoUtil.Sample sample = DemoUtil.SAMPLES.get(position);
+          playerManager.addItem(
+              mediaItemBuilder
+                  .clear()
+                  .setMedia(sample.uri)
+                  .setTitle(sample.name)
+                  .setMimeType(sample.mimeType)
+                  .build());
           mediaQueueListAdapter.notifyItemInserted(playerManager.getMediaQueueSize() - 1);
         });
     return dialogList;
@@ -254,18 +266,10 @@ public class MainActivity extends AppCompatActivity
 
   }
 
-  private static final class SampleListAdapter extends ArrayAdapter<MediaItem> {
+  private static final class SampleListAdapter extends ArrayAdapter<DemoUtil.Sample> {
 
     public SampleListAdapter(Context context) {
       super(context, android.R.layout.simple_list_item_1, DemoUtil.SAMPLES);
-    }
-
-    @Override
-    public View getView(int position, @Nullable View convertView, ViewGroup parent) {
-      TextView view = (TextView) super.getView(position, convertView, parent);
-      MediaItem sample = DemoUtil.SAMPLES.get(position);
-      view.setText(sample.title);
-      return view;
     }
   }
 

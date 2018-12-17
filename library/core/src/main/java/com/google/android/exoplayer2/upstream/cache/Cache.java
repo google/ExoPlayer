@@ -62,7 +62,7 @@ public interface Cache {
     void onSpanTouched(Cache cache, CacheSpan oldSpan, CacheSpan newSpan);
 
   }
-  
+
   /**
    * Thrown when an error is encountered when writing data.
    */
@@ -82,7 +82,7 @@ public interface Cache {
    * Releases the cache. This method must be called when the cache is no longer required. The cache
    * must not be used after calling this method.
    */
-  void release() throws CacheException;
+  void release();
 
   /**
    * Registers a listener to listen for changes to a given key.
@@ -222,25 +222,6 @@ public interface Cache {
    * @return The length of the cached or not cached data block length.
    */
   long getCachedLength(String key, long position, long length);
-
-  /**
-   * Sets the content length for the given key.
-   *
-   * @param key The cache key for the data.
-   * @param length The length of the data.
-   * @throws CacheException If an error is encountered.
-   */
-  void setContentLength(String key, long length) throws CacheException;
-
-  /**
-   * Returns the content length for the given key if one set, or {@link
-   * com.google.android.exoplayer2.C#LENGTH_UNSET} otherwise.
-   *
-   * @param key The cache key for the data.
-   * @return The content length for the given key if one set, or {@link
-   *     com.google.android.exoplayer2.C#LENGTH_UNSET} otherwise.
-   */
-  long getContentLength(String key);
 
   /**
    * Applies {@code mutations} to the {@link ContentMetadata} for the given key. A new {@link

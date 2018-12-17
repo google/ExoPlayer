@@ -24,7 +24,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
+import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
 import com.google.android.exoplayer2.scheduler.Scheduler;
@@ -71,9 +71,9 @@ public abstract class DownloadService extends Service {
   private static final String TAG = "DownloadService";
   private static final boolean DEBUG = false;
 
-  // Keep the requirements helper for each DownloadService as long as there are tasks (and the
-  // process is running). This allows tasks to resume when there's no scheduler. It may also allow
-  // tasks the resume more quickly than when relying on the scheduler alone.
+  // Keep the requirements helper for each DownloadService as long as there are downloads (and the
+  // process is running). This allows downloads to resume when there's no scheduler. It may also
+  // allow downloads the resume more quickly than when relying on the scheduler alone.
   private static final HashMap<Class<? extends DownloadService>, RequirementsHelper>
       requirementsHelpers = new HashMap<>();
   private static final Requirements DEFAULT_REQUIREMENTS =
@@ -99,7 +99,7 @@ public abstract class DownloadService extends Service {
    * <p>If {@code foregroundNotificationId} isn't {@link #FOREGROUND_NOTIFICATION_ID_NONE} (value
    * {@value #FOREGROUND_NOTIFICATION_ID_NONE}) the service runs in the foreground with {@link
    * #DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL}. In that case {@link
-   * #getForegroundNotification(TaskState[])} should be overridden in the subclass.
+   * #getForegroundNotification(DownloadState[])} should be overridden in the subclass.
    *
    * @param foregroundNotificationId The notification id for the foreground notification, or {@link
    *     #FOREGROUND_NOTIFICATION_ID_NONE} (value {@value #FOREGROUND_NOTIFICATION_ID_NONE})
@@ -110,7 +110,7 @@ public abstract class DownloadService extends Service {
 
   /**
    * Creates a DownloadService which will run in the foreground. {@link
-   * #getForegroundNotification(TaskState[])} should be overridden in the subclass.
+   * #getForegroundNotification(DownloadState[])} should be overridden in the subclass.
    *
    * @param foregroundNotificationId The notification id for the foreground notification, must not
    *     be 0.
@@ -128,7 +128,7 @@ public abstract class DownloadService extends Service {
 
   /**
    * Creates a DownloadService which will run in the foreground. {@link
-   * #getForegroundNotification(TaskState[])} should be overridden in the subclass.
+   * #getForegroundNotification(DownloadState[])} should be overridden in the subclass.
    *
    * @param foregroundNotificationId The notification id for the foreground notification. Must not
    *     be 0.
@@ -338,29 +338,29 @@ public abstract class DownloadService extends Service {
    *
    * <p>Returns a notification to be displayed when this service running in the foreground.
    *
-   * <p>This method is called when there is a task state change and periodically while there are
-   * active tasks. The periodic update interval can be set using {@link #DownloadService(int,
+   * <p>This method is called when there is a download state change and periodically while there are
+   * active downloads. The periodic update interval can be set using {@link #DownloadService(int,
    * long)}.
    *
    * <p>On API level 26 and above, this method may also be called just before the service stops,
-   * with an empty {@code taskStates} array. The returned notification is used to satisfy system
+   * with an empty {@code downloadStates} array. The returned notification is used to satisfy system
    * requirements for foreground services.
    *
-   * @param taskStates The states of all current tasks.
+   * @param downloadStates The states of all current downloads.
    * @return The foreground notification to display.
    */
-  protected Notification getForegroundNotification(TaskState[] taskStates) {
+  protected Notification getForegroundNotification(DownloadState[] downloadStates) {
     throw new IllegalStateException(
         getClass().getName()
             + " is started in the foreground but getForegroundNotification() is not implemented.");
   }
 
   /**
-   * Called when the state of a task changes.
+   * Called when the state of a download changes.
    *
-   * @param taskState The state of the task.
+   * @param downloadState The state of the download.
    */
-  protected void onTaskStateChanged(TaskState taskState) {
+  protected void onDownloadStateChanged(DownloadState downloadState) {
     // Do nothing.
   }
 
@@ -428,10 +428,11 @@ public abstract class DownloadService extends Service {
     }
 
     @Override
-    public void onTaskStateChanged(DownloadManager downloadManager, TaskState taskState) {
-      DownloadService.this.onTaskStateChanged(taskState);
+    public void onDownloadStateChanged(
+        DownloadManager downloadManager, DownloadState downloadState) {
+      DownloadService.this.onDownloadStateChanged(downloadState);
       if (foregroundNotificationUpdater != null) {
-        if (taskState.state == TaskState.STATE_STARTED) {
+        if (downloadState.state == DownloadState.STATE_STARTED) {
           foregroundNotificationUpdater.startPeriodicUpdates();
         } else {
           foregroundNotificationUpdater.update();
@@ -471,8 +472,8 @@ public abstract class DownloadService extends Service {
     }
 
     public void update() {
-      TaskState[] taskStates = downloadManager.getAllTaskStates();
-      startForeground(notificationId, getForegroundNotification(taskStates));
+      DownloadState[] downloadStates = downloadManager.getAllDownloadStates();
+      startForeground(notificationId, getForegroundNotification(downloadStates));
       notificationDisplayed = true;
       if (periodicUpdatesStarted) {
         handler.removeCallbacks(this);

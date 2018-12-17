@@ -19,37 +19,43 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.Nullable;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.ActionFile;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
+import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.offline.TrackKey;
-import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloadHelper;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadHelper;
 import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadHelper;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.ui.DefaultTrackNameProvider;
 import com.google.android.exoplayer2.ui.TrackNameProvider;
+import com.google.android.exoplayer2.ui.TrackSelectionView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -114,14 +120,19 @@ public class DownloadTracker implements DownloadManager.Listener {
     return trackedDownloadStates.get(uri).getKeys();
   }
 
-  public void toggleDownload(Activity activity, String name, Uri uri, String extension) {
+  public void toggleDownload(
+      Activity activity,
+      String name,
+      Uri uri,
+      String extension,
+      RenderersFactory renderersFactory) {
     if (isDownloaded(uri)) {
-      DownloadAction removeAction = getDownloadHelper(uri, extension).getRemoveAction();
+      DownloadAction removeAction =
+          getDownloadHelper(uri, extension, renderersFactory).getRemoveAction();
       startServiceWithAction(removeAction);
     } else {
-      StartDownloadDialogHelper helper =
-          new StartDownloadDialogHelper(activity, getDownloadHelper(uri, extension), name);
-      helper.prepare();
+      new StartDownloadDialogHelper(
+          activity, getDownloadHelper(uri, extension, renderersFactory), name);
     }
   }
 
@@ -133,11 +144,11 @@ public class DownloadTracker implements DownloadManager.Listener {
   }
 
   @Override
-  public void onTaskStateChanged(DownloadManager downloadManager, TaskState taskState) {
-    DownloadAction action = taskState.action;
+  public void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState) {
+    DownloadAction action = downloadState.action;
     Uri uri = action.uri;
-    if ((action.isRemoveAction && taskState.state == TaskState.STATE_COMPLETED)
-        || (!action.isRemoveAction && taskState.state == TaskState.STATE_FAILED)) {
+    if ((action.isRemoveAction && downloadState.state == DownloadState.STATE_COMPLETED)
+        || (!action.isRemoveAction && downloadState.state == DownloadState.STATE_FAILED)) {
       // A download has been removed, or has failed. Stop tracking it.
       if (trackedDownloadStates.remove(uri) != null) {
         handleTrackedDownloadStatesChanged();
@@ -192,15 +203,16 @@ public class DownloadTracker implements DownloadManager.Listener {
     DownloadService.startWithAction(context, DemoDownloadService.class, action, false);
   }
 
-  private DownloadHelper getDownloadHelper(Uri uri, String extension) {
+  private DownloadHelper<?> getDownloadHelper(
+      Uri uri, String extension, RenderersFactory renderersFactory) {
     int type = Util.inferContentType(uri, extension);
     switch (type) {
       case C.TYPE_DASH:
-        return new DashDownloadHelper(uri, dataSourceFactory);
+        return new DashDownloadHelper(uri, dataSourceFactory, renderersFactory);
       case C.TYPE_SS:
-        return new SsDownloadHelper(uri, dataSourceFactory);
+        return new SsDownloadHelper(uri, dataSourceFactory, renderersFactory);
       case C.TYPE_HLS:
-        return new HlsDownloadHelper(uri, dataSourceFactory);
+        return new HlsDownloadHelper(uri, dataSourceFactory, renderersFactory);
       case C.TYPE_OTHER:
         return new ProgressiveDownloadHelper(uri);
       default:
@@ -208,84 +220,165 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
   }
 
+  @SuppressWarnings("UngroupedOverloads")
   private final class StartDownloadDialogHelper
-      implements DownloadHelper.Callback, DialogInterface.OnClickListener {
+      implements DownloadHelper.Callback,
+          DialogInterface.OnClickListener,
+          View.OnClickListener,
+          TrackSelectionView.DialogCallback {
 
-    private final DownloadHelper downloadHelper;
+    private final DownloadHelper<?> downloadHelper;
     private final String name;
+    private final LayoutInflater dialogInflater;
+    private final AlertDialog dialog;
+    private final LinearLayout selectionList;
 
-    private final AlertDialog.Builder builder;
-    private final View dialogView;
-    private final List<TrackKey> trackKeys;
-    private final ArrayAdapter<String> trackTitles;
-    private final ListView representationList;
+    private MappedTrackInfo mappedTrackInfo;
+    private DefaultTrackSelector.Parameters parameters;
 
-    public StartDownloadDialogHelper(
-        Activity activity, DownloadHelper downloadHelper, String name) {
+    private StartDownloadDialogHelper(
+        Activity activity, DownloadHelper<?> downloadHelper, String name) {
       this.downloadHelper = downloadHelper;
       this.name = name;
-      builder =
+      AlertDialog.Builder builder =
           new AlertDialog.Builder(activity)
-              .setTitle(R.string.exo_download_description)
+              .setTitle(R.string.download_preparing)
               .setPositiveButton(android.R.string.ok, this)
               .setNegativeButton(android.R.string.cancel, null);
 
       // Inflate with the builder's context to ensure the correct style is used.
-      LayoutInflater dialogInflater = LayoutInflater.from(builder.getContext());
-      dialogView = dialogInflater.inflate(R.layout.start_download_dialog, null);
+      dialogInflater = LayoutInflater.from(builder.getContext());
+      selectionList = (LinearLayout) dialogInflater.inflate(R.layout.start_download_dialog, null);
+      builder.setView(selectionList);
+      dialog = builder.create();
+      dialog.show();
+      dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 
-      trackKeys = new ArrayList<>();
-      trackTitles =
-          new ArrayAdapter<>(
-              builder.getContext(), android.R.layout.simple_list_item_multiple_choice);
-      representationList = dialogView.findViewById(R.id.representation_list);
-      representationList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-      representationList.setAdapter(trackTitles);
-    }
-
-    public void prepare() {
+      parameters = DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS;
       downloadHelper.prepare(this);
     }
 
+    // DownloadHelper.Callback implementation.
+
     @Override
-    public void onPrepared(DownloadHelper helper) {
-      for (int i = 0; i < downloadHelper.getPeriodCount(); i++) {
-        TrackGroupArray trackGroups = downloadHelper.getTrackGroups(i);
-        for (int j = 0; j < trackGroups.length; j++) {
-          TrackGroup trackGroup = trackGroups.get(j);
-          for (int k = 0; k < trackGroup.length; k++) {
-            trackKeys.add(new TrackKey(i, j, k));
-            trackTitles.add(trackNameProvider.getTrackName(trackGroup.getFormat(k)));
-          }
-        }
+    public void onPrepared(DownloadHelper<?> helper) {
+      if (helper.getPeriodCount() < 1) {
+        onPrepareError(downloadHelper, new IOException("Content is empty."));
+        return;
       }
-      if (!trackKeys.isEmpty()) {
-        builder.setView(dialogView);
-      }
-      builder.create().show();
+      mappedTrackInfo = downloadHelper.getMappedTrackInfo(/* periodIndex= */ 0);
+      updateSelectionList();
+      dialog.setTitle(R.string.exo_download_description);
+      dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
     }
 
     @Override
-    public void onPrepareError(DownloadHelper helper, IOException e) {
+    public void onPrepareError(DownloadHelper<?> helper, IOException e) {
       Toast.makeText(
               context.getApplicationContext(), R.string.download_start_error, Toast.LENGTH_LONG)
           .show();
       Log.e(TAG, "Failed to start download", e);
+      dialog.cancel();
     }
+
+    // View.OnClickListener implementation.
+
+    @Override
+    public void onClick(View v) {
+      Integer rendererIndex = (Integer) v.getTag();
+      String dialogTitle = getTrackTypeString(mappedTrackInfo.getRendererType(rendererIndex));
+      Pair<AlertDialog, TrackSelectionView> dialogPair =
+          TrackSelectionView.getDialog(
+              dialog.getContext(),
+              dialogTitle,
+              mappedTrackInfo,
+              rendererIndex,
+              parameters,
+              /* callback= */ this);
+      dialogPair.second.setShowDisableOption(true);
+      dialogPair.second.setAllowAdaptiveSelections(false);
+      dialogPair.first.show();
+    }
+
+    // TrackSelectionView.DialogCallback implementation.
+
+    @Override
+    public void onTracksSelected(DefaultTrackSelector.Parameters parameters) {
+      for (int i = 0; i < downloadHelper.getPeriodCount(); i++) {
+        downloadHelper.replaceTrackSelections(/* periodIndex= */ i, parameters);
+      }
+      this.parameters = parameters;
+      updateSelectionList();
+    }
+
+    // DialogInterface.OnClickListener implementation.
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-      ArrayList<TrackKey> selectedTrackKeys = new ArrayList<>();
-      for (int i = 0; i < representationList.getChildCount(); i++) {
-        if (representationList.isItemChecked(i)) {
-          selectedTrackKeys.add(trackKeys.get(i));
+      DownloadAction downloadAction = downloadHelper.getDownloadAction(Util.getUtf8Bytes(name));
+      startDownload(downloadAction);
+    }
+
+    // Internal methods.
+
+    private void updateSelectionList() {
+      selectionList.removeAllViews();
+      for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+        TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(i);
+        if (trackGroupArray.length == 0) {
+          continue;
+        }
+        String trackTypeString =
+            getTrackTypeString(mappedTrackInfo.getRendererType(/* rendererIndex= */ i));
+        if (trackTypeString == null) {
+          return;
+        }
+        String trackSelectionsString = getTrackSelectionString(/* rendererIndex= */ i);
+        View view = dialogInflater.inflate(R.layout.download_track_item, selectionList, false);
+        TextView trackTitleView = view.findViewById(R.id.track_title);
+        TextView trackDescView = view.findViewById(R.id.track_desc);
+        ImageButton editButton = view.findViewById(R.id.edit_button);
+        trackTitleView.setText(trackTypeString);
+        trackDescView.setText(trackSelectionsString);
+        editButton.setTag(i);
+        editButton.setOnClickListener(this);
+        selectionList.addView(view);
+      }
+    }
+
+    private String getTrackSelectionString(int rendererIndex) {
+      List<TrackSelection> trackSelections =
+          downloadHelper.getTrackSelections(/* periodIndex= */ 0, rendererIndex);
+      String selectedTracks = "";
+      Resources resources = selectionList.getResources();
+      for (int i = 0; i < trackSelections.size(); i++) {
+        TrackSelection selection = trackSelections.get(i);
+        for (int j = 0; j < selection.length(); j++) {
+          String trackName = trackNameProvider.getTrackName(selection.getFormat(j));
+          if (i == 0 && j == 0) {
+            selectedTracks = trackName;
+          } else {
+            selectedTracks = resources.getString(R.string.exo_item_list, selectedTracks, trackName);
+          }
         }
       }
-      if (!selectedTrackKeys.isEmpty() || trackKeys.isEmpty()) {
-        // We have selected keys, or we're dealing with single stream content.
-        DownloadAction downloadAction =
-            downloadHelper.getDownloadAction(Util.getUtf8Bytes(name), selectedTrackKeys);
-        startDownload(downloadAction);
+      return selectedTracks.isEmpty()
+          ? resources.getString(R.string.exo_track_selection_none)
+          : selectedTracks;
+    }
+
+    @Nullable
+    private String getTrackTypeString(int trackType) {
+      Resources resources = selectionList.getResources();
+      switch (trackType) {
+        case C.TRACK_TYPE_VIDEO:
+          return resources.getString(R.string.exo_track_selection_title_video);
+        case C.TRACK_TYPE_AUDIO:
+          return resources.getString(R.string.exo_track_selection_title_audio);
+        case C.TRACK_TYPE_TEXT:
+          return resources.getString(R.string.exo_track_selection_title_text);
+        default:
+          return null;
       }
     }
   }
