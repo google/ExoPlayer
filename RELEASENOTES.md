@@ -35,6 +35,8 @@
 * DownloadManager:
   * Create only one task for all DownloadActions for the same content.
   * Rename TaskState to DownloadState.
+* MP3: Fix issue where streams would play twice on some Samsung devices
+  ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
 
 ### 2.9.2 ###
 
