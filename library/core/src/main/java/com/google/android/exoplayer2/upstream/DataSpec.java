@@ -31,14 +31,15 @@ import java.util.Arrays;
 public final class DataSpec {
 
   /**
-   * The flags that apply to any request for data. Possible flag values are {@link #FLAG_ALLOW_GZIP}
-   * and {@link #FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN}.
+   * The flags that apply to any request for data. Possible flag values are {@link
+   * #FLAG_ALLOW_GZIP}, {@link #FLAG_ALLOW_ICY_METADATA} and {@link
+   * #FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {FLAG_ALLOW_GZIP, FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN})
+      value = {FLAG_ALLOW_GZIP, FLAG_ALLOW_ICY_METADATA, FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN})
   public @interface Flags {}
   /**
    * Allows an underlying network stack to request that the server use gzip compression.
@@ -53,8 +54,11 @@ public final class DataSpec {
    */
   public static final int FLAG_ALLOW_GZIP = 1;
 
+  /** Allows an underlying network stack to request that the stream contain ICY metadata. */
+  public static final int FLAG_ALLOW_ICY_METADATA = 1 << 1; // 2
+
   /** Prevents caching if the length cannot be resolved when the {@link DataSource} is opened. */
-  public static final int FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN = 1 << 1; // 2
+  public static final int FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN = 1 << 2; // 4
 
   /**
    * The set of HTTP methods that are supported by ExoPlayer {@link HttpDataSource}s. One of {@link

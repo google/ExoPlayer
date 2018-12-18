@@ -7,7 +7,6 @@
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
-* Use the true bitrate for constant-bitrate MP3 seeking.
 * Track selection:
   * Add options for controlling audio track selections to `DefaultTrackSelector`
     ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
@@ -36,8 +35,12 @@
 * DownloadManager:
   * Create only one task for all DownloadActions for the same content.
   * Rename TaskState to DownloadState.
-* MP3: Fix issue where streams would play twice on some Samsung devices
-  ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
+* MP3:
+  * Use the true bitrate for constant-bitrate MP3 seeking.
+  * Fix issue where streams would play twice on some Samsung devices
+    ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
+* Add support for SHOUTcast ICY metadata
+  ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
 
 ### 2.9.2 ###
 

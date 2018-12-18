@@ -92,6 +92,7 @@ public final class MimeTypes {
   public static final String APPLICATION_EMSG = BASE_TYPE_APPLICATION + "/x-emsg";
   public static final String APPLICATION_DVBSUBS = BASE_TYPE_APPLICATION + "/dvbsubs";
   public static final String APPLICATION_EXIF = BASE_TYPE_APPLICATION + "/x-exif";
+  public static final String APPLICATION_ICY = BASE_TYPE_APPLICATION + "/x-icy";
 
   private static final ArrayList<CustomMimeType> customMimeTypes = new ArrayList<>();
 
