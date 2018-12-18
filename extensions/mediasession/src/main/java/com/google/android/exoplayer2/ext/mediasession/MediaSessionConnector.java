@@ -49,6 +49,11 @@ import java.util.Map;
 /**
  * Connects a {@link MediaSessionCompat} to a {@link Player}.
  *
+ * <p>This connector does <em>not</em> call {@link MediaSessionCompat#setActive(boolean)}, and so
+ * application code is responsible for making the session active when desired. A session must be
+ * active for transport controls to be displayed (e.g. on the lock screen) and for it to receive
+ * media button events.
+ *
  * <p>The connector listens for actions sent by the media session's controller and implements these
  * actions by calling appropriate player methods. The playback state of the media session is
  * automatically synced with the player. The connector can also be optionally extended by providing

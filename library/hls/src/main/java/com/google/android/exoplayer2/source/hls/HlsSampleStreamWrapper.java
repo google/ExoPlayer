@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -24,6 +25,8 @@ import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
@@ -791,7 +794,7 @@ import java.util.List;
         return createDummyTrackOutput(id, type);
       }
     }
-    SampleQueue trackOutput = new SampleQueue(allocator);
+    SampleQueue trackOutput = new PrivTimestampStrippingSampleQueue(allocator);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.sourceId(chunkUid);
     trackOutput.setUpstreamFormatChangeListener(this);
@@ -1125,5 +1128,54 @@ import java.util.List;
   private static DummyTrackOutput createDummyTrackOutput(int id, int type) {
     Log.w(TAG, "Unmapped track with id " + id + " of type " + type);
     return new DummyTrackOutput();
+  }
+
+  private static final class PrivTimestampStrippingSampleQueue extends SampleQueue {
+
+    public PrivTimestampStrippingSampleQueue(Allocator allocator) {
+      super(allocator);
+    }
+
+    @Override
+    public void format(Format format) {
+      super.format(format.copyWithMetadata(getAdjustedMetadata(format.metadata)));
+    }
+
+    /**
+     * Strips the private timestamp frame from metadata, if present. See:
+     * https://github.com/google/ExoPlayer/issues/5063
+     */
+    @Nullable
+    private Metadata getAdjustedMetadata(@Nullable Metadata metadata) {
+      if (metadata == null) {
+        return null;
+      }
+      int length = metadata.length();
+      int transportStreamTimestampMetadataIndex = C.INDEX_UNSET;
+      for (int i = 0; i < length; i++) {
+        Metadata.Entry metadataEntry = metadata.get(i);
+        if (metadataEntry instanceof PrivFrame) {
+          PrivFrame privFrame = (PrivFrame) metadataEntry;
+          if (HlsMediaChunk.PRIV_TIMESTAMP_FRAME_OWNER.equals(privFrame.owner)) {
+            transportStreamTimestampMetadataIndex = i;
+            break;
+          }
+        }
+      }
+      if (transportStreamTimestampMetadataIndex == C.INDEX_UNSET) {
+        return metadata;
+      }
+      if (length == 1) {
+        return null;
+      }
+      Metadata.Entry[] newMetadataEntries = new Metadata.Entry[length - 1];
+      for (int i = 0; i < length; i++) {
+        if (i != transportStreamTimestampMetadataIndex) {
+          int newIndex = i < transportStreamTimestampMetadataIndex ? i : i - 1;
+          newMetadataEntries[newIndex] = metadata.get(i);
+        }
+      }
+      return new Metadata(newMetadataEntries);
+    }
   }
 }

@@ -1329,6 +1329,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           case "A7010a48":
           case "A7020a48":
           case "AquaPowerM":
+          case "ASUS_X00AD_2":
           case "Aura_Note_2":
           case "BLACK-1X":
           case "BRAVIA_ATV2":
@@ -1369,6 +1370,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           case "HWBLN-H":
           case "HWCAM-H":
           case "HWVNS-H":
+          case "i9031":
           case "iball8735_9806":
           case "Infinix-X572":
           case "iris60":
@@ -1376,6 +1378,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           case "j2xlteins":
           case "JGZ":
           case "K50a40":
+          case "kate":
           case "le_x6":
           case "LS-5017":
           case "M5c":

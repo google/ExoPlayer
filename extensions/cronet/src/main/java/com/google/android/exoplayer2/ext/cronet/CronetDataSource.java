@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.cronet;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
@@ -453,6 +454,18 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       opened = false;
       transferEnded();
     }
+  }
+
+  /** Returns current {@link UrlRequest}. May be null if the data source is not opened. */
+  @Nullable
+  protected UrlRequest getCurrentUrlRequest() {
+    return currentUrlRequest;
+  }
+
+  /** Returns current {@link UrlResponseInfo}. May be null if the data source is not opened. */
+  @Nullable
+  protected UrlResponseInfo getCurrentUrlResponseInfo() {
+    return responseInfo;
   }
 
   // Internal methods.

@@ -145,12 +145,13 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   private boolean isOutputSupported(Format inputFormat) {
-    return shouldUseFloatOutput(inputFormat) || supportsOutputEncoding(C.ENCODING_PCM_16BIT);
+    return shouldUseFloatOutput(inputFormat)
+        || supportsOutput(inputFormat.channelCount, C.ENCODING_PCM_16BIT);
   }
 
   private boolean shouldUseFloatOutput(Format inputFormat) {
     Assertions.checkNotNull(inputFormat.sampleMimeType);
-    if (!enableFloatOutput || !supportsOutputEncoding(C.ENCODING_PCM_FLOAT)) {
+    if (!enableFloatOutput || !supportsOutput(inputFormat.channelCount, C.ENCODING_PCM_FLOAT)) {
       return false;
     }
     switch (inputFormat.sampleMimeType) {

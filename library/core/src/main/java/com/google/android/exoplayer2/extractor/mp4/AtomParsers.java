@@ -58,6 +58,9 @@ import java.util.List;
    */
   private static final int MAX_GAPLESS_TRIM_SIZE_SAMPLES = 3;
 
+  /** The magic signature for an Opus Identification header, as defined in RFC-7845. */
+  private static final byte[] opusMagic = Util.getUtf8Bytes("OpusHead");
+
   /**
    * Parses a trak atom (defined in 14496-12).
    *
@@ -233,8 +236,6 @@ import java.util.List;
           sizes = Arrays.copyOf(sizes, sampleCount);
           timestamps = Arrays.copyOf(timestamps, sampleCount);
           flags = Arrays.copyOf(flags, sampleCount);
-          remainingSamplesAtTimestampOffset = 0;
-          remainingTimestampOffsetChanges = 0;
           break;
         }
 
@@ -290,23 +291,38 @@ import java.util.List;
       }
       duration = timestampTimeUnits + timestampOffset;
 
-      Assertions.checkArgument(remainingSamplesAtTimestampOffset == 0);
-      // Remove trailing ctts entries with 0-valued sample counts.
+      // If the stbl's child boxes are not consistent the container is malformed, but the stream may
+      // still be playable.
+      boolean isCttsValid = true;
       while (remainingTimestampOffsetChanges > 0) {
-        Assertions.checkArgument(ctts.readUnsignedIntToInt() == 0);
+        if (ctts.readUnsignedIntToInt() != 0) {
+          isCttsValid = false;
+          break;
+        }
         ctts.readInt(); // Ignore offset.
         remainingTimestampOffsetChanges--;
       }
-
-      // If the stbl's child boxes are not consistent the container is malformed, but the stream may
-      // still be playable.
-      if (remainingSynchronizationSamples != 0 || remainingSamplesAtTimestampDelta != 0
-          || remainingSamplesInChunk != 0 || remainingTimestampDeltaChanges != 0) {
-        Log.w(TAG, "Inconsistent stbl box for track " + track.id
-            + ": remainingSynchronizationSamples " + remainingSynchronizationSamples
-            + ", remainingSamplesAtTimestampDelta " + remainingSamplesAtTimestampDelta
-            + ", remainingSamplesInChunk " + remainingSamplesInChunk
-            + ", remainingTimestampDeltaChanges " + remainingTimestampDeltaChanges);
+      if (remainingSynchronizationSamples != 0
+          || remainingSamplesAtTimestampDelta != 0
+          || remainingSamplesInChunk != 0
+          || remainingTimestampDeltaChanges != 0
+          || remainingSamplesAtTimestampOffset != 0
+          || !isCttsValid) {
+        Log.w(
+            TAG,
+            "Inconsistent stbl box for track "
+                + track.id
+                + ": remainingSynchronizationSamples "
+                + remainingSynchronizationSamples
+                + ", remainingSamplesAtTimestampDelta "
+                + remainingSamplesAtTimestampDelta
+                + ", remainingSamplesInChunk "
+                + remainingSamplesInChunk
+                + ", remainingTimestampDeltaChanges "
+                + remainingTimestampDeltaChanges
+                + ", remainingSamplesAtTimestampOffset "
+                + remainingSamplesAtTimestampOffset
+                + (!isCttsValid ? ", ctts invalid" : ""));
       }
     } else {
       long[] chunkOffsetsBytes = new long[chunkIterator.length];
@@ -679,7 +695,9 @@ import java.util.List;
           || childAtomType == Atom.TYPE__mp3
           || childAtomType == Atom.TYPE_alac
           || childAtomType == Atom.TYPE_alaw
-          || childAtomType == Atom.TYPE_ulaw) {
+          || childAtomType == Atom.TYPE_ulaw
+          || childAtomType == Atom.TYPE_Opus
+          || childAtomType == Atom.TYPE_fLaC) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             language, isQuickTime, drmInitData, out, i);
       } else if (childAtomType == Atom.TYPE_TTML || childAtomType == Atom.TYPE_tx3g
@@ -976,6 +994,10 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_ALAW;
     } else if (atomType == Atom.TYPE_ulaw) {
       mimeType = MimeTypes.AUDIO_MLAW;
+    } else if (atomType == Atom.TYPE_Opus) {
+      mimeType = MimeTypes.AUDIO_OPUS;
+    } else if (atomType == Atom.TYPE_fLaC) {
+      mimeType = MimeTypes.AUDIO_FLAC;
     }
 
     byte[] initializationData = null;
@@ -1016,7 +1038,20 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_alac) {
         initializationData = new byte[childAtomSize];
         parent.setPosition(childPosition);
-        parent.readBytes(initializationData, 0, childAtomSize);
+        parent.readBytes(initializationData, /* offset= */ 0, childAtomSize);
+      } else if (childAtomType == Atom.TYPE_dOps) {
+        // Build an Opus Identification Header (defined in RFC-7845) by concatenating the Opus Magic
+        // Signature and the body of the dOps atom.
+        int childAtomBodySize = childAtomSize - Atom.HEADER_SIZE;
+        initializationData = new byte[opusMagic.length + childAtomBodySize];
+        System.arraycopy(opusMagic, 0, initializationData, 0, opusMagic.length);
+        parent.setPosition(childPosition + Atom.HEADER_SIZE);
+        parent.readBytes(initializationData, opusMagic.length, childAtomBodySize);
+      } else if (childAtomSize == Atom.TYPE_dfLa) {
+        int childAtomBodySize = childAtomSize - Atom.FULL_HEADER_SIZE;
+        initializationData = new byte[childAtomBodySize];
+        parent.setPosition(childPosition + Atom.FULL_HEADER_SIZE);
+        parent.readBytes(initializationData, /* offset= */ 0, childAtomBodySize);
       }
       childPosition += childAtomSize;
     }
