@@ -31,6 +31,8 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekMap.SeekPoints;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -45,6 +47,7 @@ import com.google.android.exoplayer2.upstream.StatsDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
@@ -79,13 +82,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    */
   private static final long DEFAULT_LAST_SAMPLE_DURATION_US = 10000;
 
+  private static final Format ICY_FORMAT =
+      Format.createSampleFormat("icy", MimeTypes.APPLICATION_ICY, Format.OFFSET_SAMPLE_RELATIVE);
+
   private final Uri uri;
   private final DataSource dataSource;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
   private final Listener listener;
   private final Allocator allocator;
-  private final @Nullable String customCacheKey;
+  @Nullable private final String customCacheKey;
   private final long continueLoadingCheckIntervalBytes;
   private final Loader loader;
   private final ExtractorHolder extractorHolder;
@@ -94,14 +100,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private final Runnable onContinueLoadingRequestedRunnable;
   private final Handler handler;
 
-  private @Nullable Callback callback;
-  private @Nullable SeekMap seekMap;
+  @Nullable private Callback callback;
+  @Nullable private SeekMap seekMap;
+  @Nullable private IcyHeaders icyHeaders;
   private SampleQueue[] sampleQueues;
-  private int[] sampleQueueTrackIds;
+  private TrackId[] sampleQueueTrackIds;
   private boolean sampleQueuesBuilt;
   private boolean prepared;
 
-  private @Nullable PreparedState preparedState;
+  @Nullable private PreparedState preparedState;
   private boolean haveAudioVideoTracks;
   private int dataType;
 
@@ -134,7 +141,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    *     invocation of {@link Callback#onContinueLoadingRequested(SequenceableLoader)}.
    */
   // maybeFinishPrepare is not posted to the handler until initialization completes.
-  @SuppressWarnings("nullness:methodref.receiver.bound.invalid")
+  @SuppressWarnings({
+    "nullness:argument.type.incompatible",
+    "nullness:methodref.receiver.bound.invalid"
+  })
   public ExtractorMediaPeriod(
       Uri uri,
       DataSource dataSource,
@@ -164,7 +174,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           }
         };
     handler = new Handler();
-    sampleQueueTrackIds = new int[0];
+    sampleQueueTrackIds = new TrackId[0];
     sampleQueues = new SampleQueue[0];
     pendingResetPositionUs = C.TIME_UNSET;
     length = C.LENGTH_UNSET;
@@ -599,20 +609,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public TrackOutput track(int id, int type) {
-    int trackCount = sampleQueues.length;
-    for (int i = 0; i < trackCount; i++) {
-      if (sampleQueueTrackIds[i] == id) {
-        return sampleQueues[i];
-      }
-    }
-    SampleQueue trackOutput = new SampleQueue(allocator);
-    trackOutput.setUpstreamFormatChangeListener(this);
-    sampleQueueTrackIds = Arrays.copyOf(sampleQueueTrackIds, trackCount + 1);
-    sampleQueueTrackIds[trackCount] = id;
-    @NullableType SampleQueue[] sampleQueues = Arrays.copyOf(this.sampleQueues, trackCount + 1);
-    sampleQueues[trackCount] = trackOutput;
-    this.sampleQueues = Util.castNonNullTypeArray(sampleQueues);
-    return trackOutput;
+    return prepareTrackOutput(new TrackId(id, /* isIcyTrack= */ false));
   }
 
   @Override
@@ -627,6 +624,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     handler.post(maybeFinishPrepareRunnable);
   }
 
+  // Icy metadata. Called by the loading thread.
+
+  /* package */ TrackOutput icyTrack() {
+    return prepareTrackOutput(new TrackId(0, /* isIcyTrack= */ true));
+  }
+
   // UpstreamFormatChangedListener implementation. Called by the loading thread.
 
   @Override
@@ -635,6 +638,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   // Internal methods.
+
+  private TrackOutput prepareTrackOutput(TrackId id) {
+    int trackCount = sampleQueues.length;
+    for (int i = 0; i < trackCount; i++) {
+      if (id.equals(sampleQueueTrackIds[i])) {
+        return sampleQueues[i];
+      }
+    }
+    SampleQueue trackOutput = new SampleQueue(allocator);
+    trackOutput.setUpstreamFormatChangeListener(this);
+    @NullableType
+    TrackId[] sampleQueueTrackIds = Arrays.copyOf(this.sampleQueueTrackIds, trackCount + 1);
+    sampleQueueTrackIds[trackCount] = id;
+    this.sampleQueueTrackIds = Util.castNonNullTypeArray(sampleQueueTrackIds);
+    @NullableType SampleQueue[] sampleQueues = Arrays.copyOf(this.sampleQueues, trackCount + 1);
+    sampleQueues[trackCount] = trackOutput;
+    this.sampleQueues = Util.castNonNullTypeArray(sampleQueues);
+    return trackOutput;
+  }
 
   private void maybeFinishPrepare() {
     SeekMap seekMap = this.seekMap;
@@ -653,11 +675,28 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     durationUs = seekMap.getDurationUs();
     for (int i = 0; i < trackCount; i++) {
       Format trackFormat = sampleQueues[i].getUpstreamFormat();
-      trackArray[i] = new TrackGroup(trackFormat);
       String mimeType = trackFormat.sampleMimeType;
-      boolean isAudioVideo = MimeTypes.isVideo(mimeType) || MimeTypes.isAudio(mimeType);
+      boolean isAudio = MimeTypes.isAudio(mimeType);
+      boolean isAudioVideo = isAudio || MimeTypes.isVideo(mimeType);
       trackIsAudioVideoFlags[i] = isAudioVideo;
       haveAudioVideoTracks |= isAudioVideo;
+      IcyHeaders icyHeaders = this.icyHeaders;
+      if (icyHeaders != null) {
+        if (isAudio || sampleQueueTrackIds[i].isIcyTrack) {
+          Metadata metadata = trackFormat.metadata;
+          trackFormat =
+              trackFormat.copyWithMetadata(
+                  metadata == null
+                      ? new Metadata(icyHeaders)
+                      : metadata.copyWithAppendedEntries(icyHeaders));
+        }
+        if (isAudio
+            && trackFormat.bitrate == Format.NO_VALUE
+            && icyHeaders.bitrate != Format.NO_VALUE) {
+          trackFormat = trackFormat.copyWithBitrate(icyHeaders.bitrate);
+        }
+      }
+      trackArray[i] = new TrackGroup(trackFormat);
     }
     dataType =
         length == C.LENGTH_UNSET && seekMap.getDurationUs() == C.TIME_UNSET
@@ -834,7 +873,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** Loads the media stream and extracts sample data from it. */
-  /* package */ final class ExtractingLoadable implements Loadable {
+  /* package */ final class ExtractingLoadable implements Loadable, IcyDataSource.Listener {
 
     private final Uri uri;
     private final StatsDataSource dataSource;
@@ -849,6 +888,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private long seekTimeUs;
     private DataSpec dataSpec;
     private long length;
+    @Nullable private TrackOutput icyTrackOutput;
+    private boolean seenIcyMetadata;
 
     @SuppressWarnings("method.invocation.invalid")
     public ExtractingLoadable(
@@ -888,7 +929,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             length += position;
           }
           Uri uri = Assertions.checkNotNull(dataSource.getUri());
-          input = new DefaultExtractorInput(dataSource, position, length);
+          icyHeaders = IcyHeaders.parse(dataSource.getResponseHeaders());
+          DataSource extractorDataSource = dataSource;
+          if (icyHeaders != null && icyHeaders.metadataInterval != C.LENGTH_UNSET) {
+            extractorDataSource = new IcyDataSource(dataSource, icyHeaders.metadataInterval, this);
+            icyTrackOutput = icyTrack();
+            icyTrackOutput.format(ICY_FORMAT);
+          }
+          input = new DefaultExtractorInput(extractorDataSource, position, length);
           Extractor extractor = extractorHolder.selectExtractor(input, extractorOutput, uri);
           if (pendingExtractorSeek) {
             extractor.seek(position, seekTimeUs);
@@ -914,6 +962,22 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
     }
 
+    // IcyDataSource.Listener
+
+    @Override
+    public void onIcyMetadata(ParsableByteArray metadata) {
+      // Always output the first ICY metadata at the start time. This helps minimize any delay
+      // between the start of playback and the first ICY metadata event.
+      long timeUs =
+          !seenIcyMetadata ? seekTimeUs : Math.max(getLargestQueuedTimestampUs(), seekTimeUs);
+      int length = metadata.bytesLeft();
+      TrackOutput icyTrackOutput = Assertions.checkNotNull(this.icyTrackOutput);
+      icyTrackOutput.sampleData(metadata, length);
+      icyTrackOutput.sampleMetadata(
+          timeUs, C.BUFFER_FLAG_KEY_FRAME, length, /* offset= */ 0, /* encryptionData= */ null);
+      seenIcyMetadata = true;
+    }
+
     // Internal methods.
 
     private DataSpec buildDataSpec(long position) {
@@ -924,13 +988,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           position,
           C.LENGTH_UNSET,
           customCacheKey,
-          DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN);
+          DataSpec.FLAG_ALLOW_ICY_METADATA | DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN);
     }
 
     private void setLoadPosition(long position, long timeUs) {
       positionHolder.position = position;
       seekTimeUs = timeUs;
       pendingExtractorSeek = true;
+      seenIcyMetadata = false;
     }
   }
 
@@ -1012,6 +1077,35 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       this.trackIsAudioVideoFlags = trackIsAudioVideoFlags;
       this.trackEnabledStates = new boolean[tracks.length];
       this.trackNotifiedDownstreamFormats = new boolean[tracks.length];
+    }
+  }
+
+  /** Identifies a track. */
+  private static final class TrackId {
+
+    public final int id;
+    public final boolean isIcyTrack;
+
+    public TrackId(int id, boolean isIcyTrack) {
+      this.id = id;
+      this.isIcyTrack = isIcyTrack;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+      TrackId other = (TrackId) obj;
+      return id == other.id && isIcyTrack == other.isIcyTrack;
+    }
+
+    @Override
+    public int hashCode() {
+      return 31 * id + (isIcyTrack ? 1 : 0);
     }
   }
 }
