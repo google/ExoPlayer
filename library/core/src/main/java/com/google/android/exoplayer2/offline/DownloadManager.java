@@ -196,15 +196,8 @@ public final class DownloadManager {
   public void handleAction(DownloadAction action) {
     Assertions.checkState(!released);
     if (initialized) {
-      Download download = getOrAddDownloadForAction(action);
+      addDownloadForAction(action);
       saveActions();
-      maybeStartDownloads();
-      if (download.state == STATE_QUEUED) {
-        // Download did not change out of its initial state, and so its initial state won't have
-        // been
-        // reported to listeners. Do so now.
-        notifyListenersDownloadStateChange(download);
-      }
     } else {
       actionQueue.add(action);
     }
@@ -284,19 +277,18 @@ public final class DownloadManager {
     logd("Released");
   }
 
-  private Download getOrAddDownloadForAction(DownloadAction action) {
+  private void addDownloadForAction(DownloadAction action) {
     for (int i = 0; i < downloads.size(); i++) {
       Download download = downloads.get(i);
       if (download.action.isSameMedia(action)) {
         download.addAction(action);
         logd("Action is added to existing download", download);
-        return download;
+        return;
       }
     }
     Download download = new Download(this, downloaderFactory, action, minRetryCount);
     downloads.add(download);
     logd("Download is added", download);
-    return download;
   }
 
   /**
@@ -311,22 +303,21 @@ public final class DownloadManager {
     if (!initialized || released) {
       return;
     }
-
-    boolean skipDownloads = downloadsStopped || activeDownloads.size() == maxActiveDownloads;
     for (int i = 0; i < downloads.size(); i++) {
-      Download download = downloads.get(i);
-      if (!download.canStart()) {
-        continue;
-      }
-      boolean isRemoveAction = download.action.isRemoveAction;
-      if (isRemoveAction || !skipDownloads) {
-        download.start();
-        if (!isRemoveAction) {
-          activeDownloads.add(download);
-          skipDownloads = activeDownloads.size() == maxActiveDownloads;
-        }
+      maybeStartDownload(downloads.get(i));
+    }
+  }
+
+  private boolean maybeStartDownload(Download download) {
+    if (download.action.isRemoveAction) {
+      return download.start();
+    } else if (!downloadsStopped && activeDownloads.size() < maxActiveDownloads) {
+      if (download.start()) {
+        activeDownloads.add(download);
+        return true;
       }
     }
+    return false;
   }
 
   private void maybeNotifyListenersIdle() {
@@ -384,7 +375,7 @@ public final class DownloadManager {
                   return;
                 }
                 for (DownloadAction action : actions) {
-                  getOrAddDownloadForAction(action);
+                  addDownloadForAction(action);
                 }
                 logd("Downloads are created.");
                 initialized = true;
@@ -393,18 +384,9 @@ public final class DownloadManager {
                 }
                 if (!actionQueue.isEmpty()) {
                   while (!actionQueue.isEmpty()) {
-                    getOrAddDownloadForAction(actionQueue.remove());
+                    addDownloadForAction(actionQueue.remove());
                   }
                   saveActions();
-                }
-                maybeStartDownloads();
-                for (int i = 0; i < downloads.size(); i++) {
-                  Download download = downloads.get(i);
-                  if (download.state == STATE_QUEUED) {
-                    // Download did not change out of its initial state, and so its initial state
-                    // won't have been reported to listeners. Do so now.
-                    notifyListenersDownloadStateChange(download);
-                  }
                 }
               });
         });
@@ -581,6 +563,11 @@ public final class DownloadManager {
       state = STATE_QUEUED;
       actionQueue = new ArrayDeque<>();
       actionQueue.add(action);
+      if (!downloadManager.maybeStartDownload(this)) {
+        // If download is started, listeners are already notified about the started state. Otherwise
+        // notify them here about the queued state.
+        downloadManager.onDownloadStateChange(this);
+      }
     }
 
     public void addAction(DownloadAction newAction) {
@@ -637,20 +624,18 @@ public final class DownloadManager {
           + DownloadState.getStateString(state);
     }
 
-    public boolean canStart() {
-      return state == STATE_QUEUED;
-    }
-
-    public void start() {
-      if (state == STATE_QUEUED) {
-        state = STATE_STARTED;
-        action = actionQueue.peek();
-        downloader = downloaderFactory.createDownloader(action);
-        downloadThread =
-            new DownloadThread(
-                this, downloader, action.isRemoveAction, minRetryCount, downloadManager.handler);
-        downloadManager.onDownloadStateChange(this);
+    public boolean start() {
+      if (state != STATE_QUEUED) {
+        return false;
       }
+      state = STATE_STARTED;
+      action = actionQueue.peek();
+      downloader = downloaderFactory.createDownloader(action);
+      downloadThread =
+          new DownloadThread(
+              this, downloader, action.isRemoveAction, minRetryCount, downloadManager.handler);
+      downloadManager.onDownloadStateChange(this);
+      return true;
     }
 
     public void stop() {
