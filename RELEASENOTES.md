@@ -7,6 +7,7 @@
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
+* Use the true bitrate for constant-bitrate MP3 seeking.
 * Track selection:
   * Add options for controlling audio track selections to `DefaultTrackSelector`
     ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
