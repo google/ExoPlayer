@@ -1,5 +1,20 @@
 # Release notes #
 
+### 2.9.3 ###
+
+* Captions: Support PNG subtitles in SMPTE-TT
+  ([#1583](https://github.com/google/ExoPlayer/issues/1583)).
+* Workaround for MiTV (dangal) issue when swapping output surface
+  ([#5169](https://github.com/google/ExoPlayer/issues/5169)).
+* Fix decode-only frame skipping on Nvidia Shield TV devices.
+* Fix regression where some audio formats were incorrectly marked as being
+  unplayable due to under-reporting of platform decoder capabilities
+  ([#5145](https://github.com/google/ExoPlayer/issues/5145)).
+ * MP3:
+   * Use the true bitrate for constant-bitrate MP3 seeking.
+   * Fix issue where streams would play twice on some Samsung devices
+     ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
+
 ### 2.9.2 ###
 
 * HLS:
