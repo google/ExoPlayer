@@ -265,15 +265,15 @@ public class PlayerView extends FrameLayout {
   // LINT.ThenChange(../../../../../../res/values/attrs.xml)
 
   // LINT.IfChange
-  private static final int SURFACE_TYPE_NONE = 0;
-  private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
-  private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
-  private static final int SURFACE_TYPE_MONO360_VIEW = 3;
+  public static final int SURFACE_TYPE_NONE = 0;
+  public static final int SURFACE_TYPE_SURFACE_VIEW = 1;
+  public static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
+  public static final int SURFACE_TYPE_MONO360_VIEW = 3;
   // LINT.ThenChange(../../../../../../res/values/attrs.xml)
 
   private final AspectRatioFrameLayout contentFrame;
   private final View shutterView;
-  private final View surfaceView;
+  private View surfaceView;
   private final ImageView artworkView;
   private final SubtitleView subtitleView;
   private final @Nullable View bufferingView;
@@ -295,6 +295,7 @@ public class PlayerView extends FrameLayout {
   private boolean controllerHideDuringAds;
   private boolean controllerHideOnTouch;
   private int textureViewRotation;
+  private int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
 
   public PlayerView(Context context) {
     this(context, null);
@@ -334,7 +335,6 @@ public class PlayerView extends FrameLayout {
     boolean useArtwork = true;
     int defaultArtworkId = 0;
     boolean useController = true;
-    int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
     int resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT;
     int controllerShowTimeoutMs = PlayerControlView.DEFAULT_SHOW_TIMEOUT_MS;
     boolean controllerHideOnTouch = true;
@@ -383,32 +383,6 @@ public class PlayerView extends FrameLayout {
     shutterView = findViewById(R.id.exo_shutter);
     if (shutterView != null && shutterColorSet) {
       shutterView.setBackgroundColor(shutterColor);
-    }
-
-    // Create a surface view and insert it into the content frame, if there is one.
-    if (contentFrame != null && surfaceType != SURFACE_TYPE_NONE) {
-      ViewGroup.LayoutParams params =
-          new ViewGroup.LayoutParams(
-              ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-      switch (surfaceType) {
-        case SURFACE_TYPE_TEXTURE_VIEW:
-          surfaceView = new TextureView(context);
-          break;
-        case SURFACE_TYPE_MONO360_VIEW:
-          Assertions.checkState(Util.SDK_INT >= 15);
-          SphericalSurfaceView sphericalSurfaceView = new SphericalSurfaceView(context);
-          sphericalSurfaceView.setSurfaceListener(componentListener);
-          sphericalSurfaceView.setSingleTapListener(componentListener);
-          surfaceView = sphericalSurfaceView;
-          break;
-        default:
-          surfaceView = new SurfaceView(context);
-          break;
-      }
-      surfaceView.setLayoutParams(params);
-      contentFrame.addView(surfaceView, 0);
-    } else {
-      surfaceView = null;
     }
 
     // Overlay frame layout.
@@ -517,6 +491,7 @@ public class PlayerView extends FrameLayout {
     if (this.player == player) {
       return;
     }
+    maybeCreateSurfaceView();
     if (this.player != null) {
       this.player.removeListener(componentListener);
       Player.VideoComponent oldVideoComponent = this.player.getVideoComponent();
@@ -992,6 +967,10 @@ public class PlayerView extends FrameLayout {
     contentFrame.setAspectRatioListener(listener);
   }
 
+  public void setSurfaceType(int surfaceType) {
+    this.surfaceType = surfaceType;
+  }
+
   /**
    * Gets the view onto which video is rendered. This is a:
    *
@@ -1071,6 +1050,36 @@ public class PlayerView extends FrameLayout {
   public void onPause() {
     if (surfaceView instanceof SphericalSurfaceView) {
       ((SphericalSurfaceView) surfaceView).onPause();
+    }
+  }
+
+  private void maybeCreateSurfaceView() {
+    if (surfaceView != null) {
+      return;
+    }
+
+    // Create a surface view and insert it into the content frame, if there is one.
+    if (contentFrame != null && surfaceType != SURFACE_TYPE_NONE) {
+      ViewGroup.LayoutParams params =
+              new ViewGroup.LayoutParams(
+                      ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+      switch (surfaceType) {
+        case SURFACE_TYPE_TEXTURE_VIEW:
+          surfaceView = new TextureView(getContext());
+          break;
+        case SURFACE_TYPE_MONO360_VIEW:
+          Assertions.checkState(Util.SDK_INT >= 15);
+          SphericalSurfaceView sphericalSurfaceView = new SphericalSurfaceView(getContext());
+          sphericalSurfaceView.setSurfaceListener(componentListener);
+          sphericalSurfaceView.setSingleTapListener(componentListener);
+          surfaceView = sphericalSurfaceView;
+          break;
+        default:
+          surfaceView = new SurfaceView(getContext());
+          break;
+      }
+      surfaceView.setLayoutParams(params);
+      contentFrame.addView(surfaceView, 0);
     }
   }
 
