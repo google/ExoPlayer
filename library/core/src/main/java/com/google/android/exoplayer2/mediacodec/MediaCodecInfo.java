@@ -248,9 +248,15 @@ public final class MediaCodecInfo {
       // If we don't know any better, we assume that the profile and level are supported.
       return true;
     }
+    int profile = codecProfileAndLevel.first;
+    int level = codecProfileAndLevel.second;
+    if (!isVideo && profile != CodecProfileLevel.AACObjectXHE) {
+      // Some devices/builds under-report audio capabilities, so assume support except for xHE-AAC
+      // which is not widely supported. See https://github.com/google/ExoPlayer/issues/5145.
+      return true;
+    }
     for (CodecProfileLevel capabilities : getProfileLevels()) {
-      if (capabilities.profile == codecProfileAndLevel.first
-          && capabilities.level >= codecProfileAndLevel.second) {
+      if (capabilities.profile == profile && capabilities.level >= level) {
         return true;
       }
     }
