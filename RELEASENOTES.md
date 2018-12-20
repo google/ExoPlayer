@@ -2,8 +2,6 @@
 
 ### dev-v2 (not yet released) ###
 
-* Use Transport Stream's random access indicator to minimize the need for
-  `FLAG_ALLOW_NON_IDR_KEYFRAMES`.
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
@@ -12,11 +10,7 @@
     ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
   * Update `TrackSelection.Factory` interface to support creating all track
     selections together.
-* Captions:
-  * Support PNG subtitles in SMPTE-TT
-    ([#1583](https://github.com/google/ExoPlayer/issues/1583)).
 * Do not retry failed loads whose error is `FileNotFoundException`.
-* Prevent Cea608Decoder from generating Subtitles with null Cues list.
 * Offline:
   * Speed up removal of segmented downloads
     ([#5136](https://github.com/google/ExoPlayer/issues/5136)).
@@ -28,23 +22,28 @@
     this behavior (`DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH`) has been
     replaced with an opt out flag
     (`DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN`).
-* Disable post processing on Nvidia devices, as it breaks decode-only frame
-  skippping.
-* Workaround for MiTV (dangal) issue when swapping output surface
-  ([#5169](https://github.com/google/ExoPlayer/issues/5169)).
 * DownloadManager:
   * Create only one task for all DownloadActions for the same content.
   * Rename TaskState to DownloadState.
-* Audio:
-  * Fix issue where some audio formats were incorrectly marked as being
-    unplayable due to underreported audio decoder capabilities
-    ([#5145](https://github.com/google/ExoPlayer/issues/5145)).
-  * MP3:
-    * Use the true bitrate for constant-bitrate MP3 seeking.
-    * Fix issue where streams would play twice on some Samsung devices
-      ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
 * Add support for SHOUTcast ICY metadata
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
+
+### 2.9.3 ###
+
+* Captions: Support PNG subtitles in SMPTE-TT
+  ([#1583](https://github.com/google/ExoPlayer/issues/1583)).
+* MPEG-TS: Use random access indicators to minimize the need for
+  `FLAG_ALLOW_NON_IDR_KEYFRAMES`.
+* MP3:
+  * Use the true bitrate for constant-bitrate MP3 seeking.
+  * Fix issue where streams would play twice on some Samsung devices
+    ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
+* Fix regression where some audio formats were incorrectly marked as being
+  unplayable due to under-reporting of platform decoder capabilities
+  ([#5145](https://github.com/google/ExoPlayer/issues/5145)).
+* Fix decode-only frame skipping on Nvidia Shield TV devices.
+* Workaround for MiTV (dangal) issue when swapping output surface
+  ([#5169](https://github.com/google/ExoPlayer/issues/5169)).
 
 ### 2.9.2 ###
 
