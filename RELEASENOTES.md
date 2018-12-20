@@ -3,7 +3,7 @@
 ### dev-v2 (not yet released) ###
 
 * Use Transport Stream's random access indicator to minimize the need for
-  FLAG_ALLOW_NON_IDR_KEYFRAMES.
+  `FLAG_ALLOW_NON_IDR_KEYFRAMES`.
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
@@ -35,10 +35,14 @@
 * DownloadManager:
   * Create only one task for all DownloadActions for the same content.
   * Rename TaskState to DownloadState.
-* MP3:
-  * Use the true bitrate for constant-bitrate MP3 seeking.
-  * Fix issue where streams would play twice on some Samsung devices
-    ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
+* Audio:
+  * Fix issue where some audio formats were incorrectly marked as being
+    unplayable due to underreported audio decoder capabilities
+    ([#5145](https://github.com/google/ExoPlayer/issues/5145)).
+  * MP3:
+    * Use the true bitrate for constant-bitrate MP3 seeking.
+    * Fix issue where streams would play twice on some Samsung devices
+      ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
 * Add support for SHOUTcast ICY metadata
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
 
