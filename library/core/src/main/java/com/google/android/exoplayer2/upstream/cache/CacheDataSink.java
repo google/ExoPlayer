@@ -30,10 +30,9 @@ import java.io.OutputStream;
 /**
  * Writes data into a cache.
  *
- * <p>If the {@link DataSpec} object used with {@link #open(DataSpec)} method call has the {@code
- * length} field set to {@link C#LENGTH_UNSET} but {@link
- * DataSpec#FLAG_ALLOW_CACHING_UNKNOWN_LENGTH} isn't set then {@link #write(byte[], int, int)} calls
- * are ignored.
+ * <p>If the {@link DataSpec} passed to {@link #open(DataSpec)} has the {@code length} field set to
+ * {@link C#LENGTH_UNSET} and {@link DataSpec#FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN} set, then {@link
+ * #write(byte[], int, int)} calls are ignored.
  */
 public final class CacheDataSink implements DataSink {
 
