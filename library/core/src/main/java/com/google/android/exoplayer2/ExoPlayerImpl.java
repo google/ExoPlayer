@@ -144,17 +144,26 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  @Nullable
   public AudioComponent getAudioComponent() {
     return null;
   }
 
   @Override
+  @Nullable
   public VideoComponent getVideoComponent() {
     return null;
   }
 
   @Override
+  @Nullable
   public TextComponent getTextComponent() {
+    return null;
+  }
+
+  @Override
+  @Nullable
+  public MetadataComponent getMetadataComponent() {
     return null;
   }
 

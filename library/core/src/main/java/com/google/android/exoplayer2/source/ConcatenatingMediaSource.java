@@ -454,6 +454,12 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    return null;
+  }
+
+  @Override
   public final synchronized void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,
@@ -820,7 +826,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
     public MediaSourceHolder(MediaSource mediaSource) {
       this.mediaSource = mediaSource;
-      this.timeline = new DeferredTimeline();
+      this.timeline = DeferredTimeline.createWithDummyTimeline(mediaSource.getTag());
       this.activeMediaPeriods = new ArrayList<>();
       this.uid = new Object();
     }
@@ -945,9 +951,17 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private static final class DeferredTimeline extends ForwardingTimeline {
 
     private static final Object DUMMY_ID = new Object();
-    private static final DummyTimeline DUMMY_TIMELINE = new DummyTimeline();
 
     private final Object replacedId;
+
+    /**
+     * Returns an instance with a dummy timeline using the provided window tag.
+     *
+     * @param windowTag A window tag.
+     */
+    public static DeferredTimeline createWithDummyTimeline(@Nullable Object windowTag) {
+      return new DeferredTimeline(new DummyTimeline(windowTag), DUMMY_ID);
+    }
 
     /**
      * Returns an instance with a real timeline, replacing the provided period ID with the already
@@ -960,11 +974,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     public static DeferredTimeline createWithRealTimeline(
         Timeline timeline, Object firstPeriodUid) {
       return new DeferredTimeline(timeline, firstPeriodUid);
-    }
-
-    /** Creates deferred timeline exposing a {@link DummyTimeline}. */
-    public DeferredTimeline() {
-      this(DUMMY_TIMELINE, DUMMY_ID);
     }
 
     private DeferredTimeline(Timeline timeline, Object replacedId) {
@@ -1010,6 +1019,12 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   /** Dummy placeholder timeline with one dynamic window with a period of indeterminate duration. */
   private static final class DummyTimeline extends Timeline {
 
+    @Nullable private final Object tag;
+
+    public DummyTimeline(@Nullable Object tag) {
+      this.tag = tag;
+    }
+
     @Override
     public int getWindowCount() {
       return 1;
@@ -1019,7 +1034,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     public Window getWindow(
         int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
       return window.set(
-          /* tag= */ null,
+          tag,
           /* presentationStartTimeMs= */ C.TIME_UNSET,
           /* windowStartTimeMs= */ C.TIME_UNSET,
           /* isSeekable= */ false,
@@ -1067,6 +1082,12 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         boolean isTopLevelSource,
         @Nullable TransferListener mediaTransferListener) {
       // Do nothing.
+    }
+
+    @Override
+    @Nullable
+    public Object getTag() {
+      return null;
     }
 
     @Override

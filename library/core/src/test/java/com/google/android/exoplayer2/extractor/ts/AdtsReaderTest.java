@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
@@ -198,7 +200,7 @@ public class AdtsReaderTest {
 
   private void maybeStartPacket() {
     if (firstFeed) {
-      adtsReader.packetStarted(0, true);
+      adtsReader.packetStarted(0, FLAG_DATA_ALIGNMENT_INDICATOR);
       firstFeed = false;
     }
   }

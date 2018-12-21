@@ -202,7 +202,7 @@ public final class TsExtractorTest {
     }
 
     @Override
-    public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {}
+    public void packetStarted(long pesTimeUs, @TsPayloadReader.Flags int flags) {}
 
     @Override
     public void consume(ParsableByteArray data) {}

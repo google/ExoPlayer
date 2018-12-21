@@ -29,7 +29,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
 import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -187,8 +186,9 @@ import java.util.List;
  *         <li>Type: {@link AspectRatioFrameLayout}
  *       </ul>
  *   <li><b>{@code exo_shutter}</b> - A view that's made visible when video should be hidden. This
- *       view is typically an opaque view that covers the video surface view, thereby obscuring it
- *       when visible.
+ *       view is typically an opaque view that covers the video surface, thereby obscuring it when
+ *       visible. Obscuring the surface in this way also helps to prevent flicker at the start of
+ *       playback when {@code surface_type="surface_view"}.
  *       <ul>
  *         <li>Type: {@link View}
  *       </ul>
@@ -271,13 +271,13 @@ public class PlayerView extends FrameLayout {
   private static final int SURFACE_TYPE_MONO360_VIEW = 3;
   // LINT.ThenChange(../../../../../../res/values/attrs.xml)
 
-  private final AspectRatioFrameLayout contentFrame;
+  @Nullable private final AspectRatioFrameLayout contentFrame;
   private final View shutterView;
-  private final View surfaceView;
+  @Nullable private final View surfaceView;
   private final ImageView artworkView;
   private final SubtitleView subtitleView;
-  private final @Nullable View bufferingView;
-  private final @Nullable TextView errorMessageView;
+  @Nullable private final View bufferingView;
+  @Nullable private final TextView errorMessageView;
   private final PlayerControlView controller;
   private final ComponentListener componentListener;
   private final FrameLayout overlayFrameLayout;
@@ -285,11 +285,11 @@ public class PlayerView extends FrameLayout {
   private Player player;
   private boolean useController;
   private boolean useArtwork;
-  private @Nullable Drawable defaultArtwork;
+  @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
   private boolean keepContentOnPlayerReset;
-  private @Nullable ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
-  private @Nullable CharSequence customErrorMessage;
+  @Nullable private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
+  @Nullable private CharSequence customErrorMessage;
   private int controllerShowTimeoutMs;
   private boolean controllerAutoShow;
   private boolean controllerHideDuringAds;
@@ -474,9 +474,7 @@ public class PlayerView extends FrameLayout {
    * @param newPlayerView The new view to attach to the player.
    */
   public static void switchTargetView(
-      @NonNull Player player,
-      @Nullable PlayerView oldPlayerView,
-      @Nullable PlayerView newPlayerView) {
+      Player player, @Nullable PlayerView oldPlayerView, @Nullable PlayerView newPlayerView) {
     if (oldPlayerView == newPlayerView) {
       return;
     }
@@ -1074,6 +1072,26 @@ public class PlayerView extends FrameLayout {
     }
   }
 
+  /**
+   * Called when there's a change in the aspect ratio of the content being displayed. The default
+   * implementation sets the aspect ratio of the content frame to that of the content, unless the
+   * content view is a {@link SphericalSurfaceView} in which case the frame's aspect ratio is
+   * cleared.
+   *
+   * @param contentAspectRatio The aspect ratio of the content.
+   * @param contentFrame The content frame, or {@code null}.
+   * @param contentView The view that holds the content being displayed, or {@code null}.
+   */
+  protected void onContentAspectRatioChanged(
+      float contentAspectRatio,
+      @Nullable AspectRatioFrameLayout contentFrame,
+      @Nullable View contentView) {
+    if (contentFrame != null) {
+      contentFrame.setAspectRatio(
+          contentView instanceof SphericalSurfaceView ? 0 : contentAspectRatio);
+    }
+  }
+
   private boolean toggleControllerVisibility() {
     if (!useController || player == null) {
       return false;
@@ -1187,9 +1205,8 @@ public class PlayerView extends FrameLayout {
       int drawableWidth = drawable.getIntrinsicWidth();
       int drawableHeight = drawable.getIntrinsicHeight();
       if (drawableWidth > 0 && drawableHeight > 0) {
-        if (contentFrame != null) {
-          contentFrame.setAspectRatio((float) drawableWidth / drawableHeight);
-        }
+        float artworkAspectRatio = (float) drawableWidth / drawableHeight;
+        onContentAspectRatioChanged(artworkAspectRatio, contentFrame, artworkView);
         artworkView.setImageDrawable(drawable);
         artworkView.setVisibility(VISIBLE);
         return true;
@@ -1322,9 +1339,6 @@ public class PlayerView extends FrameLayout {
     @Override
     public void onVideoSizeChanged(
         int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-      if (contentFrame == null) {
-        return;
-      }
       float videoAspectRatio =
           (height == 0 || width == 0) ? 1 : (width * pixelWidthHeightRatio) / height;
 
@@ -1345,11 +1359,9 @@ public class PlayerView extends FrameLayout {
           surfaceView.addOnLayoutChangeListener(this);
         }
         applyTextureViewRotation((TextureView) surfaceView, textureViewRotation);
-      } else if (surfaceView instanceof SphericalSurfaceView) {
-        videoAspectRatio = 0;
       }
 
-      contentFrame.setAspectRatio(videoAspectRatio);
+      onContentAspectRatioChanged(videoAspectRatio, contentFrame, surfaceView);
     }
 
     @Override

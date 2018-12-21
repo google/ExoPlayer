@@ -26,7 +26,8 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
- * Listener of video {@link Renderer} events.
+ * Listener of video {@link Renderer} events. All methods have no-op default implementations to
+ * allow selective overrides.
  */
 public interface VideoRendererEventListener {
 
@@ -36,7 +37,7 @@ public interface VideoRendererEventListener {
    * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
    *     remains enabled.
    */
-  void onVideoEnabled(DecoderCounters counters);
+  default void onVideoEnabled(DecoderCounters counters) {}
 
   /**
    * Called when a decoder is created.
@@ -46,15 +47,15 @@ public interface VideoRendererEventListener {
    *     finished.
    * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
    */
-  void onVideoDecoderInitialized(String decoderName, long initializedTimestampMs,
-      long initializationDurationMs);
+  default void onVideoDecoderInitialized(
+      String decoderName, long initializedTimestampMs, long initializationDurationMs) {}
 
   /**
    * Called when the format of the media being consumed by the renderer changes.
    *
    * @param format The new format.
    */
-  void onVideoInputFormatChanged(Format format);
+  default void onVideoInputFormatChanged(Format format) {}
 
   /**
    * Called to report the number of frames dropped by the renderer. Dropped frames are reported
@@ -62,12 +63,11 @@ public interface VideoRendererEventListener {
    * reaches a specified threshold whilst the renderer is started.
    *
    * @param count The number of dropped frames.
-   * @param elapsedMs The duration in milliseconds over which the frames were dropped. This
-   *     duration is timed from when the renderer was started or from when dropped frames were
-   *     last reported (whichever was more recent), and not from when the first of the reported
-   *     drops occurred.
+   * @param elapsedMs The duration in milliseconds over which the frames were dropped. This duration
+   *     is timed from when the renderer was started or from when dropped frames were last reported
+   *     (whichever was more recent), and not from when the first of the reported drops occurred.
    */
-  void onDroppedFrames(int count, long elapsedMs);
+  default void onDroppedFrames(int count, long elapsedMs) {}
 
   /**
    * Called before a frame is rendered for the first time since setting the surface, and each time
@@ -82,12 +82,12 @@ public interface VideoRendererEventListener {
    *     this is not possible. Applications that use {@link TextureView} can apply the rotation by
    *     calling {@link TextureView#setTransform}. Applications that do not expect to encounter
    *     rotated videos can safely ignore this parameter.
-   * @param pixelWidthHeightRatio The width to height ratio of each pixel. For the normal case
-   *     of square pixels this will be equal to 1.0. Different values are indicative of anamorphic
+   * @param pixelWidthHeightRatio The width to height ratio of each pixel. For the normal case of
+   *     square pixels this will be equal to 1.0. Different values are indicative of anamorphic
    *     content.
    */
-  void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
-      float pixelWidthHeightRatio);
+  default void onVideoSizeChanged(
+      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {}
 
   /**
    * Called when a frame is rendered for the first time since setting the surface, and when a frame
@@ -96,14 +96,14 @@ public interface VideoRendererEventListener {
    * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
    *     the renderer renders to something that isn't a {@link Surface}.
    */
-  void onRenderedFirstFrame(@Nullable Surface surface);
+  default void onRenderedFirstFrame(@Nullable Surface surface) {}
 
   /**
    * Called when the renderer is disabled.
    *
    * @param counters {@link DecoderCounters} that were updated by the renderer.
    */
-  void onVideoDisabled(DecoderCounters counters);
+  default void onVideoDisabled(DecoderCounters counters) {}
 
   /**
    * Dispatches events to a {@link VideoRendererEventListener}.

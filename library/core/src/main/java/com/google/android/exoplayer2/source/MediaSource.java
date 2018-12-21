@@ -220,6 +220,12 @@ public interface MediaSource {
    */
   void removeEventListener(MediaSourceEventListener eventListener);
 
+  /** Returns the tag set on the media source, or null if none was set. */
+  @Nullable
+  default Object getTag() {
+    return null;
+  }
+
   /** @deprecated Will be removed in the next release. */
   @Deprecated
   void prepareSource(

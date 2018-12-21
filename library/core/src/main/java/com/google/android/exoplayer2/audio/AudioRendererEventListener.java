@@ -25,7 +25,8 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
- * Listener of audio {@link Renderer} events.
+ * Listener of audio {@link Renderer} events. All methods have no-op default implementations to
+ * allow selective overrides.
  */
 public interface AudioRendererEventListener {
 
@@ -35,14 +36,14 @@ public interface AudioRendererEventListener {
    * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
    *     remains enabled.
    */
-  void onAudioEnabled(DecoderCounters counters);
+  default void onAudioEnabled(DecoderCounters counters) {}
 
   /**
    * Called when the audio session is set.
    *
    * @param audioSessionId The audio session id.
    */
-  void onAudioSessionId(int audioSessionId);
+  default void onAudioSessionId(int audioSessionId) {}
 
   /**
    * Called when a decoder is created.
@@ -52,15 +53,15 @@ public interface AudioRendererEventListener {
    *     finished.
    * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
    */
-  void onAudioDecoderInitialized(String decoderName, long initializedTimestampMs,
-      long initializationDurationMs);
+  default void onAudioDecoderInitialized(
+      String decoderName, long initializedTimestampMs, long initializationDurationMs) {}
 
   /**
    * Called when the format of the media being consumed by the renderer changes.
    *
    * @param format The new format.
    */
-  void onAudioInputFormatChanged(Format format);
+  default void onAudioInputFormatChanged(Format format) {}
 
   /**
    * Called when an {@link AudioSink} underrun occurs.
@@ -71,14 +72,15 @@ public interface AudioRendererEventListener {
    *     as the buffered media can have a variable bitrate so the duration may be unknown.
    * @param elapsedSinceLastFeedMs The time since the {@link AudioSink} was last fed data.
    */
-  void onAudioSinkUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
+  default void onAudioSinkUnderrun(
+      int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
 
   /**
    * Called when the renderer is disabled.
    *
    * @param counters {@link DecoderCounters} that were updated by the renderer.
    */
-  void onAudioDisabled(DecoderCounters counters);
+  default void onAudioDisabled(DecoderCounters counters) {}
 
   /**
    * Dispatches events to a {@link AudioRendererEventListener}.
