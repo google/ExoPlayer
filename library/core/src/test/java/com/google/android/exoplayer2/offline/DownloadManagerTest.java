@@ -41,6 +41,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLog;
 
 /** Tests {@link DownloadManager}. */
 @RunWith(RobolectricTestRunner.class)
@@ -69,6 +70,7 @@ public class DownloadManagerTest {
 
   @Before
   public void setUp() throws Exception {
+    ShadowLog.stream = System.out;
     MockitoAnnotations.initMocks(this);
     uri1 = Uri.parse("http://abc.com/media1");
     uri2 = Uri.parse("http://abc.com/media2");
@@ -314,6 +316,7 @@ public class DownloadManagerTest {
 
     downloader1.assertStarted();
     downloader2.assertDoesNotStart();
+    runner2.getTask().assertQueued();
     downloader1.unblock();
     downloader2.assertStarted();
     downloader2.unblock();
@@ -390,11 +393,11 @@ public class DownloadManagerTest {
 
     runOnMainThread(() -> downloadManager.stopDownloads());
 
-    runner1.getTask().assertQueued();
+    runner1.getTask().assertStopped();
 
     // remove actions aren't stopped.
     runner2.getDownloader(0).unblock().assertReleased();
-    runner2.getTask().assertQueued();
+    runner2.getTask().assertStopped();
     // Although remove2 is finished, download2 doesn't start.
     runner2.getDownloader(1).assertDoesNotStart();
 
@@ -534,6 +537,10 @@ public class DownloadManagerTest {
       return assertState(DownloadState.STATE_QUEUED);
     }
 
+    private TaskWrapper assertStopped() {
+      return assertState(DownloadState.STATE_STOPPED);
+    }
+
     private TaskWrapper assertState(@State int expectedState) {
       while (true) {
         Integer state = null;
@@ -542,6 +549,7 @@ public class DownloadManagerTest {
         } catch (InterruptedException e) {
           fail(e.getMessage());
         }
+        assertThat(state).isNotNull();
         if (expectedState == state) {
           return this;
         }
