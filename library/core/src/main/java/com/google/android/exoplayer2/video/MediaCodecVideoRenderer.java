@@ -98,7 +98,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private final EventDispatcher eventDispatcher;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
-  private final boolean deviceNeedsAutoFrcWorkaround;
+  private final boolean deviceNeedsNoPostProcessWorkaround;
   private final long[] pendingOutputStreamOffsetsUs;
   private final long[] pendingOutputStreamSwitchTimesUs;
 
@@ -226,7 +226,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     this.context = context.getApplicationContext();
     frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    deviceNeedsAutoFrcWorkaround = deviceNeedsAutoFrcWorkaround();
+    deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     outputStreamOffsetUs = C.TIME_UNSET;
@@ -471,7 +471,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             format,
             codecMaxValues,
             codecOperatingRate,
-            deviceNeedsAutoFrcWorkaround,
+            deviceNeedsNoPostProcessWorkaround,
             tunnelingAudioSessionId);
     if (surface == null) {
       Assertions.checkState(shouldUseDummySurface(codecInfo));
@@ -1027,8 +1027,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param codecMaxValues Codec max values that should be used when configuring the decoder.
    * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
    *     no codec operating rate should be set.
-   * @param deviceNeedsAutoFrcWorkaround Whether the device is known to enable frame-rate conversion
-   *     logic that negatively impacts ExoPlayer.
+   * @param deviceNeedsNoPostProcessWorkaround Whether the device is known to do post processing by
+   *     default that isn't compatible with ExoPlayer.
    * @param tunnelingAudioSessionId The audio session id to use for tunneling, or {@link
    *     C#AUDIO_SESSION_ID_UNSET} if tunneling should not be enabled.
    * @return The framework {@link MediaFormat} that should be used to configure the decoder.
@@ -1038,7 +1038,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       Format format,
       CodecMaxValues codecMaxValues,
       float codecOperatingRate,
-      boolean deviceNeedsAutoFrcWorkaround,
+      boolean deviceNeedsNoPostProcessWorkaround,
       int tunnelingAudioSessionId) {
     MediaFormat mediaFormat = new MediaFormat();
     // Set format parameters that should always be set.
@@ -1062,7 +1062,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         mediaFormat.setFloat(MediaFormat.KEY_OPERATING_RATE, codecOperatingRate);
       }
     }
-    if (deviceNeedsAutoFrcWorkaround) {
+    if (deviceNeedsNoPostProcessWorkaround) {
+      mediaFormat.setInteger("no-post-process", 1);
       mediaFormat.setInteger("auto-frc", 0);
     }
     if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
@@ -1256,21 +1257,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Returns whether the device is known to enable frame-rate conversion logic that negatively
-   * impacts ExoPlayer.
-   * <p>
-   * If true is returned then we explicitly disable the feature.
+   * Returns whether the device is known to do post processing by default that isn't compatible with
+   * ExoPlayer.
    *
-   * @return True if the device is known to enable frame-rate conversion logic that negatively
-   *     impacts ExoPlayer. False otherwise.
+   * @return Whether the device is known to do post processing by default that isn't compatible with
+   *     ExoPlayer.
    */
-  private static boolean deviceNeedsAutoFrcWorkaround() {
-    // nVidia Shield prior to M tries to adjust the playback rate to better map the frame-rate of
+  private static boolean deviceNeedsNoPostProcessWorkaround() {
+    // Nvidia devices prior to M try to adjust the playback rate to better map the frame-rate of
     // content to the refresh rate of the display. For example playback of 23.976fps content is
     // adjusted to play at 1.001x speed when the output display is 60Hz. Unfortunately the
     // implementation causes ExoPlayer's reported playback position to drift out of sync. Captions
-    // also lose sync [Internal: b/26453592].
-    return Util.SDK_INT <= 22 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER);
+    // also lose sync [Internal: b/26453592]. Even after M, the devices may apply post processing
+    // operations that can modify frame output timestamps, which is incompatible with ExoPlayer's
+    // logic for skipping decode-only frames.
+    return "NVIDIA".equals(Util.MANUFACTURER);
   }
 
   /*
@@ -1296,163 +1297,171 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     incorrectly.
    */
   protected boolean codecNeedsSetOutputSurfaceWorkaround(String name) {
-    if (Util.SDK_INT >= 27 || name.startsWith("OMX.google")) {
-      // Devices running API level 27 or later should also be unaffected. Google OMX decoders are
-      // not known to have this issue on any API level.
+    if (name.startsWith("OMX.google")) {
+      // Google OMX decoders are not known to have this issue on any API level.
       return false;
     }
-    // Work around:
-    // https://github.com/google/ExoPlayer/issues/3236,
-    // https://github.com/google/ExoPlayer/issues/3355,
-    // https://github.com/google/ExoPlayer/issues/3439,
-    // https://github.com/google/ExoPlayer/issues/3724,
-    // https://github.com/google/ExoPlayer/issues/3835,
-    // https://github.com/google/ExoPlayer/issues/4006,
-    // https://github.com/google/ExoPlayer/issues/4084,
-    // https://github.com/google/ExoPlayer/issues/4104,
-    // https://github.com/google/ExoPlayer/issues/4134,
-    // https://github.com/google/ExoPlayer/issues/4315,
-    // https://github.com/google/ExoPlayer/issues/4419,
-    // https://github.com/google/ExoPlayer/issues/4460,
-    // https://github.com/google/ExoPlayer/issues/4468.
     synchronized (MediaCodecVideoRenderer.class) {
       if (!evaluatedDeviceNeedsSetOutputSurfaceWorkaround) {
-        switch (Util.DEVICE) {
-          case "1601":
-          case "1713":
-          case "1714":
-          case "A10-70F":
-          case "A1601":
-          case "A2016a40":
-          case "A7000-a":
-          case "A7000plus":
-          case "A7010a48":
-          case "A7020a48":
-          case "AquaPowerM":
-          case "ASUS_X00AD_2":
-          case "Aura_Note_2":
-          case "BLACK-1X":
-          case "BRAVIA_ATV2":
-          case "C1":
-          case "ComioS1":
-          case "CP8676_I02":
-          case "CPH1609":
-          case "CPY83_I00":
-          case "cv1":
-          case "cv3":
-          case "deb":
-          case "E5643":
-          case "ELUGA_A3_Pro":
-          case "ELUGA_Note":
-          case "ELUGA_Prim":
-          case "ELUGA_Ray_X":
-          case "EverStar_S":
-          case "F3111":
-          case "F3113":
-          case "F3116":
-          case "F3211":
-          case "F3213":
-          case "F3215":
-          case "F3311":
-          case "flo":
-          case "GiONEE_CBL7513":
-          case "GiONEE_GBL7319":
-          case "GIONEE_GBL7360":
-          case "GIONEE_SWW1609":
-          case "GIONEE_SWW1627":
-          case "GIONEE_SWW1631":
-          case "GIONEE_WBL5708":
-          case "GIONEE_WBL7365":
-          case "GIONEE_WBL7519":
-          case "griffin":
-          case "htc_e56ml_dtul":
-          case "hwALE-H":
-          case "HWBLN-H":
-          case "HWCAM-H":
-          case "HWVNS-H":
-          case "i9031":
-          case "iball8735_9806":
-          case "Infinix-X572":
-          case "iris60":
-          case "itel_S41":
-          case "j2xlteins":
-          case "JGZ":
-          case "K50a40":
-          case "kate":
-          case "le_x6":
-          case "LS-5017":
-          case "M5c":
-          case "manning":
-          case "marino_f":
-          case "MEIZU_M5":
-          case "mh":
-          case "mido":
-          case "MX6":
-          case "namath":
-          case "nicklaus_f":
-          case "NX541J":
-          case "NX573J":
-          case "OnePlus5T":
-          case "p212":
-          case "P681":
-          case "P85":
-          case "panell_d":
-          case "panell_dl":
-          case "panell_ds":
-          case "panell_dt":
-          case "PB2-670M":
-          case "PGN528":
-          case "PGN610":
-          case "PGN611":
-          case "Phantom6":
-          case "Pixi4-7_3G":
-          case "Pixi5-10_4G":
-          case "PLE":
-          case "PRO7S":
-          case "Q350":
-          case "Q4260":
-          case "Q427":
-          case "Q4310":
-          case "Q5":
-          case "QM16XE_U":
-          case "QX1":
-          case "santoni":
-          case "Slate_Pro":
-          case "SVP-DTV15":
-          case "s905x018":
-          case "taido_row":
-          case "TB3-730F":
-          case "TB3-730X":
-          case "TB3-850F":
-          case "TB3-850M":
-          case "tcl_eu":
-          case "V1":
-          case "V23GB":
-          case "V5":
-          case "vernee_M5":
-          case "watson":
-          case "whyred":
-          case "woods_f":
-          case "woods_fn":
-          case "X3_HK":
-          case "XE2X":
-          case "XT1663":
-          case "Z12_PRO":
-          case "Z80":
-            deviceNeedsSetOutputSurfaceWorkaround = true;
-            break;
-          default:
-            // Do nothing.
-            break;
-        }
-        switch (Util.MODEL) {
-          case "AFTA":
-          case "AFTN":
-            deviceNeedsSetOutputSurfaceWorkaround = true;
-            break;
-          default:
-            // Do nothing.
-            break;
+        if (Util.SDK_INT <= 27 && "dangal".equals(Util.DEVICE)) {
+          // Dangal is affected on API level 27: https://github.com/google/ExoPlayer/issues/5169.
+          deviceNeedsSetOutputSurfaceWorkaround = true;
+        } else if (Util.SDK_INT >= 27) {
+          // In general, devices running API level 27 or later should be unaffected. Do nothing.
+        } else {
+          // Enable the workaround on a per-device basis. Works around:
+          // https://github.com/google/ExoPlayer/issues/3236,
+          // https://github.com/google/ExoPlayer/issues/3355,
+          // https://github.com/google/ExoPlayer/issues/3439,
+          // https://github.com/google/ExoPlayer/issues/3724,
+          // https://github.com/google/ExoPlayer/issues/3835,
+          // https://github.com/google/ExoPlayer/issues/4006,
+          // https://github.com/google/ExoPlayer/issues/4084,
+          // https://github.com/google/ExoPlayer/issues/4104,
+          // https://github.com/google/ExoPlayer/issues/4134,
+          // https://github.com/google/ExoPlayer/issues/4315,
+          // https://github.com/google/ExoPlayer/issues/4419,
+          // https://github.com/google/ExoPlayer/issues/4460,
+          // https://github.com/google/ExoPlayer/issues/4468.
+          switch (Util.DEVICE) {
+            case "1601":
+            case "1713":
+            case "1714":
+            case "A10-70F":
+            case "A1601":
+            case "A2016a40":
+            case "A7000-a":
+            case "A7000plus":
+            case "A7010a48":
+            case "A7020a48":
+            case "AquaPowerM":
+            case "ASUS_X00AD_2":
+            case "Aura_Note_2":
+            case "BLACK-1X":
+            case "BRAVIA_ATV2":
+            case "BRAVIA_ATV3_4K":
+            case "C1":
+            case "ComioS1":
+            case "CP8676_I02":
+            case "CPH1609":
+            case "CPY83_I00":
+            case "cv1":
+            case "cv3":
+            case "deb":
+            case "E5643":
+            case "ELUGA_A3_Pro":
+            case "ELUGA_Note":
+            case "ELUGA_Prim":
+            case "ELUGA_Ray_X":
+            case "EverStar_S":
+            case "F3111":
+            case "F3113":
+            case "F3116":
+            case "F3211":
+            case "F3213":
+            case "F3215":
+            case "F3311":
+            case "flo":
+            case "fugu":
+            case "GiONEE_CBL7513":
+            case "GiONEE_GBL7319":
+            case "GIONEE_GBL7360":
+            case "GIONEE_SWW1609":
+            case "GIONEE_SWW1627":
+            case "GIONEE_SWW1631":
+            case "GIONEE_WBL5708":
+            case "GIONEE_WBL7365":
+            case "GIONEE_WBL7519":
+            case "griffin":
+            case "htc_e56ml_dtul":
+            case "hwALE-H":
+            case "HWBLN-H":
+            case "HWCAM-H":
+            case "HWVNS-H":
+            case "i9031":
+            case "iball8735_9806":
+            case "Infinix-X572":
+            case "iris60":
+            case "itel_S41":
+            case "j2xlteins":
+            case "JGZ":
+            case "K50a40":
+            case "kate":
+            case "le_x6":
+            case "LS-5017":
+            case "M5c":
+            case "manning":
+            case "marino_f":
+            case "MEIZU_M5":
+            case "mh":
+            case "mido":
+            case "MX6":
+            case "namath":
+            case "nicklaus_f":
+            case "NX541J":
+            case "NX573J":
+            case "OnePlus5T":
+            case "p212":
+            case "P681":
+            case "P85":
+            case "panell_d":
+            case "panell_dl":
+            case "panell_ds":
+            case "panell_dt":
+            case "PB2-670M":
+            case "PGN528":
+            case "PGN610":
+            case "PGN611":
+            case "Phantom6":
+            case "Pixi4-7_3G":
+            case "Pixi5-10_4G":
+            case "PLE":
+            case "PRO7S":
+            case "Q350":
+            case "Q4260":
+            case "Q427":
+            case "Q4310":
+            case "Q5":
+            case "QM16XE_U":
+            case "QX1":
+            case "santoni":
+            case "Slate_Pro":
+            case "SVP-DTV15":
+            case "s905x018":
+            case "taido_row":
+            case "TB3-730F":
+            case "TB3-730X":
+            case "TB3-850F":
+            case "TB3-850M":
+            case "tcl_eu":
+            case "V1":
+            case "V23GB":
+            case "V5":
+            case "vernee_M5":
+            case "watson":
+            case "whyred":
+            case "woods_f":
+            case "woods_fn":
+            case "X3_HK":
+            case "XE2X":
+            case "XT1663":
+            case "Z12_PRO":
+            case "Z80":
+              deviceNeedsSetOutputSurfaceWorkaround = true;
+              break;
+            default:
+              // Do nothing.
+              break;
+          }
+          switch (Util.MODEL) {
+            case "AFTA":
+            case "AFTN":
+              deviceNeedsSetOutputSurfaceWorkaround = true;
+              break;
+            default:
+              // Do nothing.
+              break;
+          }
         }
         evaluatedDeviceNeedsSetOutputSurfaceWorkaround = true;
       }
