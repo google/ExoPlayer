@@ -173,8 +173,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/H262Reader.html#packetStarted-long-boolean-">packetStarted</a></span>(long&nbsp;pesTimeUs,
-             boolean&nbsp;dataAlignmentIndicator)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/H262Reader.html#packetStarted-long-int-">packetStarted</a></span>(long&nbsp;pesTimeUs,
+             int&nbsp;flags)</code>
 <div class="block">Called when a packet starts.</div>
 </td>
 </tr>
@@ -267,22 +267,23 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 </dl>
 </li>
 </ul>
-<a name="packetStarted-long-boolean-">
+<a name="packetStarted-long-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>packetStarted</h4>
 <pre>public&nbsp;void&nbsp;packetStarted(long&nbsp;pesTimeUs,
-                          boolean&nbsp;dataAlignmentIndicator)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/ElementaryStreamReader.html#packetStarted-long-boolean-">ElementaryStreamReader</a></code></span></div>
+                          <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@TsPayloadReader.Flags</a>
+                          int&nbsp;flags)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/ElementaryStreamReader.html#packetStarted-long-int-">ElementaryStreamReader</a></code></span></div>
 <div class="block">Called when a packet starts.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/ElementaryStreamReader.html#packetStarted-long-boolean-">packetStarted</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/ElementaryStreamReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">ElementaryStreamReader</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/ElementaryStreamReader.html#packetStarted-long-int-">packetStarted</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/ElementaryStreamReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">ElementaryStreamReader</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>pesTimeUs</code> - The timestamp associated with the packet.</dd>
-<dd><code>dataAlignmentIndicator</code> - The data alignment indicator associated with the packet.</dd>
+<dd><code>flags</code> - See <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader.Flags</code></a>.</dd>
 </dl>
 </li>
 </ul>

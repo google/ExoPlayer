@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -141,9 +141,48 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Flags</a></span></code>
+<div class="block">Contextual flags indicating the presence of indicators in the TS packet or PES packet headers.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a></span></code>
 <div class="block">Generates track ids for initializing <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a>s' <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>s.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#FLAG_DATA_ALIGNMENT_INDICATOR">FLAG_DATA_ALIGNMENT_INDICATOR</a></span></code>
+<div class="block">Indicates the presence of the data_alignment_indicator in the PES header.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#FLAG_PAYLOAD_UNIT_START_INDICATOR">FLAG_PAYLOAD_UNIT_START_INDICATOR</a></span></code>
+<div class="block">Indicates the presence of the payload_unit_start_indicator in the TS packet header.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#FLAG_RANDOM_ACCESS_INDICATOR">FLAG_RANDOM_ACCESS_INDICATOR</a></span></code>
+<div class="block">Indicates the presence of the random_access_indicator in the TS packet header adaptation field.</div>
 </td>
 </tr>
 </table>
@@ -163,8 +202,8 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-boolean-">consume</a></span>(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-       boolean&nbsp;payloadUnitStartIndicator)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-int-">consume</a></span>(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+       int&nbsp;flags)</code>
 <div class="block">Consumes the payload of a TS packet.</div>
 </td>
 </tr>
@@ -191,6 +230,56 @@ var activeTableTab = "activeTableTab";
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="FLAG_PAYLOAD_UNIT_START_INDICATOR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FLAG_PAYLOAD_UNIT_START_INDICATOR</h4>
+<pre>static final&nbsp;int FLAG_PAYLOAD_UNIT_START_INDICATOR</pre>
+<div class="block">Indicates the presence of the payload_unit_start_indicator in the TS packet header.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_PAYLOAD_UNIT_START_INDICATOR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="FLAG_RANDOM_ACCESS_INDICATOR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FLAG_RANDOM_ACCESS_INDICATOR</h4>
+<pre>static final&nbsp;int FLAG_RANDOM_ACCESS_INDICATOR</pre>
+<div class="block">Indicates the presence of the random_access_indicator in the TS packet header adaptation field.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_RANDOM_ACCESS_INDICATOR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="FLAG_DATA_ALIGNMENT_INDICATOR">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FLAG_DATA_ALIGNMENT_INDICATOR</h4>
+<pre>static final&nbsp;int FLAG_DATA_ALIGNMENT_INDICATOR</pre>
+<div class="block">Indicates the presence of the data_alignment_indicator in the PES header.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ============ METHOD DETAIL ========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.detail">
@@ -224,26 +313,27 @@ var activeTableTab = "activeTableTab";
 <h4>seek</h4>
 <pre>void&nbsp;seek()</pre>
 <div class="block">Notifies the reader that a seek has occurred.
- <p>
- Following a call to this method, the data passed to the next invocation of
- <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-boolean-"><code>consume(ParsableByteArray, boolean)</code></a> will not be a continuation of the data that was
- previously passed. Hence the reader should reset any internal state.</div>
+
+ <p>Following a call to this method, the data passed to the next invocation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>consume(com.google.android.exoplayer2.util.ParsableByteArray, int)</code></a>
+ will not be a continuation of the data that was previously passed. Hence the reader should
+ reset any internal state.</div>
 </li>
 </ul>
-<a name="consume-com.google.android.exoplayer2.util.ParsableByteArray-boolean-">
+<a name="consume-com.google.android.exoplayer2.util.ParsableByteArray-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>consume</h4>
 <pre>void&nbsp;consume(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-             boolean&nbsp;payloadUnitStartIndicator)
+             <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@TsPayloadReader.Flags</a>
+             int&nbsp;flags)
       throws <a href="../../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
 <div class="block">Consumes the payload of a TS packet.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - The TS packet. The position will be set to the start of the payload.</dd>
-<dd><code>payloadUnitStartIndicator</code> - Whether payloadUnitStartIndicator was set on the TS packet.</dd>
+<dd><code>flags</code> - See <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader.Flags</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If the payload could not be parsed.</dd>
 </dl>
@@ -302,13 +392,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

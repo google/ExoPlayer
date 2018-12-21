@@ -131,7 +131,22 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.extractor.ts.<a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.DvbSubtitleInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.DvbSubtitleInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.EsInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.EsInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Factory</a>, <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.DvbSubtitleInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.DvbSubtitleInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.EsInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.EsInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Factory</a>, <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Flags</a>, <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.extractor.ts.TsPayloadReader">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.extractor.ts.<a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></h3>
+<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#FLAG_DATA_ALIGNMENT_INDICATOR">FLAG_DATA_ALIGNMENT_INDICATOR</a>, <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#FLAG_PAYLOAD_UNIT_START_INDICATOR">FLAG_PAYLOAD_UNIT_START_INDICATOR</a>, <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#FLAG_RANDOM_ACCESS_INDICATOR">FLAG_RANDOM_ACCESS_INDICATOR</a></code></li>
 </ul>
 </li>
 </ul>
@@ -166,8 +181,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/PesReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-boolean-">consume</a></span>(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-       boolean&nbsp;payloadUnitStartIndicator)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/PesReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-int-">consume</a></span>(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+       int&nbsp;flags)</code>
 <div class="block">Consumes the payload of a TS packet.</div>
 </td>
 </tr>
@@ -255,33 +270,34 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <pre>public final&nbsp;void&nbsp;seek()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#seek--">TsPayloadReader</a></code></span></div>
 <div class="block">Notifies the reader that a seek has occurred.
- <p>
- Following a call to this method, the data passed to the next invocation of
- <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-boolean-"><code>TsPayloadReader.consume(ParsableByteArray, boolean)</code></a> will not be a continuation of the data that was
- previously passed. Hence the reader should reset any internal state.</div>
+
+ <p>Following a call to this method, the data passed to the next invocation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>TsPayloadReader.consume(com.google.android.exoplayer2.util.ParsableByteArray, int)</code></a>
+ will not be a continuation of the data that was previously passed. Hence the reader should
+ reset any internal state.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#seek--">seek</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="consume-com.google.android.exoplayer2.util.ParsableByteArray-boolean-">
+<a name="consume-com.google.android.exoplayer2.util.ParsableByteArray-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>consume</h4>
 <pre>public final&nbsp;void&nbsp;consume(<a href="../../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-                          boolean&nbsp;payloadUnitStartIndicator)
+                          <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">@TsPayloadReader.Flags</a>
+                          int&nbsp;flags)
                    throws <a href="../../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-boolean-">TsPayloadReader</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-int-">TsPayloadReader</a></code></span></div>
 <div class="block">Consumes the payload of a TS packet.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-boolean-">consume</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html#consume-com.google.android.exoplayer2.util.ParsableByteArray-int-">consume</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - The TS packet. The position will be set to the start of the payload.</dd>
-<dd><code>payloadUnitStartIndicator</code> - Whether payloadUnitStartIndicator was set on the TS packet.</dd>
+<dd><code>flags</code> - See <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader.Flags</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If the payload could not be parsed.</dd>
 </dl>

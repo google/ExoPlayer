@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -103,7 +103,8 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public interface <span class="typeNameLabel">AudioRendererEventListener</span></pre>
-<div class="block">Listener of audio <a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> events.</div>
+<div class="block">Listener of audio <a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> events. All methods have no-op default implementations to
+ allow selective overrides.</div>
 </li>
 </ul>
 </div>
@@ -138,13 +139,13 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioDecoderInitialized-java.lang.String-long-long-">onAudioDecoderInitialized</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;decoderName,
                          long&nbsp;initializedTimestampMs,
                          long&nbsp;initializationDurationMs)</code>
@@ -152,31 +153,31 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioDisabled-com.google.android.exoplayer2.decoder.DecoderCounters-">onAudioDisabled</a></span>(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code>
 <div class="block">Called when the renderer is disabled.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioEnabled-com.google.android.exoplayer2.decoder.DecoderCounters-">onAudioEnabled</a></span>(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code>
 <div class="block">Called when the renderer is enabled.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioInputFormatChanged-com.google.android.exoplayer2.Format-">onAudioInputFormatChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
 <div class="block">Called when the format of the media being consumed by the renderer changes.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioSessionId-int-">onAudioSessionId</a></span>(int&nbsp;audioSessionId)</code>
 <div class="block">Called when the audio session is set.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioSinkUnderrun-int-long-long-">onAudioSinkUnderrun</a></span>(int&nbsp;bufferSize,
                    long&nbsp;bufferSizeMs,
                    long&nbsp;elapsedSinceLastFeedMs)</code>
@@ -204,7 +205,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onAudioEnabled</h4>
-<pre>void&nbsp;onAudioEnabled(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<pre>default&nbsp;void&nbsp;onAudioEnabled(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
 <div class="block">Called when the renderer is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -219,7 +220,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onAudioSessionId</h4>
-<pre>void&nbsp;onAudioSessionId(int&nbsp;audioSessionId)</pre>
+<pre>default&nbsp;void&nbsp;onAudioSessionId(int&nbsp;audioSessionId)</pre>
 <div class="block">Called when the audio session is set.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -233,9 +234,9 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onAudioDecoderInitialized</h4>
-<pre>void&nbsp;onAudioDecoderInitialized(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;decoderName,
-                               long&nbsp;initializedTimestampMs,
-                               long&nbsp;initializationDurationMs)</pre>
+<pre>default&nbsp;void&nbsp;onAudioDecoderInitialized(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;decoderName,
+                                       long&nbsp;initializedTimestampMs,
+                                       long&nbsp;initializationDurationMs)</pre>
 <div class="block">Called when a decoder is created.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -252,7 +253,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onAudioInputFormatChanged</h4>
-<pre>void&nbsp;onAudioInputFormatChanged(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<pre>default&nbsp;void&nbsp;onAudioInputFormatChanged(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
 <div class="block">Called when the format of the media being consumed by the renderer changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -266,9 +267,9 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onAudioSinkUnderrun</h4>
-<pre>void&nbsp;onAudioSinkUnderrun(int&nbsp;bufferSize,
-                         long&nbsp;bufferSizeMs,
-                         long&nbsp;elapsedSinceLastFeedMs)</pre>
+<pre>default&nbsp;void&nbsp;onAudioSinkUnderrun(int&nbsp;bufferSize,
+                                 long&nbsp;bufferSizeMs,
+                                 long&nbsp;elapsedSinceLastFeedMs)</pre>
 <div class="block">Called when an <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> underrun occurs.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -286,7 +287,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onAudioDisabled</h4>
-<pre>void&nbsp;onAudioDisabled(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<pre>default&nbsp;void&nbsp;onAudioDisabled(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
 <div class="block">Called when the renderer is disabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

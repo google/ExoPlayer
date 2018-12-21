@@ -325,7 +325,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCo
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html#getMediaFormat-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.video.MediaCodecVideoRenderer.CodecMaxValues-float-boolean-int-">getMediaFormat</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
               <a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer.CodecMaxValues</a>&nbsp;codecMaxValues,
               float&nbsp;codecOperatingRate,
-              boolean&nbsp;deviceNeedsAutoFrcWorkaround,
+              boolean&nbsp;deviceNeedsNoPostProcessWorkaround,
               int&nbsp;tunnelingAudioSessionId)</code>
 <div class="block">Returns the framework <a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media"><code>MediaFormat</code></a> that should be used to configure the decoder.</div>
 </td>
@@ -1376,7 +1376,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 <pre>protected&nbsp;<a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media">MediaFormat</a>&nbsp;getMediaFormat(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                      <a href="../../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer.CodecMaxValues</a>&nbsp;codecMaxValues,
                                      float&nbsp;codecOperatingRate,
-                                     boolean&nbsp;deviceNeedsAutoFrcWorkaround,
+                                     boolean&nbsp;deviceNeedsNoPostProcessWorkaround,
                                      int&nbsp;tunnelingAudioSessionId)</pre>
 <div class="block">Returns the framework <a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media"><code>MediaFormat</code></a> that should be used to configure the decoder.</div>
 <dl>
@@ -1385,8 +1385,8 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer(long&nbsp;presentationTimeUs)</
 <dd><code>codecMaxValues</code> - Codec max values that should be used when configuring the decoder.</dd>
 <dd><code>codecOperatingRate</code> - The codec operating rate, or <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html#CODEC_OPERATING_RATE_UNSET"><code>MediaCodecRenderer.CODEC_OPERATING_RATE_UNSET</code></a> if
      no codec operating rate should be set.</dd>
-<dd><code>deviceNeedsAutoFrcWorkaround</code> - Whether the device is known to enable frame-rate conversion
-     logic that negatively impacts ExoPlayer.</dd>
+<dd><code>deviceNeedsNoPostProcessWorkaround</code> - Whether the device is known to do post processing by
+     default that isn't compatible with ExoPlayer.</dd>
 <dd><code>tunnelingAudioSessionId</code> - The audio session id to use for tunneling, or <a href="../../../../../com/google/android/exoplayer2/C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if tunneling should not be enabled.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The framework <a href="https://developer.android.com/reference/android/media/MediaFormat.html" target="_top" title="class or interface in android.media"><code>MediaFormat</code></a> that should be used to configure the decoder.</dd>
