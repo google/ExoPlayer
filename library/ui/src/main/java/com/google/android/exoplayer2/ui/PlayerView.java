@@ -679,8 +679,9 @@ public class PlayerView extends FrameLayout {
   /**
    * Sets whether the currently displayed video frame or media artwork is kept visible when the
    * player is reset. A player reset is defined to mean the player being re-prepared with different
-   * media, {@link Player#stop(boolean)} being called with {@code reset=true}, or the player being
-   * replaced or cleared by calling {@link #setPlayer(Player)}.
+   * media, the player transitioning to unprepared media, {@link Player#stop(boolean)} being called
+   * with {@code reset=true}, or the player being replaced or cleared by calling {@link
+   * #setPlayer(Player)}.
    *
    * <p>If enabled, the currently displayed video frame or media artwork will be kept visible until
    * the player set on the view has been successfully prepared with new media and loaded enough of
