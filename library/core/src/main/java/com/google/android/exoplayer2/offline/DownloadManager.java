@@ -21,6 +21,8 @@ import static com.google.android.exoplayer2.offline.DownloadManager.DownloadStat
 import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_FAILED;
 import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_QUEUED;
 import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_STARTED;
+import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_STOPPED;
+import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STOP_FLAG_STOPPED;
 
 import android.os.ConditionVariable;
 import android.os.Handler;
@@ -96,7 +98,7 @@ public final class DownloadManager {
 
   private boolean initialized;
   private boolean released;
-  private boolean downloadsStopped;
+  @DownloadState.StopFlags private int stickyStopFlags;
 
   /**
    * Constructs a {@link DownloadManager}.
@@ -126,7 +128,7 @@ public final class DownloadManager {
     this.downloaderFactory = downloaderFactory;
     this.maxActiveDownloads = maxSimultaneousDownloads;
     this.minRetryCount = minRetryCount;
-    this.downloadsStopped = true;
+    this.stickyStopFlags = STOP_FLAG_STOPPED;
 
     downloads = new ArrayList<>();
     activeDownloads = new ArrayList<>();
@@ -169,8 +171,11 @@ public final class DownloadManager {
   /** Starts the downloads. */
   public void startDownloads() {
     Assertions.checkState(!released);
-    if (downloadsStopped) {
-      downloadsStopped = false;
+    if (stickyStopFlags != 0) {
+      stickyStopFlags = 0;
+      for (int i = 0; i < downloads.size(); i++) {
+        downloads.get(i).clearStopFlags(STOP_FLAG_STOPPED);
+      }
       maybeStartDownloads();
       logd("Downloads are started");
     }
@@ -179,10 +184,10 @@ public final class DownloadManager {
   /** Stops all of the downloads. Call {@link #startDownloads()} to restart downloads. */
   public void stopDownloads() {
     Assertions.checkState(!released);
-    if (!downloadsStopped) {
-      downloadsStopped = true;
-      for (int i = 0; i < activeDownloads.size(); i++) {
-        activeDownloads.get(i).stop();
+    if (stickyStopFlags == 0) {
+      stickyStopFlags = STOP_FLAG_STOPPED;
+      for (int i = 0; i < downloads.size(); i++) {
+        downloads.get(i).setStopFlags(STOP_FLAG_STOPPED);
       }
       logd("Downloads are stopping");
     }
@@ -268,7 +273,7 @@ public final class DownloadManager {
     }
     released = true;
     for (int i = 0; i < downloads.size(); i++) {
-      downloads.get(i).stop();
+      downloads.get(i).queue();
     }
     final ConditionVariable fileIOFinishedCondition = new ConditionVariable();
     fileIOHandler.post(fileIOFinishedCondition::open);
@@ -286,7 +291,8 @@ public final class DownloadManager {
         return;
       }
     }
-    Download download = new Download(this, downloaderFactory, action, minRetryCount);
+    Download download =
+        new Download(this, downloaderFactory, action, minRetryCount, stickyStopFlags);
     downloads.add(download);
     logd("Download is added", download);
   }
@@ -308,16 +314,14 @@ public final class DownloadManager {
     }
   }
 
-  private boolean maybeStartDownload(Download download) {
+  private void maybeStartDownload(Download download) {
     if (download.action.isRemoveAction) {
-      return download.start();
-    } else if (!downloadsStopped && activeDownloads.size() < maxActiveDownloads) {
+      download.start();
+    } else if (activeDownloads.size() < maxActiveDownloads) {
       if (download.start()) {
         activeDownloads.add(download);
-        return true;
       }
     }
-    return false;
   }
 
   private void maybeNotifyListenersIdle() {
@@ -426,28 +430,30 @@ public final class DownloadManager {
   public static final class DownloadState {
 
     /**
-     * Download states. One of {@link #STATE_QUEUED}, {@link #STATE_STARTED}, {@link
-     * #STATE_COMPLETED} or {@link #STATE_FAILED}.
+     * Download states. One of {@link #STATE_QUEUED}, {@link #STATE_STOPPED}, {@link #STATE_STARTED}
+     * , {@link #STATE_COMPLETED} or {@link #STATE_FAILED}.
      *
      * <p>Transition diagram:
      *
      * <pre>
-     * queued ↔ started ┬→ completed
-     *                  └→ failed
+     * queued ←┬→ started ┬→ completed
+     *         └→ stopped └→ failed
      * </pre>
      */
     @Documented
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({STATE_QUEUED, STATE_STARTED, STATE_COMPLETED, STATE_FAILED})
+    @IntDef({STATE_QUEUED, STATE_STOPPED, STATE_STARTED, STATE_COMPLETED, STATE_FAILED})
     public @interface State {}
     /** The download is waiting to be started. */
     public static final int STATE_QUEUED = 0;
+    /** The download is stopped. */
+    public static final int STATE_STOPPED = 1;
     /** The download is currently started. */
-    public static final int STATE_STARTED = 1;
+    public static final int STATE_STARTED = 2;
     /** The download completed. */
-    public static final int STATE_COMPLETED = 2;
+    public static final int STATE_COMPLETED = 3;
     /** The download failed. */
-    public static final int STATE_FAILED = 3;
+    public static final int STATE_FAILED = 4;
 
     /** Failure reasons. Either {@link #FAILURE_REASON_NONE} or {@link #FAILURE_REASON_UNKNOWN}. */
     @Documented
@@ -459,11 +465,23 @@ public final class DownloadManager {
     /** The download is failed because of unknown reason. */
     public static final int FAILURE_REASON_UNKNOWN = 1;
 
+    /** Download stop flags. Possible flag value is {@link #STOP_FLAG_STOPPED}. */
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(
+        flag = true,
+        value = {STOP_FLAG_STOPPED})
+    public @interface StopFlags {}
+    /** All downloads are stopped by the application. */
+    public static final int STOP_FLAG_STOPPED = 1;
+
     /** Returns the state string for the given state value. */
     public static String getStateString(@State int state) {
       switch (state) {
         case STATE_QUEUED:
           return "QUEUED";
+        case STATE_STOPPED:
+          return "STOPPED";
         case STATE_STARTED:
           return "STARTED";
         case STATE_COMPLETED:
@@ -503,12 +521,13 @@ public final class DownloadManager {
     public final long startTimeMs;
     /** The last update time. */
     public final long updateTimeMs;
-
     /**
      * If {@link #state} is {@link #STATE_FAILED} then this is the cause, otherwise {@link
      * #FAILURE_REASON_NONE}.
      */
     @FailureReason public final int failureReason;
+    /** Download stop flags. These flags stop downloading any content. */
+    @StopFlags public final int stopFlags;
 
     private DownloadState(
         DownloadAction action,
@@ -517,7 +536,9 @@ public final class DownloadManager {
         long downloadedBytes,
         long totalBytes,
         @FailureReason int failureReason,
+        @StopFlags int stopFlags,
         long startTimeMs) {
+      this.stopFlags = stopFlags;
       Assertions.checkState(
           failureReason == FAILURE_REASON_NONE ? state != STATE_FAILED : state == STATE_FAILED);
       this.id = action.id;
@@ -530,7 +551,6 @@ public final class DownloadManager {
       this.startTimeMs = startTimeMs;
       updateTimeMs = System.currentTimeMillis();
     }
-
   }
 
   private static final class Download {
@@ -548,24 +568,28 @@ public final class DownloadManager {
     @MonotonicNonNull private Downloader downloader;
     @MonotonicNonNull private DownloadThread downloadThread;
     @MonotonicNonNull @DownloadState.FailureReason private int failureReason;
+    @DownloadState.StopFlags private int stopFlags;
 
     private Download(
         DownloadManager downloadManager,
         DownloaderFactory downloaderFactory,
         DownloadAction action,
-        int minRetryCount) {
+        int minRetryCount,
+        int stopFlags) {
       this.id = action.id;
       this.downloadManager = downloadManager;
       this.downloaderFactory = downloaderFactory;
-      this.action = action;
       this.minRetryCount = minRetryCount;
+      this.stopFlags = stopFlags;
       this.startTimeMs = System.currentTimeMillis();
-      state = STATE_QUEUED;
       actionQueue = new ArrayDeque<>();
       actionQueue.add(action);
-      if (!downloadManager.maybeStartDownload(this)) {
-        // If download is started, listeners are already notified about the started state. Otherwise
-        // notify them here about the queued state.
+
+      // Don't notify listeners until we make sure the state doesn't change immediately.
+      state = STATE_QUEUED;
+      setActionAndUpdateState(action);
+      downloadManager.maybeStartDownload(this);
+      if (state == STATE_QUEUED) {
         downloadManager.onDownloadStateChange(this);
       }
     }
@@ -580,9 +604,8 @@ public final class DownloadManager {
       if (state == STATE_STARTED) {
         stopDownloadThread();
       } else {
-        Assertions.checkState(state == STATE_QUEUED);
-        action = updatedAction;
-        downloadManager.onDownloadStateChange(this);
+        Assertions.checkState(state == STATE_QUEUED || state == STATE_STOPPED);
+        setActionAndUpdateState(updatedAction);
       }
     }
 
@@ -602,6 +625,7 @@ public final class DownloadManager {
           downloadedBytes,
           totalBytes,
           failureReason,
+          stopFlags,
           startTimeMs);
     }
 
@@ -617,34 +641,62 @@ public final class DownloadManager {
 
     @Override
     public String toString() {
-      return action.type
-          + ' '
-          + (action.isRemoveAction ? "remove" : "download")
-          + ' '
-          + DownloadState.getStateString(state);
+      String actionString = action.isRemoveAction ? "remove" : "download";
+      return id + ' ' + actionString + ' ' + DownloadState.getStateString(state);
     }
 
     public boolean start() {
       if (state != STATE_QUEUED) {
         return false;
       }
-      state = STATE_STARTED;
-      action = actionQueue.peek();
       downloader = downloaderFactory.createDownloader(action);
       downloadThread =
           new DownloadThread(
               this, downloader, action.isRemoveAction, minRetryCount, downloadManager.handler);
-      downloadManager.onDownloadStateChange(this);
+      setState(STATE_STARTED);
       return true;
     }
 
-    public void stop() {
+    public void setStopFlags(int stopFlags) {
+      updateStopFlags(stopFlags, stopFlags);
+    }
+
+    public void clearStopFlags(int stopFlags) {
+      updateStopFlags(stopFlags, 0);
+    }
+
+    public void queue() {
       if (state == STATE_STARTED) {
         stopDownloadThread();
       }
     }
 
-    // Internal methods running on the main thread.
+    private void updateStopFlags(int mask, int flags) {
+      stopFlags = (flags & mask) | (stopFlags & ~mask);
+      if (stopFlags != 0) {
+        if (!action.isRemoveAction) {
+          if (state == STATE_STARTED) {
+            stopDownloadThread();
+          } else if (state == STATE_QUEUED) {
+            setState(STATE_STOPPED);
+          }
+        }
+      } else if (state == STATE_STOPPED) {
+        setState(STATE_QUEUED);
+      }
+    }
+
+    private void setActionAndUpdateState(DownloadAction action) {
+      this.action = action;
+      setState(!this.action.isRemoveAction && stopFlags != 0 ? STATE_STOPPED : STATE_QUEUED);
+    }
+
+    private void setState(@DownloadState.State int newState) {
+      if (state != newState) {
+        state = newState;
+        downloadManager.onDownloadStateChange(this);
+      }
+    }
 
     private void stopDownloadThread() {
       Assertions.checkNotNull(downloadThread).cancel();
@@ -654,22 +706,17 @@ public final class DownloadManager {
       failureReason = FAILURE_REASON_NONE;
       if (!downloadThread.isCanceled) {
         if (finalError != null) {
-          state = STATE_FAILED;
           failureReason = FAILURE_REASON_UNKNOWN;
-        } else {
-          actionQueue.remove();
-          if (!actionQueue.isEmpty()) {
-            // Don't continue running. Wait to be restarted by maybeStartDownloads().
-            state = STATE_QUEUED;
-            action = actionQueue.peek();
-          } else {
-            state = STATE_COMPLETED;
-          }
+          setState(STATE_FAILED);
+          return;
         }
-      } else {
-        state = STATE_QUEUED;
+        actionQueue.remove();
       }
-      downloadManager.onDownloadStateChange(this);
+      if (!actionQueue.isEmpty()) {
+        setActionAndUpdateState(actionQueue.peek());
+      } else {
+        setState(STATE_COMPLETED);
+      }
     }
   }
 
@@ -748,5 +795,4 @@ public final class DownloadManager {
       return Math.min((errorCount - 1) * 1000, 5000);
     }
   }
-
 }
