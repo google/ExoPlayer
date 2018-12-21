@@ -38,7 +38,7 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
-  public final void seekTo(long positionMs) {
+  public void seekTo(long positionMs) {
     seekTo(getCurrentWindowIndex(), positionMs);
   }
 
