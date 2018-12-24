@@ -143,8 +143,8 @@ public final class C {
    * {@link #ENCODING_INVALID}, {@link #ENCODING_PCM_8BIT}, {@link #ENCODING_PCM_16BIT}, {@link
    * #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT}, {@link #ENCODING_PCM_FLOAT}, {@link
    * #ENCODING_PCM_MU_LAW}, {@link #ENCODING_PCM_A_LAW}, {@link #ENCODING_AC3}, {@link
-   * #ENCODING_E_AC3}, {@link #ENCODING_DTS}, {@link #ENCODING_DTS_HD} or {@link
-   * #ENCODING_DOLBY_TRUEHD}.
+   * #ENCODING_E_AC3}, {@link #ENCODING_DTS}, {@link #ENCODING_DTS_HD}, {@link
+   * #ENCODING_DOLBY_TRUEHD} or {@link #ENCODING_AC4}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -162,7 +162,8 @@ public final class C {
     ENCODING_E_AC3,
     ENCODING_DTS,
     ENCODING_DTS_HD,
-    ENCODING_DOLBY_TRUEHD
+    ENCODING_DOLBY_TRUEHD,
+    ENCODING_AC4
   })
   public @interface Encoding {}
 
@@ -212,6 +213,8 @@ public final class C {
   public static final int ENCODING_DTS_HD = AudioFormat.ENCODING_DTS_HD;
   /** @see AudioFormat#ENCODING_DOLBY_TRUEHD */
   public static final int ENCODING_DOLBY_TRUEHD = AudioFormat.ENCODING_DOLBY_TRUEHD;
+  /** @see AudioFormat#ENCODING_AC4 */
+  public static final int ENCODING_AC4 = AudioFormat.ENCODING_AC4;
 
   /**
    * Stream types for an {@link android.media.AudioTrack}. One of {@link #STREAM_TYPE_ALARM}, {@link

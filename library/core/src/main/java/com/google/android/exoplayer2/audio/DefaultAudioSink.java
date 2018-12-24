@@ -1202,6 +1202,8 @@ public final class DefaultAudioSink implements AudioSink {
         return 18000 * 1000 / 8;
       case C.ENCODING_DOLBY_TRUEHD:
         return 24500 * 1000 / 8;
+      case C.ENCODING_AC4:
+        return 2688 * 1000 / 8;
       case C.ENCODING_INVALID:
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_24BIT:
@@ -1229,6 +1231,8 @@ public final class DefaultAudioSink implements AudioSink {
           ? 0
           : (Ac3Util.parseTrueHdSyncframeAudioSampleCount(buffer, syncframeOffset)
               * Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT);
+    } else if (encoding == C.ENCODING_AC4) {
+      return Ac4Util.parseAc4SyncframeAudioSampleCount(buffer);
     } else {
       throw new IllegalStateException("Unexpected audio encoding: " + encoding);
     }

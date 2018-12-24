@@ -19,6 +19,7 @@ import android.support.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.Ac4Util;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -31,6 +32,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -536,11 +538,18 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         }
       }
     } else {
+      int sampleHeaderSize = 0;
+      if (MimeTypes.AUDIO_AC4.equals(track.track.format.sampleMimeType)) {
+        ParsableByteArray ac4SampleHeaderData = Ac4Util.getAc4SampleHeader(sampleSize);
+        trackOutput.sampleData(ac4SampleHeaderData, ac4SampleHeaderData.capacity());
+        sampleHeaderSize = ac4SampleHeaderData.capacity();
+      }
       while (sampleBytesWritten < sampleSize) {
         int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;
         sampleCurrentNalBytesRemaining -= writtenBytes;
       }
+      sampleSize += sampleHeaderSize;
     }
     trackOutput.sampleMetadata(track.sampleTable.timestampsUs[sampleIndex],
         track.sampleTable.flags[sampleIndex], sampleSize, 0, null);
