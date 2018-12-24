@@ -161,6 +161,8 @@ public class FragmentedMp4Extractor implements Extractor {
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
   private boolean processSeiNalUnitPayload;
+  private boolean isAc4HeaderAdded;
+  private int ac4SampleHeaderSize;
 
   // Extractor output.
   private ExtractorOutput extractorOutput;
@@ -262,6 +264,8 @@ public class FragmentedMp4Extractor implements Extractor {
     durationUs = C.TIME_UNSET;
     pendingSeekTimeUs = C.TIME_UNSET;
     segmentIndexEarliestPresentationTimeUs = C.TIME_UNSET;
+    isAc4HeaderAdded = false;
+    ac4SampleHeaderSize = 0;
     enterReadingAtomHeaderState();
   }
 
@@ -1217,6 +1221,7 @@ public class FragmentedMp4Extractor implements Extractor {
       sampleSize += sampleBytesWritten;
       parserState = STATE_READING_SAMPLE_CONTINUE;
       sampleCurrentNalBytesRemaining = 0;
+      isAc4HeaderAdded = false;
     }
 
     TrackFragment fragment = currentTrackBundle.fragment;
@@ -1277,17 +1282,20 @@ public class FragmentedMp4Extractor implements Extractor {
         }
       }
     } else {
-      int sampleHeaderSize = 0;
-      if (MimeTypes.AUDIO_AC4.equals(track.format.sampleMimeType)) {
+      if (MimeTypes.AUDIO_AC4.equals(track.format.sampleMimeType) && !isAc4HeaderAdded) {
         ParsableByteArray ac4SampleHeaderData = Ac4Util.getAc4SampleHeader(sampleSize);
         output.sampleData(ac4SampleHeaderData, ac4SampleHeaderData.capacity());
-        sampleHeaderSize = ac4SampleHeaderData.capacity();
+        ac4SampleHeaderSize = ac4SampleHeaderData.capacity();
+        isAc4HeaderAdded = true;
       }
       while (sampleBytesWritten < sampleSize) {
         int writtenBytes = output.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;
       }
-      sampleSize += sampleHeaderSize;
+      if (MimeTypes.AUDIO_AC4.equals(track.format.sampleMimeType)) {
+        sampleSize += ac4SampleHeaderSize;
+        isAc4HeaderAdded = false;
+      }
     }
 
     @C.BufferFlags int sampleFlags = fragment.sampleIsSyncFrameTable[sampleIndex]
