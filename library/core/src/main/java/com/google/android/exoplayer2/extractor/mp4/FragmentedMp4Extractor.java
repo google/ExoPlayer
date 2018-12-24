@@ -22,6 +22,7 @@ import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.Ac4Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
@@ -1276,10 +1277,17 @@ public class FragmentedMp4Extractor implements Extractor {
         }
       }
     } else {
+      int sampleHeaderSize = 0;
+      if (MimeTypes.AUDIO_AC4.equals(track.format.sampleMimeType)) {
+        ParsableByteArray ac4SampleHeaderData = Ac4Util.getAc4SampleHeader(sampleSize);
+        output.sampleData(ac4SampleHeaderData, ac4SampleHeaderData.capacity());
+        sampleHeaderSize = ac4SampleHeaderData.capacity();
+      }
       while (sampleBytesWritten < sampleSize) {
         int writtenBytes = output.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;
       }
+      sampleSize += sampleHeaderSize;
     }
 
     @C.BufferFlags int sampleFlags = fragment.sampleIsSyncFrameTable[sampleIndex]

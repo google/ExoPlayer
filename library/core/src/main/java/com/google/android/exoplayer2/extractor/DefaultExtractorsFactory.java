@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.extractor.ogg.OggExtractor;
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
+import com.google.android.exoplayer2.extractor.ts.Ac4Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.PsExtractor;
@@ -206,7 +207,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
 
   @Override
   public synchronized Extractor[] createExtractors() {
-    Extractor[] extractors = new Extractor[FLAC_EXTRACTOR_CONSTRUCTOR == null ? 12 : 13];
+    Extractor[] extractors = new Extractor[FLAC_EXTRACTOR_CONSTRUCTOR == null ? 13 : 14];
     extractors[0] = new MatroskaExtractor(matroskaFlags);
     extractors[1] = new FragmentedMp4Extractor(fragmentedMp4Flags);
     extractors[2] = new Mp4Extractor(mp4Flags);
@@ -235,9 +236,10 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                 | (constantBitrateSeekingEnabled
                     ? AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
                     : 0));
+    extractors[12] = new Ac4Extractor();
     if (FLAC_EXTRACTOR_CONSTRUCTOR != null) {
       try {
-        extractors[12] = FLAC_EXTRACTOR_CONSTRUCTOR.newInstance();
+        extractors[13] = FLAC_EXTRACTOR_CONSTRUCTOR.newInstance();
       } catch (Exception e) {
         // Should never happen.
         throw new IllegalStateException("Unexpected error creating FLAC extractor", e);

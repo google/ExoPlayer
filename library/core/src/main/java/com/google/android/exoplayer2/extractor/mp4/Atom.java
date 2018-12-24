@@ -67,6 +67,8 @@ import java.util.List;
   public static final int TYPE_dac3 = Util.getIntegerCodeForString("dac3");
   public static final int TYPE_ec_3 = Util.getIntegerCodeForString("ec-3");
   public static final int TYPE_dec3 = Util.getIntegerCodeForString("dec3");
+  public static final int TYPE_ac_4 = Util.getIntegerCodeForString("ac-4");
+  public static final int TYPE_dac4 = Util.getIntegerCodeForString("dac4");
   public static final int TYPE_dtsc = Util.getIntegerCodeForString("dtsc");
   public static final int TYPE_dtsh = Util.getIntegerCodeForString("dtsh");
   public static final int TYPE_dtsl = Util.getIntegerCodeForString("dtsl");

@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
+import com.google.android.exoplayer2.extractor.ts.Ac4Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
@@ -43,6 +44,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
 
   public static final String AAC_FILE_EXTENSION = ".aac";
   public static final String AC3_FILE_EXTENSION = ".ac3";
+  public static final String AC4_FILE_EXTENSION = ".ac4";
   public static final String EC3_FILE_EXTENSION = ".ec3";
   public static final String MP3_FILE_EXTENSION = ".mp3";
   public static final String MP4_FILE_EXTENSION = ".mp4";
@@ -94,6 +96,8 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         return buildResult(new AdtsExtractor());
       } else if (previousExtractor instanceof Ac3Extractor) {
         return buildResult(new Ac3Extractor());
+      } else if (previousExtractor instanceof Ac4Extractor) {
+        return buildResult(new Ac4Extractor());
       } else if (previousExtractor instanceof Mp3Extractor) {
         return buildResult(new Mp3Extractor());
       } else {
@@ -132,6 +136,13 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       Ac3Extractor ac3Extractor = new Ac3Extractor();
       if (sniffQuietly(ac3Extractor, extractorInput)) {
         return buildResult(ac3Extractor);
+      }
+    }
+
+    if (!(extractorByFileExtension instanceof Ac4Extractor)) {
+      Ac4Extractor ac4Extractor = new Ac4Extractor();
+      if (sniffQuietly(ac4Extractor, extractorInput)) {
+        return buildResult(ac4Extractor);
       }
     }
 
@@ -188,6 +199,8 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     } else if (lastPathSegment.endsWith(AC3_FILE_EXTENSION)
         || lastPathSegment.endsWith(EC3_FILE_EXTENSION)) {
       return new Ac3Extractor();
+    } else if (lastPathSegment.endsWith(AC4_FILE_EXTENSION)) {
+      return new Ac4Extractor();
     } else if (lastPathSegment.endsWith(MP3_FILE_EXTENSION)) {
       return new Mp3Extractor(/* flags= */ 0, /* forcedFirstSampleTimestampUs= */ 0);
     } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)
@@ -254,6 +267,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         extractor,
         extractor instanceof AdtsExtractor
             || extractor instanceof Ac3Extractor
+            || extractor instanceof Ac4Extractor
             || extractor instanceof Mp3Extractor);
   }
 
