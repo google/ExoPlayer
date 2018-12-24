@@ -115,9 +115,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
           if (skipToNextSync(data)) {
             state = STATE_READING_HEADER;
             headerScratchBytes.data[0] = (byte)0xAC;
-            headerScratchBytes.data[1] = 0x40;
-            if (hasCRC)
-              headerScratchBytes.data[1] = 0x41;
+            headerScratchBytes.data[1] = (byte)(hasCRC ? 0x41 : 0x40);
             bytesRead = 2;
           }
           break;

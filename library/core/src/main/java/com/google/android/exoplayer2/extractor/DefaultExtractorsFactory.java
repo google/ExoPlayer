@@ -49,6 +49,7 @@ import java.lang.reflect.Constructor;
  *   <li>WAV ({@link WavExtractor})
  *   <li>AC3 ({@link Ac3Extractor})
  *   <li>AMR ({@link AmrExtractor})
+ *   <li>AC4 ({@link Ac4Extractor})
  *   <li>FLAC (only available if the FLAC extension is built and included)
  * </ul>
  */

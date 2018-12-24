@@ -118,6 +118,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private int firstVideoTrackIndex;
   private long durationUs;
   private boolean isQuickTime;
+  private boolean isAc4HeaderAdded;
+  private int ac4SampleHeaderSize;
 
   /**
    * Creates a new extractor for unfragmented MP4 streams.
@@ -139,6 +141,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
     sampleTrackIndex = C.INDEX_UNSET;
+    isAc4HeaderAdded = false;
+    ac4SampleHeaderSize = 0;
   }
 
   @Override
@@ -489,6 +493,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       if (sampleTrackIndex == C.INDEX_UNSET) {
         return RESULT_END_OF_INPUT;
       }
+      isAc4HeaderAdded = false;
     }
     Mp4Track track = tracks[sampleTrackIndex];
     TrackOutput trackOutput = track.trackOutput;
@@ -538,18 +543,21 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         }
       }
     } else {
-      int sampleHeaderSize = 0;
-      if (MimeTypes.AUDIO_AC4.equals(track.track.format.sampleMimeType)) {
+      if (MimeTypes.AUDIO_AC4.equals(track.track.format.sampleMimeType) && !isAc4HeaderAdded) {
         ParsableByteArray ac4SampleHeaderData = Ac4Util.getAc4SampleHeader(sampleSize);
         trackOutput.sampleData(ac4SampleHeaderData, ac4SampleHeaderData.capacity());
-        sampleHeaderSize = ac4SampleHeaderData.capacity();
+        ac4SampleHeaderSize = ac4SampleHeaderData.capacity();
+        isAc4HeaderAdded = true;
       }
       while (sampleBytesWritten < sampleSize) {
         int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;
         sampleCurrentNalBytesRemaining -= writtenBytes;
       }
-      sampleSize += sampleHeaderSize;
+      if (MimeTypes.AUDIO_AC4.equals(track.track.format.sampleMimeType)) {
+        sampleSize += ac4SampleHeaderSize;
+        isAc4HeaderAdded = false;
+      }
     }
     trackOutput.sampleMetadata(track.sampleTable.timestampsUs[sampleIndex],
         track.sampleTable.flags[sampleIndex], sampleSize, 0, null);
