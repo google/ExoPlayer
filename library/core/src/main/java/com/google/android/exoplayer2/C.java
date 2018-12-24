@@ -896,6 +896,26 @@ public final class C {
    */
   public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
 
+  /** Video projection types. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    Format.NO_VALUE,
+    PROJECTION_RECTANGULAR,
+    PROJECTION_EQUIRECTANGULAR,
+    PROJECTION_CUBEMAP,
+    PROJECTION_MESH
+  })
+  public @interface Projection {}
+  /** Conventional rectangular projection. */
+  public static final int PROJECTION_RECTANGULAR = 0;
+  /** Equirectangular spherical projection. */
+  public static final int PROJECTION_EQUIRECTANGULAR = 1;
+  /** Cube map projection. */
+  public static final int PROJECTION_CUBEMAP = 2;
+  /** 3-D mesh projection. */
+  public static final int PROJECTION_MESH = 3;
+
   /**
    * Priority for media playback.
    *
