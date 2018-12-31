@@ -202,6 +202,48 @@ public class PlayerNotificationManager {
     void onNotificationCancelled(int notificationId);
   }
 
+  /** Handles displaying notifications to the user. */
+  public interface NotificationDispatcher {
+    /**
+     * Called when a notification should be displayed to the user.
+     *
+     * @param notificationId The id which the notification should be displayed with.
+     * @param notification The {@link Notification}
+     */
+    void notify(int notificationId, Notification notification);
+
+    /**
+     * Called when a notification should be removed.
+     *
+     * @param notificationId The id of the notification to remove.
+     */
+    void cancel(int notificationId);
+  }
+
+  /** Dispatches notifications directly to a {@link NotificationManagerCompat} */
+  public static class DefaultNotificationDispatcher implements NotificationDispatcher {
+    private final NotificationManagerCompat notificationManager;
+
+    public DefaultNotificationDispatcher(NotificationManagerCompat notificationManagerCompat) {
+      notificationManager = notificationManagerCompat;
+    }
+
+    @Override
+    public void notify(int notificationId, Notification notification) {
+      notificationManager.notify(notificationId, notification);
+    }
+
+    @Override
+    public void cancel(int notificationId) {
+        notificationManager.cancel(notificationId);
+    }
+
+    public static DefaultNotificationDispatcher from(Context context) {
+      NotificationManagerCompat manager = NotificationManagerCompat.from(context);
+      return new DefaultNotificationDispatcher(manager);
+    }
+  }
+
   /** Receives a {@link Bitmap}. */
   public final class BitmapCallback {
     private final int notificationTag;
@@ -293,7 +335,7 @@ public class PlayerNotificationManager {
   private final MediaDescriptionAdapter mediaDescriptionAdapter;
   private final @Nullable CustomActionReceiver customActionReceiver;
   private final Handler mainHandler;
-  private final NotificationManagerCompat notificationManager;
+  private final NotificationDispatcher notificationDispatcher;
   private final IntentFilter intentFilter;
   private final Player.EventListener playerListener;
   private final NotificationBroadcastReceiver notificationBroadcastReceiver;
@@ -439,8 +481,9 @@ public class PlayerNotificationManager {
    * CustomActionReceiver}. The caller is responsible for creating the notification channel.
    *
    * <p>When used within a service, consider using {@link #PlayerNotificationManager(Context,
-   * String, int, MediaDescriptionAdapter, NotificationListener, CustomActionReceiver)} to which a
-   * {@link NotificationListener} can be passed.
+   * String, int, MediaDescriptionAdapter, NotificationListener, CustomActionReceiver,
+   * NotificationDispatcher)} to which a {@link NotificationListener} and a
+   * {@link NotificationDispatcher} can be passed.
    *
    * @param context The {@link Context}.
    * @param channelId The id of the notification channel.
@@ -476,23 +519,54 @@ public class PlayerNotificationManager {
    * @param customActionReceiver The {@link CustomActionReceiver}.
    */
   public PlayerNotificationManager(
+          Context context,
+          String channelId,
+          int notificationId,
+          MediaDescriptionAdapter mediaDescriptionAdapter,
+          @Nullable NotificationListener notificationListener,
+          @Nullable CustomActionReceiver customActionReceiver) {
+      this(
+          context,
+          channelId,
+          notificationId,
+          mediaDescriptionAdapter,
+          notificationListener,
+          customActionReceiver,
+          DefaultNotificationDispatcher.from(context));
+  }
+
+  /**
+   * Creates a notification manager using the specified notification {@code channelId}, {@link
+   * NotificationListener} and {@link CustomActionReceiver}. The caller is responsible for creating
+   * the notification channel.
+   *
+   * @param context The {@link Context}.
+   * @param channelId The id of the notification channel.
+   * @param notificationId The id of the notification.
+   * @param mediaDescriptionAdapter The {@link MediaDescriptionAdapter}.
+   * @param notificationListener The {@link NotificationListener}.
+   * @param customActionReceiver The {@link CustomActionReceiver}.
+   * @param notificationDispatcher The {@link NotificationDispatcher}.
+   */
+  public PlayerNotificationManager(
       Context context,
       String channelId,
       int notificationId,
       MediaDescriptionAdapter mediaDescriptionAdapter,
       @Nullable NotificationListener notificationListener,
-      @Nullable CustomActionReceiver customActionReceiver) {
+      @Nullable CustomActionReceiver customActionReceiver,
+      NotificationDispatcher notificationDispatcher) {
     this.context = context.getApplicationContext();
     this.channelId = channelId;
     this.notificationId = notificationId;
     this.mediaDescriptionAdapter = mediaDescriptionAdapter;
     this.notificationListener = notificationListener;
     this.customActionReceiver = customActionReceiver;
+    this.notificationDispatcher = notificationDispatcher;
     controlDispatcher = new DefaultControlDispatcher();
     window = new Timeline.Window();
     instanceId = instanceIdCounter++;
     mainHandler = new Handler(Looper.getMainLooper());
-    notificationManager = NotificationManagerCompat.from(context);
     playerListener = new PlayerListener();
     notificationBroadcastReceiver = new NotificationBroadcastReceiver();
     intentFilter = new IntentFilter();
@@ -859,7 +933,7 @@ public class PlayerNotificationManager {
   @RequiresNonNull("player")
   private Notification updateNotification(@Nullable Bitmap bitmap) {
     Notification notification = createNotification(player, bitmap);
-    notificationManager.notify(notificationId, notification);
+    notificationDispatcher.notify(notificationId, notification);
     return notification;
   }
 
@@ -878,7 +952,7 @@ public class PlayerNotificationManager {
 
   private void stopNotification() {
     if (isNotificationStarted) {
-      notificationManager.cancel(notificationId);
+      notificationDispatcher.cancel(notificationId);
       isNotificationStarted = false;
       context.unregisterReceiver(notificationBroadcastReceiver);
       if (notificationListener != null) {
