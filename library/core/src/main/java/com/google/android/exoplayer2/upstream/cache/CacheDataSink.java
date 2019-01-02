@@ -170,10 +170,13 @@ public final class CacheDataSink implements DataSink {
   }
 
   private void openNextOutputStream() throws IOException {
-    long maxLength = dataSpec.length == C.LENGTH_UNSET ? maxCacheFileSize
-        : Math.min(dataSpec.length - dataSpecBytesWritten, maxCacheFileSize);
-    file = cache.startFile(dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten,
-        maxLength);
+    long length =
+        dataSpec.length == C.LENGTH_UNSET
+            ? C.LENGTH_UNSET
+            : Math.min(dataSpec.length - dataSpecBytesWritten, maxCacheFileSize);
+    file =
+        cache.startFile(
+            dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten, length);
     underlyingFileOutputStream = new FileOutputStream(file);
     if (bufferSize > 0) {
       if (bufferedOutputStream == null) {
