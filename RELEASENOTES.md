@@ -1,5 +1,10 @@
 # Release notes #
 
+### 2.9.4 ###
+
+* IMA extension: Clear ads loader listeners on release
+  ([#4114](https://github.com/google/ExoPlayer/issues/4114)).
+
 ### 2.9.3 ###
 
 * Captions: Support PNG subtitles in SMPTE-TT
