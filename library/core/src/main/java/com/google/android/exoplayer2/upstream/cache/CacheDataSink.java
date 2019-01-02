@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ReusableBufferedOutputStream;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
@@ -36,8 +37,13 @@ import java.io.OutputStream;
  */
 public final class CacheDataSink implements DataSink {
 
+  /** Default {@code maxCacheFileSize} recommended for caching use cases. */
+  public static final long DEFAULT_MAX_CACHE_FILE_SIZE = 5 * 1024 * 1024;
   /** Default buffer size in bytes. */
-  public static final int DEFAULT_BUFFER_SIZE = 20480;
+  public static final int DEFAULT_BUFFER_SIZE = 20 * 1024;
+
+  private static final long MIN_RECOMMENDED_MAX_CACHE_FILE_SIZE = 2 * 1024 * 1024;
+  private static final String TAG = "CacheDataSink";
 
   private final Cache cache;
   private final long maxCacheFileSize;
@@ -64,12 +70,15 @@ public final class CacheDataSink implements DataSink {
   }
 
   /**
-   * Constructs a CacheDataSink using the {@link #DEFAULT_BUFFER_SIZE}.
+   * Constructs an instance using {@link #DEFAULT_BUFFER_SIZE}.
    *
    * @param cache The cache into which data should be written.
-   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for a
-   *     {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
-   *     multiple cache files.
+   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If a request results in
+   *     data being written whose size exceeds this value, then the data will be fragmented into
+   *     multiple cache files. If set to {@link C#LENGTH_UNSET} then no fragmentation will occur.
+   *     Using a small value allows for finer-grained cache eviction policies, at the cost of
+   *     increased overhead both on the cache implementation and the file system. Values under
+   *     {@code (2 * 1024 * 1024)} are not recommended.
    */
   public CacheDataSink(Cache cache, long maxCacheFileSize) {
     this(cache, maxCacheFileSize, DEFAULT_BUFFER_SIZE);
@@ -77,15 +86,29 @@ public final class CacheDataSink implements DataSink {
 
   /**
    * @param cache The cache into which data should be written.
-   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for a
-   *     {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
-   *     multiple cache files.
+   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If a request results in
+   *     data being written whose size exceeds this value, then the data will be fragmented into
+   *     multiple cache files. If set to {@link C#LENGTH_UNSET} then no fragmentation will occur.
+   *     Using a small value allows for finer-grained cache eviction policies, at the cost of
+   *     increased overhead both on the cache implementation and the file system. Values under
+   *     {@code (2 * 1024 * 1024)} are not recommended.
    * @param bufferSize The buffer size in bytes for writing to a cache file. A zero or negative
    *     value disables buffering.
    */
   public CacheDataSink(Cache cache, long maxCacheFileSize, int bufferSize) {
+    Assertions.checkState(
+        maxCacheFileSize > 0 || maxCacheFileSize == C.LENGTH_UNSET,
+        "maxCacheFileSize must be positive or C.LENGTH_UNSET.");
+    if (maxCacheFileSize != C.LENGTH_UNSET
+        && maxCacheFileSize < MIN_RECOMMENDED_MAX_CACHE_FILE_SIZE) {
+      Log.w(
+          TAG,
+          "maxCacheFileSize is below the minimum recommended value of "
+              + MIN_RECOMMENDED_MAX_CACHE_FILE_SIZE
+              + ". This may cause poor cache performance.");
+    }
     this.cache = Assertions.checkNotNull(cache);
-    this.maxCacheFileSize = maxCacheFileSize;
+    this.maxCacheFileSize = maxCacheFileSize == C.LENGTH_UNSET ? Long.MAX_VALUE : maxCacheFileSize;
     this.bufferSize = bufferSize;
     syncFileDescriptor = true;
   }

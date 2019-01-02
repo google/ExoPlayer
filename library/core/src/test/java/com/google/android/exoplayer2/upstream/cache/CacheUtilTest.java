@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
@@ -341,7 +342,13 @@ public final class CacheUtilTest {
         cache,
         /* cacheKeyFactory= */ null,
         // Set maxCacheFileSize to 10 to make sure there are multiple spans.
-        new CacheDataSource(cache, dataSource, 0, 10),
+        new CacheDataSource(
+            cache,
+            dataSource,
+            new FileDataSource(),
+            new CacheDataSink(cache, /* maxCacheFileSize= */ 10),
+            /* flags= */ 0,
+            /* eventListener= */ null),
         new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES],
         /* priorityTaskManager= */ null,
         /* priority= */ 0,
