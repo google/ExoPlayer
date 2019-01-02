@@ -27,6 +27,8 @@
   * Rename TaskState to DownloadState.
 * Add support for SHOUTcast ICY metadata
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
+* IMA extension: Clear ads loader listeners on release
+  ([#4114](https://github.com/google/ExoPlayer/issues/4114)).
 
 ### 2.9.3 ###
 
