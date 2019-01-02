@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import java.io.File;
 import java.io.IOException;
 import java.util.NavigableSet;
@@ -169,12 +170,12 @@ public interface Cache {
    *
    * @param key The cache key for the data.
    * @param position The starting position of the data.
-   * @param maxLength The maximum length of the data to be written. Used only to ensure that there
-   *     is enough space in the cache.
+   * @param length The length of the data being written, or {@link C#LENGTH_UNSET} if unknown. Used
+   *     only to ensure that there is enough space in the cache.
    * @return The file into which data should be written.
    * @throws CacheException If an error is encountered.
    */
-  File startFile(String key, long position, long maxLength) throws CacheException;
+  File startFile(String key, long position, long length) throws CacheException;
 
   /**
    * Commits a file into the cache. Must only be called when holding a corresponding hole {@link

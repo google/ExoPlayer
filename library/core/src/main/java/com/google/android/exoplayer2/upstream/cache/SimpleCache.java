@@ -259,8 +259,7 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized File startFile(String key, long position, long maxLength)
-      throws CacheException {
+  public synchronized File startFile(String key, long position, long length) throws CacheException {
     Assertions.checkState(!released);
     CachedContent cachedContent = index.get(key);
     Assertions.checkNotNull(cachedContent);
@@ -270,7 +269,7 @@ public final class SimpleCache implements Cache {
       cacheDir.mkdirs();
       removeStaleSpans();
     }
-    evictor.onStartFile(this, key, position, maxLength);
+    evictor.onStartFile(this, key, position, length);
     return SimpleCacheSpan.getCacheFile(
         cacheDir, cachedContent.id, position, System.currentTimeMillis());
   }
