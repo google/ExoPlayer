@@ -109,7 +109,7 @@ import java.io.IOException;
         headerSize = Atom.LONG_HEADER_SIZE;
         input.peekFully(buffer.data, Atom.HEADER_SIZE, Atom.LONG_HEADER_SIZE - Atom.HEADER_SIZE);
         buffer.setLimit(Atom.LONG_HEADER_SIZE);
-        atomSize = buffer.readUnsignedLongToLong();
+        atomSize = buffer.readLong();
       } else if (atomSize == Atom.EXTENDS_TO_END_SIZE) {
         // The atom extends to the end of the file.
         long endPosition = input.getLength();
