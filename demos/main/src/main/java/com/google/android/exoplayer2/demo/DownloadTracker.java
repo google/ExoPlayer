@@ -37,8 +37,8 @@ import com.google.android.exoplayer2.offline.ActionFile;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.offline.DownloadService;
+import com.google.android.exoplayer2.offline.DownloadState;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -145,12 +145,10 @@ public class DownloadTracker implements DownloadManager.Listener {
 
   @Override
   public void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState) {
-    DownloadAction action = downloadState.action;
-    Uri uri = action.uri;
-    if ((action.isRemoveAction && downloadState.state == DownloadState.STATE_COMPLETED)
-        || (!action.isRemoveAction && downloadState.state == DownloadState.STATE_FAILED)) {
+    if (downloadState.state == DownloadState.STATE_REMOVED
+        || downloadState.state == DownloadState.STATE_FAILED) {
       // A download has been removed, or has failed. Stop tracking it.
-      if (trackedDownloadStates.remove(uri) != null) {
+      if (trackedDownloadStates.remove(downloadState.uri) != null) {
         handleTrackedDownloadStatesChanged();
       }
     }

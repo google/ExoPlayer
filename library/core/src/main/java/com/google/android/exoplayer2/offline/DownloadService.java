@@ -24,7 +24,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
 import com.google.android.exoplayer2.scheduler.Scheduler;
@@ -432,7 +431,9 @@ public abstract class DownloadService extends Service {
         DownloadManager downloadManager, DownloadState downloadState) {
       DownloadService.this.onDownloadStateChanged(downloadState);
       if (foregroundNotificationUpdater != null) {
-        if (downloadState.state == DownloadState.STATE_STARTED) {
+        if (downloadState.state == DownloadState.STATE_DOWNLOADING
+            || downloadState.state == DownloadState.STATE_REMOVING
+            || downloadState.state == DownloadState.STATE_RESTARTING) {
           foregroundNotificationUpdater.startPeriodicUpdates();
         } else {
           foregroundNotificationUpdater.update();

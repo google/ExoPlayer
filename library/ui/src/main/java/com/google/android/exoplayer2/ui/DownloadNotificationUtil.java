@@ -23,7 +23,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
+import com.google.android.exoplayer2.offline.DownloadState;
 
 /** Helper for creating download notifications. */
 public final class DownloadNotificationUtil {
@@ -58,12 +58,14 @@ public final class DownloadNotificationUtil {
     boolean haveDownloadTasks = false;
     boolean haveRemoveTasks = false;
     for (DownloadState downloadState : downloadStates) {
-      if (downloadState.state != DownloadState.STATE_STARTED
-          && downloadState.state != DownloadState.STATE_COMPLETED) {
+      if (downloadState.state == DownloadState.STATE_REMOVING
+          || downloadState.state == DownloadState.STATE_RESTARTING
+          || downloadState.state == DownloadState.STATE_REMOVED) {
+        haveRemoveTasks = true;
         continue;
       }
-      if (downloadState.action.isRemoveAction) {
-        haveRemoveTasks = true;
+      if (downloadState.state != DownloadState.STATE_DOWNLOADING
+          && downloadState.state != DownloadState.STATE_COMPLETED) {
         continue;
       }
       haveDownloadTasks = true;
