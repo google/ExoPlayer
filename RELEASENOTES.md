@@ -25,6 +25,8 @@
 * DownloadManager:
   * Create only one task for all DownloadActions for the same content.
   * Rename TaskState to DownloadState.
+  * Add new states to DownloadState.
+  * Replace DownloadState.action with DownloadAction fields.
 * Add support for SHOUTcast ICY metadata
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
 * IMA extension: Clear ads loader listeners on release

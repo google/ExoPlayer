@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.demo;
 
 import android.app.Notification;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
 import com.google.android.exoplayer2.offline.DownloadService;
+import com.google.android.exoplayer2.offline.DownloadState;
 import com.google.android.exoplayer2.scheduler.PlatformScheduler;
 import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
 import com.google.android.exoplayer2.util.NotificationUtil;
@@ -65,9 +65,6 @@ public class DemoDownloadService extends DownloadService {
 
   @Override
   protected void onDownloadStateChanged(DownloadState downloadState) {
-    if (downloadState.action.isRemoveAction) {
-      return;
-    }
     Notification notification = null;
     if (downloadState.state == DownloadState.STATE_COMPLETED) {
       notification =
@@ -76,7 +73,7 @@ public class DemoDownloadService extends DownloadService {
               R.drawable.ic_download_done,
               CHANNEL_ID,
               /* contentIntent= */ null,
-              Util.fromUtf8Bytes(downloadState.action.data));
+              Util.fromUtf8Bytes(downloadState.customMetadata));
     } else if (downloadState.state == DownloadState.STATE_FAILED) {
       notification =
           DownloadNotificationUtil.buildDownloadFailedNotification(
@@ -84,7 +81,7 @@ public class DemoDownloadService extends DownloadService {
               R.drawable.ic_download_done,
               CHANNEL_ID,
               /* contentIntent= */ null,
-              Util.fromUtf8Bytes(downloadState.action.data));
+              Util.fromUtf8Bytes(downloadState.customMetadata));
     } else {
       return;
     }

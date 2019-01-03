@@ -15,29 +15,28 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.FAILURE_REASON_NONE;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.FAILURE_REASON_UNKNOWN;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_COMPLETED;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_FAILED;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_QUEUED;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_STARTED;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STATE_STOPPED;
-import static com.google.android.exoplayer2.offline.DownloadManager.DownloadState.STOP_FLAG_STOPPED;
+import static com.google.android.exoplayer2.offline.DownloadState.FAILURE_REASON_NONE;
+import static com.google.android.exoplayer2.offline.DownloadState.FAILURE_REASON_UNKNOWN;
+import static com.google.android.exoplayer2.offline.DownloadState.STATE_COMPLETED;
+import static com.google.android.exoplayer2.offline.DownloadState.STATE_DOWNLOADING;
+import static com.google.android.exoplayer2.offline.DownloadState.STATE_FAILED;
+import static com.google.android.exoplayer2.offline.DownloadState.STATE_QUEUED;
+import static com.google.android.exoplayer2.offline.DownloadState.STATE_REMOVED;
+import static com.google.android.exoplayer2.offline.DownloadState.STATE_REMOVING;
+import static com.google.android.exoplayer2.offline.DownloadState.STATE_RESTARTING;
+import static com.google.android.exoplayer2.offline.DownloadState.STATE_STOPPED;
+import static com.google.android.exoplayer2.offline.DownloadState.STOP_FLAG_STOPPED;
 
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -426,133 +425,6 @@ public final class DownloadManager {
     logd(message + ": " + download);
   }
 
-  /** Represents state of a download. */
-  public static final class DownloadState {
-
-    /**
-     * Download states. One of {@link #STATE_QUEUED}, {@link #STATE_STOPPED}, {@link #STATE_STARTED}
-     * , {@link #STATE_COMPLETED} or {@link #STATE_FAILED}.
-     *
-     * <p>Transition diagram:
-     *
-     * <pre>
-     * queued ←┬→ started ┬→ completed
-     *         └→ stopped └→ failed
-     * </pre>
-     */
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({STATE_QUEUED, STATE_STOPPED, STATE_STARTED, STATE_COMPLETED, STATE_FAILED})
-    public @interface State {}
-    /** The download is waiting to be started. */
-    public static final int STATE_QUEUED = 0;
-    /** The download is stopped. */
-    public static final int STATE_STOPPED = 1;
-    /** The download is currently started. */
-    public static final int STATE_STARTED = 2;
-    /** The download completed. */
-    public static final int STATE_COMPLETED = 3;
-    /** The download failed. */
-    public static final int STATE_FAILED = 4;
-
-    /** Failure reasons. Either {@link #FAILURE_REASON_NONE} or {@link #FAILURE_REASON_UNKNOWN}. */
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({FAILURE_REASON_NONE, FAILURE_REASON_UNKNOWN})
-    public @interface FailureReason {}
-    /** The download isn't failed. */
-    public static final int FAILURE_REASON_NONE = 0;
-    /** The download is failed because of unknown reason. */
-    public static final int FAILURE_REASON_UNKNOWN = 1;
-
-    /** Download stop flags. Possible flag value is {@link #STOP_FLAG_STOPPED}. */
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef(
-        flag = true,
-        value = {STOP_FLAG_STOPPED})
-    public @interface StopFlags {}
-    /** All downloads are stopped by the application. */
-    public static final int STOP_FLAG_STOPPED = 1;
-
-    /** Returns the state string for the given state value. */
-    public static String getStateString(@State int state) {
-      switch (state) {
-        case STATE_QUEUED:
-          return "QUEUED";
-        case STATE_STOPPED:
-          return "STOPPED";
-        case STATE_STARTED:
-          return "STARTED";
-        case STATE_COMPLETED:
-          return "COMPLETED";
-        case STATE_FAILED:
-          return "FAILED";
-        default:
-          throw new IllegalStateException();
-      }
-    }
-
-    /** Returns the failure string for the given failure reason value. */
-    public static String getFailureString(@FailureReason int failureReason) {
-      switch (failureReason) {
-        case FAILURE_REASON_NONE:
-          return "NO_REASON";
-        case FAILURE_REASON_UNKNOWN:
-          return "UNKNOWN_REASON";
-        default:
-          throw new IllegalStateException();
-      }
-    }
-
-    /** The unique content id. */
-    public final String id;
-    /** The action being executed. */
-    public final DownloadAction action;
-    /** The state of the download. */
-    public final @State int state;
-    /** The estimated download percentage, or {@link C#PERCENTAGE_UNSET} if unavailable. */
-    public final float downloadPercentage;
-    /** The total number of downloaded bytes. */
-    public final long downloadedBytes;
-    /** The total size of the media, or {@link C#LENGTH_UNSET} if unknown. */
-    public final long totalBytes;
-    /** The first time when download entry is created. */
-    public final long startTimeMs;
-    /** The last update time. */
-    public final long updateTimeMs;
-    /**
-     * If {@link #state} is {@link #STATE_FAILED} then this is the cause, otherwise {@link
-     * #FAILURE_REASON_NONE}.
-     */
-    @FailureReason public final int failureReason;
-    /** Download stop flags. These flags stop downloading any content. */
-    @StopFlags public final int stopFlags;
-
-    private DownloadState(
-        DownloadAction action,
-        @State int state,
-        float downloadPercentage,
-        long downloadedBytes,
-        long totalBytes,
-        @FailureReason int failureReason,
-        @StopFlags int stopFlags,
-        long startTimeMs) {
-      this.stopFlags = stopFlags;
-      Assertions.checkState(
-          failureReason == FAILURE_REASON_NONE ? state != STATE_FAILED : state == STATE_FAILED);
-      this.id = action.id;
-      this.action = action;
-      this.state = state;
-      this.downloadPercentage = downloadPercentage;
-      this.downloadedBytes = downloadedBytes;
-      this.totalBytes = totalBytes;
-      this.failureReason = failureReason;
-      this.startTimeMs = startTimeMs;
-      updateTimeMs = System.currentTimeMillis();
-    }
-  }
-
   private static final class Download {
 
     private final String id;
@@ -601,7 +473,7 @@ public final class DownloadManager {
       if (action.equals(updatedAction)) {
         return;
       }
-      if (state == STATE_STARTED) {
+      if (state == STATE_DOWNLOADING) {
         stopDownloadThread();
       } else {
         Assertions.checkState(state == STATE_QUEUED || state == STATE_STOPPED);
@@ -618,15 +490,29 @@ public final class DownloadManager {
         downloadedBytes = downloader.getDownloadedBytes();
         totalBytes = downloader.getTotalBytes();
       }
+      int newState = state;
+      if (action.isRemoveAction) {
+        if (state == STATE_DOWNLOADING) {
+          newState = actionQueue.size() > 1 ? STATE_RESTARTING : STATE_REMOVING;
+        } else if (state == STATE_COMPLETED || state == STATE_FAILED) {
+          newState = STATE_REMOVED;
+        }
+      }
       return new DownloadState(
-          action,
-          state,
+          action.id,
+          action.type,
+          action.uri,
+          action.customCacheKey,
+          newState,
           downloadPercentage,
           downloadedBytes,
           totalBytes,
           failureReason,
           stopFlags,
-          startTimeMs);
+          startTimeMs,
+          /* updateTimeMs= */ System.currentTimeMillis(),
+          action.keys.toArray(new StreamKey[0]),
+          action.data);
     }
 
     /** Returns whether the download is finished. */
@@ -636,7 +522,7 @@ public final class DownloadManager {
 
     /** Returns whether the download is started. */
     public boolean isStarted() {
-      return state == STATE_STARTED;
+      return state == STATE_DOWNLOADING;
     }
 
     @Override
@@ -653,7 +539,7 @@ public final class DownloadManager {
       downloadThread =
           new DownloadThread(
               this, downloader, action.isRemoveAction, minRetryCount, downloadManager.handler);
-      setState(STATE_STARTED);
+      setState(STATE_DOWNLOADING);
       return true;
     }
 
@@ -666,7 +552,7 @@ public final class DownloadManager {
     }
 
     public void queue() {
-      if (state == STATE_STARTED) {
+      if (state == STATE_DOWNLOADING) {
         stopDownloadThread();
       }
     }
@@ -675,7 +561,7 @@ public final class DownloadManager {
       stopFlags = (flags & mask) | (stopFlags & ~mask);
       if (stopFlags != 0) {
         if (!action.isRemoveAction) {
-          if (state == STATE_STARTED) {
+          if (state == STATE_DOWNLOADING) {
             stopDownloadThread();
           } else if (state == STATE_QUEUED) {
             setState(STATE_STOPPED);
