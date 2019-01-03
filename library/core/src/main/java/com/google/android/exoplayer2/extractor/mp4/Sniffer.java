@@ -114,7 +114,7 @@ import java.io.IOException;
         // The atom extends to the end of the file.
         long endPosition = input.getLength();
         if (endPosition != C.LENGTH_UNSET) {
-          atomSize = endPosition - input.getPosition() + headerSize;
+          atomSize = endPosition - input.getPeekPosition() + headerSize;
         }
       }
 
