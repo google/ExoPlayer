@@ -4,6 +4,9 @@
 
 * IMA extension: Clear ads loader listeners on release
   ([#4114](https://github.com/google/ExoPlayer/issues/4114)).
+* Fix issue where sending callbacks for playlist changes may cause problems
+  because of parallel player access
+  ([#5240](https://github.com/google/ExoPlayer/issues/5240)).
 
 ### 2.9.3 ###
 
