@@ -201,6 +201,8 @@ public class DownloadManagerDashTest {
     assertCacheEmpty(cache);
   }
 
+  // Disabled due to flakiness [Internal: b/122290449].
+  @Ignore
   @Test
   public void testHandleInterferingRemoveAction() throws Throwable {
     final ConditionVariable downloadInProgressCondition = new ConditionVariable();
