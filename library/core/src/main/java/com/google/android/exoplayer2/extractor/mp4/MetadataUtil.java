@@ -103,6 +103,9 @@ import com.google.android.exoplayer2.util.Util;
 
   private static final String LANGUAGE_UNDEFINED = "und";
 
+  private static final int TYPE_TOP_BYTE_COPYRIGHT = 0xA9;
+  private static final int TYPE_TOP_BYTE_REPLACEMENT = 0xFD; // Truncated value of \uFFFD.
+
   private MetadataUtil() {}
 
   /**
@@ -119,8 +122,7 @@ import com.google.android.exoplayer2.util.Util;
     int type = ilst.readInt();
     int typeTopByte = (type >> 24) & 0xFF;
     try {
-      if (typeTopByte == '\u00A9' /* Copyright char */
-          || typeTopByte == '\uFFFD' /* Replacement char */) {
+      if (typeTopByte == TYPE_TOP_BYTE_COPYRIGHT || typeTopByte == TYPE_TOP_BYTE_REPLACEMENT) {
         int shortType = type & 0x00FFFFFF;
         if (shortType == SHORT_TYPE_COMMENT) {
           return parseCommentAttribute(type, ilst);
