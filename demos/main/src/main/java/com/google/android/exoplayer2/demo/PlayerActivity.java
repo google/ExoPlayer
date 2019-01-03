@@ -523,6 +523,9 @@ public class PlayerActivity extends Activity
       mediaSource = null;
       trackSelector = null;
     }
+    if (adsLoader != null) {
+      adsLoader.setPlayer(null);
+    }
     releaseMediaDrm();
   }
 
@@ -586,6 +589,7 @@ public class PlayerActivity extends Activity
         // The demo app has a non-null overlay frame layout.
         playerView.getOverlayFrameLayout().addView(adUiViewGroup);
       }
+      adsLoader.setPlayer(player);
       AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
           new AdsMediaSource.MediaSourceFactory() {
             @Override
