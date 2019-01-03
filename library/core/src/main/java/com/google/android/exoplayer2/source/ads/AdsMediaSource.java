@@ -337,7 +337,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     final ComponentListener componentListener = new ComponentListener();
     this.componentListener = componentListener;
     prepareChildSource(DUMMY_CONTENT_MEDIA_PERIOD_ID, contentMediaSource);
-    mainHandler.post(() -> adsLoader.attachPlayer(player, componentListener, adUiViewGroup));
+    mainHandler.post(() -> adsLoader.start(componentListener, adUiViewGroup));
   }
 
   @Override
@@ -406,7 +406,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     adPlaybackState = null;
     adGroupMediaSources = new MediaSource[0][];
     adGroupTimelines = new Timeline[0][];
-    mainHandler.post(adsLoader::detachPlayer);
+    mainHandler.post(adsLoader::stop);
   }
 
   @Override
