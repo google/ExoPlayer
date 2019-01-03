@@ -111,7 +111,7 @@ public class ImaAdsLoaderTest {
   @Test
   public void testAttachPlayer_setsAdUiViewGroup() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
-    imaAdsLoader.attachPlayer(fakeExoPlayer, adsLoaderListener, adUiViewGroup);
+    imaAdsLoader.start(adsLoaderListener, adUiViewGroup);
 
     verify(adDisplayContainer, atLeastOnce()).setAdContainer(adUiViewGroup);
   }
@@ -119,7 +119,7 @@ public class ImaAdsLoaderTest {
   @Test
   public void testAttachPlayer_updatesAdPlaybackState() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
-    imaAdsLoader.attachPlayer(fakeExoPlayer, adsLoaderListener, adUiViewGroup);
+    imaAdsLoader.start(adsLoaderListener, adUiViewGroup);
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
@@ -131,14 +131,14 @@ public class ImaAdsLoaderTest {
   public void testAttachAfterRelease() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.release();
-    imaAdsLoader.attachPlayer(fakeExoPlayer, adsLoaderListener, adUiViewGroup);
+    imaAdsLoader.start(adsLoaderListener, adUiViewGroup);
   }
 
   @Test
   public void testAttachAndCallbacksAfterRelease() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.release();
-    imaAdsLoader.attachPlayer(fakeExoPlayer, adsLoaderListener, adUiViewGroup);
+    imaAdsLoader.start(adsLoaderListener, adUiViewGroup);
     fakeExoPlayer.setPlayingContentPosition(/* position= */ 0);
     fakeExoPlayer.setState(Player.STATE_READY, true);
 
@@ -166,7 +166,7 @@ public class ImaAdsLoaderTest {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
 
     // Load the preroll ad.
-    imaAdsLoader.attachPlayer(fakeExoPlayer, adsLoaderListener, adUiViewGroup);
+    imaAdsLoader.start(adsLoaderListener, adUiViewGroup);
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, UNSKIPPABLE_AD));
     imaAdsLoader.loadAd(TEST_URI.toString());
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, UNSKIPPABLE_AD));
@@ -210,6 +210,7 @@ public class ImaAdsLoaderTest {
             .setImaFactory(testImaFactory)
             .setImaSdkSettings(imaSdkSettings)
             .buildForAdTag(TEST_URI);
+    imaAdsLoader.setPlayer(fakeExoPlayer);
   }
 
   private static AdEvent getAdEvent(AdEventType adEventType, @Nullable Ad ad) {
