@@ -33,6 +33,8 @@
   * Clear ads loader listeners on release
     ([#4114](https://github.com/google/ExoPlayer/issues/4114)).
   * Require setting the `Player` on `AdsLoader` instances before playback.
+* FFmpeg extension: Treat invalid data errors as non-fatal to match the behavior
+  of MediaCodec ([#5293](https://github.com/google/ExoPlayer/issues/5293)).
 * Fix issue where sending callbacks for playlist changes may cause problems
   because of parallel player access
   ([#5240](https://github.com/google/ExoPlayer/issues/5240)).

@@ -63,6 +63,10 @@ static const AVSampleFormat OUTPUT_FORMAT_PCM_16BIT = AV_SAMPLE_FMT_S16;
 // Output format corresponding to AudioFormat.ENCODING_PCM_FLOAT.
 static const AVSampleFormat OUTPUT_FORMAT_PCM_FLOAT = AV_SAMPLE_FMT_FLT;
 
+// Error codes matching FfmpegDecoder.java.
+static const int DECODER_ERROR_INVALID_DATA = -1;
+static const int DECODER_ERROR_OTHER = -2;
+
 /**
  * Returns the AVCodec with the specified name, or NULL if it is not available.
  */
@@ -79,7 +83,7 @@ AVCodecContext *createContext(JNIEnv *env, AVCodec *codec, jbyteArray extraData,
 
 /**
  * Decodes the packet into the output buffer, returning the number of bytes
- * written, or a negative value in the case of an error.
+ * written, or a negative DECODER_ERROR constant value in the case of an error.
  */
 int decodePacket(AVCodecContext *context, AVPacket *packet,
                  uint8_t *outputBuffer, int outputSize);
@@ -238,6 +242,7 @@ AVCodecContext *createContext(JNIEnv *env, AVCodec *codec, jbyteArray extraData,
     context->channels = rawChannelCount;
     context->channel_layout = av_get_default_channel_layout(rawChannelCount);
   }
+  context->err_recognition = AV_EF_IGNORE_ERR;
   int result = avcodec_open2(context, codec, NULL);
   if (result < 0) {
     logError("avcodec_open2", result);
@@ -254,7 +259,8 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
   result = avcodec_send_packet(context, packet);
   if (result) {
     logError("avcodec_send_packet", result);
-    return result;
+    return result == AVERROR_INVALIDDATA ? DECODER_ERROR_INVALID_DATA
+                                         : DECODER_ERROR_OTHER;
   }
 
   // Dequeue output data until it runs out.
