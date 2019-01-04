@@ -2,6 +2,8 @@
 
 ### 2.9.5 ###
 
+* Add `Handler` parameter to `ConcatenatingMediaSource` methods which take a
+  callback `Runnable`.
 * HLS: Parse `CHANNELS` attribute from `EXT-X-MEDIA` tag.
 * ExtractorMediaSource: Fix issue that could cause the player to get stuck
   buffering at the end of the media.
