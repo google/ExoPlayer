@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@SuppressWarnings("ConstantField")
+@SuppressWarnings({"ConstantField", "ConstantCaseForConstants"})
 /* package */ abstract class Atom {
 
   /**
@@ -130,6 +130,7 @@ import java.util.List;
   public static final int TYPE_sawb = Util.getIntegerCodeForString("sawb");
   public static final int TYPE_udta = Util.getIntegerCodeForString("udta");
   public static final int TYPE_meta = Util.getIntegerCodeForString("meta");
+  public static final int TYPE_keys = Util.getIntegerCodeForString("keys");
   public static final int TYPE_ilst = Util.getIntegerCodeForString("ilst");
   public static final int TYPE_mean = Util.getIntegerCodeForString("mean");
   public static final int TYPE_name = Util.getIntegerCodeForString("name");
