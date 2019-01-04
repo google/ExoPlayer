@@ -71,11 +71,8 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  public void prepareSourceInternal(
-      ExoPlayer player,
-      boolean isTopLevelSource,
-      @Nullable TransferListener mediaTransferListener) {
-    super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
+  public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+    super.prepareSourceInternal(mediaTransferListener);
     prepareChildSource(/* id= */ null, childSource);
   }
 
