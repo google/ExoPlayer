@@ -40,6 +40,7 @@
   ([#5240](https://github.com/google/ExoPlayer/issues/5240)).
 * Add `Handler` parameter to `ConcatenatingMediaSource` methods which take a
   callback `Runnable`.
+* Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
 
 ### 2.9.3 ###
 

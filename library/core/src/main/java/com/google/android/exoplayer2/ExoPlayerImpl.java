@@ -139,7 +139,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
             repeatMode,
             shuffleModeEnabled,
             eventHandler,
-            this,
             clock);
     internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
   }
