@@ -366,7 +366,10 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       if (outputBuffer == null) {
         return false;
       }
-      decoderCounters.skippedOutputBufferCount += outputBuffer.skippedOutputBufferCount;
+      if (outputBuffer.skippedOutputBufferCount > 0) {
+        decoderCounters.skippedOutputBufferCount += outputBuffer.skippedOutputBufferCount;
+        audioSink.handleDiscontinuity();
+      }
     }
 
     if (outputBuffer.isEndOfStream()) {
