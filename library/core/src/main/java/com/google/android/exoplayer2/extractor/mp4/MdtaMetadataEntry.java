@@ -19,6 +19,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
 /**
@@ -45,7 +46,7 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
   }
 
   private MdtaMetadataEntry(Parcel in) {
-    key = in.readString();
+    key = Util.castNonNull(in.readString());
     value = new byte[in.readInt()];
     in.readByteArray(value);
     localeIndicator = in.readInt();
