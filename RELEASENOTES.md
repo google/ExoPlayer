@@ -38,6 +38,8 @@
 * Fix issue where sending callbacks for playlist changes may cause problems
   because of parallel player access
   ([#5240](https://github.com/google/ExoPlayer/issues/5240)).
+* Add `Handler` parameter to `ConcatenatingMediaSource` methods which take a
+  callback `Runnable`.
 
 ### 2.9.3 ###
 
