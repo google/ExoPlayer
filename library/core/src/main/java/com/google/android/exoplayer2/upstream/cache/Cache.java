@@ -141,8 +141,8 @@ public interface Cache {
    * obtains the data from some other source. The returned {@link CacheSpan} serves as a lock.
    * Whilst the caller holds the lock it may write data into the hole. It may split data into
    * multiple files. When the caller has finished writing a file it should commit it to the cache by
-   * calling {@link #commitFile(File)}. When the caller has finished writing, it must release the
-   * lock by calling {@link #releaseHoleSpan}.
+   * calling {@link #commitFile(File, long)}. When the caller has finished writing, it must release
+   * the lock by calling {@link #releaseHoleSpan}.
    *
    * @param key The key of the data being requested.
    * @param position The position of the data being requested.
@@ -182,9 +182,10 @@ public interface Cache {
    * CacheSpan} obtained from {@link #startReadWrite(String, long)}
    *
    * @param file A newly written cache file.
+   * @param length The length of the newly written cache file in bytes.
    * @throws CacheException If an error is encountered.
    */
-  void commitFile(File file) throws CacheException;
+  void commitFile(File file, long length) throws CacheException;
 
   /**
    * Releases a {@link CacheSpan} obtained from {@link #startReadWrite(String, long)} which

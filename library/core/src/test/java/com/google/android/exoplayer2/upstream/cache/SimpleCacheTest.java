@@ -377,7 +377,7 @@ public class SimpleCacheTest {
     } finally {
       fos.close();
     }
-    simpleCache.commitFile(file);
+    simpleCache.commitFile(file, length);
   }
 
   private static void assertCachedDataReadCorrect(CacheSpan cacheSpan) throws IOException {

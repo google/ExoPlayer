@@ -219,7 +219,7 @@ public final class CacheDataSink implements DataSink {
       File fileToCommit = file;
       file = null;
       if (success) {
-        cache.commitFile(fileToCommit);
+        cache.commitFile(fileToCommit, outputStreamBytesWritten);
       } else {
         fileToCommit.delete();
       }
