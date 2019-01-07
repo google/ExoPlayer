@@ -275,26 +275,24 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized void commitFile(File file) throws CacheException {
+  public synchronized void commitFile(File file, long length) throws CacheException {
     Assertions.checkState(!released);
-    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(file, index);
+    if (!file.exists()) {
+      return;
+    }
+    if (length == 0) {
+      file.delete();
+      return;
+    }
+    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(file, length, index);
     Assertions.checkState(span != null);
     CachedContent cachedContent = index.get(span.key);
     Assertions.checkNotNull(cachedContent);
     Assertions.checkState(cachedContent.isLocked());
-    // If the file doesn't exist, don't add it to the in-memory representation.
-    if (!file.exists()) {
-      return;
-    }
-    // If the file has length 0, delete it and don't add it to the in-memory representation.
-    if (file.length() == 0) {
-      file.delete();
-      return;
-    }
     // Check if the span conflicts with the set content length
-    long length = ContentMetadata.getContentLength(cachedContent.getMetadata());
-    if (length != C.LENGTH_UNSET) {
-      Assertions.checkState((span.position + span.length) <= length);
+    long contentLength = ContentMetadata.getContentLength(cachedContent.getMetadata());
+    if (contentLength != C.LENGTH_UNSET) {
+      Assertions.checkState((span.position + span.length) <= contentLength);
     }
     addSpan(span);
     index.store();
@@ -394,7 +392,7 @@ public final class SimpleCache implements Cache {
         continue;
       }
       SimpleCacheSpan span =
-          file.length() > 0 ? SimpleCacheSpan.createCacheEntry(file, index) : null;
+          file.length() > 0 ? SimpleCacheSpan.createCacheEntry(file, file.length(), index) : null;
       if (span != null) {
         addSpan(span);
       } else {

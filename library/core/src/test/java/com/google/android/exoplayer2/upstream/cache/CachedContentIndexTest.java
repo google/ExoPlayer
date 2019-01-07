@@ -100,9 +100,15 @@ public class CachedContentIndexTest {
     assertThat(cachedContent1.id != cachedContent2.id).isTrue();
 
     // add a span
+    int cacheFileLength = 20;
     File cacheSpanFile =
-        SimpleCacheSpanTest.createCacheSpanFile(cacheDir, cachedContent1.id, 10, 20, 30);
-    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, index);
+        SimpleCacheSpanTest.createCacheSpanFile(
+            cacheDir,
+            cachedContent1.id,
+            /* offset= */ 10,
+            cacheFileLength,
+            /* lastAccessTimestamp= */ 30);
+    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, cacheFileLength, index);
     assertThat(span).isNotNull();
     cachedContent1.addSpan(span);
 
@@ -274,9 +280,15 @@ public class CachedContentIndexTest {
   @Test
   public void testCantRemoveNotEmptyCachedContent() throws Exception {
     CachedContent cachedContent = index.getOrAdd("key1");
-    File cacheSpanFile =
-        SimpleCacheSpanTest.createCacheSpanFile(cacheDir, cachedContent.id, 10, 20, 30);
-    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, index);
+    long cacheFileLength = 20;
+    File cacheFile =
+        SimpleCacheSpanTest.createCacheSpanFile(
+            cacheDir,
+            cachedContent.id,
+            /* offset= */ 10,
+            cacheFileLength,
+            /* lastAccessTimestamp= */ 30);
+    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheFile, cacheFileLength, index);
     cachedContent.addSpan(span);
 
     index.maybeRemove(cachedContent.key);
