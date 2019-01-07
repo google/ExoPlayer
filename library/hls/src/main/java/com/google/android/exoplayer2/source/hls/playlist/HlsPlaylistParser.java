@@ -360,7 +360,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* initializationData= */ null,
                   selectionFlags,
                   language);
-          if (uri == null) {
+          if (isMediaTagMuxed(variants, uri)) {
             muxedAudioFormat = format;
           } else {
             audios.add(new HlsMasterPlaylist.HlsUrl(uri, format));
@@ -764,6 +764,20 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static Pattern compileBooleanAttrPattern(String attribute) {
     return Pattern.compile(attribute + "=(" + BOOLEAN_FALSE + "|" + BOOLEAN_TRUE + ")");
+  }
+
+  private static boolean isMediaTagMuxed(
+      List<HlsMasterPlaylist.HlsUrl> variants, String mediaTagUri) {
+    if (mediaTagUri == null) {
+      return true;
+    }
+    // The URI attribute is defined, but it may match the uri of a variant.
+    for (int i = 0; i < variants.size(); i++) {
+      if (mediaTagUri.equals(variants.get(i).url)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static class LineIterator {
