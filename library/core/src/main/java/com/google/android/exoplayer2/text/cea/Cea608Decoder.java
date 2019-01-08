@@ -421,7 +421,7 @@ public final class Cea608Decoder extends CeaDecoder {
     } else if (isPreambleAddressCode(cc1, cc2)) {
       handlePreambleAddressCode(cc1, cc2);
     } else if (isTabCtrlCode(cc1, cc2)) {
-      currentCueBuilder.setTab(cc2 - 0x20);
+      currentCueBuilder.tabOffset = cc2 - 0x20;
     } else if (isMiscCode(cc1, cc2)) {
       handleMiscCode(cc2);
     }
@@ -456,12 +456,12 @@ public final class Cea608Decoder extends CeaDecoder {
       row++;
     }
 
-    if (row != currentCueBuilder.getRow()) {
+    if (row != currentCueBuilder.row) {
       if (captionMode != CC_MODE_ROLL_UP && !currentCueBuilder.isEmpty()) {
         currentCueBuilder = new CueBuilder(captionMode, captionRowCount);
         cueBuilders.add(currentCueBuilder);
       }
-      currentCueBuilder.setRow(row);
+      currentCueBuilder.row = row;
     }
 
     // cc2 - 0|1|N|0|STYLE|U
@@ -475,7 +475,7 @@ public final class Cea608Decoder extends CeaDecoder {
     currentCueBuilder.setStyle(isCursor ? STYLE_UNCHANGED : cursorOrStyle, underline);
 
     if (isCursor) {
-      currentCueBuilder.setIndent(COLUMN_INDICES[cursorOrStyle]);
+      currentCueBuilder.indent = COLUMN_INDICES[cursorOrStyle];
     }
   }
 
@@ -672,6 +672,12 @@ public final class Cea608Decoder extends CeaDecoder {
       tabOffset = 0;
     }
 
+    public boolean isEmpty() {
+      return cueStyles.isEmpty()
+          && rolledUpCaptions.isEmpty()
+          && captionStringBuilder.length() == 0;
+    }
+
     public void setCaptionMode(int captionMode) {
       this.captionMode = captionMode;
     }
@@ -680,10 +686,8 @@ public final class Cea608Decoder extends CeaDecoder {
       this.captionRowCount = captionRowCount;
     }
 
-    public boolean isEmpty() {
-      return cueStyles.isEmpty()
-          && rolledUpCaptions.isEmpty()
-          && captionStringBuilder.length() == 0;
+    public void setStyle(int style, boolean underline) {
+      cueStyles.add(new CueStyle(style, underline, captionStringBuilder.length()));
     }
 
     public void backspace() {
@@ -703,16 +707,12 @@ public final class Cea608Decoder extends CeaDecoder {
       }
     }
 
-    public int getRow() {
-      return row;
-    }
-
-    public void setRow(int row) {
-      this.row = row;
+    public void append(char text) {
+      captionStringBuilder.append(text);
     }
 
     public void rollUp() {
-      rolledUpCaptions.add(buildSpannableString());
+      rolledUpCaptions.add(buildCurrentLine());
       captionStringBuilder.setLength(0);
       cueStyles.clear();
       int numRows = Math.min(captionRowCount, row);
@@ -721,23 +721,76 @@ public final class Cea608Decoder extends CeaDecoder {
       }
     }
 
-    public void setIndent(int indent) {
-      this.indent = indent;
+    public Cue build() {
+      SpannableStringBuilder cueString = new SpannableStringBuilder();
+      // Add any rolled up captions, separated by new lines.
+      for (int i = 0; i < rolledUpCaptions.size(); i++) {
+        cueString.append(rolledUpCaptions.get(i));
+        cueString.append('\n');
+      }
+      // Add the current line.
+      cueString.append(buildCurrentLine());
+
+      if (cueString.length() == 0) {
+        // The cue is empty.
+        return null;
+      }
+
+      float position;
+      int positionAnchor;
+      // The number of empty columns before the start of the text, in the range [0-31].
+      int startPadding = indent + tabOffset;
+      // The number of empty columns after the end of the text, in the same range.
+      int endPadding = SCREEN_CHARWIDTH - startPadding - cueString.length();
+      int startEndPaddingDelta = startPadding - endPadding;
+      if (captionMode == CC_MODE_POP_ON && (Math.abs(startEndPaddingDelta) < 3 || endPadding < 0)) {
+        // Treat approximately centered pop-on captions as middle aligned. We also treat captions
+        // that are wider than they should be in this way. See
+        // https://github.com/google/ExoPlayer/issues/3534.
+        position = 0.5f;
+        positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
+      } else if (captionMode == CC_MODE_POP_ON && startEndPaddingDelta > 0) {
+        // Treat pop-on captions with less padding at the end than the start as end aligned.
+        position = (float) (SCREEN_CHARWIDTH - endPadding) / SCREEN_CHARWIDTH;
+        // Adjust the position to fit within the safe area.
+        position = position * 0.8f + 0.1f;
+        positionAnchor = Cue.ANCHOR_TYPE_END;
+      } else {
+        // For all other cases assume start aligned.
+        position = (float) startPadding / SCREEN_CHARWIDTH;
+        // Adjust the position to fit within the safe area.
+        position = position * 0.8f + 0.1f;
+        positionAnchor = Cue.ANCHOR_TYPE_START;
+      }
+
+      int lineAnchor;
+      int line;
+      // Note: Row indices are in the range [1-15].
+      if (captionMode == CC_MODE_ROLL_UP || row > (BASE_ROW / 2)) {
+        lineAnchor = Cue.ANCHOR_TYPE_END;
+        line = row - BASE_ROW;
+        // Two line adjustments. The first is because line indices from the bottom of the window
+        // start from -1 rather than 0. The second is a blank row to act as the safe area.
+        line -= 2;
+      } else {
+        lineAnchor = Cue.ANCHOR_TYPE_START;
+        // Line indices from the top of the window start from 0, but we want a blank row to act as
+        // the safe area. As a result no adjustment is necessary.
+        line = row;
+      }
+
+      return new Cue(
+          cueString,
+          Alignment.ALIGN_NORMAL,
+          line,
+          Cue.LINE_TYPE_NUMBER,
+          lineAnchor,
+          position,
+          positionAnchor,
+          Cue.DIMEN_UNSET);
     }
 
-    public void setTab(int tabs) {
-      tabOffset = tabs;
-    }
-
-    public void setStyle(int style, boolean underline) {
-      cueStyles.add(new CueStyle(style, underline, captionStringBuilder.length()));
-    }
-
-    public void append(char text) {
-      captionStringBuilder.append(text);
-    }
-
-    public SpannableString buildSpannableString() {
+    private SpannableString buildCurrentLine() {
       SpannableStringBuilder builder = new SpannableStringBuilder(captionStringBuilder);
       int length = builder.length();
 
@@ -801,73 +854,6 @@ public final class Cea608Decoder extends CeaDecoder {
       }
 
       return new SpannableString(builder);
-    }
-
-    public Cue build() {
-      SpannableStringBuilder cueString = new SpannableStringBuilder();
-      // Add any rolled up captions, separated by new lines.
-      for (int i = 0; i < rolledUpCaptions.size(); i++) {
-        cueString.append(rolledUpCaptions.get(i));
-        cueString.append('\n');
-      }
-      // Add the current line.
-      cueString.append(buildSpannableString());
-
-      if (cueString.length() == 0) {
-        // The cue is empty.
-        return null;
-      }
-
-      float position;
-      int positionAnchor;
-      // The number of empty columns before the start of the text, in the range [0-31].
-      int startPadding = indent + tabOffset;
-      // The number of empty columns after the end of the text, in the same range.
-      int endPadding = SCREEN_CHARWIDTH - startPadding - cueString.length();
-      int startEndPaddingDelta = startPadding - endPadding;
-      if (captionMode == CC_MODE_POP_ON && (Math.abs(startEndPaddingDelta) < 3 || endPadding < 0)) {
-        // Treat approximately centered pop-on captions as middle aligned. We also treat captions
-        // that are wider than they should be in this way. See
-        // https://github.com/google/ExoPlayer/issues/3534.
-        position = 0.5f;
-        positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-      } else if (captionMode == CC_MODE_POP_ON && startEndPaddingDelta > 0) {
-        // Treat pop-on captions with less padding at the end than the start as end aligned.
-        position = (float) (SCREEN_CHARWIDTH - endPadding) / SCREEN_CHARWIDTH;
-        // Adjust the position to fit within the safe area.
-        position = position * 0.8f + 0.1f;
-        positionAnchor = Cue.ANCHOR_TYPE_END;
-      } else {
-        // For all other cases assume start aligned.
-        position = (float) startPadding / SCREEN_CHARWIDTH;
-        // Adjust the position to fit within the safe area.
-        position = position * 0.8f + 0.1f;
-        positionAnchor = Cue.ANCHOR_TYPE_START;
-      }
-
-      int lineAnchor;
-      int line;
-      // Note: Row indices are in the range [1-15].
-      if (captionMode == CC_MODE_ROLL_UP || row > (BASE_ROW / 2)) {
-        lineAnchor = Cue.ANCHOR_TYPE_END;
-        line = row - BASE_ROW;
-        // Two line adjustments. The first is because line indices from the bottom of the window
-        // start from -1 rather than 0. The second is a blank row to act as the safe area.
-        line -= 2;
-      } else {
-        lineAnchor = Cue.ANCHOR_TYPE_START;
-        // Line indices from the top of the window start from 0, but we want a blank row to act as
-        // the safe area. As a result no adjustment is necessary.
-        line = row;
-      }
-
-      return new Cue(cueString, Alignment.ALIGN_NORMAL, line, Cue.LINE_TYPE_NUMBER, lineAnchor,
-          position, positionAnchor, Cue.DIMEN_UNSET);
-    }
-
-    @Override
-    public String toString() {
-      return captionStringBuilder.toString();
     }
 
     private static void setUnderlineSpan(SpannableStringBuilder builder, int start, int end) {
