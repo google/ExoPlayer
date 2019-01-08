@@ -382,29 +382,45 @@ public final class SimpleCache implements Cache {
     }
 
     index.load();
-
-    File[] files = cacheDir.listFiles();
-    if (files == null) {
-      return;
-    }
-    for (File file : files) {
-      if (file.getName().equals(CachedContentIndex.FILE_NAME)) {
-        continue;
-      }
-      SimpleCacheSpan span =
-          file.length() > 0 ? SimpleCacheSpan.createCacheEntry(file, file.length(), index) : null;
-      if (span != null) {
-        addSpan(span);
-      } else {
-        file.delete();
-      }
-    }
-
+    loadDirectory(cacheDir, /* isRootDirectory= */ true);
     index.removeEmpty();
+
     try {
       index.store();
     } catch (CacheException e) {
       Log.e(TAG, "Storing index file failed", e);
+    }
+  }
+
+  private void loadDirectory(File directory, boolean isRootDirectory) {
+    File[] files = directory.listFiles();
+    if (files == null) {
+      // Not a directory.
+      return;
+    }
+    if (!isRootDirectory && files.length == 0) {
+      // Empty non-root directory.
+      directory.delete();
+      return;
+    }
+    for (File file : files) {
+      String fileName = file.getName();
+      if (fileName.indexOf('.') == -1) {
+        loadDirectory(file, /* isRootDirectory= */ false);
+      } else {
+        if (isRootDirectory && CachedContentIndex.FILE_NAME.equals(fileName)) {
+          // Skip the (expected) index file in the root directory.
+          continue;
+        }
+        long fileLength = file.length();
+        SimpleCacheSpan span =
+            fileLength > 0 ? SimpleCacheSpan.createCacheEntry(file, fileLength, index) : null;
+        if (span != null) {
+          addSpan(span);
+        } else {
+          file.delete();
+        }
+      }
     }
   }
 
