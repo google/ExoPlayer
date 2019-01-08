@@ -542,13 +542,34 @@ public final class Cea608Decoder extends CeaDecoder {
   }
 
   private List<Cue> getDisplayCues() {
-    List<Cue> displayCues = new ArrayList<>();
-    for (int i = 0; i < cueBuilders.size(); i++) {
-      Cue cue = cueBuilders.get(i).build();
+    // CEA-608 does not define middle and end alignment, however content providers artificially
+    // introduce them using whitespace. When each cue is built, we try and infer the alignment based
+    // on the amount of whitespace either side of the text. To avoid consecutive cues being aligned
+    // differently, we force all cues to have the same alignment, with start alignment given
+    // preference, then middle alignment, then end alignment.
+    @Cue.AnchorType int positionAnchor = Cue.ANCHOR_TYPE_END;
+    int cueBuilderCount = cueBuilders.size();
+    List<Cue> cueBuilderCues = new ArrayList<>(cueBuilderCount);
+    for (int i = 0; i < cueBuilderCount; i++) {
+      Cue cue = cueBuilders.get(i).build(/* forcedPositionAnchor= */ Cue.TYPE_UNSET);
+      cueBuilderCues.add(cue);
       if (cue != null) {
+        positionAnchor = Math.min(positionAnchor, cue.positionAnchor);
+      }
+    }
+
+    // Skip null cues and rebuild any that don't have the preferred alignment.
+    List<Cue> displayCues = new ArrayList<>(cueBuilderCount);
+    for (int i = 0; i < cueBuilderCount; i++) {
+      Cue cue = cueBuilderCues.get(i);
+      if (cue != null) {
+        if (cue.positionAnchor != positionAnchor) {
+          cue = cueBuilders.get(i).build(positionAnchor);
+        }
         displayCues.add(cue);
       }
     }
+
     return displayCues;
   }
 
@@ -721,7 +742,7 @@ public final class Cea608Decoder extends CeaDecoder {
       }
     }
 
-    public Cue build() {
+    public Cue build(@Cue.AnchorType int forcedPositionAnchor) {
       SpannableStringBuilder cueString = new SpannableStringBuilder();
       // Add any rolled up captions, separated by new lines.
       for (int i = 0; i < rolledUpCaptions.size(); i++) {
@@ -736,31 +757,44 @@ public final class Cea608Decoder extends CeaDecoder {
         return null;
       }
 
-      float position;
       int positionAnchor;
       // The number of empty columns before the start of the text, in the range [0-31].
       int startPadding = indent + tabOffset;
       // The number of empty columns after the end of the text, in the same range.
       int endPadding = SCREEN_CHARWIDTH - startPadding - cueString.length();
       int startEndPaddingDelta = startPadding - endPadding;
-      if (captionMode == CC_MODE_POP_ON && (Math.abs(startEndPaddingDelta) < 3 || endPadding < 0)) {
+      if (forcedPositionAnchor != Cue.TYPE_UNSET) {
+        positionAnchor = forcedPositionAnchor;
+      } else if (captionMode == CC_MODE_POP_ON
+          && (Math.abs(startEndPaddingDelta) < 3 || endPadding < 0)) {
         // Treat approximately centered pop-on captions as middle aligned. We also treat captions
         // that are wider than they should be in this way. See
         // https://github.com/google/ExoPlayer/issues/3534.
-        position = 0.5f;
         positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
       } else if (captionMode == CC_MODE_POP_ON && startEndPaddingDelta > 0) {
         // Treat pop-on captions with less padding at the end than the start as end aligned.
-        position = (float) (SCREEN_CHARWIDTH - endPadding) / SCREEN_CHARWIDTH;
-        // Adjust the position to fit within the safe area.
-        position = position * 0.8f + 0.1f;
         positionAnchor = Cue.ANCHOR_TYPE_END;
       } else {
         // For all other cases assume start aligned.
-        position = (float) startPadding / SCREEN_CHARWIDTH;
-        // Adjust the position to fit within the safe area.
-        position = position * 0.8f + 0.1f;
         positionAnchor = Cue.ANCHOR_TYPE_START;
+      }
+
+      float position;
+      switch (positionAnchor) {
+        case Cue.ANCHOR_TYPE_MIDDLE:
+          position = 0.5f;
+          break;
+        case Cue.ANCHOR_TYPE_END:
+          position = (float) (SCREEN_CHARWIDTH - endPadding) / SCREEN_CHARWIDTH;
+          // Adjust the position to fit within the safe area.
+          position = position * 0.8f + 0.1f;
+          break;
+        case Cue.ANCHOR_TYPE_START:
+        default:
+          position = (float) startPadding / SCREEN_CHARWIDTH;
+          // Adjust the position to fit within the safe area.
+          position = position * 0.8f + 0.1f;
+          break;
       }
 
       int lineAnchor;
