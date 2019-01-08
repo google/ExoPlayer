@@ -25,6 +25,7 @@ import static com.google.android.exoplayer2.offline.DownloadState.STATE_REMOVED;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_REMOVING;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_RESTARTING;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_STOPPED;
+import static com.google.android.exoplayer2.offline.DownloadState.STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY;
 import static com.google.android.exoplayer2.offline.DownloadState.STOP_FLAG_STOPPED;
 
 import android.os.ConditionVariable;
@@ -127,7 +128,7 @@ public final class DownloadManager {
     this.downloaderFactory = downloaderFactory;
     this.maxActiveDownloads = maxSimultaneousDownloads;
     this.minRetryCount = minRetryCount;
-    this.stickyStopFlags = STOP_FLAG_STOPPED;
+    this.stickyStopFlags = STOP_FLAG_STOPPED | STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY;
 
     downloads = new ArrayList<>();
     activeDownloads = new ArrayList<>();
@@ -169,25 +170,31 @@ public final class DownloadManager {
 
   /** Starts the downloads. */
   public void startDownloads() {
-    Assertions.checkState(!released);
-    if (stickyStopFlags != 0) {
-      stickyStopFlags = 0;
-      for (int i = 0; i < downloads.size(); i++) {
-        downloads.get(i).clearStopFlags(STOP_FLAG_STOPPED);
-      }
-      logd("Downloads are started");
-    }
+    clearStopFlags(STOP_FLAG_STOPPED);
   }
 
   /** Stops all of the downloads. Call {@link #startDownloads()} to restart downloads. */
   public void stopDownloads() {
+    setStopFlags(STOP_FLAG_STOPPED);
+  }
+
+  private void setStopFlags(int flags) {
+    updateStopFlags(flags, flags);
+  }
+
+  private void clearStopFlags(int flags) {
+    updateStopFlags(flags, 0);
+  }
+
+  private void updateStopFlags(int flags, int values) {
     Assertions.checkState(!released);
-    if (stickyStopFlags == 0) {
-      stickyStopFlags = STOP_FLAG_STOPPED;
+    int updatedStickyStopFlags = (values & flags) | (stickyStopFlags & ~flags);
+    if (stickyStopFlags != updatedStickyStopFlags) {
+      stickyStopFlags = updatedStickyStopFlags;
       for (int i = 0; i < downloads.size(); i++) {
-        downloads.get(i).setStopFlags(STOP_FLAG_STOPPED);
+        downloads.get(i).updateStopFlags(flags, values);
       }
-      logd("Downloads are stopping");
+      logdFlags("Sticky stop flags are updated", updatedStickyStopFlags);
     }
   }
 
@@ -269,10 +276,8 @@ public final class DownloadManager {
     if (released) {
       return;
     }
+    setStopFlags(STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY);
     released = true;
-    for (int i = 0; i < downloads.size(); i++) {
-      downloads.get(i).queue();
-    }
     final ConditionVariable fileIOFinishedCondition = new ConditionVariable();
     fileIOHandler.post(fileIOFinishedCondition::open);
     fileIOFinishedCondition.block();
@@ -294,24 +299,11 @@ public final class DownloadManager {
     logd("Download is added", download);
   }
 
-  private void maybeStartDownloads() {
-    for (int i = 0; i < downloads.size(); i++) {
-      maybeStartDownload(downloads.get(i));
-    }
-  }
-
   private void maybeStartDownload(Download download) {
-    if (initialized && !released && activeDownloads.size() < maxActiveDownloads) {
+    if (activeDownloads.size() < maxActiveDownloads) {
       if (download.start()) {
         activeDownloads.add(download);
       }
-    }
-  }
-
-  private void maybeRestartDownload(Download download) {
-    Assertions.checkState(activeDownloads.contains(download));
-    if (initialized && !released) {
-      download.start();
     }
   }
 
@@ -339,7 +331,9 @@ public final class DownloadManager {
       saveActions();
     }
     if (idle) {
-      maybeStartDownloads();
+      for (int i = 0; i < downloads.size(); i++) {
+        maybeStartDownload(downloads.get(i));
+      }
       maybeNotifyListenersIdle();
     }
   }
@@ -383,7 +377,7 @@ public final class DownloadManager {
                 for (Listener listener : listeners) {
                   listener.onInitialized(DownloadManager.this);
                 }
-                maybeStartDownloads();
+                clearStopFlags(STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY);
               });
         });
   }
@@ -415,7 +409,15 @@ public final class DownloadManager {
   }
 
   private static void logd(String message, Download download) {
-    logd(message + ": " + download);
+    if (DEBUG) {
+      logd(message + ": " + download);
+    }
+  }
+
+  private static void logdFlags(String message, int flags) {
+    if (DEBUG) {
+      logd(message + ": " + Integer.toBinaryString(flags));
+    }
   }
 
   private static final class Download {
@@ -529,22 +531,16 @@ public final class DownloadManager {
       return true;
     }
 
-    public void setStopFlags(int stopFlags) {
-      updateStopFlags(stopFlags, stopFlags);
+    public void setStopFlags(int flags) {
+      updateStopFlags(flags, flags);
     }
 
-    public void clearStopFlags(int stopFlags) {
-      updateStopFlags(stopFlags, 0);
+    public void clearStopFlags(int flags) {
+      updateStopFlags(flags, 0);
     }
 
-    public void queue() {
-      if (state == STATE_DOWNLOADING) {
-        stopDownloadThread();
-      }
-    }
-
-    private void updateStopFlags(int mask, int flags) {
-      stopFlags = (flags & mask) | (stopFlags & ~mask);
+    public void updateStopFlags(int flags, int values) {
+      stopFlags = (values & flags) | (stopFlags & ~flags);
       if (stopFlags != 0) {
         if (state == STATE_DOWNLOADING) {
           stopDownloadThread();
@@ -574,7 +570,7 @@ public final class DownloadManager {
       // Set to queued state but don't notify listeners until we make sure we can't start now.
       state = STATE_QUEUED;
       if (restart) {
-        downloadManager.maybeRestartDownload(this);
+        start();
       } else {
         downloadManager.maybeStartDownload(this);
       }

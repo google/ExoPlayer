@@ -73,15 +73,20 @@ public final class DownloadState {
   /** The download is failed because of unknown reason. */
   public static final int FAILURE_REASON_UNKNOWN = 1;
 
-  /** Download stop flags. Possible flag value is {@link #STOP_FLAG_STOPPED}. */
+  /**
+   * Download stop flags. Possible flag values are {@link #STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY} and
+   * {@link #STOP_FLAG_STOPPED}.
+   */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {STOP_FLAG_STOPPED})
+      value = {STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY, STOP_FLAG_STOPPED})
   public @interface StopFlags {}
+  /** Download can't be started as the manager isn't ready. */
+  public static final int STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY = 1;
   /** All downloads are stopped by the application. */
-  public static final int STOP_FLAG_STOPPED = 1;
+  public static final int STOP_FLAG_STOPPED = 1 << 1;
 
   /** Returns the state string for the given state value. */
   public static String getStateString(@State int state) {
