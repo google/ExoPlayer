@@ -761,6 +761,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       //     unlikely to be a problem as a non-zero default position usually only occurs for live
       //     playbacks and seeking to zero in a live window would cause BehindLiveWindowExceptions
       //     anyway.
+      timeline.getWindow(/* windowIndex= */ 0, window);
       long windowStartPositionUs = window.getDefaultPositionUs();
       if (deferredMediaPeriod != null) {
         long periodPreparePositionUs = deferredMediaPeriod.getPreparePositionUs();
