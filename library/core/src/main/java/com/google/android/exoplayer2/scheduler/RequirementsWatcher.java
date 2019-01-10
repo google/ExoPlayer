@@ -68,6 +68,7 @@ public final class RequirementsWatcher {
 
   private int notMetRequirements;
   private CapabilityValidatedCallback networkCallback;
+  private Handler handler;
 
   /**
    * @param context Any context.
@@ -87,6 +88,7 @@ public final class RequirementsWatcher {
    */
   public void start() {
     Assertions.checkNotNull(Looper.myLooper());
+    handler = new Handler();
 
     notMetRequirements = requirements.getNotMetRequirements(context);
 
@@ -111,7 +113,7 @@ public final class RequirementsWatcher {
       }
     }
     receiver = new DeviceStatusChangeReceiver();
-    context.registerReceiver(receiver, filter, null, new Handler());
+    context.registerReceiver(receiver, filter, null, handler);
     logd(this + " started");
   }
 
@@ -195,16 +197,22 @@ public final class RequirementsWatcher {
   private final class CapabilityValidatedCallback extends ConnectivityManager.NetworkCallback {
     @Override
     public void onAvailable(Network network) {
-      super.onAvailable(network);
-      logd(RequirementsWatcher.this + " NetworkCallback.onAvailable");
-      checkRequirements();
+      onNetworkCallback();
     }
 
     @Override
     public void onLost(Network network) {
-      super.onLost(network);
-      logd(RequirementsWatcher.this + " NetworkCallback.onLost");
-      checkRequirements();
+      onNetworkCallback();
+    }
+
+    private void onNetworkCallback() {
+      handler.post(
+          () -> {
+            if (networkCallback != null) {
+              logd(RequirementsWatcher.this + " NetworkCallback");
+              checkRequirements();
+            }
+          });
     }
   }
 }
