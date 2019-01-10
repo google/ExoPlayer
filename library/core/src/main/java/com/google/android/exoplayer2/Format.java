@@ -93,6 +93,10 @@ public final class Format implements Parcelable {
   // Video specific.
 
   /**
+   * Codec specific profile value or {@link #NO_VALUE} if unknown or not applicable.
+   */
+  public final int profile;
+  /**
    * The width of the video in pixels, or {@link #NO_VALUE} if unknown or not applicable.
    */
   public final int width;
@@ -237,7 +241,8 @@ public final class Format implements Parcelable {
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         /* drmInitData= */ null,
-        /* metadata= */ null);
+        /* metadata= */ null,
+        /* profile= */ NO_VALUE);
   }
 
   public static Format createVideoSampleFormat(
@@ -250,7 +255,8 @@ public final class Format implements Parcelable {
       int height,
       float frameRate,
       @Nullable List<byte[]> initializationData,
-      @Nullable DrmInitData drmInitData) {
+      @Nullable DrmInitData drmInitData,
+      int profile) {
     return createVideoSampleFormat(
         id,
         sampleMimeType,
@@ -263,7 +269,8 @@ public final class Format implements Parcelable {
         initializationData,
         /* rotationDegrees= */ NO_VALUE,
         /* pixelWidthHeightRatio= */ NO_VALUE,
-        drmInitData);
+        drmInitData,
+        profile);
   }
 
   public static Format createVideoSampleFormat(
@@ -278,7 +285,8 @@ public final class Format implements Parcelable {
       @Nullable List<byte[]> initializationData,
       int rotationDegrees,
       float pixelWidthHeightRatio,
-      @Nullable DrmInitData drmInitData) {
+      @Nullable DrmInitData drmInitData,
+      int profile) {
     return createVideoSampleFormat(
         id,
         sampleMimeType,
@@ -294,7 +302,8 @@ public final class Format implements Parcelable {
         /* projectionData= */ null,
         /* stereoMode= */ NO_VALUE,
         /* colorInfo= */ null,
-        drmInitData);
+        drmInitData,
+        profile);
   }
 
   public static Format createVideoSampleFormat(
@@ -312,7 +321,8 @@ public final class Format implements Parcelable {
       byte[] projectionData,
       @C.StereoMode int stereoMode,
       @Nullable ColorInfo colorInfo,
-      @Nullable DrmInitData drmInitData) {
+      @Nullable DrmInitData drmInitData,
+      int profile) {
     return new Format(
         id,
         /* label= */ null,
@@ -340,7 +350,8 @@ public final class Format implements Parcelable {
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
-        /* metadata= */ null);
+        /* metadata= */ null,
+        /* profile= */ profile);
   }
 
   // Audio.
@@ -410,7 +421,8 @@ public final class Format implements Parcelable {
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         /* drmInitData= */ null,
-        /* metadata= */ null);
+        /* metadata= */ null,
+        /* profile= */ NO_VALUE);
   }
 
   public static Format createAudioSampleFormat(
@@ -514,7 +526,8 @@ public final class Format implements Parcelable {
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
-        metadata);
+        metadata,
+        /* profile= */ NO_VALUE);
   }
 
   // Text.
@@ -597,7 +610,8 @@ public final class Format implements Parcelable {
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
         /* drmInitData= */ null,
-        /* metadata= */ null);
+        /* metadata= */ null,
+        /* profile= */ NO_VALUE);
   }
 
   public static Format createTextSampleFormat(
@@ -709,7 +723,8 @@ public final class Format implements Parcelable {
         subsampleOffsetUs,
         initializationData,
         drmInitData,
-        /* metadata= */ null);
+        /* metadata= */ null,
+        /* profile= */ NO_VALUE);
   }
 
   // Image.
@@ -750,7 +765,8 @@ public final class Format implements Parcelable {
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
-        /* metadata=*/ null);
+        /* metadata=*/ null,
+        /* profile= */ NO_VALUE);
   }
 
   // Generic.
@@ -811,7 +827,8 @@ public final class Format implements Parcelable {
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
         /* drmInitData= */ null,
-        /* metadata= */ null);
+        /* metadata= */ null,
+        /* profile= */ NO_VALUE);
   }
 
   public static Format createSampleFormat(
@@ -843,7 +860,8 @@ public final class Format implements Parcelable {
         subsampleOffsetUs,
         /* initializationData= */ null,
         /* drmInitData= */ null,
-        /* metadata= */ null);
+        /* metadata= */ null,
+        /* profile= */ NO_VALUE);
   }
 
   public static Format createSampleFormat(
@@ -879,7 +897,8 @@ public final class Format implements Parcelable {
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
         drmInitData,
-        /* metadata= */ null);
+        /* metadata= */ null,
+        /* profile= */ NO_VALUE);
   }
 
   /* package */ Format(
@@ -909,7 +928,8 @@ public final class Format implements Parcelable {
       long subsampleOffsetUs,
       @Nullable List<byte[]> initializationData,
       @Nullable DrmInitData drmInitData,
-      @Nullable Metadata metadata) {
+      @Nullable Metadata metadata,
+      int profile) {
     this.id = id;
     this.label = label;
     this.containerMimeType = containerMimeType;
@@ -939,6 +959,7 @@ public final class Format implements Parcelable {
         initializationData == null ? Collections.emptyList() : initializationData;
     this.drmInitData = drmInitData;
     this.metadata = metadata;
+    this.profile = profile;
   }
 
   @SuppressWarnings("ResourceType")
@@ -975,6 +996,7 @@ public final class Format implements Parcelable {
     }
     drmInitData = in.readParcelable(DrmInitData.class.getClassLoader());
     metadata = in.readParcelable(Metadata.class.getClassLoader());
+    profile = in.readInt();
   }
 
   public Format copyWithMaxInputSize(int maxInputSize) {
@@ -1005,7 +1027,8 @@ public final class Format implements Parcelable {
         subsampleOffsetUs,
         initializationData,
         drmInitData,
-        metadata);
+        metadata,
+        profile);
   }
 
   public Format copyWithSubsampleOffsetUs(long subsampleOffsetUs) {
@@ -1036,7 +1059,8 @@ public final class Format implements Parcelable {
         subsampleOffsetUs,
         initializationData,
         drmInitData,
-        metadata);
+        metadata,
+        profile);
   }
 
   public Format copyWithContainerInfo(
@@ -1076,7 +1100,8 @@ public final class Format implements Parcelable {
         subsampleOffsetUs,
         initializationData,
         drmInitData,
-        metadata);
+        metadata,
+        profile);
   }
 
   @SuppressWarnings("ReferenceEquality")
@@ -1147,7 +1172,8 @@ public final class Format implements Parcelable {
         subsampleOffsetUs,
         initializationData,
         drmInitData,
-        metadata);
+        metadata,
+        profile);
   }
 
   public Format copyWithGaplessInfo(int encoderDelay, int encoderPadding) {
@@ -1209,7 +1235,8 @@ public final class Format implements Parcelable {
         subsampleOffsetUs,
         initializationData,
         drmInitData,
-        metadata);
+        metadata,
+        profile);
   }
 
   public Format copyWithDrmInitData(@Nullable DrmInitData drmInitData) {
@@ -1240,7 +1267,8 @@ public final class Format implements Parcelable {
         subsampleOffsetUs,
         initializationData,
         drmInitData,
-        metadata);
+        metadata,
+        profile);
   }
 
   public Format copyWithMetadata(@Nullable Metadata metadata) {
@@ -1271,7 +1299,8 @@ public final class Format implements Parcelable {
         subsampleOffsetUs,
         initializationData,
         drmInitData,
-        metadata);
+        metadata,
+        profile);
   }
 
   public Format copyWithRotationDegrees(int rotationDegrees) {
@@ -1333,7 +1362,8 @@ public final class Format implements Parcelable {
         subsampleOffsetUs,
         initializationData,
         drmInitData,
-        metadata);
+        metadata,
+        profile);
   }
 
   /**
@@ -1446,7 +1476,8 @@ public final class Format implements Parcelable {
         && Util.areEqual(metadata, other.metadata)
         && Util.areEqual(colorInfo, other.colorInfo)
         && Arrays.equals(projectionData, other.projectionData)
-        && initializationDataEquals(other);
+        && initializationDataEquals(other)
+        && Util.areEqual(profile,other.profile);
   }
 
   /**
@@ -1548,6 +1579,7 @@ public final class Format implements Parcelable {
     }
     dest.writeParcelable(drmInitData, 0);
     dest.writeParcelable(metadata, 0);
+    dest.writeInt(profile);
   }
 
   public static final Creator<Format> CREATOR = new Creator<Format>() {

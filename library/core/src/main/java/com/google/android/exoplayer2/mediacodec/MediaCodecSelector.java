@@ -46,6 +46,23 @@ public interface MediaCodecSelector {
         public @Nullable MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
           return MediaCodecUtil.getPassthroughDecoderInfo();
         }
+
+        @Override
+        public List<MediaCodecInfo> getDecoderInfos(String mimeType, boolean requiresSecureDecoder,
+            int profile)
+            throws DecoderQueryException {
+          List<MediaCodecInfo> decoderInfos =
+              MediaCodecUtil.getDecoderInfos(mimeType, requiresSecureDecoder);
+          for (MediaCodecInfo decoderInfo : decoderInfos) {
+            for (android.media.MediaCodecInfo.CodecProfileLevel profileLevel : decoderInfo
+                .getProfileLevels()) {
+              if (profileLevel.profile == profile) {
+                return Collections.singletonList(decoderInfo);
+              }
+            }
+          }
+          return null;
+        }
       };
 
   /**
@@ -68,7 +85,25 @@ public interface MediaCodecSelector {
         public @Nullable MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
           return MediaCodecUtil.getPassthroughDecoderInfo();
         }
+
+        @Override
+        public List<MediaCodecInfo> getDecoderInfos(String mimeType, boolean requiresSecureDecoder,
+            int profile)
+            throws DecoderQueryException {
+          List<MediaCodecInfo> decoderInfos =
+              MediaCodecUtil.getDecoderInfos(mimeType, requiresSecureDecoder);
+          for (MediaCodecInfo decoderInfo : decoderInfos) {
+            for (android.media.MediaCodecInfo.CodecProfileLevel profileLevel : decoderInfo
+                .getProfileLevels()) {
+              if (profileLevel.profile == profile) {
+                return Collections.singletonList(decoderInfo);
+              }
+            }
+          }
+          return null;
+        }
       };
+
 
   /**
    * Returns a list of decoders that can decode media in the specified MIME type, in priority order.
@@ -79,6 +114,18 @@ public interface MediaCodecSelector {
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
   List<MediaCodecInfo> getDecoderInfos(String mimeType, boolean requiresSecureDecoder)
+      throws DecoderQueryException;
+
+  /**
+   * Returns a list of decoders that can decode media in the specified MIME type, in priority order.
+   *
+   * @param mimeType The MIME type for which a decoder is required.
+   * @param requiresSecureDecoder Whether a secure decoder is required.
+   * @param profile the profile of the stream (streams like Dolby Vision)
+   * @return A list of {@link MediaCodecInfo}s corresponding to decoders for profile. May be empty.
+   * @throws DecoderQueryException Thrown if there was an error querying decoders.
+   */
+  List<MediaCodecInfo> getDecoderInfos(String mimeType, boolean requiresSecureDecoder, int profile)
       throws DecoderQueryException;
 
   /**

@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryExcep
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -439,6 +440,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected List<MediaCodecInfo> getDecoderInfos(
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
       throws DecoderQueryException {
+    if (format.sampleMimeType == MimeTypes.VIDEO_DOLBY_VISION) {
+      return mediaCodecSelector.getDecoderInfos(format.sampleMimeType, requiresSecureDecoder,
+          format.profile);
+    }
     return mediaCodecSelector.getDecoderInfos(format.sampleMimeType, requiresSecureDecoder);
   }
 
