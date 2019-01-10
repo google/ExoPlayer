@@ -204,7 +204,8 @@ public final class H264Reader implements ElementaryStreamReader {
                   initializationData,
                   /* rotationDegrees= */ Format.NO_VALUE,
                   spsData.pixelWidthAspectRatio,
-                  /* drmInitData= */ null));
+                  /* drmInitData= */ null,
+                  /* profile= */ Format.NO_VALUE));
           hasOutputFormat = true;
           sampleReader.putSps(spsData);
           sampleReader.putPps(ppsData);

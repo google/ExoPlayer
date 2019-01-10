@@ -1920,7 +1920,8 @@ public final class MatroskaExtractor implements Extractor {
                 projectionData,
                 stereoMode,
                 colorInfo,
-                drmInitData);
+                drmInitData,
+                Format.NO_VALUE);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
         format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, selectionFlags,

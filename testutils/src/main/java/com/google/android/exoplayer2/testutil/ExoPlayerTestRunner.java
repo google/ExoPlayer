@@ -62,7 +62,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
      */
     public static final Format VIDEO_FORMAT = Format.createVideoSampleFormat(null,
         MimeTypes.VIDEO_H264, null, Format.NO_VALUE, Format.NO_VALUE, 1280, 720, Format.NO_VALUE,
-        null, null);
+        null, null, Format.NO_VALUE);
 
     /**
      * A generic audio {@link Format} which can be used to set up media sources and renderers.
