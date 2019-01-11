@@ -265,11 +265,9 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
 
   /**
    * @see android.media.MediaCrypto#MediaCrypto(UUID, byte[])
-   *
-   * @param initData Opaque initialization data specific to the crypto scheme.
+   * @param sessionId The DRM session ID.
    * @return An object extends {@link ExoMediaCrypto}, using opaque crypto scheme specific data.
    * @throws MediaCryptoException If the instance can't be created.
    */
-  T createMediaCrypto(byte[] initData) throws MediaCryptoException;
-
+  T createMediaCrypto(byte[] sessionId) throws MediaCryptoException;
 }
