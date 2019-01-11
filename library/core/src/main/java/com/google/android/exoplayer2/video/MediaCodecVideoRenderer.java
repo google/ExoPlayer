@@ -375,7 +375,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     try {
       super.onDisabled();
     } finally {
-      decoderCounters.ensureUpdated();
       eventDispatcher.disabled(decoderCounters);
     }
   }

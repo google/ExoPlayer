@@ -548,7 +548,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       try {
         super.onDisabled();
       } finally {
-        decoderCounters.ensureUpdated();
         eventDispatcher.disabled(decoderCounters);
       }
     }

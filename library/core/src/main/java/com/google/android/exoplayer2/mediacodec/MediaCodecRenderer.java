@@ -287,13 +287,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final FormatHolder formatHolder;
   private final TimedValueQueue<Format> formatQueue;
-  private final List<Long> decodeOnlyPresentationTimestamps;
+  private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
 
   @Nullable private Format inputFormat;
   private Format outputFormat;
-  private DrmSession<FrameworkMediaCrypto> drmSession;
-  private DrmSession<FrameworkMediaCrypto> pendingDrmSession;
+  @Nullable private DrmSession<FrameworkMediaCrypto> codecDrmSession;
+  @Nullable private DrmSession<FrameworkMediaCrypto> sourceDrmSession;
   private long renderTimeLimitMs;
   private float rendererOperatingRate;
   @Nullable private MediaCodec codec;
@@ -457,14 +457,15 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return;
     }
 
-    drmSession = pendingDrmSession;
+    setCodecDrmSession(sourceDrmSession);
+
     String mimeType = inputFormat.sampleMimeType;
     MediaCrypto wrappedMediaCrypto = null;
     boolean drmSessionRequiresSecureDecoder = false;
-    if (drmSession != null) {
-      FrameworkMediaCrypto mediaCrypto = drmSession.getMediaCrypto();
+    if (codecDrmSession != null) {
+      FrameworkMediaCrypto mediaCrypto = codecDrmSession.getMediaCrypto();
       if (mediaCrypto == null) {
-        DrmSessionException drmError = drmSession.getError();
+        DrmSessionException drmError = codecDrmSession.getError();
         if (drmError != null) {
           // Continue for now. We may be able to avoid failure if the session recovers, or if a new
           // input format causes the session to be replaced before it's used.
@@ -477,9 +478,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         drmSessionRequiresSecureDecoder = mediaCrypto.requiresSecureDecoderComponent(mimeType);
       }
       if (deviceNeedsDrmKeysToConfigureCodecWorkaround()) {
-        @DrmSession.State int drmSessionState = drmSession.getState();
+        @DrmSession.State int drmSessionState = codecDrmSession.getState();
         if (drmSessionState == DrmSession.STATE_ERROR) {
-          throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+          throw ExoPlaybackException.createForRenderer(codecDrmSession.getError(), getIndex());
         } else if (drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS) {
           // Wait for keys.
           return;
@@ -552,7 +553,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   protected void onDisabled() {
     inputFormat = null;
-    if (drmSession != null || pendingDrmSession != null) {
+    if (codecDrmSession != null || sourceDrmSession != null) {
       // TODO: Do something better with this case.
       onReset();
     } else {
@@ -565,51 +566,32 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     try {
       releaseCodec();
     } finally {
-      try {
-        if (drmSession != null) {
-          drmSessionManager.releaseSession(drmSession);
-        }
-      } finally {
-        try {
-          if (pendingDrmSession != null && pendingDrmSession != drmSession) {
-            drmSessionManager.releaseSession(pendingDrmSession);
-          }
-        } finally {
-          drmSession = null;
-          pendingDrmSession = null;
-        }
-      }
+      setSourceDrmSession(null);
     }
   }
 
   protected void releaseCodec() {
     availableCodecInfos = null;
-    if (codec != null) {
-      codecInfo = null;
-      codecFormat = null;
-      resetInputBuffer();
-      resetOutputBuffer();
-      resetCodecBuffers();
-      waitingForKeys = false;
-      codecHotswapDeadlineMs = C.TIME_UNSET;
-      decodeOnlyPresentationTimestamps.clear();
-      decoderCounters.decoderReleaseCount++;
-      try {
-        codec.stop();
-      } finally {
+    codecInfo = null;
+    codecFormat = null;
+    resetInputBuffer();
+    resetOutputBuffer();
+    resetCodecBuffers();
+    waitingForKeys = false;
+    codecHotswapDeadlineMs = C.TIME_UNSET;
+    decodeOnlyPresentationTimestamps.clear();
+    try {
+      if (codec != null) {
+        decoderCounters.decoderReleaseCount++;
         try {
-          codec.release();
+          codec.stop();
         } finally {
-          codec = null;
-          if (drmSession != null && pendingDrmSession != drmSession) {
-            try {
-              drmSessionManager.releaseSession(drmSession);
-            } finally {
-              drmSession = null;
-            }
-          }
+          codec.release();
         }
       }
+    } finally {
+      codec = null;
+      setCodecDrmSession(null);
     }
   }
 
@@ -928,6 +910,24 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     outputBuffer = null;
   }
 
+  private void setSourceDrmSession(@Nullable DrmSession<FrameworkMediaCrypto> session) {
+    DrmSession<FrameworkMediaCrypto> previous = sourceDrmSession;
+    sourceDrmSession = session;
+    releaseDrmSessionIfUnused(previous);
+  }
+
+  private void setCodecDrmSession(@Nullable DrmSession<FrameworkMediaCrypto> session) {
+    DrmSession<FrameworkMediaCrypto> previous = codecDrmSession;
+    codecDrmSession = session;
+    releaseDrmSessionIfUnused(previous);
+  }
+
+  private void releaseDrmSessionIfUnused(@Nullable DrmSession<FrameworkMediaCrypto> session) {
+    if (session != null && session != codecDrmSession && session != sourceDrmSession) {
+      drmSessionManager.releaseSession(session);
+    }
+  }
+
   /**
    * @return Whether it may be possible to feed more input data.
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
@@ -1082,12 +1082,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
-    if (drmSession == null || (!bufferEncrypted && playClearSamplesWithoutKeys)) {
+    if (codecDrmSession == null || (!bufferEncrypted && playClearSamplesWithoutKeys)) {
       return false;
     }
-    @DrmSession.State int drmSessionState = drmSession.getState();
+    @DrmSession.State int drmSessionState = codecDrmSession.getState();
     if (drmSessionState == DrmSession.STATE_ERROR) {
-      throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
+      throw ExoPlaybackException.createForRenderer(codecDrmSession.getError(), getIndex());
     }
     return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS;
   }
@@ -1126,13 +1126,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           throw ExoPlaybackException.createForRenderer(
               new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
         }
-        pendingDrmSession =
+        DrmSession<FrameworkMediaCrypto> session =
             drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
-        if (pendingDrmSession == drmSession) {
-          drmSessionManager.releaseSession(pendingDrmSession);
+        if (session == codecDrmSession || session == sourceDrmSession) {
+          // We already had this session. The manager must be reference counting, so release it once
+          // to get the count attributed to this renderer back down to 1.
+          drmSessionManager.releaseSession(session);
         }
+        setSourceDrmSession(session);
       } else {
-        pendingDrmSession = null;
+        setSourceDrmSession(null);
       }
     }
 
@@ -1143,7 +1146,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     // We have an existing codec that we may need to reconfigure or re-initialize. If the existing
     // codec instance is being kept then its operating rate may need to be updated.
-    if (pendingDrmSession != drmSession) {
+    if (sourceDrmSession != codecDrmSession) {
       drainAndReinitializeCodec();
     } else {
       switch (canKeepCodec(codec, codecInfo, codecFormat, newFormat)) {
