@@ -20,6 +20,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
+import android.media.MediaCryptoException;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Looper;
@@ -294,6 +295,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private Format outputFormat;
   @Nullable private DrmSession<FrameworkMediaCrypto> codecDrmSession;
   @Nullable private DrmSession<FrameworkMediaCrypto> sourceDrmSession;
+  @Nullable private MediaCrypto mediaCrypto;
+  private boolean drmSessionRequiresSecureDecoder;
   private long renderTimeLimitMs;
   private float rendererOperatingRate;
   @Nullable private MediaCodec codec;
@@ -460,22 +463,28 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     setCodecDrmSession(sourceDrmSession);
 
     String mimeType = inputFormat.sampleMimeType;
-    MediaCrypto wrappedMediaCrypto = null;
-    boolean drmSessionRequiresSecureDecoder = false;
     if (codecDrmSession != null) {
-      FrameworkMediaCrypto mediaCrypto = codecDrmSession.getMediaCrypto();
       if (mediaCrypto == null) {
-        DrmSessionException drmError = codecDrmSession.getError();
-        if (drmError != null) {
-          // Continue for now. We may be able to avoid failure if the session recovers, or if a new
-          // input format causes the session to be replaced before it's used.
+        FrameworkMediaCrypto sessionMediaCrypto = codecDrmSession.getMediaCrypto();
+        if (sessionMediaCrypto == null) {
+          DrmSessionException drmError = codecDrmSession.getError();
+          if (drmError != null) {
+            // Continue for now. We may be able to avoid failure if the session recovers, or if a
+            // new input format causes the session to be replaced before it's used.
+          } else {
+            // The drm session isn't open yet.
+            return;
+          }
         } else {
-          // The drm session isn't open yet.
-          return;
+          try {
+            mediaCrypto = new MediaCrypto(sessionMediaCrypto.uuid, sessionMediaCrypto.sessionId);
+          } catch (MediaCryptoException e) {
+            throw ExoPlaybackException.createForRenderer(e, getIndex());
+          }
+          drmSessionRequiresSecureDecoder =
+              !sessionMediaCrypto.forceAllowInsecureDecoderComponents
+                  && mediaCrypto.requiresSecureDecoderComponent(mimeType);
         }
-      } else {
-        wrappedMediaCrypto = mediaCrypto.getWrappedMediaCrypto();
-        drmSessionRequiresSecureDecoder = mediaCrypto.requiresSecureDecoderComponent(mimeType);
       }
       if (deviceNeedsDrmKeysToConfigureCodecWorkaround()) {
         @DrmSession.State int drmSessionState = codecDrmSession.getState();
@@ -489,7 +498,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     try {
-      maybeInitCodecWithFallback(wrappedMediaCrypto, drmSessionRequiresSecureDecoder);
+      maybeInitCodecWithFallback(mediaCrypto, drmSessionRequiresSecureDecoder);
     } catch (DecoderInitializationException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
@@ -553,7 +562,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   protected void onDisabled() {
     inputFormat = null;
-    if (codecDrmSession != null || sourceDrmSession != null) {
+    if (sourceDrmSession != null || codecDrmSession != null) {
       // TODO: Do something better with this case.
       onReset();
     } else {
@@ -591,7 +600,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
     } finally {
       codec = null;
-      setCodecDrmSession(null);
+      try {
+        if (mediaCrypto != null) {
+          mediaCrypto.release();
+        }
+      } finally {
+        mediaCrypto = null;
+        setCodecDrmSession(null);
+      }
     }
   }
 
@@ -923,7 +939,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   private void releaseDrmSessionIfUnused(@Nullable DrmSession<FrameworkMediaCrypto> session) {
-    if (session != null && session != codecDrmSession && session != sourceDrmSession) {
+    if (session != null && session != sourceDrmSession && session != codecDrmSession) {
       drmSessionManager.releaseSession(session);
     }
   }
@@ -1128,7 +1144,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         }
         DrmSession<FrameworkMediaCrypto> session =
             drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
-        if (session == codecDrmSession || session == sourceDrmSession) {
+        if (session == sourceDrmSession || session == codecDrmSession) {
           // We already had this session. The manager must be reference counting, so release it once
           // to get the count attributed to this renderer back down to 1.
           drmSessionManager.releaseSession(session);
