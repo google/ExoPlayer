@@ -9,6 +9,9 @@
 * Fix issue where sending callbacks for playlist changes may cause problems
   because of parallel player access
   ([#5240](https://github.com/google/ExoPlayer/issues/5240)).
+* Fix issue with reusing a `ClippingMediaSource` with an inner
+  `ExtractorMediaSource` and a non-zero start position
+  ([#5351](https://github.com/google/ExoPlayer/issues/5351)).
 
 ### 2.9.3 ###
 
