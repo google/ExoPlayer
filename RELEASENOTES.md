@@ -44,6 +44,8 @@
 * Fix issue with reusing a `ClippingMediaSource` with an inner
   `ExtractorMediaSource` and a non-zero start position
   ([#5351](https://github.com/google/ExoPlayer/issues/5351)).
+* Downloading/Caching: Improve cache performance
+  ([#4253](https://github.com/google/ExoPlayer/issues/4253)).
 
 ### 2.9.3 ###
 
