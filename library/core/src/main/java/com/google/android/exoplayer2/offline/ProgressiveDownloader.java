@@ -53,7 +53,11 @@ public final class ProgressiveDownloader implements Downloader {
       Uri uri, @Nullable String customCacheKey, DownloaderConstructorHelper constructorHelper) {
     this.dataSpec =
         new DataSpec(
-            uri, /* absoluteStreamPosition= */ 0, C.LENGTH_UNSET, customCacheKey, /* flags= */ 0);
+            uri,
+            /* absoluteStreamPosition= */ 0,
+            C.LENGTH_UNSET,
+            customCacheKey,
+            /* flags= */ DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION);
     this.cache = constructorHelper.getCache();
     this.dataSource = constructorHelper.createCacheDataSource();
     this.cacheKeyFactory = constructorHelper.getCacheKeyFactory();

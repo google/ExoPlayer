@@ -988,7 +988,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           position,
           C.LENGTH_UNSET,
           customCacheKey,
-          DataSpec.FLAG_ALLOW_ICY_METADATA | DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN);
+          DataSpec.FLAG_ALLOW_ICY_METADATA
+              | DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN
+              | DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION);
     }
 
     private void setLoadPosition(long position, long timeUs) {

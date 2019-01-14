@@ -172,7 +172,7 @@ public final class CacheDataSource implements DataSource {
         cache,
         upstream,
         new FileDataSource(),
-        new CacheDataSink(cache, CacheDataSink.DEFAULT_MAX_CACHE_FILE_SIZE),
+        new CacheDataSink(cache, CacheDataSink.DEFAULT_FRAGMENT_SIZE),
         flags,
         /* eventListener= */ null);
   }
