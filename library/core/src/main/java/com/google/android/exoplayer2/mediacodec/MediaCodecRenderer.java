@@ -296,7 +296,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Nullable private DrmSession<FrameworkMediaCrypto> codecDrmSession;
   @Nullable private DrmSession<FrameworkMediaCrypto> sourceDrmSession;
   @Nullable private MediaCrypto mediaCrypto;
-  private boolean drmSessionRequiresSecureDecoder;
+  private boolean mediaCryptoRequiresSecureDecoder;
   private long renderTimeLimitMs;
   private float rendererOperatingRate;
   @Nullable private MediaCodec codec;
@@ -481,7 +481,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           } catch (MediaCryptoException e) {
             throw ExoPlaybackException.createForRenderer(e, getIndex());
           }
-          drmSessionRequiresSecureDecoder =
+          mediaCryptoRequiresSecureDecoder =
               !sessionMediaCrypto.forceAllowInsecureDecoderComponents
                   && mediaCrypto.requiresSecureDecoderComponent(mimeType);
         }
@@ -498,7 +498,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     try {
-      maybeInitCodecWithFallback(mediaCrypto, drmSessionRequiresSecureDecoder);
+      maybeInitCodecWithFallback(mediaCrypto, mediaCryptoRequiresSecureDecoder);
     } catch (DecoderInitializationException e) {
       throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
@@ -606,6 +606,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         }
       } finally {
         mediaCrypto = null;
+        mediaCryptoRequiresSecureDecoder = false;
         setCodecDrmSession(null);
       }
     }
@@ -727,18 +728,18 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   private void maybeInitCodecWithFallback(
-      MediaCrypto crypto, boolean drmSessionRequiresSecureDecoder)
+      MediaCrypto crypto, boolean mediaCryptoRequiresSecureDecoder)
       throws DecoderInitializationException {
     if (availableCodecInfos == null) {
       try {
         availableCodecInfos =
-            new ArrayDeque<>(getAvailableCodecInfos(drmSessionRequiresSecureDecoder));
+            new ArrayDeque<>(getAvailableCodecInfos(mediaCryptoRequiresSecureDecoder));
         preferredDecoderInitializationException = null;
       } catch (DecoderQueryException e) {
         throw new DecoderInitializationException(
             inputFormat,
             e,
-            drmSessionRequiresSecureDecoder,
+            mediaCryptoRequiresSecureDecoder,
             DecoderInitializationException.DECODER_QUERY_ERROR);
       }
     }
@@ -747,7 +748,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       throw new DecoderInitializationException(
           inputFormat,
           /* cause= */ null,
-          drmSessionRequiresSecureDecoder,
+          mediaCryptoRequiresSecureDecoder,
           DecoderInitializationException.NO_SUITABLE_DECODER_ERROR);
     }
 
@@ -766,7 +767,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         availableCodecInfos.removeFirst();
         DecoderInitializationException exception =
             new DecoderInitializationException(
-                inputFormat, e, drmSessionRequiresSecureDecoder, codecInfo.name);
+                inputFormat, e, mediaCryptoRequiresSecureDecoder, codecInfo.name);
         if (preferredDecoderInitializationException == null) {
           preferredDecoderInitializationException = exception;
         } else {
@@ -782,11 +783,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     availableCodecInfos = null;
   }
 
-  private List<MediaCodecInfo> getAvailableCodecInfos(boolean drmSessionRequiresSecureDecoder)
+  private List<MediaCodecInfo> getAvailableCodecInfos(boolean mediaCryptoRequiresSecureDecoder)
       throws DecoderQueryException {
     List<MediaCodecInfo> codecInfos =
-        getDecoderInfos(mediaCodecSelector, inputFormat, drmSessionRequiresSecureDecoder);
-    if (codecInfos.isEmpty() && drmSessionRequiresSecureDecoder) {
+        getDecoderInfos(mediaCodecSelector, inputFormat, mediaCryptoRequiresSecureDecoder);
+    if (codecInfos.isEmpty() && mediaCryptoRequiresSecureDecoder) {
       // The drm session indicates that a secure decoder is required, but the device does not
       // have one. Assuming that supportsFormat indicated support for the media being played, we
       // know that it does not require a secure output path. Most CDM implementations allow
