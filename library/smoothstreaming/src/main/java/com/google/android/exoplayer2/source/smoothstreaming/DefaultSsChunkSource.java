@@ -61,14 +61,13 @@ public class DefaultSsChunkSource implements SsChunkSource {
         SsManifest manifest,
         int elementIndex,
         TrackSelection trackSelection,
-        TrackEncryptionBox[] trackEncryptionBoxes,
         @Nullable TransferListener transferListener) {
       DataSource dataSource = dataSourceFactory.createDataSource();
       if (transferListener != null) {
         dataSource.addTransferListener(transferListener);
       }
-      return new DefaultSsChunkSource(manifestLoaderErrorThrower, manifest, elementIndex,
-          trackSelection, dataSource, trackEncryptionBoxes);
+      return new DefaultSsChunkSource(
+          manifestLoaderErrorThrower, manifest, elementIndex, trackSelection, dataSource);
     }
 
   }
@@ -90,15 +89,13 @@ public class DefaultSsChunkSource implements SsChunkSource {
    * @param streamElementIndex The index of the stream element in the manifest.
    * @param trackSelection The track selection.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param trackEncryptionBoxes Track encryption boxes for the stream.
    */
   public DefaultSsChunkSource(
       LoaderErrorThrower manifestLoaderErrorThrower,
       SsManifest manifest,
       int streamElementIndex,
       TrackSelection trackSelection,
-      DataSource dataSource,
-      TrackEncryptionBox[] trackEncryptionBoxes) {
+      DataSource dataSource) {
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.manifest = manifest;
     this.streamElementIndex = streamElementIndex;
@@ -110,6 +107,8 @@ public class DefaultSsChunkSource implements SsChunkSource {
     for (int i = 0; i < extractorWrappers.length; i++) {
       int manifestTrackIndex = trackSelection.getIndexInTrackGroup(i);
       Format format = streamElement.formats[manifestTrackIndex];
+      TrackEncryptionBox[] trackEncryptionBoxes =
+          format.drmInitData != null ? manifest.protectionElement.trackEncryptionBoxes : null;
       int nalUnitLengthFieldLength = streamElement.type == C.TRACK_TYPE_VIDEO ? 4 : 0;
       Track track = new Track(manifestTrackIndex, streamElement.type, streamElement.timescale,
           C.TIME_UNSET, manifest.durationUs, format, Track.TRANSFORMATION_NONE,

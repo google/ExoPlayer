@@ -27,6 +27,8 @@
   * Rename TaskState to DownloadState.
   * Add new states to DownloadState.
   * Replace DownloadState.action with DownloadAction fields.
+* SmoothStreaming: Fix support for subtitles in DRM protected streams
+  ([#5378](https://github.com/google/ExoPlayer/issues/5378)).
 * Add support for SHOUTcast ICY metadata
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
 * IMA extension:
