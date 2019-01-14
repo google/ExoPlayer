@@ -326,7 +326,9 @@ public final class MediaCodecUtil {
             || Util.MODEL.startsWith("SM-G350")
             || Util.MODEL.startsWith("SM-G386")
             || Util.MODEL.startsWith("SM-T231")
-            || Util.MODEL.startsWith("SM-T530"))) {
+            || Util.MODEL.startsWith("SM-T530")
+            || Util.MODEL.startsWith("SCH-I535")
+            || Util.MODEL.startsWith("SPH-L710"))) {
       return false;
     }
     if ("OMX.brcm.audio.mp3.decoder".equals(name)
