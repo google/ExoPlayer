@@ -15,13 +15,12 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming;
 
-import android.util.Base64;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 /** Util methods for SmoothStreaming tests. */
@@ -41,12 +40,7 @@ public class SsTestUtils {
   private static final int TEST_MAX_HEIGHT = 768;
   private static final String TEST_LANGUAGE = "eng";
   private static final ProtectionElement TEST_PROTECTION_ELEMENT =
-      new ProtectionElement(
-          C.WIDEVINE_UUID,
-          ("<KID>"
-                  + Base64.encodeToString(new byte[] {0, 1, 2, 3, 4, 5, 6, 7}, Base64.DEFAULT)
-                  + "</KID>")
-              .getBytes(StandardCharsets.UTF_16LE));
+      new ProtectionElement(C.WIDEVINE_UUID, new byte[0], new TrackEncryptionBox[0]);
 
   private SsTestUtils() {}
 
