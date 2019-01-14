@@ -41,6 +41,9 @@
 * Add `Handler` parameter to `ConcatenatingMediaSource` methods which take a
   callback `Runnable`.
 * Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
+* Fix issue with reusing a `ClippingMediaSource` with an inner
+  `ExtractorMediaSource` and a non-zero start position
+  ([#5351](https://github.com/google/ExoPlayer/issues/5351)).
 
 ### 2.9.3 ###
 

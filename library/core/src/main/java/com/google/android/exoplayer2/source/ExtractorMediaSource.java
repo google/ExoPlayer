@@ -366,7 +366,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
   @Override
   public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
-    notifySourceInfoRefreshed(timelineDurationUs, /* isSeekable= */ false);
+    notifySourceInfoRefreshed(timelineDurationUs, timelineIsSeekable);
   }
 
   @Override
