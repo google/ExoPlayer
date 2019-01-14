@@ -370,7 +370,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
       boolean isTopLevelSource,
       @Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
-    notifySourceInfoRefreshed(timelineDurationUs, /* isSeekable= */ false);
+    notifySourceInfoRefreshed(timelineDurationUs, timelineIsSeekable);
   }
 
   @Override
