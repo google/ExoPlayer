@@ -14,6 +14,8 @@
 * Fix issue with reusing a `ClippingMediaSource` with an inner
   `ExtractorMediaSource` and a non-zero start position
   ([#5351](https://github.com/google/ExoPlayer/issues/5351)).
+* Fix issue where uneven track durations in MP4 streams can cause OOM problems
+  ([#3670](https://github.com/google/ExoPlayer/issues/3670)).
 
 ### 2.9.3 ###
 
