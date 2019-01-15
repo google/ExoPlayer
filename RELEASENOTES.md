@@ -48,6 +48,8 @@
   ([#5351](https://github.com/google/ExoPlayer/issues/5351)).
 * Downloading/Caching: Improve cache performance
   ([#4253](https://github.com/google/ExoPlayer/issues/4253)).
+* Fix issue where uneven track durations in MP4 streams can cause OOM problems
+  ([#3670](https://github.com/google/ExoPlayer/issues/3670)).
 
 ### 2.9.3 ###
 
