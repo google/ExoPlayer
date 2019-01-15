@@ -17,7 +17,8 @@
   * Add `setStreamKeys` method to factories of DASH, SmoothStreaming and HLS
     media sources to simplify filtering by downloaded streams.
 * Caching:
-  * Improve performance of `SimpleCache`.
+  * Improve performance of `SimpleCache`
+    ([#4253](https://github.com/google/ExoPlayer/issues/4253)).
   * Cache data with unknown length by default. The previous flag to opt in to
     this behavior (`DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH`) has been
     replaced with an opt out flag
@@ -27,29 +28,30 @@
   * Rename TaskState to DownloadState.
   * Add new states to DownloadState.
   * Replace DownloadState.action with DownloadAction fields.
-* SmoothStreaming: Fix support for subtitles in DRM protected streams
-  ([#5378](https://github.com/google/ExoPlayer/issues/5378)).
 * Add support for SHOUTcast ICY metadata
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
 * CEA-608: Improved conformance to the specification
   ([#3860](https://github.com/google/ExoPlayer/issues/3860)).
-* IMA extension:
-  * Clear ads loader listeners on release
-    ([#4114](https://github.com/google/ExoPlayer/issues/4114)).
-  * Require setting the `Player` on `AdsLoader` instances before playback.
+* IMA extension: Require setting the `Player` on `AdsLoader` instances before
+  playback.
+* Add `Handler` parameter to `ConcatenatingMediaSource` methods which take a
+  callback `Runnable`.
+* Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
+
+### 2.9.4 ###
+
+* IMA extension: Clear ads loader listeners on release
+  ([#4114](https://github.com/google/ExoPlayer/issues/4114)).
+* SmoothStreaming: Fix support for subtitles in DRM protected streams
+  ([#5378](https://github.com/google/ExoPlayer/issues/5378)).
 * FFmpeg extension: Treat invalid data errors as non-fatal to match the behavior
   of MediaCodec ([#5293](https://github.com/google/ExoPlayer/issues/5293)).
 * Fix issue where sending callbacks for playlist changes may cause problems
   because of parallel player access
   ([#5240](https://github.com/google/ExoPlayer/issues/5240)).
-* Add `Handler` parameter to `ConcatenatingMediaSource` methods which take a
-  callback `Runnable`.
-* Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
 * Fix issue with reusing a `ClippingMediaSource` with an inner
   `ExtractorMediaSource` and a non-zero start position
   ([#5351](https://github.com/google/ExoPlayer/issues/5351)).
-* Downloading/Caching: Improve cache performance
-  ([#4253](https://github.com/google/ExoPlayer/issues/4253)).
 * Fix issue where uneven track durations in MP4 streams can cause OOM problems
   ([#3670](https://github.com/google/ExoPlayer/issues/3670)).
 
