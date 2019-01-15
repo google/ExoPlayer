@@ -25,11 +25,11 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.ArrayList;
@@ -41,12 +41,16 @@ import java.util.List;
  */
 public final class Cea608Decoder extends CeaDecoder {
 
+  private static final String TAG = "Cea608Decoder";
+
   private static final int CC_VALID_FLAG = 0x04;
   private static final int CC_TYPE_FLAG = 0x02;
   private static final int CC_FIELD_FLAG = 0x01;
 
   private static final int NTSC_CC_FIELD_1 = 0x00;
   private static final int NTSC_CC_FIELD_2 = 0x01;
+  private static final int NTSC_CC_CHANNEL_1 = 0x00;
+  private static final int NTSC_CC_CHANNEL_2 = 0x01;
 
   private static final int CC_MODE_UNKNOWN = 0;
   private static final int CC_MODE_ROLL_UP = 1;
@@ -217,6 +221,7 @@ public final class Cea608Decoder extends CeaDecoder {
   private final ParsableByteArray ccData;
   private final int packetLength;
   private final int selectedField;
+  private final int selectedChannel;
   private final ArrayList<CueBuilder> cueBuilders;
 
   private CueBuilder currentCueBuilder;
@@ -231,22 +236,40 @@ public final class Cea608Decoder extends CeaDecoder {
   private byte repeatableControlCc1;
   private byte repeatableControlCc2;
 
+  private int incomingDataTargetChannel;
+
   public Cea608Decoder(String mimeType, int accessibilityChannel) {
     ccData = new ParsableByteArray();
     cueBuilders = new ArrayList<>();
     currentCueBuilder = new CueBuilder(CC_MODE_UNKNOWN, DEFAULT_CAPTIONS_ROW_COUNT);
     packetLength = MimeTypes.APPLICATION_MP4CEA608.equals(mimeType) ? 2 : 3;
+
+    // CEA608 has 2 fields and 2 channels on each field
     switch (accessibilityChannel) {
-      case 3:
-      case 4:
-        selectedField = 2;
-        break;
       case 1:
+        selectedChannel = NTSC_CC_CHANNEL_1;
+        selectedField = NTSC_CC_FIELD_1;
+        break;
       case 2:
-      case Format.NO_VALUE:
-      default:
-        selectedField = 1;
+        selectedChannel = NTSC_CC_CHANNEL_2;
+        selectedField   = NTSC_CC_FIELD_1;
+        break;
+       case 3:
+        selectedChannel = NTSC_CC_CHANNEL_1;
+        selectedField   = NTSC_CC_FIELD_2;
+        break;
+       case 4:
+         selectedChannel = NTSC_CC_CHANNEL_2;
+         selectedField = NTSC_CC_FIELD_2;
+         break;
+       default:
+        selectedChannel = NTSC_CC_CHANNEL_1;
+        selectedField = NTSC_CC_FIELD_1;
+        Log.w(TAG, "Subtitle channel was incorrectly set. Defaulting to CC1");
     }
+
+    Log.i(TAG, "Selected CEA608 channel is " + selectedChannel
+            + " on field " + selectedField );
 
     setCaptionMode(CC_MODE_UNKNOWN);
     resetCueBuilders();
@@ -269,6 +292,7 @@ public final class Cea608Decoder extends CeaDecoder {
     repeatableControlSet = false;
     repeatableControlCc1 = 0;
     repeatableControlCc2 = 0;
+    incomingDataTargetChannel = NTSC_CC_CHANNEL_1;
   }
 
   @Override
@@ -307,8 +331,7 @@ public final class Cea608Decoder extends CeaDecoder {
         continue;
       }
 
-      if ((selectedField == 1 && (ccHeader & CC_FIELD_FLAG) != NTSC_CC_FIELD_1)
-          || (selectedField == 2 && (ccHeader & CC_FIELD_FLAG) != NTSC_CC_FIELD_2)) {
+      if ((ccHeader & CC_FIELD_FLAG) != selectedField) {
         // Do not process packets not within the selected field.
         continue;
       }
@@ -321,6 +344,9 @@ public final class Cea608Decoder extends CeaDecoder {
         // Ignore empty captions.
         continue;
       }
+
+      boolean repeatedControlPossible = repeatableControlSet;
+      repeatableControlSet = false;
 
       boolean previousCaptionValid = captionValid;
       captionValid = (ccHeader & CC_VALID_FLAG) == CC_VALID_FLAG;
@@ -336,9 +362,6 @@ public final class Cea608Decoder extends CeaDecoder {
       // If we've reached this point then there is data to process; flag that work has been done.
       captionDataProcessed = true;
 
-      boolean repeatedControlPossible = repeatableControlSet;
-      repeatableControlSet = false;
-
       if (!ODD_PARITY_BYTE_TABLE[ccByte1] || !ODD_PARITY_BYTE_TABLE[ccByte2]) {
         // The data is invalid.
         resetCueBuilders();
@@ -349,8 +372,9 @@ public final class Cea608Decoder extends CeaDecoder {
       // ccData1 - 0|0|0|1|C|0|0|1
       // ccData2 - 0|0|1|1|X|X|X|X
       if (((ccData1 & 0xF7) == 0x11) && ((ccData2 & 0xF0) == 0x30)) {
-        // TODO: Make use of the channel toggle
-        currentCueBuilder.append(getSpecialChar(ccData2));
+        if (isBytePairForSelectedChannel(ccData1)) {
+          currentCueBuilder.append(getSpecialChar(ccData2));
+        }
         continue;
       }
 
@@ -358,15 +382,16 @@ public final class Cea608Decoder extends CeaDecoder {
       // ccData1 - 0|0|0|1|C|0|1|S
       // ccData2 - 0|0|1|X|X|X|X|X
       if (((ccData1 & 0xF6) == 0x12) && (ccData2 & 0xE0) == 0x20) {
-        // TODO: Make use of the channel toggle
-        // Remove standard equivalent of the special extended char before appending new one
-        currentCueBuilder.backspace();
-        if ((ccData1 & 0x01) == 0x00) {
-          // Extended Spanish/Miscellaneous and French character set (S = 0).
-          currentCueBuilder.append(getExtendedEsFrChar(ccData2));
-        } else {
-          // Extended Portuguese and German/Danish character set (S = 1).
-          currentCueBuilder.append(getExtendedPtDeChar(ccData2));
+        if (isBytePairForSelectedChannel(ccData1)) {
+          // Remove standard equivalent of the special extended char before appending new one
+          currentCueBuilder.backspace();
+          if ((ccData1 & 0x01) == 0x00) {
+            // Extended Spanish/Miscellaneous and French character set (S = 0).
+            currentCueBuilder.append(getExtendedEsFrChar(ccData2));
+          } else {
+            // Extended Portuguese and German/Danish character set (S = 1).
+            currentCueBuilder.append(getExtendedPtDeChar(ccData2));
+          }
         }
         continue;
       }
@@ -375,6 +400,10 @@ public final class Cea608Decoder extends CeaDecoder {
       // ccData1 - 0|0|0|X|X|X|X|X
       if ((ccData1 & 0xE0) == 0x00) {
         handleCtrl(ccData1, ccData2, repeatedControlPossible);
+        continue;
+      }
+
+      if (incomingDataTargetChannel != selectedChannel) {
         continue;
       }
 
@@ -392,26 +421,37 @@ public final class Cea608Decoder extends CeaDecoder {
     }
   }
 
-  private void handleCtrl(byte cc1, byte cc2, boolean repeatedControlPossible) {
-    boolean isRepeatableControl = isRepeatable(cc1);
+  // Each byte pair has a single bit showing which channel the pair belongs to.
+  // 5th bit of ccData1 selects the channel:  x|x|x|x|C|x|x|x
+  private int getChannelBit(byte ccData1) {
+    return (ccData1 >> 3) & 0x1;
+  }
+  private boolean isBytePairForSelectedChannel(byte ccData1) {
+    return getChannelBit(ccData1) == selectedChannel;
+  }
 
-    // Most control commands are sent twice in succession to ensure they are received properly.
-    // We don't want to process duplicate commands, so if we see the same repeatable command twice
-    // in a row, ignore the second one.
-    if (isRepeatableControl) {
-      if (repeatedControlPossible
-          && repeatableControlCc1 == cc1
-          && repeatableControlCc2 == cc2) {
-        // This is a duplicate. Repeatable control flag should be already cleared, let's return.
+  private void handleCtrl(byte cc1, byte cc2, boolean repeatedControlPossible) {
+    incomingDataTargetChannel = getChannelBit(cc1);
+
+    // Most control commands are sent twice in succession to ensure they are received properly. We
+    // don't want to process duplicate commands, so if we see the same repeatable command twice in a
+    // row then we ignore the second one.
+    if (isRepeatable(cc1)) {
+      if (repeatedControlPossible && repeatableControlCc1 == cc1 && repeatableControlCc2 == cc2) {
+        // This is a repeated command, so we ignore it.
         return;
       } else {
-        // This is a repeatable command, but we haven't seen it yet, so set the repeatable control
-        // flag (to ensure we ignore the next one should it be a duplicate) and continue processing
-        // the command.
+        // This is the first occurrence of a repeatable command. Set the repeatable control
+        // variables so that we can recognize and ignore a duplicate (if there is one), and then
+        // continue to process the command below.
         repeatableControlSet = true;
         repeatableControlCc1 = cc1;
         repeatableControlCc2 = cc2;
       }
+    }
+
+    if (!isBytePairForSelectedChannel(cc1)) {
+      return;
     }
 
     if (isMidrowCtrlCode(cc1, cc2)) {
@@ -420,7 +460,7 @@ public final class Cea608Decoder extends CeaDecoder {
       handlePreambleAddressCode(cc1, cc2);
     } else if (isTabCtrlCode(cc1, cc2)) {
       currentCueBuilder.tabOffset = cc2 - 0x20;
-    } else if (isMiscCode(cc1, cc2)) {
+    } else if (isMiscCode(cc1, cc2, selectedField)) {
       handleMiscCode(cc2);
     }
   }
@@ -441,7 +481,6 @@ public final class Cea608Decoder extends CeaDecoder {
     // cc1 - 0|0|0|1|C|E|ROW
     // C is the channel toggle, E is the extended flag, and ROW is the encoded row
     int row = ROW_INDICES[cc1 & 0x07];
-    // TODO: Make use of the channel toggle
     // TODO: support the extended address and style
 
     // cc2 - 0|1|N|ATTRBTE|U
@@ -643,10 +682,13 @@ public final class Cea608Decoder extends CeaDecoder {
     return ((cc1 & 0xF7) == 0x17) && (cc2 >= 0x21 && cc2 <= 0x23);
   }
 
-  private static boolean isMiscCode(byte cc1, byte cc2) {
-    // cc1 - 0|0|0|1|C|1|0|0
-    // cc2 - 0|0|1|0|X|X|X|X
-    return ((cc1 & 0xF7) == 0x14) && ((cc2 & 0xF0) == 0x20);
+  private static boolean isMiscCode(byte cc1, byte cc2, int targetField) {
+    // bits of cc1: 0|0|0|1|C|1|0|F
+    // bits of cc2: 0|0|1|0|X|X|X|X
+    // Legends: F=field bit; C=channel bit; X=arbitrary value; 0/1=expected value
+    return ((cc1 & 0xF6) == 0x14)
+            && ((cc1 & 0x1) == targetField)
+            && ((cc2 & 0xF0) == 0x20);
   }
 
   private static boolean isRepeatable(byte cc1) {
