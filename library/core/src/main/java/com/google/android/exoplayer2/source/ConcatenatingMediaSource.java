@@ -473,10 +473,13 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     super.releaseSourceInternal();
     mediaSourceHolders.clear();
     mediaSourceByUid.clear();
-    playbackThreadHandler = null;
     shuffleOrder = shuffleOrder.cloneAndClear();
     windowCount = 0;
     periodCount = 0;
+    if (playbackThreadHandler != null) {
+      playbackThreadHandler.removeCallbacksAndMessages(null);
+      playbackThreadHandler = null;
+    }
   }
 
   @Override
@@ -603,10 +606,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
   @SuppressWarnings("unchecked")
   private boolean handleMessage(Message msg) {
-    if (playbackThreadHandler == null) {
-      // Stale event.
-      return false;
-    }
     switch (msg.what) {
       case MSG_ADD:
         MessageData<Collection<MediaSourceHolder>> addMessage =
