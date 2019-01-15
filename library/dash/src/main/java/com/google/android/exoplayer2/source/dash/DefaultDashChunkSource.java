@@ -457,10 +457,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   private ArrayList<Representation> getRepresentations() {
-    List<AdaptationSet> manifestAdapationSets = manifest.getPeriod(periodIndex).adaptationSets;
+    List<AdaptationSet> manifestAdaptationSets = manifest.getPeriod(periodIndex).adaptationSets;
     ArrayList<Representation> representations = new ArrayList<>();
     for (int adaptationSetIndex : adaptationSetIndices) {
-      representations.addAll(manifestAdapationSets.get(adaptationSetIndex).representations);
+      representations.addAll(manifestAdaptationSets.get(adaptationSetIndex).representations);
     }
     return representations;
   }
