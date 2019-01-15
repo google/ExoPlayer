@@ -460,8 +460,8 @@ public final class C {
 
   /**
    * Flags which can apply to a buffer containing a media sample. Possible flag values are {@link
-   * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_ENCRYPTED} and
-   * {@link #BUFFER_FLAG_DECODE_ONLY}.
+   * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_LAST_SAMPLE},
+   * {@link #BUFFER_FLAG_ENCRYPTED} and {@link #BUFFER_FLAG_DECODE_ONLY}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -470,6 +470,7 @@ public final class C {
       value = {
         BUFFER_FLAG_KEY_FRAME,
         BUFFER_FLAG_END_OF_STREAM,
+        BUFFER_FLAG_LAST_SAMPLE,
         BUFFER_FLAG_ENCRYPTED,
         BUFFER_FLAG_DECODE_ONLY
       })
@@ -482,6 +483,8 @@ public final class C {
    * Flag for empty buffers that signal that the end of the stream was reached.
    */
   public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+  /** Indicates that a buffer is known to contain the last media sample of the stream. */
+  public static final int BUFFER_FLAG_LAST_SAMPLE = 1 << 29; // 0x20000000
   /** Indicates that a buffer is (at least partially) encrypted. */
   public static final int BUFFER_FLAG_ENCRYPTED = 1 << 30; // 0x40000000
   /** Indicates that a buffer should be decoded but not rendered. */
