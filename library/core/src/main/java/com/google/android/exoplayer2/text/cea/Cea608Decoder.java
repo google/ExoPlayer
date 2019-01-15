@@ -292,7 +292,6 @@ public final class Cea608Decoder extends CeaDecoder {
   protected void decode(SubtitleInputBuffer inputBuffer) {
     ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());
     boolean captionDataProcessed = false;
-    boolean isRepeatableControl = false;
     while (ccData.bytesLeft() >= packetLength) {
       byte ccHeader = packetLength == 2 ? CC_IMPLICIT_DATA_HEADER
           : (byte) ccData.readUnsignedByte();
@@ -322,6 +321,9 @@ public final class Cea608Decoder extends CeaDecoder {
         // Ignore empty captions.
         continue;
       }
+
+      boolean repeatedControlPossible = repeatableControlSet;
+      repeatableControlSet = false;
 
       boolean previousCaptionValid = captionValid;
       captionValid = (ccHeader & CC_VALID_FLAG) == CC_VALID_FLAG;
@@ -372,7 +374,7 @@ public final class Cea608Decoder extends CeaDecoder {
       // Control character.
       // ccData1 - 0|0|0|X|X|X|X|X
       if ((ccData1 & 0xE0) == 0x00) {
-        isRepeatableControl = handleCtrl(ccData1, ccData2);
+        handleCtrl(ccData1, ccData2, repeatedControlPossible);
         continue;
       }
 
@@ -384,32 +386,24 @@ public final class Cea608Decoder extends CeaDecoder {
     }
 
     if (captionDataProcessed) {
-      if (!isRepeatableControl) {
-        repeatableControlSet = false;
-      }
       if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
         cues = getDisplayCues();
       }
     }
   }
 
-  private boolean handleCtrl(byte cc1, byte cc2) {
-    boolean isRepeatableControl = isRepeatable(cc1);
-
-    // Most control commands are sent twice in succession to ensure they are received properly.
-    // We don't want to process duplicate commands, so if we see the same repeatable command twice
-    // in a row, ignore the second one.
-    if (isRepeatableControl) {
-      if (repeatableControlSet
-          && repeatableControlCc1 == cc1
-          && repeatableControlCc2 == cc2) {
-        // This is a duplicate. Clear the repeatable control flag and return.
-        repeatableControlSet = false;
-        return true;
+  private void handleCtrl(byte cc1, byte cc2, boolean repeatedControlPossible) {
+    // Most control commands are sent twice in succession to ensure they are received properly. We
+    // don't want to process duplicate commands, so if we see the same repeatable command twice in a
+    // row then we ignore the second one.
+    if (isRepeatable(cc1)) {
+      if (repeatedControlPossible && repeatableControlCc1 == cc1 && repeatableControlCc2 == cc2) {
+        // This is a repeated command, so we ignore it.
+        return;
       } else {
-        // This is a repeatable command, but we haven't see it yet, so set the repeatable control
-        // flag (to ensure we ignore the next one should it be a duplicate) and continue processing
-        // the command.
+        // This is the first occurrence of a repeatable command. Set the repeatable control
+        // variables so that we can recognize and ignore a duplicate (if there is one), and then
+        // continue to process the command below.
         repeatableControlSet = true;
         repeatableControlCc1 = cc1;
         repeatableControlCc2 = cc2;
@@ -425,8 +419,6 @@ public final class Cea608Decoder extends CeaDecoder {
     } else if (isMiscCode(cc1, cc2)) {
       handleMiscCode(cc2);
     }
-
-    return isRepeatableControl;
   }
 
   private void handleMidrowCtrl(byte cc2) {
