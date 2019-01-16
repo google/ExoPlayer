@@ -37,6 +37,8 @@
 * Add `Handler` parameter to `ConcatenatingMediaSource` methods which take a
   callback `Runnable`.
 * Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
+* Change signature of `PlayerNotificationManager.NotificationListener` to better
+  fit service requirements. Remove ability to set a custom stop action.
 
 ### 2.9.4 ###
 
