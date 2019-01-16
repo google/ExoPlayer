@@ -89,6 +89,13 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   @Override
+  @Nullable
+  public Object getTag() {
+    boolean hasTimeline = timeline != null && !timeline.isEmpty();
+    return hasTimeline ? timeline.getWindow(0, new Timeline.Window()).tag : null;
+  }
+
+  @Override
   public synchronized void prepareSourceInternal(
       ExoPlayer player,
       boolean isTopLevelSource,

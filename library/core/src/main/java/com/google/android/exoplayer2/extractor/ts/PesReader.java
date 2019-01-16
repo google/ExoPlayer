@@ -78,9 +78,8 @@ public final class PesReader implements TsPayloadReader {
   }
 
   @Override
-  public final void consume(ParsableByteArray data, boolean payloadUnitStartIndicator)
-      throws ParserException {
-    if (payloadUnitStartIndicator) {
+  public final void consume(ParsableByteArray data, @Flags int flags) throws ParserException {
+    if ((flags & FLAG_PAYLOAD_UNIT_START_INDICATOR) != 0) {
       switch (state) {
         case STATE_FINDING_HEADER:
         case STATE_READING_HEADER:
@@ -122,7 +121,8 @@ public final class PesReader implements TsPayloadReader {
           if (continueRead(data, pesScratch.data, readLength)
               && continueRead(data, null, extendedHeaderLength)) {
             parseHeaderExtension();
-            reader.packetStarted(timeUs, dataAlignmentIndicator);
+            flags |= dataAlignmentIndicator ? FLAG_DATA_ALIGNMENT_INDICATOR : 0;
+            reader.packetStarted(timeUs, flags);
             setState(STATE_READING_BODY);
           }
           break;

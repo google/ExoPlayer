@@ -1436,11 +1436,12 @@ public final class Util {
   }
 
   /**
-   * Maps a {@link C} {@code TRACK_TYPE_*} constant to the corresponding {@link C}
-   * {@code DEFAULT_*_BUFFER_SIZE} constant.
+   * Maps a {@link C} {@code TRACK_TYPE_*} constant to the corresponding {@link C} {@code
+   * DEFAULT_*_BUFFER_SIZE} constant.
    *
    * @param trackType The track type.
    * @return The corresponding default buffer size in bytes.
+   * @throws IllegalArgumentException If the track type is an unrecognized or custom track type.
    */
   public static int getDefaultBufferSize(int trackType) {
     switch (trackType) {
@@ -1456,8 +1457,10 @@ public final class Util {
         return C.DEFAULT_METADATA_BUFFER_SIZE;
       case C.TRACK_TYPE_CAMERA_MOTION:
         return C.DEFAULT_CAMERA_MOTION_BUFFER_SIZE;
+      case C.TRACK_TYPE_NONE:
+        return 0;
       default:
-        throw new IllegalStateException();
+        throw new IllegalArgumentException();
     }
   }
 
