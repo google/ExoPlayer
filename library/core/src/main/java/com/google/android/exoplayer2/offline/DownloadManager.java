@@ -28,12 +28,15 @@ import static com.google.android.exoplayer2.offline.DownloadState.STATE_STOPPED;
 import static com.google.android.exoplayer2.offline.DownloadState.STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY;
 import static com.google.android.exoplayer2.offline.DownloadState.STOP_FLAG_STOPPED;
 
+import android.content.Context;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import java.io.File;
@@ -74,18 +77,35 @@ public final class DownloadManager {
      * @param downloadManager The reporting instance.
      */
     void onIdle(DownloadManager downloadManager);
+
+    /**
+     * Called when the download requirements state changed.
+     *
+     * @param downloadManager The reporting instance.
+     * @param requirements Requirements needed to be met to start downloads.
+     * @param notMetRequirements {@link Requirements.RequirementFlags RequirementFlags} that are not
+     *     met, or 0.
+     */
+    void onRequirementsStateChanged(
+        DownloadManager downloadManager,
+        Requirements requirements,
+        @Requirements.RequirementFlags int notMetRequirements);
   }
 
   /** The default maximum number of simultaneous downloads. */
   public static final int DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS = 1;
   /** The default minimum number of times a download must be retried before failing. */
   public static final int DEFAULT_MIN_RETRY_COUNT = 5;
+  /** The default requirement is that the device has network connectivity. */
+  public static final Requirements DEFAULT_REQUIREMENTS =
+      new Requirements(Requirements.NETWORK_TYPE_ANY, false, false);
 
   private static final String TAG = "DownloadManager";
   private static final boolean DEBUG = false;
 
   private final int maxActiveDownloads;
   private final int minRetryCount;
+  private final Context context;
   private final ActionFile actionFile;
   private final DownloaderFactory downloaderFactory;
   private final ArrayList<Download> downloads;
@@ -99,31 +119,43 @@ public final class DownloadManager {
   private boolean initialized;
   private boolean released;
   @DownloadState.StopFlags private int stickyStopFlags;
+  private RequirementsWatcher requirementsWatcher;
 
   /**
    * Constructs a {@link DownloadManager}.
    *
+   * @param context Any context.
    * @param actionFile The file in which active actions are saved.
    * @param downloaderFactory A factory for creating {@link Downloader}s.
    */
-  public DownloadManager(File actionFile, DownloaderFactory downloaderFactory) {
+  public DownloadManager(Context context, File actionFile, DownloaderFactory downloaderFactory) {
     this(
-        actionFile, downloaderFactory, DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS, DEFAULT_MIN_RETRY_COUNT);
+        context,
+        actionFile,
+        downloaderFactory,
+        DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS,
+        DEFAULT_MIN_RETRY_COUNT,
+        DEFAULT_REQUIREMENTS);
   }
 
   /**
    * Constructs a {@link DownloadManager}.
    *
+   * @param context Any context.
    * @param actionFile The file in which active actions are saved.
    * @param downloaderFactory A factory for creating {@link Downloader}s.
    * @param maxSimultaneousDownloads The maximum number of simultaneous downloads.
    * @param minRetryCount The minimum number of times a download must be retried before failing.
+   * @param requirements The requirements needed to be met to start downloads.
    */
   public DownloadManager(
+      Context context,
       File actionFile,
       DownloaderFactory downloaderFactory,
       int maxSimultaneousDownloads,
-      int minRetryCount) {
+      int minRetryCount,
+      Requirements requirements) {
+    this.context = context.getApplicationContext();
     this.actionFile = new ActionFile(actionFile);
     this.downloaderFactory = downloaderFactory;
     this.maxActiveDownloads = maxSimultaneousDownloads;
@@ -146,8 +178,28 @@ public final class DownloadManager {
     listeners = new CopyOnWriteArraySet<>();
     actionQueue = new ArrayDeque<>();
 
+    watchRequirements(requirements);
     loadActions();
     logd("Created");
+  }
+
+  /**
+   * Sets the requirements needed to be met to start downloads.
+   *
+   * @param requirements Need to be met to start downloads.
+   */
+  public void setRequirements(Requirements requirements) {
+    Assertions.checkState(!released);
+    if (requirements.equals(requirementsWatcher.getRequirements())) {
+      return;
+    }
+    requirementsWatcher.stop();
+    notifyListenersRequirementsStateChange(watchRequirements(requirements));
+  }
+
+  /** Returns the requirements needed to be met to start downloads. */
+  public Requirements getRequirements() {
+    return requirementsWatcher.getRequirements();
   }
 
   /**
@@ -278,6 +330,9 @@ public final class DownloadManager {
     }
     setStopFlags(STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY);
     released = true;
+    if (requirementsWatcher != null) {
+      requirementsWatcher.stop();
+    }
     final ConditionVariable fileIOFinishedCondition = new ConditionVariable();
     fileIOHandler.post(fileIOFinishedCondition::open);
     fileIOFinishedCondition.block();
@@ -343,6 +398,15 @@ public final class DownloadManager {
     DownloadState downloadState = download.getDownloadState();
     for (Listener listener : listeners) {
       listener.onDownloadStateChanged(this, downloadState);
+    }
+  }
+
+  private void notifyListenersRequirementsStateChange(
+      @Requirements.RequirementFlags int notMetRequirements) {
+    logdFlags("Not met requirements are changed", notMetRequirements);
+    for (Listener listener : listeners) {
+      listener.onRequirementsStateChanged(
+          DownloadManager.this, requirementsWatcher.getRequirements(), notMetRequirements);
     }
   }
 
@@ -418,6 +482,18 @@ public final class DownloadManager {
     if (DEBUG) {
       logd(message + ": " + Integer.toBinaryString(flags));
     }
+  }
+
+  @Requirements.RequirementFlags
+  private int watchRequirements(Requirements requirements) {
+    requirementsWatcher = new RequirementsWatcher(context, new RequirementListener(), requirements);
+    @Requirements.RequirementFlags int notMetRequirements = requirementsWatcher.start();
+    if (notMetRequirements == 0) {
+      startDownloads();
+    } else {
+      stopDownloads();
+    }
+    return notMetRequirements;
   }
 
   private static final class Download {
@@ -691,6 +767,22 @@ public final class DownloadManager {
 
     private int getRetryDelayMillis(int errorCount) {
       return Math.min((errorCount - 1) * 1000, 5000);
+    }
+  }
+
+  private class RequirementListener implements RequirementsWatcher.Listener {
+    @Override
+    public void requirementsMet(RequirementsWatcher requirementsWatcher) {
+      startDownloads();
+      notifyListenersRequirementsStateChange(0);
+    }
+
+    @Override
+    public void requirementsNotMet(
+        RequirementsWatcher requirementsWatcher,
+        @Requirements.RequirementFlags int notMetRequirements) {
+      stopDownloads();
+      notifyListenersRequirementsStateChange(notMetRequirements);
     }
   }
 }

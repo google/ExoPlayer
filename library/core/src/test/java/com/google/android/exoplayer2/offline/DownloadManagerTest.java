@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadState.State;
+import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
@@ -426,7 +427,12 @@ public class DownloadManagerTest {
           () -> {
             downloadManager =
                 new DownloadManager(
-                    actionFile, downloaderFactory, maxActiveDownloadTasks, MIN_RETRY_COUNT);
+                    RuntimeEnvironment.application,
+                    actionFile,
+                    downloaderFactory,
+                    maxActiveDownloadTasks,
+                    MIN_RETRY_COUNT,
+                    new Requirements(0));
             downloadManagerListener =
                 new TestDownloadManagerListener(downloadManager, dummyMainThread);
             downloadManager.startDownloads();

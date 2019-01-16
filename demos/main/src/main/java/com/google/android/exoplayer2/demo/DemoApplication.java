@@ -101,10 +101,12 @@ public class DemoApplication extends Application {
           new DownloaderConstructorHelper(getDownloadCache(), buildHttpDataSourceFactory());
       downloadManager =
           new DownloadManager(
+              this,
               new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE),
               new DefaultDownloaderFactory(downloaderConstructorHelper),
               MAX_SIMULTANEOUS_DOWNLOADS,
-              DownloadManager.DEFAULT_MIN_RETRY_COUNT);
+              DownloadManager.DEFAULT_MIN_RETRY_COUNT,
+              DownloadManager.DEFAULT_REQUIREMENTS);
       downloadTracker =
           new DownloadTracker(
               /* context= */ this,

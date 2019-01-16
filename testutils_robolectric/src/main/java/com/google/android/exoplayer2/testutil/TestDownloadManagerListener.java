@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.ConditionVariable;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadState;
+import com.google.android.exoplayer2.scheduler.Requirements;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -80,6 +81,12 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     if (downloadFinishedCondition != null) {
       downloadFinishedCondition.countDown();
     }
+  }
+
+  @Override
+  public void onRequirementsStateChanged(
+      DownloadManager downloadManager, Requirements requirements, int notMetRequirements) {
+    // Do nothing.
   }
 
   /**
