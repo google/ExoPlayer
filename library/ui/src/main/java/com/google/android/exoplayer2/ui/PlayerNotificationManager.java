@@ -126,6 +126,18 @@ public class PlayerNotificationManager {
     String getCurrentContentText(Player player);
 
     /**
+     * Gets the content sub text for the current media item.
+     *
+     * <p>See {@link NotificationCompat.Builder#setSubText(CharSequence)}.
+     *
+     * @param player The {@link Player} for which a notification is being built.
+     */
+    @Nullable
+    default String getCurrentSubText(Player player) {
+      return null;
+    }
+
+    /**
      * Gets the large icon for the current media item.
      *
      * <p>When a bitmap initially needs to be asynchronously loaded, a placeholder (or null) can be
@@ -832,6 +844,7 @@ public class PlayerNotificationManager {
     // Set media specific notification properties from MediaDescriptionAdapter.
     builder.setContentTitle(mediaDescriptionAdapter.getCurrentContentTitle(player));
     builder.setContentText(mediaDescriptionAdapter.getCurrentContentText(player));
+    builder.setSubText(mediaDescriptionAdapter.getCurrentSubText(player));
     if (largeIcon == null) {
       largeIcon =
           mediaDescriptionAdapter.getCurrentLargeIcon(
