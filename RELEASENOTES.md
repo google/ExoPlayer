@@ -16,6 +16,8 @@
   ([#5351](https://github.com/google/ExoPlayer/issues/5351)).
 * Fix issue where uneven track durations in MP4 streams can cause OOM problems
   ([#3670](https://github.com/google/ExoPlayer/issues/3670)).
+* Add the sub text to the MediaDescriptionAdapter of the
+  PlayerNotificationManager.
 
 ### 2.9.3 ###
 
