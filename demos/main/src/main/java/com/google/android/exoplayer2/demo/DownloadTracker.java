@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloadState;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloadHelper;
 import com.google.android.exoplayer2.source.hls.offline.HlsDownloadHelper;
@@ -156,6 +157,14 @@ public class DownloadTracker implements DownloadManager.Listener {
 
   @Override
   public void onIdle(DownloadManager downloadManager) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onRequirementsStateChanged(
+      DownloadManager downloadManager,
+      Requirements requirements,
+      @Requirements.RequirementFlags int notMetRequirements) {
     // Do nothing.
   }
 

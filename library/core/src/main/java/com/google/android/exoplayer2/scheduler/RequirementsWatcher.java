@@ -55,8 +55,12 @@ public final class RequirementsWatcher {
      * requirements are not met.
      *
      * @param requirementsWatcher Calling instance.
+     * @param notMetRequirements {@link Requirements.RequirementFlags RequirementFlags} that are not
+     *     met, or 0.
      */
-    void requirementsNotMet(RequirementsWatcher requirementsWatcher);
+    void requirementsNotMet(
+        RequirementsWatcher requirementsWatcher,
+        @Requirements.RequirementFlags int notMetRequirements);
   }
 
   private static final String TAG = "RequirementsWatcher";
@@ -66,7 +70,7 @@ public final class RequirementsWatcher {
   private final Requirements requirements;
   private DeviceStatusChangeReceiver receiver;
 
-  private int notMetRequirements;
+  @Requirements.RequirementFlags private int notMetRequirements;
   private CapabilityValidatedCallback networkCallback;
   private Handler handler;
 
@@ -85,8 +89,11 @@ public final class RequirementsWatcher {
   /**
    * Starts watching for changes. Must be called from a thread that has an associated {@link
    * Looper}. Listener methods are called on the caller thread.
+   *
+   * @return Initial {@link Requirements.RequirementFlags RequirementFlags} that are not met, or 0.
    */
-  public void start() {
+  @Requirements.RequirementFlags
+  public int start() {
     Assertions.checkNotNull(Looper.myLooper());
     handler = new Handler();
 
@@ -115,6 +122,7 @@ public final class RequirementsWatcher {
     receiver = new DeviceStatusChangeReceiver();
     context.registerReceiver(receiver, filter, null, handler);
     logd(this + " started");
+    return notMetRequirements;
   }
 
   /** Stops watching for changes. */
@@ -162,6 +170,7 @@ public final class RequirementsWatcher {
   }
 
   private void checkRequirements() {
+    @Requirements.RequirementFlags
     int notMetRequirements = requirements.getNotMetRequirements(context);
     if (this.notMetRequirements == notMetRequirements) {
       logd("notMetRequirements hasn't changed: " + notMetRequirements);
@@ -173,7 +182,7 @@ public final class RequirementsWatcher {
       listener.requirementsMet(this);
     } else {
       logd("stop job");
-      listener.requirementsNotMet(this);
+      listener.requirementsNotMet(this, notMetRequirements);
     }
   }
 

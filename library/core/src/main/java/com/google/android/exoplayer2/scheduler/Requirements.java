@@ -155,16 +155,14 @@ public final class Requirements {
    * @return Whether the requirements are met.
    */
   public boolean checkRequirements(Context context) {
-    return checkNetworkRequirements(context)
-        && checkChargingRequirement(context)
-        && checkIdleRequirement(context);
+    return getNotMetRequirements(context) == 0;
   }
 
   /**
-   * Returns the requirement flags that are not met, or 0.
+   * Returns {@link RequirementFlags} that are not met, or 0.
    *
    * @param context Any context.
-   * @return The requirement flags that are not met, or 0.
+   * @return RequirementFlags that are not met, or 0.
    */
   @RequirementFlags
   public int getNotMetRequirements(Context context) {
@@ -284,5 +282,21 @@ public final class Requirements {
         + (isChargingRequired() ? ",charging" : "")
         + (isIdleRequired() ? ",idle" : "")
         + '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    return requirements == ((Requirements) o).requirements;
+  }
+
+  @Override
+  public int hashCode() {
+    return requirements;
   }
 }
