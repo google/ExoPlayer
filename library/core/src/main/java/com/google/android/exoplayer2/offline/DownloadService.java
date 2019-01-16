@@ -196,6 +196,27 @@ public abstract class DownloadService extends Service {
   }
 
   /**
+   * Starts the service, adding an action to be executed.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param action The action string to be executed.
+   *  Can be one of {@link #ACTION_INIT} {@link #ACTION_ADD} {@link #ACTION_RELOAD_REQUIREMENTS} {@link #ACTION_RESTART}
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void startWithAction(Context context,
+          Class<? extends DownloadService> clazz,
+          String action,
+          boolean foreground){
+    Intent intent = getIntent(context, clazz, action);
+    if (foreground) {
+      Util.startForegroundService(context, intent);
+    } else {
+      context.startService(intent);
+    }
+  }
+
+  /**
    * Starts the service without adding a new action. If there are any not finished actions and the
    * requirements are met, the service resumes executing actions. Otherwise it stops immediately.
    *
