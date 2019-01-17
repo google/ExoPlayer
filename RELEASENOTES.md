@@ -16,8 +16,12 @@
   ([#5351](https://github.com/google/ExoPlayer/issues/5351)).
 * Fix issue where uneven track durations in MP4 streams can cause OOM problems
   ([#3670](https://github.com/google/ExoPlayer/issues/3670)).
-* Add the sub text to the MediaDescriptionAdapter of the
-  PlayerNotificationManager.
+* Add `startPositionUs` to `MediaSource.createPeriod`. This fixes an issue where
+  using lazy preparation in `ConcatenatingMediaSource` with an
+  `ExtractorMediaSource` overrides initial seek positions
+  ([#5350](https://github.com/google/ExoPlayer/issues/5350)).
+* Add subtext to the `MediaDescriptionAdapter` of the
+  `PlayerNotificationManager`.
 
 ### 2.9.3 ###
 

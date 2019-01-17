@@ -533,7 +533,7 @@ public final class SsMediaSource extends BaseMediaSource
   }
 
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     EventDispatcher eventDispatcher = createEventDispatcher(id);
     SsMediaPeriod period =
         new SsMediaPeriod(
