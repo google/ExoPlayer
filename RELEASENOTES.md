@@ -39,6 +39,10 @@
 * Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
 * Change signature of `PlayerNotificationManager.NotificationListener` to better
   fit service requirements. Remove ability to set a custom stop action.
+* Add `startPositionUs` to `MediaSource.createPeriod`. This fixes an issue where
+  using lazy preparation in `ConcatenatingMediaSource` with an
+  `ExtractorMediaSource` overrides initial seek positions
+  ([#5350](https://github.com/google/ExoPlayer/issues/5350)).
 
 ### 2.9.4 ###
 

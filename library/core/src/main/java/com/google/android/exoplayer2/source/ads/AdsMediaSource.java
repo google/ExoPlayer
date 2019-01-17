@@ -334,7 +334,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   }
 
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     if (adPlaybackState.adGroupCount > 0 && id.isAd()) {
       int adGroupIndex = id.adGroupIndex;
       int adIndexInAdGroup = id.adIndexInAdGroup;
@@ -353,7 +353,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
         prepareChildSource(id, adMediaSource);
       }
       MediaSource mediaSource = adGroupMediaSources[adGroupIndex][adIndexInAdGroup];
-      DeferredMediaPeriod deferredMediaPeriod = new DeferredMediaPeriod(mediaSource, id, allocator);
+      DeferredMediaPeriod deferredMediaPeriod =
+          new DeferredMediaPeriod(mediaSource, id, allocator, startPositionUs);
       deferredMediaPeriod.setPrepareErrorListener(
           new AdPrepareErrorListener(adUri, adGroupIndex, adIndexInAdGroup));
       List<DeferredMediaPeriod> mediaPeriods = deferredMediaPeriodByAdMediaSource.get(mediaSource);
@@ -369,7 +370,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       }
       return deferredMediaPeriod;
     } else {
-      DeferredMediaPeriod mediaPeriod = new DeferredMediaPeriod(contentMediaSource, id, allocator);
+      DeferredMediaPeriod mediaPeriod =
+          new DeferredMediaPeriod(contentMediaSource, id, allocator, startPositionUs);
       mediaPeriod.createPeriod(id);
       return mediaPeriod;
     }

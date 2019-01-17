@@ -313,7 +313,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     return new SingleSampleMediaPeriod(
         dataSpec,
         dataSourceFactory,

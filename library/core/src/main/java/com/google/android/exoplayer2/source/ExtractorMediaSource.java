@@ -375,7 +375,7 @@ public final class ExtractorMediaSource extends BaseMediaSource
   }
 
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     DataSource dataSource = dataSourceFactory.createDataSource();
     if (transferListener != null) {
       dataSource.addTransferListener(transferListener);
