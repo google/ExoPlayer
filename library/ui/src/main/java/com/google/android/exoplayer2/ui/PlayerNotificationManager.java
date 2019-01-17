@@ -896,12 +896,14 @@ public class PlayerNotificationManager {
 
   @Nullable
   private Notification startOrUpdateNotification() {
-    return player != null ? startOrUpdateNotification(/* bitmap= */ null) : null;
+    Assertions.checkNotNull(this.player);
+    return startOrUpdateNotification(/* bitmap= */ null);
   }
 
   @RequiresNonNull("player")
   @Nullable
   private Notification startOrUpdateNotification(@Nullable Bitmap bitmap) {
+    Player player = this.player;
     Notification notification = createNotification(player, bitmap);
     if (notification == null) {
       stopNotification(/* dismissedByUser= */ false);
@@ -916,8 +918,7 @@ public class PlayerNotificationManager {
       }
     }
     NotificationListener listener = notificationListener;
-    Player player = this.player;
-    if (listener != null && player != null) {
+    if (listener != null) {
       boolean isPlayerActive =
           player.getPlayWhenReady() && player.getPlaybackState() != Player.STATE_IDLE;
       listener.onNotificationPosted(notificationId, notification, isPlayerActive);
