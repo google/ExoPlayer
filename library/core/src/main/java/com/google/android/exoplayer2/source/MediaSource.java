@@ -34,8 +34,8 @@ import java.io.IOException;
  *       on the {@link SourceInfoRefreshListener}s passed to {@link
  *       #prepareSource(SourceInfoRefreshListener, TransferListener)}.
  *   <li>To provide {@link MediaPeriod} instances for the periods in its timeline. MediaPeriods are
- *       obtained by calling {@link #createPeriod(MediaPeriodId, Allocator)}, and provide a way for
- *       the player to load and read the media.
+ *       obtained by calling {@link #createPeriod(MediaPeriodId, Allocator, long)}, and provide a
+ *       way for the player to load and read the media.
  * </ul>
  *
  * All methods are called on the player's internal playback thread, as described in the {@link
@@ -261,9 +261,10 @@ public interface MediaSource {
    *
    * @param id The identifier of the period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
+   * @param startPositionUs The expected start position, in microseconds.
    * @return A new {@link MediaPeriod}.
    */
-  MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator);
+  MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs);
 
   /**
    * Releases the period.

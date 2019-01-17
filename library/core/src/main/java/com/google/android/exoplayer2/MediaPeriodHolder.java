@@ -89,7 +89,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.info = info;
     sampleStreams = new SampleStream[rendererCapabilities.length];
     mayRetainStreamFlags = new boolean[rendererCapabilities.length];
-    mediaPeriod = createMediaPeriod(info.id, mediaSource, allocator);
+    mediaPeriod = createMediaPeriod(info.id, mediaSource, allocator, info.startPositionUs);
   }
 
   /**
@@ -399,8 +399,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /** Returns a media period corresponding to the given {@code id}. */
   private static MediaPeriod createMediaPeriod(
-      MediaPeriodId id, MediaSource mediaSource, Allocator allocator) {
-    MediaPeriod mediaPeriod = mediaSource.createPeriod(id, allocator);
+      MediaPeriodId id, MediaSource mediaSource, Allocator allocator, long startPositionUs) {
+    MediaPeriod mediaPeriod = mediaSource.createPeriod(id, allocator, startPositionUs);
     if (id.endPositionUs != C.TIME_UNSET && id.endPositionUs != C.TIME_END_OF_SOURCE) {
       mediaPeriod =
           new ClippingMediaPeriod(
