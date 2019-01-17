@@ -240,10 +240,10 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     ClippingMediaPeriod mediaPeriod =
         new ClippingMediaPeriod(
-            mediaSource.createPeriod(id, allocator),
+            mediaSource.createPeriod(id, allocator, startPositionUs),
             enableInitialDiscontinuity,
             periodStartUs,
             periodEndUs);

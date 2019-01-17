@@ -476,7 +476,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
-  public final MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+  public final MediaPeriod createPeriod(
+      MediaPeriodId id, Allocator allocator, long startPositionUs) {
     Object mediaSourceHolderUid = getMediaSourceHolderUid(id.periodUid);
     MediaSourceHolder holder = mediaSourceByUid.get(mediaSourceHolderUid);
     if (holder == null) {
@@ -484,7 +485,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       holder = new MediaSourceHolder(new DummyMediaSource());
       holder.hasStartedPreparing = true;
     }
-    DeferredMediaPeriod mediaPeriod = new DeferredMediaPeriod(holder.mediaSource, id, allocator);
+    DeferredMediaPeriod mediaPeriod =
+        new DeferredMediaPeriod(holder.mediaSource, id, allocator, startPositionUs);
     mediaSourceByMediaPeriod.put(mediaPeriod, holder);
     holder.activeMediaPeriods.add(mediaPeriod);
     if (!holder.hasStartedPreparing) {
@@ -1093,7 +1095,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     }
 
     @Override
-    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
       throw new UnsupportedOperationException();
     }
 
