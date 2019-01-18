@@ -97,7 +97,7 @@ public class DownloadIndexUtilTest {
     assertThat(downloadState.cacheKey).isEqualTo(action2.customCacheKey);
     assertThat(downloadState.customMetadata).isEqualTo(action2.data);
     assertThat(downloadState.uri).isEqualTo(action2.uri);
-    assertThat(downloadState.streamKeys).isEqualTo(new StreamKey[] {streamKey2, streamKey1});
+    assertThat(Arrays.asList(downloadState.streamKeys)).containsExactly(streamKey1, streamKey2);
     assertThat(downloadState.state).isEqualTo(DownloadState.STATE_QUEUED);
   }
 
@@ -142,7 +142,7 @@ public class DownloadIndexUtilTest {
     assertThat(downloadState.cacheKey).isEqualTo(action.customCacheKey);
     assertThat(downloadState.customMetadata).isEqualTo(action.data);
     assertThat(downloadState.uri).isEqualTo(action.uri);
-    assertThat(downloadState.streamKeys).isEqualTo(action.keys.toArray(new StreamKey[0]));
+    assertThat(Arrays.asList(downloadState.streamKeys)).containsExactlyElementsIn(action.keys);
     assertThat(downloadState.state).isEqualTo(state);
   }
 
