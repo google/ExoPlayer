@@ -867,7 +867,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // We dropped some buffers to catch up, so update the decoder counters and flush the codec,
     // which releases all pending buffers buffers including the current output buffer.
     updateDroppedBufferCounters(buffersInCodecCount + droppedSourceBufferCount);
-    flushOrReinitCodec();
+    flushOrReinitializeCodec();
     return true;
   }
 
