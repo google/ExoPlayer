@@ -112,9 +112,7 @@ the following steps:
 These steps are outlined in more detail below. For a complete example, refer to
 `PlayerActivity` in the [main demo app][].
 
-### Adding ExoPlayer as a dependency ###
-
-#### 1. Add repositories ####
+### Add repositories ###
 
 The first step to getting started is to make sure you have the Google and
 JCenter repositories included in the `build.gradle` file in the root of your
@@ -127,7 +125,7 @@ repositories {
 }
 ```
 
-#### 2. Add ExoPlayer module dependencies ####
+### Add ExoPlayer module dependencies ###
 
 Next add a dependency in the `build.gradle` file of your app module. The
 following will add a dependency to the full ExoPlayer library:
@@ -164,7 +162,7 @@ depend on external libraries to provide additional functionality. These are
 beyond the scope of this guide. Browse the [extensions directory][] and their
 individual READMEs for details.
 
-#### 3. Turn on Java 8 support ####
+### Turn on Java 8 support ###
 
 If not enabled already, you also need to turn on Java 8 support in all
 `build.gradle` files depending on ExoPlayer, by adding the following to the
