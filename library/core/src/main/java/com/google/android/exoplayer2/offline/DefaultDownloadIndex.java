@@ -16,21 +16,15 @@
 package com.google.android.exoplayer2.offline;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.database.DatabaseProvider;
+import com.google.android.exoplayer2.database.VersionTable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 /**
  * A {@link DownloadIndex} which uses SQLite to persist {@link DownloadState}s.
@@ -40,55 +34,13 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class DefaultDownloadIndex implements DownloadIndex {
 
-  /** Provides {@link SQLiteDatabase} instances. */
-  public interface DatabaseProvider {
-    /** Closes any open database object. */
-    void close();
+  @VisibleForTesting
+  /* package */ static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "Downloads";
 
-    /**
-     * Creates and/or opens a database that will be used for reading and writing.
-     *
-     * <p>Once opened successfully, the database is cached, so you can call this method every time
-     * you need to write to the database. (Make sure to call {@link #close} when you no longer need
-     * the database.) Errors such as bad permissions or a full disk may cause this method to fail,
-     * but future attempts may succeed if the problem is fixed.
-     *
-     * @throws SQLiteException If the database cannot be opened for writing.
-     * @return A read/write database object valid until {@link #close} is called.
-     */
-    SQLiteDatabase getWritableDatabase();
-
-    /**
-     * Creates and/or opens a database. This will be the same object returned by {@link
-     * #getWritableDatabase} unless some problem, such as a full disk, requires the database to be
-     * opened read-only. In that case, a read-only database object will be returned. If the problem
-     * is fixed, a future call to {@link #getWritableDatabase} may succeed, in which case the
-     * read-only database object will be closed and the read/write object will be returned in the
-     * future.
-     *
-     * <p>Once opened successfully, the database should be cached. When the database is no longer
-     * needed, {@link #close} will be called.
-     *
-     * @throws SQLiteException If the database cannot be opened.
-     * @return A database object valid until {@link #getWritableDatabase} or {@link #close} is
-     *     called.
-     */
-    SQLiteDatabase getReadableDatabase();
-  }
-
-  private static final String DATABASE_NAME = "exoplayer_internal.db";
+  @VisibleForTesting /* package */ static final int TABLE_VERSION = 1;
 
   private final DatabaseProvider databaseProvider;
-  @Nullable private DownloadStateTable downloadStateTable;
-
-  /**
-   * Creates a DefaultDownloadIndex which stores the {@link DownloadState}s on a SQLite database.
-   *
-   * @param context A Context.
-   */
-  public DefaultDownloadIndex(Context context) {
-    this(new DefaultDatabaseProvider(context));
-  }
+  @Nullable private DownloadsTable downloadTable;
 
   /**
    * Creates a DefaultDownloadIndex which stores the {@link DownloadState}s on a SQLite database
@@ -102,45 +54,31 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   }
 
   @Override
-  public void release() {
-    databaseProvider.close();
-  }
-
-  @Override
   @Nullable
   public DownloadState getDownloadState(String id) {
-    return getDownloadStateTable().get(id);
+    return getDownloadTable().get(id);
   }
 
   @Override
   public DownloadStateCursor getDownloadStates(@DownloadState.State int... states) {
-    return getDownloadStateTable().get(states);
+    return getDownloadTable().get(states);
   }
 
   @Override
   public void putDownloadState(DownloadState downloadState) {
-    getDownloadStateTable().replace(downloadState);
+    getDownloadTable().replace(downloadState);
   }
 
   @Override
   public void removeDownloadState(String id) {
-    getDownloadStateTable().delete(id);
+    getDownloadTable().delete(id);
   }
 
-  private DownloadStateTable getDownloadStateTable() {
-    if (downloadStateTable == null) {
-      downloadStateTable = new DownloadStateTable(databaseProvider);
+  private DownloadsTable getDownloadTable() {
+    if (downloadTable == null) {
+      downloadTable = new DownloadsTable(databaseProvider);
     }
-    return downloadStateTable;
-  }
-
-  @VisibleForTesting
-  /* package */ static boolean doesTableExist(DatabaseProvider databaseProvider, String tableName) {
-    SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
-    long count =
-        DatabaseUtils.queryNumEntries(
-            readableDatabase, "sqlite_master", "tbl_name = ?", new String[] {tableName});
-    return count > 0;
+    return downloadTable;
   }
 
   private static final class DownloadStateCursorImpl implements DownloadStateCursor {
@@ -153,7 +91,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
 
     @Override
     public DownloadState getDownloadState() {
-      return DownloadStateTable.getDownloadState(cursor);
+      return DownloadsTable.getDownloadState(cursor);
     }
 
     @Override
@@ -182,10 +120,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     }
   }
 
-  @VisibleForTesting
-  /* package */ static final class DownloadStateTable {
-    @VisibleForTesting /* package */ static final String TABLE_NAME = "ExoPlayerDownloadStates";
-    @VisibleForTesting /* package */ static final int TABLE_VERSION = 1;
+  private static final class DownloadsTable {
 
     private static final String COLUMN_ID = "id";
     private static final String COLUMN_TYPE = "title";
@@ -237,9 +172,9 @@ public final class DefaultDownloadIndex implements DownloadIndex {
           COLUMN_CUSTOM_METADATA
         };
 
-    private static final String SQL_DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    private static final String SQL_DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS " + TABLE_NAME;
     private static final String SQL_CREATE_TABLE =
-        "CREATE TABLE IF NOT EXISTS "
+        "CREATE TABLE "
             + TABLE_NAME
             + " ("
             + COLUMN_ID
@@ -273,17 +208,15 @@ public final class DefaultDownloadIndex implements DownloadIndex {
 
     private final DatabaseProvider databaseProvider;
 
-    public DownloadStateTable(DatabaseProvider databaseProvider) {
+    public DownloadsTable(DatabaseProvider databaseProvider) {
       this.databaseProvider = databaseProvider;
       VersionTable versionTable = new VersionTable(databaseProvider);
       int version = versionTable.getVersion(VersionTable.FEATURE_OFFLINE);
-      if (!doesTableExist(databaseProvider, TABLE_NAME)
-          || version == 0
-          || version > TABLE_VERSION) {
+      if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
         writableDatabase.beginTransaction();
         try {
-          writableDatabase.execSQL(SQL_DROP_TABLE);
+          writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
           writableDatabase.execSQL(SQL_CREATE_TABLE);
           versionTable.setVersion(VersionTable.FEATURE_OFFLINE, TABLE_VERSION);
           writableDatabase.setTransactionSuccessful();
@@ -419,110 +352,6 @@ public final class DefaultDownloadIndex implements DownloadIndex {
                 Integer.parseInt(indices[2]));
       }
       return streamKeys;
-    }
-  }
-
-  @VisibleForTesting
-  /* package */ static final class VersionTable {
-    private static final String TABLE_NAME = "ExoPlayerVersions";
-
-    private static final String COLUMN_FEATURE = "feature";
-    private static final String COLUMN_VERSION = "version";
-
-    private static final String SQL_CREATE_TABLE =
-        "CREATE TABLE IF NOT EXISTS "
-            + TABLE_NAME
-            + " ("
-            + COLUMN_FEATURE
-            + " INTEGER PRIMARY KEY NOT NULL,"
-            + COLUMN_VERSION
-            + " INTEGER NOT NULL)";
-
-    @Documented
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({FEATURE_OFFLINE, FEATURE_CACHE})
-    private @interface Feature {}
-
-    public static final int FEATURE_OFFLINE = 0;
-    public static final int FEATURE_CACHE = 1;
-
-    private final DatabaseProvider databaseProvider;
-
-    public VersionTable(DatabaseProvider databaseProvider) {
-      this.databaseProvider = databaseProvider;
-      if (!doesTableExist(databaseProvider, TABLE_NAME)) {
-        databaseProvider.getWritableDatabase().execSQL(SQL_CREATE_TABLE);
-      }
-    }
-
-    public void setVersion(@Feature int feature, int version) {
-      ContentValues values = new ContentValues();
-      values.put(COLUMN_FEATURE, feature);
-      values.put(COLUMN_VERSION, version);
-      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.replace(TABLE_NAME, /* nullColumnHack= */ null, values);
-    }
-
-    public int getVersion(@Feature int feature) {
-      String selection = COLUMN_FEATURE + " = ?";
-      String[] selectionArgs = {Integer.toString(feature)};
-      try (Cursor cursor =
-          databaseProvider
-              .getReadableDatabase()
-              .query(
-                  TABLE_NAME,
-                  new String[] {COLUMN_VERSION},
-                  selection,
-                  selectionArgs,
-                  /* groupBy= */ null,
-                  /* having= */ null,
-                  /* orderBy= */ null)) {
-        if (cursor.getCount() == 0) {
-          return 0;
-        }
-        cursor.moveToNext();
-        return cursor.getInt(/* COLUMN_VERSION index */ 0);
-      }
-    }
-  }
-
-  private static final class DefaultDatabaseProvider extends SQLiteOpenHelper
-      implements DatabaseProvider {
-    public DefaultDatabaseProvider(Context context) {
-      super(context, DATABASE_NAME, /* factory= */ null, /* version= */ 1);
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-      // Table creation is done in DownloadStateTable constructor.
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-      // Upgrade is handled in DownloadStateTable constructor.
-    }
-
-    @Override
-    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-      // TODO: Wipe the database.
-      super.onDowngrade(db, oldVersion, newVersion);
-    }
-
-    // DatabaseProvider implementation.
-
-    @Override
-    public synchronized void close() {
-      super.close();
-    }
-
-    @Override
-    public SQLiteDatabase getWritableDatabase() {
-      return super.getWritableDatabase();
-    }
-
-    @Override
-    public SQLiteDatabase getReadableDatabase() {
-      return super.getReadableDatabase();
     }
   }
 }

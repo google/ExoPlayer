@@ -19,8 +19,6 @@ import android.support.annotation.Nullable;
 
 /** Persists {@link DownloadState}s. */
 interface DownloadIndex {
-  /** Releases the used resources. */
-  void release();
 
   /**
    * Returns the {@link DownloadState} with the given {@code id}, or null.
