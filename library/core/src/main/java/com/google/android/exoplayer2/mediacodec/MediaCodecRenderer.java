@@ -240,14 +240,21 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({DRAIN_ACTION_NONE, DRAIN_ACTION_FLUSH, DRAIN_ACTION_REINITIALIZE})
+  @IntDef({
+    DRAIN_ACTION_NONE,
+    DRAIN_ACTION_FLUSH,
+    DRAIN_ACTION_UPDATE_DRM_SESSION,
+    DRAIN_ACTION_REINITIALIZE
+  })
   private @interface DrainAction {}
   /** No special action should be taken. */
   private static final int DRAIN_ACTION_NONE = 0;
   /** The codec should be flushed. */
   private static final int DRAIN_ACTION_FLUSH = 1;
-  /** The codec should be re-initialized. */
-  private static final int DRAIN_ACTION_REINITIALIZE = 2;
+  /** The codec should be flushed and updated to use the pending DRM session. */
+  private static final int DRAIN_ACTION_UPDATE_DRM_SESSION = 2;
+  /** The codec should be reinitialized. */
+  private static final int DRAIN_ACTION_REINITIALIZE = 3;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -547,7 +554,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;
-    flushOrReinitCodec();
+    flushOrReinitializeCodec();
     formatQueue.clear();
   }
 
@@ -679,12 +686,15 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * <p>The implementation of this method calls {@link #flushOrReleaseCodec()}, and {@link
    * #maybeInitCodec()} if the codec needs to be re-instantiated.
    *
+   * @return Whether the codec was released and reinitialized, rather than being flushed.
    * @throws ExoPlaybackException If an error occurs re-instantiating the codec.
    */
-  protected final void flushOrReinitCodec() throws ExoPlaybackException {
-    if (flushOrReleaseCodec()) {
+  protected final boolean flushOrReinitializeCodec() throws ExoPlaybackException {
+    boolean released = flushOrReleaseCodec();
+    if (released) {
       maybeInitCodec();
     }
+    return released;
   }
 
   /**
@@ -1163,40 +1173,58 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     // We have an existing codec that we may need to reconfigure or re-initialize. If the existing
     // codec instance is being kept then its operating rate may need to be updated.
-    if (sourceDrmSession != codecDrmSession) {
+
+    if ((sourceDrmSession == null && codecDrmSession != null)
+        || (sourceDrmSession != null && codecDrmSession == null)
+        || (sourceDrmSession != null && !codecInfo.secure)
+        || (Util.SDK_INT < 23 && sourceDrmSession != codecDrmSession)) {
+      // We might need to switch between the clear and protected output paths, or we're using DRM
+      // prior to API level 23 where the codec needs to be re-initialized to switch to the new DRM
+      // session.
       drainAndReinitializeCodec();
-    } else {
-      switch (canKeepCodec(codec, codecInfo, codecFormat, newFormat)) {
-        case KEEP_CODEC_RESULT_NO:
-          drainAndReinitializeCodec();
-          break;
-        case KEEP_CODEC_RESULT_YES_WITH_FLUSH:
+      return;
+    }
+
+    switch (canKeepCodec(codec, codecInfo, codecFormat, newFormat)) {
+      case KEEP_CODEC_RESULT_NO:
+        drainAndReinitializeCodec();
+        break;
+      case KEEP_CODEC_RESULT_YES_WITH_FLUSH:
+        codecFormat = newFormat;
+        updateCodecOperatingRate();
+        if (sourceDrmSession != codecDrmSession) {
+          drainAndUpdateCodecDrmSession();
+        } else {
           drainAndFlushCodec();
+        }
+        break;
+      case KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION:
+        if (codecNeedsReconfigureWorkaround) {
+          drainAndReinitializeCodec();
+        } else {
+          codecReconfigured = true;
+          codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+          codecNeedsAdaptationWorkaroundBuffer =
+              codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_ALWAYS
+                  || (codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION
+                      && newFormat.width == codecFormat.width
+                      && newFormat.height == codecFormat.height);
           codecFormat = newFormat;
           updateCodecOperatingRate();
-          break;
-        case KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION:
-          if (codecNeedsReconfigureWorkaround) {
-            drainAndReinitializeCodec();
-          } else {
-            codecReconfigured = true;
-            codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
-            codecNeedsAdaptationWorkaroundBuffer =
-                codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_ALWAYS
-                    || (codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION
-                        && newFormat.width == codecFormat.width
-                        && newFormat.height == codecFormat.height);
-            codecFormat = newFormat;
-            updateCodecOperatingRate();
+          if (sourceDrmSession != codecDrmSession) {
+            drainAndUpdateCodecDrmSession();
           }
-          break;
-        case KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION:
-          codecFormat = newFormat;
-          updateCodecOperatingRate();
-          break;
-        default:
-          throw new IllegalStateException(); // Never happens.
-      }
+        }
+        break;
+      case KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION:
+        codecFormat = newFormat;
+        updateCodecOperatingRate();
+        if (sourceDrmSession != codecDrmSession) {
+          drainAndUpdateCodecDrmSession();
+        }
+        break;
+      default:
+        throw new IllegalStateException(); // Never happens.
     }
   }
 
@@ -1332,6 +1360,27 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
+   * Starts draining the codec to update its DRM session. The update may occur immediately if no
+   * buffers have been queued to the codec.
+   *
+   * @throws ExoPlaybackException If an error occurs updating the codec's DRM session.
+   */
+  private void drainAndUpdateCodecDrmSession() throws ExoPlaybackException {
+    if (Util.SDK_INT < 23) {
+      // The codec needs to be re-initialized to switch to the source DRM session.
+      drainAndReinitializeCodec();
+      return;
+    }
+    if (codecReceivedBuffers) {
+      codecDrainState = DRAIN_STATE_SIGNAL_END_OF_STREAM;
+      codecDrainAction = DRAIN_ACTION_UPDATE_DRM_SESSION;
+    } else {
+      // Nothing has been queued to the decoder, so we can do the update immediately.
+      updateDrmSessionOrReinitializeCodecV23();
+    }
+  }
+
+  /**
    * Starts draining the codec for re-initialization. Re-initialization may occur immediately if no
    * buffers have been queued to the codec.
    *
@@ -1343,8 +1392,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecDrainAction = DRAIN_ACTION_REINITIALIZE;
     } else {
       // Nothing has been queued to the decoder, so we can re-initialize immediately.
-      releaseCodec();
-      maybeInitCodec();
+      reinitializeCodec();
     }
   }
 
@@ -1548,11 +1596,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private void processEndOfStream() throws ExoPlaybackException {
     switch (codecDrainAction) {
       case DRAIN_ACTION_REINITIALIZE:
-        releaseCodec();
-        maybeInitCodec();
+        reinitializeCodec();
+        break;
+      case DRAIN_ACTION_UPDATE_DRM_SESSION:
+        updateDrmSessionOrReinitializeCodecV23();
         break;
       case DRAIN_ACTION_FLUSH:
-        flushOrReinitCodec();
+        flushOrReinitializeCodec();
         break;
       case DRAIN_ACTION_NONE:
       default:
@@ -1560,6 +1610,41 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         renderToEndOfStream();
         break;
     }
+  }
+
+  private void reinitializeCodec() throws ExoPlaybackException {
+    releaseCodec();
+    maybeInitCodec();
+  }
+
+  @TargetApi(23)
+  private void updateDrmSessionOrReinitializeCodecV23() throws ExoPlaybackException {
+    FrameworkMediaCrypto sessionMediaCrypto = sourceDrmSession.getMediaCrypto();
+    if (sessionMediaCrypto == null) {
+      // We'd only expect this to happen if the CDM from which the pending session is obtained needs
+      // provisioning. This is unlikely to happen (it probably requires a switch from one DRM scheme
+      // to another, where the new CDM hasn't been used before and needs provisioning). It would be
+      // possible to handle this case more efficiently (i.e. with a new renderer state that waits
+      // for provisioning to finish and then calls mediaCrypto.setMediaDrmSession), but the extra
+      // complexity is not warranted given how unlikely the case is to occur.
+      reinitializeCodec();
+      return;
+    }
+
+    if (flushOrReinitializeCodec()) {
+      // The codec was reinitialized. The new codec will be using the new DRM session, so there's
+      // nothing more to do.
+      return;
+    }
+
+    try {
+      mediaCrypto.setMediaDrmSession(sessionMediaCrypto.sessionId);
+    } catch (MediaCryptoException e) {
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
+    }
+    setCodecDrmSession(sourceDrmSession);
+    codecDrainState = DRAIN_STATE_NONE;
+    codecDrainAction = DRAIN_ACTION_NONE;
   }
 
   private boolean shouldSkipOutputBuffer(long presentationTimeUs) {
