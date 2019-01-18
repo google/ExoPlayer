@@ -48,6 +48,7 @@
   ([#5378](https://github.com/google/ExoPlayer/issues/5378)).
 * FFmpeg extension: Treat invalid data errors as non-fatal to match the behavior
   of MediaCodec ([#5293](https://github.com/google/ExoPlayer/issues/5293)).
+* GVR extension: upgrade GVR SDK dependency to 1.190.0.
 * Fix issue where sending callbacks for playlist changes may cause problems
   because of parallel player access
   ([#5240](https://github.com/google/ExoPlayer/issues/5240)).
