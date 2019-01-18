@@ -42,6 +42,7 @@ import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
+import java.util.Collections;
 
 /**
  * An activity that plays video using {@link SimpleExoPlayer} and supports casting using ExoPlayer's
@@ -182,13 +183,18 @@ public class MainActivity extends AppCompatActivity
     sampleList.setOnItemClickListener(
         (parent, view, position, id) -> {
           DemoUtil.Sample sample = DemoUtil.SAMPLES.get(position);
-          playerManager.addItem(
-              mediaItemBuilder
-                  .clear()
-                  .setMedia(sample.uri)
-                  .setTitle(sample.name)
-                  .setMimeType(sample.mimeType)
-                  .build());
+          mediaItemBuilder
+              .clear()
+              .setMedia(sample.uri)
+              .setTitle(sample.name)
+              .setMimeType(sample.mimeType);
+          if (sample.drmSchemeUuid != null) {
+            mediaItemBuilder.setDrmSchemes(
+                Collections.singletonList(
+                    new MediaItem.DrmScheme(
+                        sample.drmSchemeUuid, new MediaItem.UriBundle(sample.licenseServerUri))));
+          }
+          playerManager.addItem(mediaItemBuilder.build());
           mediaQueueListAdapter.notifyItemInserted(playerManager.getMediaQueueSize() - 1);
         });
     return dialogList;
