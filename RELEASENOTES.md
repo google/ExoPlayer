@@ -12,6 +12,14 @@
 * Associate fatal player errors of type SOURCE with the loading source in
   `AnalyticsListener.EventTime`
   ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
+* Add `startPositionUs` to `MediaSource.createPeriod`. This fixes an issue where
+  using lazy preparation in `ConcatenatingMediaSource` with an
+  `ExtractorMediaSource` overrides initial seek positions
+  ([#5350](https://github.com/google/ExoPlayer/issues/5350)).
+* Add subtext to the `MediaDescriptionAdapter` of the
+  `PlayerNotificationManager`.
+* Add workaround for video quality problems with Amlogic decoders
+  ([#5003](https://github.com/google/ExoPlayer/issues/5003)).
 * Fix issue where sending callbacks for playlist changes may cause problems
   because of parallel player access
   ([#5240](https://github.com/google/ExoPlayer/issues/5240)).
