@@ -65,7 +65,7 @@ public class DemoDownloadService extends DownloadService {
 
   @Override
   protected void onDownloadStateChanged(DownloadState downloadState) {
-    Notification notification = null;
+    Notification notification;
     if (downloadState.state == DownloadState.STATE_COMPLETED) {
       notification =
           DownloadNotificationUtil.buildDownloadCompletedNotification(
