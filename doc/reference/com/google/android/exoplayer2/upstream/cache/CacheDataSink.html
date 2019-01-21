@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -190,22 +190,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#CacheDataSink-com.google.android.exoplayer2.upstream.cache.Cache-long-boolean-">CacheDataSink</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-             long&nbsp;maxCacheFileSize,
-             boolean&nbsp;syncFileDescriptor)</code>
-<div class="block">Constructs a CacheDataSink using the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#DEFAULT_BUFFER_SIZE"><code>DEFAULT_BUFFER_SIZE</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#CacheDataSink-com.google.android.exoplayer2.upstream.cache.Cache-long-int-">CacheDataSink</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
              long&nbsp;maxCacheFileSize,
              int&nbsp;bufferSize)</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#CacheDataSink-com.google.android.exoplayer2.upstream.cache.Cache-long-int-boolean-">CacheDataSink</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-             long&nbsp;maxCacheFileSize,
-             int&nbsp;bufferSize,
-             boolean&nbsp;syncFileDescriptor)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -230,11 +217,17 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#experimental_setSyncFileDescriptor-boolean-">experimental_setSyncFileDescriptor</a></span>(boolean&nbsp;syncFileDescriptor)</code>
+<div class="block">Sets whether file descriptors are synced when closing output streams.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
 <div class="block">Opens the sink to consume the specified data.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#write-byte:A-int-int-">write</a></span>(byte[]&nbsp;buffer,
      int&nbsp;offset,
@@ -298,36 +291,16 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - The cache into which data should be written.</dd>
-<dd><code>maxCacheFileSize</code> - The maximum size of a cache file, in bytes. If the sink is opened for
-    a <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> whose size exceeds this value, then the data will be fragmented into
-    multiple cache files.</dd>
-</dl>
-</li>
-</ul>
-<a name="CacheDataSink-com.google.android.exoplayer2.upstream.cache.Cache-long-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>CacheDataSink</h4>
-<pre>public&nbsp;CacheDataSink(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                     long&nbsp;maxCacheFileSize,
-                     boolean&nbsp;syncFileDescriptor)</pre>
-<div class="block">Constructs a CacheDataSink using the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#DEFAULT_BUFFER_SIZE"><code>DEFAULT_BUFFER_SIZE</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>cache</code> - The cache into which data should be written.</dd>
 <dd><code>maxCacheFileSize</code> - The maximum size of a cache file, in bytes. If the sink is opened for a
      <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> whose size exceeds this value, then the data will be fragmented into
      multiple cache files.</dd>
-<dd><code>syncFileDescriptor</code> - Whether file descriptors are sync'd when closing output streams.</dd>
 </dl>
 </li>
 </ul>
 <a name="CacheDataSink-com.google.android.exoplayer2.upstream.cache.Cache-long-int-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>CacheDataSink</h4>
 <pre>public&nbsp;CacheDataSink(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
@@ -344,28 +317,6 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </dl>
 </li>
 </ul>
-<a name="CacheDataSink-com.google.android.exoplayer2.upstream.cache.Cache-long-int-boolean-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>CacheDataSink</h4>
-<pre>public&nbsp;CacheDataSink(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                     long&nbsp;maxCacheFileSize,
-                     int&nbsp;bufferSize,
-                     boolean&nbsp;syncFileDescriptor)</pre>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>cache</code> - The cache into which data should be written.</dd>
-<dd><code>maxCacheFileSize</code> - The maximum size of a cache file, in bytes. If the sink is opened for a
-     <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> whose size exceeds this value, then the data will be fragmented into
-     multiple cache files.</dd>
-<dd><code>bufferSize</code> - The buffer size in bytes for writing to a cache file. A zero or negative
-     value disables buffering.</dd>
-<dd><code>syncFileDescriptor</code> - Whether file descriptors are sync'd when closing output streams.</dd>
-</dl>
-</li>
-</ul>
 </li>
 </ul>
 <!-- ============ METHOD DETAIL ========== -->
@@ -374,6 +325,23 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="experimental_setSyncFileDescriptor-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>experimental_setSyncFileDescriptor</h4>
+<pre>public&nbsp;void&nbsp;experimental_setSyncFileDescriptor(boolean&nbsp;syncFileDescriptor)</pre>
+<div class="block">Sets whether file descriptors are synced when closing output streams.
+
+ <p>This method is experimental, and will be renamed or removed in a future release. It should
+ only be called before the renderer is used.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>syncFileDescriptor</code> - Whether file descriptors are synced when closing output streams.</dd>
+</dl>
+</li>
+</ul>
 <a name="open-com.google.android.exoplayer2.upstream.DataSpec-">
 <!--   -->
 </a>

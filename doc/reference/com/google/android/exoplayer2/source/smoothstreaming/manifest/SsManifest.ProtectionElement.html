@@ -130,6 +130,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.ProtectionElement.html#data">data</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.ProtectionElement.html#trackEncryptionBoxes">trackEncryptionBoxes</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.ProtectionElement.html#uuid">uuid</a></span></code>&nbsp;</td>
 </tr>
@@ -148,8 +152,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.ProtectionElement.html#ProtectionElement-java.util.UUID-byte:A-">ProtectionElement</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-                 byte[]&nbsp;data)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.ProtectionElement.html#ProtectionElement-java.util.UUID-byte:A-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-">ProtectionElement</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
+                 byte[]&nbsp;data,
+                 <a href="../../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>[]&nbsp;trackEncryptionBoxes)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -193,10 +198,19 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <a name="data">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>data</h4>
 <pre>public final&nbsp;byte[] data</pre>
+</li>
+</ul>
+<a name="trackEncryptionBoxes">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>trackEncryptionBoxes</h4>
+<pre>public final&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>[] trackEncryptionBoxes</pre>
 </li>
 </ul>
 </li>
@@ -207,14 +221,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="ProtectionElement-java.util.UUID-byte:A-">
+<a name="ProtectionElement-java.util.UUID-byte:A-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ProtectionElement</h4>
 <pre>public&nbsp;ProtectionElement(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/UUID.html" target="_top" title="class or interface in java.util">UUID</a>&nbsp;uuid,
-                         byte[]&nbsp;data)</pre>
+                         byte[]&nbsp;data,
+                         <a href="../../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>[]&nbsp;trackEncryptionBoxes)</pre>
 </li>
 </ul>
 </li>

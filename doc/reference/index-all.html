@@ -1344,6 +1344,10 @@
 <dd>
 <div class="block">Indicates that a buffer holds a synchronization sample.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/C.html#BUFFER_FLAG_LAST_SAMPLE">BUFFER_FLAG_LAST_SAMPLE</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2">C</a></dt>
+<dd>
+<div class="block">Indicates that a buffer is known to contain the last media sample of the stream.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_DIRECT">BUFFER_REPLACEMENT_MODE_DIRECT</a></span> - Static variable in class com.google.android.exoplayer2.decoder.<a href="com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a></dt>
 <dd>
 <div class="block">Allows buffer replacement using <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true#allocateDirect-int-" title="class or interface in java.nio"><code>ByteBuffer.allocateDirect(int)</code></a>.</div>
@@ -1677,6 +1681,10 @@
 <dd>
 <div class="block">Represents a PCM audio encoding, or an invalid or unset value.</div>
 </dd>
+<dt><a href="com/google/android/exoplayer2/C.Projection.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">C.Projection</span></a> - Annotation Type in <a href="com/google/android/exoplayer2/package-summary.html">com.google.android.exoplayer2</a></dt>
+<dd>
+<div class="block">Video projection types.</div>
+</dd>
 <dt><a href="com/google/android/exoplayer2/C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">C.SelectionFlags</span></a> - Annotation Type in <a href="com/google/android/exoplayer2/package-summary.html">com.google.android.exoplayer2</a></dt>
 <dd>
 <div class="block">Track selection flags.</div>
@@ -1731,13 +1739,7 @@
 <dd>
 <div class="block">Constructs a CacheDataSink using the <a href="com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#DEFAULT_BUFFER_SIZE"><code>CacheDataSink.DEFAULT_BUFFER_SIZE</code></a>.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#CacheDataSink-com.google.android.exoplayer2.upstream.cache.Cache-long-boolean-">CacheDataSink(Cache, long, boolean)</a></span> - Constructor for class com.google.android.exoplayer2.upstream.cache.<a href="com/google/android/exoplayer2/upstream/cache/CacheDataSink.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink</a></dt>
-<dd>
-<div class="block">Constructs a CacheDataSink using the <a href="com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#DEFAULT_BUFFER_SIZE"><code>CacheDataSink.DEFAULT_BUFFER_SIZE</code></a>.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#CacheDataSink-com.google.android.exoplayer2.upstream.cache.Cache-long-int-">CacheDataSink(Cache, long, int)</a></span> - Constructor for class com.google.android.exoplayer2.upstream.cache.<a href="com/google/android/exoplayer2/upstream/cache/CacheDataSink.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#CacheDataSink-com.google.android.exoplayer2.upstream.cache.Cache-long-int-boolean-">CacheDataSink(Cache, long, int, boolean)</a></span> - Constructor for class com.google.android.exoplayer2.upstream.cache.<a href="com/google/android/exoplayer2/upstream/cache/CacheDataSink.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/upstream/cache/CacheDataSink.CacheDataSinkException.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">CacheDataSink.CacheDataSinkException</span></a> - Exception in <a href="com/google/android/exoplayer2/upstream/cache/package-summary.html">com.google.android.exoplayer2.upstream.cache</a></dt>
 <dd>
@@ -3082,6 +3084,8 @@
 <dd>
 <div class="block">Returns a playlist identical to this one except that an end tag is added.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#copyWithFrameRate-float-">copyWithFrameRate(float)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#copyWithGaplessInfo-int-int-">copyWithGaplessInfo(int, int)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#copyWithManifestFormatInfo-com.google.android.exoplayer2.Format-">copyWithManifestFormatInfo(Format)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
@@ -3131,9 +3135,9 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#createAudioSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-int-int-int-int-int-java.util.List-com.google.android.exoplayer2.drm.DrmInitData-int-java.lang.String-com.google.android.exoplayer2.metadata.Metadata-">createAudioSampleFormat(String, String, String, int, int, int, int, int, int, int, List&lt;byte[]&gt;, DrmInitData, int, String, Metadata)</a></span> - Static method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.Factory.html#createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-com.google.android.exoplayer2.upstream.TransferListener-">createChunkSource(LoaderErrorThrower, SsManifest, int, TrackSelection, TrackEncryptionBox[], TransferListener)</a></span> - Method in class com.google.android.exoplayer2.source.smoothstreaming.<a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">DefaultSsChunkSource.Factory</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.Factory.html#createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.upstream.TransferListener-">createChunkSource(LoaderErrorThrower, SsManifest, int, TrackSelection, TransferListener)</a></span> - Method in class com.google.android.exoplayer2.source.smoothstreaming.<a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">DefaultSsChunkSource.Factory</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.Factory.html#createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-com.google.android.exoplayer2.upstream.TransferListener-">createChunkSource(LoaderErrorThrower, SsManifest, int, TrackSelection, TrackEncryptionBox[], TransferListener)</a></span> - Method in interface com.google.android.exoplayer2.source.smoothstreaming.<a href="com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource.Factory</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.Factory.html#createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.upstream.TransferListener-">createChunkSource(LoaderErrorThrower, SsManifest, int, TrackSelection, TransferListener)</a></span> - Method in interface com.google.android.exoplayer2.source.smoothstreaming.<a href="com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource.Factory</a></dt>
 <dd>
 <div class="block">Creates a new <a href="com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming"><code>SsChunkSource</code></a>.</div>
 </dd>
@@ -3466,38 +3470,38 @@
 <dd>
 <div class="block">Returns a <a href="com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a> for a given stream type and elementary stream information.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/ima/ImaAdsMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in class com.google.android.exoplayer2.ext.ima.<a href="com/google/android/exoplayer2/ext/ima/ImaAdsMediaSource.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/ima/ImaAdsMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in class com.google.android.exoplayer2.ext.ima.<a href="com/google/android/exoplayer2/ext/ima/ImaAdsMediaSource.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsMediaSource</a></dt>
 <dd>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 &nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ads/AdsMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in class com.google.android.exoplayer2.source.ads.<a href="com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ads/AdsMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in class com.google.android.exoplayer2.source.ads.<a href="com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ClippingMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ClippingMediaSource.html" title="class in com.google.android.exoplayer2.source">ClippingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ClippingMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ClippingMediaSource.html" title="class in com.google.android.exoplayer2.source">ClippingMediaSource</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in class com.google.android.exoplayer2.source.dash.<a href="com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/DashMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in class com.google.android.exoplayer2.source.dash.<a href="com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/DeferredMediaPeriod.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createPeriod(MediaSource.MediaPeriodId)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/DeferredMediaPeriod.html" title="class in com.google.android.exoplayer2.source">DeferredMediaPeriod</a></dt>
 <dd>
-<div class="block">Calls <a href="com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator)</code></a> on the wrapped source then
- prepares it if <a href="com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> has been called.</div>
+<div class="block">Calls <a href="com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> on the wrapped source
+ then prepares it if <a href="com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> has been called.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ExtractorMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source">ExtractorMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ExtractorMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ExtractorMediaSource.html" title="class in com.google.android.exoplayer2.source">ExtractorMediaSource</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in class com.google.android.exoplayer2.source.hls.<a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in class com.google.android.exoplayer2.source.hls.<a href="com/google/android/exoplayer2/source/hls/HlsMediaSource.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/LoopingMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/LoopingMediaSource.html" title="class in com.google.android.exoplayer2.source">LoopingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/LoopingMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/LoopingMediaSource.html" title="class in com.google.android.exoplayer2.source">LoopingMediaSource</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in interface com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in interface com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></dt>
 <dd>
 <div class="block">Returns a new <a href="com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> identified by <code>periodId</code>.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/MergingMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/MergingMediaSource.html" title="class in com.google.android.exoplayer2.source">MergingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/MergingMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/MergingMediaSource.html" title="class in com.google.android.exoplayer2.source">MergingMediaSource</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">createPeriod(MediaSource.MediaPeriodId, Allocator)</a></span> - Method in class com.google.android.exoplayer2.source.smoothstreaming.<a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">createPeriod(MediaSource.MediaPeriodId, Allocator, long)</a></span> - Method in class com.google.android.exoplayer2.source.smoothstreaming.<a href="com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistParserFactory.html#createPlaylistParser--">createPlaylistParser()</a></span> - Method in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistParserFactory.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistParserFactory</a></dt>
 <dd>&nbsp;</dd>
@@ -3647,6 +3651,8 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/drm/DrmInitData.html#CREATOR">CREATOR</a></span> - Static variable in class com.google.android.exoplayer2.drm.<a href="com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#CREATOR">CREATOR</a></span> - Static variable in class com.google.android.exoplayer2.drm.<a href="com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#CREATOR">CREATOR</a></span> - Static variable in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#CREATOR">CREATOR</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>&nbsp;</dd>
@@ -5099,7 +5105,7 @@
 <dd>
 <div class="block">A default <a href="com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming"><code>SsChunkSource</code></a> implementation.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.html#DefaultSsChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-">DefaultSsChunkSource(LoaderErrorThrower, SsManifest, int, TrackSelection, DataSource, TrackEncryptionBox[])</a></span> - Constructor for class com.google.android.exoplayer2.source.smoothstreaming.<a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">DefaultSsChunkSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.html#DefaultSsChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.upstream.DataSource-">DefaultSsChunkSource(LoaderErrorThrower, SsManifest, int, TrackSelection, DataSource)</a></span> - Constructor for class com.google.android.exoplayer2.source.smoothstreaming.<a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">DefaultSsChunkSource</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming"><span class="typeNameLink">DefaultSsChunkSource.Factory</span></a> - Class in <a href="com/google/android/exoplayer2/source/smoothstreaming/package-summary.html">com.google.android.exoplayer2.source.smoothstreaming</a></dt>
 <dd>&nbsp;</dd>
@@ -5168,9 +5174,9 @@
 </dd>
 <dt><a href="com/google/android/exoplayer2/source/DeferredMediaPeriod.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">DeferredMediaPeriod</span></a> - Class in <a href="com/google/android/exoplayer2/source/package-summary.html">com.google.android.exoplayer2.source</a></dt>
 <dd>
-<div class="block">Media period that wraps a media source and defers calling its <a href="com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator)</code></a> method until <code>#createPeriod(MediaPeriodId)</code> has been called.</div>
+<div class="block">Media period that wraps a media source and defers calling its <a href="com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> method until <code>#createPeriod(MediaPeriodId)</code> has been called.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/DeferredMediaPeriod.html#DeferredMediaPeriod-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">DeferredMediaPeriod(MediaSource, MediaSource.MediaPeriodId, Allocator)</a></span> - Constructor for class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/DeferredMediaPeriod.html" title="class in com.google.android.exoplayer2.source">DeferredMediaPeriod</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/DeferredMediaPeriod.html#DeferredMediaPeriod-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">DeferredMediaPeriod(MediaSource, MediaSource.MediaPeriodId, Allocator, long)</a></span> - Constructor for class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/DeferredMediaPeriod.html" title="class in com.google.android.exoplayer2.source">DeferredMediaPeriod</a></dt>
 <dd>
 <div class="block">Creates a new deferred media period.</div>
 </dd>
@@ -5199,6 +5205,8 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/drm/DrmInitData.html#describeContents--">describeContents()</a></span> - Method in class com.google.android.exoplayer2.drm.<a href="com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#describeContents--">describeContents()</a></span> - Method in class com.google.android.exoplayer2.drm.<a href="com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#describeContents--">describeContents()</a></span> - Method in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#describeContents--">describeContents()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>&nbsp;</dd>
@@ -6083,6 +6091,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.MediaIdEqualityChecker.html#equals-android.support.v4.media.MediaDescriptionCompat-android.support.v4.media.MediaDescriptionCompat-">equals(MediaDescriptionCompat, MediaDescriptionCompat)</a></span> - Method in class com.google.android.exoplayer2.ext.mediasession.<a href="com/google/android/exoplayer2/ext/mediasession/TimelineQueueEditor.MediaIdEqualityChecker.html" title="class in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaIdEqualityChecker</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#equals-java.lang.Object-">equals(Object)</a></span> - Method in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html#equals-java.lang.Object-">equals(Object)</a></span> - Method in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/SeekPoint.html#equals-java.lang.Object-">equals(Object)</a></span> - Method in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/SeekPoint.html" title="class in com.google.android.exoplayer2.extractor">SeekPoint</a></dt>
@@ -6378,6 +6388,10 @@
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
 <div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/ExoPlayer.html#createMessage-com.google.android.exoplayer2.PlayerMessage.Target-"><code>ExoPlayer.createMessage(PlayerMessage.Target)</code></a> instead.</span></div>
 </div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/cache/CacheDataSink.html#experimental_setSyncFileDescriptor-boolean-">experimental_setSyncFileDescriptor(boolean)</a></span> - Method in class com.google.android.exoplayer2.upstream.cache.<a href="com/google/android/exoplayer2/upstream/cache/CacheDataSink.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink</a></dt>
+<dd>
+<div class="block">Sets whether file descriptors are synced when closing output streams.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/NalUnitUtil.html#EXTENDED_SAR">EXTENDED_SAR</a></span> - Static variable in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/NalUnitUtil.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil</a></dt>
 <dd>
@@ -7781,6 +7795,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/audio/DefaultAudioSink.html#getCurrentPositionUs-boolean-">getCurrentPositionUs(boolean)</a></span> - Method in class com.google.android.exoplayer2.audio.<a href="com/google/android/exoplayer2/audio/DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html#getCurrentSubText-com.google.android.exoplayer2.Player-">getCurrentSubText(Player)</a></span> - Method in interface com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a></dt>
+<dd>
+<div class="block">Gets the content sub text for the current media item.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/BasePlayer.html#getCurrentTag--">getCurrentTag()</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/BasePlayer.html" title="class in com.google.android.exoplayer2">BasePlayer</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Player.html#getCurrentTag--">getCurrentTag()</a></span> - Method in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></dt>
@@ -9930,8 +9948,6 @@
 <dd>
 <div class="block">Handles a message delivered to the target.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#handleMessage-int-java.lang.Object-">handleMessage(int, Object)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.html#handleMessage-android.os.Message-">handleMessage(Message)</a></span> - Method in class com.google.android.exoplayer2.source.dash.<a href="com/google/android/exoplayer2/source/dash/PlayerEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/TextRenderer.html#handleMessage-android.os.Message-">handleMessage(Message)</a></span> - Method in class com.google.android.exoplayer2.text.<a href="com/google/android/exoplayer2/text/TextRenderer.html" title="class in com.google.android.exoplayer2.text">TextRenderer</a></dt>
@@ -9999,6 +10015,8 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/drm/DrmInitData.html#hashCode--">hashCode()</a></span> - Method in class com.google.android.exoplayer2.drm.<a href="com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#hashCode--">hashCode()</a></span> - Method in class com.google.android.exoplayer2.drm.<a href="com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#hashCode--">hashCode()</a></span> - Method in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html#hashCode--">hashCode()</a></span> - Method in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a></dt>
 <dd>&nbsp;</dd>
@@ -11029,6 +11047,10 @@
 <div class="block">Returns whether the given period is the last period of the timeline depending on the
  <code>repeatMode</code> and whether shuffling is enabled.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/SampleQueue.html#isLastSampleQueued--">isLastSampleQueued()</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/SampleQueue.html" title="class in com.google.android.exoplayer2.source">SampleQueue</a></dt>
+<dd>
+<div class="block">Returns whether the last sample of the stream has knowingly been queued.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/util/Util.html#isLinebreak-int-">isLinebreak(int)</a></span> - Static method in class com.google.android.exoplayer2.util.<a href="com/google/android/exoplayer2/util/Util.html" title="class in com.google.android.exoplayer2.util">Util</a></dt>
 <dd>
 <div class="block">Returns whether the given character is a carriage return ('\r') or a line feed ('\n').</div>
@@ -11308,6 +11330,10 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/decoder/CryptoInfo.html#key">key</a></span> - Variable in class com.google.android.exoplayer2.decoder.<a href="com/google/android/exoplayer2/decoder/CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder">CryptoInfo</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#key">key</a></span> - Variable in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
+<dd>
+<div class="block">The metadata key name.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/cache/CacheSpan.html#key">key</a></span> - Variable in class com.google.android.exoplayer2.upstream.cache.<a href="com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a></dt>
 <dd>
 <div class="block">The cache key that uniquely identifies the original stream.</div>
@@ -11680,6 +11706,10 @@
 <dd>
 <div class="block">Dispatches <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#localeIndicator">localeIndicator</a></span> - Variable in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
+<dd>
+<div class="block">The four byte locale indicator.</div>
+</dd>
 <dt><a href="com/google/android/exoplayer2/drm/LocalMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm"><span class="typeNameLink">LocalMediaDrmCallback</span></a> - Class in <a href="com/google/android/exoplayer2/drm/package-summary.html">com.google.android.exoplayer2.drm</a></dt>
 <dd>
 <div class="block">A <a href="com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm"><code>MediaDrmCallback</code></a> that provides a fixed response to key requests.</div>
@@ -12018,6 +12048,14 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Renderer.html#maybeThrowStreamError--">maybeThrowStreamError()</a></span> - Method in interface com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></dt>
 <dd>
 <div class="block">Throws an error that's preventing the renderer from reading from its <a href="com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.</div>
+</dd>
+<dt><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4"><span class="typeNameLink">MdtaMetadataEntry</span></a> - Class in <a href="com/google/android/exoplayer2/extractor/mp4/package-summary.html">com.google.android.exoplayer2.extractor.mp4</a></dt>
+<dd>
+<div class="block">Stores extensible metadata with handler type 'mdta'.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#MdtaMetadataEntry-java.lang.String-byte:A-int-int-">MdtaMetadataEntry(String, byte[], int, int)</a></span> - Constructor for class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
+<dd>
+<div class="block">Creates a new metadata entry for the specified metadata key/value.</div>
 </dd>
 <dt><a href="com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">MediaChunk</span></a> - Class in <a href="com/google/android/exoplayer2/source/chunk/package-summary.html">com.google.android.exoplayer2.source.chunk</a></dt>
 <dd>
@@ -15633,6 +15671,22 @@
 <dd>
 <div class="block">The sub mesh associated with the <a href="com/google/android/exoplayer2/video/spherical/Projection.Mesh.html" title="class in com.google.android.exoplayer2.video.spherical"><code>Projection.Mesh</code></a>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/C.html#PROJECTION_CUBEMAP">PROJECTION_CUBEMAP</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2">C</a></dt>
+<dd>
+<div class="block">Cube map projection.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/C.html#PROJECTION_EQUIRECTANGULAR">PROJECTION_EQUIRECTANGULAR</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2">C</a></dt>
+<dd>
+<div class="block">Equirectangular spherical projection.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/C.html#PROJECTION_MESH">PROJECTION_MESH</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2">C</a></dt>
+<dd>
+<div class="block">3-D mesh projection.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/C.html#PROJECTION_RECTANGULAR">PROJECTION_RECTANGULAR</a></span> - Static variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2">C</a></dt>
+<dd>
+<div class="block">Conventional rectangular projection.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#projectionData">projectionData</a></span> - Variable in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>
 <div class="block">The projection data for 360/VR video, or null if not applicable.</div>
@@ -15653,7 +15707,7 @@
 <dd>
 <div class="block">Content protection information, or null if the content is not protected.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.ProtectionElement.html#ProtectionElement-java.util.UUID-byte:A-">ProtectionElement(UUID, byte[])</a></span> - Constructor for class com.google.android.exoplayer2.source.smoothstreaming.manifest.<a href="com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.ProtectionElement.html#ProtectionElement-java.util.UUID-byte:A-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-">ProtectionElement(UUID, byte[], TrackEncryptionBox[])</a></span> - Constructor for class com.google.android.exoplayer2.source.smoothstreaming.manifest.<a href="com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html#protectionSchemes">protectionSchemes</a></span> - Variable in class com.google.android.exoplayer2.source.hls.playlist.<a href="com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></dt>
 <dd>
@@ -15874,7 +15928,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">read(byte[], int, int)</a></span> - Method in interface com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></dt>
 <dd>
-<div class="block">Reads up to <code>length</code> bytes of data and stores them into <code>buffer</code>, starting at
+<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
  index <code>offset</code>.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/upstream/DataSourceInputStream.html#read--">read()</a></span> - Method in class com.google.android.exoplayer2.upstream.<a href="com/google/android/exoplayer2/upstream/DataSourceInputStream.html" title="class in com.google.android.exoplayer2.upstream">DataSourceInputStream</a></dt>
@@ -20660,6 +20714,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/ChunkIndex.html#toString--">toString()</a></span> - Method in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#toString--">toString()</a></span> - Method in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html#toString--">toString()</a></span> - Method in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/SeekPoint.html#toString--">toString()</a></span> - Method in class com.google.android.exoplayer2.extractor.<a href="com/google/android/exoplayer2/extractor/SeekPoint.html" title="class in com.google.android.exoplayer2.extractor">SeekPoint</a></dt>
@@ -20793,6 +20849,8 @@
  (sgpd) box in an MP4 stream.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html#TrackEncryptionBox-boolean-java.lang.String-int-byte:A-int-int-byte:A-">TrackEncryptionBox(boolean, String, int, byte[], int, int, byte[])</a></span> - Constructor for class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.ProtectionElement.html#trackEncryptionBoxes">trackEncryptionBoxes</a></span> - Variable in class com.google.android.exoplayer2.source.smoothstreaming.manifest.<a href="com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/chunk/Chunk.html#trackFormat">trackFormat</a></span> - Variable in class com.google.android.exoplayer2.source.chunk.<a href="com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></dt>
 <dd>
@@ -21181,6 +21239,10 @@
 <dd>
 <div class="block">The preferred typeface.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#typeIndicator">typeIndicator</a></span> - Variable in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
+<dd>
+<div class="block">The four byte type indicator.</div>
+</dd>
 </dl>
 <a name="I:U">
 <!--   -->
@@ -21516,6 +21578,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/text/webvtt/WebvttParserUtil.html#validateWebvttHeaderLine-com.google.android.exoplayer2.util.ParsableByteArray-">validateWebvttHeaderLine(ParsableByteArray)</a></span> - Static method in class com.google.android.exoplayer2.text.webvtt.<a href="com/google/android/exoplayer2/text/webvtt/WebvttParserUtil.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttParserUtil</a></dt>
 <dd>
 <div class="block">Reads and validates the first line of a WebVTT file.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#value">value</a></span> - Variable in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
+<dd>
+<div class="block">The payload.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html#value">value</a></span> - Variable in class com.google.android.exoplayer2.metadata.emsg.<a href="com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></dt>
 <dd>
@@ -21916,6 +21982,8 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html#writeToParcel-android.os.Parcel-int-">writeToParcel(Parcel, int)</a></span> - Method in class com.google.android.exoplayer2.drm.<a href="com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/drm/DrmInitData.html#writeToParcel-android.os.Parcel-int-">writeToParcel(Parcel, int)</a></span> - Method in class com.google.android.exoplayer2.drm.<a href="com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html#writeToParcel-android.os.Parcel-int-">writeToParcel(Parcel, int)</a></span> - Method in class com.google.android.exoplayer2.extractor.mp4.<a href="com/google/android/exoplayer2/extractor/mp4/MdtaMetadataEntry.html" title="class in com.google.android.exoplayer2.extractor.mp4">MdtaMetadataEntry</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/Format.html#writeToParcel-android.os.Parcel-int-">writeToParcel(Parcel, int)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></dt>
 <dd>&nbsp;</dd>

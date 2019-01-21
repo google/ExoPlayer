@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -285,13 +285,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 </td>
 </tr>
 <tr id="i14" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#isLastSampleQueued--">isLastSampleQueued</a></span>()</code>
+<div class="block">Returns whether the last sample of the stream has knowingly been queued.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#peekSourceId--">peekSourceId</a></span>()</code>
 <div class="block">Peeks the source id of the next sample to be read, or the current upstream source id if the
  queue is empty or if the read position is at the end of the queue.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#read-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-boolean-long-">read</a></span>(<a href="../../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
     <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
@@ -301,25 +307,25 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <div class="block">Attempts to read from the queue.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#reset--">reset</a></span>()</code>
 <div class="block">Resets the output without clearing the upstream format.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#reset-boolean-">reset</a></span>(boolean&nbsp;resetUpstreamFormat)</code>
 <div class="block">Resets the output.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#rewind--">rewind</a></span>()</code>
 <div class="block">Rewinds the read position to the first sample in the queue.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
           int&nbsp;length,
@@ -327,14 +333,14 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <div class="block">Called to write sample data to the output.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;buffer,
           int&nbsp;length)</code>
 <div class="block">Called to write sample data to the output.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#sampleMetadata-long-int-int-int-com.google.android.exoplayer2.extractor.TrackOutput.CryptoData-">sampleMetadata</a></span>(long&nbsp;timeUs,
               int&nbsp;flags,
@@ -344,32 +350,32 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <div class="block">Called when metadata associated with a sample has been extracted from the stream.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#setReadPosition-int-">setReadPosition</a></span>(int&nbsp;sampleIndex)</code>
 <div class="block">Attempts to set the read position to the specified sample index.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#setSampleOffsetUs-long-">setSampleOffsetUs</a></span>(long&nbsp;sampleOffsetUs)</code>
 <div class="block">Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples
  that are subsequently queued.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#setUpstreamFormatChangeListener-com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener-">setUpstreamFormatChangeListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source">SampleQueue.UpstreamFormatChangedListener</a>&nbsp;listener)</code>
 <div class="block">Sets a listener to be notified of changes to the upstream format.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#sourceId-int-">sourceId</a></span>(int&nbsp;sourceId)</code>
 <div class="block">Sets a source identifier for subsequent samples.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#splice--">splice</a></span>()</code>
 <div class="block">Indicates samples that are subsequently queued should be spliced into those already queued.</div>
@@ -587,6 +593,18 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <dd>The largest sample timestamp that has been queued, or <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Long.html?is-external=true#MIN_VALUE" title="class or interface in java.lang"><code>Long.MIN_VALUE</code></a> if no
      samples have been queued.</dd>
 </dl>
+</li>
+</ul>
+<a name="isLastSampleQueued--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLastSampleQueued</h4>
+<pre>public&nbsp;boolean&nbsp;isLastSampleQueued()</pre>
+<div class="block">Returns whether the last sample of the stream has knowingly been queued. A return value of
+ <code>false</code> means that the last sample had not been queued or that it's unknown whether the
+ last sample has been queued.</div>
 </li>
 </ul>
 <a name="getFirstTimestampUs--">

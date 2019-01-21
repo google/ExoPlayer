@@ -154,11 +154,10 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/smoot
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.Factory.html#createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-com.google.android.exoplayer2.upstream.TransferListener-">createChunkSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/DefaultSsChunkSource.Factory.html#createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.upstream.TransferListener-">createChunkSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                  <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
                  int&nbsp;elementIndex,
                  <a href="../../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;trackSelection,
-                 <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>[]&nbsp;trackEncryptionBoxes,
                  <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code>
 <div class="block">Creates a new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming"><code>SsChunkSource</code></a>.</div>
 </td>
@@ -202,7 +201,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/smoot
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-com.google.android.exoplayer2.upstream.TransferListener-">
+<a name="createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.upstream.TransferListener-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -212,20 +211,18 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/smoot
                                        <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
                                        int&nbsp;elementIndex,
                                        <a href="../../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>&nbsp;trackSelection,
-                                       <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>[]&nbsp;trackEncryptionBoxes,
                                        <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                        <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.Factory.html#createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-com.google.android.exoplayer2.upstream.TransferListener-">SsChunkSource.Factory</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.Factory.html#createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.upstream.TransferListener-">SsChunkSource.Factory</a></code></span></div>
 <div class="block">Creates a new <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming"><code>SsChunkSource</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.Factory.html#createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-com.google.android.exoplayer2.upstream.TransferListener-">createChunkSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource.Factory</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.Factory.html#createChunkSource-com.google.android.exoplayer2.upstream.LoaderErrorThrower-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-int-com.google.android.exoplayer2.trackselection.TrackSelection-com.google.android.exoplayer2.upstream.TransferListener-">createChunkSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource.Factory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifestLoaderErrorThrower</code> - Throws errors affecting loading of manifests.</dd>
 <dd><code>manifest</code> - The initial manifest.</dd>
 <dd><code>elementIndex</code> - The index of the corresponding stream element in the manifest.</dd>
 <dd><code>trackSelection</code> - The track selection.</dd>
-<dd><code>trackEncryptionBoxes</code> - Track encryption boxes for the stream.</dd>
 <dd><code>transferListener</code> - The transfer listener which should be informed of any data transfers.
      May be null if no listener is available.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>

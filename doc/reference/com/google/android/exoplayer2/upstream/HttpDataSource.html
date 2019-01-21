@@ -237,7 +237,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourc
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#read-byte:A-int-int-">read</a></span>(byte[]&nbsp;buffer,
     int&nbsp;offset,
     int&nbsp;readLength)</code>
-<div class="block">Reads up to <code>length</code> bytes of data and stores them into <code>buffer</code>, starting at
+<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
  index <code>offset</code>.</div>
 </td>
 </tr>
@@ -349,11 +349,11 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourc
          int&nbsp;readLength)
   throws <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">DataSource</a></code></span></div>
-<div class="block">Reads up to <code>length</code> bytes of data and stores them into <code>buffer</code>, starting at
+<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
  index <code>offset</code>.
- <p>
- If <code>length</code> is zero then 0 is returned. Otherwise, if no data is available because the
- end of the opened range has been reached, then <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> is returned.
+
+ <p>If <code>readLength</code> is zero then 0 is returned. Otherwise, if no data is available because
+ the end of the opened range has been reached, then <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> is returned.
  Otherwise, the call will block until at least one byte of data has been read and the number of
  bytes read is returned.</div>
 <dl>

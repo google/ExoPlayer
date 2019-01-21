@@ -113,7 +113,7 @@ var activeTableTab = "activeTableTab";
 <pre>public final class <span class="typeNameLabel">DeferredMediaPeriod</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>, <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a></pre>
-<div class="block">Media period that wraps a media source and defers calling its <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator)</code></a> method until <code>#createPeriod(MediaPeriodId)</code> has been called. This is useful if you need to return a media
+<div class="block">Media period that wraps a media source and defers calling its <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> method until <code>#createPeriod(MediaPeriodId)</code> has been called. This is useful if you need to return a media
  period immediately but the media source that should create it is not yet prepared.</div>
 </li>
 </ul>
@@ -188,9 +188,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#DeferredMediaPeriod-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">DeferredMediaPeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#DeferredMediaPeriod-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">DeferredMediaPeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
                    <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id,
-                   <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator)</code>
+                   <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
+                   long&nbsp;preparePositionUs)</code>
 <div class="block">Creates a new deferred media period.</div>
 </td>
 </tr>
@@ -218,8 +219,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createPeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id)</code>
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator)</code></a> on the wrapped source then
- prepares it if <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> has been called.</div>
+<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> on the wrapped source
+ then prepares it if <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> has been called.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -282,7 +283,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#overridePreparePositionUs-long-">overridePreparePositionUs</a></span>(long&nbsp;defaultPreparePositionUs)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#overridePreparePositionUs-long-">overridePreparePositionUs</a></span>(long&nbsp;preparePositionUs)</code>
 <div class="block">Overrides the default prepare position at which to prepare the media period.</div>
 </td>
 </tr>
@@ -383,7 +384,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DeferredMediaPeriod-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-">
+<a name="DeferredMediaPeriod-com.google.android.exoplayer2.source.MediaSource-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -391,13 +392,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <h4>DeferredMediaPeriod</h4>
 <pre>public&nbsp;DeferredMediaPeriod(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
                            <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id,
-                           <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator)</pre>
+                           <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
+                           long&nbsp;preparePositionUs)</pre>
 <div class="block">Creates a new deferred media period.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaSource</code> - The media source to wrap.</dd>
 <dd><code>id</code> - The identifier used to create the deferred media period.</dd>
 <dd><code>allocator</code> - The allocator used to create the media period.</dd>
+<dd><code>preparePositionUs</code> - The expected start position, in microseconds.</dd>
 </dl>
 </li>
 </ul>
@@ -441,12 +444,12 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <ul class="blockList">
 <li class="blockList">
 <h4>overridePreparePositionUs</h4>
-<pre>public&nbsp;void&nbsp;overridePreparePositionUs(long&nbsp;defaultPreparePositionUs)</pre>
+<pre>public&nbsp;void&nbsp;overridePreparePositionUs(long&nbsp;preparePositionUs)</pre>
 <div class="block">Overrides the default prepare position at which to prepare the media period. This value is only
- used if the call to <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> is being deferred.</div>
+ used if called before <code>#createPeriod(MediaPeriodId)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>defaultPreparePositionUs</code> - The default prepare position to use, in microseconds.</dd>
+<dd><code>preparePositionUs</code> - The default prepare position to use, in microseconds.</dd>
 </dl>
 </li>
 </ul>
@@ -457,9 +460,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <li class="blockList">
 <h4>createPeriod</h4>
 <pre>public&nbsp;void&nbsp;createPeriod(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id)</pre>
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator)</code></a> on the wrapped source then
- prepares it if <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> has been called. Call <a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#releasePeriod--"><code>releasePeriod()</code></a>
- to release the period.</div>
+<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> on the wrapped source
+ then prepares it if <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-"><code>MediaPeriod.prepare(Callback, long)</code></a> has been called. Call <a href="../../../../../com/google/android/exoplayer2/source/DeferredMediaPeriod.html#releasePeriod--"><code>releasePeriod()</code></a> to release the period.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The identifier that should be used to create the media period from the media source.</dd>

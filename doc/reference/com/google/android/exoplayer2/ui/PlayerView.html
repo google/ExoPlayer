@@ -1077,8 +1077,8 @@ public&nbsp;void&nbsp;setDefaultArtwork(<a href="https://developer.android.com/r
 <pre>public&nbsp;void&nbsp;setKeepContentOnPlayerReset(boolean&nbsp;keepContentOnPlayerReset)</pre>
 <div class="block">Sets whether the currently displayed video frame or media artwork is kept visible when the
  player is reset. A player reset is defined to mean the player being re-prepared with different
- media, <a href="../../../../../com/google/android/exoplayer2/Player.html#stop-boolean-"><code>Player.stop(boolean)</code></a> being called with <code>reset=true</code>, or the player being
- replaced or cleared by calling <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setPlayer-com.google.android.exoplayer2.Player-"><code>setPlayer(Player)</code></a>.
+ media, the player transitioning to unprepared media, <a href="../../../../../com/google/android/exoplayer2/Player.html#stop-boolean-"><code>Player.stop(boolean)</code></a> being called
+ with <code>reset=true</code>, or the player being replaced or cleared by calling <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setPlayer-com.google.android.exoplayer2.Player-"><code>setPlayer(Player)</code></a>.
 
  <p>If enabled, the currently displayed video frame or media artwork will be kept visible until
  the player set on the view has been successfully prepared with new media and loaded enough of
