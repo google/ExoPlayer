@@ -64,14 +64,17 @@ import java.util.Set;
         };
   }
 
+  @Override
   public int getVastMediaWidth() {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public int getVastMediaHeight() {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public int getVastMediaBitrate() {
     throw new UnsupportedOperationException();
   }
