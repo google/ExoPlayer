@@ -462,7 +462,7 @@ public abstract class DownloadService extends Service {
     public void detachService(DownloadService downloadService, boolean unschedule) {
       Assertions.checkState(this.downloadService == downloadService);
       this.downloadService = null;
-      if (unschedule) {
+      if (scheduler != null && unschedule) {
         scheduler.cancel();
       }
     }
