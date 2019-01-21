@@ -134,6 +134,17 @@ public class HlsMasterPlaylistParserTest {
           + "#EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=\"{$codecs}\"\n"
           + "http://example.com/{$tricky}\n";
 
+  private static final String PLAYLIST_WITH_MULTIPLE_MUXED_MEDIA_TAGS =
+      "#EXTM3U\n"
+          + "#EXT-X-VERSION:3\n"
+          + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"a\",NAME=\"audio_0\",DEFAULT=YES,URI=\"0/0.m3u8\"\n"
+          + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"b\",NAME=\"audio_0\",DEFAULT=YES,URI=\"1/1.m3u8\"\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=140800,CODECS=\"mp4a.40.2\",AUDIO=\"a\"\n"
+          + "0/0.m3u8\n"
+          + "\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=281600,CODECS=\"mp4a.40.2\",AUDIO=\"b\"\n"
+          + "1/1.m3u8\n";
+
   @Test
   public void testParseMasterPlaylist() throws IOException {
     HlsMasterPlaylist masterPlaylist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
@@ -269,6 +280,14 @@ public class HlsMasterPlaylistParserTest {
     HlsMasterPlaylist.HlsUrl variant = playlistWithSubstitutions.variants.get(0);
     assertThat(variant.format.codecs).isEqualTo("mp4a.40.5");
     assertThat(variant.url).isEqualTo("http://example.com/This/{$nested}/reference/shouldnt/work");
+  }
+
+  @Test
+  public void testMultipleMuxedMediaTags() throws IOException {
+    HlsMasterPlaylist playlistWithMultipleMuxedMediaTags =
+        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_MULTIPLE_MUXED_MEDIA_TAGS);
+    assertThat(playlistWithMultipleMuxedMediaTags.variants).hasSize(2);
+    assertThat(playlistWithMultipleMuxedMediaTags.audios).isEmpty();
   }
 
   private static HlsMasterPlaylist parseMasterPlaylist(String uri, String playlistString)

@@ -1181,6 +1181,37 @@ public final class Format implements Parcelable {
         metadata);
   }
 
+  public Format copyWithFrameRate(float frameRate) {
+    return new Format(
+        id,
+        label,
+        containerMimeType,
+        sampleMimeType,
+        codecs,
+        bitrate,
+        maxInputSize,
+        width,
+        height,
+        frameRate,
+        rotationDegrees,
+        pixelWidthHeightRatio,
+        projectionData,
+        stereoMode,
+        colorInfo,
+        channelCount,
+        sampleRate,
+        pcmEncoding,
+        encoderDelay,
+        encoderPadding,
+        selectionFlags,
+        language,
+        accessibilityChannel,
+        subsampleOffsetUs,
+        initializationData,
+        drmInitData,
+        metadata);
+  }
+
   public Format copyWithDrmInitData(@Nullable DrmInitData drmInitData) {
     return new Format(
         id,

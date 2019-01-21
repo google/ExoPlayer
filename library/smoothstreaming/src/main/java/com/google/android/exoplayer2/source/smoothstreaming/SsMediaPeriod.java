@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -44,8 +43,6 @@ import java.util.ArrayList;
 /* package */ final class SsMediaPeriod implements MediaPeriod,
     SequenceableLoader.Callback<ChunkSampleStream<SsChunkSource>> {
 
-  private static final int INITIALIZATION_VECTOR_SIZE = 8;
-
   private final SsChunkSource.Factory chunkSourceFactory;
   private final @Nullable TransferListener transferListener;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
@@ -53,7 +50,6 @@ import java.util.ArrayList;
   private final EventDispatcher eventDispatcher;
   private final Allocator allocator;
   private final TrackGroupArray trackGroups;
-  private final TrackEncryptionBox[] trackEncryptionBoxes;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
 
   private @Nullable Callback callback;
@@ -71,6 +67,7 @@ import java.util.ArrayList;
       EventDispatcher eventDispatcher,
       LoaderErrorThrower manifestLoaderErrorThrower,
       Allocator allocator) {
+    this.manifest = manifest;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
@@ -78,18 +75,7 @@ import java.util.ArrayList;
     this.eventDispatcher = eventDispatcher;
     this.allocator = allocator;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
-
     trackGroups = buildTrackGroups(manifest);
-    ProtectionElement protectionElement = manifest.protectionElement;
-    if (protectionElement != null) {
-      byte[] keyId = getProtectionElementKeyId(protectionElement.data);
-      // We assume pattern encryption does not apply.
-      trackEncryptionBoxes = new TrackEncryptionBox[] {
-          new TrackEncryptionBox(true, null, INITIALIZATION_VECTOR_SIZE, keyId, 0, 0, null)};
-    } else {
-      trackEncryptionBoxes = null;
-    }
-    this.manifest = manifest;
     sampleStreams = newSampleStreamArray(0);
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
@@ -229,7 +215,6 @@ import java.util.ArrayList;
             manifest,
             streamElementIndex,
             selection,
-            trackEncryptionBoxes,
             transferListener);
     return new ChunkSampleStream<>(
         manifest.streamElements[streamElementIndex].type,
@@ -277,5 +262,4 @@ import java.util.ArrayList;
     data[firstPosition] = data[secondPosition];
     data[secondPosition] = temp;
   }
-
 }

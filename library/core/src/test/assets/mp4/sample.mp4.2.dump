@@ -147,7 +147,7 @@ track 0:
     data = length 530, hash C98BC6A8
   sample 29:
     time = 934266
-    flags = 0
+    flags = 536870912
     data = length 568, hash 4FE5C8EA
 track 1:
   format:
@@ -244,6 +244,6 @@ track 1:
     data = length 229, hash FFF98DF0
   sample 17:
     time = 1065678
-    flags = 1
+    flags = 536870913
     data = length 6, hash 31B22286
 tracksEnded = true

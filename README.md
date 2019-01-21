@@ -27,6 +27,8 @@ repository and depend on the modules locally.
 
 ### From JCenter ###
 
+#### 1. Add repositories ####
+
 The easiest way to get started using ExoPlayer is to add it as a gradle
 dependency. You need to make sure you have the Google and JCenter repositories
 included in the `build.gradle` file in the root of your project:
@@ -38,6 +40,8 @@ repositories {
 }
 ```
 
+#### 2. Add ExoPlayer module dependencies ####
+
 Next add a dependency in the `build.gradle` file of your app module. The
 following will add a dependency to the full library:
 
@@ -45,15 +49,7 @@ following will add a dependency to the full library:
 implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
 ```
 
-where `2.X.X` is your preferred version. If not enabled already, you also need
-to turn on Java 8 support in all `build.gradle` files depending on ExoPlayer, by
-adding the following to the `android` section:
-
-```gradle
-compileOptions {
-    targetCompatibility JavaVersion.VERSION_1_8
-}
-```
+where `2.X.X` is your preferred version.
 
 As an alternative to the full library, you can depend on only the library
 modules that you actually need. For example the following will add dependencies
@@ -86,6 +82,32 @@ JCenter can be found on [Bintray][].
 
 [extensions directory]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/
 [Bintray]: https://bintray.com/google/exoplayer
+
+#### 3. Turn on Java 8 support ####
+
+If not enabled already, you also need to turn on Java 8 support in all
+`build.gradle` files depending on ExoPlayer, by adding the following to the
+`android` section:
+
+```gradle
+compileOptions {
+  targetCompatibility JavaVersion.VERSION_1_8
+}
+```
+
+Note that if you want to use Java 8 features in your own code, the following
+additional options need to be set:
+
+```gradle
+// For Java compilers:
+compileOptions {
+  sourceCompatibility JavaVersion.VERSION_1_8
+}
+// For Kotlin compilers:
+kotlinOptions {
+  jvmTarget = JavaVersion.VERSION_1_8
+}
+```
 
 ### Locally ###
 
