@@ -405,7 +405,7 @@ public final class SimpleCache implements Cache {
     }
     for (File file : files) {
       String fileName = file.getName();
-      if (fileName.indexOf('.') == -1) {
+      if (isRootDirectory && fileName.indexOf('.') == -1) {
         loadDirectory(file, /* isRootDirectory= */ false);
       } else {
         if (isRootDirectory && CachedContentIndex.FILE_NAME.equals(fileName)) {
