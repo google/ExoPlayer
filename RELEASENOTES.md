@@ -43,6 +43,9 @@
   fit service requirements. Remove ability to set a custom stop action.
 * Add workaround for video quality problems with Amlogic decoders
   ([#5003](https://github.com/google/ExoPlayer/issues/5003)).
+* Associate fatal player errors of type SOURCE with the loading source in
+  `AnalyticsListener.EventTime`
+  ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
 
 ### 2.9.4 ###
 
