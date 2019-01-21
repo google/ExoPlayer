@@ -1095,6 +1095,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       throws DecoderQueryException {
     int maxWidth = format.width;
     int maxHeight = format.height;
+    if (codecNeedsMaxVideoSizeResetWorkaround(codecInfo.name)) {
+      maxWidth = Math.max(maxWidth, 1920);
+      maxHeight = Math.max(maxHeight, 1089);
+    }
     int maxInputSize = getMaxInputSize(codecInfo, format);
     if (streamFormats.length == 1) {
       // The single entry in streamFormats must correspond to the format for which the codec is
@@ -1280,6 +1284,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // operations that can modify frame output timestamps, which is incompatible with ExoPlayer's
     // logic for skipping decode-only frames.
     return "NVIDIA".equals(Util.MANUFACTURER);
+  }
+
+  /**
+   * Returns whether the codec is known to have problems with the configuration for interlaced
+   * content and needs minimum values for the maximum video size to force reset the configuration.
+   *
+   * <p>See https://github.com/google/ExoPlayer/issues/5003.
+   *
+   * @param name The name of the codec.
+   */
+  private static boolean codecNeedsMaxVideoSizeResetWorkaround(String name) {
+    return "OMX.amlogic.avc.decoder.awesome".equals(name) && Util.SDK_INT <= 25;
   }
 
   /*
