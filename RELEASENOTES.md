@@ -41,11 +41,6 @@
 * Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
 * Change signature of `PlayerNotificationManager.NotificationListener` to better
   fit service requirements. Remove ability to set a custom stop action.
-* Add workaround for video quality problems with Amlogic decoders
-  ([#5003](https://github.com/google/ExoPlayer/issues/5003)).
-* Associate fatal player errors of type SOURCE with the loading source in
-  `AnalyticsListener.EventTime`
-  ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
 
 ### 2.9.4 ###
 
@@ -56,6 +51,17 @@
 * FFmpeg extension: Treat invalid data errors as non-fatal to match the behavior
   of MediaCodec ([#5293](https://github.com/google/ExoPlayer/issues/5293)).
 * GVR extension: upgrade GVR SDK dependency to 1.190.0.
+* Associate fatal player errors of type SOURCE with the loading source in
+  `AnalyticsListener.EventTime`
+  ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
+* Add `startPositionUs` to `MediaSource.createPeriod`. This fixes an issue where
+  using lazy preparation in `ConcatenatingMediaSource` with an
+  `ExtractorMediaSource` overrides initial seek positions
+  ([#5350](https://github.com/google/ExoPlayer/issues/5350)).
+* Add subtext to the `MediaDescriptionAdapter` of the
+  `PlayerNotificationManager`.
+* Add workaround for video quality problems with Amlogic decoders
+  ([#5003](https://github.com/google/ExoPlayer/issues/5003)).
 * Fix issue where sending callbacks for playlist changes may cause problems
   because of parallel player access
   ([#5240](https://github.com/google/ExoPlayer/issues/5240)).
@@ -64,12 +70,6 @@
   ([#5351](https://github.com/google/ExoPlayer/issues/5351)).
 * Fix issue where uneven track durations in MP4 streams can cause OOM problems
   ([#3670](https://github.com/google/ExoPlayer/issues/3670)).
-* Add `startPositionUs` to `MediaSource.createPeriod`. This fixes an issue where
-  using lazy preparation in `ConcatenatingMediaSource` with an
-  `ExtractorMediaSource` overrides initial seek positions
-  ([#5350](https://github.com/google/ExoPlayer/issues/5350)).
-* Add subtext to the `MediaDescriptionAdapter` of the
-  `PlayerNotificationManager`.
 
 ### 2.9.3 ###
 
