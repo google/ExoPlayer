@@ -16,8 +16,11 @@
 package com.google.android.exoplayer2.database;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.google.android.exoplayer2.util.Log;
 
 /**
  * An {@link SQLiteOpenHelper} that provides instances of a standalone ExoPlayer database.
@@ -32,6 +35,7 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
   public static final String DATABASE_NAME = "exoplayer_internal.db";
 
   private static final int VERSION = 1;
+  private static final String TAG = "ExoDatabaseProvider";
 
   public ExoDatabaseProvider(Context context) {
     super(context.getApplicationContext(), DATABASE_NAME, /* factory= */ null, VERSION);
@@ -49,7 +53,37 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
 
   @Override
   public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    // TODO: Wipe the database.
-    super.onDowngrade(db, oldVersion, newVersion);
+    wipeDatabase(db);
+  }
+
+  /**
+   * Makes a best effort to wipe the existing database. The wipe may be incomplete if the database
+   * contains foreign key constraints.
+   */
+  private static void wipeDatabase(SQLiteDatabase db) {
+    String[] columns = {"type", "name"};
+    try (Cursor cursor =
+        db.query(
+            "sqlite_master",
+            columns,
+            /* selection= */ null,
+            /* selectionArgs= */ null,
+            /* groupBy= */ null,
+            /* having= */ null,
+            /* orderBy= */ null)) {
+      while (cursor.moveToNext()) {
+        String type = cursor.getString(0);
+        String name = cursor.getString(1);
+        if (!"sqlite_sequence".equals(name)) {
+          // If it's not an SQL-controlled entity, drop it
+          String sql = "DROP " + type + " IF EXISTS " + name;
+          try {
+            db.execSQL(sql);
+          } catch (SQLException e) {
+            Log.e(TAG, "Error executing " + sql, e);
+          }
+        }
+      }
+    }
   }
 }
