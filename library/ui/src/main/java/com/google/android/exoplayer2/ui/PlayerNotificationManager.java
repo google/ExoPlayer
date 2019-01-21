@@ -928,10 +928,8 @@ public class PlayerNotificationManager {
 
   private void stopNotification(boolean dismissedByUser) {
     if (isNotificationStarted) {
-      if (!dismissedByUser) {
-        notificationManager.cancel(notificationId);
-      }
       isNotificationStarted = false;
+      notificationManager.cancel(notificationId);
       context.unregisterReceiver(notificationBroadcastReceiver);
       if (notificationListener != null) {
         notificationListener.onNotificationCancelled(notificationId, dismissedByUser);
