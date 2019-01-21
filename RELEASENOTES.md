@@ -41,6 +41,8 @@
 * Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
 * Change signature of `PlayerNotificationManager.NotificationListener` to better
   fit service requirements. Remove ability to set a custom stop action.
+* Add workaround for video quality problems with Amlogic decoders
+  ([#5003](https://github.com/google/ExoPlayer/issues/5003)).
 
 ### 2.9.4 ###
 
