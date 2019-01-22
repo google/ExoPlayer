@@ -235,15 +235,15 @@ public class PlayerNotificationManager {
     /**
      * Called each time after the notification has been posted.
      *
-     * <p>The {@code isPlayerActive} flag indicates whether a service in which the player may run
-     * needs to be in the foreground.
+     * <p>For a service, the {@code ongoing} flag can be used as an indicator as to whether it
+     * should be in the foreground.
      *
      * @param notificationId The id of the notification which has been posted.
      * @param notification The {@link Notification}.
-     * @param isPlayerActive {@code true} if the player is active.
+     * @param ongoing Whether the notification is ongoing.
      */
     default void onNotificationPosted(
-        int notificationId, Notification notification, boolean isPlayerActive) {}
+        int notificationId, Notification notification, boolean ongoing) {}
   }
 
   /** Receives a {@link Bitmap}. */
@@ -371,7 +371,6 @@ public class PlayerNotificationManager {
   private @DrawableRes int smallIconResourceId;
   private int visibility;
   private @Priority int priority;
-  private boolean ongoing;
   private boolean useChronometer;
   private boolean wasPlayWhenReady;
   private int lastPlaybackState;
@@ -547,7 +546,6 @@ public class PlayerNotificationManager {
     intentFilter = new IntentFilter();
     useNavigationActions = true;
     usePlayPauseActions = true;
-    ongoing = true;
     colorized = true;
     useChronometer = true;
     color = Color.TRANSPARENT;
@@ -790,22 +788,6 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * Sets whether the notification should be ongoing. If {@code false} the user can dismiss the
-   * notification by swiping. If in addition the stop action is enabled dismissing the notification
-   * triggers the stop action.
-   *
-   * <p>See {@link NotificationCompat.Builder#setOngoing(boolean)}.
-   *
-   * @param ongoing Whether {@code true} the notification is ongoing and not dismissible.
-   */
-  public final void setOngoing(boolean ongoing) {
-    if (this.ongoing != ongoing) {
-      this.ongoing = ongoing;
-      invalidate();
-    }
-  }
-
-  /**
    * Sets the priority of the notification required for API 25 and lower.
    *
    * <p>See {@link NotificationCompat.Builder#setPriority(int)}.
@@ -904,7 +886,8 @@ public class PlayerNotificationManager {
   @Nullable
   private Notification startOrUpdateNotification(@Nullable Bitmap bitmap) {
     Player player = this.player;
-    Notification notification = createNotification(player, bitmap);
+    boolean ongoing = getOngoing(player);
+    Notification notification = createNotification(player, ongoing, bitmap);
     if (notification == null) {
       stopNotification(/* dismissedByUser= */ false);
       return null;
@@ -919,9 +902,7 @@ public class PlayerNotificationManager {
     }
     NotificationListener listener = notificationListener;
     if (listener != null) {
-      boolean isPlayerActive =
-          player.getPlayWhenReady() && player.getPlaybackState() != Player.STATE_IDLE;
-      listener.onNotificationPosted(notificationId, notification, isPlayerActive);
+      listener.onNotificationPosted(notificationId, notification, ongoing);
     }
     return notification;
   }
@@ -942,12 +923,14 @@ public class PlayerNotificationManager {
    * Creates the notification given the current player state.
    *
    * @param player The player for which state to build a notification.
+   * @param ongoing Whether the notification should be ongoing.
    * @param largeIcon The large icon to be used.
    * @return The {@link Notification} which has been built, or {@code null} if no notification
    *     should be displayed.
    */
   @Nullable
-  protected Notification createNotification(Player player, @Nullable Bitmap largeIcon) {
+  protected Notification createNotification(
+      Player player, boolean ongoing, @Nullable Bitmap largeIcon) {
     if (player.getPlaybackState() == Player.STATE_IDLE) {
       return null;
     }
@@ -970,12 +953,11 @@ public class PlayerNotificationManager {
     }
     mediaStyle.setShowActionsInCompactView(getActionIndicesForCompactView(actionNames, player));
     // Configure dismiss action prior to API 21 ('x' button).
-    mediaStyle.setShowCancelButton(true);
+    mediaStyle.setShowCancelButton(!ongoing);
     mediaStyle.setCancelButtonIntent(dismissPendingIntent);
     // Set intent which is sent if the user selects 'clear all'
     builder.setDeleteIntent(dismissPendingIntent);
     builder.setStyle(mediaStyle);
-
     // Set notification properties from getters.
     builder
         .setBadgeIconType(badgeIconType)
@@ -1086,7 +1068,7 @@ public class PlayerNotificationManager {
    * first parameter.
    *
    * @param actionNames The names of the actions included in the notification.
-   * @param player The player for which state to build a notification.
+   * @param player The player for which a notification is being built.
    */
   @SuppressWarnings("unused")
   protected int[] getActionIndicesForCompactView(List<String> actionNames, Player player) {
@@ -1095,6 +1077,13 @@ public class PlayerNotificationManager {
     return pauseActionIndex != -1
         ? new int[] {pauseActionIndex}
         : (playActionIndex != -1 ? new int[] {playActionIndex} : new int[0]);
+  }
+
+  /** Returns whether the generated notification should be ongoing. */
+  protected boolean getOngoing(Player player) {
+    int playbackState = player.getPlaybackState();
+    return (playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY)
+        && player.getPlayWhenReady();
   }
 
   private static Map<String, NotificationCompat.Action> createPlaybackActions(
