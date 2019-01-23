@@ -22,14 +22,14 @@ import com.google.android.exoplayer2.ext.cast.MediaItem;
 /** Manages the players in the Cast demo app. */
 interface PlayerManager {
 
-  /** Listener for changes in the media queue playback position. */
-  interface QueuePositionListener {
+  /** Listener for changes in the media queue. */
+  interface QueueChangesListener {
 
-    /**
-     * Called when the currently played item of the media queue changes.
-     */
+    /** Called when the currently played item of the media queue changes. */
     void onQueuePositionChanged(int previousIndex, int newIndex);
 
+    /** Called when the media queue changes due to modifications not caused by this manager. */
+    void onQueueContentsExternallyChanged();
   }
 
   /** Redirects the given {@code keyEvent} to the active player. */
