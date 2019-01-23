@@ -1376,7 +1376,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
     }
 
-    if (!queue.updateQueuedPeriods(playingPeriodId, rendererPositionUs)) {
+    if (!queue.updateQueuedPeriods(rendererPositionUs)) {
       seekToCurrentPosition(/* sendDiscontinuity= */ false);
     }
     handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
