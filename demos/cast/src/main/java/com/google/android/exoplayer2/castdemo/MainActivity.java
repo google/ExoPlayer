@@ -49,7 +49,7 @@ import java.util.Collections;
  * Cast extension.
  */
 public class MainActivity extends AppCompatActivity
-    implements OnClickListener, PlayerManager.QueuePositionListener {
+    implements OnClickListener, PlayerManager.QueueChangesListener {
 
   private final MediaItem.Builder mediaItemBuilder;
 
@@ -121,8 +121,8 @@ public class MainActivity extends AppCompatActivity
     switch (applicationId) {
       case CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID:
         playerManager =
-            DefaultReceiverPlayerManager.createPlayerManager(
-                /* queuePositionListener= */ this,
+            new DefaultReceiverPlayerManager(
+                /* queueChangesListener= */ this,
                 localPlayerView,
                 castControlView,
                 /* context= */ this,
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity
         .show();
   }
 
-  // PlayerManager.QueuePositionListener implementation.
+  // PlayerManager.QueueChangesListener implementation.
 
   @Override
   public void onQueuePositionChanged(int previousIndex, int newIndex) {
@@ -172,6 +172,11 @@ public class MainActivity extends AppCompatActivity
     if (newIndex != C.INDEX_UNSET) {
       mediaQueueListAdapter.notifyItemChanged(newIndex);
     }
+  }
+
+  @Override
+  public void onQueueContentsExternallyChanged() {
+    mediaQueueListAdapter.notifyDataSetChanged();
   }
 
   // Internal methods.
