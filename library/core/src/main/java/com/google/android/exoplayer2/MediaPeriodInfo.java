@@ -64,15 +64,26 @@ import com.google.android.exoplayer2.util.Util;
     this.isFinal = isFinal;
   }
 
-  /** Returns a copy of this instance with the start position set to the specified value. */
+  /**
+   * Returns a copy of this instance with the start position set to the specified value. May return
+   * the same instance if nothing changed.
+   */
   public MediaPeriodInfo copyWithStartPositionUs(long startPositionUs) {
-    return new MediaPeriodInfo(
-        id,
-        startPositionUs,
-        contentPositionUs,
-        durationUs,
-        isLastInTimelinePeriod,
-        isFinal);
+    return startPositionUs == this.startPositionUs
+        ? this
+        : new MediaPeriodInfo(
+            id, startPositionUs, contentPositionUs, durationUs, isLastInTimelinePeriod, isFinal);
+  }
+
+  /**
+   * Returns a copy of this instance with the content position set to the specified value. May
+   * return the same instance if nothing changed.
+   */
+  public MediaPeriodInfo copyWithContentPositionUs(long contentPositionUs) {
+    return contentPositionUs == this.contentPositionUs
+        ? this
+        : new MediaPeriodInfo(
+            id, startPositionUs, contentPositionUs, durationUs, isLastInTimelinePeriod, isFinal);
   }
 
   @Override
