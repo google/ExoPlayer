@@ -88,23 +88,12 @@ import java.util.UUID;
     // App samples.
     ArrayList<Sample> samples = new ArrayList<>();
 
+    // Clear content.
     samples.add(
         new Sample(
             "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd",
             "Clear DASH: Tears",
             MIME_TYPE_DASH));
-    samples.add(
-        new Sample(
-            "https://commondatastorage.googleapis.com/gtv-videos-bucket/CastVideos/"
-                + "hls/TearsOfSteel.m3u8",
-            "Clear HLS: Tears of Steel",
-            MIME_TYPE_HLS));
-    samples.add(
-        new Sample(
-            "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3"
-                + "/bipbop_4x3_variant.m3u8",
-            "Clear HLS: Basic 4x3",
-            MIME_TYPE_HLS));
     samples.add(
         new Sample(
             "https://html5demos.com/assets/dizzy.mp4", "Clear MP4: Dizzy", MIME_TYPE_VIDEO_MP4));
