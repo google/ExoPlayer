@@ -1,4 +1,9 @@
+
 # Release notes #
+
+### 2.9.5 ###
+
+* HLS: Parse `CHANNELS` attribute from `EXT-X-MEDIA`.
 
 ### 2.9.4 ###
 
