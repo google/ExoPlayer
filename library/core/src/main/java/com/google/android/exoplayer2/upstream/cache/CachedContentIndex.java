@@ -33,8 +33,10 @@ import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import javax.crypto.Cipher;
@@ -51,6 +53,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public static final String FILE_NAME = "cached_content_index.exi";
 
   private static final int VERSION = 2;
+  private static final int VERSION_METADATA_INTRODUCED = 2;
+  private static final int INCREMENTAL_METADATA_READ_LENGTH = 10 * 1024 * 1024;
 
   private static final int FLAG_ENCRYPTED_INDEX = 1;
 
@@ -245,6 +249,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return cachedContent != null ? cachedContent.getMetadata() : DefaultContentMetadata.EMPTY;
   }
 
+  private CachedContent addNew(String key) {
+    int id = getNewId(idToKey);
+    CachedContent cachedContent = new CachedContent(id, key);
+    add(cachedContent);
+    changed = true;
+    return cachedContent;
+  }
+
+  private void add(CachedContent cachedContent) {
+    keyToContent.put(cachedContent.key, cachedContent);
+    idToKey.put(cachedContent.id, cachedContent.key);
+  }
+
   private boolean readFile() {
     DataInputStream input = null;
     try {
@@ -276,9 +293,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int count = input.readInt();
       int hashCode = 0;
       for (int i = 0; i < count; i++) {
-        CachedContent cachedContent = CachedContent.readFromStream(version, input);
+        CachedContent cachedContent = readCachedContent(version, input);
         add(cachedContent);
-        hashCode += cachedContent.headerHashCode(version);
+        hashCode += hashCachedContent(cachedContent, version);
       }
       int fileHashCode = input.readInt();
       boolean isEOF = input.read() == -1;
@@ -327,8 +344,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       output.writeInt(keyToContent.size());
       int hashCode = 0;
       for (CachedContent cachedContent : keyToContent.values()) {
-        cachedContent.writeToStream(output);
-        hashCode += cachedContent.headerHashCode(VERSION);
+        writeCachedContent(cachedContent, output);
+        hashCode += hashCachedContent(cachedContent, VERSION);
       }
       output.writeInt(hashCode);
       atomicFile.endWrite(output);
@@ -342,17 +359,108 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
-  private CachedContent addNew(String key) {
-    int id = getNewId(idToKey);
-    CachedContent cachedContent = new CachedContent(id, key);
-    add(cachedContent);
-    changed = true;
-    return cachedContent;
+  /**
+   * Calculates a hash code for a {@link CachedContent} which is compatible with a particular index
+   * version.
+   */
+  private int hashCachedContent(CachedContent cachedContent, int version) {
+    int result = cachedContent.id;
+    result = 31 * result + cachedContent.key.hashCode();
+    if (version < VERSION_METADATA_INTRODUCED) {
+      long length = ContentMetadata.getContentLength(cachedContent.getMetadata());
+      result = 31 * result + (int) (length ^ (length >>> 32));
+    } else {
+      result = 31 * result + cachedContent.getMetadata().hashCode();
+    }
+    return result;
   }
 
-  private void add(CachedContent cachedContent) {
-    keyToContent.put(cachedContent.key, cachedContent);
-    idToKey.put(cachedContent.id, cachedContent.key);
+  /**
+   * Reads a {@link CachedContent} from a {@link DataInputStream}.
+   *
+   * @param version Version of the encoded data.
+   * @param input Input stream containing values needed to initialize CachedContent instance.
+   * @throws IOException If an error occurs during reading values.
+   */
+  private static CachedContent readCachedContent(int version, DataInputStream input)
+      throws IOException {
+    int id = input.readInt();
+    String key = input.readUTF();
+    DefaultContentMetadata metadata;
+    if (version < VERSION_METADATA_INTRODUCED) {
+      long length = input.readLong();
+      ContentMetadataMutations mutations = new ContentMetadataMutations();
+      ContentMetadataMutations.setContentLength(mutations, length);
+      metadata = DefaultContentMetadata.EMPTY.copyWithMutationsApplied(mutations);
+    } else {
+      metadata = readContentMetadata(input);
+    }
+    return new CachedContent(id, key, metadata);
+  }
+
+  /**
+   * Writes a {@link CachedContent} to a {@link DataOutputStream}.
+   *
+   * @param output Output stream to store the values.
+   * @throws IOException If an error occurs during writing values to output.
+   */
+  private static void writeCachedContent(CachedContent cachedContent, DataOutputStream output)
+      throws IOException {
+    output.writeInt(cachedContent.id);
+    output.writeUTF(cachedContent.key);
+    writeContentMetadata(cachedContent.getMetadata(), output);
+  }
+
+  /**
+   * Deserializes a {@link DefaultContentMetadata} from the given input stream.
+   *
+   * @param input Input stream to read from.
+   * @return a {@link DefaultContentMetadata} instance.
+   * @throws IOException If an error occurs during reading from input.
+   */
+  private static DefaultContentMetadata readContentMetadata(DataInputStream input)
+      throws IOException {
+    int size = input.readInt();
+    HashMap<String, byte[]> metadata = new HashMap<>();
+    for (int i = 0; i < size; i++) {
+      String name = input.readUTF();
+      int valueSize = input.readInt();
+      if (valueSize < 0) {
+        throw new IOException("Invalid value size: " + valueSize);
+      }
+      // Grow the array incrementally to avoid OutOfMemoryError in the case that a corrupt (and very
+      // large) valueSize was read. In such cases the implementation below is expected to throw
+      // IOException from one of the readFully calls, due to the end of the input being reached.
+      int bytesRead = 0;
+      int nextBytesToRead = Math.min(valueSize, INCREMENTAL_METADATA_READ_LENGTH);
+      byte[] value = Util.EMPTY_BYTE_ARRAY;
+      while (bytesRead != valueSize) {
+        value = Arrays.copyOf(value, bytesRead + nextBytesToRead);
+        input.readFully(value, bytesRead, nextBytesToRead);
+        bytesRead += nextBytesToRead;
+        nextBytesToRead = Math.min(valueSize - bytesRead, INCREMENTAL_METADATA_READ_LENGTH);
+      }
+      metadata.put(name, value);
+    }
+    return new DefaultContentMetadata(metadata);
+  }
+
+  /**
+   * Serializes itself to a {@link DataOutputStream}.
+   *
+   * @param output Output stream to store the values.
+   * @throws IOException If an error occurs during writing values to output.
+   */
+  private static void writeContentMetadata(DefaultContentMetadata metadata, DataOutputStream output)
+      throws IOException {
+    Set<Map.Entry<String, byte[]>> entrySet = metadata.entrySet();
+    output.writeInt(entrySet.size());
+    for (Map.Entry<String, byte[]> entry : entrySet) {
+      output.writeUTF(entry.getKey());
+      byte[] value = entry.getValue();
+      output.writeInt(value.length);
+      output.write(value);
+    }
   }
 
   private static Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
