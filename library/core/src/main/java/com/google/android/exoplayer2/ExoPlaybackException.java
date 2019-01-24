@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public final class ExoPlaybackException extends Exception {
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TYPE_SOURCE, TYPE_RENDERER, TYPE_UNEXPECTED})
+  @IntDef({TYPE_SOURCE, TYPE_RENDERER, TYPE_UNEXPECTED, TYPE_REMOTE})
   public @interface Type {}
   /**
    * The error occurred loading data from a {@link MediaSource}.
@@ -54,6 +55,12 @@ public final class ExoPlaybackException extends Exception {
    * Call {@link #getUnexpectedException()} to retrieve the underlying cause.
    */
   public static final int TYPE_UNEXPECTED = 2;
+  /**
+   * The error occurred in a remote component.
+   *
+   * <p>Call {@link #getMessage()} to retrieve the message associated with the error.
+   */
+  public static final int TYPE_REMOTE = 3;
 
   /**
    * The type of the playback failure. One of {@link #TYPE_SOURCE}, {@link #TYPE_RENDERER} and
@@ -66,7 +73,7 @@ public final class ExoPlaybackException extends Exception {
    */
   public final int rendererIndex;
 
-  private final Throwable cause;
+  @Nullable private final Throwable cause;
 
   /**
    * Creates an instance of type {@link #TYPE_SOURCE}.
@@ -99,11 +106,28 @@ public final class ExoPlaybackException extends Exception {
     return new ExoPlaybackException(TYPE_UNEXPECTED, cause, C.INDEX_UNSET);
   }
 
+  /**
+   * Creates an instance of type {@link #TYPE_REMOTE}.
+   *
+   * @param message The message associated with the error.
+   * @return The created instance.
+   */
+  public static ExoPlaybackException createForRemote(String message) {
+    return new ExoPlaybackException(TYPE_REMOTE, message);
+  }
+
   private ExoPlaybackException(@Type int type, Throwable cause, int rendererIndex) {
     super(cause);
     this.type = type;
     this.cause = cause;
     this.rendererIndex = rendererIndex;
+  }
+
+  private ExoPlaybackException(@Type int type, String message) {
+    super(message);
+    this.type = type;
+    rendererIndex = C.INDEX_UNSET;
+    cause = null;
   }
 
   /**
@@ -113,7 +137,7 @@ public final class ExoPlaybackException extends Exception {
    */
   public IOException getSourceException() {
     Assertions.checkState(type == TYPE_SOURCE);
-    return (IOException) cause;
+    return (IOException) Assertions.checkNotNull(cause);
   }
 
   /**
@@ -123,7 +147,7 @@ public final class ExoPlaybackException extends Exception {
    */
   public Exception getRendererException() {
     Assertions.checkState(type == TYPE_RENDERER);
-    return (Exception) cause;
+    return (Exception) Assertions.checkNotNull(cause);
   }
 
   /**
@@ -133,7 +157,7 @@ public final class ExoPlaybackException extends Exception {
    */
   public RuntimeException getUnexpectedException() {
     Assertions.checkState(type == TYPE_UNEXPECTED);
-    return (RuntimeException) cause;
+    return (RuntimeException) Assertions.checkNotNull(cause);
   }
 
 }
