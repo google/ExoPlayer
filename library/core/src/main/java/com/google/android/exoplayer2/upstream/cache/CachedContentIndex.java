@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -83,12 +84,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    */
   private final SparseBooleanArray removedIds;
 
-  private final AtomicFile atomicFile;
-  private final Cipher cipher;
-  private final SecretKeySpec secretKeySpec;
-  private final boolean encrypt;
-  private boolean changed;
-  private ReusableBufferedOutputStream bufferedOutputStream;
+  private final Storage storage;
 
   /**
    * Creates a CachedContentIndex which works on the index file in the given cacheDir.
@@ -118,7 +114,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    *     secretKey} is null.
    */
   public CachedContentIndex(File cacheDir, byte[] secretKey, boolean encrypt) {
-    this.encrypt = encrypt;
+    Cipher cipher = null;
+    SecretKeySpec secretKeySpec = null;
     if (secretKey != null) {
       Assertions.checkArgument(secretKey.length == 16);
       try {
@@ -129,20 +126,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
     } else {
       Assertions.checkState(!encrypt);
-      cipher = null;
-      secretKeySpec = null;
     }
     keyToContent = new HashMap<>();
     idToKey = new SparseArray<>();
     removedIds = new SparseBooleanArray();
-    atomicFile = new AtomicFile(new File(cacheDir, FILE_NAME));
+    storage = new AtomicFileStorage(new File(cacheDir, FILE_NAME), encrypt, cipher, secretKeySpec);
   }
 
   /** Loads the index file. */
   public void load() {
-    Assertions.checkState(!changed);
-    if (!readFile()) {
-      atomicFile.delete();
+    if (!storage.load(keyToContent, idToKey)) {
       keyToContent.clear();
       idToKey.clear();
     }
@@ -150,11 +143,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /** Stores the index data to index file if there is a change. */
   public void store() throws CacheException {
-    if (!changed) {
-      return;
-    }
-    writeFile();
-    changed = false;
+    storage.store(keyToContent);
     // Make ids that were removed since the index was last stored eligible for re-use.
     int removedIdCount = removedIds.size();
     for (int i = 0; i < removedIdCount; i++) {
@@ -205,7 +194,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     CachedContent cachedContent = keyToContent.get(key);
     if (cachedContent != null && cachedContent.isEmpty() && !cachedContent.isLocked()) {
       keyToContent.remove(key);
-      changed = true;
+      storage.onRemove(cachedContent);
       // Keep an entry in idToKey to stop the id from being reused until the index is next stored.
       idToKey.put(cachedContent.id, /* value= */ null);
       // Track that the entry should be removed from idToKey when the index is next stored.
@@ -239,7 +228,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public void applyContentMetadataMutations(String key, ContentMetadataMutations mutations) {
     CachedContent cachedContent = getOrAdd(key);
     if (cachedContent.applyMetadataMutations(mutations)) {
-      changed = true;
+      storage.onUpdate(cachedContent);
     }
   }
 
@@ -252,163 +241,42 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private CachedContent addNew(String key) {
     int id = getNewId(idToKey);
     CachedContent cachedContent = new CachedContent(id, key);
-    add(cachedContent);
-    changed = true;
+    keyToContent.put(cachedContent.key, cachedContent);
+    idToKey.put(cachedContent.id, cachedContent.key);
+    storage.onUpdate(cachedContent);
     return cachedContent;
   }
 
-  private void add(CachedContent cachedContent) {
-    keyToContent.put(cachedContent.key, cachedContent);
-    idToKey.put(cachedContent.id, cachedContent.key);
-  }
-
-  private boolean readFile() {
-    DataInputStream input = null;
-    try {
-      InputStream inputStream = new BufferedInputStream(atomicFile.openRead());
-      input = new DataInputStream(inputStream);
-      int version = input.readInt();
-      if (version < 0 || version > VERSION) {
-        return false;
-      }
-
-      int flags = input.readInt();
-      if ((flags & FLAG_ENCRYPTED_INDEX) != 0) {
-        if (cipher == null) {
-          return false;
-        }
-        byte[] initializationVector = new byte[16];
-        input.readFully(initializationVector);
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
-        try {
-          cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
-        } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
-          throw new IllegalStateException(e);
-        }
-        input = new DataInputStream(new CipherInputStream(inputStream, cipher));
-      } else if (encrypt) {
-        changed = true; // Force index to be rewritten encrypted after read.
-      }
-
-      int count = input.readInt();
-      int hashCode = 0;
-      for (int i = 0; i < count; i++) {
-        CachedContent cachedContent = readCachedContent(version, input);
-        add(cachedContent);
-        hashCode += hashCachedContent(cachedContent, version);
-      }
-      int fileHashCode = input.readInt();
-      boolean isEOF = input.read() == -1;
-      if (fileHashCode != hashCode || !isEOF) {
-        return false;
-      }
-    } catch (IOException e) {
-      return false;
-    } finally {
-      if (input != null) {
-        Util.closeQuietly(input);
+  private static Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+    // Workaround for https://issuetracker.google.com/issues/36976726
+    if (Util.SDK_INT == 18) {
+      try {
+        return Cipher.getInstance("AES/CBC/PKCS5PADDING", "BC");
+      } catch (Throwable ignored) {
+        // ignored
       }
     }
-    return true;
-  }
-
-  private void writeFile() throws CacheException {
-    DataOutputStream output = null;
-    try {
-      OutputStream outputStream = atomicFile.startWrite();
-      if (bufferedOutputStream == null) {
-        bufferedOutputStream = new ReusableBufferedOutputStream(outputStream);
-      } else {
-        bufferedOutputStream.reset(outputStream);
-      }
-      output = new DataOutputStream(bufferedOutputStream);
-      output.writeInt(VERSION);
-
-      int flags = encrypt ? FLAG_ENCRYPTED_INDEX : 0;
-      output.writeInt(flags);
-
-      if (encrypt) {
-        byte[] initializationVector = new byte[16];
-        new Random().nextBytes(initializationVector);
-        output.write(initializationVector);
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
-        try {
-          cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
-        } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
-          throw new IllegalStateException(e); // Should never happen.
-        }
-        output.flush();
-        output = new DataOutputStream(new CipherOutputStream(bufferedOutputStream, cipher));
-      }
-
-      output.writeInt(keyToContent.size());
-      int hashCode = 0;
-      for (CachedContent cachedContent : keyToContent.values()) {
-        writeCachedContent(cachedContent, output);
-        hashCode += hashCachedContent(cachedContent, VERSION);
-      }
-      output.writeInt(hashCode);
-      atomicFile.endWrite(output);
-      // Avoid calling close twice. Duplicate CipherOutputStream.close calls did
-      // not used to be no-ops: https://android-review.googlesource.com/#/c/272799/
-      output = null;
-    } catch (IOException e) {
-      throw new CacheException(e);
-    } finally {
-      Util.closeQuietly(output);
-    }
+    return Cipher.getInstance("AES/CBC/PKCS5PADDING");
   }
 
   /**
-   * Calculates a hash code for a {@link CachedContent} which is compatible with a particular index
-   * version.
+   * Returns an id which isn't used in the given array. If the maximum id in the array is smaller
+   * than {@link java.lang.Integer#MAX_VALUE} it just returns the next bigger integer. Otherwise it
+   * returns the smallest unused non-negative integer.
    */
-  private int hashCachedContent(CachedContent cachedContent, int version) {
-    int result = cachedContent.id;
-    result = 31 * result + cachedContent.key.hashCode();
-    if (version < VERSION_METADATA_INTRODUCED) {
-      long length = ContentMetadata.getContentLength(cachedContent.getMetadata());
-      result = 31 * result + (int) (length ^ (length >>> 32));
-    } else {
-      result = 31 * result + cachedContent.getMetadata().hashCode();
+  @VisibleForTesting
+  /* package */ static int getNewId(SparseArray<String> idToKey) {
+    int size = idToKey.size();
+    int id = size == 0 ? 0 : (idToKey.keyAt(size - 1) + 1);
+    if (id < 0) { // In case if we pass max int value.
+      // TODO optimization: defragmentation or binary search?
+      for (id = 0; id < size; id++) {
+        if (id != idToKey.keyAt(id)) {
+          break;
+        }
+      }
     }
-    return result;
-  }
-
-  /**
-   * Reads a {@link CachedContent} from a {@link DataInputStream}.
-   *
-   * @param version Version of the encoded data.
-   * @param input Input stream containing values needed to initialize CachedContent instance.
-   * @throws IOException If an error occurs during reading values.
-   */
-  private static CachedContent readCachedContent(int version, DataInputStream input)
-      throws IOException {
-    int id = input.readInt();
-    String key = input.readUTF();
-    DefaultContentMetadata metadata;
-    if (version < VERSION_METADATA_INTRODUCED) {
-      long length = input.readLong();
-      ContentMetadataMutations mutations = new ContentMetadataMutations();
-      ContentMetadataMutations.setContentLength(mutations, length);
-      metadata = DefaultContentMetadata.EMPTY.copyWithMutationsApplied(mutations);
-    } else {
-      metadata = readContentMetadata(input);
-    }
-    return new CachedContent(id, key, metadata);
-  }
-
-  /**
-   * Writes a {@link CachedContent} to a {@link DataOutputStream}.
-   *
-   * @param output Output stream to store the values.
-   * @throws IOException If an error occurs during writing values to output.
-   */
-  private static void writeCachedContent(CachedContent cachedContent, DataOutputStream output)
-      throws IOException {
-    output.writeInt(cachedContent.id);
-    output.writeUTF(cachedContent.key);
-    writeContentMetadata(cachedContent.getMetadata(), output);
+    return id;
   }
 
   /**
@@ -463,36 +331,243 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
-  private static Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
-    // Workaround for https://issuetracker.google.com/issues/36976726
-    if (Util.SDK_INT == 18) {
-      try {
-        return Cipher.getInstance("AES/CBC/PKCS5PADDING", "BC");
-      } catch (Throwable ignored) {
-        // ignored
-      }
-    }
-    return Cipher.getInstance("AES/CBC/PKCS5PADDING");
+  /** Interface for the persistent index. */
+  private interface Storage {
+
+    /**
+     * Loads the persisted index into {@code content} and {@code idToKey}.
+     *
+     * @param content The key to content map to populate with persisted data.
+     * @param idToKey The id to key map to populate with persisted data.
+     * @return Whether the load was successful.
+     */
+    boolean load(HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey);
+
+    /**
+     * Ensures all changes in the in-memory table are persisted.
+     *
+     * @param content The key to content map to persist.
+     * @throws CacheException If an error occurs persisting the index.
+     */
+    void store(HashMap<String, CachedContent> content) throws CacheException;
+
+    /**
+     * Called when a {@link CachedContent} is added or updated in the in-memory index.
+     *
+     * @param cachedContent The updated {@link CachedContent}.
+     */
+    void onUpdate(CachedContent cachedContent);
+
+    /**
+     * Called when a {@link CachedContent} is removed from the in-memory index.
+     *
+     * @param cachedContent The removed {@link CachedContent}.
+     */
+    void onRemove(CachedContent cachedContent);
   }
 
-  /**
-   * Returns an id which isn't used in the given array. If the maximum id in the array is smaller
-   * than {@link java.lang.Integer#MAX_VALUE} it just returns the next bigger integer. Otherwise it
-   * returns the smallest unused non-negative integer.
-   */
-  @VisibleForTesting
-  public static int getNewId(SparseArray<String> idToKey) {
-    int size = idToKey.size();
-    int id = size == 0 ? 0 : (idToKey.keyAt(size - 1) + 1);
-    if (id < 0) { // In case if we pass max int value.
-      // TODO optimization: defragmentation or binary search?
-      for (id = 0; id < size; id++) {
-        if (id != idToKey.keyAt(id)) {
-          break;
+  /** {@link Storage} implementation that uses an {@link AtomicFile}. */
+  private static class AtomicFileStorage implements Storage {
+
+    private final boolean encrypt;
+    @Nullable private final Cipher cipher;
+    @Nullable private final SecretKeySpec secretKeySpec;
+    private final AtomicFile atomicFile;
+    private final Random random;
+
+    private boolean changed;
+    @Nullable private ReusableBufferedOutputStream bufferedOutputStream;
+
+    public AtomicFileStorage(
+        File fileName,
+        boolean encrypt,
+        @Nullable Cipher cipher,
+        @Nullable SecretKeySpec secretKeySpec) {
+      this.encrypt = encrypt;
+      this.cipher = cipher;
+      this.secretKeySpec = secretKeySpec;
+      atomicFile = new AtomicFile(fileName);
+      random = new Random();
+    }
+
+    @Override
+    public boolean load(
+        HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey) {
+      Assertions.checkState(!changed);
+      if (!readFile(content, idToKey)) {
+        atomicFile.delete();
+        return false;
+      }
+      return true;
+    }
+
+    @Override
+    public void store(HashMap<String, CachedContent> content) throws CacheException {
+      if (!changed) {
+        return;
+      }
+      writeFile(content);
+      changed = false;
+    }
+
+    @Override
+    public void onUpdate(CachedContent cachedContent) {
+      changed = true;
+    }
+
+    @Override
+    public void onRemove(CachedContent cachedContent) {
+      changed = true;
+    }
+
+    private boolean readFile(
+        HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey) {
+      DataInputStream input = null;
+      try {
+        InputStream inputStream = new BufferedInputStream(atomicFile.openRead());
+        input = new DataInputStream(inputStream);
+        int version = input.readInt();
+        if (version < 0 || version > VERSION) {
+          return false;
+        }
+
+        int flags = input.readInt();
+        if ((flags & FLAG_ENCRYPTED_INDEX) != 0) {
+          if (cipher == null) {
+            return false;
+          }
+          byte[] initializationVector = new byte[16];
+          input.readFully(initializationVector);
+          IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
+          try {
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+          } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
+            throw new IllegalStateException(e);
+          }
+          input = new DataInputStream(new CipherInputStream(inputStream, cipher));
+        } else if (encrypt) {
+          changed = true; // Force index to be rewritten encrypted after read.
+        }
+
+        int count = input.readInt();
+        int hashCode = 0;
+        for (int i = 0; i < count; i++) {
+          CachedContent cachedContent = readCachedContent(version, input);
+          content.put(cachedContent.key, cachedContent);
+          idToKey.put(cachedContent.id, cachedContent.key);
+          hashCode += hashCachedContent(cachedContent, version);
+        }
+        int fileHashCode = input.readInt();
+        boolean isEOF = input.read() == -1;
+        if (fileHashCode != hashCode || !isEOF) {
+          return false;
+        }
+      } catch (IOException e) {
+        return false;
+      } finally {
+        if (input != null) {
+          Util.closeQuietly(input);
         }
       }
+      return true;
     }
-    return id;
-  }
 
+    private void writeFile(HashMap<String, CachedContent> content) throws CacheException {
+      DataOutputStream output = null;
+      try {
+        OutputStream outputStream = atomicFile.startWrite();
+        if (bufferedOutputStream == null) {
+          bufferedOutputStream = new ReusableBufferedOutputStream(outputStream);
+        } else {
+          bufferedOutputStream.reset(outputStream);
+        }
+        output = new DataOutputStream(bufferedOutputStream);
+        output.writeInt(VERSION);
+
+        int flags = encrypt ? FLAG_ENCRYPTED_INDEX : 0;
+        output.writeInt(flags);
+
+        if (encrypt) {
+          byte[] initializationVector = new byte[16];
+          random.nextBytes(initializationVector);
+          output.write(initializationVector);
+          IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
+          try {
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+          } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
+            throw new IllegalStateException(e); // Should never happen.
+          }
+          output.flush();
+          output = new DataOutputStream(new CipherOutputStream(bufferedOutputStream, cipher));
+        }
+
+        output.writeInt(content.size());
+        int hashCode = 0;
+        for (CachedContent cachedContent : content.values()) {
+          writeCachedContent(cachedContent, output);
+          hashCode += hashCachedContent(cachedContent, VERSION);
+        }
+        output.writeInt(hashCode);
+        atomicFile.endWrite(output);
+        // Avoid calling close twice. Duplicate CipherOutputStream.close calls did
+        // not used to be no-ops: https://android-review.googlesource.com/#/c/272799/
+        output = null;
+      } catch (IOException e) {
+        throw new CacheException(e);
+      } finally {
+        Util.closeQuietly(output);
+      }
+    }
+
+    /**
+     * Calculates a hash code for a {@link CachedContent} which is compatible with a particular
+     * index version.
+     */
+    private int hashCachedContent(CachedContent cachedContent, int version) {
+      int result = cachedContent.id;
+      result = 31 * result + cachedContent.key.hashCode();
+      if (version < VERSION_METADATA_INTRODUCED) {
+        long length = ContentMetadata.getContentLength(cachedContent.getMetadata());
+        result = 31 * result + (int) (length ^ (length >>> 32));
+      } else {
+        result = 31 * result + cachedContent.getMetadata().hashCode();
+      }
+      return result;
+    }
+
+    /**
+     * Reads a {@link CachedContent} from a {@link DataInputStream}.
+     *
+     * @param version Version of the encoded data.
+     * @param input Input stream containing values needed to initialize CachedContent instance.
+     * @throws IOException If an error occurs during reading values.
+     */
+    private CachedContent readCachedContent(int version, DataInputStream input) throws IOException {
+      int id = input.readInt();
+      String key = input.readUTF();
+      DefaultContentMetadata metadata;
+      if (version < VERSION_METADATA_INTRODUCED) {
+        long length = input.readLong();
+        ContentMetadataMutations mutations = new ContentMetadataMutations();
+        ContentMetadataMutations.setContentLength(mutations, length);
+        metadata = DefaultContentMetadata.EMPTY.copyWithMutationsApplied(mutations);
+      } else {
+        metadata = readContentMetadata(input);
+      }
+      return new CachedContent(id, key, metadata);
+    }
+
+    /**
+     * Writes a {@link CachedContent} to a {@link DataOutputStream}.
+     *
+     * @param output Output stream to store the values.
+     * @throws IOException If an error occurs during writing values to output.
+     */
+    private void writeCachedContent(CachedContent cachedContent, DataOutputStream output)
+        throws IOException {
+      output.writeInt(cachedContent.id);
+      output.writeUTF(cachedContent.key);
+      writeContentMetadata(cachedContent.getMetadata(), output);
+    }
+  }
 }
