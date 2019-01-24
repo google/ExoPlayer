@@ -18,30 +18,30 @@ package com.google.android.exoplayer2.source;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 
 /**
- * Defines and provides media to be played by an {@link ExoPlayer}. A MediaSource has two main
- * responsibilities:
+ * Defines and provides media to be played by an {@link com.google.android.exoplayer2.ExoPlayer}. A
+ * MediaSource has two main responsibilities:
  *
  * <ul>
  *   <li>To provide the player with a {@link Timeline} defining the structure of its media, and to
  *       provide a new timeline whenever the structure of the media changes. The MediaSource
  *       provides these timelines by calling {@link SourceInfoRefreshListener#onSourceInfoRefreshed}
- *       on the {@link SourceInfoRefreshListener}s passed to {@link #prepareSource(ExoPlayer,
- *       boolean, SourceInfoRefreshListener, TransferListener)}.
+ *       on the {@link SourceInfoRefreshListener}s passed to {@link
+ *       #prepareSource(SourceInfoRefreshListener, TransferListener)}.
  *   <li>To provide {@link MediaPeriod} instances for the periods in its timeline. MediaPeriods are
- *       obtained by calling {@link #createPeriod(MediaPeriodId, Allocator)}, and provide a way for
- *       the player to load and read the media.
+ *       obtained by calling {@link #createPeriod(MediaPeriodId, Allocator, long)}, and provide a
+ *       way for the player to load and read the media.
  * </ul>
  *
  * All methods are called on the player's internal playback thread, as described in the {@link
- * ExoPlayer} Javadoc. They should not be called directly from application code. Instances can be
- * re-used, but only for one {@link ExoPlayer} instance simultaneously.
+ * com.google.android.exoplayer2.ExoPlayer} Javadoc. They should not be called directly from
+ * application code. Instances can be re-used, but only for one {@link
+ * com.google.android.exoplayer2.ExoPlayer} instance simultaneously.
  */
 public interface MediaSource {
 
@@ -236,11 +236,6 @@ public interface MediaSource {
    * <p>For each call to this method, a call to {@link #releaseSource(SourceInfoRefreshListener)} is
    * needed to remove the listener and to release the source if no longer required.
    *
-   * @param player The player for which this source is being prepared.
-   * @param isTopLevelSource Whether this source has been passed directly to {@link
-   *     ExoPlayer#prepare(MediaSource)} or {@link ExoPlayer#prepare(MediaSource, boolean,
-   *     boolean)}. If {@code false}, this source is being prepared by another source (e.g. {@link
-   *     ConcatenatingMediaSource}) for composition.
    * @param listener The listener to be added.
    * @param mediaTransferListener The transfer listener which should be informed of any media data
    *     transfers. May be null if no listener is available. Note that this listener should be only
@@ -248,8 +243,6 @@ public interface MediaSource {
    *     and other data.
    */
   void prepareSource(
-      ExoPlayer player,
-      boolean isTopLevelSource,
       SourceInfoRefreshListener listener,
       @Nullable TransferListener mediaTransferListener);
 
@@ -268,9 +261,10 @@ public interface MediaSource {
    *
    * @param id The identifier of the period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
+   * @param startPositionUs The expected start position, in microseconds.
    * @return A new {@link MediaPeriod}.
    */
-  MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator);
+  MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs);
 
   /**
    * Releases the period.

@@ -65,7 +65,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 @TargetApi(16)
 public class SimpleExoPlayer extends BasePlayer
-    implements ExoPlayer, Player.AudioComponent, Player.VideoComponent, Player.TextComponent {
+    implements ExoPlayer,
+        Player.AudioComponent,
+        Player.VideoComponent,
+        Player.TextComponent,
+        Player.MetadataComponent {
 
   /** @deprecated Use {@link com.google.android.exoplayer2.video.VideoListener}. */
   @Deprecated
@@ -90,25 +94,25 @@ public class SimpleExoPlayer extends BasePlayer
 
   private final AudioFocusManager audioFocusManager;
 
-  private Format videoFormat;
-  private Format audioFormat;
+  @Nullable private Format videoFormat;
+  @Nullable private Format audioFormat;
 
-  private Surface surface;
+  @Nullable private Surface surface;
   private boolean ownsSurface;
   private @C.VideoScalingMode int videoScalingMode;
-  private SurfaceHolder surfaceHolder;
-  private TextureView textureView;
+  @Nullable private SurfaceHolder surfaceHolder;
+  @Nullable private TextureView textureView;
   private int surfaceWidth;
   private int surfaceHeight;
-  private DecoderCounters videoDecoderCounters;
-  private DecoderCounters audioDecoderCounters;
+  @Nullable private DecoderCounters videoDecoderCounters;
+  @Nullable private DecoderCounters audioDecoderCounters;
   private int audioSessionId;
   private AudioAttributes audioAttributes;
   private float audioVolume;
-  private MediaSource mediaSource;
+  @Nullable private MediaSource mediaSource;
   private List<Cue> currentCues;
-  private VideoFrameMetadataListener videoFrameMetadataListener;
-  private CameraMotionListener cameraMotionListener;
+  @Nullable private VideoFrameMetadataListener videoFrameMetadataListener;
+  @Nullable private CameraMotionListener cameraMotionListener;
   private boolean hasNotifiedFullWrongThreadWarning;
 
   /**
@@ -243,17 +247,26 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  @Nullable
   public AudioComponent getAudioComponent() {
     return this;
   }
 
   @Override
+  @Nullable
   public VideoComponent getVideoComponent() {
     return this;
   }
 
   @Override
+  @Nullable
   public TextComponent getTextComponent() {
+    return this;
+  }
+
+  @Override
+  @Nullable
+  public MetadataComponent getMetadataComponent() {
     return this;
   }
 
@@ -545,30 +558,26 @@ public class SimpleExoPlayer extends BasePlayer
     setPlaybackParameters(playbackParameters);
   }
 
-  /**
-   * Returns the video format currently being played, or null if no video is being played.
-   */
+  /** Returns the video format currently being played, or null if no video is being played. */
+  @Nullable
   public Format getVideoFormat() {
     return videoFormat;
   }
 
-  /**
-   * Returns the audio format currently being played, or null if no audio is being played.
-   */
+  /** Returns the audio format currently being played, or null if no audio is being played. */
+  @Nullable
   public Format getAudioFormat() {
     return audioFormat;
   }
 
-  /**
-   * Returns {@link DecoderCounters} for video, or null if no video is being played.
-   */
+  /** Returns {@link DecoderCounters} for video, or null if no video is being played. */
+  @Nullable
   public DecoderCounters getVideoDecoderCounters() {
     return videoDecoderCounters;
   }
 
-  /**
-   * Returns {@link DecoderCounters} for audio, or null if no audio is being played.
-   */
+  /** Returns {@link DecoderCounters} for audio, or null if no audio is being played. */
+  @Nullable
   public DecoderCounters getAudioDecoderCounters() {
     return audioDecoderCounters;
   }
@@ -713,20 +722,12 @@ public class SimpleExoPlayer extends BasePlayer
     removeTextOutput(output);
   }
 
-  /**
-   * Adds a {@link MetadataOutput} to receive metadata.
-   *
-   * @param listener The output to register.
-   */
+  @Override
   public void addMetadataOutput(MetadataOutput listener) {
     metadataOutputs.add(listener);
   }
 
-  /**
-   * Removes a {@link MetadataOutput}.
-   *
-   * @param listener The output to remove.
-   */
+  @Override
   public void removeMetadataOutput(MetadataOutput listener) {
     metadataOutputs.remove(listener);
   }
@@ -1048,7 +1049,8 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public @Nullable Object getCurrentManifest() {
+  @Nullable
+  public Object getCurrentManifest() {
     verifyApplicationThread();
     return player.getCurrentManifest();
   }

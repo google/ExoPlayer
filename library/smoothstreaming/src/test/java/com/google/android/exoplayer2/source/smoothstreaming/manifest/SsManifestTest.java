@@ -15,12 +15,13 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 
+import static com.google.android.exoplayer2.source.smoothstreaming.SsTestUtils.createSsManifest;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.ProtectionElement;
+import com.google.android.exoplayer2.source.smoothstreaming.SsTestUtils;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
@@ -35,14 +36,12 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class SsManifestTest {
 
-  private static final ProtectionElement DUMMY_PROTECTION_ELEMENT =
-      new ProtectionElement(C.WIDEVINE_UUID, new byte[] {0, 1, 2});
-
   @Test
   public void testCopy() throws Exception {
     Format[][] formats = newFormats(2, 3);
     SsManifest sourceManifest =
-        newSsManifest(newStreamElement("1", formats[0]), newStreamElement("2", formats[1]));
+        createSsManifest(
+            createStreamElement("1", formats[0]), createStreamElement("2", formats[1]));
 
     List<StreamKey> keys =
         Arrays.asList(new StreamKey(0, 0), new StreamKey(0, 2), new StreamKey(1, 0));
@@ -52,9 +51,9 @@ public class SsManifestTest {
     SsManifest copyManifest = sourceManifest.copy(keys);
 
     SsManifest expectedManifest =
-        newSsManifest(
-            newStreamElement("1", formats[0][0], formats[0][2]),
-            newStreamElement("2", formats[1][0]));
+        createSsManifest(
+            createStreamElement("1", formats[0][0], formats[0][2]),
+            createStreamElement("2", formats[1][0]));
     assertManifestEquals(expectedManifest, copyManifest);
   }
 
@@ -62,13 +61,14 @@ public class SsManifestTest {
   public void testCopyRemoveStreamElement() throws Exception {
     Format[][] formats = newFormats(2, 3);
     SsManifest sourceManifest =
-        newSsManifest(newStreamElement("1", formats[0]), newStreamElement("2", formats[1]));
+        createSsManifest(
+            createStreamElement("1", formats[0]), createStreamElement("2", formats[1]));
 
     List<StreamKey> keys = Collections.singletonList(new StreamKey(1, 0));
 
     SsManifest copyManifest = sourceManifest.copy(keys);
 
-    SsManifest expectedManifest = newSsManifest(newStreamElement("2", formats[1][0]));
+    SsManifest expectedManifest = createSsManifest(createStreamElement("2", formats[1][0]));
     assertManifestEquals(expectedManifest, copyManifest);
   }
 
@@ -109,26 +109,8 @@ public class SsManifestTest {
     return formats;
   }
 
-  private static SsManifest newSsManifest(StreamElement... streamElements) {
-    return new SsManifest(1, 2, 1000, 5000, 0, 0, false, DUMMY_PROTECTION_ELEMENT, streamElements);
-  }
-
-  private static StreamElement newStreamElement(String name, Format... formats) {
-    return new StreamElement(
-        "baseUri",
-        "chunkTemplate",
-        C.TRACK_TYPE_VIDEO,
-        "subType",
-        1000,
-        name,
-        1024,
-        768,
-        1024,
-        768,
-        null,
-        formats,
-        Collections.emptyList(),
-        0);
+  private static StreamElement createStreamElement(String name, Format... formats) {
+    return SsTestUtils.createStreamElement(name, C.TRACK_TYPE_VIDEO, formats);
   }
 
   private static Format newFormat(String id) {

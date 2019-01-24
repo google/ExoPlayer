@@ -488,7 +488,10 @@ public class AnalyticsCollector
 
   @Override
   public final void onPlayerError(ExoPlaybackException error) {
-    EventTime eventTime = generatePlayingMediaPeriodEventTime();
+    EventTime eventTime =
+        error.type == ExoPlaybackException.TYPE_SOURCE
+            ? generateLoadingMediaPeriodEventTime()
+            : generatePlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onPlayerError(eventTime, error);
     }

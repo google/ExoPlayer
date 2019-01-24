@@ -46,20 +46,11 @@ public final class CacheDataSourceFactory implements DataSource.Factory {
   /** @see CacheDataSource#CacheDataSource(Cache, DataSource, int) */
   public CacheDataSourceFactory(
       Cache cache, DataSource.Factory upstreamFactory, @CacheDataSource.Flags int flags) {
-    this(cache, upstreamFactory, flags, CacheDataSource.DEFAULT_MAX_CACHE_FILE_SIZE);
-  }
-
-  /** @see CacheDataSource#CacheDataSource(Cache, DataSource, int, long) */
-  public CacheDataSourceFactory(
-      Cache cache,
-      DataSource.Factory upstreamFactory,
-      @CacheDataSource.Flags int flags,
-      long maxCacheFileSize) {
     this(
         cache,
         upstreamFactory,
         new FileDataSourceFactory(),
-        new CacheDataSinkFactory(cache, maxCacheFileSize),
+        new CacheDataSinkFactory(cache, CacheDataSink.DEFAULT_FRAGMENT_SIZE),
         flags,
         /* eventListener= */ null);
   }

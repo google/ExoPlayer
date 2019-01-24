@@ -227,8 +227,36 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     }
 
     @Override
-    public AdaptiveTrackSelection createTrackSelection(
-        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks) {
+    public @NullableType TrackSelection[] createTrackSelections(
+        @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+      TrackSelection[] selections = new TrackSelection[definitions.length];
+      AdaptiveTrackSelection adaptiveSelection = null;
+      int totalFixedBandwidth = 0;
+      for (int i = 0; i < definitions.length; i++) {
+        Definition definition = definitions[i];
+        if (definition == null) {
+          continue;
+        }
+        if (definition.tracks.length > 1) {
+          adaptiveSelection =
+              createAdaptiveTrackSelection(definition.group, bandwidthMeter, definition.tracks);
+          selections[i] = adaptiveSelection;
+        } else {
+          selections[i] = new FixedTrackSelection(definition.group, definition.tracks[0]);
+          int trackBitrate = definition.group.getFormat(definition.tracks[0]).bitrate;
+          if (trackBitrate != Format.NO_VALUE) {
+            totalFixedBandwidth += trackBitrate;
+          }
+        }
+      }
+      if (blockFixedTrackSelectionBandwidth && adaptiveSelection != null) {
+        adaptiveSelection.experimental_setNonAllocatableBandwidth(totalFixedBandwidth);
+      }
+      return selections;
+    }
+
+    private AdaptiveTrackSelection createAdaptiveTrackSelection(
+        TrackGroup group, BandwidthMeter bandwidthMeter, int[] tracks) {
       if (this.bandwidthMeter != null) {
         bandwidthMeter = this.bandwidthMeter;
       }
@@ -245,34 +273,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
               clock);
       adaptiveTrackSelection.experimental_setTrackBitrateEstimator(trackBitrateEstimator);
       return adaptiveTrackSelection;
-    }
-
-    @Override
-    public @NullableType TrackSelection[] createTrackSelections(
-        @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
-      TrackSelection[] selections = new TrackSelection[definitions.length];
-      AdaptiveTrackSelection adaptiveSelection = null;
-      int totalFixedBandwidth = 0;
-      for (int i = 0; i < definitions.length; i++) {
-        Definition definition = definitions[i];
-        if (definition == null) {
-          continue;
-        }
-        if (definition.tracks.length > 1) {
-          selections[i] = createTrackSelection(definition.group, bandwidthMeter, definition.tracks);
-          adaptiveSelection = (AdaptiveTrackSelection) selections[i];
-        } else {
-          selections[i] = new FixedTrackSelection(definition.group, definition.tracks[0]);
-          int trackBitrate = definition.group.getFormat(definition.tracks[0]).bitrate;
-          if (trackBitrate != Format.NO_VALUE) {
-            totalFixedBandwidth += trackBitrate;
-          }
-        }
-      }
-      if (blockFixedTrackSelectionBandwidth && adaptiveSelection != null) {
-        adaptiveSelection.experimental_setNonAllocatableBandwidth(totalFixedBandwidth);
-      }
-      return selections;
     }
   }
 
@@ -391,7 +391,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     this.minTimeBetweenBufferReevaluationMs = minTimeBetweenBufferReevaluationMs;
     this.clock = clock;
     playbackSpeed = 1f;
-    reason = C.SELECTION_REASON_INITIAL;
+    reason = C.SELECTION_REASON_UNKNOWN;
     lastBufferEvaluationMs = C.TIME_UNSET;
     trackBitrateEstimator = TrackBitrateEstimator.DEFAULT;
     formats = new Format[length];
@@ -403,9 +403,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       formats[i] = format;
       formatBitrates[i] = formats[i].bitrate;
     }
-    @SuppressWarnings("nullness:method.invocation.invalid")
-    int selectedIndex = determineIdealSelectedIndex(Long.MIN_VALUE, formatBitrates);
-    this.selectedIndex = selectedIndex;
   }
 
   /**
@@ -452,6 +449,13 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
 
     // Update the estimated track bitrates.
     trackBitrateEstimator.getBitrates(formats, queue, mediaChunkIterators, trackBitrates);
+
+    // Make initial selection
+    if (reason == C.SELECTION_REASON_UNKNOWN) {
+      reason = C.SELECTION_REASON_INITIAL;
+      selectedIndex = determineIdealSelectedIndex(nowMs, trackBitrates);
+      return;
+    }
 
     // Stash the current selection, then make a new one.
     int currentSelectedIndex = selectedIndex;

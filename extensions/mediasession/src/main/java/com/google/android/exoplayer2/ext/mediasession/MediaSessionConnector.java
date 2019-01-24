@@ -67,10 +67,10 @@ import java.util.Map;
  *
  * <ul>
  *   <li>Actions to initiate media playback ({@code PlaybackStateCompat#ACTION_PREPARE_*} and {@code
- *       PlaybackStateCompat#ACTION_PLAY_*}) can be handled by a {@link PlaybackPreparer} passed
- *       when calling {@link #setPlayer(Player, PlaybackPreparer, CustomActionProvider...)}. Custom
- *       actions can be handled by passing one or more {@link CustomActionProvider}s in a similar
- *       way.
+ *       PlaybackStateCompat#ACTION_PLAY_*}) can be handled by a {@link PlaybackPreparer} passed to
+ *       {@link #setPlaybackPreparer(PlaybackPreparer)}.
+ *   <li>Custom actions can be handled by passing one or more {@link CustomActionProvider}s to
+ *       {@link #setCustomActionProviders(CustomActionProvider...)}.
  *   <li>To enable a media queue and navigation within it, you can set a {@link QueueNavigator} by
  *       calling {@link #setQueueNavigator(QueueNavigator)}. Use of {@link TimelineQueueNavigator}
  *       is recommended for most use cases.
@@ -339,21 +339,21 @@ public final class MediaSessionConnector {
   /** The wrapped {@link MediaSessionCompat}. */
   public final MediaSessionCompat mediaSession;
 
-  @Nullable private final MediaMetadataProvider mediaMetadataProvider;
-  private final ExoPlayerEventListener exoPlayerEventListener;
-  private final MediaSessionCallback mediaSessionCallback;
+  private final Looper looper;
+  private final ComponentListener componentListener;
   private final ArrayList<CommandReceiver> commandReceivers;
 
-  private Player player;
   private ControlDispatcher controlDispatcher;
   private CustomActionProvider[] customActionProviders;
   private Map<String, CustomActionProvider> customActionMap;
+  @Nullable private MediaMetadataProvider mediaMetadataProvider;
+  @Nullable private Player player;
   @Nullable private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   @Nullable private Pair<Integer, CharSequence> customError;
-  private PlaybackPreparer playbackPreparer;
-  private QueueNavigator queueNavigator;
-  private QueueEditor queueEditor;
-  private RatingCallback ratingCallback;
+  @Nullable private PlaybackPreparer playbackPreparer;
+  @Nullable private QueueNavigator queueNavigator;
+  @Nullable private QueueEditor queueEditor;
+  @Nullable private RatingCallback ratingCallback;
 
   private long enabledPlaybackActions;
   private int rewindMs;
@@ -362,80 +362,58 @@ public final class MediaSessionConnector {
   /**
    * Creates an instance.
    *
-   * <p>Equivalent to {@code MediaSessionConnector(mediaSession, new
-   * DefaultMediaMetadataProvider(mediaSession.getController(), null))}.
-   *
    * @param mediaSession The {@link MediaSessionCompat} to connect to.
    */
   public MediaSessionConnector(MediaSessionCompat mediaSession) {
-    this(
-        mediaSession,
-        new DefaultMediaMetadataProvider(mediaSession.getController(), null));
-  }
-
-  /**
-   * Creates an instance.
-   *
-   * @param mediaSession The {@link MediaSessionCompat} to connect to.
-   * @param mediaMetadataProvider A {@link MediaMetadataProvider} for providing a custom metadata
-   *     object to be published to the media session, or {@code null} if metadata shouldn't be
-   *     published.
-   */
-  public MediaSessionConnector(
-      MediaSessionCompat mediaSession,
-      @Nullable MediaMetadataProvider mediaMetadataProvider) {
     this.mediaSession = mediaSession;
-    this.mediaMetadataProvider = mediaMetadataProvider;
-    mediaSession.setFlags(BASE_MEDIA_SESSION_FLAGS);
-    mediaSessionCallback = new MediaSessionCallback();
-    exoPlayerEventListener = new ExoPlayerEventListener();
-    controlDispatcher = new DefaultControlDispatcher();
-    customActionMap = Collections.emptyMap();
+    looper = Util.getLooper();
+    componentListener = new ComponentListener();
     commandReceivers = new ArrayList<>();
+    controlDispatcher = new DefaultControlDispatcher();
+    customActionProviders = new CustomActionProvider[0];
+    customActionMap = Collections.emptyMap();
+    mediaMetadataProvider =
+        new DefaultMediaMetadataProvider(
+            mediaSession.getController(), /* metadataExtrasPrefix= */ null);
     enabledPlaybackActions = DEFAULT_PLAYBACK_ACTIONS;
     rewindMs = DEFAULT_REWIND_MS;
     fastForwardMs = DEFAULT_FAST_FORWARD_MS;
+    mediaSession.setFlags(BASE_MEDIA_SESSION_FLAGS);
+    mediaSession.setCallback(componentListener, new Handler(looper));
   }
 
   /**
    * Sets the player to be connected to the media session. Must be called on the same thread that is
    * used to access the player.
    *
-   * <p>The order in which any {@link CustomActionProvider}s are passed determines the order of the
-   * actions published with the playback state of the session.
-   *
    * @param player The player to be connected to the {@code MediaSession}, or {@code null} to
    *     disconnect the current player.
-   * @param playbackPreparer An optional {@link PlaybackPreparer} for preparing the player.
-   * @param customActionProviders Optional {@link CustomActionProvider}s to publish and handle
-   *     custom actions.
    */
-  public void setPlayer(
-      @Nullable Player player,
-      @Nullable PlaybackPreparer playbackPreparer,
-      CustomActionProvider... customActionProviders) {
-    Assertions.checkArgument(player == null || player.getApplicationLooper() == Looper.myLooper());
+  public void setPlayer(@Nullable Player player) {
+    Assertions.checkArgument(player == null || player.getApplicationLooper() == looper);
     if (this.player != null) {
-      this.player.removeListener(exoPlayerEventListener);
-      mediaSession.setCallback(null);
+      this.player.removeListener(componentListener);
     }
-
-    unregisterCommandReceiver(this.playbackPreparer);
     this.player = player;
-    this.playbackPreparer = playbackPreparer;
-    registerCommandReceiver(playbackPreparer);
-
-    this.customActionProviders =
-        (player != null && customActionProviders != null)
-            ? customActionProviders
-            : new CustomActionProvider[0];
     if (player != null) {
-      Handler handler = new Handler(Util.getLooper());
-      mediaSession.setCallback(mediaSessionCallback, handler);
-      player.addListener(exoPlayerEventListener);
+      player.addListener(componentListener);
     }
     invalidateMediaSessionPlaybackState();
     invalidateMediaSessionMetadata();
+  }
+
+  /**
+   * Sets the {@link PlaybackPreparer}.
+   *
+   * @param playbackPreparer The {@link PlaybackPreparer}.
+   */
+  public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
+    if (this.playbackPreparer != playbackPreparer) {
+      unregisterCommandReceiver(this.playbackPreparer);
+      this.playbackPreparer = playbackPreparer;
+      registerCommandReceiver(playbackPreparer);
+      invalidateMediaSessionPlaybackState();
+    }
   }
 
   /**
@@ -571,15 +549,43 @@ public final class MediaSessionConnector {
   }
 
   /**
+   * Sets custom action providers. The order of the {@link CustomActionProvider}s determines the
+   * order in which the actions are published.
+   *
+   * @param customActionProviders The custom action providers, or null to remove all existing custom
+   *     action providers.
+   */
+  public void setCustomActionProviders(@Nullable CustomActionProvider... customActionProviders) {
+    this.customActionProviders =
+        customActionProviders == null ? new CustomActionProvider[0] : customActionProviders;
+    invalidateMediaSessionPlaybackState();
+  }
+
+  /**
+   * Sets a provider of metadata to be published to the media session.
+   *
+   * @param mediaMetadataProvider The provider of metadata to publish, or {@code null} if no
+   *     metadata should be published.
+   */
+  public void setMediaMetadataProvider(@Nullable MediaMetadataProvider mediaMetadataProvider) {
+    if (this.mediaMetadataProvider != mediaMetadataProvider) {
+      this.mediaMetadataProvider = mediaMetadataProvider;
+      invalidateMediaSessionMetadata();
+    }
+  }
+
+  /**
    * Updates the metadata of the media session.
    *
    * <p>Apps normally only need to call this method when the backing data for a given media item has
    * changed and the metadata should be updated immediately.
    */
   public final void invalidateMediaSessionMetadata() {
-    if (mediaMetadataProvider != null && player != null) {
-      mediaSession.setMetadata(mediaMetadataProvider.getMetadata(player));
-    }
+    MediaMetadataCompat metadata =
+        mediaMetadataProvider != null && player != null
+            ? mediaMetadataProvider.getMetadata(player)
+            : null;
+    mediaSession.setMetadata(metadata);
   }
 
   /**
@@ -591,7 +597,7 @@ public final class MediaSessionConnector {
   public final void invalidateMediaSessionPlaybackState() {
     PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();
     if (player == null) {
-      builder.setActions(/* capabilities= */ 0).setState(PlaybackStateCompat.STATE_NONE, 0, 0, 0);
+      builder.setActions(buildPrepareActions()).setState(PlaybackStateCompat.STATE_NONE, 0, 0, 0);
       mediaSession.setPlaybackState(builder.build());
       return;
     }
@@ -627,7 +633,7 @@ public final class MediaSessionConnector {
     Bundle extras = new Bundle();
     extras.putFloat(EXTRAS_PITCH, player.getPlaybackParameters().pitch);
     builder
-        .setActions(buildPlaybackActions(player))
+        .setActions(buildPrepareActions() | buildPlaybackActions(player))
         .setActiveQueueItemId(activeQueueItemId)
         .setBufferedPosition(player.getBufferedPosition())
         .setState(
@@ -662,6 +668,12 @@ public final class MediaSessionConnector {
     commandReceivers.remove(commandReceiver);
   }
 
+  private long buildPrepareActions() {
+    return playbackPreparer == null
+        ? 0
+        : (PlaybackPreparer.ACTIONS & playbackPreparer.getSupportedPrepareActions());
+  }
+
   private long buildPlaybackActions(Player player) {
     boolean enableSeeking = false;
     boolean enableRewind = false;
@@ -688,9 +700,6 @@ public final class MediaSessionConnector {
     playbackActions &= enabledPlaybackActions;
 
     long actions = playbackActions;
-    if (playbackPreparer != null) {
-      actions |= (PlaybackPreparer.ACTIONS & playbackPreparer.getSupportedPrepareActions());
-    }
     if (queueNavigator != null) {
       actions |=
           (QueueNavigator.ACTIONS & queueNavigator.getSupportedQueueNavigatorActions(player));
@@ -719,8 +728,7 @@ public final class MediaSessionConnector {
   }
 
   private boolean canDispatchToPlaybackPreparer(long action) {
-    return player != null
-        && playbackPreparer != null
+    return playbackPreparer != null
         && (playbackPreparer.getSupportedPrepareActions() & action) != 0;
   }
 
@@ -736,6 +744,13 @@ public final class MediaSessionConnector {
 
   private boolean canDispatchQueueEdit() {
     return player != null && queueEditor != null;
+  }
+
+  private void stopPlayerForPrepare(boolean playWhenReady) {
+    if (player != null) {
+      player.stop();
+      player.setPlayWhenReady(playWhenReady);
+    }
   }
 
   private void rewind(Player player) {
@@ -865,10 +880,13 @@ public final class MediaSessionConnector {
     }
   }
 
-  private class ExoPlayerEventListener implements Player.EventListener {
+  private class ComponentListener extends MediaSessionCompat.Callback
+      implements Player.EventListener {
 
     private int currentWindowIndex;
     private int currentWindowCount;
+
+    // Player.EventListener implementation.
 
     @Override
     public void onTimelineChanged(
@@ -932,9 +950,8 @@ public final class MediaSessionConnector {
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
       invalidateMediaSessionPlaybackState();
     }
-  }
 
-  private class MediaSessionCallback extends MediaSessionCompat.Callback {
+    // MediaSessionCompat.Callback implementation.
 
     @Override
     public void onPlay() {
@@ -1058,8 +1075,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPrepare() {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE)) {
-        player.stop();
-        player.setPlayWhenReady(false);
+        stopPlayerForPrepare(/* playWhenReady= */ false);
         playbackPreparer.onPrepare();
       }
     }
@@ -1067,8 +1083,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPrepareFromMediaId(String mediaId, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID)) {
-        player.stop();
-        player.setPlayWhenReady(false);
+        stopPlayerForPrepare(/* playWhenReady= */ false);
         playbackPreparer.onPrepareFromMediaId(mediaId, extras);
       }
     }
@@ -1076,8 +1091,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPrepareFromSearch(String query, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH)) {
-        player.stop();
-        player.setPlayWhenReady(false);
+        stopPlayerForPrepare(/* playWhenReady= */ false);
         playbackPreparer.onPrepareFromSearch(query, extras);
       }
     }
@@ -1085,8 +1099,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPrepareFromUri(Uri uri, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_URI)) {
-        player.stop();
-        player.setPlayWhenReady(false);
+        stopPlayerForPrepare(/* playWhenReady= */ false);
         playbackPreparer.onPrepareFromUri(uri, extras);
       }
     }
@@ -1094,8 +1107,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPlayFromMediaId(String mediaId, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID)) {
-        player.stop();
-        player.setPlayWhenReady(true);
+        stopPlayerForPrepare(/* playWhenReady= */ true);
         playbackPreparer.onPrepareFromMediaId(mediaId, extras);
       }
     }
@@ -1103,8 +1115,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPlayFromSearch(String query, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH)) {
-        player.stop();
-        player.setPlayWhenReady(true);
+        stopPlayerForPrepare(/* playWhenReady= */ true);
         playbackPreparer.onPrepareFromSearch(query, extras);
       }
     }
@@ -1112,8 +1123,7 @@ public final class MediaSessionConnector {
     @Override
     public void onPlayFromUri(Uri uri, Bundle extras) {
       if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_URI)) {
-        player.stop();
-        player.setPlayWhenReady(true);
+        stopPlayerForPrepare(/* playWhenReady= */ true);
         playbackPreparer.onPrepareFromUri(uri, extras);
       }
     }

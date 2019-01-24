@@ -41,7 +41,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
 
   private final MediaSessionCompat mediaSession;
   private final Timeline.Window window;
-  protected final int maxQueueSize;
+  private final int maxQueueSize;
 
   private long activeQueueItemId;
 

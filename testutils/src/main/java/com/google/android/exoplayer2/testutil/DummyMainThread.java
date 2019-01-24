@@ -21,6 +21,8 @@ import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import com.google.android.exoplayer2.util.Util;
+import java.util.concurrent.atomic.AtomicReference;
 
 /** Helper class to simulate main/UI thread in tests. */
 public final class DummyMainThread {
@@ -58,13 +60,21 @@ public final class DummyMainThread {
     if (Looper.myLooper() == handler.getLooper()) {
       runnable.run();
     } else {
-      final ConditionVariable finishedCondition = new ConditionVariable();
+      ConditionVariable finishedCondition = new ConditionVariable();
+      AtomicReference<Throwable> thrown = new AtomicReference<>();
       handler.post(
           () -> {
-            runnable.run();
+            try {
+              runnable.run();
+            } catch (Throwable t) {
+              thrown.set(t);
+            }
             finishedCondition.open();
           });
       assertThat(finishedCondition.block(timeoutMs)).isTrue();
+      if (thrown.get() != null) {
+        Util.sneakyThrow(thrown.get());
+      }
     }
   }
 

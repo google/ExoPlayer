@@ -147,6 +147,7 @@ public interface AudioRendererEventListener {
      * Invokes {@link AudioRendererEventListener#onAudioDisabled(DecoderCounters)}.
      */
     public void disabled(final DecoderCounters counters) {
+      counters.ensureUpdated();
       if (listener != null) {
         handler.post(
             () -> {

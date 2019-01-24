@@ -22,4 +22,6 @@
 
   <string name="sample_list_dialog_title">Add samples</string>
 
+  <string name="cast_context_error">Failed to get Cast context. Try updating Google Play Services and restart the app.</string>
+
 </resources>

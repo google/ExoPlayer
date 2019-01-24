@@ -16,19 +16,19 @@
 package com.google.android.exoplayer2.source;
 
 import android.os.Handler;
+import android.os.Message;
+import android.support.annotation.GuardedBy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource.MediaSourceHolder;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,8 +45,7 @@ import java.util.Map;
  * during playback. It is valid for the same {@link MediaSource} instance to be present more than
  * once in the concatenation. Access to this class is thread-safe.
  */
-public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHolder>
-    implements PlayerMessage.Target {
+public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHolder> {
 
   private static final int MSG_ADD = 0;
   private static final int MSG_REMOVE = 1;
@@ -55,22 +54,21 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private static final int MSG_NOTIFY_LISTENER = 4;
   private static final int MSG_ON_COMPLETION = 5;
 
-  // Accessed on the app thread.
+  // Accessed on any thread.
   private final List<MediaSourceHolder> mediaSourcesPublic;
+  @Nullable private Handler playbackThreadHandler;
 
-  // Accessed on the playback thread.
+  // Accessed on the playback thread only.
   private final List<MediaSourceHolder> mediaSourceHolders;
   private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final Map<Object, MediaSourceHolder> mediaSourceByUid;
-  private final List<Runnable> pendingOnCompletionActions;
   private final boolean isAtomic;
   private final boolean useLazyPreparation;
   private final Timeline.Window window;
   private final Timeline.Period period;
 
-  private @Nullable ExoPlayer player;
-  private @Nullable Handler playerApplicationHandler;
   private boolean listenerNotificationScheduled;
+  private EventDispatcher<Runnable> pendingOnCompletionActions;
   private ShuffleOrder shuffleOrder;
   private int windowCount;
   private int periodCount;
@@ -129,7 +127,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     this.mediaSourceByUid = new HashMap<>();
     this.mediaSourcesPublic = new ArrayList<>();
     this.mediaSourceHolders = new ArrayList<>();
-    this.pendingOnCompletionActions = new ArrayList<>();
+    this.pendingOnCompletionActions = new EventDispatcher<>();
     this.isAtomic = isAtomic;
     this.useLazyPreparation = useLazyPreparation;
     window = new Timeline.Window();
@@ -143,19 +141,20 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param mediaSource The {@link MediaSource} to be added to the list.
    */
   public final synchronized void addMediaSource(MediaSource mediaSource) {
-    addMediaSource(mediaSourcesPublic.size(), mediaSource, null);
+    addMediaSource(mediaSourcesPublic.size(), mediaSource);
   }
 
   /**
    * Appends a {@link MediaSource} to the playlist and executes a custom action on completion.
    *
    * @param mediaSource The {@link MediaSource} to be added to the list.
+   * @param handler The {@link Handler} to run {@code actionOnCompletion}.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
    *     source has been added to the playlist.
    */
   public final synchronized void addMediaSource(
-      MediaSource mediaSource, @Nullable Runnable actionOnCompletion) {
-    addMediaSource(mediaSourcesPublic.size(), mediaSource, actionOnCompletion);
+      MediaSource mediaSource, Handler handler, Runnable actionOnCompletion) {
+    addMediaSource(mediaSourcesPublic.size(), mediaSource, handler, actionOnCompletion);
   }
 
   /**
@@ -166,7 +165,11 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param mediaSource The {@link MediaSource} to be added to the list.
    */
   public final synchronized void addMediaSource(int index, MediaSource mediaSource) {
-    addMediaSource(index, mediaSource, null);
+    addPublicMediaSources(
+        index,
+        Collections.singletonList(mediaSource),
+        /* handler= */ null,
+        /* actionOnCompletion= */ null);
   }
 
   /**
@@ -175,12 +178,14 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param index The index at which the new {@link MediaSource} will be inserted. This index must
    *     be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @param mediaSource The {@link MediaSource} to be added to the list.
+   * @param handler The {@link Handler} to run {@code actionOnCompletion}.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
    *     source has been added to the playlist.
    */
   public final synchronized void addMediaSource(
-      int index, MediaSource mediaSource, @Nullable Runnable actionOnCompletion) {
-    addMediaSources(index, Collections.singletonList(mediaSource), actionOnCompletion);
+      int index, MediaSource mediaSource, Handler handler, Runnable actionOnCompletion) {
+    addPublicMediaSources(
+        index, Collections.singletonList(mediaSource), handler, actionOnCompletion);
   }
 
   /**
@@ -190,7 +195,11 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *     sources are added in the order in which they appear in this collection.
    */
   public final synchronized void addMediaSources(Collection<MediaSource> mediaSources) {
-    addMediaSources(mediaSourcesPublic.size(), mediaSources, null);
+    addPublicMediaSources(
+        mediaSourcesPublic.size(),
+        mediaSources,
+        /* handler= */ null,
+        /* actionOnCompletion= */ null);
   }
 
   /**
@@ -199,12 +208,13 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *
    * @param mediaSources A collection of {@link MediaSource}s to be added to the list. The media
    *     sources are added in the order in which they appear in this collection.
+   * @param handler The {@link Handler} to run {@code actionOnCompletion}.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
    *     sources have been added to the playlist.
    */
   public final synchronized void addMediaSources(
-      Collection<MediaSource> mediaSources, @Nullable Runnable actionOnCompletion) {
-    addMediaSources(mediaSourcesPublic.size(), mediaSources, actionOnCompletion);
+      Collection<MediaSource> mediaSources, Handler handler, Runnable actionOnCompletion) {
+    addPublicMediaSources(mediaSourcesPublic.size(), mediaSources, handler, actionOnCompletion);
   }
 
   /**
@@ -216,7 +226,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *     sources are added in the order in which they appear in this collection.
    */
   public final synchronized void addMediaSources(int index, Collection<MediaSource> mediaSources) {
-    addMediaSources(index, mediaSources, null);
+    addPublicMediaSources(index, mediaSources, /* handler= */ null, /* actionOnCompletion= */ null);
   }
 
   /**
@@ -226,28 +236,16 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *     be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @param mediaSources A collection of {@link MediaSource}s to be added to the list. The media
    *     sources are added in the order in which they appear in this collection.
+   * @param handler The {@link Handler} to run {@code actionOnCompletion}.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
    *     sources have been added to the playlist.
    */
   public final synchronized void addMediaSources(
-      int index, Collection<MediaSource> mediaSources, @Nullable Runnable actionOnCompletion) {
-    for (MediaSource mediaSource : mediaSources) {
-      Assertions.checkNotNull(mediaSource);
-    }
-    List<MediaSourceHolder> mediaSourceHolders = new ArrayList<>(mediaSources.size());
-    for (MediaSource mediaSource : mediaSources) {
-      mediaSourceHolders.add(new MediaSourceHolder(mediaSource));
-    }
-    mediaSourcesPublic.addAll(index, mediaSourceHolders);
-    if (player != null && !mediaSources.isEmpty()) {
-      player
-          .createMessage(this)
-          .setType(MSG_ADD)
-          .setPayload(new MessageData<>(index, mediaSourceHolders, actionOnCompletion))
-          .send();
-    } else if (actionOnCompletion != null) {
-      actionOnCompletion.run();
-    }
+      int index,
+      Collection<MediaSource> mediaSources,
+      Handler handler,
+      Runnable actionOnCompletion) {
+    addPublicMediaSources(index, mediaSources, handler, actionOnCompletion);
   }
 
   /**
@@ -263,26 +261,27 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
    */
   public final synchronized void removeMediaSource(int index) {
-    removeMediaSource(index, null);
+    removePublicMediaSources(index, index + 1, /* handler= */ null, /* actionOnCompletion= */ null);
   }
 
   /**
    * Removes a {@link MediaSource} from the playlist and executes a custom action on completion.
    *
    * <p>Note: If you want to move the instance, it's preferable to use {@link #moveMediaSource(int,
-   * int, Runnable)} instead.
+   * int, Handler, Runnable)} instead.
    *
    * <p>Note: If you want to remove a set of contiguous sources, it's preferable to use {@link
-   * #removeMediaSourceRange(int, int, Runnable)} instead.
+   * #removeMediaSourceRange(int, int, Handler, Runnable)} instead.
    *
    * @param index The index at which the media source will be removed. This index must be in the
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
+   * @param handler The {@link Handler} to run {@code actionOnCompletion}.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
    *     source has been removed from the playlist.
    */
   public final synchronized void removeMediaSource(
-      int index, @Nullable Runnable actionOnCompletion) {
-    removeMediaSourceRange(index, index + 1, actionOnCompletion);
+      int index, Handler handler, Runnable actionOnCompletion) {
+    removePublicMediaSources(index, index + 1, handler, actionOnCompletion);
   }
 
   /**
@@ -300,7 +299,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *     {@code toIndex} &gt; {@link #getSize()}, {@code fromIndex} &gt; {@code toIndex}
    */
   public final synchronized void removeMediaSourceRange(int fromIndex, int toIndex) {
-    removeMediaSourceRange(fromIndex, toIndex, null);
+    removePublicMediaSources(
+        fromIndex, toIndex, /* handler= */ null, /* actionOnCompletion= */ null);
   }
 
   /**
@@ -314,29 +314,15 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *     removed. This index must be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
    * @param toIndex The final range index, pointing to the first media source that will be left
    *     untouched. This index must be in the range of 0 &lt;= index &lt;= {@link #getSize()}.
+   * @param handler The {@link Handler} to run {@code actionOnCompletion}.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
    *     source range has been removed from the playlist.
    * @throws IllegalArgumentException When the range is malformed, i.e. {@code fromIndex} &lt; 0,
    *     {@code toIndex} &gt; {@link #getSize()}, {@code fromIndex} &gt; {@code toIndex}
    */
   public final synchronized void removeMediaSourceRange(
-      int fromIndex, int toIndex, @Nullable Runnable actionOnCompletion) {
-    Util.removeRange(mediaSourcesPublic, fromIndex, toIndex);
-    if (fromIndex == toIndex) {
-      if (actionOnCompletion != null) {
-        actionOnCompletion.run();
-      }
-      return;
-    }
-    if (player != null) {
-      player
-          .createMessage(this)
-          .setType(MSG_REMOVE)
-          .setPayload(new MessageData<>(fromIndex, toIndex, actionOnCompletion))
-          .send();
-    } else if (actionOnCompletion != null) {
-      actionOnCompletion.run();
-    }
+      int fromIndex, int toIndex, Handler handler, Runnable actionOnCompletion) {
+    removePublicMediaSources(fromIndex, toIndex, handler, actionOnCompletion);
   }
 
   /**
@@ -348,7 +334,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
    */
   public final synchronized void moveMediaSource(int currentIndex, int newIndex) {
-    moveMediaSource(currentIndex, newIndex, null);
+    movePublicMediaSource(
+        currentIndex, newIndex, /* handler= */ null, /* actionOnCompletion= */ null);
   }
 
   /**
@@ -359,42 +346,29 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    *     in the range of 0 &lt;= index &lt; {@link #getSize()}.
    * @param newIndex The target index of the media source in the playlist. This index must be in the
    *     range of 0 &lt;= index &lt; {@link #getSize()}.
+   * @param handler The {@link Handler} to run {@code actionOnCompletion}.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the media
    *     source has been moved.
    */
   public final synchronized void moveMediaSource(
-      int currentIndex, int newIndex, @Nullable Runnable actionOnCompletion) {
-    if (currentIndex == newIndex) {
-      if (actionOnCompletion != null) {
-        actionOnCompletion.run();
-      }
-      return;
-    }
-    mediaSourcesPublic.add(newIndex, mediaSourcesPublic.remove(currentIndex));
-    if (player != null) {
-      player
-          .createMessage(this)
-          .setType(MSG_MOVE)
-          .setPayload(new MessageData<>(currentIndex, newIndex, actionOnCompletion))
-          .send();
-    } else if (actionOnCompletion != null) {
-      actionOnCompletion.run();
-    }
+      int currentIndex, int newIndex, Handler handler, Runnable actionOnCompletion) {
+    movePublicMediaSource(currentIndex, newIndex, handler, actionOnCompletion);
   }
 
   /** Clears the playlist. */
   public final synchronized void clear() {
-    clear(/* actionOnCompletion= */ null);
+    removeMediaSourceRange(0, getSize());
   }
 
   /**
    * Clears the playlist and executes a custom action on completion.
    *
+   * @param handler The {@link Handler} to run {@code actionOnCompletion}.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the playlist
    *     has been cleared.
    */
-  public final synchronized void clear(@Nullable Runnable actionOnCompletion) {
-    removeMediaSourceRange(0, getSize(), actionOnCompletion);
+  public final synchronized void clear(Handler handler, Runnable actionOnCompletion) {
+    removeMediaSourceRange(0, getSize(), handler, actionOnCompletion);
   }
 
   /** Returns the number of media sources in the playlist. */
@@ -418,40 +392,23 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
    * @param shuffleOrder A {@link ShuffleOrder}.
    */
   public final synchronized void setShuffleOrder(ShuffleOrder shuffleOrder) {
-    setShuffleOrder(shuffleOrder, /* actionOnCompletion= */ null);
+    setPublicShuffleOrder(shuffleOrder, /* handler= */ null, /* actionOnCompletion= */ null);
   }
 
   /**
    * Sets a new shuffle order to use when shuffling the child media sources.
    *
    * @param shuffleOrder A {@link ShuffleOrder}.
+   * @param handler The {@link Handler} to run {@code actionOnCompletion}.
    * @param actionOnCompletion A {@link Runnable} which is executed immediately after the shuffle
    *     order has been changed.
    */
   public final synchronized void setShuffleOrder(
-      ShuffleOrder shuffleOrder, @Nullable Runnable actionOnCompletion) {
-    ExoPlayer player = this.player;
-    if (player != null) {
-      int size = getSize();
-      if (shuffleOrder.getLength() != size) {
-        shuffleOrder =
-            shuffleOrder
-                .cloneAndClear()
-                .cloneAndInsert(/* insertionIndex= */ 0, /* insertionCount= */ size);
-      }
-      player
-          .createMessage(this)
-          .setType(MSG_SET_SHUFFLE_ORDER)
-          .setPayload(new MessageData<>(/* index= */ 0, shuffleOrder, actionOnCompletion))
-          .send();
-    } else {
-      this.shuffleOrder =
-          shuffleOrder.getLength() > 0 ? shuffleOrder.cloneAndClear() : shuffleOrder;
-      if (actionOnCompletion != null) {
-        actionOnCompletion.run();
-      }
-    }
+      ShuffleOrder shuffleOrder, Handler handler, Runnable actionOnCompletion) {
+    setPublicShuffleOrder(shuffleOrder, handler, actionOnCompletion);
   }
+
+  // CompositeMediaSource implementation.
 
   @Override
   @Nullable
@@ -461,18 +418,15 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
   @Override
   public final synchronized void prepareSourceInternal(
-      ExoPlayer player,
-      boolean isTopLevelSource,
       @Nullable TransferListener mediaTransferListener) {
-    super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
-    this.player = player;
-    playerApplicationHandler = new Handler(player.getApplicationLooper());
+    super.prepareSourceInternal(mediaTransferListener);
+    playbackThreadHandler = new Handler(/* callback= */ this::handleMessage);
     if (mediaSourcesPublic.isEmpty()) {
       notifyListener();
     } else {
       shuffleOrder = shuffleOrder.cloneAndInsert(0, mediaSourcesPublic.size());
       addMediaSourcesInternal(0, mediaSourcesPublic);
-      scheduleListenerNotification(/* actionOnCompletion= */ null);
+      scheduleListenerNotification();
     }
   }
 
@@ -484,7 +438,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
-  public final MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+  public final MediaPeriod createPeriod(
+      MediaPeriodId id, Allocator allocator, long startPositionUs) {
     Object mediaSourceHolderUid = getMediaSourceHolderUid(id.periodUid);
     MediaSourceHolder holder = mediaSourceByUid.get(mediaSourceHolderUid);
     if (holder == null) {
@@ -492,7 +447,8 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       holder = new MediaSourceHolder(new DummyMediaSource());
       holder.hasStartedPreparing = true;
     }
-    DeferredMediaPeriod mediaPeriod = new DeferredMediaPeriod(holder.mediaSource, id, allocator);
+    DeferredMediaPeriod mediaPeriod =
+        new DeferredMediaPeriod(holder.mediaSource, id, allocator, startPositionUs);
     mediaSourceByMediaPeriod.put(mediaPeriod, holder);
     holder.activeMediaPeriods.add(mediaPeriod);
     if (!holder.hasStartedPreparing) {
@@ -515,15 +471,17 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   }
 
   @Override
-  public final void releaseSourceInternal() {
+  public final synchronized void releaseSourceInternal() {
     super.releaseSourceInternal();
     mediaSourceHolders.clear();
     mediaSourceByUid.clear();
-    player = null;
-    playerApplicationHandler = null;
     shuffleOrder = shuffleOrder.cloneAndClear();
     windowCount = 0;
     periodCount = 0;
+    if (playbackThreadHandler != null) {
+      playbackThreadHandler.removeCallbacksAndMessages(null);
+      playbackThreadHandler = null;
+    }
   }
 
   @Override
@@ -556,24 +514,110 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     return windowIndex + mediaSourceHolder.firstWindowIndexInChild;
   }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public final void handleMessage(int messageType, @Nullable Object message)
-      throws ExoPlaybackException {
-    if (player == null) {
-      // Stale event.
-      return;
+  // Internal methods. Called from any thread.
+
+  @GuardedBy("this")
+  private void addPublicMediaSources(
+      int index,
+      Collection<MediaSource> mediaSources,
+      @Nullable Handler handler,
+      @Nullable Runnable actionOnCompletion) {
+    Assertions.checkArgument((handler == null) == (actionOnCompletion == null));
+    for (MediaSource mediaSource : mediaSources) {
+      Assertions.checkNotNull(mediaSource);
     }
-    switch (messageType) {
+    List<MediaSourceHolder> mediaSourceHolders = new ArrayList<>(mediaSources.size());
+    for (MediaSource mediaSource : mediaSources) {
+      mediaSourceHolders.add(new MediaSourceHolder(mediaSource));
+    }
+    mediaSourcesPublic.addAll(index, mediaSourceHolders);
+    if (playbackThreadHandler != null && !mediaSources.isEmpty()) {
+      playbackThreadHandler
+          .obtainMessage(
+              MSG_ADD, new MessageData<>(index, mediaSourceHolders, handler, actionOnCompletion))
+          .sendToTarget();
+    } else if (actionOnCompletion != null && handler != null) {
+      handler.post(actionOnCompletion);
+    }
+  }
+
+  @GuardedBy("this")
+  private void removePublicMediaSources(
+      int fromIndex,
+      int toIndex,
+      @Nullable Handler handler,
+      @Nullable Runnable actionOnCompletion) {
+    Assertions.checkArgument((handler == null) == (actionOnCompletion == null));
+    Util.removeRange(mediaSourcesPublic, fromIndex, toIndex);
+    if (playbackThreadHandler != null) {
+      playbackThreadHandler
+          .obtainMessage(
+              MSG_REMOVE, new MessageData<>(fromIndex, toIndex, handler, actionOnCompletion))
+          .sendToTarget();
+    } else if (actionOnCompletion != null && handler != null) {
+      handler.post(actionOnCompletion);
+    }
+  }
+
+  @GuardedBy("this")
+  private void movePublicMediaSource(
+      int currentIndex,
+      int newIndex,
+      @Nullable Handler handler,
+      @Nullable Runnable actionOnCompletion) {
+    Assertions.checkArgument((handler == null) == (actionOnCompletion == null));
+    mediaSourcesPublic.add(newIndex, mediaSourcesPublic.remove(currentIndex));
+    if (playbackThreadHandler != null) {
+      playbackThreadHandler
+          .obtainMessage(
+              MSG_MOVE, new MessageData<>(currentIndex, newIndex, handler, actionOnCompletion))
+          .sendToTarget();
+    } else if (actionOnCompletion != null && handler != null) {
+      handler.post(actionOnCompletion);
+    }
+  }
+
+  @GuardedBy("this")
+  private void setPublicShuffleOrder(
+      ShuffleOrder shuffleOrder, @Nullable Handler handler, @Nullable Runnable actionOnCompletion) {
+    Assertions.checkArgument((handler == null) == (actionOnCompletion == null));
+    Handler playbackThreadHandler = this.playbackThreadHandler;
+    if (playbackThreadHandler != null) {
+      int size = getSize();
+      if (shuffleOrder.getLength() != size) {
+        shuffleOrder =
+            shuffleOrder
+                .cloneAndClear()
+                .cloneAndInsert(/* insertionIndex= */ 0, /* insertionCount= */ size);
+      }
+      playbackThreadHandler
+          .obtainMessage(
+              MSG_SET_SHUFFLE_ORDER,
+              new MessageData<>(/* index= */ 0, shuffleOrder, handler, actionOnCompletion))
+          .sendToTarget();
+    } else {
+      this.shuffleOrder =
+          shuffleOrder.getLength() > 0 ? shuffleOrder.cloneAndClear() : shuffleOrder;
+      if (actionOnCompletion != null && handler != null) {
+        handler.post(actionOnCompletion);
+      }
+    }
+  }
+
+  // Internal methods. Called on the playback thread.
+
+  @SuppressWarnings("unchecked")
+  private boolean handleMessage(Message msg) {
+    switch (msg.what) {
       case MSG_ADD:
         MessageData<Collection<MediaSourceHolder>> addMessage =
-            (MessageData<Collection<MediaSourceHolder>>) Util.castNonNull(message);
+            (MessageData<Collection<MediaSourceHolder>>) Util.castNonNull(msg.obj);
         shuffleOrder = shuffleOrder.cloneAndInsert(addMessage.index, addMessage.customData.size());
         addMediaSourcesInternal(addMessage.index, addMessage.customData);
-        scheduleListenerNotification(addMessage.actionOnCompletion);
+        scheduleListenerNotification(addMessage.handler, addMessage.actionOnCompletion);
         break;
       case MSG_REMOVE:
-        MessageData<Integer> removeMessage = (MessageData<Integer>) Util.castNonNull(message);
+        MessageData<Integer> removeMessage = (MessageData<Integer>) Util.castNonNull(msg.obj);
         int fromIndex = removeMessage.index;
         int toIndex = removeMessage.customData;
         if (fromIndex == 0 && toIndex == shuffleOrder.getLength()) {
@@ -584,64 +628,64 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
         for (int index = toIndex - 1; index >= fromIndex; index--) {
           removeMediaSourceInternal(index);
         }
-        scheduleListenerNotification(removeMessage.actionOnCompletion);
+        scheduleListenerNotification(removeMessage.handler, removeMessage.actionOnCompletion);
         break;
       case MSG_MOVE:
-        MessageData<Integer> moveMessage = (MessageData<Integer>) Util.castNonNull(message);
+        MessageData<Integer> moveMessage = (MessageData<Integer>) Util.castNonNull(msg.obj);
         shuffleOrder = shuffleOrder.cloneAndRemove(moveMessage.index, moveMessage.index + 1);
         shuffleOrder = shuffleOrder.cloneAndInsert(moveMessage.customData, 1);
         moveMediaSourceInternal(moveMessage.index, moveMessage.customData);
-        scheduleListenerNotification(moveMessage.actionOnCompletion);
+        scheduleListenerNotification(moveMessage.handler, moveMessage.actionOnCompletion);
         break;
       case MSG_SET_SHUFFLE_ORDER:
         MessageData<ShuffleOrder> shuffleOrderMessage =
-            (MessageData<ShuffleOrder>) Util.castNonNull(message);
+            (MessageData<ShuffleOrder>) Util.castNonNull(msg.obj);
         shuffleOrder = shuffleOrderMessage.customData;
-        scheduleListenerNotification(shuffleOrderMessage.actionOnCompletion);
+        scheduleListenerNotification(
+            shuffleOrderMessage.handler, shuffleOrderMessage.actionOnCompletion);
         break;
       case MSG_NOTIFY_LISTENER:
         notifyListener();
         break;
       case MSG_ON_COMPLETION:
-        List<Runnable> actionsOnCompletion = (List<Runnable>) Util.castNonNull(message);
-        Handler handler = Assertions.checkNotNull(playerApplicationHandler);
-        for (int i = 0; i < actionsOnCompletion.size(); i++) {
-          handler.post(actionsOnCompletion.get(i));
-        }
+        EventDispatcher<Runnable> actionsOnCompletion =
+            (EventDispatcher<Runnable>) Util.castNonNull(msg.obj);
+        actionsOnCompletion.dispatch(Runnable::run);
         break;
       default:
         throw new IllegalStateException();
     }
+    return true;
   }
 
-  private void scheduleListenerNotification(@Nullable Runnable actionOnCompletion) {
+  private void scheduleListenerNotification() {
+    scheduleListenerNotification(/* handler= */ null, /* actionOnCompletion= */ null);
+  }
+
+  private void scheduleListenerNotification(
+      @Nullable Handler handler, @Nullable Runnable actionOnCompletion) {
     if (!listenerNotificationScheduled) {
-      Assertions.checkNotNull(player).createMessage(this).setType(MSG_NOTIFY_LISTENER).send();
+      Assertions.checkNotNull(playbackThreadHandler)
+          .obtainMessage(MSG_NOTIFY_LISTENER)
+          .sendToTarget();
       listenerNotificationScheduled = true;
     }
-    if (actionOnCompletion != null) {
-      pendingOnCompletionActions.add(actionOnCompletion);
+    if (actionOnCompletion != null && handler != null) {
+      pendingOnCompletionActions.addListener(handler, actionOnCompletion);
     }
   }
 
   private void notifyListener() {
     listenerNotificationScheduled = false;
-    List<Runnable> actionsOnCompletion =
-        pendingOnCompletionActions.isEmpty()
-            ? Collections.emptyList()
-            : new ArrayList<>(pendingOnCompletionActions);
-    pendingOnCompletionActions.clear();
+    EventDispatcher<Runnable> actionsOnCompletion = pendingOnCompletionActions;
+    pendingOnCompletionActions = new EventDispatcher<>();
     refreshSourceInfo(
         new ConcatenatedTimeline(
             mediaSourceHolders, windowCount, periodCount, shuffleOrder, isAtomic),
         /* manifest= */ null);
-    if (!actionsOnCompletion.isEmpty()) {
-      Assertions.checkNotNull(player)
-          .createMessage(this)
-          .setType(MSG_ON_COMPLETION)
-          .setPayload(actionsOnCompletion)
-          .send();
-    }
+    Assertions.checkNotNull(playbackThreadHandler)
+        .obtainMessage(MSG_ON_COMPLETION, actionsOnCompletion)
+        .sendToTarget();
   }
 
   private void addMediaSourcesInternal(
@@ -718,6 +762,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       //     unlikely to be a problem as a non-zero default position usually only occurs for live
       //     playbacks and seeking to zero in a live window would cause BehindLiveWindowExceptions
       //     anyway.
+      timeline.getWindow(/* windowIndex= */ 0, window);
       long windowStartPositionUs = window.getDefaultPositionUs();
       if (deferredMediaPeriod != null) {
         long periodPreparePositionUs = deferredMediaPeriod.getPreparePositionUs();
@@ -739,7 +784,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
       }
     }
     mediaSourceHolder.isPrepared = true;
-    scheduleListenerNotification(/* actionOnCompletion= */ null);
+    scheduleListenerNotification();
   }
 
   private void removeMediaSourceInternal(int index) {
@@ -826,7 +871,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
     public MediaSourceHolder(MediaSource mediaSource) {
       this.mediaSource = mediaSource;
-      this.timeline = new DeferredTimeline();
+      this.timeline = DeferredTimeline.createWithDummyTimeline(mediaSource.getTag());
       this.activeMediaPeriods = new ArrayList<>();
       this.uid = new Object();
     }
@@ -852,12 +897,15 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
 
     public final int index;
     public final T customData;
-    public final @Nullable Runnable actionOnCompletion;
+    @Nullable public final Handler handler;
+    @Nullable public final Runnable actionOnCompletion;
 
-    public MessageData(int index, T customData, @Nullable Runnable actionOnCompletion) {
+    public MessageData(
+        int index, T customData, @Nullable Handler handler, @Nullable Runnable actionOnCompletion) {
       this.index = index;
-      this.actionOnCompletion = actionOnCompletion;
       this.customData = customData;
+      this.handler = handler;
+      this.actionOnCompletion = actionOnCompletion;
     }
   }
 
@@ -951,9 +999,17 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private static final class DeferredTimeline extends ForwardingTimeline {
 
     private static final Object DUMMY_ID = new Object();
-    private static final DummyTimeline DUMMY_TIMELINE = new DummyTimeline();
 
     private final Object replacedId;
+
+    /**
+     * Returns an instance with a dummy timeline using the provided window tag.
+     *
+     * @param windowTag A window tag.
+     */
+    public static DeferredTimeline createWithDummyTimeline(@Nullable Object windowTag) {
+      return new DeferredTimeline(new DummyTimeline(windowTag), DUMMY_ID);
+    }
 
     /**
      * Returns an instance with a real timeline, replacing the provided period ID with the already
@@ -966,11 +1022,6 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     public static DeferredTimeline createWithRealTimeline(
         Timeline timeline, Object firstPeriodUid) {
       return new DeferredTimeline(timeline, firstPeriodUid);
-    }
-
-    /** Creates deferred timeline exposing a {@link DummyTimeline}. */
-    public DeferredTimeline() {
-      this(DUMMY_TIMELINE, DUMMY_ID);
     }
 
     private DeferredTimeline(Timeline timeline, Object replacedId) {
@@ -1016,6 +1067,12 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   /** Dummy placeholder timeline with one dynamic window with a period of indeterminate duration. */
   private static final class DummyTimeline extends Timeline {
 
+    @Nullable private final Object tag;
+
+    public DummyTimeline(@Nullable Object tag) {
+      this.tag = tag;
+    }
+
     @Override
     public int getWindowCount() {
       return 1;
@@ -1025,7 +1082,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     public Window getWindow(
         int windowIndex, Window window, boolean setTag, long defaultPositionProjectionUs) {
       return window.set(
-          /* tag= */ null,
+          tag,
           /* presentationStartTimeMs= */ C.TIME_UNSET,
           /* windowStartTimeMs= */ C.TIME_UNSET,
           /* isSeekable= */ false,
@@ -1068,10 +1125,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
   private static final class DummyMediaSource extends BaseMediaSource {
 
     @Override
-    protected void prepareSourceInternal(
-        ExoPlayer player,
-        boolean isTopLevelSource,
-        @Nullable TransferListener mediaTransferListener) {
+    protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
       // Do nothing.
     }
 
@@ -1092,7 +1146,7 @@ public class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHo
     }
 
     @Override
-    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
       throw new UnsupportedOperationException();
     }
 

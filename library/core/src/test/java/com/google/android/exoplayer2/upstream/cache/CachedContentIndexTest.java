@@ -100,9 +100,15 @@ public class CachedContentIndexTest {
     assertThat(cachedContent1.id != cachedContent2.id).isTrue();
 
     // add a span
+    int cacheFileLength = 20;
     File cacheSpanFile =
-        SimpleCacheSpanTest.createCacheSpanFile(cacheDir, cachedContent1.id, 10, 20, 30);
-    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, index);
+        SimpleCacheSpanTest.createCacheSpanFile(
+            cacheDir,
+            cachedContent1.id,
+            /* offset= */ 10,
+            cacheFileLength,
+            /* lastAccessTimestamp= */ 30);
+    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, cacheFileLength, index);
     assertThat(span).isNotNull();
     cachedContent1.addSpan(span);
 
@@ -154,11 +160,11 @@ public class CachedContentIndexTest {
 
     assertThat(index.assignIdForKey("ABCDE")).isEqualTo(5);
     ContentMetadata metadata = index.get("ABCDE").getMetadata();
-    assertThat(ContentMetadataInternal.getContentLength(metadata)).isEqualTo(10);
+    assertThat(ContentMetadata.getContentLength(metadata)).isEqualTo(10);
 
     assertThat(index.assignIdForKey("KLMNO")).isEqualTo(2);
     ContentMetadata metadata2 = index.get("KLMNO").getMetadata();
-    assertThat(ContentMetadataInternal.getContentLength(metadata2)).isEqualTo(2560);
+    assertThat(ContentMetadata.getContentLength(metadata2)).isEqualTo(2560);
   }
 
   @Test
@@ -172,12 +178,12 @@ public class CachedContentIndexTest {
 
     assertThat(index.assignIdForKey("ABCDE")).isEqualTo(5);
     ContentMetadata metadata = index.get("ABCDE").getMetadata();
-    assertThat(ContentMetadataInternal.getContentLength(metadata)).isEqualTo(10);
-    assertThat(ContentMetadataInternal.getRedirectedUri(metadata)).isEqualTo(Uri.parse("abcde"));
+    assertThat(ContentMetadata.getContentLength(metadata)).isEqualTo(10);
+    assertThat(ContentMetadata.getRedirectedUri(metadata)).isEqualTo(Uri.parse("abcde"));
 
     assertThat(index.assignIdForKey("KLMNO")).isEqualTo(2);
     ContentMetadata metadata2 = index.get("KLMNO").getMetadata();
-    assertThat(ContentMetadataInternal.getContentLength(metadata2)).isEqualTo(2560);
+    assertThat(ContentMetadata.getContentLength(metadata2)).isEqualTo(2560);
   }
 
   @Test
@@ -274,9 +280,15 @@ public class CachedContentIndexTest {
   @Test
   public void testCantRemoveNotEmptyCachedContent() throws Exception {
     CachedContent cachedContent = index.getOrAdd("key1");
-    File cacheSpanFile =
-        SimpleCacheSpanTest.createCacheSpanFile(cacheDir, cachedContent.id, 10, 20, 30);
-    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, index);
+    long cacheFileLength = 20;
+    File cacheFile =
+        SimpleCacheSpanTest.createCacheSpanFile(
+            cacheDir,
+            cachedContent.id,
+            /* offset= */ 10,
+            cacheFileLength,
+            /* lastAccessTimestamp= */ 30);
+    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheFile, cacheFileLength, index);
     cachedContent.addSpan(span);
 
     index.maybeRemove(cachedContent.key);
@@ -297,11 +309,11 @@ public class CachedContentIndexTest {
   private void assertStoredAndLoadedEqual(CachedContentIndex index, CachedContentIndex index2)
       throws IOException {
     ContentMetadataMutations mutations1 = new ContentMetadataMutations();
-    ContentMetadataInternal.setContentLength(mutations1, 2560);
+    ContentMetadataMutations.setContentLength(mutations1, 2560);
     index.getOrAdd("KLMNO").applyMetadataMutations(mutations1);
     ContentMetadataMutations mutations2 = new ContentMetadataMutations();
-    ContentMetadataInternal.setContentLength(mutations2, 10);
-    ContentMetadataInternal.setRedirectedUri(mutations2, Uri.parse("abcde"));
+    ContentMetadataMutations.setContentLength(mutations2, 10);
+    ContentMetadataMutations.setRedirectedUri(mutations2, Uri.parse("abcde"));
     index.getOrAdd("ABCDE").applyMetadataMutations(mutations2);
     index.store();
 

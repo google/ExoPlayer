@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -429,12 +430,20 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     long position = dataSpec.position;
     long length = dataSpec.length;
     boolean allowGzip = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP);
+    boolean allowIcyMetadata = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_ICY_METADATA);
 
     if (!allowCrossProtocolRedirects) {
       // HttpURLConnection disallows cross-protocol redirects, but otherwise performs redirection
       // automatically. This is the behavior we want, so use it.
       return makeConnection(
-          url, httpMethod, httpBody, position, length, allowGzip, true /* followRedirects */);
+          url,
+          httpMethod,
+          httpBody,
+          position,
+          length,
+          allowGzip,
+          allowIcyMetadata,
+          /* followRedirects= */ true);
     }
 
     // We need to handle redirects ourselves to allow cross-protocol redirects.
@@ -442,7 +451,14 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     while (redirectCount++ <= MAX_REDIRECTS) {
       HttpURLConnection connection =
           makeConnection(
-              url, httpMethod, httpBody, position, length, allowGzip, false /* followRedirects */);
+              url,
+              httpMethod,
+              httpBody,
+              position,
+              length,
+              allowGzip,
+              allowIcyMetadata,
+              /* followRedirects= */ false);
       int responseCode = connection.getResponseCode();
       String location = connection.getHeaderField("Location");
       if ((httpMethod == DataSpec.HTTP_METHOD_GET || httpMethod == DataSpec.HTTP_METHOD_HEAD)
@@ -482,6 +498,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @param position The byte offset of the requested data.
    * @param length The length of the requested data, or {@link C#LENGTH_UNSET}.
    * @param allowGzip Whether to allow the use of gzip.
+   * @param allowIcyMetadata Whether to allow ICY metadata.
    * @param followRedirects Whether to follow redirects.
    */
   private HttpURLConnection makeConnection(
@@ -491,6 +508,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       long position,
       long length,
       boolean allowGzip,
+      boolean allowIcyMetadata,
       boolean followRedirects)
       throws IOException {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -514,6 +532,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     connection.setRequestProperty("User-Agent", userAgent);
     if (!allowGzip) {
       connection.setRequestProperty("Accept-Encoding", "identity");
+    }
+    if (allowIcyMetadata) {
+      connection.setRequestProperty(
+          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_NAME,
+          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_VALUE);
     }
     connection.setInstanceFollowRedirects(followRedirects);
     connection.setDoOutput(httpBody != null);

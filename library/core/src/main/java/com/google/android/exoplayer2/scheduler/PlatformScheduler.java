@@ -130,7 +130,7 @@ public final class PlatformScheduler implements Scheduler {
     PersistableBundle extras = new PersistableBundle();
     extras.putString(KEY_SERVICE_ACTION, serviceAction);
     extras.putString(KEY_SERVICE_PACKAGE, servicePackage);
-    extras.putInt(KEY_REQUIREMENTS, requirements.getRequirementsData());
+    extras.putInt(KEY_REQUIREMENTS, requirements.getRequirements());
     builder.setExtras(extras);
 
     return builder.build();
