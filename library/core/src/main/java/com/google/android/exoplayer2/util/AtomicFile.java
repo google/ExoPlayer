@@ -29,7 +29,7 @@ import java.io.OutputStream;
  * has successfully completed.
  *
  * <p>Atomic file guarantees file integrity by ensuring that a file has been completely written and
- * sync'd to disk before removing its backup. As long as the backup file exists, the original file
+ * synced to disk before removing its backup. As long as the backup file exists, the original file
  * is considered to be invalid (left over from a previous attempt to write the file).
  *
  * <p>Atomic file does not confer any file locking semantics. Do not use this class when the file

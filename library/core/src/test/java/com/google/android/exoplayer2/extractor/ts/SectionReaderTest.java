@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_PAYLOAD_UNIT_START_INDICATOR;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -55,7 +56,7 @@ public final class SectionReaderTest {
   public void testSingleOnePacketSection() {
     packetPayload[0] = 3;
     insertTableSection(4, (byte) 99, 3);
-    reader.consume(new ParsableByteArray(packetPayload), true);
+    reader.consume(new ParsableByteArray(packetPayload), FLAG_PAYLOAD_UNIT_START_INDICATOR);
     assertThat(payloadReader.parsedTableIds).isEqualTo(singletonList(99));
   }
 
@@ -65,12 +66,12 @@ public final class SectionReaderTest {
     insertTableSection(4, (byte) 100, 3); // This section header spreads across both packets.
 
     ParsableByteArray firstPacket = new ParsableByteArray(packetPayload, 5);
-    reader.consume(firstPacket, true);
+    reader.consume(firstPacket, FLAG_PAYLOAD_UNIT_START_INDICATOR);
     assertThat(payloadReader.parsedTableIds).isEmpty();
 
     ParsableByteArray secondPacket = new ParsableByteArray(packetPayload);
     secondPacket.setPosition(5);
-    reader.consume(secondPacket, false);
+    reader.consume(secondPacket, /* flags= */ 0);
     assertThat(payloadReader.parsedTableIds).isEqualTo(singletonList(100));
   }
 
@@ -85,12 +86,12 @@ public final class SectionReaderTest {
     insertTableSection(54, (byte) 105, 10);
 
     ParsableByteArray firstPacket = new ParsableByteArray(packetPayload, 40);
-    reader.consume(firstPacket, true);
+    reader.consume(firstPacket, FLAG_PAYLOAD_UNIT_START_INDICATOR);
     assertThat(payloadReader.parsedTableIds).isEqualTo(asList(101, 102, 103));
 
     ParsableByteArray secondPacket = new ParsableByteArray(packetPayload);
     secondPacket.setPosition(40);
-    reader.consume(secondPacket, true);
+    reader.consume(secondPacket, FLAG_PAYLOAD_UNIT_START_INDICATOR);
     assertThat(payloadReader.parsedTableIds).isEqualTo(asList(101, 102, 103, 104, 105));
   }
 
@@ -105,22 +106,22 @@ public final class SectionReaderTest {
     insertTableSection(318, (byte) 108, 10);
 
     ParsableByteArray firstPacket = new ParsableByteArray(packetPayload, 100);
-    reader.consume(firstPacket, true);
+    reader.consume(firstPacket, FLAG_PAYLOAD_UNIT_START_INDICATOR);
     assertThat(payloadReader.parsedTableIds).isEmpty();
 
     ParsableByteArray secondPacket = new ParsableByteArray(packetPayload, 200);
     secondPacket.setPosition(100);
-    reader.consume(secondPacket, false);
+    reader.consume(secondPacket, /* flags= */ 0);
     assertThat(payloadReader.parsedTableIds).isEmpty();
 
     ParsableByteArray thirdPacket = new ParsableByteArray(packetPayload, 300);
     thirdPacket.setPosition(200);
-    reader.consume(thirdPacket, false);
+    reader.consume(thirdPacket, /* flags= */ 0);
     assertThat(payloadReader.parsedTableIds).isEmpty();
 
     ParsableByteArray fourthPacket = new ParsableByteArray(packetPayload);
     fourthPacket.setPosition(300);
-    reader.consume(fourthPacket, true);
+    reader.consume(fourthPacket, FLAG_PAYLOAD_UNIT_START_INDICATOR);
     assertThat(payloadReader.parsedTableIds).isEqualTo(asList(107, 108));
   }
 
@@ -135,24 +136,24 @@ public final class SectionReaderTest {
     insertTableSection(318, (byte) 111, 10);
 
     ParsableByteArray firstPacket = new ParsableByteArray(packetPayload, 100);
-    reader.consume(firstPacket, true);
+    reader.consume(firstPacket, FLAG_PAYLOAD_UNIT_START_INDICATOR);
     assertThat(payloadReader.parsedTableIds).isEmpty();
 
     ParsableByteArray secondPacket = new ParsableByteArray(packetPayload, 200);
     secondPacket.setPosition(100);
-    reader.consume(secondPacket, false);
+    reader.consume(secondPacket, /* flags= */ 0);
     assertThat(payloadReader.parsedTableIds).isEmpty();
 
     ParsableByteArray thirdPacket = new ParsableByteArray(packetPayload, 300);
     thirdPacket.setPosition(200);
-    reader.consume(thirdPacket, false);
+    reader.consume(thirdPacket, /* flags= */ 0);
     assertThat(payloadReader.parsedTableIds).isEmpty();
 
     reader.seek();
 
     ParsableByteArray fourthPacket = new ParsableByteArray(packetPayload);
     fourthPacket.setPosition(300);
-    reader.consume(fourthPacket, true);
+    reader.consume(fourthPacket, FLAG_PAYLOAD_UNIT_START_INDICATOR);
     assertThat(payloadReader.parsedTableIds).isEqualTo(singletonList(111));
   }
 
@@ -165,9 +166,9 @@ public final class SectionReaderTest {
     byte[] incorrectCrcPat = Arrays.copyOf(correctCrcPat, correctCrcPat.length);
     // Crc field is incorrect, and should not be passed to the payload reader.
     incorrectCrcPat[16]--;
-    reader.consume(new ParsableByteArray(correctCrcPat), true);
+    reader.consume(new ParsableByteArray(correctCrcPat), FLAG_PAYLOAD_UNIT_START_INDICATOR);
     assertThat(payloadReader.parsedTableIds).isEqualTo(singletonList(0));
-    reader.consume(new ParsableByteArray(incorrectCrcPat), true);
+    reader.consume(new ParsableByteArray(incorrectCrcPat), FLAG_PAYLOAD_UNIT_START_INDICATOR);
     assertThat(payloadReader.parsedTableIds).isEqualTo(singletonList(0));
   }
 

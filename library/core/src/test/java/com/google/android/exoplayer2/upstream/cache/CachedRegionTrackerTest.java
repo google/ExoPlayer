@@ -128,7 +128,7 @@ public final class CachedRegionTrackerTest {
   private CacheSpan newCacheSpan(int position, int length) throws IOException {
     int id = index.assignIdForKey(CACHE_KEY);
     File cacheFile = createCacheSpanFile(cacheDir, id, position, length, 0);
-    return SimpleCacheSpan.createCacheEntry(cacheFile, index);
+    return SimpleCacheSpan.createCacheEntry(cacheFile, length, index);
   }
 
   public static File createCacheSpanFile(

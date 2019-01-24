@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeMediaChunk;
+import com.google.android.exoplayer2.trackselection.TrackSelection.Definition;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
@@ -66,15 +67,20 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testFactoryUsesInitiallyProvidedBandwidthMeter() {
     BandwidthMeter initialBandwidthMeter = mock(BandwidthMeter.class);
     BandwidthMeter injectedBandwidthMeter = mock(BandwidthMeter.class);
-    Format format = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
-    @SuppressWarnings("deprecation")
-    AdaptiveTrackSelection adaptiveTrackSelection =
+    Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
+    Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
+    TrackSelection[] trackSelections =
         new AdaptiveTrackSelection.Factory(initialBandwidthMeter)
-            .createTrackSelection(new TrackGroup(format), injectedBandwidthMeter, /* tracks= */ 0);
-    adaptiveTrackSelection.updateSelectedTrack(
+            .createTrackSelections(
+                new Definition[] {
+                  new Definition(new TrackGroup(format1, format2), /* tracks= */ 0, 1)
+                },
+                injectedBandwidthMeter);
+    trackSelections[0].updateSelectedTrack(
         /* playbackPositionUs= */ 0,
         /* bufferedDurationUs= */ 0,
         /* availableDurationUs= */ C.TIME_UNSET,
@@ -238,7 +244,14 @@ public final class AdaptiveTrackSelectionTest {
 
     // But TrackBitrateEstimator returns 1500 for 3rd track so it should switch up.
     TrackBitrateEstimator estimator = mock(TrackBitrateEstimator.class);
-    when(estimator.getBitrates(any(), any(), any(), any())).thenReturn(new int[] {500, 1000, 1500});
+    when(estimator.getBitrates(any(), any(), any(), any()))
+        .then(
+            (invocation) -> {
+              int[] returnValue = new int[] {500, 1000, 1500};
+              int[] inputArray = (int[]) invocation.getArguments()[3];
+              System.arraycopy(returnValue, 0, inputArray, 0, returnValue.length);
+              return returnValue;
+            });
 
     adaptiveTrackSelection = adaptiveTrackSelection(trackGroup);
     adaptiveTrackSelection.experimental_setTrackBitrateEstimator(estimator);
@@ -379,49 +392,64 @@ public final class AdaptiveTrackSelectionTest {
 
   private AdaptiveTrackSelection adaptiveTrackSelectionWithMinDurationForQualityIncreaseMs(
       TrackGroup trackGroup, long minDurationForQualityIncreaseMs) {
-    return new AdaptiveTrackSelection(
-        trackGroup,
-        selectedAllTracksInGroup(trackGroup),
-        mockBandwidthMeter,
-        minDurationForQualityIncreaseMs,
-        AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
-        AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
-        /* bandwidthFraction= */ 1.0f,
-        AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-        AdaptiveTrackSelection.DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
-        fakeClock);
+    return prepareTrackSelection(
+        new AdaptiveTrackSelection(
+            trackGroup,
+            selectedAllTracksInGroup(trackGroup),
+            mockBandwidthMeter,
+            minDurationForQualityIncreaseMs,
+            AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
+            AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+            /* bandwidthFraction= */ 1.0f,
+            AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
+            AdaptiveTrackSelection.DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
+            fakeClock));
   }
 
   private AdaptiveTrackSelection adaptiveTrackSelectionWithMaxDurationForQualityDecreaseMs(
       TrackGroup trackGroup, long maxDurationForQualityDecreaseMs) {
-    return new AdaptiveTrackSelection(
-        trackGroup,
-        selectedAllTracksInGroup(trackGroup),
-        mockBandwidthMeter,
-        AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
-        maxDurationForQualityDecreaseMs,
-        AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
-        /* bandwidthFraction= */ 1.0f,
-        AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-        AdaptiveTrackSelection.DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
-        fakeClock);
+    return prepareTrackSelection(
+        new AdaptiveTrackSelection(
+            trackGroup,
+            selectedAllTracksInGroup(trackGroup),
+            mockBandwidthMeter,
+            AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
+            maxDurationForQualityDecreaseMs,
+            AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+            /* bandwidthFraction= */ 1.0f,
+            AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
+            AdaptiveTrackSelection.DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
+            fakeClock));
   }
 
   private AdaptiveTrackSelection adaptiveTrackSelectionWithMinTimeBetweenBufferReevaluationMs(
       TrackGroup trackGroup,
       long durationToRetainAfterDiscardMs,
       long minTimeBetweenBufferReevaluationMs) {
-    return new AdaptiveTrackSelection(
-        trackGroup,
-        selectedAllTracksInGroup(trackGroup),
-        mockBandwidthMeter,
-        AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
-        AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
-        durationToRetainAfterDiscardMs,
-        /* bandwidthFraction= */ 1.0f,
-        AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-        minTimeBetweenBufferReevaluationMs,
-        fakeClock);
+    return prepareTrackSelection(
+        new AdaptiveTrackSelection(
+            trackGroup,
+            selectedAllTracksInGroup(trackGroup),
+            mockBandwidthMeter,
+            AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
+            AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
+            durationToRetainAfterDiscardMs,
+            /* bandwidthFraction= */ 1.0f,
+            AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
+            minTimeBetweenBufferReevaluationMs,
+            fakeClock));
+  }
+
+  private AdaptiveTrackSelection prepareTrackSelection(
+      AdaptiveTrackSelection adaptiveTrackSelection) {
+    adaptiveTrackSelection.enable();
+    adaptiveTrackSelection.updateSelectedTrack(
+        /* playbackPositionUs= */ 0,
+        /* bufferedDurationUs= */ 0,
+        /* availableDurationUs= */ C.TIME_UNSET,
+        /* queue= */ Collections.emptyList(),
+        /* mediaChunkIterators= */ THREE_EMPTY_MEDIA_CHUNK_ITERATORS);
+    return adaptiveTrackSelection;
   }
 
   private int[] selectedAllTracksInGroup(TrackGroup trackGroup) {

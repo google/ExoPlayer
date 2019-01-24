@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
@@ -201,6 +202,8 @@ public class DownloadManagerDashTest {
     assertCacheEmpty(cache);
   }
 
+  // Disabled due to flakiness [Internal: b/122290449].
+  @Ignore
   @Test
   public void testHandleInterferingRemoveAction() throws Throwable {
     final ConditionVariable downloadInProgressCondition = new ConditionVariable();
@@ -239,15 +242,16 @@ public class DownloadManagerDashTest {
           Factory fakeDataSourceFactory = new FakeDataSource.Factory().setFakeDataSet(fakeDataSet);
           downloadManager =
               new DownloadManager(
+                  RuntimeEnvironment.application,
                   actionFile,
                   new DefaultDownloaderFactory(
                       new DownloaderConstructorHelper(cache, fakeDataSourceFactory)),
                   /* maxSimultaneousDownloads= */ 1,
-                  /* minRetryCount= */ 3);
+                  /* minRetryCount= */ 3,
+                  new Requirements(0));
 
           downloadManagerListener =
               new TestDownloadManagerListener(downloadManager, dummyMainThread);
-          downloadManager.addListener(downloadManagerListener);
           downloadManager.startDownloads();
         });
   }

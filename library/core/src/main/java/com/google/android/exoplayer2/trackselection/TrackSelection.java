@@ -21,8 +21,8 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
+import com.google.android.exoplayer2.trackselection.TrackSelectionUtil.AdaptiveTrackSelectionFactory;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.util.Assertions;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -61,42 +61,31 @@ public interface TrackSelection {
   interface Factory {
 
     /**
-     * Creates a new selection.
-     *
-     * @param group The {@link TrackGroup}. Must not be null.
-     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
-     * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
-     *     null or empty. May be in any order.
-     * @return The created selection.
+     * @deprecated Implement {@link #createTrackSelections(Definition[], BandwidthMeter)} instead.
+     *     Calling {@link TrackSelectionUtil#createTrackSelectionsForDefinitions(Definition[],
+     *     AdaptiveTrackSelectionFactory)} helps to create a single adaptive track selection in the
+     *     same way as using this deprecated method.
      */
-    TrackSelection createTrackSelection(
-        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks);
+    @Deprecated
+    default TrackSelection createTrackSelection(
+        TrackGroup group, BandwidthMeter bandwidthMeter, int... tracks) {
+      throw new UnsupportedOperationException();
+    }
 
     /**
      * Creates a new selection for each {@link Definition}.
      *
      * @param definitions A {@link Definition} array. May include null values.
      * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
-     * @return The created selections. For null entries in {@code definitions} returns null values.
+     * @return The created selections. Must have the same length as {@code definitions} and may
+     *     include null values.
      */
+    @SuppressWarnings("deprecation")
     default @NullableType TrackSelection[] createTrackSelections(
         @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
-      TrackSelection[] selections = new TrackSelection[definitions.length];
-      boolean createdAdaptiveTrackSelection = false;
-      for (int i = 0; i < definitions.length; i++) {
-        Definition definition = definitions[i];
-        if (definition == null) {
-          continue;
-        }
-        if (definition.tracks.length > 1) {
-          Assertions.checkState(!createdAdaptiveTrackSelection);
-          createdAdaptiveTrackSelection = true;
-          selections[i] = createTrackSelection(definition.group, bandwidthMeter, definition.tracks);
-        } else {
-          selections[i] = new FixedTrackSelection(definition.group, definition.tracks[0]);
-        }
-      }
-      return selections;
+      return TrackSelectionUtil.createTrackSelectionsForDefinitions(
+          definitions,
+          definition -> createTrackSelection(definition.group, bandwidthMeter, definition.tracks));
     }
   }
 

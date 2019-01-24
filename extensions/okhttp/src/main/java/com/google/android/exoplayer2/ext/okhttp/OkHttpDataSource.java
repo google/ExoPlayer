@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
 import com.google.android.exoplayer2.upstream.BaseDataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -263,7 +264,6 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   private Request makeRequest(DataSpec dataSpec) throws HttpDataSourceException {
     long position = dataSpec.position;
     long length = dataSpec.length;
-    boolean allowGzip = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP);
 
     HttpUrl url = HttpUrl.parse(dataSpec.uri.toString());
     if (url == null) {
@@ -293,9 +293,13 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     if (userAgent != null) {
       builder.addHeader("User-Agent", userAgent);
     }
-
-    if (!allowGzip) {
+    if (!dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP)) {
       builder.addHeader("Accept-Encoding", "identity");
+    }
+    if (dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_ICY_METADATA)) {
+      builder.addHeader(
+          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_NAME,
+          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_VALUE);
     }
     RequestBody requestBody = null;
     if (dataSpec.httpBody != null) {

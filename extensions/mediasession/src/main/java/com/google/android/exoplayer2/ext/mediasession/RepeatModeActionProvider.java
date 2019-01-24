@@ -22,9 +22,7 @@ import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 
-/**
- * Provides a custom action for toggling repeat modes.
- */
+/** Provides a custom action for toggling repeat modes. */
 public final class RepeatModeActionProvider implements MediaSessionConnector.CustomActionProvider {
 
   /** The default repeat toggle modes. */

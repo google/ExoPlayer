@@ -79,8 +79,19 @@ public class FakeTrackSelector extends DefaultTrackSelector {
     }
 
     @Override
-    public TrackSelection createTrackSelection(
-        TrackGroup trackGroup, BandwidthMeter bandwidthMeter, int... tracks) {
+    public TrackSelection[] createTrackSelections(
+        TrackSelection.Definition[] definitions, BandwidthMeter bandwidthMeter) {
+      TrackSelection[] selections = new TrackSelection[definitions.length];
+      for (int i = 0; i < definitions.length; i++) {
+        TrackSelection.Definition definition = definitions[i];
+        if (definition != null) {
+          selections[i] = createTrackSelection(definition.group);
+        }
+      }
+      return selections;
+    }
+
+    private TrackSelection createTrackSelection(TrackGroup trackGroup) {
       if (mayReuseTrackSelection) {
         for (FakeTrackSelection trackSelection : trackSelections) {
           if (trackSelection.getTrackGroup().equals(trackGroup)) {
@@ -91,19 +102,6 @@ public class FakeTrackSelector extends DefaultTrackSelector {
       FakeTrackSelection trackSelection = new FakeTrackSelection(trackGroup);
       trackSelections.add(trackSelection);
       return trackSelection;
-    }
-
-    @Override
-    public TrackSelection[] createTrackSelections(
-        TrackSelection.Definition[] definitions, BandwidthMeter bandwidthMeter) {
-      TrackSelection[] selections = new TrackSelection[definitions.length];
-      for (int i = 0; i < definitions.length; i++) {
-        TrackSelection.Definition definition = definitions[i];
-        if (definition != null) {
-          selections[i] = createTrackSelection(definition.group, bandwidthMeter, definition.tracks);
-        }
-      }
-      return selections;
     }
   }
 }

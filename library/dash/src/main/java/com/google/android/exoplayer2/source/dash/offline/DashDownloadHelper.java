@@ -16,22 +16,25 @@
 package com.google.android.exoplayer2.source.dash.offline;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.offline.TrackKey;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /** A {@link DownloadHelper} for DASH streams. */
@@ -39,8 +42,52 @@ public final class DashDownloadHelper extends DownloadHelper<DashManifest> {
 
   private final DataSource.Factory manifestDataSourceFactory;
 
-  public DashDownloadHelper(Uri uri, DataSource.Factory manifestDataSourceFactory) {
-    super(DownloadAction.TYPE_DASH, uri, /* cacheKey= */ null);
+  /**
+   * Creates a DASH download helper.
+   *
+   * <p>The helper uses {@link DownloadHelper#DEFAULT_TRACK_SELECTOR_PARAMETERS} for track selection
+   * and does not support drm protected content.
+   *
+   * @param uri A manifest {@link Uri}.
+   * @param manifestDataSourceFactory A {@link DataSource.Factory} used to load the manifest.
+   * @param renderersFactory The {@link RenderersFactory} creating the renderers for which tracks
+   *     are selected.
+   */
+  public DashDownloadHelper(
+      Uri uri, DataSource.Factory manifestDataSourceFactory, RenderersFactory renderersFactory) {
+    this(
+        uri,
+        manifestDataSourceFactory,
+        DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
+        renderersFactory,
+        /* drmSessionManager= */ null);
+  }
+
+  /**
+   * Creates a DASH download helper.
+   *
+   * @param uri A manifest {@link Uri}.
+   * @param manifestDataSourceFactory A {@link DataSource.Factory} used to load the manifest.
+   * @param trackSelectorParameters {@link DefaultTrackSelector.Parameters} for selecting tracks for
+   *     downloading.
+   * @param renderersFactory The {@link RenderersFactory} creating the renderers for which tracks
+   *     are selected.
+   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers created by
+   *     {@code renderersFactory}.
+   */
+  public DashDownloadHelper(
+      Uri uri,
+      DataSource.Factory manifestDataSourceFactory,
+      DefaultTrackSelector.Parameters trackSelectorParameters,
+      RenderersFactory renderersFactory,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    super(
+        DownloadAction.TYPE_DASH,
+        uri,
+        /* cacheKey= */ null,
+        trackSelectorParameters,
+        renderersFactory,
+        drmSessionManager);
     this.manifestDataSourceFactory = manifestDataSourceFactory;
   }
 
@@ -72,12 +119,8 @@ public final class DashDownloadHelper extends DownloadHelper<DashManifest> {
   }
 
   @Override
-  protected List<StreamKey> toStreamKeys(List<TrackKey> trackKeys) {
-    List<StreamKey> streamKeys = new ArrayList<>(trackKeys.size());
-    for (int i = 0; i < trackKeys.size(); i++) {
-      TrackKey trackKey = trackKeys.get(i);
-      streamKeys.add(new StreamKey(trackKey.periodIndex, trackKey.groupIndex, trackKey.trackIndex));
-    }
-    return streamKeys;
+  protected StreamKey toStreamKey(
+      int periodIndex, int trackGroupIndex, int trackIndexInTrackGroup) {
+    return new StreamKey(periodIndex, trackGroupIndex, trackIndexInTrackGroup);
   }
 }

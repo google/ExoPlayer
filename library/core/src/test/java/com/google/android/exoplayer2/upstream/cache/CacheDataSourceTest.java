@@ -47,7 +47,7 @@ import org.robolectric.RuntimeEnvironment;
 public final class CacheDataSourceTest {
 
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  private static final int MAX_CACHE_FILE_SIZE = 3;
+  private static final int CACHE_FRAGMENT_SIZE = 3;
   private static final String DATASPEC_KEY = "dataSpecKey";
 
   private Uri testDataUri;
@@ -81,13 +81,13 @@ public final class CacheDataSourceTest {
   }
 
   @Test
-  public void testMaxCacheFileSize() throws Exception {
+  public void testFragmentSize() throws Exception {
     CacheDataSource cacheDataSource = createCacheDataSource(false, false);
     assertReadDataContentLength(cacheDataSource, boundedDataSpec, false, false);
     for (String key : cache.getKeys()) {
       for (CacheSpan cacheSpan : cache.getCachedSpans(key)) {
-        assertThat(cacheSpan.length <= MAX_CACHE_FILE_SIZE).isTrue();
-        assertThat(cacheSpan.file.length() <= MAX_CACHE_FILE_SIZE).isTrue();
+        assertThat(cacheSpan.length <= CACHE_FRAGMENT_SIZE).isTrue();
+        assertThat(cacheSpan.file.length() <= CACHE_FRAGMENT_SIZE).isTrue();
       }
     }
   }
@@ -247,7 +247,8 @@ public final class CacheDataSourceTest {
     // Read partial at EOS but don't cross it so length is unknown.
     CacheDataSource cacheDataSource = createCacheDataSource(false, true);
     assertReadData(cacheDataSource, dataSpec, true);
-    assertThat(cache.getContentLength(defaultCacheKey)).isEqualTo(C.LENGTH_UNSET);
+    assertThat(ContentMetadata.getContentLength(cache.getContentMetadata(defaultCacheKey)))
+        .isEqualTo(C.LENGTH_UNSET);
 
     // Now do an unbounded request for whole data. This will cause a bounded request from upstream.
     // End of data from upstream shouldn't be mixed up with EOS and cause length set wrong.
@@ -285,7 +286,8 @@ public final class CacheDataSourceTest {
     cacheDataSource.close();
 
     assertThat(upstream.getAndClearOpenedDataSpecs()).hasLength(1);
-    assertThat(cache.getContentLength(defaultCacheKey)).isEqualTo(TEST_DATA.length);
+    assertThat(ContentMetadata.getContentLength(cache.getContentMetadata(defaultCacheKey)))
+        .isEqualTo(TEST_DATA.length);
   }
 
   @Test
@@ -467,11 +469,7 @@ public final class CacheDataSourceTest {
     NavigableSet<CacheSpan> cachedSpans = cache.getCachedSpans(defaultCacheKey);
     for (CacheSpan cachedSpan : cachedSpans) {
       if (cachedSpan.position >= halfDataLength) {
-        try {
-          cache.removeSpan(cachedSpan);
-        } catch (Cache.CacheException e) {
-          // do nothing
-        }
+        cache.removeSpan(cachedSpan);
       }
     }
 
@@ -516,7 +514,9 @@ public final class CacheDataSourceTest {
     // If the request was unbounded then the content length should be cached, either because the
     // content length was known or because EOS was read. If the request was bounded then the content
     // length will not have been determined.
-    assertThat(cache.getContentLength(customCacheKey ? this.customCacheKey : defaultCacheKey))
+    ContentMetadata metadata =
+        cache.getContentMetadata(customCacheKey ? this.customCacheKey : defaultCacheKey);
+    assertThat(ContentMetadata.getContentLength(metadata))
         .isEqualTo(dataSpec.length == C.LENGTH_UNSET ? TEST_DATA.length : C.LENGTH_UNSET);
   }
 
@@ -548,14 +548,14 @@ public final class CacheDataSourceTest {
         setReadException,
         unknownLength,
         CacheDataSource.FLAG_BLOCK_ON_CACHE,
-        new CacheDataSink(cache, MAX_CACHE_FILE_SIZE),
+        new CacheDataSink(cache, CACHE_FRAGMENT_SIZE),
         cacheKeyFactory);
   }
 
   private CacheDataSource createCacheDataSource(
       boolean setReadException, boolean unknownLength, @CacheDataSource.Flags int flags) {
     return createCacheDataSource(
-        setReadException, unknownLength, flags, new CacheDataSink(cache, MAX_CACHE_FILE_SIZE));
+        setReadException, unknownLength, flags, new CacheDataSink(cache, CACHE_FRAGMENT_SIZE));
   }
 
   private CacheDataSource createCacheDataSource(
@@ -602,6 +602,7 @@ public final class CacheDataSourceTest {
   }
 
   private DataSpec buildDataSpec(long position, long length, @Nullable String key) {
-    return new DataSpec(testDataUri, position, length, key);
+    return new DataSpec(
+        testDataUri, position, length, key, DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION);
   }
 }

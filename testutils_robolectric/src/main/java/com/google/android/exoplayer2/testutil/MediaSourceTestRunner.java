@@ -17,17 +17,13 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-import static org.junit.Assert.fail;
 
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Pair;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -54,7 +50,6 @@ public class MediaSourceTestRunner {
 
   public static final int TIMEOUT_MS = 10000;
 
-  private final StubExoPlayer player;
   private final MediaSource mediaSource;
   private final MediaSourceListener mediaSourceListener;
   private final HandlerThread playbackThread;
@@ -79,7 +74,6 @@ public class MediaSourceTestRunner {
     playbackThread.start();
     Looper playbackLooper = playbackThread.getLooper();
     playbackHandler = new Handler(playbackLooper);
-    player = new EventHandlingExoPlayer(playbackLooper);
     mediaSourceListener = new MediaSourceListener();
     timelines = new LinkedBlockingDeque<>();
     completedLoads = new CopyOnWriteArrayList<>();
@@ -121,11 +115,7 @@ public class MediaSourceTestRunner {
     final IOException[] prepareError = new IOException[1];
     runOnPlaybackThread(
         () -> {
-          mediaSource.prepareSource(
-              player,
-              /* isTopLevelSource= */ true,
-              mediaSourceListener,
-              /* mediaTransferListener= */ null);
+          mediaSource.prepareSource(mediaSourceListener, /* mediaTransferListener= */ null);
           try {
             // TODO: This only catches errors that are set synchronously in prepareSource. To
             // capture async errors we'll need to poll maybeThrowSourceInfoRefreshError until the
@@ -142,15 +132,28 @@ public class MediaSourceTestRunner {
   }
 
   /**
-   * Calls {@link MediaSource#createPeriod(MediaSource.MediaPeriodId, Allocator)} on the playback
-   * thread, asserting that a non-null {@link MediaPeriod} is returned.
+   * Calls {@link MediaSource#createPeriod(MediaSource.MediaPeriodId, Allocator, long)} with a zero
+   * start position on the playback thread, asserting that a non-null {@link MediaPeriod} is
+   * returned.
    *
    * @param periodId The id of the period to create.
    * @return The created {@link MediaPeriod}.
    */
   public MediaPeriod createPeriod(final MediaPeriodId periodId) {
+    return createPeriod(periodId, /* startPositionUs= */ 0);
+  }
+
+  /**
+   * Calls {@link MediaSource#createPeriod(MediaSource.MediaPeriodId, Allocator, long)} on the
+   * playback thread, asserting that a non-null {@link MediaPeriod} is returned.
+   *
+   * @param periodId The id of the period to create.
+   * @return The created {@link MediaPeriod}.
+   */
+  public MediaPeriod createPeriod(final MediaPeriodId periodId, long startPositionUs) {
     final MediaPeriod[] holder = new MediaPeriod[1];
-    runOnPlaybackThread(() -> holder[0] = mediaSource.createPeriod(periodId, allocator));
+    runOnPlaybackThread(
+        () -> holder[0] = mediaSource.createPeriod(periodId, allocator, startPositionUs));
     assertThat(holder[0]).isNotNull();
     return holder[0];
   }
@@ -415,45 +418,6 @@ public class MediaSourceTestRunner {
     public void onDownstreamFormatChanged(
         int windowIndex, @Nullable MediaPeriodId mediaPeriodId, MediaLoadData mediaLoadData) {
       Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
-    }
-  }
-
-  private static class EventHandlingExoPlayer extends StubExoPlayer
-      implements Handler.Callback, PlayerMessage.Sender {
-
-    private final Handler handler;
-
-    public EventHandlingExoPlayer(Looper looper) {
-      this.handler = new Handler(looper, this);
-    }
-
-    @Override
-    public Looper getApplicationLooper() {
-      return handler.getLooper();
-    }
-
-    @Override
-    public PlayerMessage createMessage(PlayerMessage.Target target) {
-      return new PlayerMessage(
-          /* sender= */ this, target, Timeline.EMPTY, /* defaultWindowIndex= */ 0, handler);
-    }
-
-    @Override
-    public void sendMessage(PlayerMessage message) {
-      handler.obtainMessage(0, message).sendToTarget();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public boolean handleMessage(Message msg) {
-      PlayerMessage message = (PlayerMessage) msg.obj;
-      try {
-        message.getTarget().handleMessage(message.getType(), message.getPayload());
-        message.markAsProcessed(/* isDelivered= */ true);
-      } catch (ExoPlaybackException e) {
-        fail("Unexpected ExoPlaybackException.");
-      }
-      return true;
     }
   }
 }

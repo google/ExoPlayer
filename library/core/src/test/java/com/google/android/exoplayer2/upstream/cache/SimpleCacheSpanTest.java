@@ -36,8 +36,9 @@ import org.robolectric.RuntimeEnvironment;
 @RunWith(RobolectricTestRunner.class)
 public class SimpleCacheSpanTest {
 
-  public static File createCacheSpanFile(File cacheDir, int id, long offset, int length,
-      long lastAccessTimestamp) throws IOException {
+  public static File createCacheSpanFile(
+      File cacheDir, int id, long offset, long length, long lastAccessTimestamp)
+      throws IOException {
     File cacheFile = SimpleCacheSpan.getCacheFile(cacheDir, id, offset, lastAccessTimestamp);
     createTestFile(cacheFile, length);
     return cacheFile;
@@ -87,7 +88,7 @@ public class SimpleCacheSpanTest {
     File v1File = createTestFile("abc%def.5.6.v1.exo"); // V1 did not escape
 
     for (File file : cacheDir.listFiles()) {
-      SimpleCacheSpan cacheEntry = SimpleCacheSpan.createCacheEntry(file, index);
+      SimpleCacheSpan cacheEntry = SimpleCacheSpan.createCacheEntry(file, file.length(), index);
       if (file.equals(wrongEscapedV2file)) {
         assertThat(cacheEntry).isNull();
       } else {
@@ -112,7 +113,7 @@ public class SimpleCacheSpanTest {
 
     HashMap<Long, Long> cachedPositions = new HashMap<>();
     for (File file : files) {
-      SimpleCacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(file, index);
+      SimpleCacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(file, file.length(), index);
       if (cacheSpan != null) {
         assertThat(cacheSpan.key).isEqualTo(key);
         cachedPositions.put(cacheSpan.position, cacheSpan.lastAccessTimestamp);
@@ -124,7 +125,7 @@ public class SimpleCacheSpanTest {
     assertThat(cachedPositions.get((long) 5)).isEqualTo(6);
   }
 
-  private static void createTestFile(File file, int length) throws IOException {
+  private static void createTestFile(File file, long length) throws IOException {
     FileOutputStream output = new FileOutputStream(file);
     for (int i = 0; i < length; i++) {
       output.write(i);
@@ -141,8 +142,10 @@ public class SimpleCacheSpanTest {
   private void assertCacheSpan(String key, long offset, long lastAccessTimestamp)
       throws IOException {
     int id = index.assignIdForKey(key);
-    File cacheFile = createCacheSpanFile(cacheDir, id, offset, 1, lastAccessTimestamp);
-    SimpleCacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(cacheFile, index);
+    long cacheFileLength = 1;
+    File cacheFile =
+        createCacheSpanFile(cacheDir, id, offset, cacheFileLength, lastAccessTimestamp);
+    SimpleCacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(cacheFile, cacheFileLength, index);
     String message = cacheFile.toString();
     assertWithMessage(message).that(cacheSpan).isNotNull();
     assertWithMessage(message).that(cacheFile.getParentFile()).isEqualTo(cacheDir);
@@ -156,9 +159,10 @@ public class SimpleCacheSpanTest {
 
   private void assertNullCacheSpan(File parent, String key, long offset,
       long lastAccessTimestamp) {
+    long cacheFileLength = 0;
     File cacheFile = SimpleCacheSpan.getCacheFile(parent, index.assignIdForKey(key), offset,
         lastAccessTimestamp);
-    CacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(cacheFile, index);
+    CacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(cacheFile, cacheFileLength, index);
     assertWithMessage(cacheFile.toString()).that(cacheSpan).isNull();
   }
 

@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ext.ima;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.ViewGroup;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -33,7 +32,8 @@ import java.io.IOException;
 /**
  * A {@link MediaSource} that inserts ads linearly with a provided content media source.
  *
- * @deprecated Use com.google.android.exoplayer2.source.ads.AdsMediaSource with ImaAdsLoader.
+ * @deprecated Use {@link com.google.android.exoplayer2.source.ads.AdsMediaSource} with
+ *     ImaAdsLoader.
  */
 @Deprecated
 public final class ImaAdsMediaSource extends BaseMediaSource implements SourceInfoRefreshListener {
@@ -83,12 +83,8 @@ public final class ImaAdsMediaSource extends BaseMediaSource implements SourceIn
   }
 
   @Override
-  public void prepareSourceInternal(
-      final ExoPlayer player,
-      boolean isTopLevelSource,
-      @Nullable TransferListener mediaTransferListener) {
-    adsMediaSource.prepareSource(
-        player, isTopLevelSource, /* listener= */ this, mediaTransferListener);
+  public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+    adsMediaSource.prepareSource(/* listener= */ this, mediaTransferListener);
   }
 
   @Override
@@ -97,8 +93,8 @@ public final class ImaAdsMediaSource extends BaseMediaSource implements SourceIn
   }
 
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-    return adsMediaSource.createPeriod(id, allocator);
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
+    return adsMediaSource.createPeriod(id, allocator, startPositionUs);
   }
 
   @Override

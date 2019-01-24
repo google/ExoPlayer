@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
 import com.google.android.exoplayer2.upstream.PriorityDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.Cache;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSink;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSinkFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
@@ -108,16 +109,18 @@ public final class DownloaderConstructorHelper {
         cacheReadDataSourceFactory != null
             ? cacheReadDataSourceFactory
             : new FileDataSourceFactory();
-    DataSink.Factory writeDataSinkFactory =
-        cacheWriteDataSinkFactory != null
-            ? cacheWriteDataSinkFactory
-            : new CacheDataSinkFactory(cache, CacheDataSource.DEFAULT_MAX_CACHE_FILE_SIZE);
+    if (cacheWriteDataSinkFactory == null) {
+      CacheDataSinkFactory factory =
+          new CacheDataSinkFactory(cache, CacheDataSink.DEFAULT_FRAGMENT_SIZE);
+      factory.experimental_setRespectCacheFragmentationFlag(true);
+      cacheWriteDataSinkFactory = factory;
+    }
     onlineCacheDataSourceFactory =
         new CacheDataSourceFactory(
             cache,
             upstreamFactory,
             readDataSourceFactory,
-            writeDataSinkFactory,
+            cacheWriteDataSinkFactory,
             CacheDataSource.FLAG_BLOCK_ON_CACHE,
             /* eventListener= */ null,
             cacheKeyFactory);
