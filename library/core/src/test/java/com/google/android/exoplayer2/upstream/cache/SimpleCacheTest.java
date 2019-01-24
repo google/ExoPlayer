@@ -47,6 +47,7 @@ import org.robolectric.RuntimeEnvironment;
 public class SimpleCacheTest {
 
   private static final String KEY_1 = "key1";
+  private static final String KEY_2 = "key2";
 
   private File cacheDir;
 
@@ -105,18 +106,26 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testSetGetLength() throws Exception {
+  public void testSetGetContentMetadata() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
 
-    assertThat(simpleCache.getContentLength(KEY_1)).isEqualTo(LENGTH_UNSET);
+    assertThat(ContentMetadata.getContentLength(simpleCache.getContentMetadata(KEY_1)))
+        .isEqualTo(LENGTH_UNSET);
 
-    simpleCache.setContentLength(KEY_1, 15);
-    assertThat(simpleCache.getContentLength(KEY_1)).isEqualTo(15);
+    ContentMetadataMutations mutations = new ContentMetadataMutations();
+    ContentMetadataMutations.setContentLength(mutations, 15);
+    simpleCache.applyContentMetadataMutations(KEY_1, mutations);
+    assertThat(ContentMetadata.getContentLength(simpleCache.getContentMetadata(KEY_1)))
+        .isEqualTo(15);
 
     simpleCache.startReadWrite(KEY_1, 0);
     addCache(simpleCache, KEY_1, 0, 15);
-    simpleCache.setContentLength(KEY_1, 150);
-    assertThat(simpleCache.getContentLength(KEY_1)).isEqualTo(150);
+
+    mutations = new ContentMetadataMutations();
+    ContentMetadataMutations.setContentLength(mutations, 150);
+    simpleCache.applyContentMetadataMutations(KEY_1, mutations);
+    assertThat(ContentMetadata.getContentLength(simpleCache.getContentMetadata(KEY_1)))
+        .isEqualTo(150);
 
     addCache(simpleCache, KEY_1, 140, 10);
 
@@ -124,14 +133,16 @@ public class SimpleCacheTest {
 
     // Check if values are kept after cache is reloaded.
     SimpleCache simpleCache2 = getSimpleCache();
-    assertThat(simpleCache2.getContentLength(KEY_1)).isEqualTo(150);
+    assertThat(ContentMetadata.getContentLength(simpleCache2.getContentMetadata(KEY_1)))
+        .isEqualTo(150);
 
     // Removing the last span shouldn't cause the length be change next time cache loaded
     SimpleCacheSpan lastSpan = simpleCache2.startReadWrite(KEY_1, 145);
     simpleCache2.removeSpan(lastSpan);
     simpleCache2.release();
     simpleCache2 = getSimpleCache();
-    assertThat(simpleCache2.getContentLength(KEY_1)).isEqualTo(150);
+    assertThat(ContentMetadata.getContentLength(simpleCache2.getContentMetadata(KEY_1)))
+        .isEqualTo(150);
   }
 
   @Test
@@ -150,6 +161,40 @@ public class SimpleCacheTest {
     // read data back
     CacheSpan cacheSpan2 = simpleCache.startReadWrite(KEY_1, 0);
     assertCachedDataReadCorrect(cacheSpan2);
+  }
+
+  @Test
+  public void testReloadCacheWithoutRelease() throws Exception {
+    SimpleCache simpleCache = getSimpleCache();
+
+    // Write data for KEY_1.
+    CacheSpan cacheSpan1 = simpleCache.startReadWrite(KEY_1, 0);
+    addCache(simpleCache, KEY_1, 0, 15);
+    simpleCache.releaseHoleSpan(cacheSpan1);
+    // Write and remove data for KEY_2.
+    CacheSpan cacheSpan2 = simpleCache.startReadWrite(KEY_2, 0);
+    addCache(simpleCache, KEY_2, 0, 15);
+    simpleCache.releaseHoleSpan(cacheSpan2);
+    simpleCache.removeSpan(simpleCache.getCachedSpans(KEY_2).first());
+
+    // Don't release the cache. This means the index file wont have been written to disk after the
+    // data for KEY_2 was removed. Move the cache instead, so we can reload it without failing the
+    // folder locking check.
+    File cacheDir2 = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
+    cacheDir2.delete();
+    cacheDir.renameTo(cacheDir2);
+
+    // Reload the cache from its new location.
+    simpleCache = new SimpleCache(cacheDir2, new NoOpCacheEvictor());
+
+    // Read data back for KEY_1.
+    CacheSpan cacheSpan3 = simpleCache.startReadWrite(KEY_1, 0);
+    assertCachedDataReadCorrect(cacheSpan3);
+
+    // Check the entry for KEY_2 was removed when the cache was reloaded.
+    assertThat(simpleCache.getCachedSpans(KEY_2)).isEmpty();
+
+    Util.recursiveDelete(cacheDir2);
   }
 
   @Test
@@ -332,7 +377,7 @@ public class SimpleCacheTest {
     } finally {
       fos.close();
     }
-    simpleCache.commitFile(file);
+    simpleCache.commitFile(file, length);
   }
 
   private static void assertCachedDataReadCorrect(CacheSpan cacheSpan) throws IOException {

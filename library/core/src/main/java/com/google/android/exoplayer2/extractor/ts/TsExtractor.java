@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_PAYLOAD_UNIT_START_INDICATOR;
+
 import android.support.annotation.IntDef;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -279,6 +281,8 @@ public final class TsExtractor implements Extractor {
       return RESULT_CONTINUE;
     }
 
+    @TsPayloadReader.Flags int packetHeaderFlags = 0;
+
     // Note: See ISO/IEC 13818-1, section 2.4.3.2 for details of the header format.
     int tsPacketHeader = tsPacketBuffer.readInt();
     if ((tsPacketHeader & 0x800000) != 0) { // transport_error_indicator
@@ -286,7 +290,7 @@ public final class TsExtractor implements Extractor {
       tsPacketBuffer.setPosition(endOfPacket);
       return RESULT_CONTINUE;
     }
-    boolean payloadUnitStartIndicator = (tsPacketHeader & 0x400000) != 0;
+    packetHeaderFlags |= (tsPacketHeader & 0x400000) != 0 ? FLAG_PAYLOAD_UNIT_START_INDICATOR : 0;
     // Ignoring transport_priority (tsPacketHeader & 0x200000)
     int pid = (tsPacketHeader & 0x1FFF00) >> 8;
     // Ignoring transport_scrambling_control (tsPacketHeader & 0xC0)
@@ -317,14 +321,20 @@ public final class TsExtractor implements Extractor {
     // Skip the adaptation field.
     if (adaptationFieldExists) {
       int adaptationFieldLength = tsPacketBuffer.readUnsignedByte();
-      tsPacketBuffer.skipBytes(adaptationFieldLength);
+      int adaptationFieldFlags = tsPacketBuffer.readUnsignedByte();
+
+      packetHeaderFlags |=
+          (adaptationFieldFlags & 0x40) != 0 // random_access_indicator.
+              ? TsPayloadReader.FLAG_RANDOM_ACCESS_INDICATOR
+              : 0;
+      tsPacketBuffer.skipBytes(adaptationFieldLength - 1 /* flags */);
     }
 
     // Read the payload.
     boolean wereTracksEnded = tracksEnded;
     if (shouldConsumePacketPayload(pid)) {
       tsPacketBuffer.setLimit(endOfPacket);
-      payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator);
+      payloadReader.consume(tsPacketBuffer, packetHeaderFlags);
       tsPacketBuffer.setLimit(limit);
     }
     if (mode != MODE_HLS && !wereTracksEnded && tracksEnded && inputLength != C.LENGTH_UNSET) {

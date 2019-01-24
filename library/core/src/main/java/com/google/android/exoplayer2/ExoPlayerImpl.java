@@ -139,23 +139,31 @@ import java.util.concurrent.CopyOnWriteArrayList;
             repeatMode,
             shuffleModeEnabled,
             eventHandler,
-            this,
             clock);
     internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
   }
 
   @Override
+  @Nullable
   public AudioComponent getAudioComponent() {
     return null;
   }
 
   @Override
+  @Nullable
   public VideoComponent getVideoComponent() {
     return null;
   }
 
   @Override
+  @Nullable
   public TextComponent getTextComponent() {
+    return null;
+  }
+
+  @Override
+  @Nullable
+  public MetadataComponent getMetadataComponent() {
     return null;
   }
 

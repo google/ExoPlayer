@@ -292,7 +292,6 @@ public final class Cea608Decoder extends CeaDecoder {
   protected void decode(SubtitleInputBuffer inputBuffer) {
     ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());
     boolean captionDataProcessed = false;
-    boolean isRepeatableControl = false;
     while (ccData.bytesLeft() >= packetLength) {
       byte ccHeader = packetLength == 2 ? CC_IMPLICIT_DATA_HEADER
           : (byte) ccData.readUnsignedByte();
@@ -322,6 +321,9 @@ public final class Cea608Decoder extends CeaDecoder {
         // Ignore empty captions.
         continue;
       }
+
+      boolean repeatedControlPossible = repeatableControlSet;
+      repeatableControlSet = false;
 
       boolean previousCaptionValid = captionValid;
       captionValid = (ccHeader & CC_VALID_FLAG) == CC_VALID_FLAG;
@@ -372,7 +374,7 @@ public final class Cea608Decoder extends CeaDecoder {
       // Control character.
       // ccData1 - 0|0|0|X|X|X|X|X
       if ((ccData1 & 0xE0) == 0x00) {
-        isRepeatableControl = handleCtrl(ccData1, ccData2);
+        handleCtrl(ccData1, ccData2, repeatedControlPossible);
         continue;
       }
 
@@ -384,32 +386,24 @@ public final class Cea608Decoder extends CeaDecoder {
     }
 
     if (captionDataProcessed) {
-      if (!isRepeatableControl) {
-        repeatableControlSet = false;
-      }
       if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
         cues = getDisplayCues();
       }
     }
   }
 
-  private boolean handleCtrl(byte cc1, byte cc2) {
-    boolean isRepeatableControl = isRepeatable(cc1);
-
-    // Most control commands are sent twice in succession to ensure they are received properly.
-    // We don't want to process duplicate commands, so if we see the same repeatable command twice
-    // in a row, ignore the second one.
-    if (isRepeatableControl) {
-      if (repeatableControlSet
-          && repeatableControlCc1 == cc1
-          && repeatableControlCc2 == cc2) {
-        // This is a duplicate. Clear the repeatable control flag and return.
-        repeatableControlSet = false;
-        return true;
+  private void handleCtrl(byte cc1, byte cc2, boolean repeatedControlPossible) {
+    // Most control commands are sent twice in succession to ensure they are received properly. We
+    // don't want to process duplicate commands, so if we see the same repeatable command twice in a
+    // row then we ignore the second one.
+    if (isRepeatable(cc1)) {
+      if (repeatedControlPossible && repeatableControlCc1 == cc1 && repeatableControlCc2 == cc2) {
+        // This is a repeated command, so we ignore it.
+        return;
       } else {
-        // This is a repeatable command, but we haven't see it yet, so set the repeatable control
-        // flag (to ensure we ignore the next one should it be a duplicate) and continue processing
-        // the command.
+        // This is the first occurrence of a repeatable command. Set the repeatable control
+        // variables so that we can recognize and ignore a duplicate (if there is one), and then
+        // continue to process the command below.
         repeatableControlSet = true;
         repeatableControlCc1 = cc1;
         repeatableControlCc2 = cc2;
@@ -421,12 +415,10 @@ public final class Cea608Decoder extends CeaDecoder {
     } else if (isPreambleAddressCode(cc1, cc2)) {
       handlePreambleAddressCode(cc1, cc2);
     } else if (isTabCtrlCode(cc1, cc2)) {
-      currentCueBuilder.setTab(cc2 - 0x20);
+      currentCueBuilder.tabOffset = cc2 - 0x20;
     } else if (isMiscCode(cc1, cc2)) {
       handleMiscCode(cc2);
     }
-
-    return isRepeatableControl;
   }
 
   private void handleMidrowCtrl(byte cc2) {
@@ -456,12 +448,12 @@ public final class Cea608Decoder extends CeaDecoder {
       row++;
     }
 
-    if (row != currentCueBuilder.getRow()) {
+    if (row != currentCueBuilder.row) {
       if (captionMode != CC_MODE_ROLL_UP && !currentCueBuilder.isEmpty()) {
         currentCueBuilder = new CueBuilder(captionMode, captionRowCount);
         cueBuilders.add(currentCueBuilder);
       }
-      currentCueBuilder.setRow(row);
+      currentCueBuilder.row = row;
     }
 
     // cc2 - 0|1|N|0|STYLE|U
@@ -475,7 +467,7 @@ public final class Cea608Decoder extends CeaDecoder {
     currentCueBuilder.setStyle(isCursor ? STYLE_UNCHANGED : cursorOrStyle, underline);
 
     if (isCursor) {
-      currentCueBuilder.setIndent(COLUMN_INDICES[cursorOrStyle]);
+      currentCueBuilder.indent = COLUMN_INDICES[cursorOrStyle];
     }
   }
 
@@ -542,13 +534,34 @@ public final class Cea608Decoder extends CeaDecoder {
   }
 
   private List<Cue> getDisplayCues() {
-    List<Cue> displayCues = new ArrayList<>();
-    for (int i = 0; i < cueBuilders.size(); i++) {
-      Cue cue = cueBuilders.get(i).build();
+    // CEA-608 does not define middle and end alignment, however content providers artificially
+    // introduce them using whitespace. When each cue is built, we try and infer the alignment based
+    // on the amount of whitespace either side of the text. To avoid consecutive cues being aligned
+    // differently, we force all cues to have the same alignment, with start alignment given
+    // preference, then middle alignment, then end alignment.
+    @Cue.AnchorType int positionAnchor = Cue.ANCHOR_TYPE_END;
+    int cueBuilderCount = cueBuilders.size();
+    List<Cue> cueBuilderCues = new ArrayList<>(cueBuilderCount);
+    for (int i = 0; i < cueBuilderCount; i++) {
+      Cue cue = cueBuilders.get(i).build(/* forcedPositionAnchor= */ Cue.TYPE_UNSET);
+      cueBuilderCues.add(cue);
       if (cue != null) {
+        positionAnchor = Math.min(positionAnchor, cue.positionAnchor);
+      }
+    }
+
+    // Skip null cues and rebuild any that don't have the preferred alignment.
+    List<Cue> displayCues = new ArrayList<>(cueBuilderCount);
+    for (int i = 0; i < cueBuilderCount; i++) {
+      Cue cue = cueBuilderCues.get(i);
+      if (cue != null) {
+        if (cue.positionAnchor != positionAnchor) {
+          cue = cueBuilders.get(i).build(positionAnchor);
+        }
         displayCues.add(cue);
       }
     }
+
     return displayCues;
   }
 
@@ -672,6 +685,12 @@ public final class Cea608Decoder extends CeaDecoder {
       tabOffset = 0;
     }
 
+    public boolean isEmpty() {
+      return cueStyles.isEmpty()
+          && rolledUpCaptions.isEmpty()
+          && captionStringBuilder.length() == 0;
+    }
+
     public void setCaptionMode(int captionMode) {
       this.captionMode = captionMode;
     }
@@ -680,10 +699,8 @@ public final class Cea608Decoder extends CeaDecoder {
       this.captionRowCount = captionRowCount;
     }
 
-    public boolean isEmpty() {
-      return cueStyles.isEmpty()
-          && rolledUpCaptions.isEmpty()
-          && captionStringBuilder.length() == 0;
+    public void setStyle(int style, boolean underline) {
+      cueStyles.add(new CueStyle(style, underline, captionStringBuilder.length()));
     }
 
     public void backspace() {
@@ -703,16 +720,12 @@ public final class Cea608Decoder extends CeaDecoder {
       }
     }
 
-    public int getRow() {
-      return row;
-    }
-
-    public void setRow(int row) {
-      this.row = row;
+    public void append(char text) {
+      captionStringBuilder.append(text);
     }
 
     public void rollUp() {
-      rolledUpCaptions.add(buildSpannableString());
+      rolledUpCaptions.add(buildCurrentLine());
       captionStringBuilder.setLength(0);
       cueStyles.clear();
       int numRows = Math.min(captionRowCount, row);
@@ -721,23 +734,89 @@ public final class Cea608Decoder extends CeaDecoder {
       }
     }
 
-    public void setIndent(int indent) {
-      this.indent = indent;
+    public Cue build(@Cue.AnchorType int forcedPositionAnchor) {
+      SpannableStringBuilder cueString = new SpannableStringBuilder();
+      // Add any rolled up captions, separated by new lines.
+      for (int i = 0; i < rolledUpCaptions.size(); i++) {
+        cueString.append(rolledUpCaptions.get(i));
+        cueString.append('\n');
+      }
+      // Add the current line.
+      cueString.append(buildCurrentLine());
+
+      if (cueString.length() == 0) {
+        // The cue is empty.
+        return null;
+      }
+
+      int positionAnchor;
+      // The number of empty columns before the start of the text, in the range [0-31].
+      int startPadding = indent + tabOffset;
+      // The number of empty columns after the end of the text, in the same range.
+      int endPadding = SCREEN_CHARWIDTH - startPadding - cueString.length();
+      int startEndPaddingDelta = startPadding - endPadding;
+      if (forcedPositionAnchor != Cue.TYPE_UNSET) {
+        positionAnchor = forcedPositionAnchor;
+      } else if (captionMode == CC_MODE_POP_ON
+          && (Math.abs(startEndPaddingDelta) < 3 || endPadding < 0)) {
+        // Treat approximately centered pop-on captions as middle aligned. We also treat captions
+        // that are wider than they should be in this way. See
+        // https://github.com/google/ExoPlayer/issues/3534.
+        positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
+      } else if (captionMode == CC_MODE_POP_ON && startEndPaddingDelta > 0) {
+        // Treat pop-on captions with less padding at the end than the start as end aligned.
+        positionAnchor = Cue.ANCHOR_TYPE_END;
+      } else {
+        // For all other cases assume start aligned.
+        positionAnchor = Cue.ANCHOR_TYPE_START;
+      }
+
+      float position;
+      switch (positionAnchor) {
+        case Cue.ANCHOR_TYPE_MIDDLE:
+          position = 0.5f;
+          break;
+        case Cue.ANCHOR_TYPE_END:
+          position = (float) (SCREEN_CHARWIDTH - endPadding) / SCREEN_CHARWIDTH;
+          // Adjust the position to fit within the safe area.
+          position = position * 0.8f + 0.1f;
+          break;
+        case Cue.ANCHOR_TYPE_START:
+        default:
+          position = (float) startPadding / SCREEN_CHARWIDTH;
+          // Adjust the position to fit within the safe area.
+          position = position * 0.8f + 0.1f;
+          break;
+      }
+
+      int lineAnchor;
+      int line;
+      // Note: Row indices are in the range [1-15].
+      if (captionMode == CC_MODE_ROLL_UP || row > (BASE_ROW / 2)) {
+        lineAnchor = Cue.ANCHOR_TYPE_END;
+        line = row - BASE_ROW;
+        // Two line adjustments. The first is because line indices from the bottom of the window
+        // start from -1 rather than 0. The second is a blank row to act as the safe area.
+        line -= 2;
+      } else {
+        lineAnchor = Cue.ANCHOR_TYPE_START;
+        // Line indices from the top of the window start from 0, but we want a blank row to act as
+        // the safe area. As a result no adjustment is necessary.
+        line = row;
+      }
+
+      return new Cue(
+          cueString,
+          Alignment.ALIGN_NORMAL,
+          line,
+          Cue.LINE_TYPE_NUMBER,
+          lineAnchor,
+          position,
+          positionAnchor,
+          Cue.DIMEN_UNSET);
     }
 
-    public void setTab(int tabs) {
-      tabOffset = tabs;
-    }
-
-    public void setStyle(int style, boolean underline) {
-      cueStyles.add(new CueStyle(style, underline, captionStringBuilder.length()));
-    }
-
-    public void append(char text) {
-      captionStringBuilder.append(text);
-    }
-
-    public SpannableString buildSpannableString() {
+    private SpannableString buildCurrentLine() {
       SpannableStringBuilder builder = new SpannableStringBuilder(captionStringBuilder);
       int length = builder.length();
 
@@ -801,73 +880,6 @@ public final class Cea608Decoder extends CeaDecoder {
       }
 
       return new SpannableString(builder);
-    }
-
-    public Cue build() {
-      SpannableStringBuilder cueString = new SpannableStringBuilder();
-      // Add any rolled up captions, separated by new lines.
-      for (int i = 0; i < rolledUpCaptions.size(); i++) {
-        cueString.append(rolledUpCaptions.get(i));
-        cueString.append('\n');
-      }
-      // Add the current line.
-      cueString.append(buildSpannableString());
-
-      if (cueString.length() == 0) {
-        // The cue is empty.
-        return null;
-      }
-
-      float position;
-      int positionAnchor;
-      // The number of empty columns before the start of the text, in the range [0-31].
-      int startPadding = indent + tabOffset;
-      // The number of empty columns after the end of the text, in the same range.
-      int endPadding = SCREEN_CHARWIDTH - startPadding - cueString.length();
-      int startEndPaddingDelta = startPadding - endPadding;
-      if (captionMode == CC_MODE_POP_ON && (Math.abs(startEndPaddingDelta) < 3 || endPadding < 0)) {
-        // Treat approximately centered pop-on captions as middle aligned. We also treat captions
-        // that are wider than they should be in this way. See
-        // https://github.com/google/ExoPlayer/issues/3534.
-        position = 0.5f;
-        positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-      } else if (captionMode == CC_MODE_POP_ON && startEndPaddingDelta > 0) {
-        // Treat pop-on captions with less padding at the end than the start as end aligned.
-        position = (float) (SCREEN_CHARWIDTH - endPadding) / SCREEN_CHARWIDTH;
-        // Adjust the position to fit within the safe area.
-        position = position * 0.8f + 0.1f;
-        positionAnchor = Cue.ANCHOR_TYPE_END;
-      } else {
-        // For all other cases assume start aligned.
-        position = (float) startPadding / SCREEN_CHARWIDTH;
-        // Adjust the position to fit within the safe area.
-        position = position * 0.8f + 0.1f;
-        positionAnchor = Cue.ANCHOR_TYPE_START;
-      }
-
-      int lineAnchor;
-      int line;
-      // Note: Row indices are in the range [1-15].
-      if (captionMode == CC_MODE_ROLL_UP || row > (BASE_ROW / 2)) {
-        lineAnchor = Cue.ANCHOR_TYPE_END;
-        line = row - BASE_ROW;
-        // Two line adjustments. The first is because line indices from the bottom of the window
-        // start from -1 rather than 0. The second is a blank row to act as the safe area.
-        line -= 2;
-      } else {
-        lineAnchor = Cue.ANCHOR_TYPE_START;
-        // Line indices from the top of the window start from 0, but we want a blank row to act as
-        // the safe area. As a result no adjustment is necessary.
-        line = row;
-      }
-
-      return new Cue(cueString, Alignment.ALIGN_NORMAL, line, Cue.LINE_TYPE_NUMBER, lineAnchor,
-          position, positionAnchor, Cue.DIMEN_UNSET);
-    }
-
-    @Override
-    public String toString() {
-      return captionStringBuilder.toString();
     }
 
     private static void setUnderlineSpan(SpannableStringBuilder builder, int start, int end) {

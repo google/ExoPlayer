@@ -84,7 +84,10 @@ public final class CacheUtil {
       CachingCounters counters) {
     String key = buildCacheKey(dataSpec, cacheKeyFactory);
     long start = dataSpec.absoluteStreamPosition;
-    long left = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : cache.getContentLength(key);
+    long left =
+        dataSpec.length != C.LENGTH_UNSET
+            ? dataSpec.length
+            : ContentMetadata.getContentLength(cache.getContentMetadata(key));
     counters.contentLength = left;
     counters.alreadyCachedBytes = 0;
     counters.newlyCachedBytes = 0;
@@ -188,7 +191,10 @@ public final class CacheUtil {
 
     String key = buildCacheKey(dataSpec, cacheKeyFactory);
     long start = dataSpec.absoluteStreamPosition;
-    long left = dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : cache.getContentLength(key);
+    long left =
+        dataSpec.length != C.LENGTH_UNSET
+            ? dataSpec.length
+            : ContentMetadata.getContentLength(cache.getContentMetadata(key));
     while (left != 0) {
       throwExceptionIfInterruptedOrCancelled(isCanceled);
       long blockLength =

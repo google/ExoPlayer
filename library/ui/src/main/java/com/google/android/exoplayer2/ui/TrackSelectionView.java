@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -33,12 +32,24 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.Arrays;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A view for making track selections. */
 public class TrackSelectionView extends LinearLayout {
+
+  /** Callback which is invoked when a track selection has been made. */
+  public interface DialogCallback {
+
+    /**
+     * Called when track are selected.
+     *
+     * @param parameters The {@link DefaultTrackSelector.Parameters} for the selected tracks.
+     */
+    void onTracksSelected(DefaultTrackSelector.Parameters parameters);
+  }
 
   private final int selectableItemBackgroundResourceId;
   private final LayoutInflater inflater;
@@ -51,35 +62,64 @@ public class TrackSelectionView extends LinearLayout {
   private TrackNameProvider trackNameProvider;
   private CheckedTextView[][] trackViews;
 
-  private DefaultTrackSelector trackSelector;
+  private @MonotonicNonNull MappedTrackInfo mappedTrackInfo;
   private int rendererIndex;
+  private DefaultTrackSelector.Parameters parameters;
   private TrackGroupArray trackGroups;
   private boolean isDisabled;
-  private @Nullable SelectionOverride override;
+  @Nullable private SelectionOverride override;
 
   /**
    * Gets a pair consisting of a dialog and the {@link TrackSelectionView} that will be shown by it.
    *
-   * @param activity The parent activity.
+   * <p>The dialog shows the current configuration of the provided {@code TrackSelector} and updates
+   * the parameters when closing the dialog.
+   *
+   * @param context The parent context.
    * @param title The dialog's title.
    * @param trackSelector The track selector.
    * @param rendererIndex The index of the renderer.
    * @return The dialog and the {@link TrackSelectionView} that will be shown by it.
    */
   public static Pair<AlertDialog, TrackSelectionView> getDialog(
-      Activity activity,
+      Context context, CharSequence title, DefaultTrackSelector trackSelector, int rendererIndex) {
+    return getDialog(
+        context,
+        title,
+        Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo()),
+        rendererIndex,
+        trackSelector.getParameters(),
+        trackSelector::setParameters);
+  }
+
+  /**
+   * Gets a pair consisting of a dialog and the {@link TrackSelectionView} that will be shown by it.
+   *
+   * @param context The parent context.
+   * @param title The dialog's title.
+   * @param mappedTrackInfo The {@link MappedTrackInfo}.
+   * @param rendererIndex The index of the renderer.
+   * @param parameters The {@link DefaultTrackSelector.Parameters}.
+   * @param callback The {@link DialogCallback} invoked when the dialog is closed successfully.
+   * @return The dialog and the {@link TrackSelectionView} that will be shown by it.
+   */
+  public static Pair<AlertDialog, TrackSelectionView> getDialog(
+      Context context,
       CharSequence title,
-      DefaultTrackSelector trackSelector,
-      int rendererIndex) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+      MappedTrackInfo mappedTrackInfo,
+      int rendererIndex,
+      DefaultTrackSelector.Parameters parameters,
+      DialogCallback callback) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
     // Inflate with the builder's context to ensure the correct style is used.
     LayoutInflater dialogInflater = LayoutInflater.from(builder.getContext());
     View dialogView = dialogInflater.inflate(R.layout.exo_track_selection_dialog, null);
 
-    final TrackSelectionView selectionView = dialogView.findViewById(R.id.exo_track_selection_view);
-    selectionView.init(trackSelector, rendererIndex);
-    Dialog.OnClickListener okClickListener = (dialog, which) -> selectionView.applySelection();
+    TrackSelectionView selectionView = dialogView.findViewById(R.id.exo_track_selection_view);
+    selectionView.init(mappedTrackInfo, rendererIndex, parameters);
+    Dialog.OnClickListener okClickListener =
+        (dialog, which) -> callback.onTracksSelected(selectionView.getSelectionParameters());
 
     AlertDialog dialog =
         builder
@@ -113,6 +153,8 @@ public class TrackSelectionView extends LinearLayout {
     inflater = LayoutInflater.from(context);
     componentListener = new ComponentListener();
     trackNameProvider = new DefaultTrackNameProvider(getResources());
+    parameters = DefaultTrackSelector.Parameters.DEFAULT;
+    trackGroups = TrackGroupArray.EMPTY;
 
     // View for disabling the renderer.
     disableView =
@@ -176,16 +218,33 @@ public class TrackSelectionView extends LinearLayout {
   }
 
   /**
-   * Initialize the view to select tracks for a specified renderer using a {@link
-   * DefaultTrackSelector}.
+   * Initialize the view to select tracks for a specified renderer using {@link MappedTrackInfo} and
+   * a set of {@link DefaultTrackSelector.Parameters}.
    *
-   * @param trackSelector The {@link DefaultTrackSelector}.
+   * @param mappedTrackInfo The {@link MappedTrackInfo}.
    * @param rendererIndex The index of the renderer.
+   * @param parameters The {@link DefaultTrackSelector.Parameters}.
    */
-  public void init(DefaultTrackSelector trackSelector, int rendererIndex) {
-    this.trackSelector = trackSelector;
+  public void init(
+      MappedTrackInfo mappedTrackInfo,
+      int rendererIndex,
+      DefaultTrackSelector.Parameters parameters) {
+    this.mappedTrackInfo = mappedTrackInfo;
     this.rendererIndex = rendererIndex;
+    this.parameters = parameters;
     updateViews();
+  }
+
+  /** Returns the {@link DefaultTrackSelector.Parameters} for the current selection. */
+  public DefaultTrackSelector.Parameters getSelectionParameters() {
+    DefaultTrackSelector.ParametersBuilder parametersBuilder = parameters.buildUpon();
+    parametersBuilder.setRendererDisabled(rendererIndex, isDisabled);
+    if (override != null) {
+      parametersBuilder.setSelectionOverride(rendererIndex, trackGroups, override);
+    } else {
+      parametersBuilder.clearSelectionOverrides(rendererIndex);
+    }
+    return parametersBuilder.build();
   }
 
   // Private methods.
@@ -196,9 +255,7 @@ public class TrackSelectionView extends LinearLayout {
       removeViewAt(i);
     }
 
-    MappingTrackSelector.MappedTrackInfo trackInfo =
-        trackSelector == null ? null : trackSelector.getCurrentMappedTrackInfo();
-    if (trackSelector == null || trackInfo == null) {
+    if (mappedTrackInfo == null) {
       // The view is not initialized.
       disableView.setEnabled(false);
       defaultView.setEnabled(false);
@@ -207,9 +264,8 @@ public class TrackSelectionView extends LinearLayout {
     disableView.setEnabled(true);
     defaultView.setEnabled(true);
 
-    trackGroups = trackInfo.getTrackGroups(rendererIndex);
+    trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
 
-    DefaultTrackSelector.Parameters parameters = trackSelector.getParameters();
     isDisabled = parameters.getRendererDisabled(rendererIndex);
     override = parameters.getSelectionOverride(rendererIndex, trackGroups);
 
@@ -220,7 +276,7 @@ public class TrackSelectionView extends LinearLayout {
       boolean enableAdaptiveSelections =
           allowAdaptiveSelections
               && trackGroups.get(groupIndex).length > 1
-              && trackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false)
+              && mappedTrackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false)
                   != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
       trackViews[groupIndex] = new CheckedTextView[group.length];
       for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
@@ -235,7 +291,7 @@ public class TrackSelectionView extends LinearLayout {
             (CheckedTextView) inflater.inflate(trackViewLayoutId, this, false);
         trackView.setBackgroundResource(selectableItemBackgroundResourceId);
         trackView.setText(trackNameProvider.getTrackName(group.getFormat(trackIndex)));
-        if (trackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex)
+        if (mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex)
             == RendererCapabilities.FORMAT_HANDLED) {
           trackView.setFocusable(true);
           trackView.setTag(Pair.create(groupIndex, trackIndex));
@@ -261,17 +317,6 @@ public class TrackSelectionView extends LinearLayout {
             override != null && override.groupIndex == i && override.containsTrack(j));
       }
     }
-  }
-
-  private void applySelection() {
-    DefaultTrackSelector.ParametersBuilder parametersBuilder = trackSelector.buildUponParameters();
-    parametersBuilder.setRendererDisabled(rendererIndex, isDisabled);
-    if (override != null) {
-      parametersBuilder.setSelectionOverride(rendererIndex, trackGroups, override);
-    } else {
-      parametersBuilder.clearSelectionOverrides(rendererIndex);
-    }
-    trackSelector.setParameters(parametersBuilder);
   }
 
   private void onClick(View view) {

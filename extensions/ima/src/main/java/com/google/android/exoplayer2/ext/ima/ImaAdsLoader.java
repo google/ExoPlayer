@@ -47,7 +47,6 @@ import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -74,7 +73,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Loads ads using the IMA SDK. All methods are called on the main thread. */
+/**
+ * {@link AdsLoader} using the IMA SDK. All methods must be called on the main thread.
+ *
+ * <p>The player instance that will play the loaded ads must be set before playback using {@link
+ * #setPlayer(Player)}. If the ads loader is no longer required, it must be released by calling
+ * {@link #release()}.
+ */
 public final class ImaAdsLoader
     implements Player.EventListener,
         AdsLoader,
@@ -93,9 +98,9 @@ public final class ImaAdsLoader
 
     private final Context context;
 
-    private @Nullable ImaSdkSettings imaSdkSettings;
-    private @Nullable AdEventListener adEventListener;
-    private @Nullable Set<UiElement> adUiElements;
+    @Nullable private ImaSdkSettings imaSdkSettings;
+    @Nullable private AdEventListener adEventListener;
+    @Nullable private Set<UiElement> adUiElements;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
     private int mediaBitrate;
@@ -317,10 +322,11 @@ public final class ImaAdsLoader
   private final AdDisplayContainer adDisplayContainer;
   private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
 
+  @Nullable private Player nextPlayer;
   private Object pendingAdRequestContext;
   private List<String> supportedMimeTypes;
-  private EventListener eventListener;
-  private Player player;
+  @Nullable private EventListener eventListener;
+  @Nullable private Player player;
   private VideoProgressUpdate lastContentProgress;
   private VideoProgressUpdate lastAdProgress;
   private int lastVolumePercentage;
@@ -527,6 +533,14 @@ public final class ImaAdsLoader
   // AdsLoader implementation.
 
   @Override
+  public void setPlayer(@Nullable Player player) {
+    Assertions.checkState(Looper.getMainLooper() == Looper.myLooper());
+    Assertions.checkState(
+        player == null || player.getApplicationLooper() == Looper.getMainLooper());
+    nextPlayer = player;
+  }
+
+  @Override
   public void setSupportedContentTypes(@C.ContentType int... contentTypes) {
     List<String> supportedMimeTypes = new ArrayList<>();
     for (@C.ContentType int contentType : contentTypes) {
@@ -550,9 +564,10 @@ public final class ImaAdsLoader
   }
 
   @Override
-  public void attachPlayer(ExoPlayer player, EventListener eventListener, ViewGroup adUiViewGroup) {
-    Assertions.checkArgument(player.getApplicationLooper() == Looper.getMainLooper());
-    this.player = player;
+  public void start(EventListener eventListener, ViewGroup adUiViewGroup) {
+    Assertions.checkNotNull(
+        nextPlayer, "Set player using adsLoader.setPlayer before preparing the player.");
+    player = nextPlayer;
     this.eventListener = eventListener;
     lastVolumePercentage = 0;
     lastAdProgress = null;
@@ -576,7 +591,7 @@ public final class ImaAdsLoader
   }
 
   @Override
-  public void detachPlayer() {
+  public void stop() {
     if (adsManager != null && imaPausedContent) {
       adPlaybackState =
           adPlaybackState.withAdResumePositionUs(
@@ -598,6 +613,8 @@ public final class ImaAdsLoader
       adsManager.destroy();
       adsManager = null;
     }
+    adsLoader.removeAdsLoadedListener(/* adsLoadedListener= */ this);
+    adsLoader.removeAdErrorListener(/* adErrorListener= */ this);
     imaPausedContent = false;
     imaAdState = IMA_AD_STATE_NONE;
     pendingAdLoadError = null;

@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.drm;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
-import android.media.MediaCrypto;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
@@ -210,7 +209,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     boolean forceAllowInsecureDecoderComponents = Util.SDK_INT < 21
         && C.WIDEVINE_UUID.equals(uuid) && "L3".equals(getPropertyString("securityLevel"));
     return new FrameworkMediaCrypto(
-        new MediaCrypto(adjustUuid(uuid), initData), forceAllowInsecureDecoderComponents);
+        adjustUuid(uuid), initData, forceAllowInsecureDecoderComponents);
   }
 
   private static SchemeData getSchemeData(UUID uuid, List<SchemeData> schemeDatas) {

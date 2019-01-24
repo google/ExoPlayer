@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -452,13 +453,22 @@ import java.util.List;
       if (adaptationSetSwitchingProperty == null) {
         groupedAdaptationSetIndices[groupCount++] = new int[] {i};
       } else {
-        String[] extraAdaptationSetIds = adaptationSetSwitchingProperty.value.split(",");
+        String[] extraAdaptationSetIds = Util.split(adaptationSetSwitchingProperty.value, ",");
         int[] adaptationSetIndices = new int[1 + extraAdaptationSetIds.length];
         adaptationSetIndices[0] = i;
+        int outputIndex = 1;
         for (int j = 0; j < extraAdaptationSetIds.length; j++) {
-          int extraIndex = idToIndexMap.get(Integer.parseInt(extraAdaptationSetIds[j]));
-          adaptationSetUsedFlags[extraIndex] = true;
-          adaptationSetIndices[1 + j] = extraIndex;
+          int extraIndex =
+              idToIndexMap.get(
+                  Integer.parseInt(extraAdaptationSetIds[j]), /* valueIfKeyNotFound= */ -1);
+          if (extraIndex != -1) {
+            adaptationSetUsedFlags[extraIndex] = true;
+            adaptationSetIndices[outputIndex] = extraIndex;
+            outputIndex++;
+          }
+        }
+        if (outputIndex < adaptationSetIndices.length) {
+          adaptationSetIndices = Arrays.copyOf(adaptationSetIndices, outputIndex);
         }
         groupedAdaptationSetIndices[groupCount++] = adaptationSetIndices;
       }
