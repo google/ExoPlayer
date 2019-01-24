@@ -426,21 +426,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         variableDefinitions);
   }
 
-  @C.SelectionFlags
-  private static int parseSelectionFlags(String line) {
-    int flags = 0;
-    if (parseOptionalBooleanAttribute(line, REGEX_DEFAULT, false)) {
-      flags |= C.SELECTION_FLAG_DEFAULT;
-    }
-    if (parseOptionalBooleanAttribute(line, REGEX_FORCED, false)) {
-      flags |= C.SELECTION_FLAG_FORCED;
-    }
-    if (parseOptionalBooleanAttribute(line, REGEX_AUTOSELECT, false)) {
-      flags |= C.SELECTION_FLAG_AUTOSELECT;
-    }
-    return flags;
-  }
-
   private static HlsMediaPlaylist parseMediaPlaylist(
       HlsMasterPlaylist masterPlaylist, LineIterator iterator, String baseUri) throws IOException {
     @HlsMediaPlaylist.PlaylistType int playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_UNKNOWN;
@@ -659,6 +644,21 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         /* hasProgramDateTime= */ playlistStartTimeUs != 0,
         playlistProtectionSchemes,
         segments);
+  }
+
+  @C.SelectionFlags
+  private static int parseSelectionFlags(String line) {
+    int flags = 0;
+    if (parseOptionalBooleanAttribute(line, REGEX_DEFAULT, false)) {
+      flags |= C.SELECTION_FLAG_DEFAULT;
+    }
+    if (parseOptionalBooleanAttribute(line, REGEX_FORCED, false)) {
+      flags |= C.SELECTION_FLAG_FORCED;
+    }
+    if (parseOptionalBooleanAttribute(line, REGEX_AUTOSELECT, false)) {
+      flags |= C.SELECTION_FLAG_AUTOSELECT;
+    }
+    return flags;
   }
 
   private static @Nullable SchemeData parsePlayReadySchemeData(
