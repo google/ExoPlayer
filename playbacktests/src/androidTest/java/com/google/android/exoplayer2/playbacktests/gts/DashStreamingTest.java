@@ -103,10 +103,6 @@ public final class DashStreamingTest {
 
   @Test
   public void testH264Fixed() {
-    if (Util.SDK_INT < 16) {
-      // Pass.
-      return;
-    }
     testRunner
         .setStreamName("test_h264_fixed")
         .setManifestUrl(DashTestData.H264_MANIFEST)
@@ -118,7 +114,7 @@ public final class DashStreamingTest {
 
   @Test
   public void testH264Adaptive() throws DecoderQueryException {
-    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+    if (shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
       // Pass.
       return;
     }
@@ -134,7 +130,7 @@ public final class DashStreamingTest {
 
   @Test
   public void testH264AdaptiveWithSeeking() throws DecoderQueryException {
-    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+    if (shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
       // Pass.
       return;
     }
@@ -152,7 +148,7 @@ public final class DashStreamingTest {
 
   @Test
   public void testH264AdaptiveWithRendererDisabling() throws DecoderQueryException {
-    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+    if (shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
       // Pass.
       return;
     }
@@ -633,10 +629,6 @@ public final class DashStreamingTest {
 
   @Test
   public void testDecoderInfoH264() throws DecoderQueryException {
-    if (Util.SDK_INT < 16) {
-      // Pass.
-      return;
-    }
     MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_H264, false);
     assertThat(decoderInfo).isNotNull();
     assertThat(Util.SDK_INT < 21 || decoderInfo.adaptive).isTrue();

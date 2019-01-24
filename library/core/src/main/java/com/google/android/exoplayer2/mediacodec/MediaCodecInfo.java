@@ -31,7 +31,6 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 
 /** Information about a {@link MediaCodec} for a given mime type. */
-@TargetApi(16)
 @SuppressWarnings("InlinedApi")
 public final class MediaCodecInfo {
 

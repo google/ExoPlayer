@@ -2,6 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
+* Increase `minSdkVersion` to 16 (Jellybean).
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).

@@ -39,7 +39,6 @@ import java.util.ArrayList;
  * A debug extension of {@link DefaultRenderersFactory}. Provides a video renderer that performs
  * video buffer timestamp assertions.
  */
-@TargetApi(16)
 public class DebugRenderersFactory extends DefaultRenderersFactory {
 
   public DebugRenderersFactory(Context context) {

@@ -205,7 +205,6 @@ public final class DashTestRunner {
   /**
    * A {@link HostedTest} for DASH playback tests.
    */
-  @TargetApi(16)
   private static final class DashHostedTest extends ExoHostedTest {
 
     private final String streamName;
