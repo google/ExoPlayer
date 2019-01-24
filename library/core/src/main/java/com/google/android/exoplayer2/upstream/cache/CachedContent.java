@@ -18,16 +18,10 @@ package com.google.android.exoplayer2.upstream.cache;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.TreeSet;
 
 /** Defines the cached content for a single stream. */
 /* package */ final class CachedContent {
-
-  private static final int VERSION_METADATA_INTRODUCED = 2;
-  private static final int VERSION_MAX = Integer.MAX_VALUE;
 
   /** The cache file id that uniquely identifies the original stream. */
   public final int id;
@@ -41,55 +35,24 @@ import java.util.TreeSet;
   private boolean locked;
 
   /**
-   * Reads an instance from a {@link DataInputStream}.
-   *
-   * @param version Version of the encoded data.
-   * @param input Input stream containing values needed to initialize CachedContent instance.
-   * @throws IOException If an error occurs during reading values.
-   */
-  public static CachedContent readFromStream(int version, DataInputStream input)
-      throws IOException {
-    int id = input.readInt();
-    String key = input.readUTF();
-    CachedContent cachedContent = new CachedContent(id, key);
-    if (version < VERSION_METADATA_INTRODUCED) {
-      long length = input.readLong();
-      ContentMetadataMutations mutations = new ContentMetadataMutations();
-      ContentMetadataMutations.setContentLength(mutations, length);
-      cachedContent.applyMetadataMutations(mutations);
-    } else {
-      cachedContent.metadata = DefaultContentMetadata.readFromStream(input);
-    }
-    return cachedContent;
-  }
-
-  /**
    * Creates a CachedContent.
    *
    * @param id The cache file id.
    * @param key The cache stream key.
    */
   public CachedContent(int id, String key) {
+    this(id, key, DefaultContentMetadata.EMPTY);
+  }
+
+  public CachedContent(int id, String key, DefaultContentMetadata metadata) {
     this.id = id;
     this.key = key;
-    this.metadata = DefaultContentMetadata.EMPTY;
+    this.metadata = metadata;
     this.cachedSpans = new TreeSet<>();
   }
 
-  /**
-   * Writes the instance to a {@link DataOutputStream}.
-   *
-   * @param output Output stream to store the values.
-   * @throws IOException If an error occurs during writing values to output.
-   */
-  public void writeToStream(DataOutputStream output) throws IOException {
-    output.writeInt(id);
-    output.writeUTF(key);
-    metadata.writeToStream(output);
-  }
-
   /** Returns the metadata. */
-  public ContentMetadata getMetadata() {
+  public DefaultContentMetadata getMetadata() {
     return metadata;
   }
 
@@ -208,26 +171,11 @@ import java.util.TreeSet;
     return false;
   }
 
-  /**
-   * Calculates a hash code for the header of this {@code CachedContent} which is compatible with
-   * the index file with {@code version}.
-   */
-  public int headerHashCode(int version) {
-    int result = id;
-    result = 31 * result + key.hashCode();
-    if (version < VERSION_METADATA_INTRODUCED) {
-      long length = ContentMetadata.getContentLength(metadata);
-      result = 31 * result + (int) (length ^ (length >>> 32));
-    } else {
-      result = 31 * result + metadata.hashCode();
-    }
-    return result;
-  }
-
   @Override
   public int hashCode() {
-    int result = headerHashCode(VERSION_MAX);
-    result = 31 * result + cachedSpans.hashCode();
+    int result = id;
+    result = 31 * result + key.hashCode();
+    result = 31 * result + metadata.hashCode();
     return result;
   }
 
