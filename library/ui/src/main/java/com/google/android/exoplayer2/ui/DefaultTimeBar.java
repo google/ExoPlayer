@@ -319,8 +319,8 @@ public class DefaultTimeBar extends View implements TimeBar {
     keyTimeIncrement = C.TIME_UNSET;
     keyCountIncrement = DEFAULT_INCREMENT_COUNT;
     setFocusable(true);
-    if (Util.SDK_INT >= 16) {
-      maybeSetImportantForAccessibilityV16();
+    if (getImportantForAccessibility() == View.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+      setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
     }
   }
 
@@ -611,13 +611,12 @@ public class DefaultTimeBar extends View implements TimeBar {
     if (Util.SDK_INT >= 21) {
       info.addAction(AccessibilityAction.ACTION_SCROLL_FORWARD);
       info.addAction(AccessibilityAction.ACTION_SCROLL_BACKWARD);
-    } else if (Util.SDK_INT >= 16) {
+    } else {
       info.addAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
       info.addAction(AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD);
     }
   }
 
-  @TargetApi(16)
   @Override
   public boolean performAccessibilityAction(int action, @Nullable Bundle args) {
     if (super.performAccessibilityAction(action, args)) {
@@ -642,13 +641,6 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   // Internal methods.
-
-  @TargetApi(16)
-  private void maybeSetImportantForAccessibilityV16() {
-    if (getImportantForAccessibility() == View.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
-      setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
-    }
-  }
 
   private void startScrubbing() {
     scrubbing = true;

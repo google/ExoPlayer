@@ -15,14 +15,12 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
-import android.annotation.TargetApi;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link Mp4Extractor}. */
-@TargetApi(16)
 @RunWith(RobolectricTestRunner.class)
 public final class Mp4ExtractorTest {
 

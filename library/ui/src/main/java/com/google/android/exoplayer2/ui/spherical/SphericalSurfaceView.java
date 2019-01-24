@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.ui.spherical;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.SurfaceTexture;
@@ -52,7 +51,6 @@ import javax.microedition.khronos.opengles.GL10;
  * apply the touch and sensor rotations in the correct order or the user's touch manipulations won't
  * match what they expect.
  */
-@TargetApi(15)
 public final class SphericalSurfaceView extends GLSurfaceView {
 
   /**

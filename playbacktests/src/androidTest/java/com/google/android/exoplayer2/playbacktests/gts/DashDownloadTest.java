@@ -89,10 +89,6 @@ public final class DashDownloadTest {
 
   @Test
   public void testDownload() throws Exception {
-    if (Util.SDK_INT < 16) {
-      return; // Pass.
-    }
-
     DashDownloader dashDownloader = downloadContent();
     dashDownloader.download();
 

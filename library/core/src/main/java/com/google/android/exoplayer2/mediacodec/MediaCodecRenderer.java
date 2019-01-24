@@ -58,7 +58,6 @@ import java.util.List;
 /**
  * An abstract renderer that uses {@link MediaCodec} to decode samples for rendering.
  */
-@TargetApi(16)
 public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /**
@@ -366,7 +365,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       boolean playClearSamplesWithoutKeys,
       float assumedMinimumCodecOperatingRate) {
     super(trackType);
-    Assertions.checkState(Util.SDK_INT >= 16);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
@@ -1662,7 +1660,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   private static MediaCodec.CryptoInfo getFrameworkCryptoInfo(
       DecoderInputBuffer buffer, int adaptiveReconfigurationBytes) {
-    MediaCodec.CryptoInfo cryptoInfo = buffer.cryptoInfo.getFrameworkCryptoInfoV16();
+    MediaCodec.CryptoInfo cryptoInfo = buffer.cryptoInfo.getFrameworkCryptoInfo();
     if (adaptiveReconfigurationBytes == 0) {
       return cryptoInfo;
     }

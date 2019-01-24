@@ -24,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.txt'
     }

@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ui.spherical;
 
 import static com.google.android.exoplayer2.util.GlUtil.checkGlError;
 
-import android.annotation.TargetApi;
 import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -39,7 +38,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>A CanvasRenderer can be created on any thread, but {@link #init()} needs to be called on the
  * GL thread before it can be rendered.
  */
-@TargetApi(15)
 public final class CanvasRenderer {
 
   private static final float WIDTH_UNIT = 0.8f;

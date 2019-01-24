@@ -68,7 +68,6 @@ import java.util.List;
  *       a {@link android.view.SurfaceView}.
  * </ul>
  */
-@TargetApi(16)
 public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private static final String TAG = "MediaCodecVideoRenderer";

@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.audio;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
@@ -66,7 +65,6 @@ import java.util.List;
  *       underlying audio track.
  * </ul>
  */
-@TargetApi(16)
 public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock {
 
   /**

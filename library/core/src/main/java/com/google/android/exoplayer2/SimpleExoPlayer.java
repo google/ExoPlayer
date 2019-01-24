@@ -63,7 +63,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * An {@link ExoPlayer} implementation that uses default {@link Renderer} components. Instances can
  * be obtained from {@link ExoPlayerFactory}.
  */
-@TargetApi(16)
 public class SimpleExoPlayer extends BasePlayer
     implements ExoPlayer,
         Player.AudioComponent,

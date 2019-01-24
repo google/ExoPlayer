@@ -200,7 +200,7 @@ public final class Requirements {
       logd("Roaming: " + roaming);
       return !roaming;
     }
-    boolean activeNetworkMetered = isActiveNetworkMetered(connectivityManager, networkInfo);
+    boolean activeNetworkMetered = connectivityManager.isActiveNetworkMetered();
     logd("Metered network: " + activeNetworkMetered);
     if (networkRequirement == NETWORK_TYPE_UNMETERED) {
       return !activeNetworkMetered;
@@ -253,17 +253,6 @@ public final class Requirements {
             || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
     logd("Network capability validated: " + validated);
     return !validated;
-  }
-
-  private static boolean isActiveNetworkMetered(
-      ConnectivityManager connectivityManager, NetworkInfo networkInfo) {
-    if (Util.SDK_INT >= 16) {
-      return connectivityManager.isActiveNetworkMetered();
-    }
-    int type = networkInfo.getType();
-    return type != ConnectivityManager.TYPE_WIFI
-        && type != ConnectivityManager.TYPE_BLUETOOTH
-        && type != ConnectivityManager.TYPE_ETHERNET;
   }
 
   private static void logd(String message) {

@@ -39,7 +39,6 @@ import java.util.regex.Pattern;
 /**
  * A utility class for querying the available codecs.
  */
-@TargetApi(16)
 @SuppressLint("InlinedApi")
 public final class MediaCodecUtil {
 
