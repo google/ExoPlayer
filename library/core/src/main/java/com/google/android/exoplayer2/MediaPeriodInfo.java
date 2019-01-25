@@ -33,7 +33,14 @@ import com.google.android.exoplayer2.util.Util;
    */
   public final long contentPositionUs;
   /**
-   * The duration of the media period, like {@link MediaPeriodId#endPositionUs} but with {@link
+   * The end position to which the media period's content is clipped in order to play a following ad
+   * group, in microseconds, or {@link C#TIME_UNSET} if there is no following ad group or if this
+   * media period is an ad. The value {@link C#TIME_END_OF_SOURCE} indicates that a postroll ad
+   * follows at the end of this content media period.
+   */
+  public final long endPositionUs;
+  /**
+   * The duration of the media period, like {@link #endPositionUs} but with {@link
    * C#TIME_END_OF_SOURCE} and {@link C#TIME_UNSET} resolved to the timeline period duration if
    * known.
    */
@@ -53,12 +60,14 @@ import com.google.android.exoplayer2.util.Util;
       MediaPeriodId id,
       long startPositionUs,
       long contentPositionUs,
+      long endPositionUs,
       long durationUs,
       boolean isLastInTimelinePeriod,
       boolean isFinal) {
     this.id = id;
     this.startPositionUs = startPositionUs;
     this.contentPositionUs = contentPositionUs;
+    this.endPositionUs = endPositionUs;
     this.durationUs = durationUs;
     this.isLastInTimelinePeriod = isLastInTimelinePeriod;
     this.isFinal = isFinal;
@@ -72,7 +81,13 @@ import com.google.android.exoplayer2.util.Util;
     return startPositionUs == this.startPositionUs
         ? this
         : new MediaPeriodInfo(
-            id, startPositionUs, contentPositionUs, durationUs, isLastInTimelinePeriod, isFinal);
+            id,
+            startPositionUs,
+            contentPositionUs,
+            endPositionUs,
+            durationUs,
+            isLastInTimelinePeriod,
+            isFinal);
   }
 
   /**
@@ -83,7 +98,13 @@ import com.google.android.exoplayer2.util.Util;
     return contentPositionUs == this.contentPositionUs
         ? this
         : new MediaPeriodInfo(
-            id, startPositionUs, contentPositionUs, durationUs, isLastInTimelinePeriod, isFinal);
+            id,
+            startPositionUs,
+            contentPositionUs,
+            endPositionUs,
+            durationUs,
+            isLastInTimelinePeriod,
+            isFinal);
   }
 
   @Override
@@ -97,6 +118,7 @@ import com.google.android.exoplayer2.util.Util;
     MediaPeriodInfo that = (MediaPeriodInfo) o;
     return startPositionUs == that.startPositionUs
         && contentPositionUs == that.contentPositionUs
+        && endPositionUs == that.endPositionUs
         && durationUs == that.durationUs
         && isLastInTimelinePeriod == that.isLastInTimelinePeriod
         && isFinal == that.isFinal
@@ -109,6 +131,7 @@ import com.google.android.exoplayer2.util.Util;
     result = 31 * result + id.hashCode();
     result = 31 * result + (int) startPositionUs;
     result = 31 * result + (int) contentPositionUs;
+    result = 31 * result + (int) endPositionUs;
     result = 31 * result + (int) durationUs;
     result = 31 * result + (isLastInTimelinePeriod ? 1 : 0);
     result = 31 * result + (isFinal ? 1 : 0);

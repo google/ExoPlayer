@@ -89,7 +89,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.info = info;
     sampleStreams = new SampleStream[rendererCapabilities.length];
     mayRetainStreamFlags = new boolean[rendererCapabilities.length];
-    mediaPeriod = createMediaPeriod(info.id, mediaSource, allocator, info.startPositionUs);
+    mediaPeriod =
+        createMediaPeriod(
+            info.id, mediaSource, allocator, info.startPositionUs, info.endPositionUs);
   }
 
   /**
@@ -294,7 +296,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public void release() {
     disableTrackSelectionsInResult();
     trackSelectorResult = null;
-    releaseMediaPeriod(info.id, mediaSource, mediaPeriod);
+    releaseMediaPeriod(info.endPositionUs, mediaSource, mediaPeriod);
   }
 
   /**
@@ -399,24 +401,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /** Returns a media period corresponding to the given {@code id}. */
   private static MediaPeriod createMediaPeriod(
-      MediaPeriodId id, MediaSource mediaSource, Allocator allocator, long startPositionUs) {
+      MediaPeriodId id,
+      MediaSource mediaSource,
+      Allocator allocator,
+      long startPositionUs,
+      long endPositionUs) {
     MediaPeriod mediaPeriod = mediaSource.createPeriod(id, allocator, startPositionUs);
-    if (id.endPositionUs != C.TIME_UNSET && id.endPositionUs != C.TIME_END_OF_SOURCE) {
+    if (endPositionUs != C.TIME_UNSET && endPositionUs != C.TIME_END_OF_SOURCE) {
       mediaPeriod =
           new ClippingMediaPeriod(
-              mediaPeriod,
-              /* enableInitialDiscontinuity= */ true,
-              /* startUs= */ 0,
-              id.endPositionUs);
+              mediaPeriod, /* enableInitialDiscontinuity= */ true, /* startUs= */ 0, endPositionUs);
     }
     return mediaPeriod;
   }
 
   /** Releases the given {@code mediaPeriod}, logging and suppressing any errors. */
   private static void releaseMediaPeriod(
-      MediaPeriodId id, MediaSource mediaSource, MediaPeriod mediaPeriod) {
+      long endPositionUs, MediaSource mediaSource, MediaPeriod mediaPeriod) {
     try {
-      if (id.endPositionUs != C.TIME_UNSET && id.endPositionUs != C.TIME_END_OF_SOURCE) {
+      if (endPositionUs != C.TIME_UNSET && endPositionUs != C.TIME_END_OF_SOURCE) {
         mediaSource.releasePeriod(((ClippingMediaPeriod) mediaPeriod).mediaPeriod);
       } else {
         mediaSource.releasePeriod(mediaPeriod);
