@@ -16,11 +16,13 @@
 package com.google.android.exoplayer2.database;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.google.android.exoplayer2.util.Log;
+import java.io.File;
 
 /**
  * An {@link SQLiteOpenHelper} that provides instances of a standalone ExoPlayer database.
@@ -37,8 +39,23 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
   private static final int VERSION = 1;
   private static final String TAG = "ExoDatabaseProvider";
 
+  /**
+   * Provides instances of the database located by passing {@link #DATABASE_NAME} to {@link
+   * Context#getDatabasePath(String)}.
+   *
+   * @param context Any context.
+   */
   public ExoDatabaseProvider(Context context) {
     super(context.getApplicationContext(), DATABASE_NAME, /* factory= */ null, VERSION);
+  }
+
+  /**
+   * Provides instances of the database located at the specified file.
+   *
+   * @param file The database file.
+   */
+  public ExoDatabaseProvider(File file) {
+    super(new DatabaseFileProvidingContext(file), file.getName(), /* factory= */ null, VERSION);
   }
 
   @Override
@@ -84,6 +101,28 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
           }
         }
       }
+    }
+  }
+
+  // TODO: This is fragile. Stop using it if/when SQLiteOpenHelper can be instantiated without a
+  // context [Internal ref: b/123351819], or by injecting a Context into all components that need
+  // to instantiate an ExoDatabaseProvider.
+  /**
+   * A {@link Context} that only implements {@link #getDatabasePath(String)}. This is the only
+   * method used by {@link SQLiteOpenHelper}.
+   */
+  private static class DatabaseFileProvidingContext extends ContextWrapper {
+
+    private final File file;
+
+    public DatabaseFileProvidingContext(File file) {
+      super(/* base= */ null);
+      this.file = file;
+    }
+
+    @Override
+    public File getDatabasePath(String name) {
+      return file;
     }
   }
 }
