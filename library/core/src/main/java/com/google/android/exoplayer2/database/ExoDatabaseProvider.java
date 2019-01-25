@@ -115,6 +115,7 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
 
     private final File file;
 
+    @SuppressWarnings("nullness:argument.type.incompatible")
     public DatabaseFileProvidingContext(File file) {
       super(/* base= */ null);
       this.file = file;
