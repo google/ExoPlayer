@@ -114,7 +114,7 @@ public class VpxPlaybackTest {
     @Override
     public void run() {
       Looper.prepare();
-      LibvpxVideoRenderer videoRenderer = new LibvpxVideoRenderer(true, 0);
+      LibvpxVideoRenderer videoRenderer = new LibvpxVideoRenderer(0);
       DefaultTrackSelector trackSelector = new DefaultTrackSelector();
       player = ExoPlayerFactory.newInstance(context, new Renderer[] {videoRenderer}, trackSelector);
       player.addListener(this);

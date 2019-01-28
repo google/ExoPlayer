@@ -233,7 +233,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
       Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer");
       Constructor<?> constructor =
           clazz.getConstructor(
-              boolean.class,
               long.class,
               android.os.Handler.class,
               com.google.android.exoplayer2.video.VideoRendererEventListener.class,
@@ -242,7 +241,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
       Renderer renderer =
           (Renderer)
               constructor.newInstance(
-                  true,
                   allowedVideoJoiningTimeMs,
                   eventHandler,
                   eventListener,
