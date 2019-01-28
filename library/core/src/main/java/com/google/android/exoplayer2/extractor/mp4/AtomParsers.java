@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.mp4;
 
 import static com.google.android.exoplayer2.util.MimeTypes.getMimeTypeFromMp4ObjectType;
 
+import android.support.annotation.Nullable;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -39,7 +40,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** Utility methods for parsing MP4 format atom payloads according to ISO 14496-12. */
-@SuppressWarnings("ConstantField")
+@SuppressWarnings({"ConstantField", "ConstantCaseForConstants"})
 /* package */ final class AtomParsers {
 
   private static final String TAG = "AtomParsers";
@@ -51,6 +52,7 @@ import java.util.List;
   private static final int TYPE_subt = Util.getIntegerCodeForString("subt");
   private static final int TYPE_clcp = Util.getIntegerCodeForString("clcp");
   private static final int TYPE_meta = Util.getIntegerCodeForString("meta");
+  private static final int TYPE_mdta = Util.getIntegerCodeForString("mdta");
 
   /**
    * The threshold number of samples to trim from the start/end of an audio track when applying an
@@ -77,7 +79,7 @@ import java.util.List;
       DrmInitData drmInitData, boolean ignoreEditLists, boolean isQuickTime)
       throws ParserException {
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
-    int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
+    int trackType = getTrackTypeForHdlr(parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data));
     if (trackType == C.TRACK_TYPE_UNKNOWN) {
       return null;
     }
@@ -485,6 +487,7 @@ import java.util.List;
    * @param isQuickTime True for QuickTime media. False otherwise.
    * @return Parsed metadata, or null.
    */
+  @Nullable
   public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
     if (isQuickTime) {
       // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
@@ -499,14 +502,69 @@ import java.util.List;
       int atomType = udtaData.readInt();
       if (atomType == Atom.TYPE_meta) {
         udtaData.setPosition(atomPosition);
-        return parseMetaAtom(udtaData, atomPosition + atomSize);
+        return parseUdtaMeta(udtaData, atomPosition + atomSize);
       }
-      udtaData.skipBytes(atomSize - Atom.HEADER_SIZE);
+      udtaData.setPosition(atomPosition + atomSize);
     }
     return null;
   }
 
-  private static Metadata parseMetaAtom(ParsableByteArray meta, int limit) {
+  /**
+   * Parses a metadata meta atom if it contains metadata with handler 'mdta'.
+   *
+   * @param meta The metadata atom to decode.
+   * @return Parsed metadata, or null.
+   */
+  @Nullable
+  public static Metadata parseMdtaFromMeta(Atom.ContainerAtom meta) {
+    Atom.LeafAtom hdlrAtom = meta.getLeafAtomOfType(Atom.TYPE_hdlr);
+    Atom.LeafAtom keysAtom = meta.getLeafAtomOfType(Atom.TYPE_keys);
+    Atom.LeafAtom ilstAtom = meta.getLeafAtomOfType(Atom.TYPE_ilst);
+    if (hdlrAtom == null
+        || keysAtom == null
+        || ilstAtom == null
+        || AtomParsers.parseHdlr(hdlrAtom.data) != TYPE_mdta) {
+      // There isn't enough information to parse the metadata, or the handler type is unexpected.
+      return null;
+    }
+
+    // Parse metadata keys.
+    ParsableByteArray keys = keysAtom.data;
+    keys.setPosition(Atom.FULL_HEADER_SIZE);
+    int entryCount = keys.readInt();
+    String[] keyNames = new String[entryCount];
+    for (int i = 0; i < entryCount; i++) {
+      int entrySize = keys.readInt();
+      keys.skipBytes(4); // keyNamespace
+      int keySize = entrySize - 8;
+      keyNames[i] = keys.readString(keySize);
+    }
+
+    // Parse metadata items.
+    ParsableByteArray ilst = ilstAtom.data;
+    ilst.setPosition(Atom.HEADER_SIZE);
+    ArrayList<Metadata.Entry> entries = new ArrayList<>();
+    while (ilst.bytesLeft() > Atom.HEADER_SIZE) {
+      int atomPosition = ilst.getPosition();
+      int atomSize = ilst.readInt();
+      int keyIndex = ilst.readInt() - 1;
+      if (keyIndex >= 0 && keyIndex < keyNames.length) {
+        String key = keyNames[keyIndex];
+        Metadata.Entry entry =
+            MetadataUtil.parseMdtaMetadataEntryFromIlst(ilst, atomPosition + atomSize, key);
+        if (entry != null) {
+          entries.add(entry);
+        }
+      } else {
+        Log.w(TAG, "Skipped metadata with unknown key index: " + keyIndex);
+      }
+      ilst.setPosition(atomPosition + atomSize);
+    }
+    return entries.isEmpty() ? null : new Metadata(entries);
+  }
+
+  @Nullable
+  private static Metadata parseUdtaMeta(ParsableByteArray meta, int limit) {
     meta.skipBytes(Atom.FULL_HEADER_SIZE);
     while (meta.getPosition() < limit) {
       int atomPosition = meta.getPosition();
@@ -516,11 +574,12 @@ import java.util.List;
         meta.setPosition(atomPosition);
         return parseIlst(meta, atomPosition + atomSize);
       }
-      meta.skipBytes(atomSize - Atom.HEADER_SIZE);
+      meta.setPosition(atomPosition + atomSize);
     }
     return null;
   }
 
+  @Nullable
   private static Metadata parseIlst(ParsableByteArray ilst, int limit) {
     ilst.skipBytes(Atom.HEADER_SIZE);
     ArrayList<Metadata.Entry> entries = new ArrayList<>();
@@ -610,19 +669,22 @@ import java.util.List;
    * Parses an hdlr atom.
    *
    * @param hdlr The hdlr atom to decode.
-   * @return The track type.
+   * @return The handler value.
    */
   private static int parseHdlr(ParsableByteArray hdlr) {
     hdlr.setPosition(Atom.FULL_HEADER_SIZE + 4);
-    int trackType = hdlr.readInt();
-    if (trackType == TYPE_soun) {
+    return hdlr.readInt();
+  }
+
+  /** Returns the track type for a given handler value. */
+  private static int getTrackTypeForHdlr(int hdlr) {
+    if (hdlr == TYPE_soun) {
       return C.TRACK_TYPE_AUDIO;
-    } else if (trackType == TYPE_vide) {
+    } else if (hdlr == TYPE_vide) {
       return C.TRACK_TYPE_VIDEO;
-    } else if (trackType == TYPE_text || trackType == TYPE_sbtl || trackType == TYPE_subt
-        || trackType == TYPE_clcp) {
+    } else if (hdlr == TYPE_text || hdlr == TYPE_sbtl || hdlr == TYPE_subt || hdlr == TYPE_clcp) {
       return C.TRACK_TYPE_TEXT;
-    } else if (trackType == TYPE_meta) {
+    } else if (hdlr == TYPE_meta) {
       return C.TRACK_TYPE_METADATA;
     } else {
       return C.TRACK_TYPE_UNKNOWN;

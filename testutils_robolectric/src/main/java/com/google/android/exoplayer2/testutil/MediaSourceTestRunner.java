@@ -142,15 +142,28 @@ public class MediaSourceTestRunner {
   }
 
   /**
-   * Calls {@link MediaSource#createPeriod(MediaSource.MediaPeriodId, Allocator)} on the playback
-   * thread, asserting that a non-null {@link MediaPeriod} is returned.
+   * Calls {@link MediaSource#createPeriod(MediaSource.MediaPeriodId, Allocator, long)} with a zero
+   * start position on the playback thread, asserting that a non-null {@link MediaPeriod} is
+   * returned.
    *
    * @param periodId The id of the period to create.
    * @return The created {@link MediaPeriod}.
    */
   public MediaPeriod createPeriod(final MediaPeriodId periodId) {
+    return createPeriod(periodId, /* startPositionUs= */ 0);
+  }
+
+  /**
+   * Calls {@link MediaSource#createPeriod(MediaSource.MediaPeriodId, Allocator, long)} on the
+   * playback thread, asserting that a non-null {@link MediaPeriod} is returned.
+   *
+   * @param periodId The id of the period to create.
+   * @return The created {@link MediaPeriod}.
+   */
+  public MediaPeriod createPeriod(final MediaPeriodId periodId, long startPositionUs) {
     final MediaPeriod[] holder = new MediaPeriod[1];
-    runOnPlaybackThread(() -> holder[0] = mediaSource.createPeriod(periodId, allocator));
+    runOnPlaybackThread(
+        () -> holder[0] = mediaSource.createPeriod(periodId, allocator, startPositionUs));
     assertThat(holder[0]).isNotNull();
     return holder[0];
   }

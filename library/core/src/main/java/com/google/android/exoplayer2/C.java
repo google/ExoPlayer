@@ -460,8 +460,8 @@ public final class C {
 
   /**
    * Flags which can apply to a buffer containing a media sample. Possible flag values are {@link
-   * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_ENCRYPTED} and
-   * {@link #BUFFER_FLAG_DECODE_ONLY}.
+   * #BUFFER_FLAG_KEY_FRAME}, {@link #BUFFER_FLAG_END_OF_STREAM}, {@link #BUFFER_FLAG_LAST_SAMPLE},
+   * {@link #BUFFER_FLAG_ENCRYPTED} and {@link #BUFFER_FLAG_DECODE_ONLY}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -470,6 +470,7 @@ public final class C {
       value = {
         BUFFER_FLAG_KEY_FRAME,
         BUFFER_FLAG_END_OF_STREAM,
+        BUFFER_FLAG_LAST_SAMPLE,
         BUFFER_FLAG_ENCRYPTED,
         BUFFER_FLAG_DECODE_ONLY
       })
@@ -482,6 +483,8 @@ public final class C {
    * Flag for empty buffers that signal that the end of the stream was reached.
    */
   public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+  /** Indicates that a buffer is known to contain the last media sample of the stream. */
+  public static final int BUFFER_FLAG_LAST_SAMPLE = 1 << 29; // 0x20000000
   /** Indicates that a buffer is (at least partially) encrypted. */
   public static final int BUFFER_FLAG_ENCRYPTED = 1 << 30; // 0x40000000
   /** Indicates that a buffer should be decoded but not rendered. */
@@ -895,6 +898,26 @@ public final class C {
    * @see MediaFormat#COLOR_RANGE_FULL
    */
   public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
+
+  /** Video projection types. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    Format.NO_VALUE,
+    PROJECTION_RECTANGULAR,
+    PROJECTION_EQUIRECTANGULAR,
+    PROJECTION_CUBEMAP,
+    PROJECTION_MESH
+  })
+  public @interface Projection {}
+  /** Conventional rectangular projection. */
+  public static final int PROJECTION_RECTANGULAR = 0;
+  /** Equirectangular spherical projection. */
+  public static final int PROJECTION_EQUIRECTANGULAR = 1;
+  /** Cube map projection. */
+  public static final int PROJECTION_CUBEMAP = 2;
+  /** 3-D mesh projection. */
+  public static final int PROJECTION_MESH = 3;
 
   /**
    * Priority for media playback.

@@ -597,6 +597,8 @@ public final class ImaAdsLoader
       adsManager.destroy();
       adsManager = null;
     }
+    adsLoader.removeAdsLoadedListener(/* adsLoadedListener= */ this);
+    adsLoader.removeAdErrorListener(/* adErrorListener= */ this);
     imaPausedContent = false;
     imaAdState = IMA_AD_STATE_NONE;
     pendingAdLoadError = null;

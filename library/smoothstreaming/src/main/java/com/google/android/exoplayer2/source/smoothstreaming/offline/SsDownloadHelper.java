@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
+import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
@@ -42,7 +43,7 @@ public final class SsDownloadHelper extends DownloadHelper {
   private @MonotonicNonNull SsManifest manifest;
 
   public SsDownloadHelper(Uri uri, DataSource.Factory manifestDataSourceFactory) {
-    this.uri = uri;
+    this.uri = SsUtil.fixManifestUri(uri);;
     this.manifestDataSourceFactory = manifestDataSourceFactory;
   }
 
