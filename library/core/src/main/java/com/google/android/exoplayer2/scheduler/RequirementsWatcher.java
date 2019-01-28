@@ -42,23 +42,14 @@ public final class RequirementsWatcher {
    * Requirements} are met.
    */
   public interface Listener {
-
     /**
-     * Called when all of the requirements are met.
-     *
-     * @param requirementsWatcher Calling instance.
-     */
-    void requirementsMet(RequirementsWatcher requirementsWatcher);
-
-    /**
-     * Called when there is at least one not met requirement and there is a change on which of the
-     * requirements are not met.
+     * Called when there is a change on the met requirements.
      *
      * @param requirementsWatcher Calling instance.
      * @param notMetRequirements {@link Requirements.RequirementFlags RequirementFlags} that are not
      *     met, or 0.
      */
-    void requirementsNotMet(
+    void onRequirementsStateChanged(
         RequirementsWatcher requirementsWatcher,
         @Requirements.RequirementFlags int notMetRequirements);
   }
@@ -172,17 +163,10 @@ public final class RequirementsWatcher {
   private void checkRequirements() {
     @Requirements.RequirementFlags
     int notMetRequirements = requirements.getNotMetRequirements(context);
-    if (this.notMetRequirements == notMetRequirements) {
-      logd("notMetRequirements hasn't changed: " + notMetRequirements);
-      return;
-    }
-    this.notMetRequirements = notMetRequirements;
-    if (notMetRequirements == 0) {
-      logd("start job");
-      listener.requirementsMet(this);
-    } else {
-      logd("stop job");
-      listener.requirementsNotMet(this, notMetRequirements);
+    if (this.notMetRequirements != notMetRequirements) {
+      this.notMetRequirements = notMetRequirements;
+      logd("notMetRequirements has changed: " + notMetRequirements);
+      listener.onRequirementsStateChanged(this, notMetRequirements);
     }
   }
 
