@@ -80,13 +80,14 @@ public class DefaultDownloadIndexTest {
             .setDownloadedBytes(200)
             .setTotalBytes(400)
             .setFailureReason(DownloadState.FAILURE_REASON_UNKNOWN)
-            .setStopFlags(DownloadState.STOP_FLAG_STOPPED)
+            .setStopFlags(DownloadState.STOP_FLAG_REQUIREMENTS_NOT_MET)
+            .setNotMetRequirements(0x87654321)
             .setStartTimeMs(10)
             .setUpdateTimeMs(20)
             .setStreamKeys(
                 new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2),
                 new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5))
-            .setCustomMetadata(new byte[] {0, 1, 2, 3})
+            .setCustomMetadata(new byte[] {0, 1, 2, 3, 7, 8, 9, 10})
             .build();
     downloadIndex.putDownloadState(downloadState);
     DownloadState readDownloadState = downloadIndex.getDownloadState(id);
@@ -238,6 +239,9 @@ public class DefaultDownloadIndexTest {
     if (downloadState.stopFlags != that.stopFlags) {
       return false;
     }
+    if (downloadState.notMetRequirements != that.notMetRequirements) {
+      return false;
+    }
     if (!downloadState.id.equals(that.id)) {
       return false;
     }
@@ -269,6 +273,7 @@ public class DefaultDownloadIndexTest {
     private long totalBytes;
     private int failureReason;
     private int stopFlags;
+    private int notMetRequirements;
     private long startTimeMs;
     private long updateTimeMs;
     private StreamKey[] streamKeys;
@@ -341,6 +346,11 @@ public class DefaultDownloadIndexTest {
       return this;
     }
 
+    public DownloadStateBuilder setNotMetRequirements(int notMetRequirements) {
+      this.notMetRequirements = notMetRequirements;
+      return this;
+    }
+
     public DownloadStateBuilder setStartTimeMs(long startTimeMs) {
       this.startTimeMs = startTimeMs;
       return this;
@@ -373,6 +383,7 @@ public class DefaultDownloadIndexTest {
           totalBytes,
           failureReason,
           stopFlags,
+          notMetRequirements,
           startTimeMs,
           updateTimeMs,
           streamKeys,

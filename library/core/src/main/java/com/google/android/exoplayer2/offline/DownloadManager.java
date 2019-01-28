@@ -26,6 +26,7 @@ import static com.google.android.exoplayer2.offline.DownloadState.STATE_REMOVING
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_RESTARTING;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_STOPPED;
 import static com.google.android.exoplayer2.offline.DownloadState.STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY;
+import static com.google.android.exoplayer2.offline.DownloadState.STOP_FLAG_REQUIREMENTS_NOT_MET;
 import static com.google.android.exoplayer2.offline.DownloadState.STOP_FLAG_STOPPED;
 
 import android.content.Context;
@@ -119,6 +120,7 @@ public final class DownloadManager {
   private boolean initialized;
   private boolean released;
   @DownloadState.StopFlags private int stickyStopFlags;
+  @Requirements.RequirementFlags private int notMetRequirements;
   private RequirementsWatcher requirementsWatcher;
 
   /**
@@ -194,7 +196,7 @@ public final class DownloadManager {
       return;
     }
     requirementsWatcher.stop();
-    notifyListenersRequirementsStateChange(watchRequirements(requirements));
+    onRequirementsStateChanged(watchRequirements(requirements));
   }
 
   /** Returns the requirements needed to be met to start downloads. */
@@ -349,7 +351,8 @@ public final class DownloadManager {
       }
     }
     Download download =
-        new Download(this, downloaderFactory, action, minRetryCount, stickyStopFlags);
+        new Download(
+            this, downloaderFactory, action, minRetryCount, stickyStopFlags, notMetRequirements);
     downloads.add(download);
     logd("Download is added", download);
   }
@@ -401,12 +404,15 @@ public final class DownloadManager {
     }
   }
 
-  private void notifyListenersRequirementsStateChange(
-      @Requirements.RequirementFlags int notMetRequirements) {
+  private void onRequirementsStateChanged(@Requirements.RequirementFlags int notMetRequirements) {
+    this.notMetRequirements = notMetRequirements;
     logdFlags("Not met requirements are changed", notMetRequirements);
     for (Listener listener : listeners) {
       listener.onRequirementsStateChanged(
           DownloadManager.this, requirementsWatcher.getRequirements(), notMetRequirements);
+    }
+    for (int i = 0; i < downloads.size(); i++) {
+      downloads.get(i).setNotMetRequirements(notMetRequirements);
     }
   }
 
@@ -486,7 +492,9 @@ public final class DownloadManager {
 
   @Requirements.RequirementFlags
   private int watchRequirements(Requirements requirements) {
-    requirementsWatcher = new RequirementsWatcher(context, new RequirementListener(), requirements);
+    RequirementsWatcher.Listener listener =
+        (requirementsWatcher, notMetRequirements) -> onRequirementsStateChanged(notMetRequirements);
+    requirementsWatcher = new RequirementsWatcher(context, listener, requirements);
     @Requirements.RequirementFlags int notMetRequirements = requirementsWatcher.start();
     if (notMetRequirements == 0) {
       startDownloads();
@@ -511,17 +519,23 @@ public final class DownloadManager {
     @MonotonicNonNull private DownloadThread downloadThread;
     @MonotonicNonNull @DownloadState.FailureReason private int failureReason;
     @DownloadState.StopFlags private int stopFlags;
+    @Requirements.RequirementFlags private int notMetRequirements;
 
     private Download(
         DownloadManager downloadManager,
         DownloaderFactory downloaderFactory,
         DownloadAction action,
         int minRetryCount,
-        int stopFlags) {
+        @DownloadState.StopFlags int stopFlags,
+        @Requirements.RequirementFlags int notMetRequirements) {
       this.id = action.id;
       this.downloadManager = downloadManager;
       this.downloaderFactory = downloaderFactory;
       this.minRetryCount = minRetryCount;
+      this.notMetRequirements = notMetRequirements;
+      if (notMetRequirements != 0) {
+        stopFlags |= STOP_FLAG_REQUIREMENTS_NOT_MET;
+      }
       this.stopFlags = stopFlags;
       this.startTimeMs = System.currentTimeMillis();
       actionQueue = new ArrayDeque<>();
@@ -579,6 +593,7 @@ public final class DownloadManager {
           totalBytes,
           failureReason,
           stopFlags,
+          notMetRequirements,
           startTimeMs,
           /* updateTimeMs= */ System.currentTimeMillis(),
           action.keys.toArray(new StreamKey[0]),
@@ -626,6 +641,13 @@ public final class DownloadManager {
       } else if (state == STATE_STOPPED) {
         startOrQueue(/* restart= */ false);
       }
+    }
+
+    public void setNotMetRequirements(@Requirements.RequirementFlags int notMetRequirements) {
+      this.notMetRequirements = notMetRequirements;
+      updateStopFlags(
+          STOP_FLAG_REQUIREMENTS_NOT_MET,
+          notMetRequirements != 0 ? STOP_FLAG_REQUIREMENTS_NOT_MET : 0);
     }
 
     private void initialize(boolean restart) {
@@ -770,19 +792,4 @@ public final class DownloadManager {
     }
   }
 
-  private class RequirementListener implements RequirementsWatcher.Listener {
-    @Override
-    public void requirementsMet(RequirementsWatcher requirementsWatcher) {
-      startDownloads();
-      notifyListenersRequirementsStateChange(0);
-    }
-
-    @Override
-    public void requirementsNotMet(
-        RequirementsWatcher requirementsWatcher,
-        @Requirements.RequirementFlags int notMetRequirements) {
-      stopDownloads();
-      notifyListenersRequirementsStateChange(notMetRequirements);
-    }
-  }
 }
