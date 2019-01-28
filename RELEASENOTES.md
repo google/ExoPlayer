@@ -41,6 +41,9 @@
 * Add `Handler` parameter to `ConcatenatingMediaSource` methods which take a
   callback `Runnable`.
 * Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
+* VP9 extension: Remove RGB output mode and libyuv dependency, and switch to
+  surface YUV output as the default. Remove constructor parameters `scaleToFit`
+  and `useSurfaceYuvOutput`.
 * Change signature of `PlayerNotificationManager.NotificationListener` to better
   fit service requirements. Remove ability to set a custom stop action.
 

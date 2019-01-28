@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -109,7 +107,6 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
 
-  private final boolean scaleToFit;
   private final boolean disableLoopFilter;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
@@ -119,7 +116,6 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private final TimedValueQueue<Format> formatQueue;
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
-  private final boolean useSurfaceYuvOutput;
 
   private Format format;
   private Format pendingFormat;
@@ -133,7 +129,6 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private @ReinitializationState int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
 
-  private Bitmap bitmap;
   private boolean renderedFirstFrame;
   private long initialPositionUs;
   private long joiningDeadlineMs;
@@ -158,16 +153,14 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   protected DecoderCounters decoderCounters;
 
   /**
-   * @param scaleToFit Whether video frames should be scaled to fit when rendering.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    */
-  public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs) {
-    this(scaleToFit, allowedJoiningTimeMs, null, null, 0);
+  public LibvpxVideoRenderer(long allowedJoiningTimeMs) {
+    this(allowedJoiningTimeMs, null, null, 0);
   }
 
   /**
-   * @param scaleToFit Whether video frames should be scaled to fit when rendering.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
@@ -176,23 +169,22 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  public LibvpxVideoRenderer(boolean scaleToFit, long allowedJoiningTimeMs,
-      Handler eventHandler, VideoRendererEventListener eventListener,
+  public LibvpxVideoRenderer(
+      long allowedJoiningTimeMs,
+      Handler eventHandler,
+      VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify) {
     this(
-        scaleToFit,
         allowedJoiningTimeMs,
         eventHandler,
         eventListener,
         maxDroppedFramesToNotify,
         /* drmSessionManager= */ null,
         /* playClearSamplesWithoutKeys= */ false,
-        /* disableLoopFilter= */ false,
-        /* useSurfaceYuvOutput= */ false);
+        /* disableLoopFilter= */ false);
   }
 
   /**
-   * @param scaleToFit Whether video frames should be scaled to fit when rendering.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
@@ -208,26 +200,21 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param disableLoopFilter Disable the libvpx in-loop smoothing filter.
-   * @param useSurfaceYuvOutput Directly output YUV to the Surface via ANativeWindow.
    */
   public LibvpxVideoRenderer(
-      boolean scaleToFit,
       long allowedJoiningTimeMs,
       Handler eventHandler,
       VideoRendererEventListener eventListener,
       int maxDroppedFramesToNotify,
       DrmSessionManager<ExoMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
-      boolean disableLoopFilter,
-      boolean useSurfaceYuvOutput) {
+      boolean disableLoopFilter) {
     super(C.TRACK_TYPE_VIDEO);
-    this.scaleToFit = scaleToFit;
     this.disableLoopFilter = disableLoopFilter;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
-    this.useSurfaceYuvOutput = useSurfaceYuvOutput;
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
     formatHolder = new FormatHolder();
@@ -586,18 +573,14 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    */
   protected void renderOutputBuffer(VpxOutputBuffer outputBuffer) throws VpxDecoderException {
     int bufferMode = outputBuffer.mode;
-    boolean renderRgb = bufferMode == VpxDecoder.OUTPUT_MODE_RGB && surface != null;
     boolean renderSurface = bufferMode == VpxDecoder.OUTPUT_MODE_SURFACE_YUV && surface != null;
     boolean renderYuv = bufferMode == VpxDecoder.OUTPUT_MODE_YUV && outputBufferRenderer != null;
     lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
-    if (!renderRgb && !renderYuv && !renderSurface) {
+    if (!renderYuv && !renderSurface) {
       dropOutputBuffer(outputBuffer);
     } else {
       maybeNotifyVideoSizeChanged(outputBuffer.width, outputBuffer.height);
-      if (renderRgb) {
-        renderRgbFrame(outputBuffer, scaleToFit);
-        outputBuffer.release();
-      } else if (renderYuv) {
+      if (renderYuv) {
         outputBufferRenderer.setOutputBuffer(outputBuffer);
         // The renderer will release the buffer.
       } else { // renderSurface
@@ -675,8 +658,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       this.surface = surface;
       this.outputBufferRenderer = outputBufferRenderer;
       if (surface != null) {
-        outputMode =
-            useSurfaceYuvOutput ? VpxDecoder.OUTPUT_MODE_SURFACE_YUV : VpxDecoder.OUTPUT_MODE_RGB;
+        outputMode = VpxDecoder.OUTPUT_MODE_SURFACE_YUV;
       } else {
         outputMode =
             outputBufferRenderer != null ? VpxDecoder.OUTPUT_MODE_YUV : VpxDecoder.OUTPUT_MODE_NONE;
@@ -739,8 +721,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
               NUM_OUTPUT_BUFFERS,
               initialInputBufferSize,
               mediaCrypto,
-              disableLoopFilter,
-              useSurfaceYuvOutput);
+              disableLoopFilter);
       decoder.setOutputMode(outputMode);
       TraceUtil.endSection();
       long decoderInitializedTimestamp = SystemClock.elapsedRealtime();
@@ -938,23 +919,6 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       throw ExoPlaybackException.createForRenderer(decoderDrmSession.getError(), getIndex());
     }
     return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS;
-  }
-
-  private void renderRgbFrame(VpxOutputBuffer outputBuffer, boolean scale) {
-    if (bitmap == null
-        || bitmap.getWidth() != outputBuffer.width
-        || bitmap.getHeight() != outputBuffer.height) {
-      bitmap = Bitmap.createBitmap(outputBuffer.width, outputBuffer.height, Bitmap.Config.RGB_565);
-    }
-    bitmap.copyPixelsFromBuffer(outputBuffer.data);
-    Canvas canvas = surface.lockCanvas(null);
-    if (scale) {
-      canvas.scale(
-          ((float) canvas.getWidth()) / outputBuffer.width,
-          ((float) canvas.getHeight()) / outputBuffer.height);
-    }
-    canvas.drawBitmap(bitmap, 0, 0, null);
-    surface.unlockCanvasAndPost(canvas);
   }
 
   private void setJoiningDeadlineMs() {
