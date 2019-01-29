@@ -17,27 +17,17 @@ package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
-import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
+import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.ParsingLoadable;
-import java.io.IOException;
 
 /** A {@link DownloadHelper} for SmoothStreaming streams. */
-public final class SsDownloadHelper extends DownloadHelper<SsManifest> {
-
-  private final DataSource.Factory manifestDataSourceFactory;
+public final class SsDownloadHelper extends DownloadHelper {
 
   /**
    * Creates a SmoothStreaming download helper.
@@ -82,32 +72,9 @@ public final class SsDownloadHelper extends DownloadHelper<SsManifest> {
         DownloadAction.TYPE_SS,
         uri,
         /* cacheKey= */ null,
+        new SsMediaSource.Factory(manifestDataSourceFactory).createMediaSource(uri),
         trackSelectorParameters,
         renderersFactory,
         drmSessionManager);
-    this.manifestDataSourceFactory = manifestDataSourceFactory;
-  }
-
-  @Override
-  protected SsManifest loadManifest(Uri uri) throws IOException {
-    DataSource dataSource = manifestDataSourceFactory.createDataSource();
-    Uri fixedUri = SsUtil.fixManifestUri(uri);
-    return ParsingLoadable.load(dataSource, new SsManifestParser(), fixedUri, C.DATA_TYPE_MANIFEST);
-  }
-
-  @Override
-  protected TrackGroupArray[] getTrackGroupArrays(SsManifest manifest) {
-    SsManifest.StreamElement[] streamElements = manifest.streamElements;
-    TrackGroup[] trackGroups = new TrackGroup[streamElements.length];
-    for (int i = 0; i < streamElements.length; i++) {
-      trackGroups[i] = new TrackGroup(streamElements[i].formats);
-    }
-    return new TrackGroupArray[] {new TrackGroupArray(trackGroups)};
-  }
-
-  @Override
-  protected StreamKey toStreamKey(
-      int periodIndex, int trackGroupIndex, int trackIndexInTrackGroup) {
-    return new StreamKey(trackGroupIndex, trackIndexInTrackGroup);
   }
 }

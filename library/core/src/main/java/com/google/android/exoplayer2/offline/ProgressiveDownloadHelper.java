@@ -17,11 +17,9 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 
 /** A {@link DownloadHelper} for progressive streams. */
-public final class ProgressiveDownloadHelper extends DownloadHelper<Void> {
+public final class ProgressiveDownloadHelper extends DownloadHelper {
 
   /**
    * Creates download helper for progressive streams.
@@ -43,24 +41,9 @@ public final class ProgressiveDownloadHelper extends DownloadHelper<Void> {
         DownloadAction.TYPE_PROGRESSIVE,
         uri,
         cacheKey,
-        DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
-        (handler, videoListener, audioListener, metadata, text, drm) -> new Renderer[0],
+        /* mediaSource= */ null,
+        /* trackSelectorParameters= */ DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
+        /* renderersFactory= */ null,
         /* drmSessionManager= */ null);
-  }
-
-  @Override
-  protected Void loadManifest(Uri uri) {
-    return null;
-  }
-
-  @Override
-  protected TrackGroupArray[] getTrackGroupArrays(Void manifest) {
-    return new TrackGroupArray[] {TrackGroupArray.EMPTY};
-  }
-
-  @Override
-  protected StreamKey toStreamKey(
-      int periodIndex, int trackGroupIndex, int trackIndexInTrackGroup) {
-    return new StreamKey(periodIndex, trackGroupIndex, trackIndexInTrackGroup);
   }
 }
