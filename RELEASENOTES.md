@@ -2,6 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
+* `ExtractorMediaSource` renamed to `ProgressiveMediaSource`.
 * HLS:
   * Parse CHANNELS attribute from EXT-X-MEDIA.
 * Support for playing spherical videos on Daydream.

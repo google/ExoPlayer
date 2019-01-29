@@ -35,8 +35,8 @@ import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
@@ -373,7 +373,7 @@ import java.util.ArrayList;
       case DemoUtil.MIME_TYPE_HLS:
         return new HlsMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_VIDEO_MP4:
-        return new ExtractorMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
+        return new ProgressiveMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       default: {
           throw new IllegalStateException("Unsupported type: " + item.mimeType);
       }

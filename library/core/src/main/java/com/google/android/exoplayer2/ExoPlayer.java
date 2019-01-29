@@ -21,10 +21,10 @@ import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -48,7 +48,7 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
  *       which the loaded media can be read. A MediaSource is injected via {@link
  *       #prepare(MediaSource)} at the start of playback. The library modules provide default
- *       implementations for regular media files ({@link ExtractorMediaSource}), DASH
+ *       implementations for progressive media files ({@link ProgressiveMediaSource}), DASH
  *       (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS (HlsMediaSource), an
  *       implementation for loading single media samples ({@link SingleSampleMediaSource}) that's
  *       most often used for side-loaded subtitle files, and implementations for building more
