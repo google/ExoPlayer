@@ -77,7 +77,7 @@ public class SsMediaPeriodTest {
                 mock(Allocator.class));
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(
-        mediaPeriodFactory, testManifest, /* periodIndex= */ 0);
+        mediaPeriodFactory, testManifest);
   }
 
   private static Format createVideoFormat(int bitrate) {

@@ -22,6 +22,7 @@ import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.EmptySampleStream;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -190,6 +191,49 @@ import java.util.List;
   @Override
   public TrackGroupArray getTrackGroups() {
     return trackGroups;
+  }
+
+  @Override
+  public List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
+    List<AdaptationSet> manifestAdaptationSets = manifest.getPeriod(periodIndex).adaptationSets;
+    List<StreamKey> streamKeys = new ArrayList<>();
+    for (TrackSelection trackSelection : trackSelections) {
+      int trackGroupIndex = trackGroups.indexOf(trackSelection.getTrackGroup());
+      TrackGroupInfo trackGroupInfo = trackGroupInfos[trackGroupIndex];
+      if (trackGroupInfo.trackGroupCategory != TrackGroupInfo.CATEGORY_PRIMARY) {
+        // Ignore non-primary tracks.
+        continue;
+      }
+      int[] adaptationSetIndices = trackGroupInfo.adaptationSetIndices;
+      int[] trackIndices = new int[trackSelection.length()];
+      for (int i = 0; i < trackSelection.length(); i++) {
+        trackIndices[i] = trackSelection.getIndexInTrackGroup(i);
+      }
+      Arrays.sort(trackIndices);
+
+      int currentAdaptationSetIndex = 0;
+      int totalTracksInPreviousAdaptationSets = 0;
+      int tracksInCurrentAdaptationSet =
+          manifestAdaptationSets.get(adaptationSetIndices[0]).representations.size();
+      for (int i = 0; i < trackIndices.length; i++) {
+        while (trackIndices[i]
+            >= totalTracksInPreviousAdaptationSets + tracksInCurrentAdaptationSet) {
+          currentAdaptationSetIndex++;
+          totalTracksInPreviousAdaptationSets += tracksInCurrentAdaptationSet;
+          tracksInCurrentAdaptationSet =
+              manifestAdaptationSets
+                  .get(adaptationSetIndices[currentAdaptationSetIndex])
+                  .representations
+                  .size();
+        }
+        streamKeys.add(
+            new StreamKey(
+                periodIndex,
+                adaptationSetIndices[currentAdaptationSetIndex],
+                trackIndices[i] - totalTracksInPreviousAdaptationSets));
+      }
+    }
+    return streamKeys;
   }
 
   @Override
@@ -697,7 +741,7 @@ import java.util.List;
 
     public final int[] adaptationSetIndices;
     public final int trackType;
-    public @TrackGroupCategory final int trackGroupCategory;
+    @TrackGroupCategory public final int trackGroupCategory;
 
     public final int eventStreamGroupIndex;
     public final int primaryTrackGroupIndex;
@@ -748,7 +792,7 @@ import java.util.List;
       return new TrackGroupInfo(
           C.TRACK_TYPE_METADATA,
           CATEGORY_MANIFEST_EVENTS,
-          null,
+          new int[0],
           -1,
           C.INDEX_UNSET,
           C.INDEX_UNSET,
