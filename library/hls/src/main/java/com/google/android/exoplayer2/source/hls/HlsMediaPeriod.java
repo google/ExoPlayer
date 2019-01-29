@@ -343,15 +343,19 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   private void buildAndPrepareSampleStreamWrappers(long positionUs) {
     HlsMasterPlaylist masterPlaylist = playlistTracker.getMasterPlaylist();
+    boolean hasVariants = !masterPlaylist.variants.isEmpty();
     List<HlsUrl> audioRenditions = masterPlaylist.audios;
     List<HlsUrl> subtitleRenditions = masterPlaylist.subtitles;
 
-    int wrapperCount = 1 /* variants */ + audioRenditions.size() + subtitleRenditions.size();
+    int wrapperCount = (hasVariants ? 1 : 0) + audioRenditions.size() + subtitleRenditions.size();
     sampleStreamWrappers = new HlsSampleStreamWrapper[wrapperCount];
     pendingPrepareCount = wrapperCount;
 
-    buildAndPrepareMainSampleStreamWrapper(masterPlaylist, positionUs);
-    int currentWrapperIndex = 1;
+    int currentWrapperIndex = 0;
+    if (hasVariants) {
+      buildAndPrepareMainSampleStreamWrapper(masterPlaylist, positionUs);
+      currentWrapperIndex++;
+    }
 
     // TODO: Build video stream wrappers here.
 
@@ -370,8 +374,6 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       if (allowChunklessPreparation && renditionFormat.codecs != null) {
         sampleStreamWrapper.prepareWithMasterPlaylistInfo(
             new TrackGroupArray(new TrackGroup(audioRendition.format)), 0, TrackGroupArray.EMPTY);
-      } else {
-        sampleStreamWrapper.continuePreparing();
       }
     }
 
@@ -384,6 +386,12 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
           new TrackGroupArray(new TrackGroup(url.format)), 0, TrackGroupArray.EMPTY);
+    }
+
+    // Set timestamp master and trigger preparation (if not already prepared)
+    sampleStreamWrappers[0].setIsTimestampMaster(true);
+    for (HlsSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+      sampleStreamWrapper.continuePreparing();
     }
 
     // All wrappers are enabled during preparation.
@@ -503,9 +511,6 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
           new TrackGroupArray(muxedTrackGroups.toArray(new TrackGroup[0])),
           0,
           new TrackGroupArray(id3TrackGroup));
-    } else {
-      sampleStreamWrapper.setIsTimestampMaster(true);
-      sampleStreamWrapper.continuePreparing();
     }
   }
 
@@ -566,7 +571,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       if (isPrimaryTrackInVariant) {
         channelCount = variantFormat.channelCount;
         selectionFlags = variantFormat.selectionFlags;
-        language = variantFormat.label;
+        language = variantFormat.language;
         label = variantFormat.label;
       }
     }
