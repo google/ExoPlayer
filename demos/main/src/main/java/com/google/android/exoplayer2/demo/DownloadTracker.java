@@ -39,13 +39,9 @@ import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloadState;
-import com.google.android.exoplayer2.offline.ProgressiveDownloadHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.dash.offline.DashDownloadHelper;
-import com.google.android.exoplayer2.source.hls.offline.HlsDownloadHelper;
-import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadHelper;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -215,13 +211,13 @@ public class DownloadTracker implements DownloadManager.Listener {
     int type = Util.inferContentType(uri, extension);
     switch (type) {
       case C.TYPE_DASH:
-        return new DashDownloadHelper(uri, dataSourceFactory, renderersFactory);
+        return DownloadHelper.forDash(uri, dataSourceFactory, renderersFactory);
       case C.TYPE_SS:
-        return new SsDownloadHelper(uri, dataSourceFactory, renderersFactory);
+        return DownloadHelper.forSmoothStreaming(uri, dataSourceFactory, renderersFactory);
       case C.TYPE_HLS:
-        return new HlsDownloadHelper(uri, dataSourceFactory, renderersFactory);
+        return DownloadHelper.forHls(uri, dataSourceFactory, renderersFactory);
       case C.TYPE_OTHER:
-        return new ProgressiveDownloadHelper(uri);
+        return DownloadHelper.forProgressive(uri);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }

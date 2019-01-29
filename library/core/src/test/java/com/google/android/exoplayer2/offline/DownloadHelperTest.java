@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +94,7 @@ public class DownloadHelperTest {
 
   private Uri testUri;
 
-  private FakeDownloadHelper downloadHelper;
+  private DownloadHelper downloadHelper;
 
   @Before
   public void setUp() {
@@ -106,7 +107,14 @@ public class DownloadHelperTest {
         (handler, videoListener, audioListener, metadata, text, drm) ->
             new Renderer[] {textRenderer, audioRenderer, videoRenderer};
 
-    downloadHelper = new FakeDownloadHelper(testUri, renderersFactory);
+    downloadHelper =
+        new DownloadHelper(
+            TEST_DOWNLOAD_TYPE,
+            testUri,
+            TEST_CACHE_KEY,
+            new TestMediaSource(),
+            DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
+            Util.getRendererCapabilities(renderersFactory, /* drmSessionManager= */ null));
   }
 
   @Test
@@ -346,7 +354,7 @@ public class DownloadHelperTest {
     assertThat(removeAction.isRemoveAction).isTrue();
   }
 
-  private static void prepareDownloadHelper(FakeDownloadHelper downloadHelper) throws Exception {
+  private static void prepareDownloadHelper(DownloadHelper downloadHelper) throws Exception {
     AtomicReference<Exception> prepareException = new AtomicReference<>(null);
     ConditionVariable preparedCondition = new ConditionVariable();
     downloadHelper.prepare(
@@ -424,20 +432,6 @@ public class DownloadHelperTest {
     Arrays.sort(selectedTracksInGroup);
     Arrays.sort(tracks);
     assertThat(selectedTracksInGroup).isEqualTo(tracks);
-  }
-
-  private static final class FakeDownloadHelper extends DownloadHelper {
-
-    public FakeDownloadHelper(Uri testUri, RenderersFactory renderersFactory) {
-      super(
-          TEST_DOWNLOAD_TYPE,
-          testUri,
-          TEST_CACHE_KEY,
-          new TestMediaSource(),
-          DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
-          renderersFactory,
-          /* drmSessionManager= */ null);
-    }
   }
 
   private static final class TestMediaSource extends FakeMediaSource {
