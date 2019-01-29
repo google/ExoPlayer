@@ -61,8 +61,8 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   /**
-   * Sets the {@link Timeline}. Call {@link #updateQueuedPeriods(long)} to update the queued media
-   * periods to take into account the new timeline.
+   * Sets the {@link Timeline}. Call {@link #updateQueuedPeriods(long, long)} to update the queued
+   * media periods to take into account the new timeline.
    */
   public void setTimeline(Timeline timeline) {
     this.timeline = timeline;
@@ -293,9 +293,12 @@ import com.google.android.exoplayer2.util.Assertions;
    * consistent with the new timeline.
    *
    * @param rendererPositionUs The current renderer position in microseconds.
+   * @param maxRendererReadPositionUs The maximum renderer position up to which renderers have read
+   *     the current reading media period in microseconds, or {@link C#TIME_END_OF_SOURCE} if they
+   *     have read to the end.
    * @return Whether the timeline change has been handled completely.
    */
-  public boolean updateQueuedPeriods(long rendererPositionUs) {
+  public boolean updateQueuedPeriods(long rendererPositionUs, long maxRendererReadPositionUs) {
     // TODO: Merge this into setTimeline so that the queue gets updated as soon as the new timeline
     // is set, once all cases handled by ExoPlayerImplInternal.handleSourceInfoRefreshed can be
     // handled here.
@@ -327,8 +330,18 @@ import com.google.android.exoplayer2.util.Assertions;
       periodHolder.info = newPeriodInfo.copyWithContentPositionUs(oldPeriodInfo.contentPositionUs);
 
       if (!areDurationsCompatible(oldPeriodInfo.durationUs, newPeriodInfo.durationUs)) {
-        // The period duration changed. Remove all subsequent periods.
-        return !removeAfter(periodHolder);
+        // The period duration changed. Remove all subsequent periods and check whether we read
+        // beyond the new duration.
+        long newDurationInRendererTime =
+            newPeriodInfo.durationUs == C.TIME_UNSET
+                ? Long.MAX_VALUE
+                : periodHolder.toRendererTime(newPeriodInfo.durationUs);
+        boolean isReadingAndReadBeyondNewDuration =
+            periodHolder == reading
+                && (maxRendererReadPositionUs == C.TIME_END_OF_SOURCE
+                    || maxRendererReadPositionUs >= newDurationInRendererTime);
+        boolean readingPeriodRemoved = removeAfter(periodHolder);
+        return !readingPeriodRemoved && !isReadingAndReadBeyondNewDuration;
       }
 
       previousPeriodHolder = periodHolder;
