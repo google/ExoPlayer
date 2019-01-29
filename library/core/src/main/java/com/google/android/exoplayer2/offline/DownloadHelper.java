@@ -490,6 +490,64 @@ public final class DownloadHelper {
   }
 
   /**
+   * Convenience method to add selections of tracks for all specified audio languages. If an audio
+   * track in one of the specified languages is not available, the default fallback audio track is
+   * used instead. Must not be called until after preparation completes.
+   *
+   * @param languages A list of audio languages for which tracks should be added to the download
+   *     selection, as ISO 639-2/T tags.
+   */
+  public void addAudioLanguagesToSelection(String... languages) {
+    assertPreparedWithMedia();
+    for (int periodIndex = 0; periodIndex < mappedTrackInfos.length; periodIndex++) {
+      DefaultTrackSelector.ParametersBuilder parametersBuilder =
+          DEFAULT_TRACK_SELECTOR_PARAMETERS.buildUpon();
+      MappedTrackInfo mappedTrackInfo = mappedTrackInfos[periodIndex];
+      int rendererCount = mappedTrackInfo.getRendererCount();
+      for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
+        if (mappedTrackInfo.getRendererType(rendererIndex) != C.TRACK_TYPE_AUDIO) {
+          parametersBuilder.setRendererDisabled(rendererIndex, /* disabled= */ true);
+        }
+      }
+      for (String language : languages) {
+        parametersBuilder.setPreferredAudioLanguage(language);
+        addTrackSelection(periodIndex, parametersBuilder.build());
+      }
+    }
+  }
+
+  /**
+   * Convenience method to add selections of tracks for all specified text languages. Must not be
+   * called until after preparation completes.
+   *
+   * @param selectUndeterminedTextLanguage Whether a text track with undetermined language should be
+   *     selected for downloading if no track with one of the specified {@code languages} is
+   *     available.
+   * @param languages A list of text languages for which tracks should be added to the download
+   *     selection, as ISO 639-2/T tags.
+   */
+  public void addTextLanguagesToSelection(
+      boolean selectUndeterminedTextLanguage, String... languages) {
+    assertPreparedWithMedia();
+    for (int periodIndex = 0; periodIndex < mappedTrackInfos.length; periodIndex++) {
+      DefaultTrackSelector.ParametersBuilder parametersBuilder =
+          DEFAULT_TRACK_SELECTOR_PARAMETERS.buildUpon();
+      MappedTrackInfo mappedTrackInfo = mappedTrackInfos[periodIndex];
+      int rendererCount = mappedTrackInfo.getRendererCount();
+      for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
+        if (mappedTrackInfo.getRendererType(rendererIndex) != C.TRACK_TYPE_TEXT) {
+          parametersBuilder.setRendererDisabled(rendererIndex, /* disabled= */ true);
+        }
+      }
+      parametersBuilder.setSelectUndeterminedTextLanguage(selectUndeterminedTextLanguage);
+      for (String language : languages) {
+        parametersBuilder.setPreferredTextLanguage(language);
+        addTrackSelection(periodIndex, parametersBuilder.build());
+      }
+    }
+  }
+
+  /**
    * Builds a {@link DownloadAction} for downloading the selected tracks. Must not be called until
    * after preparation completes.
    *
