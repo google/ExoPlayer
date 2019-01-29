@@ -28,8 +28,8 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import org.junit.Before;
@@ -86,7 +86,7 @@ public class FlacPlaybackTest {
       player = ExoPlayerFactory.newInstance(context, new Renderer[] {audioRenderer}, trackSelector);
       player.addListener(this);
       MediaSource mediaSource =
-          new ExtractorMediaSource.Factory(
+          new ProgressiveMediaSource.Factory(
                   new DefaultDataSourceFactory(context, "ExoPlayerExtFlacTest"))
               .setExtractorsFactory(MatroskaExtractor.FACTORY)
               .createMediaSource(uri);
