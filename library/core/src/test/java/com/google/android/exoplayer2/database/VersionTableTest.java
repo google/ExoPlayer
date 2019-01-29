@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.database.VersionTable.FEATURE_CACHE;
 import static com.google.android.exoplayer2.database.VersionTable.FEATURE_OFFLINE;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.database.sqlite.SQLiteDatabase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,10 +32,14 @@ import org.robolectric.RuntimeEnvironment;
 public class VersionTableTest {
 
   private ExoDatabaseProvider databaseProvider;
+  private SQLiteDatabase readableDatabase;
+  private SQLiteDatabase writableDatabase;
 
   @Before
   public void setUp() {
     databaseProvider = new ExoDatabaseProvider(RuntimeEnvironment.application);
+    readableDatabase = databaseProvider.getReadableDatabase();
+    writableDatabase = databaseProvider.getWritableDatabase();
   }
 
   @After
@@ -44,35 +49,32 @@ public class VersionTableTest {
 
   @Test
   public void getVersion_nonExistingTable_returnsVersionUnset() {
-    VersionTable versionTable = new VersionTable(databaseProvider);
-    int version = versionTable.getVersion(FEATURE_OFFLINE);
+    int version = VersionTable.getVersion(readableDatabase, FEATURE_OFFLINE);
     assertThat(version).isEqualTo(VersionTable.VERSION_UNSET);
   }
 
   @Test
   public void getVersion_returnsSetVersion() {
-    VersionTable versionTable = new VersionTable(databaseProvider);
+    VersionTable.setVersion(writableDatabase, FEATURE_OFFLINE, 1);
+    assertThat(VersionTable.getVersion(readableDatabase, FEATURE_OFFLINE)).isEqualTo(1);
 
-    versionTable.setVersion(FEATURE_OFFLINE, 1);
-    assertThat(versionTable.getVersion(FEATURE_OFFLINE)).isEqualTo(1);
+    VersionTable.setVersion(writableDatabase, FEATURE_OFFLINE, 10);
+    assertThat(VersionTable.getVersion(readableDatabase, FEATURE_OFFLINE)).isEqualTo(10);
 
-    versionTable.setVersion(FEATURE_OFFLINE, 10);
-    assertThat(versionTable.getVersion(FEATURE_OFFLINE)).isEqualTo(10);
-
-    versionTable.setVersion(FEATURE_CACHE, 5);
-    assertThat(versionTable.getVersion(FEATURE_CACHE)).isEqualTo(5);
-    assertThat(versionTable.getVersion(FEATURE_OFFLINE)).isEqualTo(10);
+    VersionTable.setVersion(writableDatabase, FEATURE_CACHE, 5);
+    assertThat(VersionTable.getVersion(readableDatabase, FEATURE_CACHE)).isEqualTo(5);
+    assertThat(VersionTable.getVersion(readableDatabase, FEATURE_OFFLINE)).isEqualTo(10);
   }
 
   @Test
   public void doesTableExist_nonExistingTable_returnsFalse() {
-    assertThat(VersionTable.doesTableExist(databaseProvider, "NonExistingTable")).isFalse();
+    assertThat(VersionTable.tableExists(readableDatabase, "NonExistingTable")).isFalse();
   }
 
   @Test
   public void doesTableExist_existingTable_returnsTrue() {
     String table = "TestTable";
     databaseProvider.getWritableDatabase().execSQL("CREATE TABLE " + table + " (dummy INTEGER)");
-    assertThat(VersionTable.doesTableExist(databaseProvider, table)).isTrue();
+    assertThat(VersionTable.tableExists(readableDatabase, table)).isTrue();
   }
 }

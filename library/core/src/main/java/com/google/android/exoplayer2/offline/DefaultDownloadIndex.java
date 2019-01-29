@@ -215,15 +215,16 @@ public final class DefaultDownloadIndex implements DownloadIndex {
 
     public DownloadsTable(DatabaseProvider databaseProvider) {
       this.databaseProvider = databaseProvider;
-      VersionTable versionTable = new VersionTable(databaseProvider);
-      int version = versionTable.getVersion(VersionTable.FEATURE_OFFLINE);
+      int version =
+          VersionTable.getVersion(
+              databaseProvider.getReadableDatabase(), VersionTable.FEATURE_OFFLINE);
       if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
         writableDatabase.beginTransaction();
         try {
+          VersionTable.setVersion(writableDatabase, VersionTable.FEATURE_OFFLINE, TABLE_VERSION);
           writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
           writableDatabase.execSQL(SQL_CREATE_TABLE);
-          versionTable.setVersion(VersionTable.FEATURE_OFFLINE, TABLE_VERSION);
           writableDatabase.setTransactionSuccessful();
         } finally {
           writableDatabase.endTransaction();
