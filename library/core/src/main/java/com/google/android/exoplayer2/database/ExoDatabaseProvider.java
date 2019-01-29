@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.database;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.database.Cursor;
+import android.database.DatabaseErrorHandler;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -107,10 +108,7 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
   // TODO: This is fragile. Stop using it if/when SQLiteOpenHelper can be instantiated without a
   // context [Internal ref: b/123351819], or by injecting a Context into all components that need
   // to instantiate an ExoDatabaseProvider.
-  /**
-   * A {@link Context} that only implements {@link #getDatabasePath(String)}. This is the only
-   * method used by {@link SQLiteOpenHelper}.
-   */
+  /** A {@link Context} that implements methods called by {@link SQLiteOpenHelper}. */
   private static class DatabaseFileProvidingContext extends ContextWrapper {
 
     private final File file;
@@ -124,6 +122,29 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
     @Override
     public File getDatabasePath(String name) {
       return file;
+    }
+
+    @Override
+    public SQLiteDatabase openOrCreateDatabase(
+        String name, int mode, SQLiteDatabase.CursorFactory factory) {
+      return openOrCreateDatabase(name, mode, factory, /* errorHandler= */ null);
+    }
+
+    @Override
+    public SQLiteDatabase openOrCreateDatabase(
+        String name,
+        int mode,
+        SQLiteDatabase.CursorFactory factory,
+        DatabaseErrorHandler errorHandler) {
+      File databasePath = getDatabasePath(name);
+      int flags = SQLiteDatabase.CREATE_IF_NECESSARY;
+      if ((mode & MODE_ENABLE_WRITE_AHEAD_LOGGING) != 0) {
+        flags |= SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING;
+      }
+      if ((mode & MODE_NO_LOCALIZED_COLLATORS) != 0) {
+        flags |= SQLiteDatabase.NO_LOCALIZED_COLLATORS;
+      }
+      return SQLiteDatabase.openDatabase(databasePath.getPath(), factory, flags, errorHandler);
     }
   }
 }
