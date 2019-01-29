@@ -495,7 +495,7 @@ public final class DownloadHelper {
    * used instead. Must not be called until after preparation completes.
    *
    * @param languages A list of audio languages for which tracks should be added to the download
-   *     selection, as ISO 639-2/T tags.
+   *     selection, as ISO 639-1 two-letter or ISO 639-2 three-letter codes.
    */
   public void addAudioLanguagesToSelection(String... languages) {
     assertPreparedWithMedia();
@@ -524,7 +524,7 @@ public final class DownloadHelper {
    *     selected for downloading if no track with one of the specified {@code languages} is
    *     available.
    * @param languages A list of text languages for which tracks should be added to the download
-   *     selection, as ISO 639-2/T tags.
+   *     selection, as ISO 639-1 two-letter or ISO 639-2 three-letter codes.
    */
   public void addTextLanguagesToSelection(
       boolean selectUndeterminedTextLanguage, String... languages) {
