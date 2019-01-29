@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -237,7 +238,6 @@ public interface MediaSource {
   default Object getTag() {
     return null;
   }
-
   /**
    * Starts source preparation if not yet started, and adds a listener for timeline and/or manifest
    * updates.
@@ -256,8 +256,7 @@ public interface MediaSource {
    *     and other data.
    */
   void prepareSource(
-      SourceInfoRefreshListener listener,
-      @Nullable TransferListener mediaTransferListener);
+      SourceInfoRefreshListener listener, @Nullable TransferListener mediaTransferListener);
 
   /**
    * Throws any pending error encountered while loading or refreshing source information.
