@@ -20,17 +20,18 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.IntDef;
+import android.support.annotation.VisibleForTesting;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * A table that holds version information about other ExoPlayer tables. This allows ExoPlayer tables
- * to be versioned independently to the version of the containing database.
+ * Utility methods for accessing versions of ExoPlayer database components. This allows them to be
+ * versioned independently to the version of the containing database.
  */
 public final class VersionTable {
 
-  /** Returned by {@link #getVersion(int)} if the version is unset. */
+  /** Returned by {@link #getVersion(SQLiteDatabase, int)} if the version is unset. */
   public static final int VERSION_UNSET = -1;
   /** Version of tables used for offline functionality. */
   public static final int FEATURE_OFFLINE = 0;
@@ -56,48 +57,46 @@ public final class VersionTable {
   @IntDef({FEATURE_OFFLINE, FEATURE_CACHE})
   private @interface Feature {}
 
-  private final DatabaseProvider databaseProvider;
-
-  public VersionTable(DatabaseProvider databaseProvider) {
-    this.databaseProvider = databaseProvider;
-    // Check whether the table exists to avoid getting a writable database if we don't need one.
-    if (!doesTableExist(databaseProvider, TABLE_NAME)) {
-      databaseProvider.getWritableDatabase().execSQL(SQL_CREATE_TABLE_IF_NOT_EXISTS);
-    }
-  }
+  private VersionTable() {}
 
   /**
    * Sets the version of tables belonging to the specified feature.
    *
+   * @param writableDatabase The database to update.
    * @param feature The feature.
    * @param version The version.
    */
-  public void setVersion(@Feature int feature, int version) {
+  public static void setVersion(
+      SQLiteDatabase writableDatabase, @Feature int feature, int version) {
+    writableDatabase.execSQL(SQL_CREATE_TABLE_IF_NOT_EXISTS);
     ContentValues values = new ContentValues();
     values.put(COLUMN_FEATURE, feature);
     values.put(COLUMN_VERSION, version);
-    SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
     writableDatabase.replace(TABLE_NAME, /* nullColumnHack= */ null, values);
   }
 
   /**
    * Returns the version of tables belonging to the specified feature, or {@link #VERSION_UNSET} if
    * no version information is available.
+   *
+   * @param database The database to query.
+   * @param feature The feature.
    */
-  public int getVersion(@Feature int feature) {
+  public static int getVersion(SQLiteDatabase database, @Feature int feature) {
+    if (!tableExists(database, TABLE_NAME)) {
+      return VERSION_UNSET;
+    }
     String selection = COLUMN_FEATURE + " = ?";
     String[] selectionArgs = {Integer.toString(feature)};
     try (Cursor cursor =
-        databaseProvider
-            .getReadableDatabase()
-            .query(
-                TABLE_NAME,
-                new String[] {COLUMN_VERSION},
-                selection,
-                selectionArgs,
-                /* groupBy= */ null,
-                /* having= */ null,
-                /* orderBy= */ null)) {
+        database.query(
+            TABLE_NAME,
+            new String[] {COLUMN_VERSION},
+            selection,
+            selectionArgs,
+            /* groupBy= */ null,
+            /* having= */ null,
+            /* orderBy= */ null)) {
       if (cursor.getCount() == 0) {
         return VERSION_UNSET;
       }
@@ -106,8 +105,8 @@ public final class VersionTable {
     }
   }
 
-  /* package */ static boolean doesTableExist(DatabaseProvider databaseProvider, String tableName) {
-    SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
+  @VisibleForTesting
+  /* package */ static boolean tableExists(SQLiteDatabase readableDatabase, String tableName) {
     long count =
         DatabaseUtils.queryNumEntries(
             readableDatabase, "sqlite_master", "tbl_name = ?", new String[] {tableName});

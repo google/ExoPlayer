@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -180,13 +181,13 @@ public class DefaultDownloadIndexTest {
 
   @Test
   public void putDownloadState_setsVersion() {
-    VersionTable versionTable = new VersionTable(databaseProvider);
-    assertThat(versionTable.getVersion(VersionTable.FEATURE_OFFLINE))
+    SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
+    assertThat(VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE))
         .isEqualTo(VersionTable.VERSION_UNSET);
 
     downloadIndex.putDownloadState(new DownloadStateBuilder("id1").build());
 
-    assertThat(versionTable.getVersion(VersionTable.FEATURE_OFFLINE))
+    assertThat(VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE))
         .isEqualTo(DefaultDownloadIndex.TABLE_VERSION);
   }
 
@@ -198,15 +199,15 @@ public class DefaultDownloadIndexTest {
     assertThat(cursor.getCount()).isEqualTo(1);
     cursor.close();
 
-    VersionTable versionTable = new VersionTable(databaseProvider);
-    versionTable.setVersion(VersionTable.FEATURE_OFFLINE, Integer.MAX_VALUE);
+    SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+    VersionTable.setVersion(writableDatabase, VersionTable.FEATURE_OFFLINE, Integer.MAX_VALUE);
 
     downloadIndex = new DefaultDownloadIndex(databaseProvider);
 
     cursor = downloadIndex.getDownloadStates();
     assertThat(cursor.getCount()).isEqualTo(0);
     cursor.close();
-    assertThat(versionTable.getVersion(VersionTable.FEATURE_OFFLINE))
+    assertThat(VersionTable.getVersion(writableDatabase, VersionTable.FEATURE_OFFLINE))
         .isEqualTo(DefaultDownloadIndex.TABLE_VERSION);
   }
 
