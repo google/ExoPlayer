@@ -21,6 +21,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.util.Pair;
 import android.util.SparseIntArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -42,11 +43,14 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -64,9 +68,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * <p>A typical usage of DownloadHelper follows these steps:
  *
  * <ol>
- *   <li>Construct the download helper with the {@link MediaSource}, information about the {@link
- *       RenderersFactory renderers} and {@link DefaultTrackSelector.Parameters parameters} for
- *       track selection.
+ *   <li>Build the helper using one of the {@code forXXX} methods.
  *   <li>Prepare the helper using {@link #prepare(Callback)} and wait for the callback.
  *   <li>Optional: Inspect the selected tracks using {@link #getMappedTrackInfo(int)} and {@link
  *       #getTrackSelections(int, int)}, and make adjustments using {@link
@@ -76,7 +78,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *   <li>Release the helper using {@link #release()}.
  * </ol>
  */
-public abstract class DownloadHelper {
+public final class DownloadHelper {
 
   /**
    * The default parameters used for track selection for downloading. This default selects the
@@ -102,6 +104,207 @@ public abstract class DownloadHelper {
      * @param e The error.
      */
     void onPrepareError(DownloadHelper helper, IOException e);
+  }
+
+  @Nullable private static final Constructor<?> DASH_FACTORY_CONSTRUCTOR;
+  @Nullable private static final Constructor<?> HLS_FACTORY_CONSTRUCTOR;
+  @Nullable private static final Constructor<?> SS_FACTORY_CONSTRUCTOR;
+  @Nullable private static final Method DASH_FACTORY_CREATE_METHOD;
+  @Nullable private static final Method HLS_FACTORY_CREATE_METHOD;
+  @Nullable private static final Method SS_FACTORY_CREATE_METHOD;
+
+  static {
+    Pair<@NullableType Constructor<?>, @NullableType Method> dashFactoryMethods =
+        getMediaSourceFactoryMethods(
+            "com.google.android.exoplayer2.source.dash.DashMediaSource$Factory");
+    DASH_FACTORY_CONSTRUCTOR = dashFactoryMethods.first;
+    DASH_FACTORY_CREATE_METHOD = dashFactoryMethods.second;
+    Pair<@NullableType Constructor<?>, @NullableType Method> hlsFactoryMethods =
+        getMediaSourceFactoryMethods(
+            "com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory");
+    HLS_FACTORY_CONSTRUCTOR = hlsFactoryMethods.first;
+    HLS_FACTORY_CREATE_METHOD = hlsFactoryMethods.second;
+    Pair<@NullableType Constructor<?>, @NullableType Method> ssFactoryMethods =
+        getMediaSourceFactoryMethods(
+            "com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory");
+    SS_FACTORY_CONSTRUCTOR = ssFactoryMethods.first;
+    SS_FACTORY_CREATE_METHOD = ssFactoryMethods.second;
+  }
+
+  /**
+   * Creates a {@link DownloadHelper} for progressive streams.
+   *
+   * @param uri A stream {@link Uri}.
+   * @return A {@link DownloadHelper} for progressive streams.
+   */
+  public static DownloadHelper forProgressive(Uri uri) {
+    return forProgressive(uri, /* cacheKey= */ null);
+  }
+
+  /**
+   * Creates a {@link DownloadHelper} for progressive streams.
+   *
+   * @param uri A stream {@link Uri}.
+   * @param cacheKey An optional cache key.
+   * @return A {@link DownloadHelper} for progressive streams.
+   */
+  public static DownloadHelper forProgressive(Uri uri, @Nullable String cacheKey) {
+    return new DownloadHelper(
+        DownloadAction.TYPE_PROGRESSIVE,
+        uri,
+        cacheKey,
+        /* mediaSource= */ null,
+        DEFAULT_TRACK_SELECTOR_PARAMETERS,
+        /* rendererCapabilities= */ new RendererCapabilities[0]);
+  }
+
+  /**
+   * Creates a {@link DownloadHelper} for DASH streams.
+   *
+   * @param uri A manifest {@link Uri}.
+   * @param dataSourceFactory A {@link DataSource.Factory} used to load the manifest.
+   * @param renderersFactory A {@link RenderersFactory} creating the renderers for which tracks are
+   *     selected.
+   * @return A {@link DownloadHelper} for DASH streams.
+   * @throws IllegalStateException If the DASH module is missing.
+   */
+  public static DownloadHelper forDash(
+      Uri uri, DataSource.Factory dataSourceFactory, RenderersFactory renderersFactory) {
+    return forDash(
+        uri,
+        dataSourceFactory,
+        renderersFactory,
+        /* drmSessionManager= */ null,
+        DEFAULT_TRACK_SELECTOR_PARAMETERS);
+  }
+
+  /**
+   * Creates a {@link DownloadHelper} for DASH streams.
+   *
+   * @param uri A manifest {@link Uri}.
+   * @param dataSourceFactory A {@link DataSource.Factory} used to load the manifest.
+   * @param renderersFactory A {@link RenderersFactory} creating the renderers for which tracks are
+   *     selected.
+   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers created by
+   *     {@code renderersFactory}.
+   * @param trackSelectorParameters {@link DefaultTrackSelector.Parameters} for selecting tracks for
+   *     downloading.
+   * @return A {@link DownloadHelper} for DASH streams.
+   * @throws IllegalStateException If the DASH module is missing.
+   */
+  public static DownloadHelper forDash(
+      Uri uri,
+      DataSource.Factory dataSourceFactory,
+      RenderersFactory renderersFactory,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      DefaultTrackSelector.Parameters trackSelectorParameters) {
+    return new DownloadHelper(
+        DownloadAction.TYPE_DASH,
+        uri,
+        /* cacheKey= */ null,
+        createMediaSource(
+            uri, dataSourceFactory, DASH_FACTORY_CONSTRUCTOR, DASH_FACTORY_CREATE_METHOD),
+        trackSelectorParameters,
+        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
+  }
+
+  /**
+   * Creates a {@link DownloadHelper} for HLS streams.
+   *
+   * @param uri A playlist {@link Uri}.
+   * @param dataSourceFactory A {@link DataSource.Factory} used to load the playlist.
+   * @param renderersFactory A {@link RenderersFactory} creating the renderers for which tracks are
+   *     selected.
+   * @return A {@link DownloadHelper} for HLS streams.
+   * @throws IllegalStateException If the HLS module is missing.
+   */
+  public static DownloadHelper forHls(
+      Uri uri, DataSource.Factory dataSourceFactory, RenderersFactory renderersFactory) {
+    return forHls(
+        uri,
+        dataSourceFactory,
+        renderersFactory,
+        /* drmSessionManager= */ null,
+        DEFAULT_TRACK_SELECTOR_PARAMETERS);
+  }
+
+  /**
+   * Creates a {@link DownloadHelper} for HLS streams.
+   *
+   * @param uri A playlist {@link Uri}.
+   * @param dataSourceFactory A {@link DataSource.Factory} used to load the playlist.
+   * @param renderersFactory A {@link RenderersFactory} creating the renderers for which tracks are
+   *     selected.
+   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers created by
+   *     {@code renderersFactory}.
+   * @param trackSelectorParameters {@link DefaultTrackSelector.Parameters} for selecting tracks for
+   *     downloading.
+   * @return A {@link DownloadHelper} for HLS streams.
+   * @throws IllegalStateException If the HLS module is missing.
+   */
+  public static DownloadHelper forHls(
+      Uri uri,
+      DataSource.Factory dataSourceFactory,
+      RenderersFactory renderersFactory,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      DefaultTrackSelector.Parameters trackSelectorParameters) {
+    return new DownloadHelper(
+        DownloadAction.TYPE_HLS,
+        uri,
+        /* cacheKey= */ null,
+        createMediaSource(
+            uri, dataSourceFactory, HLS_FACTORY_CONSTRUCTOR, HLS_FACTORY_CREATE_METHOD),
+        trackSelectorParameters,
+        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
+  }
+
+  /**
+   * Creates a {@link DownloadHelper} for SmoothStreaming streams.
+   *
+   * @param uri A manifest {@link Uri}.
+   * @param dataSourceFactory A {@link DataSource.Factory} used to load the manifest.
+   * @param renderersFactory A {@link RenderersFactory} creating the renderers for which tracks are
+   *     selected.
+   * @return A {@link DownloadHelper} for SmoothStreaming streams.
+   * @throws IllegalStateException If the SmoothStreaming module is missing.
+   */
+  public static DownloadHelper forSmoothStreaming(
+      Uri uri, DataSource.Factory dataSourceFactory, RenderersFactory renderersFactory) {
+    return forSmoothStreaming(
+        uri,
+        dataSourceFactory,
+        renderersFactory,
+        /* drmSessionManager= */ null,
+        DEFAULT_TRACK_SELECTOR_PARAMETERS);
+  }
+
+  /**
+   * Creates a {@link DownloadHelper} for SmoothStreaming streams.
+   *
+   * @param uri A manifest {@link Uri}.
+   * @param dataSourceFactory A {@link DataSource.Factory} used to load the manifest.
+   * @param renderersFactory A {@link RenderersFactory} creating the renderers for which tracks are
+   *     selected.
+   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers created by
+   *     {@code renderersFactory}.
+   * @param trackSelectorParameters {@link DefaultTrackSelector.Parameters} for selecting tracks for
+   *     downloading.
+   * @return A {@link DownloadHelper} for SmoothStreaming streams.
+   * @throws IllegalStateException If the SmoothStreaming module is missing.
+   */
+  public static DownloadHelper forSmoothStreaming(
+      Uri uri,
+      DataSource.Factory dataSourceFactory,
+      RenderersFactory renderersFactory,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      DefaultTrackSelector.Parameters trackSelectorParameters) {
+    return new DownloadHelper(
+        DownloadAction.TYPE_SS,
+        uri,
+        /* cacheKey= */ null,
+        createMediaSource(uri, dataSourceFactory, SS_FACTORY_CONSTRUCTOR, SS_FACTORY_CREATE_METHOD),
+        trackSelectorParameters,
+        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
   }
 
   private final String downloadType;
@@ -131,10 +334,8 @@ public abstract class DownloadHelper {
    *     selection needs to be made.
    * @param trackSelectorParameters {@link DefaultTrackSelector.Parameters} for selecting tracks for
    *     downloading.
-   * @param renderersFactory The {@link RenderersFactory} creating the renderers for which tracks
-   *     are selected, or null if no track selection needs to be made.
-   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers created by
-   *     {@code renderersFactory}.
+   * @param rendererCapabilities The {@link RendererCapabilities} of the renderers for which tracks
+   *     are selected.
    */
   public DownloadHelper(
       String downloadType,
@@ -142,17 +343,13 @@ public abstract class DownloadHelper {
       @Nullable String cacheKey,
       @Nullable MediaSource mediaSource,
       DefaultTrackSelector.Parameters trackSelectorParameters,
-      @Nullable RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+      RendererCapabilities[] rendererCapabilities) {
     this.downloadType = downloadType;
     this.uri = uri;
     this.cacheKey = cacheKey;
     this.mediaSource = mediaSource;
     this.trackSelector = new DefaultTrackSelector(new DownloadTrackSelection.Factory());
-    this.rendererCapabilities =
-        renderersFactory == null
-            ? new RendererCapabilities[0]
-            : Util.getRendererCapabilities(renderersFactory, drmSessionManager);
+    this.rendererCapabilities = rendererCapabilities;
     this.scratchSet = new SparseIntArray();
     trackSelector.setParameters(trackSelectorParameters);
     trackSelector.init(/* listener= */ () -> {}, new DummyBandwidthMeter());
@@ -166,7 +363,7 @@ public abstract class DownloadHelper {
    *     Looper}, in which case it will be called on the application's main thread.
    * @throws IllegalStateException If the download helper has already been prepared.
    */
-  public final void prepare(Callback callback) {
+  public void prepare(Callback callback) {
     Assertions.checkState(this.callback == null);
     this.callback = callback;
     callbackHandler =
@@ -179,7 +376,7 @@ public abstract class DownloadHelper {
   }
 
   /** Releases the helper and all resources it is holding. */
-  public final void release() {
+  public void release() {
     if (mediaPreparer != null) {
       mediaPreparer.release();
     }
@@ -190,7 +387,7 @@ public abstract class DownloadHelper {
    * preparation completes.
    */
   @Nullable
-  public final Object getManifest() {
+  public Object getManifest() {
     if (mediaSource == null) {
       return null;
     }
@@ -202,7 +399,7 @@ public abstract class DownloadHelper {
    * Returns the number of periods for which media is available. Must not be called until after
    * preparation completes.
    */
-  public final int getPeriodCount() {
+  public int getPeriodCount() {
     if (mediaSource == null) {
       return 0;
     }
@@ -220,7 +417,7 @@ public abstract class DownloadHelper {
    * @return The track groups for the period. May be {@link TrackGroupArray#EMPTY} for single stream
    *     content.
    */
-  public final TrackGroupArray getTrackGroups(int periodIndex) {
+  public TrackGroupArray getTrackGroups(int periodIndex) {
     assertPreparedWithMedia();
     return trackGroupArrays[periodIndex];
   }
@@ -232,7 +429,7 @@ public abstract class DownloadHelper {
    * @param periodIndex The period index.
    * @return The {@link MappedTrackInfo} for the period.
    */
-  public final MappedTrackInfo getMappedTrackInfo(int periodIndex) {
+  public MappedTrackInfo getMappedTrackInfo(int periodIndex) {
     assertPreparedWithMedia();
     return mappedTrackInfos[periodIndex];
   }
@@ -245,7 +442,7 @@ public abstract class DownloadHelper {
    * @param rendererIndex The renderer index.
    * @return A list of selected {@link TrackSelection track selections}.
    */
-  public final List<TrackSelection> getTrackSelections(int periodIndex, int rendererIndex) {
+  public List<TrackSelection> getTrackSelections(int periodIndex, int rendererIndex) {
     assertPreparedWithMedia();
     return immutableTrackSelectionsByPeriodAndRenderer[periodIndex][rendererIndex];
   }
@@ -256,7 +453,7 @@ public abstract class DownloadHelper {
    *
    * @param periodIndex The period index for which track selections are cleared.
    */
-  public final void clearTrackSelections(int periodIndex) {
+  public void clearTrackSelections(int periodIndex) {
     assertPreparedWithMedia();
     for (int i = 0; i < rendererCapabilities.length; i++) {
       trackSelectionsByPeriodAndRenderer[periodIndex][i].clear();
@@ -271,7 +468,7 @@ public abstract class DownloadHelper {
    * @param trackSelectorParameters The {@link DefaultTrackSelector.Parameters} to obtain the new
    *     selection of tracks.
    */
-  public final void replaceTrackSelections(
+  public void replaceTrackSelections(
       int periodIndex, DefaultTrackSelector.Parameters trackSelectorParameters) {
     clearTrackSelections(periodIndex);
     addTrackSelection(periodIndex, trackSelectorParameters);
@@ -285,7 +482,7 @@ public abstract class DownloadHelper {
    * @param trackSelectorParameters The {@link DefaultTrackSelector.Parameters} to obtain the new
    *     selection of tracks.
    */
-  public final void addTrackSelection(
+  public void addTrackSelection(
       int periodIndex, DefaultTrackSelector.Parameters trackSelectorParameters) {
     assertPreparedWithMedia();
     trackSelector.setParameters(trackSelectorParameters);
@@ -299,7 +496,7 @@ public abstract class DownloadHelper {
    * @param data Application provided data to store in {@link DownloadAction#data}.
    * @return The built {@link DownloadAction}.
    */
-  public final DownloadAction getDownloadAction(@Nullable byte[] data) {
+  public DownloadAction getDownloadAction(@Nullable byte[] data) {
     if (mediaSource == null) {
       return DownloadAction.createDownloadAction(
           downloadType, uri, /* keys= */ Collections.emptyList(), cacheKey, data);
@@ -324,7 +521,7 @@ public abstract class DownloadHelper {
    *
    * @return The built {@link DownloadAction}.
    */
-  public final DownloadAction getRemoveAction() {
+  public DownloadAction getRemoveAction() {
     return DownloadAction.createRemoveAction(downloadType, uri, cacheKey);
   }
 
@@ -449,6 +646,38 @@ public abstract class DownloadHelper {
     } catch (ExoPlaybackException e) {
       // DefaultTrackSelector does not throw exceptions during track selection.
       throw new UnsupportedOperationException(e);
+    }
+  }
+
+  private static Pair<@NullableType Constructor<?>, @NullableType Method>
+      getMediaSourceFactoryMethods(String className) {
+    Constructor<?> constructor = null;
+    Method createMethod = null;
+    try {
+      // LINT.IfChange
+      Class<?> factoryClazz = Class.forName(className);
+      constructor = factoryClazz.getConstructor(DataSource.Factory.class);
+      createMethod = factoryClazz.getMethod("createMediaSource", Uri.class);
+      // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
+    } catch (Exception e) {
+      // Expected if the app was built without the respective module.
+    }
+    return Pair.create(constructor, createMethod);
+  }
+
+  private static MediaSource createMediaSource(
+      Uri uri,
+      DataSource.Factory dataSourceFactory,
+      @Nullable Constructor<?> factoryConstructor,
+      @Nullable Method createMediaSourceMethod) {
+    if (factoryConstructor == null || createMediaSourceMethod == null) {
+      throw new IllegalStateException("Module missing to create media source.");
+    }
+    try {
+      Object factory = factoryConstructor.newInstance(dataSourceFactory);
+      return (MediaSource) Assertions.checkNotNull(createMediaSourceMethod.invoke(factory, uri));
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to instantiate media source.", e);
     }
   }
 
