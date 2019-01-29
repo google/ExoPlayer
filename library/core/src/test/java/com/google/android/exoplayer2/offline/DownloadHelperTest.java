@@ -22,17 +22,28 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.offline.DownloadHelper.Callback;
+import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
+import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
+import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
+import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -40,15 +51,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Unit tests for {@link DownloadHelper}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
 public class DownloadHelperTest {
 
   private static final String TEST_DOWNLOAD_TYPE = "downloadType";
   private static final String TEST_CACHE_KEY = "cacheKey";
-  private static final ManifestType TEST_MANIFEST = new ManifestType();
+  private static final Timeline TEST_TIMELINE =
+      new FakeTimeline(new TimelineWindowDefinition(/* periodCount= */ 2, /* id= */ new Object()));
+  private static final Object TEST_MANIFEST = new Object();
 
   private static final Format VIDEO_FORMAT_LOW = createVideoFormat(/* bitrate= */ 200_000);
   private static final Format VIDEO_FORMAT_HIGH = createVideoFormat(/* bitrate= */ 800_000);
@@ -98,7 +113,7 @@ public class DownloadHelperTest {
   public void getManifest_returnsManifest() throws Exception {
     prepareDownloadHelper(downloadHelper);
 
-    ManifestType manifest = downloadHelper.getManifest();
+    Object manifest = downloadHelper.getManifest();
 
     assertThat(manifest).isEqualTo(TEST_MANIFEST);
   }
@@ -337,12 +352,12 @@ public class DownloadHelperTest {
     downloadHelper.prepare(
         new Callback() {
           @Override
-          public void onPrepared(DownloadHelper<?> helper) {
+          public void onPrepared(DownloadHelper helper) {
             preparedCondition.open();
           }
 
           @Override
-          public void onPrepareError(DownloadHelper<?> helper, IOException e) {
+          public void onPrepareError(DownloadHelper helper, IOException e) {
             prepareException.set(e);
             preparedCondition.open();
           }
@@ -411,35 +426,52 @@ public class DownloadHelperTest {
     assertThat(selectedTracksInGroup).isEqualTo(tracks);
   }
 
-  private static final class ManifestType {}
-
-  private static final class FakeDownloadHelper extends DownloadHelper<ManifestType> {
+  private static final class FakeDownloadHelper extends DownloadHelper {
 
     public FakeDownloadHelper(Uri testUri, RenderersFactory renderersFactory) {
       super(
           TEST_DOWNLOAD_TYPE,
           testUri,
           TEST_CACHE_KEY,
+          new TestMediaSource(),
           DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
           renderersFactory,
           /* drmSessionManager= */ null);
     }
+  }
 
-    @Override
-    protected ManifestType loadManifest(Uri uri) throws IOException {
-      return TEST_MANIFEST;
+  private static final class TestMediaSource extends FakeMediaSource {
+
+    public TestMediaSource() {
+      super(TEST_TIMELINE, TEST_MANIFEST);
     }
 
     @Override
-    protected TrackGroupArray[] getTrackGroupArrays(ManifestType manifest) {
-      assertThat(manifest).isEqualTo(TEST_MANIFEST);
-      return TRACK_GROUP_ARRAYS;
+    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
+      int periodIndex = TEST_TIMELINE.getIndexOfPeriod(id.periodUid);
+      return new FakeMediaPeriod(
+          TRACK_GROUP_ARRAYS[periodIndex],
+          new EventDispatcher()
+              .withParameters(/* windowIndex= */ 0, id, /* mediaTimeOffsetMs= */ 0)) {
+        @Override
+        public List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
+          List<StreamKey> result = new ArrayList<>();
+          for (TrackSelection trackSelection : trackSelections) {
+            int groupIndex =
+                TRACK_GROUP_ARRAYS[periodIndex].indexOf(trackSelection.getTrackGroup());
+            for (int i = 0; i < trackSelection.length(); i++) {
+              result.add(
+                  new StreamKey(periodIndex, groupIndex, trackSelection.getIndexInTrackGroup(i)));
+            }
+          }
+          return result;
+        }
+      };
     }
 
     @Override
-    protected StreamKey toStreamKey(
-        int periodIndex, int trackGroupIndex, int trackIndexInTrackGroup) {
-      return new StreamKey(periodIndex, trackGroupIndex, trackIndexInTrackGroup);
+    public void releasePeriod(MediaPeriod mediaPeriod) {
+      // Do nothing.
     }
   }
 }
