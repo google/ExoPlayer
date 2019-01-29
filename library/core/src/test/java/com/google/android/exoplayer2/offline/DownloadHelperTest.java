@@ -313,6 +313,73 @@ public class DownloadHelperTest {
   }
 
   @Test
+  public void getTrackSelections_afterAddAudioLanguagesToSelection_returnsCombinedSelections()
+      throws Exception {
+    prepareDownloadHelper(downloadHelper);
+    downloadHelper.clearTrackSelections(/* periodIndex= */ 0);
+    downloadHelper.clearTrackSelections(/* periodIndex= */ 1);
+
+    // Add a non-default language, and a non-existing language (which will select the default).
+    downloadHelper.addAudioLanguagesToSelection("ZH", "Klingonese");
+    List<TrackSelection> selectedText0 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 0);
+    List<TrackSelection> selectedAudio0 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 1);
+    List<TrackSelection> selectedVideo0 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 2);
+    List<TrackSelection> selectedText1 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 0);
+    List<TrackSelection> selectedAudio1 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 1);
+    List<TrackSelection> selectedVideo1 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 2);
+
+    assertThat(selectedVideo0).isEmpty();
+    assertThat(selectedText0).isEmpty();
+    assertThat(selectedAudio0).hasSize(2);
+    assertTrackSelectionEquals(selectedAudio0.get(0), TRACK_GROUP_AUDIO_ZH, 0);
+    assertTrackSelectionEquals(selectedAudio0.get(1), TRACK_GROUP_AUDIO_US, 0);
+
+    assertThat(selectedVideo1).isEmpty();
+    assertThat(selectedText1).isEmpty();
+    assertSingleTrackSelectionEquals(selectedAudio1, TRACK_GROUP_AUDIO_US, 0);
+  }
+
+  @Test
+  public void getTrackSelections_afterAddTextLanguagesToSelection_returnsCombinedSelections()
+      throws Exception {
+    prepareDownloadHelper(downloadHelper);
+    downloadHelper.clearTrackSelections(/* periodIndex= */ 0);
+    downloadHelper.clearTrackSelections(/* periodIndex= */ 1);
+
+    // Add a non-default language, and a non-existing language (which will select the default).
+    downloadHelper.addTextLanguagesToSelection(
+        /* selectUndeterminedTextLanguage= */ true, "ZH", "Klingonese");
+    List<TrackSelection> selectedText0 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 0);
+    List<TrackSelection> selectedAudio0 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 1);
+    List<TrackSelection> selectedVideo0 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 2);
+    List<TrackSelection> selectedText1 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 0);
+    List<TrackSelection> selectedAudio1 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 1);
+    List<TrackSelection> selectedVideo1 =
+        downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 2);
+
+    assertThat(selectedVideo0).isEmpty();
+    assertThat(selectedAudio0).isEmpty();
+    assertThat(selectedText0).hasSize(2);
+    assertTrackSelectionEquals(selectedText0.get(0), TRACK_GROUP_TEXT_ZH, 0);
+    assertTrackSelectionEquals(selectedText0.get(1), TRACK_GROUP_TEXT_US, 0);
+
+    assertThat(selectedVideo1).isEmpty();
+    assertThat(selectedAudio1).isEmpty();
+    assertThat(selectedText1).isEmpty();
+  }
+
+  @Test
   public void getDownloadAction_createsDownloadAction_withAllSelectedTracks() throws Exception {
     prepareDownloadHelper(downloadHelper);
     // Ensure we have track groups with multiple indices, renderers with multiple track groups and
