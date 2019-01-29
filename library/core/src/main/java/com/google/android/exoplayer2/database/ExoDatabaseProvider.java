@@ -22,6 +22,7 @@ import android.database.DatabaseErrorHandler;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.util.Log;
 import java.io.File;
 
@@ -131,11 +132,12 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
     }
 
     @Override
+    @SuppressWarnings("nullness:argument.type.incompatible")
     public SQLiteDatabase openOrCreateDatabase(
         String name,
         int mode,
         SQLiteDatabase.CursorFactory factory,
-        DatabaseErrorHandler errorHandler) {
+        @Nullable DatabaseErrorHandler errorHandler) {
       File databasePath = getDatabasePath(name);
       int flags = SQLiteDatabase.CREATE_IF_NECESSARY;
       if ((mode & MODE_ENABLE_WRITE_AHEAD_LOGGING) != 0) {
