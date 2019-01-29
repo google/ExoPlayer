@@ -111,12 +111,16 @@ import java.util.regex.Pattern;
     if (!matcher.matches()) {
       return null;
     }
+
     int id = Integer.parseInt(matcher.group(1));
     String key = index.getKeyForId(id);
-    return key == null
-        ? null
-        : new SimpleCacheSpan(
-            key, Long.parseLong(matcher.group(2)), length, Long.parseLong(matcher.group(3)), file);
+    if (key == null) {
+      return null;
+    }
+
+    long position = Long.parseLong(matcher.group(2));
+    long lastAccessTime = Long.parseLong(matcher.group(3));
+    return new SimpleCacheSpan(key, position, length, lastAccessTime, file);
   }
 
   /**
