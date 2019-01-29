@@ -358,10 +358,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
     }
-    long largestQueuedTimestampUs = C.TIME_UNSET;
+    long largestQueuedTimestampUs = Long.MAX_VALUE;
     if (haveAudioVideoTracks) {
       // Ignore non-AV tracks, which may be sparse or poorly interleaved.
-      largestQueuedTimestampUs = Long.MAX_VALUE;
       int trackCount = sampleQueues.length;
       for (int i = 0; i < trackCount; i++) {
         if (trackIsAudioVideoFlags[i] && !sampleQueues[i].isLastSampleQueued()) {
@@ -370,7 +369,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         }
       }
     }
-    if (largestQueuedTimestampUs == C.TIME_UNSET) {
+    if (largestQueuedTimestampUs == Long.MAX_VALUE) {
       largestQueuedTimestampUs = getLargestQueuedTimestampUs();
     }
     return largestQueuedTimestampUs == Long.MIN_VALUE ? lastSeekPositionUs
