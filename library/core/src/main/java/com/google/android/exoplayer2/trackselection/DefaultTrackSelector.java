@@ -365,6 +365,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     /**
      * See {@link Parameters#preferredAudioLanguage}.
      *
+     * @param preferredAudioLanguage Preferred audio language as an ISO 639-1 two-letter or ISO
+     *     639-2 three-letter code.
      * @return This builder.
      */
     public ParametersBuilder setPreferredAudioLanguage(String preferredAudioLanguage) {
@@ -430,6 +432,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     /**
      * See {@link Parameters#preferredTextLanguage}.
      *
+     * @param preferredTextLanguage Preferred text language as an ISO 639-1 two-letter or ISO 639-2
+     *     three-letter code.
      * @return This builder.
      */
     public ParametersBuilder setPreferredTextLanguage(String preferredTextLanguage) {
@@ -2313,8 +2317,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    *     null.
    */
   protected static boolean formatHasLanguage(Format format, @Nullable String language) {
-    return language != null
-        && TextUtils.equals(language, Util.normalizeLanguageCode(format.language));
+    return language != null && TextUtils.equals(language, format.language);
   }
 
   private static List<Integer> getViewportFilteredTrackIndices(TrackGroup group, int viewportWidth,
