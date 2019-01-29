@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
@@ -68,6 +69,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private TrackGroupArray trackGroups;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
+  private int[] selectedVariantIndices;
   private SequenceableLoader compositeSequenceableLoader;
   private boolean notifiedReadingStarted;
 
@@ -112,6 +114,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     timestampAdjusterProvider = new TimestampAdjusterProvider();
     sampleStreamWrappers = new HlsSampleStreamWrapper[0];
     enabledSampleStreamWrappers = new HlsSampleStreamWrapper[0];
+    selectedVariantIndices = new int[0];
     eventDispatcher.mediaPeriodCreated();
   }
 
@@ -141,6 +144,77 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   @Override
   public TrackGroupArray getTrackGroups() {
     return trackGroups;
+  }
+
+  @Override
+  public List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
+    // See HlsMasterPlaylist.copy for interpretation of StreamKeys.
+    HlsMasterPlaylist masterPlaylist = Assertions.checkNotNull(playlistTracker.getMasterPlaylist());
+    boolean hasVariants = !masterPlaylist.variants.isEmpty();
+    int audioWrapperOffset = hasVariants ? 1 : 0;
+    int subtitleWrapperOffset = audioWrapperOffset + masterPlaylist.audios.size();
+
+    TrackGroupArray mainWrapperTrackGroups;
+    int mainWrapperPrimaryGroupIndex;
+    if (hasVariants) {
+      HlsSampleStreamWrapper mainWrapper = sampleStreamWrappers[0];
+      mainWrapperTrackGroups = mainWrapper.getTrackGroups();
+      mainWrapperPrimaryGroupIndex = mainWrapper.getPrimaryTrackGroupIndex();
+    } else {
+      mainWrapperTrackGroups = TrackGroupArray.EMPTY;
+      mainWrapperPrimaryGroupIndex = 0;
+    }
+
+    List<StreamKey> streamKeys = new ArrayList<>();
+    boolean needsPrimaryTrackGroupSelection = false;
+    boolean hasPrimaryTrackGroupSelection = false;
+    for (TrackSelection trackSelection : trackSelections) {
+      TrackGroup trackSelectionGroup = trackSelection.getTrackGroup();
+      int mainWrapperTrackGroupIndex = mainWrapperTrackGroups.indexOf(trackSelectionGroup);
+      if (mainWrapperTrackGroupIndex != C.INDEX_UNSET) {
+        if (mainWrapperTrackGroupIndex == mainWrapperPrimaryGroupIndex) {
+          // Primary group in main wrapper.
+          hasPrimaryTrackGroupSelection = true;
+          for (int i = 0; i < trackSelection.length(); i++) {
+            int variantIndex = selectedVariantIndices[trackSelection.getIndexInTrackGroup(i)];
+            streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, variantIndex));
+          }
+        } else {
+          // Embedded group in main wrapper.
+          needsPrimaryTrackGroupSelection = true;
+        }
+      } else {
+        // Audio or subtitle group.
+        for (int i = audioWrapperOffset; i < sampleStreamWrappers.length; i++) {
+          TrackGroupArray wrapperTrackGroups = sampleStreamWrappers[i].getTrackGroups();
+          if (wrapperTrackGroups.indexOf(trackSelectionGroup) != C.INDEX_UNSET) {
+            if (i < subtitleWrapperOffset) {
+              streamKeys.add(
+                  new StreamKey(HlsMasterPlaylist.GROUP_INDEX_AUDIO, i - audioWrapperOffset));
+            } else {
+              streamKeys.add(
+                  new StreamKey(HlsMasterPlaylist.GROUP_INDEX_SUBTITLE, i - subtitleWrapperOffset));
+            }
+            break;
+          }
+        }
+      }
+    }
+    if (needsPrimaryTrackGroupSelection && !hasPrimaryTrackGroupSelection) {
+      // A track selection includes a variant-embedded track, but no variant is added yet. We use
+      // the valid variant with the lowest bitrate to reduce overhead.
+      int lowestBitrateIndex = selectedVariantIndices[0];
+      int lowestBitrate = masterPlaylist.variants.get(selectedVariantIndices[0]).format.bitrate;
+      for (int i = 1; i < selectedVariantIndices.length; i++) {
+        int variantBitrate = masterPlaylist.variants.get(selectedVariantIndices[i]).format.bitrate;
+        if (variantBitrate < lowestBitrate) {
+          lowestBitrate = variantBitrate;
+          lowestBitrateIndex = selectedVariantIndices[i];
+        }
+      }
+      streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, lowestBitrateIndex));
+    }
+    return streamKeys;
   }
 
   @Override
@@ -424,44 +498,64 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
    */
   private void buildAndPrepareMainSampleStreamWrapper(
       HlsMasterPlaylist masterPlaylist, long positionUs) {
-    List<HlsUrl> selectedVariants = new ArrayList<>(masterPlaylist.variants);
-    ArrayList<HlsUrl> definiteVideoVariants = new ArrayList<>();
-    ArrayList<HlsUrl> definiteAudioOnlyVariants = new ArrayList<>();
-    for (int i = 0; i < selectedVariants.size(); i++) {
-      HlsUrl variant = selectedVariants.get(i);
+    int[] variantTypes = new int[masterPlaylist.variants.size()];
+    int videoVariantCount = 0;
+    int audioVariantCount = 0;
+    for (int i = 0; i < masterPlaylist.variants.size(); i++) {
+      HlsUrl variant = masterPlaylist.variants.get(i);
       Format format = variant.format;
       if (format.height > 0 || Util.getCodecsOfType(format.codecs, C.TRACK_TYPE_VIDEO) != null) {
-        definiteVideoVariants.add(variant);
+        variantTypes[i] = C.TRACK_TYPE_VIDEO;
+        videoVariantCount++;
       } else if (Util.getCodecsOfType(format.codecs, C.TRACK_TYPE_AUDIO) != null) {
-        definiteAudioOnlyVariants.add(variant);
+        variantTypes[i] = C.TRACK_TYPE_AUDIO;
+        audioVariantCount++;
+      } else {
+        variantTypes[i] = C.TRACK_TYPE_UNKNOWN;
       }
     }
-    if (!definiteVideoVariants.isEmpty()) {
+    boolean useVideoVariantsOnly = false;
+    boolean useNonAudioVariantsOnly = false;
+    int selectedVariantsCount = variantTypes.length;
+    if (videoVariantCount > 0) {
       // We've identified some variants as definitely containing video. Assume variants within the
       // master playlist are marked consistently, and hence that we have the full set. Filter out
       // any other variants, which are likely to be audio only.
-      selectedVariants = definiteVideoVariants;
-    } else if (definiteAudioOnlyVariants.size() < selectedVariants.size()) {
+      useVideoVariantsOnly = true;
+      selectedVariantsCount = videoVariantCount;
+    } else if (audioVariantCount < variantTypes.length) {
       // We've identified some variants, but not all, as being audio only. Filter them out to leave
       // the remaining variants, which are likely to contain video.
-      selectedVariants.removeAll(definiteAudioOnlyVariants);
-    } else {
-      // Leave the enabled variants unchanged. They're likely either all video or all audio.
+      useNonAudioVariantsOnly = true;
+      selectedVariantsCount = variantTypes.length - audioVariantCount;
     }
-    Assertions.checkArgument(!selectedVariants.isEmpty());
-    HlsUrl[] variants = selectedVariants.toArray(new HlsUrl[0]);
-    String codecs = variants[0].format.codecs;
-    HlsSampleStreamWrapper sampleStreamWrapper = buildSampleStreamWrapper(C.TRACK_TYPE_DEFAULT,
-        variants, masterPlaylist.muxedAudioFormat, masterPlaylist.muxedCaptionFormats, positionUs);
+    HlsUrl[] selectedVariants = new HlsUrl[selectedVariantsCount];
+    selectedVariantIndices = new int[selectedVariantsCount];
+    int outIndex = 0;
+    for (int i = 0; i < masterPlaylist.variants.size(); i++) {
+      if ((!useVideoVariantsOnly || variantTypes[i] == C.TRACK_TYPE_VIDEO)
+          && (!useNonAudioVariantsOnly || variantTypes[i] != C.TRACK_TYPE_AUDIO)) {
+        selectedVariants[outIndex] = masterPlaylist.variants.get(i);
+        selectedVariantIndices[outIndex++] = i;
+      }
+    }
+    String codecs = selectedVariants[0].format.codecs;
+    HlsSampleStreamWrapper sampleStreamWrapper =
+        buildSampleStreamWrapper(
+            C.TRACK_TYPE_DEFAULT,
+            selectedVariants,
+            masterPlaylist.muxedAudioFormat,
+            masterPlaylist.muxedCaptionFormats,
+            positionUs);
     sampleStreamWrappers[0] = sampleStreamWrapper;
     if (allowChunklessPreparation && codecs != null) {
       boolean variantsContainVideoCodecs = Util.getCodecsOfType(codecs, C.TRACK_TYPE_VIDEO) != null;
       boolean variantsContainAudioCodecs = Util.getCodecsOfType(codecs, C.TRACK_TYPE_AUDIO) != null;
       List<TrackGroup> muxedTrackGroups = new ArrayList<>();
       if (variantsContainVideoCodecs) {
-        Format[] videoFormats = new Format[selectedVariants.size()];
+        Format[] videoFormats = new Format[selectedVariantsCount];
         for (int i = 0; i < videoFormats.length; i++) {
-          videoFormats[i] = deriveVideoFormat(variants[i].format);
+          videoFormats[i] = deriveVideoFormat(selectedVariants[i].format);
         }
         muxedTrackGroups.add(new TrackGroup(videoFormats));
 
@@ -470,7 +564,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
           muxedTrackGroups.add(
               new TrackGroup(
                   deriveAudioFormat(
-                      variants[0].format,
+                      selectedVariants[0].format,
                       masterPlaylist.muxedAudioFormat,
                       /* isPrimaryTrackInVariant= */ false)));
         }
@@ -482,9 +576,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         }
       } else if (variantsContainAudioCodecs) {
         // Variants only contain audio.
-        Format[] audioFormats = new Format[selectedVariants.size()];
+        Format[] audioFormats = new Format[selectedVariantsCount];
         for (int i = 0; i < audioFormats.length; i++) {
-          Format variantFormat = variants[i].format;
+          Format variantFormat = selectedVariants[i].format;
           audioFormats[i] =
               deriveAudioFormat(
                   variantFormat,
