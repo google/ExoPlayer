@@ -159,10 +159,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * A builder for {@link Parameters}. See the {@link Parameters} documentation for explanations of
    * the parameters that can be configured using this builder.
    */
-  public static final class ParametersBuilder {
-
-    private final SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides;
-    private final SparseBooleanArray rendererDisabledFlags;
+  public static final class ParametersBuilder extends TrackSelectionParameters.Builder {
 
     // Video
     private int maxVideoWidth;
@@ -176,21 +173,19 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private int viewportHeight;
     private boolean viewportOrientationMayChange;
     // Audio
-    @Nullable private String preferredAudioLanguage;
     private int maxAudioChannelCount;
     private int maxAudioBitrate;
     private boolean exceedAudioConstraintsIfNecessary;
     private boolean allowAudioMixedMimeTypeAdaptiveness;
     private boolean allowAudioMixedSampleRateAdaptiveness;
-    // Text
-    @Nullable private String preferredTextLanguage;
-    private boolean selectUndeterminedTextLanguage;
-    private int disabledTextTrackSelectionFlags;
     // General
     private boolean forceLowestBitrate;
     private boolean forceHighestSupportedBitrate;
     private boolean exceedRendererCapabilitiesIfNecessary;
     private int tunnelingAudioSessionId;
+
+    private final SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides;
+    private final SparseBooleanArray rendererDisabledFlags;
 
     /** Creates a builder with default initial values. */
     public ParametersBuilder() {
@@ -202,6 +197,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *     obtained.
      */
     private ParametersBuilder(Parameters initialValues) {
+      super(initialValues);
       // Video
       maxVideoWidth = initialValues.maxVideoWidth;
       maxVideoHeight = initialValues.maxVideoHeight;
@@ -214,16 +210,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       viewportHeight = initialValues.viewportHeight;
       viewportOrientationMayChange = initialValues.viewportOrientationMayChange;
       // Audio
-      preferredAudioLanguage = initialValues.preferredAudioLanguage;
       maxAudioChannelCount = initialValues.maxAudioChannelCount;
       maxAudioBitrate = initialValues.maxAudioBitrate;
       exceedAudioConstraintsIfNecessary = initialValues.exceedAudioConstraintsIfNecessary;
       allowAudioMixedMimeTypeAdaptiveness = initialValues.allowAudioMixedMimeTypeAdaptiveness;
       allowAudioMixedSampleRateAdaptiveness = initialValues.allowAudioMixedSampleRateAdaptiveness;
-      // Text
-      preferredTextLanguage = initialValues.preferredTextLanguage;
-      selectUndeterminedTextLanguage = initialValues.selectUndeterminedTextLanguage;
-      disabledTextTrackSelectionFlags = initialValues.disabledTextTrackSelectionFlags;
       // General
       forceLowestBitrate = initialValues.forceLowestBitrate;
       forceHighestSupportedBitrate = initialValues.forceHighestSupportedBitrate;
@@ -362,15 +353,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     // Audio
 
-    /**
-     * See {@link Parameters#preferredAudioLanguage}.
-     *
-     * @param preferredAudioLanguage Preferred audio language as an ISO 639-1 two-letter or ISO
-     *     639-2 three-letter code.
-     * @return This builder.
-     */
+    @Override
     public ParametersBuilder setPreferredAudioLanguage(String preferredAudioLanguage) {
-      this.preferredAudioLanguage = preferredAudioLanguage;
+      super.setPreferredAudioLanguage(preferredAudioLanguage);
       return this;
     }
 
@@ -429,40 +414,25 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     // Text
 
-    /**
-     * See {@link Parameters#preferredTextLanguage}.
-     *
-     * @param preferredTextLanguage Preferred text language as an ISO 639-1 two-letter or ISO 639-2
-     *     three-letter code.
-     * @return This builder.
-     */
+    @Override
     public ParametersBuilder setPreferredTextLanguage(String preferredTextLanguage) {
-      this.preferredTextLanguage = preferredTextLanguage;
+      super.setPreferredTextLanguage(preferredTextLanguage);
       return this;
     }
 
-    /**
-     * See {@link Parameters#selectUndeterminedTextLanguage}.
-     *
-     * @return This builder.
-     */
+    @Override
     public ParametersBuilder setSelectUndeterminedTextLanguage(
         boolean selectUndeterminedTextLanguage) {
-      this.selectUndeterminedTextLanguage = selectUndeterminedTextLanguage;
+      super.setSelectUndeterminedTextLanguage(selectUndeterminedTextLanguage);
       return this;
     }
 
-    /**
-     * See {@link Parameters#disabledTextTrackSelectionFlags}.
-     *
-     * @return This builder.
-     */
+    @Override
     public ParametersBuilder setDisabledTextTrackSelectionFlags(
-        int disabledTextTrackSelectionFlags) {
-      this.disabledTextTrackSelectionFlags = disabledTextTrackSelectionFlags;
+        @C.SelectionFlags int disabledTextTrackSelectionFlags) {
+      super.setDisabledTextTrackSelectionFlags(disabledTextTrackSelectionFlags);
       return this;
     }
-
     // General
 
     /**
@@ -526,10 +496,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      *     C#AUDIO_SESSION_ID_UNSET} to disable tunneling.
      */
     public ParametersBuilder setTunnelingAudioSessionId(int tunnelingAudioSessionId) {
-      if (this.tunnelingAudioSessionId != tunnelingAudioSessionId) {
-        this.tunnelingAudioSessionId = tunnelingAudioSessionId;
-        return this;
-      }
+      this.tunnelingAudioSessionId = tunnelingAudioSessionId;
       return this;
     }
 
@@ -670,7 +637,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           forceHighestSupportedBitrate,
           exceedRendererCapabilitiesIfNecessary,
           tunnelingAudioSessionId,
-          // Overrides
           selectionOverrides,
           rendererDisabledFlags);
     }
@@ -685,15 +651,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
   }
 
-  /** Constraint parameters for {@link DefaultTrackSelector}. */
-  public static final class Parameters implements Parcelable {
+  /**
+   * Extends {@link TrackSelectionParameters} by adding fields that are specific to {@link
+   * DefaultTrackSelector}.
+   */
+  public static final class Parameters extends TrackSelectionParameters {
 
     /** An instance with default values. */
     public static final Parameters DEFAULT = new Parameters();
-
-    // Overrides
-    private final SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides;
-    private final SparseBooleanArray rendererDisabledFlags;
 
     // Video
     /**
@@ -759,14 +724,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * The default value is {@code true}.
      */
     public final boolean viewportOrientationMayChange;
-
     // Audio
-    /**
-     * The preferred language for audio and forced text tracks, as an ISO 639-2/T tag. {@code null}
-     * selects the default track, or the first track if there's no default. The default value is
-     * {@code null}.
-     */
-    @Nullable public final String preferredAudioLanguage;
     /**
      * Maximum allowed audio channel count. The default value is {@link Integer#MAX_VALUE} (i.e. no
      * constraint).
@@ -791,24 +749,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * different sample rates may not be completely seamless. The default value is {@code false}.
      */
     public final boolean allowAudioMixedSampleRateAdaptiveness;
-
-    // Text
-    /**
-     * The preferred language for text tracks as an ISO 639-2/T tag. {@code null} selects the
-     * default track if there is one, or no track otherwise. The default value is {@code null}.
-     */
-    @Nullable public final String preferredTextLanguage;
-    /**
-     * Whether a text track with undetermined language should be selected if no track with {@link
-     * #preferredTextLanguage} is available, or if {@link #preferredTextLanguage} is unset. The
-     * default value is {@code false}.
-     */
-    public final boolean selectUndeterminedTextLanguage;
-    /**
-     * Bitmask of selection flags that are disabled for text track selections. See {@link
-     * C.SelectionFlags}. The default value is {@code 0} (i.e. no flags).
-     */
-    public final int disabledTextTrackSelectionFlags;
 
     // General
     /**
@@ -845,6 +785,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public final int tunnelingAudioSessionId;
 
+    // Overrides
+    private final SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides;
+    private final SparseBooleanArray rendererDisabledFlags;
+
     private Parameters() {
       this(
           // Video
@@ -859,24 +803,23 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           /* viewportHeight= */ Integer.MAX_VALUE,
           /* viewportOrientationMayChange= */ true,
           // Audio
-          /* preferredAudioLanguage= */ null,
+          TrackSelectionParameters.DEFAULT.preferredAudioLanguage,
           /* maxAudioChannelCount= */ Integer.MAX_VALUE,
           /* maxAudioBitrate= */ Integer.MAX_VALUE,
           /* exceedAudioConstraintsIfNecessary= */ true,
           /* allowAudioMixedMimeTypeAdaptiveness= */ false,
           /* allowAudioMixedSampleRateAdaptiveness= */ false,
           // Text
-          /* preferredTextLanguage= */ null,
-          /* selectUndeterminedTextLanguage= */ false,
-          /* disabledTextTrackSelectionFlags= */ 0,
+          TrackSelectionParameters.DEFAULT.preferredTextLanguage,
+          TrackSelectionParameters.DEFAULT.selectUndeterminedTextLanguage,
+          TrackSelectionParameters.DEFAULT.disabledTextTrackSelectionFlags,
           // General
           /* forceLowestBitrate= */ false,
           /* forceHighestSupportedBitrate= */ false,
           /* exceedRendererCapabilitiesIfNecessary= */ true,
           /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET,
-          // Overrides
-          /* selectionOverrides= */ new SparseArray<>(),
-          /* rendererDisabledFlags= */ new SparseBooleanArray());
+          new SparseArray<>(),
+          new SparseBooleanArray());
     }
 
     /* package */ Parameters(
@@ -901,7 +844,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         // Text
         @Nullable String preferredTextLanguage,
         boolean selectUndeterminedTextLanguage,
-        int disabledTextTrackSelectionFlags,
+        @C.SelectionFlags int disabledTextTrackSelectionFlags,
         // General
         boolean forceLowestBitrate,
         boolean forceHighestSupportedBitrate,
@@ -910,6 +853,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         // Overrides
         SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides,
         SparseBooleanArray rendererDisabledFlags) {
+      super(
+          preferredAudioLanguage,
+          preferredTextLanguage,
+          selectUndeterminedTextLanguage,
+          disabledTextTrackSelectionFlags);
       // Video
       this.maxVideoWidth = maxVideoWidth;
       this.maxVideoHeight = maxVideoHeight;
@@ -922,30 +870,26 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.viewportHeight = viewportHeight;
       this.viewportOrientationMayChange = viewportOrientationMayChange;
       // Audio
-      this.preferredAudioLanguage = Util.normalizeLanguageCode(preferredAudioLanguage);
       this.maxAudioChannelCount = maxAudioChannelCount;
       this.maxAudioBitrate = maxAudioBitrate;
       this.exceedAudioConstraintsIfNecessary = exceedAudioConstraintsIfNecessary;
       this.allowAudioMixedMimeTypeAdaptiveness = allowAudioMixedMimeTypeAdaptiveness;
       this.allowAudioMixedSampleRateAdaptiveness = allowAudioMixedSampleRateAdaptiveness;
-      // Text
-      this.preferredTextLanguage = Util.normalizeLanguageCode(preferredTextLanguage);
-      this.selectUndeterminedTextLanguage = selectUndeterminedTextLanguage;
-      this.disabledTextTrackSelectionFlags = disabledTextTrackSelectionFlags;
       // General
       this.forceLowestBitrate = forceLowestBitrate;
       this.forceHighestSupportedBitrate = forceHighestSupportedBitrate;
       this.exceedRendererCapabilitiesIfNecessary = exceedRendererCapabilitiesIfNecessary;
       this.tunnelingAudioSessionId = tunnelingAudioSessionId;
-      // Overrides
-      this.selectionOverrides = selectionOverrides;
-      this.rendererDisabledFlags = rendererDisabledFlags;
       // Deprecated fields.
       this.allowMixedMimeAdaptiveness = allowVideoMixedMimeTypeAdaptiveness;
       this.allowNonSeamlessAdaptiveness = allowVideoNonSeamlessAdaptiveness;
+      // Overrides
+      this.selectionOverrides = selectionOverrides;
+      this.rendererDisabledFlags = rendererDisabledFlags;
     }
 
     /* package */ Parameters(Parcel in) {
+      super(in);
       // Video
       this.maxVideoWidth = in.readInt();
       this.maxVideoHeight = in.readInt();
@@ -958,16 +902,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.viewportHeight = in.readInt();
       this.viewportOrientationMayChange = Util.readBoolean(in);
       // Audio
-      this.preferredAudioLanguage = in.readString();
       this.maxAudioChannelCount = in.readInt();
       this.maxAudioBitrate = in.readInt();
       this.exceedAudioConstraintsIfNecessary = Util.readBoolean(in);
       this.allowAudioMixedMimeTypeAdaptiveness = Util.readBoolean(in);
       this.allowAudioMixedSampleRateAdaptiveness = Util.readBoolean(in);
-      // Text
-      this.preferredTextLanguage = in.readString();
-      this.selectUndeterminedTextLanguage = Util.readBoolean(in);
-      this.disabledTextTrackSelectionFlags = in.readInt();
       // General
       this.forceLowestBitrate = Util.readBoolean(in);
       this.forceHighestSupportedBitrate = Util.readBoolean(in);
@@ -1016,9 +955,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return overrides != null ? overrides.get(groups) : null;
     }
 
-    /**
-     * Creates a new {@link ParametersBuilder}, copying the initial values from this instance.
-     */
+    /** Creates a new {@link ParametersBuilder}, copying the initial values from this instance. */
+    @Override
     public ParametersBuilder buildUpon() {
       return new ParametersBuilder(this);
     }
@@ -1032,7 +970,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         return false;
       }
       Parameters other = (Parameters) obj;
-      return maxVideoWidth == other.maxVideoWidth
+      return super.equals(obj)
+          // Video
+          && maxVideoWidth == other.maxVideoWidth
           && maxVideoHeight == other.maxVideoHeight
           && maxVideoFrameRate == other.maxVideoFrameRate
           && maxVideoBitrate == other.maxVideoBitrate
@@ -1043,16 +983,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && viewportWidth == other.viewportWidth
           && viewportHeight == other.viewportHeight
           // Audio
-          && TextUtils.equals(preferredAudioLanguage, other.preferredAudioLanguage)
           && maxAudioChannelCount == other.maxAudioChannelCount
           && maxAudioBitrate == other.maxAudioBitrate
           && exceedAudioConstraintsIfNecessary == other.exceedAudioConstraintsIfNecessary
           && allowAudioMixedMimeTypeAdaptiveness == other.allowAudioMixedMimeTypeAdaptiveness
           && allowAudioMixedSampleRateAdaptiveness == other.allowAudioMixedSampleRateAdaptiveness
-          // Text
-          && TextUtils.equals(preferredTextLanguage, other.preferredTextLanguage)
-          && selectUndeterminedTextLanguage == other.selectUndeterminedTextLanguage
-          && disabledTextTrackSelectionFlags == other.disabledTextTrackSelectionFlags
           // General
           && forceLowestBitrate == other.forceLowestBitrate
           && forceHighestSupportedBitrate == other.forceHighestSupportedBitrate
@@ -1065,7 +1000,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     @Override
     public int hashCode() {
-      int result = 1;
+      int result = super.hashCode();
       // Video
       result = 31 * result + maxVideoWidth;
       result = 31 * result + maxVideoHeight;
@@ -1078,17 +1013,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       result = 31 * result + viewportWidth;
       result = 31 * result + viewportHeight;
       // Audio
-      result =
-          31 * result + (preferredAudioLanguage == null ? 0 : preferredAudioLanguage.hashCode());
       result = 31 * result + maxAudioChannelCount;
       result = 31 * result + maxAudioBitrate;
       result = 31 * result + (exceedAudioConstraintsIfNecessary ? 1 : 0);
       result = 31 * result + (allowAudioMixedMimeTypeAdaptiveness ? 1 : 0);
       result = 31 * result + (allowAudioMixedSampleRateAdaptiveness ? 1 : 0);
-      // Text
-      result = 31 * result + (preferredTextLanguage == null ? 0 : preferredTextLanguage.hashCode());
-      result = 31 * result + (selectUndeterminedTextLanguage ? 1 : 0);
-      result = 31 * result + disabledTextTrackSelectionFlags;
       // General
       result = 31 * result + (forceLowestBitrate ? 1 : 0);
       result = 31 * result + (forceHighestSupportedBitrate ? 1 : 0);
@@ -1107,6 +1036,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+      super.writeToParcel(dest, flags);
       // Video
       dest.writeInt(maxVideoWidth);
       dest.writeInt(maxVideoHeight);
@@ -1119,16 +1049,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       dest.writeInt(viewportHeight);
       Util.writeBoolean(dest, viewportOrientationMayChange);
       // Audio
-      dest.writeString(preferredAudioLanguage);
       dest.writeInt(maxAudioChannelCount);
       dest.writeInt(maxAudioBitrate);
       Util.writeBoolean(dest, exceedAudioConstraintsIfNecessary);
       Util.writeBoolean(dest, allowAudioMixedMimeTypeAdaptiveness);
       Util.writeBoolean(dest, allowAudioMixedSampleRateAdaptiveness);
-      // Text
-      dest.writeString(preferredTextLanguage);
-      Util.writeBoolean(dest, selectUndeterminedTextLanguage);
-      dest.writeInt(disabledTextTrackSelectionFlags);
       // General
       Util.writeBoolean(dest, forceLowestBitrate);
       Util.writeBoolean(dest, forceHighestSupportedBitrate);
