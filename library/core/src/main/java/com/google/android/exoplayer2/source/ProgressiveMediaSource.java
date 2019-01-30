@@ -39,7 +39,7 @@ import java.io.IOException;
  * extractors created by the factory that returns {@code true} from {@link Extractor#sniff} will be
  * used to extract samples from the input stream.
  *
- * <p>Note that the built-in extractors for AAC, MPEG PS/TS and FLV streams do not support seeking.
+ * <p>Note that the built-in extractor for FLV streams does not support seeking.
  */
 public final class ProgressiveMediaSource extends BaseMediaSource
     implements ProgressiveMediaPeriod.Listener {
