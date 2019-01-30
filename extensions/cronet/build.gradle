@@ -30,7 +30,7 @@ android {
 }
 
 dependencies {
-    api 'org.chromium.net:cronet-embedded:66.3359.158'
+    api 'org.chromium.net:cronet-embedded:71.3578.98'
     implementation project(modulePrefix + 'library-core')
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     testImplementation project(modulePrefix + 'library')
