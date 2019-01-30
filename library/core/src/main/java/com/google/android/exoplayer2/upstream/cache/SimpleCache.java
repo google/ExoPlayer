@@ -408,8 +408,8 @@ public final class SimpleCache implements Cache {
       if (isRootDirectory && fileName.indexOf('.') == -1) {
         loadDirectory(file, /* isRootDirectory= */ false);
       } else {
-        if (isRootDirectory && CachedContentIndex.FILE_NAME.equals(fileName)) {
-          // Skip the (expected) index file in the root directory.
+        if (isRootDirectory && CachedContentIndex.isIndexFile(fileName)) {
+          // Skip the (expected) index files in the root directory.
           continue;
         }
         long fileLength = file.length();
