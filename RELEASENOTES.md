@@ -3,7 +3,14 @@
 
 ### 2.9.5 ###
 
-* HLS: Parse `CHANNELS` attribute from `EXT-X-MEDIA`.
+* HLS: Parse `CHANNELS` attribute from `EXT-X-MEDIA` tag.
+* ExtractorMediaSource: Fix issue that could cause the player to get stuck
+  buffering at the end of the media.
+* PlayerView: Fix issue preventing `OnClickListener` from receiving events
+  ([#5433](https://github.com/google/ExoPlayer/issues/5433)).
+* IMA extension: Upgrade IMA dependency to 3.10.6.
+* Cronet extension: Upgrade Cronet dependency to 71.3578.98.
+* OkHttp extension: Upgrade OkHttp dependency to 3.12.1.
 
 ### 2.9.4 ###
 
