@@ -182,13 +182,11 @@ public final class DownloadState {
       byte[] customMetadata) {
     Assertions.checkState(
         failureReason == FAILURE_REASON_NONE ? state != STATE_FAILED : state == STATE_FAILED);
+    Assertions.checkState(stopFlags == 0 || (state != STATE_DOWNLOADING && state != STATE_QUEUED));
     Assertions.checkState(
         (stopFlags & STOP_FLAG_REQUIREMENTS_NOT_MET) == 0
             ? notMetRequirements == 0
             : notMetRequirements != 0);
-    // TODO enable this when we start changing state immediately
-    // Assertions.checkState(stopFlags == 0 || (state != STATE_DOWNLOADING && state !=
-    // STATE_QUEUED));
     this.id = id;
     this.type = type;
     this.uri = uri;

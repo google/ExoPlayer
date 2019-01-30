@@ -53,6 +53,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLog;
 
 /** Tests {@link DownloadManager}. */
 @RunWith(RobolectricTestRunner.class)
@@ -73,6 +74,7 @@ public class DownloadManagerDashTest {
 
   @Before
   public void setUp() throws Exception {
+    ShadowLog.stream = System.out;
     dummyMainThread = new DummyMainThread();
     Context context = RuntimeEnvironment.application;
     tempFolder = Util.createTempDirectory(context, "ExoPlayerTest");
