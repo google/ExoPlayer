@@ -1,4 +1,3 @@
-
 # Release notes #
 
 ### 2.9.5 ###
