@@ -433,7 +433,7 @@ int vpx_release_frame_buffer(void* priv, vpx_codec_frame_buffer_t* fb) {
   return buffer_manager->release(*(int*)fb->priv);
 }
 
-jlong vpxInit(JNIEnv* env, jboolean disableLoopFilter) {
+DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter) {
   JniCtx* context = new JniCtx();
   context->decoder = new vpx_codec_ctx_t();
   vpx_codec_dec_cfg_t cfg = {0, 0, 0};
@@ -480,15 +480,6 @@ jlong vpxInit(JNIEnv* env, jboolean disableLoopFilter) {
   decoderPrivateField =
       env->GetFieldID(outputBufferClass, "decoderPrivate", "I");
   return reinterpret_cast<intptr_t>(context);
-}
-
-DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
-             jboolean enableBufferManager) {
-  return vpxInit(env, disableLoopFilter);
-}
-
-DECODER_FUNC(jlong, vpxInitilization, jboolean disableLoopFilter) {
-  return vpxInit(env, disableLoopFilter);
 }
 
 DECODER_FUNC(jlong, vpxDecode, jlong jContext, jobject encoded, jint len) {

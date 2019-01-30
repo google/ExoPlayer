@@ -68,7 +68,7 @@ import java.nio.ByteBuffer;
     if (exoMediaCrypto != null && !VpxLibrary.vpxIsSecureDecodeSupported()) {
       throw new VpxDecoderException("Vpx decoder does not support secure decode.");
     }
-    vpxDecContext = vpxInit(disableLoopFilter, true);
+    vpxDecContext = vpxInit(disableLoopFilter);
     if (vpxDecContext == 0) {
       throw new VpxDecoderException("Failed to initialize decoder");
     }
@@ -165,7 +165,7 @@ import java.nio.ByteBuffer;
     }
   }
 
-  private native long vpxInit(boolean disableLoopFilter, boolean enableSurfaceYuvOutputMode);
+  private native long vpxInit(boolean disableLoopFilter);
 
   private native long vpxClose(long context);
   private native long vpxDecode(long context, ByteBuffer encoded, int length);

@@ -67,7 +67,6 @@ public final class VpxOutputBuffer extends OutputBuffer {
     this.timeUs = timeUs;
     this.mode = mode;
   }
-
   /**
    * Resizes the buffer based on the given stride. Called via JNI after decoding completes.
    *
