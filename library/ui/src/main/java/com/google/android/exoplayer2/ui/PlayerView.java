@@ -1035,6 +1035,12 @@ public class PlayerView extends FrameLayout {
     if (ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
       return false;
     }
+    return performClick();
+  }
+
+  @Override
+  public boolean performClick() {
+    super.performClick();
     return toggleControllerVisibility();
   }
 
