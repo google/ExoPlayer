@@ -63,7 +63,7 @@ public class TrackSelectionParameters implements Parcelable {
      *     639-2 three-letter code.
      * @return This builder.
      */
-    public Builder setPreferredAudioLanguage(String preferredAudioLanguage) {
+    public Builder setPreferredAudioLanguage(@Nullable String preferredAudioLanguage) {
       this.preferredAudioLanguage = preferredAudioLanguage;
       return this;
     }
@@ -77,7 +77,7 @@ public class TrackSelectionParameters implements Parcelable {
      *     three-letter code.
      * @return This builder.
      */
-    public Builder setPreferredTextLanguage(String preferredTextLanguage) {
+    public Builder setPreferredTextLanguage(@Nullable String preferredTextLanguage) {
       this.preferredTextLanguage = preferredTextLanguage;
       return this;
     }

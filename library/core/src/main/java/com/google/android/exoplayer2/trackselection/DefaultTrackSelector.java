@@ -354,7 +354,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     // Audio
 
     @Override
-    public ParametersBuilder setPreferredAudioLanguage(String preferredAudioLanguage) {
+    public ParametersBuilder setPreferredAudioLanguage(@Nullable String preferredAudioLanguage) {
       super.setPreferredAudioLanguage(preferredAudioLanguage);
       return this;
     }
@@ -415,7 +415,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     // Text
 
     @Override
-    public ParametersBuilder setPreferredTextLanguage(String preferredTextLanguage) {
+    public ParametersBuilder setPreferredTextLanguage(@Nullable String preferredTextLanguage) {
       super.setPreferredTextLanguage(preferredTextLanguage);
       return this;
     }
