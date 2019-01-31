@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.audio.Ac4Util.SyncFrameInfo;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.lang.annotation.Documented;
@@ -198,8 +199,8 @@ public final class Ac4Reader implements ElementaryStreamReader {
     SyncFrameInfo frameInfo = Ac4Util.parseAc4SyncframeInfo(headerScratchBits);
     if (format == null || frameInfo.channelCount != format.channelCount
         || frameInfo.sampleRate != format.sampleRate
-        || frameInfo.mimeType != format.sampleMimeType) {
-      format = Format.createAudioSampleFormat(trackFormatId, frameInfo.mimeType, null,
+        || !MimeTypes.AUDIO_AC4.equals(format.sampleMimeType)) {
+      format = Format.createAudioSampleFormat(trackFormatId, MimeTypes.AUDIO_AC4, null,
           Format.NO_VALUE, Format.NO_VALUE, frameInfo.channelCount, frameInfo.sampleRate, null,
           null, 0, language);
       output.format(format);

@@ -34,10 +34,6 @@ public final class Ac4Util {
   public static final class SyncFrameInfo {
 
     /**
-     * The sample mime type of the bitstream is {@link MimeTypes#AUDIO_AC4}.
-     */
-    public final String mimeType;
-    /**
      * The bitstream version.
      */
     public final int bitstreamVersion;
@@ -59,13 +55,11 @@ public final class Ac4Util {
     public final int sampleCount;
 
     private SyncFrameInfo(
-        String mimeType,
         int bitstreamVersion,
         int channelCount,
         int sampleRate,
         int frameSize,
         int sampleCount) {
-      this.mimeType = mimeType;
       this.bitstreamVersion = bitstreamVersion;
       this.channelCount = channelCount;
       this.sampleRate = sampleRate;
@@ -78,7 +72,7 @@ public final class Ac4Util {
    * The channel count of AC-4 stream.
    */
   // TODO: Parse AC-4 stream channel count.
-  public static final int CHANNEL_COUNT_2 = 2;
+  private static final int CHANNEL_COUNT_2 = 2;
   /**
    * The header size for AC-4 parser. Only needs to be as big as we need to read, not the full
    * header size.
@@ -207,8 +201,7 @@ public final class Ac4Util {
           break;
       }
     }
-    return new SyncFrameInfo(
-        MimeTypes.AUDIO_AC4, bitstreamVersion, CHANNEL_COUNT_2, sampleRate, frameSize, sampleCount);
+    return new SyncFrameInfo(bitstreamVersion, CHANNEL_COUNT_2, sampleRate, frameSize, sampleCount);
   }
 
   /**
