@@ -85,9 +85,10 @@ public class DefaultRenderersFactory implements RenderersFactory {
   protected static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
 
   private final Context context;
-  private final @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
-  private final @ExtensionRendererMode int extensionRendererMode;
-  private final long allowedVideoJoiningTimeMs;
+  private @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
+  private @ExtensionRendererMode int extensionRendererMode;
+  private long allowedVideoJoiningTimeMs;
+  private boolean playClearSamplesWithoutKeys;
 
   /**
    * @param context A {@link Context}.
@@ -108,19 +109,20 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
-   * @param context A {@link Context}.
-   * @param extensionRendererMode The extension renderer mode, which determines if and how available
-   *     extension renderers are used. Note that extensions must be included in the application
-   *     build for them to be considered available.
+   * @deprecated Use {@link #DefaultRenderersFactory(Context)} and set {@code extensionRendererMode}
+   *     using {@link #setExtensionRenderMode(int)}
    */
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultRenderersFactory(
       Context context, @ExtensionRendererMode int extensionRendererMode) {
     this(context, extensionRendererMode, DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS);
   }
 
   /**
-   * @deprecated Use {@link #DefaultRenderersFactory(Context, int)} and pass {@link
-   *     DrmSessionManager} directly to {@link SimpleExoPlayer} or {@link ExoPlayerFactory}.
+   * @deprecated Use {@link #DefaultRenderersFactory(Context)} and pass {@link
+   *     DrmSessionManager} directly to {@link SimpleExoPlayer} or {@link ExoPlayerFactory}
+   *     and set {@code extensionRendererMode} using {@link #setExtensionRenderMode(int)}.
    */
   @Deprecated
   @SuppressWarnings("deprecation")
@@ -132,13 +134,12 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
-   * @param context A {@link Context}.
-   * @param extensionRendererMode The extension renderer mode, which determines if and how available
-   *     extension renderers are used. Note that extensions must be included in the application
-   *     build for them to be considered available.
-   * @param allowedVideoJoiningTimeMs The maximum duration for which video renderers can attempt to
-   *     seamlessly join an ongoing playback.
+   * @deprecated Use {@link #DefaultRenderersFactory(Context)} and set {@code extensionRendererMode},
+   *     {@code allowedVideoJoiningTimeMs} using {@link #setExtensionRenderMode(int)} and
+   *     {@link #setAllowedVideoJoiningTimeMs(long)}
    */
+  @Deprecated
+  @SuppressWarnings("deprecation")
   public DefaultRenderersFactory(
       Context context,
       @ExtensionRendererMode int extensionRendererMode,
@@ -150,8 +151,10 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
-   * @deprecated Use {@link #DefaultRenderersFactory(Context, int, long)} and pass {@link
-   *     DrmSessionManager} directly to {@link SimpleExoPlayer} or {@link ExoPlayerFactory}.
+   * @deprecated Use {@link #DefaultRenderersFactory(Context)} and pass {@link
+   *     DrmSessionManager} directly to {@link SimpleExoPlayer} or {@link ExoPlayerFactory},
+   *     and set {@code extensionRendererMode}, {@code allowedVideoJoiningTimeMs} using
+   *     {@link #setExtensionRenderMode(int)} and {@link #setAllowedVideoJoiningTimeMs(long)}.
    */
   @Deprecated
   public DefaultRenderersFactory(
@@ -177,9 +180,9 @@ public class DefaultRenderersFactory implements RenderersFactory {
       drmSessionManager = this.drmSessionManager;
     }
     ArrayList<Renderer> renderersList = new ArrayList<>();
-    buildVideoRenderers(context, drmSessionManager, allowedVideoJoiningTimeMs,
+    buildVideoRenderers(context, drmSessionManager, allowedVideoJoiningTimeMs, playClearSamplesWithoutKeys,
         eventHandler, videoRendererEventListener, extensionRendererMode, renderersList);
-    buildAudioRenderers(context, drmSessionManager, buildAudioProcessors(),
+    buildAudioRenderers(context, drmSessionManager, playClearSamplesWithoutKeys, buildAudioProcessors(),
         eventHandler, audioRendererEventListener, extensionRendererMode, renderersList);
     buildTextRenderers(context, textRendererOutput, eventHandler.getLooper(),
         extensionRendererMode, renderersList);
@@ -191,6 +194,58 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
+   * Sets a drm session manager used by renderers.
+   *
+   * @param drmSessionManager A drm session manager to set.
+   * @return {@link DefaultRenderersFactory}
+   */
+  public DefaultRenderersFactory setDrmSessionManager(@Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    this.drmSessionManager = drmSessionManager;
+    return this;
+  }
+
+  /**
+   * Sets the extension renderer mode which determines if and how available
+   * extension renderers are used. Note that extensions must be included in the application
+   * build for them to be considered available.
+   *
+   * @param extensionRendererMode The extension renderer mode to set.
+   * @return {@link DefaultRenderersFactory}
+   */
+  public DefaultRenderersFactory setExtensionRenderMode(@ExtensionRendererMode int extensionRendererMode) {
+    this.extensionRendererMode = extensionRendererMode;
+    return this;
+  }
+
+  /**
+   * Sets the maximum duration for which video renderers can attempt to
+   * seamlessly join an ongoing playback.
+   *
+   * @param allowedVideoJoiningTimeMs The maximum duration for which video renderers can attempt to
+   *     seamlessly join an ongoing playback.
+   * @return {@link DefaultRenderersFactory}
+   */
+  public DefaultRenderersFactory setAllowedVideoJoiningTimeMs(long allowedVideoJoiningTimeMs) {
+    this.allowedVideoJoiningTimeMs = allowedVideoJoiningTimeMs;
+    return this;
+  }
+
+  /**
+   * Sets whether the renderer is permitted to play clear regions of encrypted media.
+   *
+   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
+   *     For example a media file may start with a short clear region so as to allow playback to
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
+   *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @return {@link DefaultRenderersFactory}
+   */
+  public DefaultRenderersFactory setPlayClearSamplesWithoutKeys(boolean playClearSamplesWithoutKeys) {
+    this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
+    return this;
+  }
+
+  /**
    * Builds video renderers for use by the player.
    *
    * @param context The {@link Context} associated with the player.
@@ -198,6 +253,11 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *     will not be used for DRM protected playbacks.
    * @param allowedVideoJoiningTimeMs The maximum duration in milliseconds for which video
    *     renderers can attempt to seamlessly join an ongoing playback.
+   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
+   *     For example a media file may start with a short clear region so as to allow playback to
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
+   *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param eventHandler A handler associated with the main thread's looper.
    * @param eventListener An event listener.
    * @param extensionRendererMode The extension renderer mode.
@@ -205,7 +265,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    */
   protected void buildVideoRenderers(Context context,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      long allowedVideoJoiningTimeMs, Handler eventHandler,
+      long allowedVideoJoiningTimeMs, boolean playClearSamplesWithoutKeys, Handler eventHandler,
       VideoRendererEventListener eventListener, @ExtensionRendererMode int extensionRendererMode,
       ArrayList<Renderer> out) {
     out.add(
@@ -214,7 +274,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
             MediaCodecSelector.DEFAULT,
             allowedVideoJoiningTimeMs,
             drmSessionManager,
-            /* playClearSamplesWithoutKeys= */ false,
+            playClearSamplesWithoutKeys,
             eventHandler,
             eventListener,
             MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
@@ -261,6 +321,11 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param context The {@link Context} associated with the player.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the player
    *     will not be used for DRM protected playbacks.
+   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
+   *     For example a media file may start with a short clear region so as to allow playback to
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
+   *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param audioProcessors An array of {@link AudioProcessor}s that will process PCM audio
    *     buffers before output. May be empty.
    * @param eventHandler A handler to use when invoking event listeners and outputs.
@@ -270,6 +335,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    */
   protected void buildAudioRenderers(Context context,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys,
       AudioProcessor[] audioProcessors, Handler eventHandler,
       AudioRendererEventListener eventListener, @ExtensionRendererMode int extensionRendererMode,
       ArrayList<Renderer> out) {
@@ -278,7 +344,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
             context,
             MediaCodecSelector.DEFAULT,
             drmSessionManager,
-            /* playClearSamplesWithoutKeys= */ false,
+            playClearSamplesWithoutKeys,
             eventHandler,
             eventListener,
             AudioCapabilities.getCapabilities(context),
