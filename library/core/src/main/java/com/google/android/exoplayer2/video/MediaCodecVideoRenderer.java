@@ -1326,8 +1326,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     synchronized (MediaCodecVideoRenderer.class) {
       if (!evaluatedDeviceNeedsSetOutputSurfaceWorkaround) {
-        if (Util.SDK_INT <= 27 && "dangal".equals(Util.DEVICE)) {
-          // Dangal is affected on API level 27: https://github.com/google/ExoPlayer/issues/5169.
+        if (Util.SDK_INT <= 27 && ("dangal".equals(Util.DEVICE) || "HWEML".equals(Util.DEVICE))) {
+          // A small number of devices are affected on API level 27:
+          // https://github.com/google/ExoPlayer/issues/5169.
           deviceNeedsSetOutputSurfaceWorkaround = true;
         } else if (Util.SDK_INT >= 27) {
           // In general, devices running API level 27 or later should be unaffected. Do nothing.
