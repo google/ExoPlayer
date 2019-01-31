@@ -758,10 +758,6 @@ public class PlayerView extends FrameLayout {
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
     if (player != null && player.isPlayingAd()) {
-      // Focus any overlay UI now, in case it's provided by a WebView whose contents may update
-      // dynamically. This is needed to make the "Skip ad" button focused on Android TV when using
-      // IMA [Internal: b/62371030].
-      overlayFrameLayout.requestFocus();
       return super.dispatchKeyEvent(event);
     }
     boolean isDpadWhenControlHidden =
