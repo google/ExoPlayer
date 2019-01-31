@@ -279,6 +279,8 @@ public class MainActivity extends AppCompatActivity
       int position = viewHolder.getAdapterPosition();
       if (playerManager.removeItem(position)) {
         mediaQueueListAdapter.notifyItemRemoved(position);
+        // Update whichever item took its place, in case it became the new selected item.
+        mediaQueueListAdapter.notifyItemChanged(position);
       }
     }
 
