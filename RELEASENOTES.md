@@ -3,8 +3,6 @@
 ### dev-v2 (not yet released) ###
 
 * `ExtractorMediaSource` renamed to `ProgressiveMediaSource`.
-* HLS:
-  * Parse CHANNELS attribute from EXT-X-MEDIA.
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
@@ -47,6 +45,17 @@
   and `useSurfaceYuvOutput`.
 * Change signature of `PlayerNotificationManager.NotificationListener` to better
   fit service requirements. Remove ability to set a custom stop action.
+
+### 2.9.5 ###
+
+* HLS: Parse `CHANNELS` attribute from `EXT-X-MEDIA` tag.
+* ExtractorMediaSource: Fix issue that could cause the player to get stuck
+  buffering at the end of the media.
+* PlayerView: Fix issue preventing `OnClickListener` from receiving events
+  ([#5433](https://github.com/google/ExoPlayer/issues/5433)).
+* IMA extension: Upgrade IMA dependency to 3.10.6.
+* Cronet extension: Upgrade Cronet dependency to 71.3578.98.
+* OkHttp extension: Upgrade OkHttp dependency to 3.12.1.
 
 ### 2.9.4 ###
 
