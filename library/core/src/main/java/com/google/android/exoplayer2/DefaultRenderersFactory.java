@@ -89,6 +89,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   private @ExtensionRendererMode int extensionRendererMode;
   private long allowedVideoJoiningTimeMs;
   private boolean playClearSamplesWithoutKeys;
+  private MediaCodecSelector mediaCodecSelector = MediaCodecSelector.DEFAULT;
 
   /**
    * @param context A {@link Context}.
@@ -180,10 +181,10 @@ public class DefaultRenderersFactory implements RenderersFactory {
       drmSessionManager = this.drmSessionManager;
     }
     ArrayList<Renderer> renderersList = new ArrayList<>();
-    buildVideoRenderers(context, drmSessionManager, allowedVideoJoiningTimeMs, playClearSamplesWithoutKeys,
-        eventHandler, videoRendererEventListener, extensionRendererMode, renderersList);
-    buildAudioRenderers(context, drmSessionManager, playClearSamplesWithoutKeys, buildAudioProcessors(),
-        eventHandler, audioRendererEventListener, extensionRendererMode, renderersList);
+    buildVideoRenderers(context, mediaCodecSelector, drmSessionManager, allowedVideoJoiningTimeMs,
+        playClearSamplesWithoutKeys, eventHandler, videoRendererEventListener, extensionRendererMode, renderersList);
+    buildAudioRenderers(context, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys,
+        buildAudioProcessors(), eventHandler, audioRendererEventListener, extensionRendererMode, renderersList);
     buildTextRenderers(context, textRendererOutput, eventHandler.getLooper(),
         extensionRendererMode, renderersList);
     buildMetadataRenderers(context, metadataRendererOutput, eventHandler.getLooper(),
@@ -246,9 +247,21 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
+   * Sets the decoder selector.
+   *
+   * @param mediaCodecSelector A decoder selector to set.
+   * @return {@link DefaultRenderersFactory}
+   */
+  public DefaultRenderersFactory setMediaCodecSelector(MediaCodecSelector mediaCodecSelector) {
+    this.mediaCodecSelector = mediaCodecSelector;
+    return this;
+  }
+
+  /**
    * Builds video renderers for use by the player.
    *
    * @param context The {@link Context} associated with the player.
+   * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the player
    *     will not be used for DRM protected playbacks.
    * @param allowedVideoJoiningTimeMs The maximum duration in milliseconds for which video
@@ -264,6 +277,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param out An array to which the built renderers should be appended.
    */
   protected void buildVideoRenderers(Context context,
+      MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       long allowedVideoJoiningTimeMs, boolean playClearSamplesWithoutKeys, Handler eventHandler,
       VideoRendererEventListener eventListener, @ExtensionRendererMode int extensionRendererMode,
@@ -271,7 +285,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     out.add(
         new MediaCodecVideoRenderer(
             context,
-            MediaCodecSelector.DEFAULT,
+            mediaCodecSelector,
             allowedVideoJoiningTimeMs,
             drmSessionManager,
             playClearSamplesWithoutKeys,
@@ -319,6 +333,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * Builds audio renderers for use by the player.
    *
    * @param context The {@link Context} associated with the player.
+   * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the player
    *     will not be used for DRM protected playbacks.
    * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
@@ -334,6 +349,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param out An array to which the built renderers should be appended.
    */
   protected void buildAudioRenderers(Context context,
+      MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
       AudioProcessor[] audioProcessors, Handler eventHandler,
@@ -342,7 +358,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     out.add(
         new MediaCodecAudioRenderer(
             context,
-            MediaCodecSelector.DEFAULT,
+            mediaCodecSelector,
             drmSessionManager,
             playClearSamplesWithoutKeys,
             eventHandler,
