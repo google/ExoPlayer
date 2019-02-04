@@ -20,6 +20,7 @@ import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -37,22 +38,37 @@ import java.util.ArrayList;
 
 /**
  * A debug extension of {@link DefaultRenderersFactory}. Provides a video renderer that performs
- * video buffer timestamp assertions.
+ * video buffer timestamp assertions, and modifies the default value for {@link
+ * #setAllowedVideoJoiningTimeMs(long)} to be {@code 0}.
  */
 public class DebugRenderersFactory extends DefaultRenderersFactory {
 
   public DebugRenderersFactory(Context context) {
-    super(context, DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF, 0);
+    super(context);
+    setAllowedVideoJoiningTimeMs(0);
   }
 
   @Override
-  protected void buildVideoRenderers(Context context,
-      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager, long allowedVideoJoiningTimeMs,
-      Handler eventHandler, VideoRendererEventListener eventListener,
-      @ExtensionRendererMode int extensionRendererMode, ArrayList<Renderer> out) {
-    out.add(new DebugMediaCodecVideoRenderer(context, MediaCodecSelector.DEFAULT,
-        allowedVideoJoiningTimeMs, drmSessionManager, eventHandler, eventListener,
-        MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
+  protected void buildVideoRenderers(
+      Context context,
+      @ExtensionRendererMode int extensionRendererMode,
+      MediaCodecSelector mediaCodecSelector,
+      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys,
+      Handler eventHandler,
+      VideoRendererEventListener eventListener,
+      long allowedVideoJoiningTimeMs,
+      ArrayList<Renderer> out) {
+    out.add(
+        new DebugMediaCodecVideoRenderer(
+            context,
+            mediaCodecSelector,
+            allowedVideoJoiningTimeMs,
+            drmSessionManager,
+            playClearSamplesWithoutKeys,
+            eventHandler,
+            eventListener,
+            MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
   }
 
   /**
@@ -71,12 +87,24 @@ public class DebugRenderersFactory extends DefaultRenderersFactory {
     private int minimumInsertIndex;
     private boolean skipToPositionBeforeRenderingFirstFrame;
 
-    public DebugMediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-        long allowedJoiningTimeMs, DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-        Handler eventHandler, VideoRendererEventListener eventListener,
+    public DebugMediaCodecVideoRenderer(
+        Context context,
+        MediaCodecSelector mediaCodecSelector,
+        long allowedJoiningTimeMs,
+        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+        boolean playClearSamplesWithoutKeys,
+        Handler eventHandler,
+        VideoRendererEventListener eventListener,
         int maxDroppedFrameCountToNotify) {
-      super(context, mediaCodecSelector, allowedJoiningTimeMs, drmSessionManager, false,
-          eventHandler, eventListener, maxDroppedFrameCountToNotify);
+      super(
+          context,
+          mediaCodecSelector,
+          allowedJoiningTimeMs,
+          drmSessionManager,
+          playClearSamplesWithoutKeys,
+          eventHandler,
+          eventListener,
+          maxDroppedFrameCountToNotify);
     }
 
     @Override
