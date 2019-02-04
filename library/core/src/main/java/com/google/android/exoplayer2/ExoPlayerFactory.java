@@ -97,7 +97,8 @@ public final class ExoPlayerFactory {
       LoadControl loadControl,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode) {
-    RenderersFactory renderersFactory = new DefaultRenderersFactory(context, extensionRendererMode);
+    RenderersFactory renderersFactory =
+        new DefaultRenderersFactory(context).setExtensionRendererMode(extensionRendererMode);
     return newSimpleInstance(
         context, renderersFactory, trackSelector, loadControl, drmSessionManager);
   }
@@ -127,7 +128,9 @@ public final class ExoPlayerFactory {
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode,
       long allowedVideoJoiningTimeMs) {
     RenderersFactory renderersFactory =
-        new DefaultRenderersFactory(context, extensionRendererMode, allowedVideoJoiningTimeMs);
+        new DefaultRenderersFactory(context)
+            .setExtensionRendererMode(extensionRendererMode)
+            .setAllowedVideoJoiningTimeMs(allowedVideoJoiningTimeMs);
     return newSimpleInstance(
         context, renderersFactory, trackSelector, loadControl, drmSessionManager);
   }
