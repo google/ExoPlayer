@@ -94,7 +94,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    */
   private final SparseBooleanArray removedIds;
 
-  private final Storage storage;
+  private Storage storage;
+  @Nullable private Storage previousStorage;
 
   /**
    * Returns whether the file is an index file, or an auxiliary file associated with an index file
@@ -150,35 +151,56 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     idToKey = new SparseArray<>();
     removedIds = new SparseBooleanArray();
     Random random = new Random();
-    storage =
+    Storage atomicFileStorage =
         new AtomicFileStorage(
             new File(cacheDir, FILE_NAME_ATOMIC), random, encrypt, cipher, secretKeySpec);
-    // storage =
+    // Storage sqliteStorage =
     //     new SQLiteStorage(
-    //         new File(cacheDir, FILE_NAME_DATABASE),
-    //         random,
-    //         encrypt,
-    //         cipher,
-    //         secretKeySpec);
+    //         new File(cacheDir, FILE_NAME_DATABASE), random, encrypt, cipher, secretKeySpec);
+    storage = atomicFileStorage;
+    previousStorage = null;
   }
 
   /** Loads the index file. */
   public void load() {
-    if (!storage.load(keyToContent, idToKey)) {
-      keyToContent.clear();
-      idToKey.clear();
+    if (!storage.exists() && previousStorage != null && previousStorage.exists()) {
+      // Copy from previous storage into current storage.
+      loadFrom(previousStorage);
+      try {
+        storage.storeFully(keyToContent);
+      } catch (CacheException e) {
+        // We failed to copy into current storage, so keep using previous storage.
+        storage.release();
+        storage = previousStorage;
+        previousStorage = null;
+      }
+    } else {
+      // Load from the current storage.
+      loadFrom(storage);
+    }
+    if (previousStorage != null) {
+      previousStorage.release(/* delete= */ true);
+      previousStorage = null;
     }
   }
 
   /** Stores the index data to index file if there is a change. */
   public void store() throws CacheException {
-    storage.store(keyToContent);
+    storage.storeIncremental(keyToContent);
     // Make ids that were removed since the index was last stored eligible for re-use.
     int removedIdCount = removedIds.size();
     for (int i = 0; i < removedIdCount; i++) {
       idToKey.remove(removedIds.keyAt(i));
     }
     removedIds.clear();
+  }
+
+  /** Releases any underlying resources. */
+  public void release() {
+    storage.release();
+    if (previousStorage != null) {
+      previousStorage.release();
+    }
   }
 
   /**
@@ -265,6 +287,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public ContentMetadata getContentMetadata(String key) {
     CachedContent cachedContent = get(key);
     return cachedContent != null ? cachedContent.getMetadata() : DefaultContentMetadata.EMPTY;
+  }
+
+  /** Loads the index from the specified storage. */
+  private void loadFrom(Storage storage) {
+    if (!storage.load(keyToContent, idToKey)) {
+      keyToContent.clear();
+      idToKey.clear();
+    }
   }
 
   private CachedContent addNew(String key) {
@@ -363,8 +393,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /** Interface for the persistent index. */
   private interface Storage {
 
+    /** Returns whether the persisted index exists. */
+    boolean exists();
+
+    /** Releases any held resources. */
+    default void release() {
+      release(/* delete= */ false);
+    }
+
+    /** Releases and held resources and optionally deletes the persisted index. */
+    void release(boolean delete);
+
     /**
-     * Loads the persisted index into {@code content} and {@code idToKey}.
+     * Loads the persisted index into {@code content} and {@code idToKey}, creating it if it doesn't
+     * already exist.
      *
      * @param content The key to content map to populate with persisted data.
      * @param idToKey The id to key map to populate with persisted data.
@@ -373,22 +415,33 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     boolean load(HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey);
 
     /**
-     * Ensures all changes in the in-memory table are persisted.
+     * Writes the persisted index, creating it if it doesn't already exist and replacing any
+     * existing content if it does.
      *
      * @param content The key to content map to persist.
      * @throws CacheException If an error occurs persisting the index.
      */
-    void store(HashMap<String, CachedContent> content) throws CacheException;
+    void storeFully(HashMap<String, CachedContent> content) throws CacheException;
 
     /**
-     * Called when a {@link CachedContent} is added or updated in the in-memory index.
+     * Ensures incremental changes to the index since the last {@link #load()} or {@link
+     * #storeFully(HashMap)} are persisted. The storage will have been notified of all such changes
+     * via {@link #onUpdate(CachedContent)} and {@link #onRemove(CachedContent)}.
+     *
+     * @param content The key to content map to persist.
+     * @throws CacheException If an error occurs persisting the index.
+     */
+    void storeIncremental(HashMap<String, CachedContent> content) throws CacheException;
+
+    /**
+     * Called when a {@link CachedContent} is added or updated.
      *
      * @param cachedContent The updated {@link CachedContent}.
      */
     void onUpdate(CachedContent cachedContent);
 
     /**
-     * Called when a {@link CachedContent} is removed from the in-memory index.
+     * Called when a {@link CachedContent} is removed.
      *
      * @param cachedContent The removed {@link CachedContent}.
      */
@@ -421,6 +474,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
+    public boolean exists() {
+      return atomicFile.exists();
+    }
+
+    @Override
+    public void release(boolean delete) {
+      if (delete) {
+        atomicFile.delete();
+      }
+    }
+
+    @Override
     public boolean load(
         HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey) {
       Assertions.checkState(!changed);
@@ -432,12 +497,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
-    public void store(HashMap<String, CachedContent> content) throws CacheException {
+    public void storeFully(HashMap<String, CachedContent> content) throws CacheException {
+      writeFile(content);
+      changed = false;
+    }
+
+    @Override
+    public void storeIncremental(HashMap<String, CachedContent> content) throws CacheException {
       if (!changed) {
         return;
       }
-      writeFile(content);
-      changed = false;
+      storeFully(content);
     }
 
     @Override
@@ -637,11 +707,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     private static final int FLAG_ENCRYPTED = 1;
 
+    private final File file;
     private final Random random;
     private final boolean encrypt;
     @Nullable private final Cipher cipher;
     @Nullable private final SecretKeySpec secretKeySpec;
-    private final DatabaseProvider databaseProvider;
+    private final ExoDatabaseProvider databaseProvider;
     private final SparseArray<CachedContent> pendingUpdates;
 
     @Nullable private ReusableBufferedOutputStream bufferedOutputStream;
@@ -652,6 +723,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         boolean encrypt,
         @Nullable Cipher cipher,
         @Nullable SecretKeySpec secretKeySpec) {
+      this.file = file;
       this.random = random;
       this.encrypt = encrypt;
       this.cipher = cipher;
@@ -661,8 +733,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
+    public boolean exists() {
+      return file.exists()
+          && VersionTable.getVersion(
+                  databaseProvider.getReadableDatabase(), VersionTable.FEATURE_CACHE)
+              != VersionTable.VERSION_UNSET;
+    }
+
+    @Override
+    public void release(boolean delete) {
+      release();
+      if (delete) {
+        SQLiteDatabase.deleteDatabase(file);
+      }
+    }
+
+    @Override
     public boolean load(
         HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey) {
+      Assertions.checkState(pendingUpdates.size() == 0);
       try {
         int version =
             VersionTable.getVersion(
@@ -671,9 +760,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
           writableDatabase.beginTransaction();
           try {
-            writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
-            writableDatabase.execSQL(SQL_CREATE_TABLE);
-            VersionTable.setVersion(writableDatabase, VersionTable.FEATURE_CACHE, TABLE_VERSION);
+            initializeTable(writableDatabase);
             writableDatabase.setTransactionSuccessful();
           } finally {
             writableDatabase.endTransaction();
@@ -717,7 +804,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
-    public void store(HashMap<String, CachedContent> content) throws CacheException {
+    public void storeFully(HashMap<String, CachedContent> content) throws CacheException {
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      writableDatabase.beginTransaction();
+      try {
+        initializeTable(writableDatabase);
+        for (CachedContent cachedContent : content.values()) {
+          addOrUpdateRow(writableDatabase, cachedContent);
+        }
+        writableDatabase.setTransactionSuccessful();
+        pendingUpdates.clear();
+      } catch (IOException | SQLiteException e) {
+        throw new CacheException(e);
+      } finally {
+        writableDatabase.endTransaction();
+      }
+    }
+
+    @Override
+    public void storeIncremental(HashMap<String, CachedContent> content) throws CacheException {
       if (pendingUpdates.size() == 0) {
         return;
       }
@@ -762,6 +867,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               /* groupBy= */ null,
               /* having= */ null,
               /* orderBy= */ null);
+    }
+
+    private void initializeTable(SQLiteDatabase writableDatabase) {
+      VersionTable.setVersion(writableDatabase, VersionTable.FEATURE_CACHE, TABLE_VERSION);
+      writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
+      writableDatabase.execSQL(SQL_CREATE_TABLE);
     }
 
     private void deleteRow(SQLiteDatabase writableDatabase, int key) {
