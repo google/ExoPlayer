@@ -157,6 +157,7 @@ public final class SimpleCache implements Cache {
     } catch (CacheException e) {
       Log.e(TAG, "Storing index file failed", e);
     } finally {
+      index.release();
       unlockFolder(cacheDir);
       released = true;
     }
