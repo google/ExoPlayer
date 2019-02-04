@@ -2,9 +2,11 @@
 
 ### 2.9.5 ###
 
-* Add `Handler` parameter to `ConcatenatingMediaSource` methods which take a
-  callback `Runnable`.
 * HLS: Parse `CHANNELS` attribute from `EXT-X-MEDIA` tag.
+* ConcatenatingMediaSource:
+  * Add `Handler` parameter to methods that take a callback `Runnable`.
+  * Fix issue with dropped messages when releasing the source
+    ([#5464](https://github.com/google/ExoPlayer/issues/5464)).
 * ExtractorMediaSource: Fix issue that could cause the player to get stuck
   buffering at the end of the media.
 * PlayerView: Fix issue preventing `OnClickListener` from receiving events
@@ -14,8 +16,6 @@
 * OkHttp extension: Upgrade OkHttp dependency to 3.12.1.
 * MP3: Wider fix for issue where streams would play twice on some Samsung
   devices ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
-* Fix issue with dropped messages when releasing a `ConcatenatingMediaSource`
-  ([#5464](https://github.com/google/ExoPlayer/issues/5464)).
 
 ### 2.9.4 ###
 
