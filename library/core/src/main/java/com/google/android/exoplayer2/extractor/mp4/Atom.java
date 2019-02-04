@@ -150,6 +150,12 @@ import java.util.List;
   public static final int TYPE_dOps = Util.getIntegerCodeForString("dOps");
   public static final int TYPE_fLaC = Util.getIntegerCodeForString("fLaC");
   public static final int TYPE_dfLa = Util.getIntegerCodeForString("dfLa");
+  public static final int TYPE_dvav = Util.getIntegerCodeForString("dvav");
+  public static final int TYPE_dva1 = Util.getIntegerCodeForString("dva1");
+  public static final int TYPE_dvhe = Util.getIntegerCodeForString("dvhe");
+  public static final int TYPE_dvh1 = Util.getIntegerCodeForString("dvh1");
+  public static final int TYPE_dvcC = Util.getIntegerCodeForString("dvcC");
+  public static final int TYPE_dvvC = Util.getIntegerCodeForString("dvvC");
 
   public final int type;
 

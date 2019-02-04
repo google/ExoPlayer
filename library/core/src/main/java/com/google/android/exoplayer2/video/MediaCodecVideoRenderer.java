@@ -1055,6 +1055,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     mediaFormat.setInteger(MediaFormat.KEY_HEIGHT, format.height);
     MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
     // Set format parameters that may be unset.
+    if(MediaCodecUtil.getCodecProfileAndLevel(format.codecs) != null) {
+      MediaFormatUtil.maybeSetInteger(mediaFormat,
+          MediaFormat.KEY_PROFILE, MediaCodecUtil.getCodecProfileAndLevel(format.codecs).first);
+    }
     MediaFormatUtil.maybeSetFloat(mediaFormat, MediaFormat.KEY_FRAME_RATE, format.frameRate);
     MediaFormatUtil.maybeSetInteger(mediaFormat, MediaFormat.KEY_ROTATION, format.rotationDegrees);
     MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
