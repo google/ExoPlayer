@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.os.ConditionVariable;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
@@ -42,7 +44,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
@@ -416,7 +417,7 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testCustomCallbackBeforePreparationAddSingle() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
     mediaSource.addMediaSource(createFakeMediaSource(), new Handler(), runnable);
     verify(runnable).run();
@@ -424,7 +425,7 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testCustomCallbackBeforePreparationAddMultiple() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
     mediaSource.addMediaSources(
         Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
@@ -435,7 +436,7 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testCustomCallbackBeforePreparationAddSingleWithIndex() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
     mediaSource.addMediaSource(/* index */ 0, createFakeMediaSource(), new Handler(), runnable);
     verify(runnable).run();
@@ -443,7 +444,7 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testCustomCallbackBeforePreparationAddMultipleWithIndex() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
     mediaSource.addMediaSources(
         /* index */ 0,
@@ -455,7 +456,7 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testCustomCallbackBeforePreparationRemove() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
     mediaSource.addMediaSource(createFakeMediaSource());
     mediaSource.removeMediaSource(/* index */ 0, new Handler(), runnable);
@@ -464,7 +465,7 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testCustomCallbackBeforePreparationMove() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
     mediaSource.addMediaSources(
         Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}));
@@ -583,6 +584,29 @@ public final class ConcatenatingMediaSourceTest {
                   /* fromIndex */ 1, /* toIndex */ 0, new Handler(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
+    } finally {
+      dummyMainThread.release();
+    }
+  }
+
+  @Test
+  public void testCustomCallbackIsCalledAfterRelease() throws IOException {
+    DummyMainThread dummyMainThread = new DummyMainThread();
+    ConditionVariable callbackCalledCondition = new ConditionVariable();
+    try {
+      dummyMainThread.runOnMainThread(
+          () -> {
+            SourceInfoRefreshListener listener = mock(SourceInfoRefreshListener.class);
+            mediaSource.addMediaSources(Arrays.asList(createMediaSources(2)));
+            mediaSource.prepareSource(listener, /* mediaTransferListener= */ null);
+            mediaSource.moveMediaSource(
+                /* currentIndex= */ 0,
+                /* newIndex= */ 1,
+                new Handler(),
+                callbackCalledCondition::open);
+            mediaSource.releaseSource(listener);
+          });
+      assertThat(callbackCalledCondition.block(MediaSourceTestRunner.TIMEOUT_MS)).isTrue();
     } finally {
       dummyMainThread.release();
     }
@@ -973,7 +997,7 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testCustomCallbackBeforePreparationSetShuffleOrder() throws Exception {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
     mediaSource.setShuffleOrder(
         new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0), new Handler(), runnable);
 

@@ -58,6 +58,8 @@
 * OkHttp extension: Upgrade OkHttp dependency to 3.12.1.
 * MP3: Wider fix for issue where streams would play twice on some Samsung
   devices ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
+* Fix issue with dropped messages when releasing a `ConcatenatingMediaSource`
+  ([#5464](https://github.com/google/ExoPlayer/issues/5464)).
 
 ### 2.9.4 ###
 
