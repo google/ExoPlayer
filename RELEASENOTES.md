@@ -1177,7 +1177,7 @@
   [here](https://medium.com/google-exoplayer/customizing-exoplayers-ui-components-728cf55ee07a#.9ewjg7avi).
 * Robustness improvements when handling MediaSource timeline changes and
   MediaPeriod transitions.
-* EIA608: Support for caption styling and positioning.
+* CEA-608: Support for caption styling and positioning.
 * MPEG-TS: Improved support:
   * Support injection of custom TS payload readers.
   * Support injection of custom section payload readers.
@@ -1421,8 +1421,8 @@ V2 release.
   (#801).
 * MP3: Fix playback of some streams when stream length is unknown.
 * ID3: Support multiple frames of the same type in a single tag.
-* EIA608: Correctly handle repeated control characters, fixing an issue in which
-  captions would immediately disappear.
+* CEA-608: Correctly handle repeated control characters, fixing an issue in
+  which captions would immediately disappear.
 * AVC3: Fix decoder failures on some MediaTek devices in the case where the
   first buffer fed to the decoder does not start with SPS/PPS NAL units.
 * Misc bug fixes.
