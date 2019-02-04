@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.offline;
 
 /** Provides random read-write access to the result set returned by a database query. */
-interface DownloadStateCursor {
+public interface DownloadStateCursor {
 
   /** Returns the DownloadState at the current position. */
   DownloadState getDownloadState();

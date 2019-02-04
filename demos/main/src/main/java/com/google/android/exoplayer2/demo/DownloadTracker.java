@@ -34,11 +34,13 @@ import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.ActionFile;
+import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloadState;
+import com.google.android.exoplayer2.offline.DownloadStateCursor;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -51,8 +53,8 @@ import com.google.android.exoplayer2.ui.TrackSelectionView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
-import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -80,20 +82,21 @@ public class DownloadTracker implements DownloadManager.Listener {
   private final DataSource.Factory dataSourceFactory;
   private final TrackNameProvider trackNameProvider;
   private final CopyOnWriteArraySet<Listener> listeners;
-  private final HashMap<Uri, DownloadAction> trackedDownloadStates;
-  private final ActionFile actionFile;
-  private final Handler actionFileWriteHandler;
+  private final HashMap<Uri, DownloadState> trackedDownloadStates;
+  private final DefaultDownloadIndex downloadIndex;
+  private final Handler actionFileIOHandler;
 
-  public DownloadTracker(Context context, DataSource.Factory dataSourceFactory, File actionFile) {
+  public DownloadTracker(
+      Context context, DataSource.Factory dataSourceFactory, DefaultDownloadIndex downloadIndex) {
     this.context = context.getApplicationContext();
     this.dataSourceFactory = dataSourceFactory;
-    this.actionFile = new ActionFile(actionFile);
+    this.downloadIndex = downloadIndex;
     trackNameProvider = new DefaultTrackNameProvider(context.getResources());
     listeners = new CopyOnWriteArraySet<>();
     trackedDownloadStates = new HashMap<>();
     HandlerThread actionFileWriteThread = new HandlerThread("DownloadTracker");
     actionFileWriteThread.start();
-    actionFileWriteHandler = new Handler(actionFileWriteThread.getLooper());
+    actionFileIOHandler = new Handler(actionFileWriteThread.getLooper());
     loadTrackedActions();
   }
 
@@ -114,7 +117,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     if (!trackedDownloadStates.containsKey(uri)) {
       return Collections.emptyList();
     }
-    return trackedDownloadStates.get(uri).getKeys();
+    return Arrays.asList(trackedDownloadStates.get(uri).streamKeys);
   }
 
   public void toggleDownload(
@@ -146,7 +149,7 @@ public class DownloadTracker implements DownloadManager.Listener {
         || downloadState.state == DownloadState.STATE_FAILED) {
       // A download has been removed, or has failed. Stop tracking it.
       if (trackedDownloadStates.remove(downloadState.uri) != null) {
-        handleTrackedDownloadStatesChanged();
+        handleTrackedDownloadStateChanged(downloadState);
       }
     }
   }
@@ -167,27 +170,24 @@ public class DownloadTracker implements DownloadManager.Listener {
   // Internal methods
 
   private void loadTrackedActions() {
-    try {
-      DownloadAction[] allActions = actionFile.load();
-      for (DownloadAction action : allActions) {
-        trackedDownloadStates.put(action.uri, action);
-      }
-    } catch (IOException e) {
-      Log.e(TAG, "Failed to load tracked actions", e);
+    DownloadStateCursor downloadStates = downloadIndex.getDownloadStates();
+    while (downloadStates.moveToNext()) {
+      DownloadState downloadState = downloadStates.getDownloadState();
+      trackedDownloadStates.put(downloadState.uri, downloadState);
     }
+    downloadStates.close();
   }
 
-  private void handleTrackedDownloadStatesChanged() {
+  private void handleTrackedDownloadStateChanged(DownloadState downloadState) {
     for (Listener listener : listeners) {
       listener.onDownloadsChanged();
     }
-    final DownloadAction[] actions = trackedDownloadStates.values().toArray(new DownloadAction[0]);
-    actionFileWriteHandler.post(
+    actionFileIOHandler.post(
         () -> {
-          try {
-            actionFile.store(actions);
-          } catch (IOException e) {
-            Log.e(TAG, "Failed to store tracked actions", e);
+          if (downloadState.state == DownloadState.STATE_REMOVED) {
+            downloadIndex.removeDownloadState(downloadState.id);
+          } else {
+            downloadIndex.putDownloadState(downloadState);
           }
         });
   }
@@ -197,8 +197,9 @@ public class DownloadTracker implements DownloadManager.Listener {
       // This content is already being downloaded. Do nothing.
       return;
     }
-    trackedDownloadStates.put(action.uri, action);
-    handleTrackedDownloadStatesChanged();
+    DownloadState downloadState = new DownloadState(action);
+    trackedDownloadStates.put(downloadState.uri, downloadState);
+    handleTrackedDownloadStateChanged(downloadState);
     startServiceWithAction(action);
   }
 

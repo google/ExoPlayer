@@ -81,7 +81,7 @@ public final class DownloadIndexUtil {
     if (downloadState != null) {
       downloadState = merge(downloadState, action);
     } else {
-      downloadState = convert(action);
+      downloadState = new DownloadState(action);
     }
     downloadIndex.putDownloadState(downloadState);
   }
@@ -119,28 +119,6 @@ public final class DownloadIndexUtil {
         downloadState.startTimeMs,
         downloadState.updateTimeMs,
         newKeys,
-        action.data);
-  }
-
-  private static DownloadState convert(DownloadAction action) {
-    long currentTimeMs = System.currentTimeMillis();
-    return new DownloadState(
-        action.id,
-        action.type,
-        action.uri,
-        action.customCacheKey,
-        /* state= */ action.isRemoveAction
-            ? DownloadState.STATE_REMOVING
-            : DownloadState.STATE_QUEUED,
-        /* downloadPercentage= */ C.PERCENTAGE_UNSET,
-        /* downloadedBytes= */ 0,
-        /* totalBytes= */ C.LENGTH_UNSET,
-        DownloadState.FAILURE_REASON_NONE,
-        /* stopFlags= */ 0,
-        /* notMetRequirements= */ 0,
-        /* startTimeMs= */ currentTimeMs,
-        /* updateTimeMs= */ currentTimeMs,
-        action.keys.toArray(new StreamKey[0]),
         action.data);
   }
 }

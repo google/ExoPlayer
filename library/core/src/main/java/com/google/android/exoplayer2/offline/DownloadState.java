@@ -164,6 +164,34 @@ public final class DownloadState {
   /** Not met requirements to download. */
   @Requirements.RequirementFlags public final int notMetRequirements;
 
+  /**
+   * Creates a {@link DownloadState} using a {@link DownloadAction}.
+   *
+   * @param action The {@link DownloadAction}.
+   */
+  public DownloadState(DownloadAction action) {
+    this(action, System.currentTimeMillis());
+  }
+
+  private DownloadState(DownloadAction action, long currentTimeMs) {
+    this(
+        action.id,
+        action.type,
+        action.uri,
+        action.customCacheKey,
+        /* state= */ action.isRemoveAction ? STATE_REMOVING : STATE_QUEUED,
+        /* downloadPercentage= */ C.PERCENTAGE_UNSET,
+        /* downloadedBytes= */ 0,
+        /* totalBytes= */ C.LENGTH_UNSET,
+        FAILURE_REASON_NONE,
+        /* stopFlags= */ 0,
+        /* notMetRequirements= */ 0,
+        /* startTimeMs= */ currentTimeMs,
+        /* updateTimeMs= */ currentTimeMs,
+        action.keys.toArray(new StreamKey[0]),
+        action.data);
+  }
+
   /* package */ DownloadState(
       String id,
       String type,
