@@ -129,12 +129,13 @@ public class AnalyticsCollector
 
   /**
    * Sets the player for which data will be collected. Must only be called if no player has been set
-   * yet.
+   * yet or the current player is idle.
    *
    * @param player The {@link Player} for which data will be collected.
    */
   public void setPlayer(Player player) {
-    Assertions.checkState(this.player == null);
+    Assertions.checkState(
+        this.player == null || mediaPeriodQueueTracker.mediaPeriodInfoQueue.isEmpty());
     this.player = Assertions.checkNotNull(player);
   }
 
