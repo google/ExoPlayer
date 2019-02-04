@@ -56,6 +56,8 @@
 * IMA extension: Upgrade IMA dependency to 3.10.6.
 * Cronet extension: Upgrade Cronet dependency to 71.3578.98.
 * OkHttp extension: Upgrade OkHttp dependency to 3.12.1.
+* MP3: Wider fix for issue where streams would play twice on some Samsung
+  devices ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
 
 ### 2.9.4 ###
 
