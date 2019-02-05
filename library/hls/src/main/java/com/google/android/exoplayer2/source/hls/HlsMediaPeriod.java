@@ -69,7 +69,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private TrackGroupArray trackGroups;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
-  private int[] selectedVariantIndices;
+  // Maps sample stream wrappers to variant/rendition index by matching array positions.
+  private int[][] manifestUrlsIndicesPerWrapper;
   private SequenceableLoader compositeSequenceableLoader;
   private boolean notifiedReadingStarted;
 
@@ -114,7 +115,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     timestampAdjusterProvider = new TimestampAdjusterProvider();
     sampleStreamWrappers = new HlsSampleStreamWrapper[0];
     enabledSampleStreamWrappers = new HlsSampleStreamWrapper[0];
-    selectedVariantIndices = new int[0];
+    manifestUrlsIndicesPerWrapper = new int[0][];
     eventDispatcher.mediaPeriodCreated();
   }
 
@@ -156,11 +157,14 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
     TrackGroupArray mainWrapperTrackGroups;
     int mainWrapperPrimaryGroupIndex;
+    int[] mainWrapperVariantIndices;
     if (hasVariants) {
       HlsSampleStreamWrapper mainWrapper = sampleStreamWrappers[0];
+      mainWrapperVariantIndices = manifestUrlsIndicesPerWrapper[0];
       mainWrapperTrackGroups = mainWrapper.getTrackGroups();
       mainWrapperPrimaryGroupIndex = mainWrapper.getPrimaryTrackGroupIndex();
     } else {
+      mainWrapperVariantIndices = new int[0];
       mainWrapperTrackGroups = TrackGroupArray.EMPTY;
       mainWrapperPrimaryGroupIndex = 0;
     }
@@ -176,7 +180,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
           // Primary group in main wrapper.
           hasPrimaryTrackGroupSelection = true;
           for (int i = 0; i < trackSelection.length(); i++) {
-            int variantIndex = selectedVariantIndices[trackSelection.getIndexInTrackGroup(i)];
+            int variantIndex = mainWrapperVariantIndices[trackSelection.getIndexInTrackGroup(i)];
             streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, variantIndex));
           }
         } else {
@@ -188,13 +192,11 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         for (int i = audioWrapperOffset; i < sampleStreamWrappers.length; i++) {
           TrackGroupArray wrapperTrackGroups = sampleStreamWrappers[i].getTrackGroups();
           if (wrapperTrackGroups.indexOf(trackSelectionGroup) != C.INDEX_UNSET) {
-            if (i < subtitleWrapperOffset) {
-              streamKeys.add(
-                  new StreamKey(HlsMasterPlaylist.GROUP_INDEX_AUDIO, i - audioWrapperOffset));
-            } else {
-              streamKeys.add(
-                  new StreamKey(HlsMasterPlaylist.GROUP_INDEX_SUBTITLE, i - subtitleWrapperOffset));
-            }
+            int groupIndexType =
+                i < subtitleWrapperOffset
+                    ? HlsMasterPlaylist.GROUP_INDEX_AUDIO
+                    : HlsMasterPlaylist.GROUP_INDEX_SUBTITLE;
+            streamKeys.add(new StreamKey(groupIndexType, manifestUrlsIndicesPerWrapper[i][0]));
             break;
           }
         }
@@ -203,13 +205,14 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     if (needsPrimaryTrackGroupSelection && !hasPrimaryTrackGroupSelection) {
       // A track selection includes a variant-embedded track, but no variant is added yet. We use
       // the valid variant with the lowest bitrate to reduce overhead.
-      int lowestBitrateIndex = selectedVariantIndices[0];
-      int lowestBitrate = masterPlaylist.variants.get(selectedVariantIndices[0]).format.bitrate;
-      for (int i = 1; i < selectedVariantIndices.length; i++) {
-        int variantBitrate = masterPlaylist.variants.get(selectedVariantIndices[i]).format.bitrate;
+      int lowestBitrateIndex = mainWrapperVariantIndices[0];
+      int lowestBitrate = masterPlaylist.variants.get(mainWrapperVariantIndices[0]).format.bitrate;
+      for (int i = 1; i < mainWrapperVariantIndices.length; i++) {
+        int variantBitrate =
+            masterPlaylist.variants.get(mainWrapperVariantIndices[i]).format.bitrate;
         if (variantBitrate < lowestBitrate) {
           lowestBitrate = variantBitrate;
-          lowestBitrateIndex = selectedVariantIndices[i];
+          lowestBitrateIndex = mainWrapperVariantIndices[i];
         }
       }
       streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, lowestBitrateIndex));
@@ -423,6 +426,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
     int wrapperCount = (hasVariants ? 1 : 0) + audioRenditions.size() + subtitleRenditions.size();
     sampleStreamWrappers = new HlsSampleStreamWrapper[wrapperCount];
+    manifestUrlsIndicesPerWrapper = new int[wrapperCount][];
     pendingPrepareCount = wrapperCount;
 
     int currentWrapperIndex = 0;
@@ -443,6 +447,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
               null,
               Collections.emptyList(),
               positionUs);
+      manifestUrlsIndicesPerWrapper[currentWrapperIndex] = new int[] {i};
       sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
       Format renditionFormat = audioRendition.format;
       if (allowChunklessPreparation && renditionFormat.codecs != null) {
@@ -457,6 +462,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       HlsSampleStreamWrapper sampleStreamWrapper =
           buildSampleStreamWrapper(
               C.TRACK_TYPE_TEXT, new HlsUrl[] {url}, null, Collections.emptyList(), positionUs);
+      manifestUrlsIndicesPerWrapper[currentWrapperIndex] = new int[] {i};
       sampleStreamWrappers[currentWrapperIndex++] = sampleStreamWrapper;
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
           new TrackGroupArray(new TrackGroup(url.format)), 0, TrackGroupArray.EMPTY);
@@ -530,13 +536,13 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       selectedVariantsCount = variantTypes.length - audioVariantCount;
     }
     HlsUrl[] selectedVariants = new HlsUrl[selectedVariantsCount];
-    selectedVariantIndices = new int[selectedVariantsCount];
+    manifestUrlsIndicesPerWrapper[0] = new int[selectedVariantsCount];
     int outIndex = 0;
     for (int i = 0; i < masterPlaylist.variants.size(); i++) {
       if ((!useVideoVariantsOnly || variantTypes[i] == C.TRACK_TYPE_VIDEO)
           && (!useNonAudioVariantsOnly || variantTypes[i] != C.TRACK_TYPE_AUDIO)) {
         selectedVariants[outIndex] = masterPlaylist.variants.get(i);
-        selectedVariantIndices[outIndex++] = i;
+        manifestUrlsIndicesPerWrapper[0][outIndex++] = i;
       }
     }
     String codecs = selectedVariants[0].format.codecs;
