@@ -39,8 +39,98 @@ public final class DefaultDownloadIndex implements DownloadIndex {
 
   @VisibleForTesting /* package */ static final int TABLE_VERSION = 1;
 
+  private static final String COLUMN_ID = "id";
+  private static final String COLUMN_TYPE = "title";
+  private static final String COLUMN_URI = "subtitle";
+  private static final String COLUMN_CACHE_KEY = "cache_key";
+  private static final String COLUMN_STATE = "state";
+  private static final String COLUMN_DOWNLOAD_PERCENTAGE = "download_percentage";
+  private static final String COLUMN_DOWNLOADED_BYTES = "downloaded_bytes";
+  private static final String COLUMN_TOTAL_BYTES = "total_bytes";
+  private static final String COLUMN_FAILURE_REASON = "failure_reason";
+  private static final String COLUMN_STOP_FLAGS = "stop_flags";
+  private static final String COLUMN_NOT_MET_REQUIREMENTS = "not_met_requirements";
+  private static final String COLUMN_START_TIME_MS = "start_time_ms";
+  private static final String COLUMN_UPDATE_TIME_MS = "update_time_ms";
+  private static final String COLUMN_STREAM_KEYS = "stream_keys";
+  private static final String COLUMN_CUSTOM_METADATA = "custom_metadata";
+
+  private static final int COLUMN_INDEX_ID = 0;
+  private static final int COLUMN_INDEX_TYPE = 1;
+  private static final int COLUMN_INDEX_URI = 2;
+  private static final int COLUMN_INDEX_CACHE_KEY = 3;
+  private static final int COLUMN_INDEX_STATE = 4;
+  private static final int COLUMN_INDEX_DOWNLOAD_PERCENTAGE = 5;
+  private static final int COLUMN_INDEX_DOWNLOADED_BYTES = 6;
+  private static final int COLUMN_INDEX_TOTAL_BYTES = 7;
+  private static final int COLUMN_INDEX_FAILURE_REASON = 8;
+  private static final int COLUMN_INDEX_STOP_FLAGS = 9;
+  private static final int COLUMN_INDEX_NOT_MET_REQUIREMENTS = 10;
+  private static final int COLUMN_INDEX_START_TIME_MS = 11;
+  private static final int COLUMN_INDEX_UPDATE_TIME_MS = 12;
+  private static final int COLUMN_INDEX_STREAM_KEYS = 13;
+  private static final int COLUMN_INDEX_CUSTOM_METADATA = 14;
+
+  private static final String COLUMN_SELECTION_ID = COLUMN_ID + " = ?";
+
+  private static final String[] COLUMNS =
+      new String[] {
+        COLUMN_ID,
+        COLUMN_TYPE,
+        COLUMN_URI,
+        COLUMN_CACHE_KEY,
+        COLUMN_STATE,
+        COLUMN_DOWNLOAD_PERCENTAGE,
+        COLUMN_DOWNLOADED_BYTES,
+        COLUMN_TOTAL_BYTES,
+        COLUMN_FAILURE_REASON,
+        COLUMN_STOP_FLAGS,
+        COLUMN_NOT_MET_REQUIREMENTS,
+        COLUMN_START_TIME_MS,
+        COLUMN_UPDATE_TIME_MS,
+        COLUMN_STREAM_KEYS,
+        COLUMN_CUSTOM_METADATA
+      };
+
+  private static final String SQL_DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS " + TABLE_NAME;
+  private static final String SQL_CREATE_TABLE =
+      "CREATE TABLE "
+          + TABLE_NAME
+          + " ("
+          + COLUMN_ID
+          + " TEXT PRIMARY KEY NOT NULL,"
+          + COLUMN_TYPE
+          + " TEXT NOT NULL,"
+          + COLUMN_URI
+          + " TEXT NOT NULL,"
+          + COLUMN_CACHE_KEY
+          + " TEXT,"
+          + COLUMN_STATE
+          + " INTEGER NOT NULL,"
+          + COLUMN_DOWNLOAD_PERCENTAGE
+          + " REAL NOT NULL,"
+          + COLUMN_DOWNLOADED_BYTES
+          + " INTEGER NOT NULL,"
+          + COLUMN_TOTAL_BYTES
+          + " INTEGER NOT NULL,"
+          + COLUMN_FAILURE_REASON
+          + " INTEGER NOT NULL,"
+          + COLUMN_STOP_FLAGS
+          + " INTEGER NOT NULL,"
+          + COLUMN_NOT_MET_REQUIREMENTS
+          + " INTEGER NOT NULL,"
+          + COLUMN_START_TIME_MS
+          + " INTEGER NOT NULL,"
+          + COLUMN_UPDATE_TIME_MS
+          + " INTEGER NOT NULL,"
+          + COLUMN_STREAM_KEYS
+          + " TEXT NOT NULL,"
+          + COLUMN_CUSTOM_METADATA
+          + " BLOB NOT NULL)";
+
   private final DatabaseProvider databaseProvider;
-  @Nullable private DownloadsTable downloadTable;
+
+  private boolean initialized;
 
   /**
    * Creates a DefaultDownloadIndex which stores the {@link DownloadState}s on a SQLite database
@@ -56,29 +146,160 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   @Override
   @Nullable
   public DownloadState getDownloadState(String id) {
-    return getDownloadTable().get(id);
+    ensureInitialized();
+    try (Cursor cursor = getCursor(COLUMN_SELECTION_ID, new String[] {id})) {
+      if (cursor.getCount() == 0) {
+        return null;
+      }
+      cursor.moveToNext();
+      DownloadState downloadState = getDownloadStateForCurrentRow(cursor);
+      Assertions.checkState(id.equals(downloadState.id));
+      return downloadState;
+    }
   }
 
   @Override
   public DownloadStateCursor getDownloadStates(@DownloadState.State int... states) {
-    return getDownloadTable().get(states);
+    ensureInitialized();
+    String selection = null;
+    if (states.length > 0) {
+      StringBuilder selectionBuilder = new StringBuilder();
+      selectionBuilder.append(COLUMN_STATE).append(" IN (");
+      for (int i = 0; i < states.length; i++) {
+        if (i > 0) {
+          selectionBuilder.append(',');
+        }
+        selectionBuilder.append(states[i]);
+      }
+      selectionBuilder.append(')');
+      selection = selectionBuilder.toString();
+    }
+    Cursor cursor = getCursor(selection, /* selectionArgs= */ null);
+    return new DownloadStateCursorImpl(cursor);
   }
 
   @Override
   public void putDownloadState(DownloadState downloadState) {
-    getDownloadTable().replace(downloadState);
+    ensureInitialized();
+    SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+    ContentValues values = new ContentValues();
+    values.put(COLUMN_ID, downloadState.id);
+    values.put(COLUMN_TYPE, downloadState.type);
+    values.put(COLUMN_URI, downloadState.uri.toString());
+    values.put(COLUMN_CACHE_KEY, downloadState.cacheKey);
+    values.put(COLUMN_STATE, downloadState.state);
+    values.put(COLUMN_DOWNLOAD_PERCENTAGE, downloadState.downloadPercentage);
+    values.put(COLUMN_DOWNLOADED_BYTES, downloadState.downloadedBytes);
+    values.put(COLUMN_TOTAL_BYTES, downloadState.totalBytes);
+    values.put(COLUMN_FAILURE_REASON, downloadState.failureReason);
+    values.put(COLUMN_STOP_FLAGS, downloadState.stopFlags);
+    values.put(COLUMN_NOT_MET_REQUIREMENTS, downloadState.notMetRequirements);
+    values.put(COLUMN_START_TIME_MS, downloadState.startTimeMs);
+    values.put(COLUMN_UPDATE_TIME_MS, downloadState.updateTimeMs);
+    values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(downloadState.streamKeys));
+    values.put(COLUMN_CUSTOM_METADATA, downloadState.customMetadata);
+    writableDatabase.replace(TABLE_NAME, /* nullColumnHack= */ null, values);
   }
 
   @Override
   public void removeDownloadState(String id) {
-    getDownloadTable().delete(id);
+    ensureInitialized();
+    databaseProvider
+        .getWritableDatabase()
+        .delete(TABLE_NAME, COLUMN_SELECTION_ID, new String[] {id});
   }
 
-  private DownloadsTable getDownloadTable() {
-    if (downloadTable == null) {
-      downloadTable = new DownloadsTable(databaseProvider);
+  private void ensureInitialized() {
+    if (initialized) {
+      return;
     }
-    return downloadTable;
+    SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
+    int version = VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE);
+    if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      writableDatabase.beginTransaction();
+      try {
+        VersionTable.setVersion(writableDatabase, VersionTable.FEATURE_OFFLINE, TABLE_VERSION);
+        writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
+        writableDatabase.execSQL(SQL_CREATE_TABLE);
+        writableDatabase.setTransactionSuccessful();
+      } finally {
+        writableDatabase.endTransaction();
+      }
+    } else if (version < TABLE_VERSION) {
+      // There is no previous version currently.
+      throw new IllegalStateException();
+    }
+    initialized = true;
+  }
+
+  private Cursor getCursor(@Nullable String selection, @Nullable String[] selectionArgs) {
+    String sortOrder = COLUMN_START_TIME_MS + " ASC";
+    return databaseProvider
+        .getReadableDatabase()
+        .query(
+            TABLE_NAME,
+            COLUMNS,
+            selection,
+            selectionArgs,
+            /* groupBy= */ null,
+            /* having= */ null,
+            sortOrder);
+  }
+
+  private static DownloadState getDownloadStateForCurrentRow(Cursor cursor) {
+    return new DownloadState(
+        cursor.getString(COLUMN_INDEX_ID),
+        cursor.getString(COLUMN_INDEX_TYPE),
+        Uri.parse(cursor.getString(COLUMN_INDEX_URI)),
+        cursor.getString(COLUMN_INDEX_CACHE_KEY),
+        cursor.getInt(COLUMN_INDEX_STATE),
+        cursor.getFloat(COLUMN_INDEX_DOWNLOAD_PERCENTAGE),
+        cursor.getLong(COLUMN_INDEX_DOWNLOADED_BYTES),
+        cursor.getLong(COLUMN_INDEX_TOTAL_BYTES),
+        cursor.getInt(COLUMN_INDEX_FAILURE_REASON),
+        cursor.getInt(COLUMN_INDEX_STOP_FLAGS),
+        cursor.getInt(COLUMN_INDEX_NOT_MET_REQUIREMENTS),
+        cursor.getLong(COLUMN_INDEX_START_TIME_MS),
+        cursor.getLong(COLUMN_INDEX_UPDATE_TIME_MS),
+        decodeStreamKeys(cursor.getString(COLUMN_INDEX_STREAM_KEYS)),
+        cursor.getBlob(COLUMN_INDEX_CUSTOM_METADATA));
+  }
+
+  private static String encodeStreamKeys(StreamKey[] streamKeys) {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (StreamKey streamKey : streamKeys) {
+      stringBuilder
+          .append(streamKey.periodIndex)
+          .append('.')
+          .append(streamKey.groupIndex)
+          .append('.')
+          .append(streamKey.trackIndex)
+          .append(',');
+    }
+    if (stringBuilder.length() > 0) {
+      stringBuilder.setLength(stringBuilder.length() - 1);
+    }
+    return stringBuilder.toString();
+  }
+
+  private static StreamKey[] decodeStreamKeys(String encodedStreamKeys) {
+    if (encodedStreamKeys.isEmpty()) {
+      return new StreamKey[0];
+    }
+    String[] streamKeysStrings = Util.split(encodedStreamKeys, ",");
+    int streamKeysCount = streamKeysStrings.length;
+    StreamKey[] streamKeys = new StreamKey[streamKeysCount];
+    for (int i = 0; i < streamKeysCount; i++) {
+      String[] indices = Util.split(streamKeysStrings[i], "\\.");
+      Assertions.checkState(indices.length == 3);
+      streamKeys[i] =
+          new StreamKey(
+              Integer.parseInt(indices[0]),
+              Integer.parseInt(indices[1]),
+              Integer.parseInt(indices[2]));
+    }
+    return streamKeys;
   }
 
   private static final class DownloadStateCursorImpl implements DownloadStateCursor {
@@ -91,7 +312,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
 
     @Override
     public DownloadState getDownloadState() {
-      return DownloadsTable.getDownloadState(cursor);
+      return getDownloadStateForCurrentRow(cursor);
     }
 
     @Override
@@ -117,249 +338,6 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     @Override
     public boolean isClosed() {
       return cursor.isClosed();
-    }
-  }
-
-  private static final class DownloadsTable {
-
-    private static final String COLUMN_ID = "id";
-    private static final String COLUMN_TYPE = "title";
-    private static final String COLUMN_URI = "subtitle";
-    private static final String COLUMN_CACHE_KEY = "cache_key";
-    private static final String COLUMN_STATE = "state";
-    private static final String COLUMN_DOWNLOAD_PERCENTAGE = "download_percentage";
-    private static final String COLUMN_DOWNLOADED_BYTES = "downloaded_bytes";
-    private static final String COLUMN_TOTAL_BYTES = "total_bytes";
-    private static final String COLUMN_FAILURE_REASON = "failure_reason";
-    private static final String COLUMN_STOP_FLAGS = "stop_flags";
-    private static final String COLUMN_NOT_MET_REQUIREMENTS = "not_met_requirements";
-    private static final String COLUMN_START_TIME_MS = "start_time_ms";
-    private static final String COLUMN_UPDATE_TIME_MS = "update_time_ms";
-    private static final String COLUMN_STREAM_KEYS = "stream_keys";
-    private static final String COLUMN_CUSTOM_METADATA = "custom_metadata";
-
-    private static final int COLUMN_INDEX_ID = 0;
-    private static final int COLUMN_INDEX_TYPE = 1;
-    private static final int COLUMN_INDEX_URI = 2;
-    private static final int COLUMN_INDEX_CACHE_KEY = 3;
-    private static final int COLUMN_INDEX_STATE = 4;
-    private static final int COLUMN_INDEX_DOWNLOAD_PERCENTAGE = 5;
-    private static final int COLUMN_INDEX_DOWNLOADED_BYTES = 6;
-    private static final int COLUMN_INDEX_TOTAL_BYTES = 7;
-    private static final int COLUMN_INDEX_FAILURE_REASON = 8;
-    private static final int COLUMN_INDEX_STOP_FLAGS = 9;
-    private static final int COLUMN_INDEX_NOT_MET_REQUIREMENTS = 10;
-    private static final int COLUMN_INDEX_START_TIME_MS = 11;
-    private static final int COLUMN_INDEX_UPDATE_TIME_MS = 12;
-    private static final int COLUMN_INDEX_STREAM_KEYS = 13;
-    private static final int COLUMN_INDEX_CUSTOM_METADATA = 14;
-
-    private static final String COLUMN_SELECTION_ID = COLUMN_ID + " = ?";
-
-    private static final String[] COLUMNS =
-        new String[] {
-          COLUMN_ID,
-          COLUMN_TYPE,
-          COLUMN_URI,
-          COLUMN_CACHE_KEY,
-          COLUMN_STATE,
-          COLUMN_DOWNLOAD_PERCENTAGE,
-          COLUMN_DOWNLOADED_BYTES,
-          COLUMN_TOTAL_BYTES,
-          COLUMN_FAILURE_REASON,
-          COLUMN_STOP_FLAGS,
-          COLUMN_NOT_MET_REQUIREMENTS,
-          COLUMN_START_TIME_MS,
-          COLUMN_UPDATE_TIME_MS,
-          COLUMN_STREAM_KEYS,
-          COLUMN_CUSTOM_METADATA
-        };
-
-    private static final String SQL_DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS " + TABLE_NAME;
-    private static final String SQL_CREATE_TABLE =
-        "CREATE TABLE "
-            + TABLE_NAME
-            + " ("
-            + COLUMN_ID
-            + " TEXT PRIMARY KEY NOT NULL,"
-            + COLUMN_TYPE
-            + " TEXT NOT NULL,"
-            + COLUMN_URI
-            + " TEXT NOT NULL,"
-            + COLUMN_CACHE_KEY
-            + " TEXT,"
-            + COLUMN_STATE
-            + " INTEGER NOT NULL,"
-            + COLUMN_DOWNLOAD_PERCENTAGE
-            + " REAL NOT NULL,"
-            + COLUMN_DOWNLOADED_BYTES
-            + " INTEGER NOT NULL,"
-            + COLUMN_TOTAL_BYTES
-            + " INTEGER NOT NULL,"
-            + COLUMN_FAILURE_REASON
-            + " INTEGER NOT NULL,"
-            + COLUMN_STOP_FLAGS
-            + " INTEGER NOT NULL,"
-            + COLUMN_NOT_MET_REQUIREMENTS
-            + " INTEGER NOT NULL,"
-            + COLUMN_START_TIME_MS
-            + " INTEGER NOT NULL,"
-            + COLUMN_UPDATE_TIME_MS
-            + " INTEGER NOT NULL,"
-            + COLUMN_STREAM_KEYS
-            + " TEXT NOT NULL,"
-            + COLUMN_CUSTOM_METADATA
-            + " BLOB NOT NULL)";
-
-    private final DatabaseProvider databaseProvider;
-
-    public DownloadsTable(DatabaseProvider databaseProvider) {
-      this.databaseProvider = databaseProvider;
-      int version =
-          VersionTable.getVersion(
-              databaseProvider.getReadableDatabase(), VersionTable.FEATURE_OFFLINE);
-      if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
-        SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-        writableDatabase.beginTransaction();
-        try {
-          VersionTable.setVersion(writableDatabase, VersionTable.FEATURE_OFFLINE, TABLE_VERSION);
-          writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
-          writableDatabase.execSQL(SQL_CREATE_TABLE);
-          writableDatabase.setTransactionSuccessful();
-        } finally {
-          writableDatabase.endTransaction();
-        }
-      } else if (version < TABLE_VERSION) {
-        // There is no previous version currently.
-        throw new IllegalStateException();
-      }
-    }
-
-    public void replace(DownloadState downloadState) {
-      ContentValues values = new ContentValues();
-      values.put(COLUMN_ID, downloadState.id);
-      values.put(COLUMN_TYPE, downloadState.type);
-      values.put(COLUMN_URI, downloadState.uri.toString());
-      values.put(COLUMN_CACHE_KEY, downloadState.cacheKey);
-      values.put(COLUMN_STATE, downloadState.state);
-      values.put(COLUMN_DOWNLOAD_PERCENTAGE, downloadState.downloadPercentage);
-      values.put(COLUMN_DOWNLOADED_BYTES, downloadState.downloadedBytes);
-      values.put(COLUMN_TOTAL_BYTES, downloadState.totalBytes);
-      values.put(COLUMN_FAILURE_REASON, downloadState.failureReason);
-      values.put(COLUMN_STOP_FLAGS, downloadState.stopFlags);
-      values.put(COLUMN_NOT_MET_REQUIREMENTS, downloadState.notMetRequirements);
-      values.put(COLUMN_START_TIME_MS, downloadState.startTimeMs);
-      values.put(COLUMN_UPDATE_TIME_MS, downloadState.updateTimeMs);
-      values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(downloadState.streamKeys));
-      values.put(COLUMN_CUSTOM_METADATA, downloadState.customMetadata);
-      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.replace(TABLE_NAME, /* nullColumnHack= */ null, values);
-    }
-
-    @Nullable
-    public DownloadState get(String id) {
-      String[] selectionArgs = {id};
-      try (Cursor cursor = query(COLUMN_SELECTION_ID, selectionArgs)) {
-        if (cursor.getCount() == 0) {
-          return null;
-        }
-        cursor.moveToNext();
-        DownloadState downloadState = getDownloadState(cursor);
-        Assertions.checkState(id.equals(downloadState.id));
-        return downloadState;
-      }
-    }
-
-    public DownloadStateCursor get(@DownloadState.State int... states) {
-      String selection = null;
-      if (states.length > 0) {
-        StringBuilder selectionBuilder = new StringBuilder();
-        selectionBuilder.append(COLUMN_STATE).append(" IN (");
-        for (int i = 0; i < states.length; i++) {
-          if (i > 0) {
-            selectionBuilder.append(',');
-          }
-          selectionBuilder.append(states[i]);
-        }
-        selectionBuilder.append(')');
-        selection = selectionBuilder.toString();
-      }
-      Cursor cursor = query(selection, /* selectionArgs= */ null);
-      return new DownloadStateCursorImpl(cursor);
-    }
-
-    public void delete(String id) {
-      String[] selectionArgs = {id};
-      databaseProvider.getWritableDatabase().delete(TABLE_NAME, COLUMN_SELECTION_ID, selectionArgs);
-    }
-
-    private Cursor query(@Nullable String selection, @Nullable String[] selectionArgs) {
-      String sortOrder = COLUMN_START_TIME_MS + " ASC";
-      return databaseProvider
-          .getReadableDatabase()
-          .query(
-              TABLE_NAME,
-              COLUMNS,
-              selection,
-              selectionArgs,
-              /* groupBy= */ null,
-              /* having= */ null,
-              sortOrder);
-    }
-
-    private static DownloadState getDownloadState(Cursor cursor) {
-      return new DownloadState(
-          cursor.getString(COLUMN_INDEX_ID),
-          cursor.getString(COLUMN_INDEX_TYPE),
-          Uri.parse(cursor.getString(COLUMN_INDEX_URI)),
-          cursor.getString(COLUMN_INDEX_CACHE_KEY),
-          cursor.getInt(COLUMN_INDEX_STATE),
-          cursor.getFloat(COLUMN_INDEX_DOWNLOAD_PERCENTAGE),
-          cursor.getLong(COLUMN_INDEX_DOWNLOADED_BYTES),
-          cursor.getLong(COLUMN_INDEX_TOTAL_BYTES),
-          cursor.getInt(COLUMN_INDEX_FAILURE_REASON),
-          cursor.getInt(COLUMN_INDEX_STOP_FLAGS),
-          cursor.getInt(COLUMN_INDEX_NOT_MET_REQUIREMENTS),
-          cursor.getLong(COLUMN_INDEX_START_TIME_MS),
-          cursor.getLong(COLUMN_INDEX_UPDATE_TIME_MS),
-          decodeStreamKeys(cursor.getString(COLUMN_INDEX_STREAM_KEYS)),
-          cursor.getBlob(COLUMN_INDEX_CUSTOM_METADATA));
-    }
-
-    private static String encodeStreamKeys(StreamKey[] streamKeys) {
-      StringBuilder stringBuilder = new StringBuilder();
-      for (StreamKey streamKey : streamKeys) {
-        stringBuilder
-            .append(streamKey.periodIndex)
-            .append('.')
-            .append(streamKey.groupIndex)
-            .append('.')
-            .append(streamKey.trackIndex)
-            .append(',');
-      }
-      if (stringBuilder.length() > 0) {
-        stringBuilder.setLength(stringBuilder.length() - 1);
-      }
-      return stringBuilder.toString();
-    }
-
-    private static StreamKey[] decodeStreamKeys(String encodedStreamKeys) {
-      if (encodedStreamKeys.isEmpty()) {
-        return new StreamKey[0];
-      }
-      String[] streamKeysStrings = Util.split(encodedStreamKeys, ",");
-      int streamKeysCount = streamKeysStrings.length;
-      StreamKey[] streamKeys = new StreamKey[streamKeysCount];
-      for (int i = 0; i < streamKeysCount; i++) {
-        String[] indices = Util.split(streamKeysStrings[i], "\\.");
-        Assertions.checkState(indices.length == 3);
-        streamKeys[i] =
-            new StreamKey(
-                Integer.parseInt(indices[0]),
-                Integer.parseInt(indices[1]),
-                Integer.parseInt(indices[2]));
-      }
-      return streamKeys;
     }
   }
 }
