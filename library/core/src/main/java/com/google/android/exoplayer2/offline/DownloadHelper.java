@@ -744,6 +744,7 @@ public final class DownloadHelper {
 
     private static final int MESSAGE_PREPARE_SOURCE = 0;
     private static final int MESSAGE_CHECK_FOR_FAILURE = 1;
+    private static final int MESSAGE_CONTINUE_LOADING = 2;
 
     private final MediaSource mediaSource;
     private final DownloadHelper downloadHelper;
@@ -755,7 +756,7 @@ public final class DownloadHelper {
     public @MonotonicNonNull Timeline timeline;
     public MediaPeriod @MonotonicNonNull [] mediaPeriods;
 
-    private int pendingPreparations;
+    private final ArrayList<MediaPeriod> pendingMediaPeriods;
 
     public MediaPreparer(MediaSource mediaSource, DownloadHelper downloadHelper) {
       this.mediaSource = mediaSource;
@@ -765,6 +766,7 @@ public final class DownloadHelper {
       mediaSourceThread.start();
       mediaSourceHandler = Util.createHandler(mediaSourceThread.getLooper(), /* callback= */ this);
       mediaSourceHandler.sendEmptyMessage(MESSAGE_PREPARE_SOURCE);
+      pendingMediaPeriods = new ArrayList<>();
     }
 
     public void release() {
@@ -791,14 +793,20 @@ public final class DownloadHelper {
             if (mediaPeriods == null) {
               mediaSource.maybeThrowSourceInfoRefreshError();
             } else {
-              for (MediaPeriod mediaPeriod : mediaPeriods) {
-                mediaPeriod.maybeThrowPrepareError();
+              for (int i = 0; i < pendingMediaPeriods.size(); i++) {
+                pendingMediaPeriods.get(i).maybeThrowPrepareError();
               }
             }
             mediaSourceHandler.sendEmptyMessageDelayed(
                 MESSAGE_CHECK_FOR_FAILURE, /* delayMillis= */ 100);
           } catch (IOException e) {
             downloadHelper.onMediaPreparationFailed(e);
+          }
+          return true;
+        case MESSAGE_CONTINUE_LOADING:
+          MediaPeriod mediaPeriod = (MediaPeriod) msg.obj;
+          if (pendingMediaPeriods.contains(mediaPeriod)) {
+            mediaPeriod.continueLoading(/* positionUs= */ 0);
           }
           return true;
         default:
@@ -818,14 +826,15 @@ public final class DownloadHelper {
       this.timeline = timeline;
       this.manifest = manifest;
       mediaPeriods = new MediaPeriod[timeline.getPeriodCount()];
-      pendingPreparations = mediaPeriods.length;
       for (int i = 0; i < mediaPeriods.length; i++) {
-        mediaPeriods[i] =
+        MediaPeriod mediaPeriod =
             mediaSource.createPeriod(
                 new MediaPeriodId(timeline.getUidOfPeriod(/* periodIndex= */ i)),
                 allocator,
                 /* startPositionUs= */ 0);
-        mediaPeriods[i].prepare(/* callback= */ this, /* positionUs= */ 0);
+        mediaPeriods[i] = mediaPeriod;
+        pendingMediaPeriods.add(mediaPeriod);
+        mediaPeriod.prepare(/* callback= */ this, /* positionUs= */ 0);
       }
     }
 
@@ -833,16 +842,18 @@ public final class DownloadHelper {
 
     @Override
     public void onPrepared(MediaPeriod mediaPeriod) {
-      pendingPreparations--;
-      if (pendingPreparations == 0) {
+      pendingMediaPeriods.remove(mediaPeriod);
+      if (pendingMediaPeriods.isEmpty()) {
         mediaSourceHandler.removeMessages(MESSAGE_CHECK_FOR_FAILURE);
         downloadHelper.onMediaPrepared();
       }
     }
 
     @Override
-    public void onContinueLoadingRequested(MediaPeriod source) {
-      // Ignore.
+    public void onContinueLoadingRequested(MediaPeriod mediaPeriod) {
+      if (pendingMediaPeriods.contains(mediaPeriod)) {
+        mediaSourceHandler.obtainMessage(MESSAGE_CONTINUE_LOADING, mediaPeriod).sendToTarget();
+      }
     }
   }
 
