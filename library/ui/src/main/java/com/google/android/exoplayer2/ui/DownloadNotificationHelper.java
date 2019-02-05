@@ -98,6 +98,7 @@ public final class DownloadNotificationHelper {
         contentIntent,
         message,
         titleStringId,
+        /* maxProgress= */ 100,
         progress,
         indeterminate,
         /* ongoing= */ true,
@@ -142,7 +143,8 @@ public final class DownloadNotificationHelper {
         contentIntent,
         message,
         titleStringId,
-        /* progress= */ 0,
+        /* maxProgress= */ 0,
+        /* currentProgress= */ 0,
         /* indeterminateProgress= */ false,
         /* ongoing= */ false,
         /* showWhen= */ true);
@@ -153,7 +155,8 @@ public final class DownloadNotificationHelper {
       @Nullable PendingIntent contentIntent,
       @Nullable String message,
       @StringRes int titleStringId,
-      int progress,
+      int maxProgress,
+      int currentProgress,
       boolean indeterminateProgress,
       boolean ongoing,
       boolean showWhen) {
@@ -163,7 +166,7 @@ public final class DownloadNotificationHelper {
     notificationBuilder.setContentIntent(contentIntent);
     notificationBuilder.setStyle(
         message == null ? null : new NotificationCompat.BigTextStyle().bigText(message));
-    notificationBuilder.setProgress(/* max= */ 100, progress, indeterminateProgress);
+    notificationBuilder.setProgress(maxProgress, currentProgress, indeterminateProgress);
     notificationBuilder.setOngoing(ongoing);
     notificationBuilder.setShowWhen(showWhen);
     return notificationBuilder.build();
