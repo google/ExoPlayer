@@ -16,12 +16,7 @@
 package com.google.android.exoplayer2.offline;
 
 import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloadState.State;
-import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
 
 /** {@link DownloadIndex} related utility methods. */
 public final class DownloadIndexUtil {
@@ -79,46 +74,10 @@ public final class DownloadIndexUtil {
       DownloadIndex downloadIndex, @Nullable String id, DownloadAction action) {
     DownloadState downloadState = downloadIndex.getDownloadState(id != null ? id : action.id);
     if (downloadState != null) {
-      downloadState = merge(downloadState, action);
+      downloadState = downloadState.mergeAction(action);
     } else {
       downloadState = new DownloadState(action);
     }
     downloadIndex.putDownloadState(downloadState);
-  }
-
-  private static DownloadState merge(DownloadState downloadState, DownloadAction action) {
-    Assertions.checkArgument(action.type.equals(downloadState.type));
-    @State int newState;
-    if (action.isRemoveAction) {
-      newState = DownloadState.STATE_REMOVING;
-    } else {
-      if (downloadState.state == DownloadState.STATE_REMOVING
-          || downloadState.state == DownloadState.STATE_RESTARTING) {
-        newState = DownloadState.STATE_RESTARTING;
-      } else if (downloadState.state == DownloadState.STATE_STOPPED) {
-        newState = DownloadState.STATE_STOPPED;
-      } else {
-        newState = DownloadState.STATE_QUEUED;
-      }
-    }
-    HashSet<StreamKey> keys = new HashSet<>(action.keys);
-    Collections.addAll(keys, downloadState.streamKeys);
-    StreamKey[] newKeys = keys.toArray(new StreamKey[0]);
-    return new DownloadState(
-        downloadState.id,
-        downloadState.type,
-        action.uri,
-        action.customCacheKey,
-        newState,
-        /* downloadPercentage= */ C.PERCENTAGE_UNSET,
-        downloadState.downloadedBytes,
-        /* totalBytes= */ C.LENGTH_UNSET,
-        downloadState.failureReason,
-        downloadState.stopFlags,
-        downloadState.notMetRequirements,
-        downloadState.startTimeMs,
-        downloadState.updateTimeMs,
-        newKeys,
-        action.data);
   }
 }

@@ -18,12 +18,8 @@ package com.google.android.exoplayer2.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
-import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
-import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +58,7 @@ public class DefaultDownloadIndexTest {
     downloadIndex.putDownloadState(downloadState);
     DownloadState readDownloadState = downloadIndex.getDownloadState(id);
 
-    assertEqual(readDownloadState, downloadState);
+    DownloadStateTest.assertEqual(readDownloadState, downloadState);
   }
 
   @Test
@@ -94,7 +90,7 @@ public class DefaultDownloadIndexTest {
     DownloadState readDownloadState = downloadIndex.getDownloadState(id);
 
     assertThat(readDownloadState).isNotNull();
-    assertEqual(readDownloadState, downloadState);
+    DownloadStateTest.assertEqual(readDownloadState, downloadState);
   }
 
   @Test
@@ -106,7 +102,7 @@ public class DefaultDownloadIndexTest {
     downloadIndex = new DefaultDownloadIndex(databaseProvider);
     DownloadState readDownloadState = downloadIndex.getDownloadState(id);
     assertThat(readDownloadState).isNotNull();
-    assertEqual(readDownloadState, downloadState);
+    DownloadStateTest.assertEqual(readDownloadState, downloadState);
   }
 
   @Test
@@ -141,9 +137,9 @@ public class DefaultDownloadIndexTest {
 
     assertThat(cursor.getCount()).isEqualTo(2);
     cursor.moveToNext();
-    assertEqual(cursor.getDownloadState(), downloadState2);
+    DownloadStateTest.assertEqual(cursor.getDownloadState(), downloadState2);
     cursor.moveToNext();
-    assertEqual(cursor.getDownloadState(), downloadState1);
+    DownloadStateTest.assertEqual(cursor.getDownloadState(), downloadState1);
     cursor.close();
   }
 
@@ -173,9 +169,9 @@ public class DefaultDownloadIndexTest {
 
     assertThat(cursor.getCount()).isEqualTo(2);
     cursor.moveToNext();
-    assertEqual(cursor.getDownloadState(), downloadState1);
+    DownloadStateTest.assertEqual(cursor.getDownloadState(), downloadState1);
     cursor.moveToNext();
-    assertEqual(cursor.getDownloadState(), downloadState3);
+    DownloadStateTest.assertEqual(cursor.getDownloadState(), downloadState3);
     cursor.close();
   }
 
@@ -211,184 +207,4 @@ public class DefaultDownloadIndexTest {
         .isEqualTo(DefaultDownloadIndex.TABLE_VERSION);
   }
 
-  private static void assertEqual(DownloadState downloadState, DownloadState expected) {
-    assertThat(areEqual(downloadState, expected)).isTrue();
-  }
-
-  private static boolean areEqual(DownloadState downloadState, DownloadState that) {
-    if (downloadState.state != that.state) {
-      return false;
-    }
-    if (Float.compare(that.downloadPercentage, downloadState.downloadPercentage) != 0) {
-      return false;
-    }
-    if (downloadState.downloadedBytes != that.downloadedBytes) {
-      return false;
-    }
-    if (downloadState.totalBytes != that.totalBytes) {
-      return false;
-    }
-    if (downloadState.startTimeMs != that.startTimeMs) {
-      return false;
-    }
-    if (downloadState.updateTimeMs != that.updateTimeMs) {
-      return false;
-    }
-    if (downloadState.failureReason != that.failureReason) {
-      return false;
-    }
-    if (downloadState.stopFlags != that.stopFlags) {
-      return false;
-    }
-    if (downloadState.notMetRequirements != that.notMetRequirements) {
-      return false;
-    }
-    if (!downloadState.id.equals(that.id)) {
-      return false;
-    }
-    if (!downloadState.type.equals(that.type)) {
-      return false;
-    }
-    if (!downloadState.uri.equals(that.uri)) {
-      return false;
-    }
-    if (downloadState.cacheKey != null
-        ? !downloadState.cacheKey.equals(that.cacheKey)
-        : that.cacheKey != null) {
-      return false;
-    }
-    if (!Arrays.equals(downloadState.streamKeys, that.streamKeys)) {
-      return false;
-    }
-    return Arrays.equals(downloadState.customMetadata, that.customMetadata);
-  }
-
-  private static class DownloadStateBuilder {
-    private String id;
-    private String type;
-    private String uri;
-    @Nullable private String cacheKey;
-    private int state;
-    private float downloadPercentage;
-    private long downloadedBytes;
-    private long totalBytes;
-    private int failureReason;
-    private int stopFlags;
-    private int notMetRequirements;
-    private long startTimeMs;
-    private long updateTimeMs;
-    private StreamKey[] streamKeys;
-    private byte[] customMetadata;
-
-    private DownloadStateBuilder(String id) {
-      this.id = id;
-      this.type = "type";
-      this.uri = "uri";
-      this.cacheKey = null;
-      this.state = DownloadState.STATE_QUEUED;
-      this.downloadPercentage = (float) C.PERCENTAGE_UNSET;
-      this.downloadedBytes = (long) 0;
-      this.totalBytes = (long) C.LENGTH_UNSET;
-      this.failureReason = DownloadState.FAILURE_REASON_NONE;
-      this.stopFlags = 0;
-      this.startTimeMs = (long) 0;
-      this.updateTimeMs = (long) 0;
-      this.streamKeys = new StreamKey[0];
-      this.customMetadata = new byte[0];
-    }
-
-    public DownloadStateBuilder setId(String id) {
-      this.id = id;
-      return this;
-    }
-
-    public DownloadStateBuilder setType(String type) {
-      this.type = type;
-      return this;
-    }
-
-    public DownloadStateBuilder setUri(String uri) {
-      this.uri = uri;
-      return this;
-    }
-
-    public DownloadStateBuilder setCacheKey(@Nullable String cacheKey) {
-      this.cacheKey = cacheKey;
-      return this;
-    }
-
-    public DownloadStateBuilder setState(int state) {
-      this.state = state;
-      return this;
-    }
-
-    public DownloadStateBuilder setDownloadPercentage(float downloadPercentage) {
-      this.downloadPercentage = downloadPercentage;
-      return this;
-    }
-
-    public DownloadStateBuilder setDownloadedBytes(long downloadedBytes) {
-      this.downloadedBytes = downloadedBytes;
-      return this;
-    }
-
-    public DownloadStateBuilder setTotalBytes(long totalBytes) {
-      this.totalBytes = totalBytes;
-      return this;
-    }
-
-    public DownloadStateBuilder setFailureReason(int failureReason) {
-      this.failureReason = failureReason;
-      return this;
-    }
-
-    public DownloadStateBuilder setStopFlags(int stopFlags) {
-      this.stopFlags = stopFlags;
-      return this;
-    }
-
-    public DownloadStateBuilder setNotMetRequirements(int notMetRequirements) {
-      this.notMetRequirements = notMetRequirements;
-      return this;
-    }
-
-    public DownloadStateBuilder setStartTimeMs(long startTimeMs) {
-      this.startTimeMs = startTimeMs;
-      return this;
-    }
-
-    public DownloadStateBuilder setUpdateTimeMs(long updateTimeMs) {
-      this.updateTimeMs = updateTimeMs;
-      return this;
-    }
-
-    public DownloadStateBuilder setStreamKeys(StreamKey... streamKeys) {
-      this.streamKeys = streamKeys;
-      return this;
-    }
-
-    public DownloadStateBuilder setCustomMetadata(byte[] customMetadata) {
-      this.customMetadata = customMetadata;
-      return this;
-    }
-
-    public DownloadState build() {
-      return new DownloadState(
-          id,
-          type,
-          Uri.parse(uri),
-          cacheKey,
-          state,
-          downloadPercentage,
-          downloadedBytes,
-          totalBytes,
-          failureReason,
-          stopFlags,
-          notMetRequirements,
-          startTimeMs,
-          updateTimeMs,
-          streamKeys,
-          customMetadata);
-    }
-  }
 }
