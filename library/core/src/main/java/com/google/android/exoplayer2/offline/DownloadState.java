@@ -24,6 +24,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
+import java.util.HashSet;
 
 /** Represents state of a download. */
 public final class DownloadState {
@@ -230,5 +232,63 @@ public final class DownloadState {
     this.updateTimeMs = updateTimeMs;
     this.streamKeys = streamKeys;
     this.customMetadata = customMetadata;
+  }
+
+  /**
+   * Merges the given {@link DownloadAction} and creates a new {@link DownloadState}. The action
+   * must have the same id and type.
+   *
+   * @param action The {@link DownloadAction} to be merged.
+   * @return A new {@link DownloadState}.
+   */
+  public DownloadState mergeAction(DownloadAction action) {
+    Assertions.checkArgument(action.id.equals(id));
+    Assertions.checkArgument(action.type.equals(type));
+    return new DownloadState(
+        id,
+        type,
+        action.uri,
+        action.customCacheKey,
+        getNextState(action, state),
+        /* downloadPercentage= */ C.PERCENTAGE_UNSET,
+        downloadedBytes,
+        /* totalBytes= */ C.LENGTH_UNSET,
+        FAILURE_REASON_NONE,
+        stopFlags,
+        notMetRequirements,
+        startTimeMs,
+        updateTimeMs,
+        mergeStreamKeys(this, action),
+        action.data);
+  }
+
+  private static int getNextState(DownloadAction action, int currentState) {
+    int newState;
+    if (action.isRemoveAction) {
+      newState = STATE_REMOVING;
+    } else {
+      if (currentState == STATE_REMOVING || currentState == STATE_RESTARTING) {
+        newState = STATE_RESTARTING;
+      } else if (currentState == STATE_STOPPED) {
+        newState = STATE_STOPPED;
+      } else {
+        newState = STATE_QUEUED;
+      }
+    }
+    return newState;
+  }
+
+  private static StreamKey[] mergeStreamKeys(DownloadState downloadState, DownloadAction action) {
+    StreamKey[] streamKeys = downloadState.streamKeys;
+    if (!action.isRemoveAction && streamKeys.length > 0) {
+      if (action.keys.isEmpty()) {
+        streamKeys = new StreamKey[0];
+      } else {
+        HashSet<StreamKey> keys = new HashSet<>(action.keys);
+        Collections.addAll(keys, downloadState.streamKeys);
+        streamKeys = keys.toArray(new StreamKey[0]);
+      }
+    }
+    return streamKeys;
   }
 }
