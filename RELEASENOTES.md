@@ -43,6 +43,10 @@
   and `useSurfaceYuvOutput`.
 * Change signature of `PlayerNotificationManager.NotificationListener` to better
   fit service requirements. Remove ability to set a custom stop action.
+* Fix issues with flickering notifications on KitKat.
+  `PlayerNotificationManager` has been fixed. Apps using
+  `DownloadNotificationUtil` should switch to using
+  `DownloadNotificationHelper`.
 
 ### 2.9.5 ###
 

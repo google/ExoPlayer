@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloadState;
 import com.google.android.exoplayer2.scheduler.PlatformScheduler;
-import com.google.android.exoplayer2.ui.DownloadNotificationUtil;
+import com.google.android.exoplayer2.ui.DownloadNotificationHelper;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 
@@ -33,6 +33,8 @@ public class DemoDownloadService extends DownloadService {
 
   private static int nextNotificationId = FOREGROUND_NOTIFICATION_ID + 1;
 
+  private DownloadNotificationHelper notificationHelper;
+
   public DemoDownloadService() {
     super(
         FOREGROUND_NOTIFICATION_ID,
@@ -40,6 +42,12 @@ public class DemoDownloadService extends DownloadService {
         CHANNEL_ID,
         R.string.exo_download_notification_channel_name);
     nextNotificationId = FOREGROUND_NOTIFICATION_ID + 1;
+  }
+
+  @Override
+  public void onCreate() {
+    super.onCreate();
+    notificationHelper = new DownloadNotificationHelper(this, CHANNEL_ID);
   }
 
   @Override
@@ -54,13 +62,8 @@ public class DemoDownloadService extends DownloadService {
 
   @Override
   protected Notification getForegroundNotification(DownloadState[] downloadStates) {
-    return DownloadNotificationUtil.buildProgressNotification(
-        /* context= */ this,
-        R.drawable.ic_download,
-        CHANNEL_ID,
-        /* contentIntent= */ null,
-        /* message= */ null,
-        downloadStates);
+    return notificationHelper.buildProgressNotification(
+        R.drawable.ic_download, /* contentIntent= */ null, /* message= */ null, downloadStates);
   }
 
   @Override
@@ -68,18 +71,14 @@ public class DemoDownloadService extends DownloadService {
     Notification notification;
     if (downloadState.state == DownloadState.STATE_COMPLETED) {
       notification =
-          DownloadNotificationUtil.buildDownloadCompletedNotification(
-              /* context= */ this,
+          notificationHelper.buildDownloadCompletedNotification(
               R.drawable.ic_download_done,
-              CHANNEL_ID,
               /* contentIntent= */ null,
               Util.fromUtf8Bytes(downloadState.customMetadata));
     } else if (downloadState.state == DownloadState.STATE_FAILED) {
       notification =
-          DownloadNotificationUtil.buildDownloadFailedNotification(
-              /* context= */ this,
+          notificationHelper.buildDownloadFailedNotification(
               R.drawable.ic_download_done,
-              CHANNEL_ID,
               /* contentIntent= */ null,
               Util.fromUtf8Bytes(downloadState.customMetadata));
     } else {
