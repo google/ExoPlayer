@@ -338,6 +338,7 @@ public class PlayerNotificationManager {
 
   private final Context context;
   private final String channelId;
+  private final NotificationCompat.Builder builder;
   private final int notificationId;
   private final MediaDescriptionAdapter mediaDescriptionAdapter;
   private final @Nullable CustomActionReceiver customActionReceiver;
@@ -530,12 +531,14 @@ public class PlayerNotificationManager {
       MediaDescriptionAdapter mediaDescriptionAdapter,
       @Nullable NotificationListener notificationListener,
       @Nullable CustomActionReceiver customActionReceiver) {
-    this.context = context.getApplicationContext();
+    context = context.getApplicationContext();
+    this.context = context;
     this.channelId = channelId;
     this.notificationId = notificationId;
     this.mediaDescriptionAdapter = mediaDescriptionAdapter;
     this.notificationListener = notificationListener;
     this.customActionReceiver = customActionReceiver;
+    builder = new NotificationCompat.Builder(context, channelId);
     controlDispatcher = new DefaultControlDispatcher();
     window = new Timeline.Window();
     instanceId = instanceIdCounter++;
@@ -887,7 +890,7 @@ public class PlayerNotificationManager {
   private Notification startOrUpdateNotification(@Nullable Bitmap bitmap) {
     Player player = this.player;
     boolean ongoing = getOngoing(player);
-    Notification notification = createNotification(player, ongoing, bitmap);
+    Notification notification = createNotification(player, builder, ongoing, bitmap);
     if (notification == null) {
       stopNotification(/* dismissedByUser= */ false);
       return null;
@@ -923,6 +926,11 @@ public class PlayerNotificationManager {
    * Creates the notification given the current player state.
    *
    * @param player The player for which state to build a notification.
+   * @param builder A builder that can optionally be used for creating the notification. The same
+   *     builder is passed each time this method is called, since reusing the same builder can
+   *     prevent notification flicker when {@code Util#SDK_INT} &lt; 21. This means implementations
+   *     must take care to ensure anything set on the builder during a previous call is cleared, if
+   *     no longer required.
    * @param ongoing Whether the notification should be ongoing.
    * @param largeIcon The large icon to be used.
    * @return The {@link Notification} which has been built, or {@code null} if no notification
@@ -930,11 +938,15 @@ public class PlayerNotificationManager {
    */
   @Nullable
   protected Notification createNotification(
-      Player player, boolean ongoing, @Nullable Bitmap largeIcon) {
+      Player player,
+      NotificationCompat.Builder builder,
+      boolean ongoing,
+      @Nullable Bitmap largeIcon) {
     if (player.getPlaybackState() == Player.STATE_IDLE) {
       return null;
     }
-    NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
+
+    builder.mActions.clear();
     List<String> actionNames = getActions(player);
     for (int i = 0; i < actionNames.size(); i++) {
       String actionName = actionNames.get(i);
@@ -946,7 +958,7 @@ public class PlayerNotificationManager {
         builder.addAction(action);
       }
     }
-    // Create a media style notification.
+
     MediaStyle mediaStyle = new MediaStyle();
     if (mediaSessionToken != null) {
       mediaStyle.setMediaSession(mediaSessionToken);
@@ -955,9 +967,11 @@ public class PlayerNotificationManager {
     // Configure dismiss action prior to API 21 ('x' button).
     mediaStyle.setShowCancelButton(!ongoing);
     mediaStyle.setCancelButtonIntent(dismissPendingIntent);
+    builder.setStyle(mediaStyle);
+
     // Set intent which is sent if the user selects 'clear all'
     builder.setDeleteIntent(dismissPendingIntent);
-    builder.setStyle(mediaStyle);
+
     // Set notification properties from getters.
     builder
         .setBadgeIconType(badgeIconType)
@@ -968,7 +982,10 @@ public class PlayerNotificationManager {
         .setVisibility(visibility)
         .setPriority(priority)
         .setDefaults(defaults);
-    if (useChronometer
+
+    // Changing "showWhen" causes notification flicker if SDK_INT < 21.
+    if (Util.SDK_INT >= 21
+        && useChronometer
         && !player.isPlayingAd()
         && !player.isCurrentWindowDynamic()
         && player.getPlayWhenReady()
@@ -980,6 +997,7 @@ public class PlayerNotificationManager {
     } else {
       builder.setShowWhen(false).setUsesChronometer(false);
     }
+
     // Set media specific notification properties from MediaDescriptionAdapter.
     builder.setContentTitle(mediaDescriptionAdapter.getCurrentContentTitle(player));
     builder.setContentText(mediaDescriptionAdapter.getCurrentContentText(player));
@@ -989,13 +1007,9 @@ public class PlayerNotificationManager {
           mediaDescriptionAdapter.getCurrentLargeIcon(
               player, new BitmapCallback(++currentNotificationTag));
     }
-    if (largeIcon != null) {
-      builder.setLargeIcon(largeIcon);
-    }
-    PendingIntent contentIntent = mediaDescriptionAdapter.createCurrentContentIntent(player);
-    if (contentIntent != null) {
-      builder.setContentIntent(contentIntent);
-    }
+    setLargeIcon(builder, largeIcon);
+    builder.setContentIntent(mediaDescriptionAdapter.createCurrentContentIntent(player));
+
     return builder.build();
   }
 
@@ -1086,54 +1100,6 @@ public class PlayerNotificationManager {
         && player.getPlayWhenReady();
   }
 
-  private static Map<String, NotificationCompat.Action> createPlaybackActions(
-      Context context, int instanceId) {
-    Map<String, NotificationCompat.Action> actions = new HashMap<>();
-    actions.put(
-        ACTION_PLAY,
-        new NotificationCompat.Action(
-            R.drawable.exo_notification_play,
-            context.getString(R.string.exo_controls_play_description),
-            createBroadcastIntent(ACTION_PLAY, context, instanceId)));
-    actions.put(
-        ACTION_PAUSE,
-        new NotificationCompat.Action(
-            R.drawable.exo_notification_pause,
-            context.getString(R.string.exo_controls_pause_description),
-            createBroadcastIntent(ACTION_PAUSE, context, instanceId)));
-    actions.put(
-        ACTION_STOP,
-        new NotificationCompat.Action(
-            R.drawable.exo_notification_stop,
-            context.getString(R.string.exo_controls_stop_description),
-            createBroadcastIntent(ACTION_STOP, context, instanceId)));
-    actions.put(
-        ACTION_REWIND,
-        new NotificationCompat.Action(
-            R.drawable.exo_notification_rewind,
-            context.getString(R.string.exo_controls_rewind_description),
-            createBroadcastIntent(ACTION_REWIND, context, instanceId)));
-    actions.put(
-        ACTION_FAST_FORWARD,
-        new NotificationCompat.Action(
-            R.drawable.exo_notification_fastforward,
-            context.getString(R.string.exo_controls_fastforward_description),
-            createBroadcastIntent(ACTION_FAST_FORWARD, context, instanceId)));
-    actions.put(
-        ACTION_PREVIOUS,
-        new NotificationCompat.Action(
-            R.drawable.exo_notification_previous,
-            context.getString(R.string.exo_controls_previous_description),
-            createBroadcastIntent(ACTION_PREVIOUS, context, instanceId)));
-    actions.put(
-        ACTION_NEXT,
-        new NotificationCompat.Action(
-            R.drawable.exo_notification_next,
-            context.getString(R.string.exo_controls_next_description),
-            createBroadcastIntent(ACTION_NEXT, context, instanceId)));
-    return actions;
-  }
-
   private void previous(Player player) {
     Timeline timeline = player.getCurrentTimeline();
     if (timeline.isEmpty() || player.isPlayingAd()) {
@@ -1196,12 +1162,65 @@ public class PlayerNotificationManager {
         && player.getPlayWhenReady();
   }
 
+  private static Map<String, NotificationCompat.Action> createPlaybackActions(
+      Context context, int instanceId) {
+    Map<String, NotificationCompat.Action> actions = new HashMap<>();
+    actions.put(
+        ACTION_PLAY,
+        new NotificationCompat.Action(
+            R.drawable.exo_notification_play,
+            context.getString(R.string.exo_controls_play_description),
+            createBroadcastIntent(ACTION_PLAY, context, instanceId)));
+    actions.put(
+        ACTION_PAUSE,
+        new NotificationCompat.Action(
+            R.drawable.exo_notification_pause,
+            context.getString(R.string.exo_controls_pause_description),
+            createBroadcastIntent(ACTION_PAUSE, context, instanceId)));
+    actions.put(
+        ACTION_STOP,
+        new NotificationCompat.Action(
+            R.drawable.exo_notification_stop,
+            context.getString(R.string.exo_controls_stop_description),
+            createBroadcastIntent(ACTION_STOP, context, instanceId)));
+    actions.put(
+        ACTION_REWIND,
+        new NotificationCompat.Action(
+            R.drawable.exo_notification_rewind,
+            context.getString(R.string.exo_controls_rewind_description),
+            createBroadcastIntent(ACTION_REWIND, context, instanceId)));
+    actions.put(
+        ACTION_FAST_FORWARD,
+        new NotificationCompat.Action(
+            R.drawable.exo_notification_fastforward,
+            context.getString(R.string.exo_controls_fastforward_description),
+            createBroadcastIntent(ACTION_FAST_FORWARD, context, instanceId)));
+    actions.put(
+        ACTION_PREVIOUS,
+        new NotificationCompat.Action(
+            R.drawable.exo_notification_previous,
+            context.getString(R.string.exo_controls_previous_description),
+            createBroadcastIntent(ACTION_PREVIOUS, context, instanceId)));
+    actions.put(
+        ACTION_NEXT,
+        new NotificationCompat.Action(
+            R.drawable.exo_notification_next,
+            context.getString(R.string.exo_controls_next_description),
+            createBroadcastIntent(ACTION_NEXT, context, instanceId)));
+    return actions;
+  }
+
   private static PendingIntent createBroadcastIntent(
       String action, Context context, int instanceId) {
     Intent intent = new Intent(action).setPackage(context.getPackageName());
     intent.putExtra(EXTRA_INSTANCE_ID, instanceId);
     return PendingIntent.getBroadcast(
         context, instanceId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+  }
+
+  @SuppressWarnings("nullness:argument.type.incompatible")
+  private static void setLargeIcon(NotificationCompat.Builder builder, @Nullable Bitmap largeIcon) {
+    builder.setLargeIcon(largeIcon);
   }
 
   private class PlayerListener implements Player.EventListener {

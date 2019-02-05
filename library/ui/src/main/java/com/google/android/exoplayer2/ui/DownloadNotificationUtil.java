@@ -20,15 +20,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.v4.app.NotificationCompat;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadState;
+import com.google.android.exoplayer2.util.Util;
 
-/** Helper for creating download notifications. */
+/**
+ * @deprecated Using this class can cause notifications to flicker on devices with {@link
+ *     Util#SDK_INT} &lt; 21. Use {@link DownloadNotificationHelper} instead.
+ */
+@Deprecated
 public final class DownloadNotificationUtil {
-
-  private static final @StringRes int NULL_STRING_ID = 0;
 
   private DownloadNotificationUtil() {}
 
@@ -37,8 +37,7 @@ public final class DownloadNotificationUtil {
    *
    * @param context A context for accessing resources.
    * @param smallIcon A small icon for the notification.
-   * @param channelId The id of the notification channel to use. Only required for API level 26 and
-   *     above.
+   * @param channelId The id of the notification channel to use.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
    * @param downloadStates The download states.
@@ -51,50 +50,8 @@ public final class DownloadNotificationUtil {
       @Nullable PendingIntent contentIntent,
       @Nullable String message,
       DownloadState[] downloadStates) {
-    float totalPercentage = 0;
-    int downloadTaskCount = 0;
-    boolean allDownloadPercentagesUnknown = true;
-    boolean haveDownloadedBytes = false;
-    boolean haveDownloadTasks = false;
-    boolean haveRemoveTasks = false;
-    for (DownloadState downloadState : downloadStates) {
-      if (downloadState.state == DownloadState.STATE_REMOVING
-          || downloadState.state == DownloadState.STATE_RESTARTING
-          || downloadState.state == DownloadState.STATE_REMOVED) {
-        haveRemoveTasks = true;
-        continue;
-      }
-      if (downloadState.state != DownloadState.STATE_DOWNLOADING
-          && downloadState.state != DownloadState.STATE_COMPLETED) {
-        continue;
-      }
-      haveDownloadTasks = true;
-      if (downloadState.downloadPercentage != C.PERCENTAGE_UNSET) {
-        allDownloadPercentagesUnknown = false;
-        totalPercentage += downloadState.downloadPercentage;
-      }
-      haveDownloadedBytes |= downloadState.downloadedBytes > 0;
-      downloadTaskCount++;
-    }
-
-    int titleStringId =
-        haveDownloadTasks
-            ? R.string.exo_download_downloading
-            : (haveRemoveTasks ? R.string.exo_download_removing : NULL_STRING_ID);
-    NotificationCompat.Builder notificationBuilder =
-        newNotificationBuilder(
-            context, smallIcon, channelId, contentIntent, message, titleStringId);
-
-    int progress = 0;
-    boolean indeterminate = true;
-    if (haveDownloadTasks) {
-      progress = (int) (totalPercentage / downloadTaskCount);
-      indeterminate = allDownloadPercentagesUnknown && haveDownloadedBytes;
-    }
-    notificationBuilder.setProgress(/* max= */ 100, progress, indeterminate);
-    notificationBuilder.setOngoing(true);
-    notificationBuilder.setShowWhen(false);
-    return notificationBuilder.build();
+    return new DownloadNotificationHelper(context, channelId)
+        .buildProgressNotification(smallIcon, contentIntent, message, downloadStates);
   }
 
   /**
@@ -102,8 +59,7 @@ public final class DownloadNotificationUtil {
    *
    * @param context A context for accessing resources.
    * @param smallIcon A small icon for the notifications.
-   * @param channelId The id of the notification channel to use. Only required for API level 26 and
-   *     above.
+   * @param channelId The id of the notification channel to use.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
    * @return The notification.
@@ -114,10 +70,8 @@ public final class DownloadNotificationUtil {
       String channelId,
       @Nullable PendingIntent contentIntent,
       @Nullable String message) {
-    int titleStringId = R.string.exo_download_completed;
-    return newNotificationBuilder(
-            context, smallIcon, channelId, contentIntent, message, titleStringId)
-        .build();
+    return new DownloadNotificationHelper(context, channelId)
+        .buildDownloadCompletedNotification(smallIcon, contentIntent, message);
   }
 
   /**
@@ -125,8 +79,7 @@ public final class DownloadNotificationUtil {
    *
    * @param context A context for accessing resources.
    * @param smallIcon A small icon for the notifications.
-   * @param channelId The id of the notification channel to use. Only required for API level 26 and
-   *     above.
+   * @param channelId The id of the notification channel to use.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
    * @return The notification.
@@ -137,30 +90,7 @@ public final class DownloadNotificationUtil {
       String channelId,
       @Nullable PendingIntent contentIntent,
       @Nullable String message) {
-    @StringRes int titleStringId = R.string.exo_download_failed;
-    return newNotificationBuilder(
-            context, smallIcon, channelId, contentIntent, message, titleStringId)
-        .build();
-  }
-
-  private static NotificationCompat.Builder newNotificationBuilder(
-      Context context,
-      @DrawableRes int smallIcon,
-      String channelId,
-      @Nullable PendingIntent contentIntent,
-      @Nullable String message,
-      @StringRes int titleStringId) {
-    NotificationCompat.Builder notificationBuilder =
-        new NotificationCompat.Builder(context, channelId).setSmallIcon(smallIcon);
-    if (titleStringId != NULL_STRING_ID) {
-      notificationBuilder.setContentTitle(context.getResources().getString(titleStringId));
-    }
-    if (contentIntent != null) {
-      notificationBuilder.setContentIntent(contentIntent);
-    }
-    if (message != null) {
-      notificationBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
-    }
-    return notificationBuilder;
+    return new DownloadNotificationHelper(context, channelId)
+        .buildDownloadFailedNotification(smallIcon, contentIntent, message);
   }
 }
