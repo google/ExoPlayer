@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.NavigableSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -36,6 +37,14 @@ import java.util.TreeSet;
 public final class SimpleCache implements Cache {
 
   private static final String TAG = "SimpleCache";
+  /**
+   * Cache files are distributed between a number of subdirectories. This helps to avoid poor
+   * performance in cases where the performance of the underlying file system (e.g. FAT32) scales
+   * badly with the number of files per directory. See
+   * https://github.com/google/ExoPlayer/issues/4253.
+   */
+  private static final int SUBDIRECTORY_COUNT = 10;
+
   private static final HashSet<File> lockedCacheDirs = new HashSet<>();
 
   private static boolean cacheFolderLockingDisabled;
@@ -44,6 +53,7 @@ public final class SimpleCache implements Cache {
   private final CacheEvictor evictor;
   private final CachedContentIndex index;
   private final HashMap<String, ArrayList<Listener>> listeners;
+  private final Random random;
 
   private long totalSpace;
   private boolean released;
@@ -128,7 +138,8 @@ public final class SimpleCache implements Cache {
     this.cacheDir = cacheDir;
     this.evictor = evictor;
     this.index = index;
-    this.listeners = new HashMap<>();
+    listeners = new HashMap<>();
+    random = new Random();
 
     // Start cache initialization.
     final ConditionVariable conditionVariable = new ConditionVariable();
@@ -271,8 +282,13 @@ public final class SimpleCache implements Cache {
       removeStaleSpans();
     }
     evictor.onStartFile(this, key, position, length);
-    return SimpleCacheSpan.getCacheFile(
-        cacheDir, cachedContent.id, position, System.currentTimeMillis());
+    // Randomly distribute files into subdirectories with a uniform distribution.
+    File fileDir = new File(cacheDir, Integer.toString(random.nextInt(SUBDIRECTORY_COUNT)));
+    if (!fileDir.exists()) {
+      fileDir.mkdir();
+    }
+    long lastAccessTimestamp = System.currentTimeMillis();
+    return SimpleCacheSpan.getCacheFile(fileDir, cachedContent.id, position, lastAccessTimestamp);
   }
 
   @Override

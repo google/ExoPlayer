@@ -75,7 +75,7 @@ public class SimpleCacheTest {
     NavigableSet<CacheSpan> cachedSpans = simpleCache.getCachedSpans(KEY_1);
     assertThat(cachedSpans.isEmpty()).isTrue();
     assertThat(simpleCache.getCacheSpace()).isEqualTo(0);
-    assertThat(cacheDir.listFiles()).hasLength(0);
+    assertNoCacheFiles(cacheDir);
 
     addCache(simpleCache, KEY_1, 0, 15);
 
@@ -233,7 +233,7 @@ public class SimpleCacheTest {
 
     // Cache should be cleared
     assertThat(simpleCache.getKeys()).isEmpty();
-    assertThat(cacheDir.listFiles()).hasLength(0);
+    assertNoCacheFiles(cacheDir);
   }
 
   @Test
@@ -252,7 +252,7 @@ public class SimpleCacheTest {
 
     // Cache should be cleared
     assertThat(simpleCache.getKeys()).isEmpty();
-    assertThat(cacheDir.listFiles()).hasLength(0);
+    assertNoCacheFiles(cacheDir);
   }
 
   @Test
@@ -388,6 +388,20 @@ public class SimpleCacheTest {
       assertThat(toByteArray(inputStream)).isEqualTo(expected);
     } finally {
       inputStream.close();
+    }
+  }
+
+  private static void assertNoCacheFiles(File dir) {
+    File[] files = dir.listFiles();
+    if (files == null) {
+      return;
+    }
+    for (File file : files) {
+      if (file.isDirectory()) {
+        assertNoCacheFiles(file);
+      } else {
+        assertThat(file.getName().endsWith(SimpleCacheSpan.COMMON_SUFFIX)).isFalse();
+      }
     }
   }
 
