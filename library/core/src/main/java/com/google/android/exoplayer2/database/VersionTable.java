@@ -35,8 +35,10 @@ public final class VersionTable {
   public static final int VERSION_UNSET = -1;
   /** Version of tables used for offline functionality. */
   public static final int FEATURE_OFFLINE = 0;
-  /** Version of tables used for cache functionality. */
-  public static final int FEATURE_CACHE = 1;
+  /** Version of tables used for cache content metadata. */
+  public static final int FEATURE_CACHE_CONTENT_METADATA = 1;
+  /** Version of tables used for cache file metadata. */
+  public static final int FEATURE_CACHE_FILE_METADATA = 2;
 
   private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "Versions";
 
@@ -54,7 +56,7 @@ public final class VersionTable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({FEATURE_OFFLINE, FEATURE_CACHE})
+  @IntDef({FEATURE_OFFLINE, FEATURE_CACHE_CONTENT_METADATA, FEATURE_CACHE_FILE_METADATA})
   private @interface Feature {}
 
   private VersionTable() {}

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.database;
 
-import static com.google.android.exoplayer2.database.VersionTable.FEATURE_CACHE;
+import static com.google.android.exoplayer2.database.VersionTable.FEATURE_CACHE_CONTENT_METADATA;
 import static com.google.android.exoplayer2.database.VersionTable.FEATURE_OFFLINE;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -61,8 +61,9 @@ public class VersionTableTest {
     VersionTable.setVersion(writableDatabase, FEATURE_OFFLINE, 10);
     assertThat(VersionTable.getVersion(readableDatabase, FEATURE_OFFLINE)).isEqualTo(10);
 
-    VersionTable.setVersion(writableDatabase, FEATURE_CACHE, 5);
-    assertThat(VersionTable.getVersion(readableDatabase, FEATURE_CACHE)).isEqualTo(5);
+    VersionTable.setVersion(writableDatabase, FEATURE_CACHE_CONTENT_METADATA, 5);
+    assertThat(VersionTable.getVersion(readableDatabase, FEATURE_CACHE_CONTENT_METADATA))
+        .isEqualTo(5);
     assertThat(VersionTable.getVersion(readableDatabase, FEATURE_OFFLINE)).isEqualTo(10);
   }
 
