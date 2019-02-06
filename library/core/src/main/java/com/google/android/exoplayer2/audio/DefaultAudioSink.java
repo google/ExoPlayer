@@ -17,13 +17,17 @@ package com.google.android.exoplayer2.audio;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioRouting;
 import android.media.AudioTrack;
+import android.os.Build;
 import android.os.ConditionVariable;
 import android.os.SystemClock;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -287,6 +291,7 @@ public final class DefaultAudioSink implements AudioSink {
   private AuxEffectInfo auxEffectInfo;
   private boolean tunneling;
   private long lastFeedElapsedRealtimeMs;
+  private AudioDeviceInfoHolder preferredOutputDevice;
 
   /**
    * Creates a new default audio sink.
@@ -371,7 +376,7 @@ public final class DefaultAudioSink implements AudioSink {
   // AudioSink implementation.
 
   @Override
-  public void setListener(Listener listener) {
+  public void setListener(@Nullable Listener listener) {
     this.listener = listener;
   }
 
@@ -529,6 +534,7 @@ public final class DefaultAudioSink implements AudioSink {
     releasingConditionVariable.block();
 
     audioTrack = initializeAudioTrack();
+    applyPreferredOutputDevice();
     int audioSessionId = audioTrack.getAudioSessionId();
     if (enablePreV21AudioSessionWorkaround) {
       if (Util.SDK_INT < 21) {
@@ -565,6 +571,70 @@ public final class DefaultAudioSink implements AudioSink {
       audioTrack.setAuxEffectSendLevel(auxEffectInfo.sendLevel);
     }
   }
+
+  @TargetApi(23)
+  @Nullable
+  @Override
+  public AudioDeviceInfo getPreferredOutputDevice() {
+    return preferredOutputDevice == null ? null : preferredOutputDevice.audioDeviceInfo;
+  }
+
+  @TargetApi(23)
+  @Override
+  public void setPreferredOutputDevice(@Nullable AudioDeviceInfo preferredOutputDevice) {
+    this.preferredOutputDevice = new AudioDeviceInfoHolder(preferredOutputDevice);
+    applyPreferredOutputDevice();
+  }
+
+  private void applyPreferredOutputDevice() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && audioTrack != null) {
+      AudioDeviceInfo preferredOutputDevice = getPreferredOutputDevice();
+      Log.d(TAG, "applyPreferredOutputDevice: "
+          + (preferredOutputDevice == null ? "null" : preferredOutputDevice.getId()));
+      if (!audioTrack.setPreferredDevice(preferredOutputDevice)) {
+        Log.w(TAG, "applyPreferredOutputDevice: setPreferredDevice failed");
+      }
+      addListener();
+    }
+  }
+
+  @TargetApi(Build.VERSION_CODES.N)
+  private static class RoutingListener implements AudioRouting.OnRoutingChangedListener, android
+      .media.AudioTrack.OnRoutingChangedListener {
+
+    @Override
+    public void onRoutingChanged(@Nullable android.media.AudioTrack audioTrack) {
+      Log.d(TAG, "onRoutingChanged() called with: audioTrack = [" + audioTrack + "]");
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.N)
+    public void onRoutingChanged(AudioRouting router) {
+      if (router instanceof android.media.AudioTrack) {
+        onRoutingChanged((android.media.AudioTrack) router);
+      } else {
+        onRoutingChanged(null);
+      }
+    }
+  }
+
+  private final RoutingListener routingListener = new RoutingListener();
+
+  @RequiresApi(23)
+  private void addListener() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      audioTrack.removeOnRoutingChangedListener(
+          (AudioRouting.OnRoutingChangedListener) routingListener);
+      audioTrack.addOnRoutingChangedListener(
+          ((AudioRouting.OnRoutingChangedListener) routingListener), null);
+    } else {
+      //noinspection deprecation
+      audioTrack.removeOnRoutingChangedListener(routingListener);
+      //noinspection deprecation
+      audioTrack.addOnRoutingChangedListener(routingListener, null);
+    }
+  }
+
 
   @Override
   public void play() {
@@ -1149,6 +1219,18 @@ public final class DefaultAudioSink implements AudioSink {
             .build();
     int audioSessionId = this.audioSessionId != C.AUDIO_SESSION_ID_UNSET ? this.audioSessionId
         : AudioManager.AUDIO_SESSION_ID_GENERATE;
+    if (Util.SDK_INT >= 23) {
+      AudioTrack.Builder builder = new AudioTrack.Builder()
+          .setAudioAttributes(attributes)
+          .setAudioFormat(format)
+          .setBufferSizeInBytes(bufferSize)
+          .setTransferMode(android.media.AudioTrack.MODE_STREAM)
+          .setSessionId(audioSessionId);
+      if (Util.SDK_INT >= 26) {
+        builder.setPerformanceMode(android.media.AudioTrack.PERFORMANCE_MODE_POWER_SAVING);
+      }
+      return builder.build();
+    }
     return new AudioTrack(attributes, format, bufferSize, MODE_STREAM, audioSessionId);
   }
 
@@ -1371,4 +1453,14 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
   }
+
+  @TargetApi(23)
+  private static class AudioDeviceInfoHolder {
+    public final AudioDeviceInfo audioDeviceInfo;
+
+    public AudioDeviceInfoHolder(@Nullable AudioDeviceInfo audioDeviceInfo) {
+      this.audioDeviceInfo = audioDeviceInfo;
+    }
+  }
+
 }

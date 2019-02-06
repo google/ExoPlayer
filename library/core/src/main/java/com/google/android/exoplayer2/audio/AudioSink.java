@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import android.media.AudioDeviceInfo;
 import android.media.AudioTrack;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -289,6 +290,12 @@ public interface AudioSink {
 
   /** Sets the auxiliary effect. */
   void setAuxEffectInfo(AuxEffectInfo auxEffectInfo);
+
+  /** Getter and setter for Preferred Output Device */
+  AudioDeviceInfo getPreferredOutputDevice();
+
+  void setPreferredOutputDevice(AudioDeviceInfo deviceInfo);
+
 
   /**
    * Enables tunneling, if possible. The sink is reset if tunneling was previously disabled or if

@@ -79,6 +79,7 @@ import com.google.android.exoplayer2.util.Util;
             playerView.getOverlayFrameLayout());
 
     // Prepare the player with the source.
+    adsLoader.setPlayer(player);
     player.seekTo(contentPosition);
     player.prepare(mediaSourceWithAds);
     player.setPlayWhenReady(true);

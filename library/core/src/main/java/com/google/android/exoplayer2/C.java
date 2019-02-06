@@ -807,6 +807,12 @@ public final class C {
    */
   public static final int MSG_CUSTOM_BASE = 10000;
 
+
+  /**
+   * Flag to set preferred audio output based on AudioDeviceInfo
+   */
+  public static final int MSG_SET_PREFERRED_AUDIO_OUTPUT = 10001;
+
   /**
    * The stereo mode for 360/3D/VR videos. One of {@link Format#NO_VALUE}, {@link
    * #STEREO_MODE_MONO}, {@link #STEREO_MODE_TOP_BOTTOM}, {@link #STEREO_MODE_LEFT_RIGHT} or {@link

@@ -18,10 +18,12 @@ package com.google.android.exoplayer2.audio;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.media.AudioDeviceInfo;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.media.audiofx.Virtualizer;
+import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
@@ -259,6 +261,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     pendingStreamChangeTimesUs = new long[MAX_PENDING_STREAM_CHANGE_COUNT];
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSink.setListener(new AudioSinkListener());
+  }
+
+  @TargetApi(23)
+  public void setPreferredAudioOutput(@Nullable AudioDeviceInfo audioDeviceInfo) {
+    audioSink.setPreferredOutputDevice(audioDeviceInfo);
+  }
+
+  @TargetApi(23)
+  public @Nullable AudioDeviceInfo getPreferredAudioOutput() {
+    return audioSink.getPreferredOutputDevice();
   }
 
   @Override
@@ -685,6 +697,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       case C.MSG_SET_AUX_EFFECT_INFO:
         AuxEffectInfo auxEffectInfo = (AuxEffectInfo) message;
         audioSink.setAuxEffectInfo(auxEffectInfo);
+        break;
+      case C.MSG_SET_PREFERRED_AUDIO_OUTPUT:
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+          AudioDeviceInfo deviceInfo = (AudioDeviceInfo) message;
+          audioSink.setPreferredOutputDevice(deviceInfo);
+        }
         break;
       default:
         super.handleMessage(messageType, message);

@@ -19,6 +19,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.media.AudioDeviceInfo;
 import android.media.MediaCodec;
 import android.media.PlaybackParams;
 import android.os.Handler;
@@ -108,6 +109,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Nullable private DecoderCounters audioDecoderCounters;
   private int audioSessionId;
   private AudioAttributes audioAttributes;
+  private AudioDeviceInfo preferredAudioDevice;
   private float audioVolume;
   @Nullable private MediaSource mediaSource;
   private List<Cue> currentCues;
@@ -731,6 +733,29 @@ public class SimpleExoPlayer extends BasePlayer
   public void removeMetadataOutput(MetadataOutput listener) {
     metadataOutputs.remove(listener);
   }
+
+  /**
+   * Sets the preferred audio output.
+   *
+   * @param audioDeviceInfo The preferred audio output or null to use the default output.
+   */
+  public void setAudioOutput(@Nullable AudioDeviceInfo audioDeviceInfo) {
+    this.preferredAudioDevice = audioDeviceInfo;
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
+        PlayerMessage message = player.createMessage(renderer);
+        message.setType(C.MSG_SET_PREFERRED_AUDIO_OUTPUT);
+        message.setPayload(preferredAudioDevice);
+      }
+    }
+  }
+
+  @Nullable
+  @TargetApi(23)
+  public AudioDeviceInfo getAudioOutput() {
+    return preferredAudioDevice;
+  }
+
 
   /**
    * Sets an output to receive metadata events, removing all existing outputs.
