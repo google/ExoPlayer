@@ -20,6 +20,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags;
 import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -76,25 +77,19 @@ public final class DownloadState {
   public static final int FAILURE_REASON_UNKNOWN = 1;
 
   /**
-   * Download stop flags. Possible flag values are {@link #STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY} and
-   * {@link #STOP_FLAG_STOPPED}.
+   * Download stop flags. Possible flag values are {@link #STOP_FLAG_MANUAL} and {@link
+   * #STOP_FLAG_REQUIREMENTS_NOT_MET}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {
-        STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY,
-        STOP_FLAG_STOPPED,
-        STOP_FLAG_REQUIREMENTS_NOT_MET
-      })
+      value = {STOP_FLAG_MANUAL, STOP_FLAG_REQUIREMENTS_NOT_MET})
   public @interface StopFlags {}
-  /** Download can't be started as the manager isn't ready. */
-  public static final int STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY = 1;
   /** Download is stopped by the application. */
-  public static final int STOP_FLAG_STOPPED = 1 << 1;
+  public static final int STOP_FLAG_MANUAL = 1;
   /** Download is stopped as the requirements are not met. */
-  public static final int STOP_FLAG_REQUIREMENTS_NOT_MET = 1 << 2;
+  public static final int STOP_FLAG_REQUIREMENTS_NOT_MET = 1 << 1;
 
   /** Returns the state string for the given state value. */
   public static String getStateString(@State int state) {
@@ -165,6 +160,8 @@ public final class DownloadState {
   @StopFlags public final int stopFlags;
   /** Not met requirements to download. */
   @Requirements.RequirementFlags public final int notMetRequirements;
+  /** If {@link #STOP_FLAG_MANUAL} is set then this field holds the manual stop reason. */
+  public final int manualStopReason;
 
   /**
    * Creates a {@link DownloadState} using a {@link DownloadAction}.
@@ -188,6 +185,7 @@ public final class DownloadState {
         FAILURE_REASON_NONE,
         /* stopFlags= */ 0,
         /* notMetRequirements= */ 0,
+        /* manualStopReason= */ 0,
         /* startTimeMs= */ currentTimeMs,
         /* updateTimeMs= */ currentTimeMs,
         action.keys.toArray(new StreamKey[0]),
@@ -205,18 +203,17 @@ public final class DownloadState {
       long totalBytes,
       @FailureReason int failureReason,
       @StopFlags int stopFlags,
-      @Requirements.RequirementFlags int notMetRequirements,
+      @RequirementFlags int notMetRequirements,
+      int manualStopReason,
       long startTimeMs,
       long updateTimeMs,
       StreamKey[] streamKeys,
       byte[] customMetadata) {
-    Assertions.checkState(
-        failureReason == FAILURE_REASON_NONE ? state != STATE_FAILED : state == STATE_FAILED);
+    Assertions.checkState((failureReason == FAILURE_REASON_NONE) == (state != STATE_FAILED));
     Assertions.checkState(stopFlags == 0 || (state != STATE_DOWNLOADING && state != STATE_QUEUED));
     Assertions.checkState(
-        (stopFlags & STOP_FLAG_REQUIREMENTS_NOT_MET) == 0
-            ? notMetRequirements == 0
-            : notMetRequirements != 0);
+        ((stopFlags & STOP_FLAG_REQUIREMENTS_NOT_MET) == 0) == (notMetRequirements == 0));
+    Assertions.checkState(((stopFlags & STOP_FLAG_MANUAL) != 0) || (manualStopReason == 0));
     this.id = id;
     this.type = type;
     this.uri = uri;
@@ -228,6 +225,7 @@ public final class DownloadState {
     this.failureReason = failureReason;
     this.stopFlags = stopFlags;
     this.notMetRequirements = notMetRequirements;
+    this.manualStopReason = manualStopReason;
     this.startTimeMs = startTimeMs;
     this.updateTimeMs = updateTimeMs;
     this.streamKeys = streamKeys;
@@ -256,6 +254,7 @@ public final class DownloadState {
         FAILURE_REASON_NONE,
         stopFlags,
         notMetRequirements,
+        manualStopReason,
         startTimeMs,
         updateTimeMs,
         mergeStreamKeys(this, action),

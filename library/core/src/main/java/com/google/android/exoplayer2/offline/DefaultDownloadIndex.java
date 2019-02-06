@@ -50,6 +50,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   private static final String COLUMN_FAILURE_REASON = "failure_reason";
   private static final String COLUMN_STOP_FLAGS = "stop_flags";
   private static final String COLUMN_NOT_MET_REQUIREMENTS = "not_met_requirements";
+  private static final String COLUMN_MANUAL_STOP_REASON = "manual_stop_reason";
   private static final String COLUMN_START_TIME_MS = "start_time_ms";
   private static final String COLUMN_UPDATE_TIME_MS = "update_time_ms";
   private static final String COLUMN_STREAM_KEYS = "stream_keys";
@@ -66,10 +67,11 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   private static final int COLUMN_INDEX_FAILURE_REASON = 8;
   private static final int COLUMN_INDEX_STOP_FLAGS = 9;
   private static final int COLUMN_INDEX_NOT_MET_REQUIREMENTS = 10;
-  private static final int COLUMN_INDEX_START_TIME_MS = 11;
-  private static final int COLUMN_INDEX_UPDATE_TIME_MS = 12;
-  private static final int COLUMN_INDEX_STREAM_KEYS = 13;
-  private static final int COLUMN_INDEX_CUSTOM_METADATA = 14;
+  private static final int COLUMN_INDEX_MANUAL_STOP_REASON = 11;
+  private static final int COLUMN_INDEX_START_TIME_MS = 12;
+  private static final int COLUMN_INDEX_UPDATE_TIME_MS = 13;
+  private static final int COLUMN_INDEX_STREAM_KEYS = 14;
+  private static final int COLUMN_INDEX_CUSTOM_METADATA = 15;
 
   private static final String COLUMN_SELECTION_ID = COLUMN_ID + " = ?";
 
@@ -86,6 +88,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
         COLUMN_FAILURE_REASON,
         COLUMN_STOP_FLAGS,
         COLUMN_NOT_MET_REQUIREMENTS,
+        COLUMN_MANUAL_STOP_REASON,
         COLUMN_START_TIME_MS,
         COLUMN_UPDATE_TIME_MS,
         COLUMN_STREAM_KEYS,
@@ -118,6 +121,8 @@ public final class DefaultDownloadIndex implements DownloadIndex {
           + COLUMN_STOP_FLAGS
           + " INTEGER NOT NULL,"
           + COLUMN_NOT_MET_REQUIREMENTS
+          + " INTEGER NOT NULL,"
+          + COLUMN_MANUAL_STOP_REASON
           + " INTEGER NOT NULL,"
           + COLUMN_START_TIME_MS
           + " INTEGER NOT NULL,"
@@ -194,6 +199,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     values.put(COLUMN_FAILURE_REASON, downloadState.failureReason);
     values.put(COLUMN_STOP_FLAGS, downloadState.stopFlags);
     values.put(COLUMN_NOT_MET_REQUIREMENTS, downloadState.notMetRequirements);
+    values.put(COLUMN_MANUAL_STOP_REASON, downloadState.manualStopReason);
     values.put(COLUMN_START_TIME_MS, downloadState.startTimeMs);
     values.put(COLUMN_UPDATE_TIME_MS, downloadState.updateTimeMs);
     values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(downloadState.streamKeys));
@@ -260,6 +266,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
         cursor.getInt(COLUMN_INDEX_FAILURE_REASON),
         cursor.getInt(COLUMN_INDEX_STOP_FLAGS),
         cursor.getInt(COLUMN_INDEX_NOT_MET_REQUIREMENTS),
+        cursor.getInt(COLUMN_INDEX_MANUAL_STOP_REASON),
         cursor.getLong(COLUMN_INDEX_START_TIME_MS),
         cursor.getLong(COLUMN_INDEX_UPDATE_TIME_MS),
         decodeStreamKeys(cursor.getString(COLUMN_INDEX_STREAM_KEYS)),

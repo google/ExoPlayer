@@ -171,7 +171,7 @@ public class DownloadStateTest {
     DownloadStateBuilder downloadStateBuilder =
         new DownloadStateBuilder(downloadAction)
             .setState(DownloadState.STATE_STOPPED)
-            .setStopFlags(DownloadState.STOP_FLAG_STOPPED);
+            .setStopFlags(DownloadState.STOP_FLAG_MANUAL);
     DownloadState downloadState = downloadStateBuilder.build();
 
     DownloadState mergedDownloadState = downloadState.mergeAction(downloadAction);
@@ -185,7 +185,7 @@ public class DownloadStateTest {
     DownloadStateBuilder downloadStateBuilder =
         new DownloadStateBuilder(downloadAction)
             .setState(DownloadState.STATE_STOPPED)
-            .setStopFlags(DownloadState.STOP_FLAG_STOPPED);
+            .setStopFlags(DownloadState.STOP_FLAG_MANUAL);
     DownloadState downloadState = downloadStateBuilder.build();
 
     DownloadState mergedDownloadState = downloadState.mergeAction(downloadAction);

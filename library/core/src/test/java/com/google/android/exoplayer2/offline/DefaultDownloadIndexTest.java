@@ -77,8 +77,10 @@ public class DefaultDownloadIndexTest {
             .setDownloadedBytes(200)
             .setTotalBytes(400)
             .setFailureReason(DownloadState.FAILURE_REASON_UNKNOWN)
-            .setStopFlags(DownloadState.STOP_FLAG_REQUIREMENTS_NOT_MET)
+            .setStopFlags(
+                DownloadState.STOP_FLAG_REQUIREMENTS_NOT_MET | DownloadState.STOP_FLAG_MANUAL)
             .setNotMetRequirements(0x87654321)
+            .setManualStopReason(0x12345678)
             .setStartTimeMs(10)
             .setUpdateTimeMs(20)
             .setStreamKeys(
@@ -206,5 +208,4 @@ public class DefaultDownloadIndexTest {
     assertThat(VersionTable.getVersion(writableDatabase, VersionTable.FEATURE_OFFLINE))
         .isEqualTo(DefaultDownloadIndex.TABLE_VERSION);
   }
-
 }

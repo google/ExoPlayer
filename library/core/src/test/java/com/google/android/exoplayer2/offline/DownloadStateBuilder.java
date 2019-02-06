@@ -38,6 +38,7 @@ class DownloadStateBuilder {
   private int failureReason;
   private int stopFlags;
   private int notMetRequirements;
+  private int manualStopReason;
   private long startTimeMs;
   private long updateTimeMs;
   private StreamKey[] streamKeys;
@@ -140,6 +141,11 @@ class DownloadStateBuilder {
     return this;
   }
 
+  public DownloadStateBuilder setManualStopReason(int manualStopReason) {
+    this.manualStopReason = manualStopReason;
+    return this;
+  }
+
   public DownloadStateBuilder setStartTimeMs(long startTimeMs) {
     this.startTimeMs = startTimeMs;
     return this;
@@ -173,6 +179,7 @@ class DownloadStateBuilder {
         failureReason,
         stopFlags,
         notMetRequirements,
+        manualStopReason,
         startTimeMs,
         updateTimeMs,
         streamKeys,
