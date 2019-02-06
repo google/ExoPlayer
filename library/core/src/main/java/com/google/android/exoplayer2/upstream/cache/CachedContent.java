@@ -16,12 +16,15 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.support.annotation.Nullable;
-import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
+import java.io.File;
 import java.util.TreeSet;
 
 /** Defines the cached content for a single stream. */
 /* package */ final class CachedContent {
+
+  private static final String TAG = "CachedContent";
 
   /** The cache file id that uniquely identifies the original stream. */
   public final int id;
@@ -138,21 +141,30 @@ import java.util.TreeSet;
   }
 
   /**
-   * Copies the given span with an updated last access time. Passed span becomes invalid after this
-   * call.
+   * Sets the given span's last access timestamp. The passed span becomes invalid after this call.
    *
    * @param cacheSpan Span to be copied and updated.
-   * @return a span with the updated last access time.
-   * @throws CacheException If renaming of the underlying span file failed.
+   * @param lastAccessTimestamp The new last access timestamp.
+   * @param updateFile Whether the span file should be renamed to have its timestamp match the new
+   *     last access time.
+   * @return A span with the updated last access timestamp.
    */
-  public SimpleCacheSpan touch(SimpleCacheSpan cacheSpan) throws CacheException {
-    SimpleCacheSpan newCacheSpan = cacheSpan.copyWithUpdatedLastAccessTime(id);
-    if (!cacheSpan.file.renameTo(newCacheSpan.file)) {
-      throw new CacheException("Renaming of " + cacheSpan.file + " to " + newCacheSpan.file
-          + " failed.");
-    }
-    // Replace the in-memory representation of the span.
+  public SimpleCacheSpan setLastAccessTimestamp(
+      SimpleCacheSpan cacheSpan, long lastAccessTimestamp, boolean updateFile) {
     Assertions.checkState(cachedSpans.remove(cacheSpan));
+    File file = cacheSpan.file;
+    if (updateFile) {
+      File directory = file.getParentFile();
+      long position = cacheSpan.position;
+      File newFile = SimpleCacheSpan.getCacheFile(directory, id, position, lastAccessTimestamp);
+      if (file.renameTo(newFile)) {
+        file = newFile;
+      } else {
+        Log.w(TAG, "Failed to rename " + file + " to " + newFile + ".");
+      }
+    }
+    SimpleCacheSpan newCacheSpan =
+        cacheSpan.copyWithFileAndLastAccessTimestamp(file, lastAccessTimestamp);
     cachedSpans.add(newCacheSpan);
     return newCacheSpan;
   }
