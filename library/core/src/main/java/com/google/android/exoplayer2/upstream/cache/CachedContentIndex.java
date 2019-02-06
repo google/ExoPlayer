@@ -678,7 +678,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   //    the entire table. Currently this implementation only encrypts new and updated entries.
   private static final class SQLiteStorage implements Storage {
 
-    private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "Cache";
+    private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "CacheContentMetadata";
     private static final int TABLE_VERSION = 1;
 
     private static final String COLUMN_ID = "id";
@@ -736,7 +736,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     public boolean exists() {
       return file.exists()
           && VersionTable.getVersion(
-                  databaseProvider.getReadableDatabase(), VersionTable.FEATURE_CACHE)
+                  databaseProvider.getReadableDatabase(),
+                  VersionTable.FEATURE_CACHE_CONTENT_METADATA)
               != VersionTable.VERSION_UNSET;
     }
 
@@ -755,7 +756,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       try {
         int version =
             VersionTable.getVersion(
-                databaseProvider.getReadableDatabase(), VersionTable.FEATURE_CACHE);
+                databaseProvider.getReadableDatabase(),
+                VersionTable.FEATURE_CACHE_CONTENT_METADATA);
         if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
           SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
           writableDatabase.beginTransaction();
@@ -870,7 +872,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     private void initializeTable(SQLiteDatabase writableDatabase) {
-      VersionTable.setVersion(writableDatabase, VersionTable.FEATURE_CACHE, TABLE_VERSION);
+      VersionTable.setVersion(
+          writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, TABLE_VERSION);
       writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
       writableDatabase.execSQL(SQL_CREATE_TABLE);
     }

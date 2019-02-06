@@ -253,13 +253,12 @@ public final class SimpleCache implements Cache {
       String fileName = span.file.getName();
       long length = span.length;
       long lastAccessTimestamp = System.currentTimeMillis();
-      // Updating the file itself to incorporate the new last access timestamp is much slower than
-      // updating the file index. Hence we only update the file if we don't have a file index, or if
-      // updating the file index failed.
-      boolean updateFile;
+      boolean updateFile = false;
       if (fileIndex != null) {
-        updateFile = !fileIndex.set(fileName, length, lastAccessTimestamp);
+        fileIndex.set(fileName, length, lastAccessTimestamp);
       } else {
+        // Updating the file itself to incorporate the new last access timestamp is much slower than
+        // updating the file index. Hence we only update the file if we don't have a file index.
         updateFile = true;
       }
       SimpleCacheSpan newSpan =
