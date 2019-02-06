@@ -26,7 +26,9 @@ import java.util.regex.Pattern;
 /** This class stores span metadata in filename. */
 /* package */ final class SimpleCacheSpan extends CacheSpan {
 
-  private static final String SUFFIX = ".v3.exo";
+  /* package */ static final String COMMON_SUFFIX = ".exo";
+
+  private static final String SUFFIX = ".v3" + COMMON_SUFFIX;
   private static final Pattern CACHE_FILE_PATTERN_V1 = Pattern.compile(
       "^(.+)\\.(\\d+)\\.(\\d+)\\.v1\\.exo$", Pattern.DOTALL);
   private static final Pattern CACHE_FILE_PATTERN_V2 = Pattern.compile(
