@@ -834,6 +834,8 @@ public final class DownloadHelper {
                 /* startPositionUs= */ 0);
         mediaPeriods[i] = mediaPeriod;
         pendingMediaPeriods.add(mediaPeriod);
+      }
+      for (MediaPeriod mediaPeriod : mediaPeriods) {
         mediaPeriod.prepare(/* callback= */ this, /* positionUs= */ 0);
       }
     }
