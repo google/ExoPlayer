@@ -109,7 +109,7 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testAttachPlayer_setsAdUiViewGroup() {
+  public void testStart_setsAdUiViewGroup() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.start(adsLoaderListener, adUiViewGroup);
 
@@ -117,7 +117,7 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testAttachPlayer_updatesAdPlaybackState() {
+  public void testStart_updatesAdPlaybackState() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.start(adsLoaderListener, adUiViewGroup);
 
@@ -128,14 +128,14 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testAttachAfterRelease() {
+  public void testStartAfterRelease() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.release();
     imaAdsLoader.start(adsLoaderListener, adUiViewGroup);
   }
 
   @Test
-  public void testAttachAndCallbacksAfterRelease() {
+  public void testStartAndCallbacksAfterRelease() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.release();
     imaAdsLoader.start(adsLoaderListener, adUiViewGroup);
