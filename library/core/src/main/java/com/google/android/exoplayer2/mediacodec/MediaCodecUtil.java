@@ -445,9 +445,10 @@ public final class MediaCodecUtil {
       Log.w(TAG, "Unknown HEVC profile string: " + profileString);
       return null;
     }
-    Integer level = HEVC_CODEC_STRING_TO_PROFILE_LEVEL.get(parts[3]);
+    String levelString = parts[3];
+    Integer level = HEVC_CODEC_STRING_TO_PROFILE_LEVEL.get(levelString);
     if (level == null) {
-      Log.w(TAG, "Unknown HEVC level string: " + matcher.group(1));
+      Log.w(TAG, "Unknown HEVC level string: " + levelString);
       return null;
     }
     return new Pair<>(profile, level);
