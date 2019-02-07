@@ -16,20 +16,16 @@
 package com.google.android.exoplayer2.database;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.util.Log;
-import java.io.File;
 
 /**
  * An {@link SQLiteOpenHelper} that provides instances of a standalone ExoPlayer database.
  *
- * <p>Suitable for use by applications that do not already have their own database, or which would
+ * <p>Suitable for use by applications that do not already have their own database, or that would
  * prefer to keep ExoPlayer tables isolated in their own database. Other applications should prefer
  * to use {@link DefaultDatabaseProvider} with their own {@link SQLiteOpenHelper}.
  */
@@ -49,15 +45,6 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
    */
   public ExoDatabaseProvider(Context context) {
     super(context.getApplicationContext(), DATABASE_NAME, /* factory= */ null, VERSION);
-  }
-
-  /**
-   * Provides instances of the database located at the specified file.
-   *
-   * @param file The database file.
-   */
-  public ExoDatabaseProvider(File file) {
-    super(new DatabaseFileProvidingContext(file), file.getName(), /* factory= */ null, VERSION);
   }
 
   @Override
@@ -103,50 +90,6 @@ public final class ExoDatabaseProvider extends SQLiteOpenHelper implements Datab
           }
         }
       }
-    }
-  }
-
-  // TODO: This is fragile. Stop using it if/when SQLiteOpenHelper can be instantiated without a
-  // context [Internal ref: b/123351819], or by injecting a Context into all components that need
-  // to instantiate an ExoDatabaseProvider.
-  /** A {@link Context} that implements methods called by {@link SQLiteOpenHelper}. */
-  private static class DatabaseFileProvidingContext extends ContextWrapper {
-
-    private final File file;
-
-    @SuppressWarnings("nullness:argument.type.incompatible")
-    public DatabaseFileProvidingContext(File file) {
-      super(/* base= */ null);
-      this.file = file;
-    }
-
-    @Override
-    public File getDatabasePath(String name) {
-      return file;
-    }
-
-    @Override
-    public SQLiteDatabase openOrCreateDatabase(
-        String name, int mode, SQLiteDatabase.CursorFactory factory) {
-      return openOrCreateDatabase(name, mode, factory, /* errorHandler= */ null);
-    }
-
-    @Override
-    @SuppressWarnings("nullness:argument.type.incompatible")
-    public SQLiteDatabase openOrCreateDatabase(
-        String name,
-        int mode,
-        SQLiteDatabase.CursorFactory factory,
-        @Nullable DatabaseErrorHandler errorHandler) {
-      File databasePath = getDatabasePath(name);
-      int flags = SQLiteDatabase.CREATE_IF_NECESSARY;
-      if ((mode & MODE_ENABLE_WRITE_AHEAD_LOGGING) != 0) {
-        flags |= SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING;
-      }
-      if ((mode & MODE_NO_LOCALIZED_COLLATORS) != 0) {
-        flags |= SQLiteDatabase.NO_LOCALIZED_COLLATORS;
-      }
-      return SQLiteDatabase.openDatabase(databasePath.getPath(), factory, flags, errorHandler);
     }
   }
 }
