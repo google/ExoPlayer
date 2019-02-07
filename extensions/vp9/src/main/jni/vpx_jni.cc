@@ -30,8 +30,6 @@
 #include <cstring>
 #include <new>
 
-#include "libyuv.h"  // NOLINT
-
 #define VPX_CODEC_DISABLE_COMPAT 1
 #include "vpx/vpx_decoder.h"
 #include "vpx/vp8dx.h"
@@ -61,7 +59,6 @@
       (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
 
 // JNI references for VpxOutputBuffer class.
-static jmethodID initForRgbFrame;
 static jmethodID initForYuvFrame;
 static jfieldID dataField;
 static jfieldID outputModeField;
@@ -393,11 +390,7 @@ class JniBufferManager {
 };
 
 struct JniCtx {
-  JniCtx(bool enableBufferManager) {
-    if (enableBufferManager) {
-      buffer_manager = new JniBufferManager();
-    }
-  }
+  JniCtx() { buffer_manager = new JniBufferManager(); }
 
   ~JniCtx() {
     if (native_window) {
@@ -440,9 +433,8 @@ int vpx_release_frame_buffer(void* priv, vpx_codec_frame_buffer_t* fb) {
   return buffer_manager->release(*(int*)fb->priv);
 }
 
-DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
-             jboolean enableBufferManager) {
-  JniCtx* context = new JniCtx(enableBufferManager);
+DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter) {
+  JniCtx* context = new JniCtx();
   context->decoder = new vpx_codec_ctx_t();
   vpx_codec_dec_cfg_t cfg = {0, 0, 0};
   cfg.threads = android_getCpuCount();
@@ -469,14 +461,12 @@ DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
     }
 #endif
   }
-  if (enableBufferManager) {
-    err = vpx_codec_set_frame_buffer_functions(
-        context->decoder, vpx_get_frame_buffer, vpx_release_frame_buffer,
-        context->buffer_manager);
-    if (err) {
-      LOGE("ERROR: Failed to set libvpx frame buffer functions, error = %d.",
-           err);
-    }
+  err = vpx_codec_set_frame_buffer_functions(
+      context->decoder, vpx_get_frame_buffer, vpx_release_frame_buffer,
+      context->buffer_manager);
+  if (err) {
+    LOGE("ERROR: Failed to set libvpx frame buffer functions, error = %d.",
+         err);
   }
 
   // Populate JNI References.
@@ -484,8 +474,6 @@ DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
       "com/google/android/exoplayer2/ext/vp9/VpxOutputBuffer");
   initForYuvFrame = env->GetMethodID(outputBufferClass, "initForYuvFrame",
                                      "(IIIII)Z");
-  initForRgbFrame = env->GetMethodID(outputBufferClass, "initForRgbFrame",
-                                     "(II)Z");
   dataField = env->GetFieldID(outputBufferClass, "data",
                               "Ljava/nio/ByteBuffer;");
   outputModeField = env->GetFieldID(outputBufferClass, "mode", "I");
@@ -537,28 +525,10 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
   }
 
   const int kOutputModeYuv = 0;
-  const int kOutputModeRgb = 1;
-  const int kOutputModeSurfaceYuv = 2;
+  const int kOutputModeSurfaceYuv = 1;
 
   int outputMode = env->GetIntField(jOutputBuffer, outputModeField);
-  if (outputMode == kOutputModeRgb) {
-    // resize buffer if required.
-    jboolean initResult = env->CallBooleanMethod(jOutputBuffer, initForRgbFrame,
-                                                 img->d_w, img->d_h);
-    if (env->ExceptionCheck() || !initResult) {
-      return -1;
-    }
-
-    // get pointer to the data buffer.
-    const jobject dataObject = env->GetObjectField(jOutputBuffer, dataField);
-    uint8_t* const dst =
-        reinterpret_cast<uint8_t*>(env->GetDirectBufferAddress(dataObject));
-
-    libyuv::I420ToRGB565(img->planes[VPX_PLANE_Y], img->stride[VPX_PLANE_Y],
-                         img->planes[VPX_PLANE_U], img->stride[VPX_PLANE_U],
-                         img->planes[VPX_PLANE_V], img->stride[VPX_PLANE_V],
-                         dst, img->d_w * 2, img->d_w, img->d_h);
-  } else if (outputMode == kOutputModeYuv) {
+  if (outputMode == kOutputModeYuv) {
     const int kColorspaceUnknown = 0;
     const int kColorspaceBT601 = 1;
     const int kColorspaceBT709 = 2;
@@ -616,9 +586,6 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
     }
   } else if (outputMode == kOutputModeSurfaceYuv &&
              img->fmt != VPX_IMG_FMT_I42016) {
-    if (!context->buffer_manager) {
-      return -1;  // enableBufferManager was not set in vpxInit.
-    }
     int id = *(int*)img->fb_priv;
     context->buffer_manager->add_ref(id);
     JniFrameBuffer* jfb = context->buffer_manager->get_buffer(id);

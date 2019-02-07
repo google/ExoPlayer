@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags;
 import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
+import java.util.HashSet;
 
 /** Represents state of a download. */
 public final class DownloadState {
@@ -74,19 +77,19 @@ public final class DownloadState {
   public static final int FAILURE_REASON_UNKNOWN = 1;
 
   /**
-   * Download stop flags. Possible flag values are {@link #STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY} and
-   * {@link #STOP_FLAG_STOPPED}.
+   * Download stop flags. Possible flag values are {@link #STOP_FLAG_MANUAL} and {@link
+   * #STOP_FLAG_REQUIREMENTS_NOT_MET}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY, STOP_FLAG_STOPPED})
+      value = {STOP_FLAG_MANUAL, STOP_FLAG_REQUIREMENTS_NOT_MET})
   public @interface StopFlags {}
-  /** Download can't be started as the manager isn't ready. */
-  public static final int STOP_FLAG_DOWNLOAD_MANAGER_NOT_READY = 1;
-  /** All downloads are stopped by the application. */
-  public static final int STOP_FLAG_STOPPED = 1 << 1;
+  /** Download is stopped by the application. */
+  public static final int STOP_FLAG_MANUAL = 1;
+  /** Download is stopped as the requirements are not met. */
+  public static final int STOP_FLAG_REQUIREMENTS_NOT_MET = 1 << 1;
 
   /** Returns the state string for the given state value. */
   public static String getStateString(@State int state) {
@@ -154,7 +157,40 @@ public final class DownloadState {
    */
   @FailureReason public final int failureReason;
   /** Download stop flags. These flags stop downloading any content. */
-  public final int stopFlags;
+  @StopFlags public final int stopFlags;
+  /** Not met requirements to download. */
+  @Requirements.RequirementFlags public final int notMetRequirements;
+  /** If {@link #STOP_FLAG_MANUAL} is set then this field holds the manual stop reason. */
+  public final int manualStopReason;
+
+  /**
+   * Creates a {@link DownloadState} using a {@link DownloadAction}.
+   *
+   * @param action The {@link DownloadAction}.
+   */
+  public DownloadState(DownloadAction action) {
+    this(action, System.currentTimeMillis());
+  }
+
+  private DownloadState(DownloadAction action, long currentTimeMs) {
+    this(
+        action.id,
+        action.type,
+        action.uri,
+        action.customCacheKey,
+        /* state= */ action.isRemoveAction ? STATE_REMOVING : STATE_QUEUED,
+        /* downloadPercentage= */ C.PERCENTAGE_UNSET,
+        /* downloadedBytes= */ 0,
+        /* totalBytes= */ C.LENGTH_UNSET,
+        FAILURE_REASON_NONE,
+        /* stopFlags= */ 0,
+        /* notMetRequirements= */ 0,
+        /* manualStopReason= */ 0,
+        /* startTimeMs= */ currentTimeMs,
+        /* updateTimeMs= */ currentTimeMs,
+        action.keys.toArray(new StreamKey[0]),
+        action.data);
+  }
 
   /* package */ DownloadState(
       String id,
@@ -167,28 +203,91 @@ public final class DownloadState {
       long totalBytes,
       @FailureReason int failureReason,
       @StopFlags int stopFlags,
+      @RequirementFlags int notMetRequirements,
+      int manualStopReason,
       long startTimeMs,
       long updateTimeMs,
       StreamKey[] streamKeys,
       byte[] customMetadata) {
-    this.stopFlags = stopFlags;
+    Assertions.checkState((failureReason == FAILURE_REASON_NONE) == (state != STATE_FAILED));
+    Assertions.checkState(stopFlags == 0 || (state != STATE_DOWNLOADING && state != STATE_QUEUED));
     Assertions.checkState(
-        failureReason == FAILURE_REASON_NONE ? state != STATE_FAILED : state == STATE_FAILED);
-    // TODO enable this when we start changing state immediately
-    // Assertions.checkState(stopFlags == 0 || (state != STATE_DOWNLOADING && state !=
-    // STATE_QUEUED));
+        ((stopFlags & STOP_FLAG_REQUIREMENTS_NOT_MET) == 0) == (notMetRequirements == 0));
+    Assertions.checkState(((stopFlags & STOP_FLAG_MANUAL) != 0) || (manualStopReason == 0));
     this.id = id;
     this.type = type;
     this.uri = uri;
     this.cacheKey = cacheKey;
-    this.streamKeys = streamKeys;
-    this.customMetadata = customMetadata;
     this.state = state;
     this.downloadPercentage = downloadPercentage;
     this.downloadedBytes = downloadedBytes;
     this.totalBytes = totalBytes;
     this.failureReason = failureReason;
+    this.stopFlags = stopFlags;
+    this.notMetRequirements = notMetRequirements;
+    this.manualStopReason = manualStopReason;
     this.startTimeMs = startTimeMs;
     this.updateTimeMs = updateTimeMs;
+    this.streamKeys = streamKeys;
+    this.customMetadata = customMetadata;
+  }
+
+  /**
+   * Merges the given {@link DownloadAction} and creates a new {@link DownloadState}. The action
+   * must have the same id and type.
+   *
+   * @param action The {@link DownloadAction} to be merged.
+   * @return A new {@link DownloadState}.
+   */
+  public DownloadState mergeAction(DownloadAction action) {
+    Assertions.checkArgument(action.id.equals(id));
+    Assertions.checkArgument(action.type.equals(type));
+    return new DownloadState(
+        id,
+        type,
+        action.uri,
+        action.customCacheKey,
+        getNextState(action, state),
+        /* downloadPercentage= */ C.PERCENTAGE_UNSET,
+        downloadedBytes,
+        /* totalBytes= */ C.LENGTH_UNSET,
+        FAILURE_REASON_NONE,
+        stopFlags,
+        notMetRequirements,
+        manualStopReason,
+        startTimeMs,
+        updateTimeMs,
+        mergeStreamKeys(this, action),
+        action.data);
+  }
+
+  private static int getNextState(DownloadAction action, int currentState) {
+    int newState;
+    if (action.isRemoveAction) {
+      newState = STATE_REMOVING;
+    } else {
+      if (currentState == STATE_REMOVING || currentState == STATE_RESTARTING) {
+        newState = STATE_RESTARTING;
+      } else if (currentState == STATE_STOPPED) {
+        newState = STATE_STOPPED;
+      } else {
+        newState = STATE_QUEUED;
+      }
+    }
+    return newState;
+  }
+
+  private static StreamKey[] mergeStreamKeys(DownloadState downloadState, DownloadAction action) {
+    StreamKey[] streamKeys = downloadState.streamKeys;
+    if (!action.isRemoveAction && streamKeys.length > 0) {
+      if (action.keys.isEmpty()) {
+        streamKeys = new StreamKey[0];
+      } else {
+        HashSet<StreamKey> keys = new HashSet<>(action.keys);
+        Collections.addAll(keys, downloadState.streamKeys);
+        streamKeys = keys.toArray(new StreamKey[0]);
+      }
+    }
+    return streamKeys;
   }
 }

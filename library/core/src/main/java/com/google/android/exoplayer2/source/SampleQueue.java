@@ -224,6 +224,15 @@ public class SampleQueue implements TrackOutput {
     return metadataQueue.getLargestQueuedTimestampUs();
   }
 
+  /**
+   * Returns whether the last sample of the stream has knowingly been queued. A return value of
+   * {@code false} means that the last sample had not been queued or that it's unknown whether the
+   * last sample has been queued.
+   */
+  public boolean isLastSampleQueued() {
+    return metadataQueue.isLastSampleQueued();
+  }
+
   /** Returns the timestamp of the first sample, or {@link Long#MIN_VALUE} if the queue is empty. */
   public long getFirstTimestampUs() {
     return metadataQueue.getFirstTimestampUs();

@@ -159,7 +159,7 @@ public final class Format implements Parcelable {
   @C.SelectionFlags
   public final int selectionFlags;
 
-  /** The language, or null if unknown or not applicable. */
+  /** The language as ISO 639-2/T three-letter code, or null if unknown or not applicable. */
   public final @Nullable String language;
 
   /**
@@ -932,7 +932,7 @@ public final class Format implements Parcelable {
     this.encoderDelay = encoderDelay == Format.NO_VALUE ? 0 : encoderDelay;
     this.encoderPadding = encoderPadding == Format.NO_VALUE ? 0 : encoderPadding;
     this.selectionFlags = selectionFlags;
-    this.language = language;
+    this.language = Util.normalizeLanguageCode(language);
     this.accessibilityChannel = accessibilityChannel;
     this.subsampleOffsetUs = subsampleOffsetUs;
     this.initializationData =

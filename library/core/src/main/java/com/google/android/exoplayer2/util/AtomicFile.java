@@ -52,6 +52,11 @@ public final class AtomicFile {
     backupName = new File(baseName.getPath() + ".bak");
   }
 
+  /** Whether the file or its backup exists. */
+  public boolean exists() {
+    return baseName.exists() || backupName.exists();
+  }
+
   /** Delete the atomic file. This deletes both the base and backup files. */
   public void delete() {
     baseName.delete();

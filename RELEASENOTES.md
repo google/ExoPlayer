@@ -2,6 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
+* `ExtractorMediaSource` renamed to `ProgressiveMediaSource`.
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
   here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
@@ -17,7 +18,8 @@
   * Add `setStreamKeys` method to factories of DASH, SmoothStreaming and HLS
     media sources to simplify filtering by downloaded streams.
 * Caching:
-  * Improve performance of `SimpleCache`.
+  * Improve performance of `SimpleCache`
+    ([#4253](https://github.com/google/ExoPlayer/issues/4253)).
   * Cache data with unknown length by default. The previous flag to opt in to
     this behavior (`DataSpec.FLAG_ALLOW_CACHING_UNKNOWN_LENGTH`) has been
     replaced with an opt out flag
@@ -27,20 +29,70 @@
   * Rename TaskState to DownloadState.
   * Add new states to DownloadState.
   * Replace DownloadState.action with DownloadAction fields.
+* DRM: Fix black flicker when keys rotate in DRM protected content
+  ([#3561](https://github.com/google/ExoPlayer/issues/3561)).
 * Add support for SHOUTcast ICY metadata
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
-* IMA extension:
-  * Clear ads loader listeners on release
-    ([#4114](https://github.com/google/ExoPlayer/issues/4114)).
-  * Require setting the `Player` on `AdsLoader` instances before playback.
+* CEA-608: Improved conformance to the specification
+  ([#3860](https://github.com/google/ExoPlayer/issues/3860)).
+* IMA extension: Require setting the `Player` on `AdsLoader` instances before
+  playback.
+* Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
+* VP9 extension: Remove RGB output mode and libyuv dependency, and switch to
+  surface YUV output as the default. Remove constructor parameters `scaleToFit`
+  and `useSurfaceYuvOutput`.
+* Change signature of `PlayerNotificationManager.NotificationListener` to better
+  fit service requirements. Remove ability to set a custom stop action.
+* Fix issues with flickering notifications on KitKat.
+  `PlayerNotificationManager` has been fixed. Apps using
+  `DownloadNotificationUtil` should switch to using
+  `DownloadNotificationHelper`.
+
+### 2.9.5 ###
+
+* HLS: Parse `CHANNELS` attribute from `EXT-X-MEDIA` tag.
+* ConcatenatingMediaSource:
+  * Add `Handler` parameter to methods that take a callback `Runnable`.
+  * Fix issue with dropped messages when releasing the source
+    ([#5464](https://github.com/google/ExoPlayer/issues/5464)).
+* ExtractorMediaSource: Fix issue that could cause the player to get stuck
+  buffering at the end of the media.
+* PlayerView: Fix issue preventing `OnClickListener` from receiving events
+  ([#5433](https://github.com/google/ExoPlayer/issues/5433)).
+* IMA extension: Upgrade IMA dependency to 3.10.6.
+* Cronet extension: Upgrade Cronet dependency to 71.3578.98.
+* OkHttp extension: Upgrade OkHttp dependency to 3.12.1.
+* MP3: Wider fix for issue where streams would play twice on some Samsung
+  devices ([#4519](https://github.com/google/ExoPlayer/issues/4519)).
+
+### 2.9.4 ###
+
+* IMA extension: Clear ads loader listeners on release
+  ([#4114](https://github.com/google/ExoPlayer/issues/4114)).
+* SmoothStreaming: Fix support for subtitles in DRM protected streams
+  ([#5378](https://github.com/google/ExoPlayer/issues/5378)).
 * FFmpeg extension: Treat invalid data errors as non-fatal to match the behavior
   of MediaCodec ([#5293](https://github.com/google/ExoPlayer/issues/5293)).
+* GVR extension: upgrade GVR SDK dependency to 1.190.0.
+* Associate fatal player errors of type SOURCE with the loading source in
+  `AnalyticsListener.EventTime`
+  ([#5407](https://github.com/google/ExoPlayer/issues/5407)).
+* Add `startPositionUs` to `MediaSource.createPeriod`. This fixes an issue where
+  using lazy preparation in `ConcatenatingMediaSource` with an
+  `ExtractorMediaSource` overrides initial seek positions
+  ([#5350](https://github.com/google/ExoPlayer/issues/5350)).
+* Add subtext to the `MediaDescriptionAdapter` of the
+  `PlayerNotificationManager`.
+* Add workaround for video quality problems with Amlogic decoders
+  ([#5003](https://github.com/google/ExoPlayer/issues/5003)).
 * Fix issue where sending callbacks for playlist changes may cause problems
   because of parallel player access
   ([#5240](https://github.com/google/ExoPlayer/issues/5240)).
-* Add `Handler` parameter to `ConcatenatingMediaSource` methods which take a
-  callback `Runnable`.
-* Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
+* Fix issue with reusing a `ClippingMediaSource` with an inner
+  `ExtractorMediaSource` and a non-zero start position
+  ([#5351](https://github.com/google/ExoPlayer/issues/5351)).
+* Fix issue where uneven track durations in MP4 streams can cause OOM problems
+  ([#3670](https://github.com/google/ExoPlayer/issues/3670)).
 
 ### 2.9.3 ###
 
@@ -1173,7 +1225,7 @@
   [here](https://medium.com/google-exoplayer/customizing-exoplayers-ui-components-728cf55ee07a#.9ewjg7avi).
 * Robustness improvements when handling MediaSource timeline changes and
   MediaPeriod transitions.
-* EIA608: Support for caption styling and positioning.
+* CEA-608: Support for caption styling and positioning.
 * MPEG-TS: Improved support:
   * Support injection of custom TS payload readers.
   * Support injection of custom section payload readers.
@@ -1417,8 +1469,8 @@ V2 release.
   (#801).
 * MP3: Fix playback of some streams when stream length is unknown.
 * ID3: Support multiple frames of the same type in a single tag.
-* EIA608: Correctly handle repeated control characters, fixing an issue in which
-  captions would immediately disappear.
+* CEA-608: Correctly handle repeated control characters, fixing an issue in
+  which captions would immediately disappear.
 * AVC3: Fix decoder failures on some MediaTek devices in the case where the
   first buffer fed to the decoder does not start with SPS/PPS NAL units.
 * Misc bug fixes.

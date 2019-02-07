@@ -81,6 +81,18 @@ public class HlsMasterPlaylistParserTest {
           + "CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
           + "http://example.com/low.m3u8\n";
 
+  private static final String PLAYLIST_WITH_CHANNELS_ATTRIBUTE =
+      " #EXTM3U \n"
+          + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"audio\",CHANNELS=\"6\",NAME=\"Eng6\","
+          + "URI=\"something.m3u8\"\n"
+          + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"audio\",CHANNELS=\"2/6\",NAME=\"Eng26\","
+          + "URI=\"something2.m3u8\"\n"
+          + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"audio\",NAME=\"Eng\","
+          + "URI=\"something3.m3u8\"\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,"
+          + "CODECS=\"mp4a.40.2,avc1.66.30\",AUDIO=\"audio\",RESOLUTION=304x128\n"
+          + "http://example.com/low.m3u8\n";
+
   private static final String PLAYLIST_WITHOUT_CC =
       " #EXTM3U \n"
           + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,"
@@ -213,7 +225,18 @@ public class HlsMasterPlaylistParserTest {
     Format closedCaptionFormat = playlist.muxedCaptionFormats.get(0);
     assertThat(closedCaptionFormat.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_CEA708);
     assertThat(closedCaptionFormat.accessibilityChannel).isEqualTo(4);
-    assertThat(closedCaptionFormat.language).isEqualTo("es");
+    assertThat(closedCaptionFormat.language).isEqualTo("spa");
+  }
+
+  @Test
+  public void testPlaylistWithChannelsAttribute() throws IOException {
+    HlsMasterPlaylist playlist =
+        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CHANNELS_ATTRIBUTE);
+    List<HlsMasterPlaylist.HlsUrl> audios = playlist.audios;
+    assertThat(audios).hasSize(3);
+    assertThat(audios.get(0).format.channelCount).isEqualTo(6);
+    assertThat(audios.get(1).format.channelCount).isEqualTo(2);
+    assertThat(audios.get(2).format.channelCount).isEqualTo(Format.NO_VALUE);
   }
 
   @Test

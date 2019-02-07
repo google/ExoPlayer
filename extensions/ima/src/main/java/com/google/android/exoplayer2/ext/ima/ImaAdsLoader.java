@@ -466,11 +466,11 @@ public final class ImaAdsLoader
     }
     imaSdkSettings.setPlayerType(IMA_SDK_SETTINGS_PLAYER_TYPE);
     imaSdkSettings.setPlayerVersion(IMA_SDK_SETTINGS_PLAYER_VERSION);
-    adsLoader = imaFactory.createAdsLoader(context, imaSdkSettings);
     period = new Timeline.Period();
     adCallbacks = new ArrayList<>(/* initialCapacity= */ 1);
     adDisplayContainer = imaFactory.createAdDisplayContainer();
     adDisplayContainer.setPlayer(/* videoAdPlayer= */ this);
+    adsLoader = imaFactory.createAdsLoader(context, imaSdkSettings, adDisplayContainer);
     adsLoader.addAdErrorListener(/* adErrorListener= */ this);
     adsLoader.addAdsLoadedListener(/* adsLoadedListener= */ this);
     fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
@@ -524,7 +524,6 @@ public final class ImaAdsLoader
     if (vastLoadTimeoutMs != TIMEOUT_UNSET) {
       request.setVastLoadTimeout(vastLoadTimeoutMs);
     }
-    request.setAdDisplayContainer(adDisplayContainer);
     request.setContentProgressProvider(this);
     request.setUserRequestContext(pendingAdRequestContext);
     adsLoader.requestAds(request);
@@ -1374,9 +1373,9 @@ public final class ImaAdsLoader
     AdDisplayContainer createAdDisplayContainer();
     /** @see com.google.ads.interactivemedia.v3.api.ImaSdkFactory#createAdsRequest() */
     AdsRequest createAdsRequest();
-    /** @see ImaSdkFactory#createAdsLoader(Context, ImaSdkSettings) */
+    /** @see ImaSdkFactory#createAdsLoader(Context, ImaSdkSettings, AdDisplayContainer) */
     com.google.ads.interactivemedia.v3.api.AdsLoader createAdsLoader(
-        Context context, ImaSdkSettings imaSdkSettings);
+        Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer);
   }
 
   /** Default {@link ImaFactory} for non-test usage, which delegates to {@link ImaSdkFactory}. */
@@ -1403,8 +1402,9 @@ public final class ImaAdsLoader
 
     @Override
     public com.google.ads.interactivemedia.v3.api.AdsLoader createAdsLoader(
-        Context context, ImaSdkSettings imaSdkSettings) {
-      return ImaSdkFactory.getInstance().createAdsLoader(context, imaSdkSettings);
+        Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer) {
+      return ImaSdkFactory.getInstance()
+          .createAdsLoader(context, imaSdkSettings, adDisplayContainer);
     }
   }
 }

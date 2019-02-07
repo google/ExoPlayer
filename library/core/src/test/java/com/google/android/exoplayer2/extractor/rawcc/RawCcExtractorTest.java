@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.rawcc;
 
-import android.annotation.TargetApi;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -24,7 +23,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link RawCcExtractor}. */
-@TargetApi(16)
 @RunWith(RobolectricTestRunner.class)
 public final class RawCcExtractorTest {
 

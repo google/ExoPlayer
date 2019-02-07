@@ -431,6 +431,7 @@ public final class Cea608Decoder extends CeaDecoder {
   }
 
   private void handleCtrl(byte cc1, byte cc2, boolean repeatedControlPossible) {
+    
     incomingDataTargetChannel = getChannelBit(cc1);
 
     // Most control commands are sent twice in succession to ensure they are received properly. We

@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.ui.spherical;
 
 import static com.google.android.exoplayer2.util.GlUtil.checkGlError;
 
-import android.annotation.TargetApi;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import com.google.android.exoplayer2.C;
@@ -30,7 +29,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * Utility class to render spherical meshes for video or images. Call {@link #init()} on the GL
  * thread when ready.
  */
-@TargetApi(15)
 /* package */ final class ProjectionRenderer {
 
   /**

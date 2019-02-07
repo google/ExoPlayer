@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.smoothstreaming.manifest;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer2.offline.FilterableManifest;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.Assertions;
@@ -41,10 +42,12 @@ public class SsManifest implements FilterableManifest<SsManifest> {
 
     public final UUID uuid;
     public final byte[] data;
+    public final TrackEncryptionBox[] trackEncryptionBoxes;
 
-    public ProtectionElement(UUID uuid, byte[] data) {
+    public ProtectionElement(UUID uuid, byte[] data, TrackEncryptionBox[] trackEncryptionBoxes) {
       this.uuid = uuid;
       this.data = data;
+      this.trackEncryptionBoxes = trackEncryptionBoxes;
     }
   }
 

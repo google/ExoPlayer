@@ -42,13 +42,14 @@ import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
+import java.util.Collections;
 
 /**
  * An activity that plays video using {@link SimpleExoPlayer} and supports casting using ExoPlayer's
  * Cast extension.
  */
 public class MainActivity extends AppCompatActivity
-    implements OnClickListener, PlayerManager.QueuePositionListener {
+    implements OnClickListener, PlayerManager.QueueChangesListener {
 
   private final MediaItem.Builder mediaItemBuilder;
 
@@ -120,8 +121,8 @@ public class MainActivity extends AppCompatActivity
     switch (applicationId) {
       case CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID:
         playerManager =
-            DefaultReceiverPlayerManager.createPlayerManager(
-                /* queuePositionListener= */ this,
+            new DefaultReceiverPlayerManager(
+                /* queueChangesListener= */ this,
                 localPlayerView,
                 castControlView,
                 /* context= */ this,
@@ -161,7 +162,7 @@ public class MainActivity extends AppCompatActivity
         .show();
   }
 
-  // PlayerManager.QueuePositionListener implementation.
+  // PlayerManager.QueueChangesListener implementation.
 
   @Override
   public void onQueuePositionChanged(int previousIndex, int newIndex) {
@@ -173,6 +174,11 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
+  @Override
+  public void onQueueContentsExternallyChanged() {
+    mediaQueueListAdapter.notifyDataSetChanged();
+  }
+
   // Internal methods.
 
   private View buildSampleListView() {
@@ -182,13 +188,18 @@ public class MainActivity extends AppCompatActivity
     sampleList.setOnItemClickListener(
         (parent, view, position, id) -> {
           DemoUtil.Sample sample = DemoUtil.SAMPLES.get(position);
-          playerManager.addItem(
-              mediaItemBuilder
-                  .clear()
-                  .setMedia(sample.uri)
-                  .setTitle(sample.name)
-                  .setMimeType(sample.mimeType)
-                  .build());
+          mediaItemBuilder
+              .clear()
+              .setMedia(sample.uri)
+              .setTitle(sample.name)
+              .setMimeType(sample.mimeType);
+          if (sample.drmSchemeUuid != null) {
+            mediaItemBuilder.setDrmSchemes(
+                Collections.singletonList(
+                    new MediaItem.DrmScheme(
+                        sample.drmSchemeUuid, new MediaItem.UriBundle(sample.licenseServerUri))));
+          }
+          playerManager.addItem(mediaItemBuilder.build());
           mediaQueueListAdapter.notifyItemInserted(playerManager.getMediaQueueSize() - 1);
         });
     return dialogList;
@@ -268,6 +279,8 @@ public class MainActivity extends AppCompatActivity
       int position = viewHolder.getAdapterPosition();
       if (playerManager.removeItem(position)) {
         mediaQueueListAdapter.notifyItemRemoved(position);
+        // Update whichever item took its place, in case it became the new selected item.
+        mediaQueueListAdapter.notifyItemChanged(position);
       }
     }
 

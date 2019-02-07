@@ -30,6 +30,8 @@ import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,14 +47,14 @@ public final class MediaPeriodAsserts {
   public interface FilterableManifestMediaPeriodFactory<T extends FilterableManifest<T>> {
 
     /** Returns media period based on the provided filterable manifest. */
-    MediaPeriod createMediaPeriod(T manifest);
+    MediaPeriod createMediaPeriod(T manifest, int periodIndex);
   }
 
   private MediaPeriodAsserts() {}
 
   /**
-   * Asserts that the values returns by {@link MediaPeriod#getStreamKeys(TrackSelection)} are
-   * compatible with a {@link FilterableManifest} using these stream keys.
+   * Asserts that the values returns by {@link MediaPeriod#getStreamKeys(List)} are compatible with
+   * a {@link FilterableManifest} using these stream keys.
    *
    * @param mediaPeriodFactory A factory to create a {@link MediaPeriod} based on a manifest.
    * @param manifest The manifest which is to be tested.
@@ -60,38 +62,97 @@ public final class MediaPeriodAsserts {
   public static <T extends FilterableManifest<T>>
       void assertGetStreamKeysAndManifestFilterIntegration(
           FilterableManifestMediaPeriodFactory<T> mediaPeriodFactory, T manifest) {
-    MediaPeriod mediaPeriod = mediaPeriodFactory.createMediaPeriod(manifest);
+    assertGetStreamKeysAndManifestFilterIntegration(
+        mediaPeriodFactory, manifest, /* periodIndex= */ 0, /* ignoredMimeType= */ null);
+  }
+
+  /**
+   * Asserts that the values returns by {@link MediaPeriod#getStreamKeys(List)} are compatible with
+   * a {@link FilterableManifest} using these stream keys.
+   *
+   * @param mediaPeriodFactory A factory to create a {@link MediaPeriod} based on a manifest.
+   * @param manifest The manifest which is to be tested.
+   * @param periodIndex The index of period in the manifest.
+   * @param ignoredMimeType Optional mime type whose existence in the filtered track groups is not
+   *     asserted.
+   */
+  public static <T extends FilterableManifest<T>>
+      void assertGetStreamKeysAndManifestFilterIntegration(
+          FilterableManifestMediaPeriodFactory<T> mediaPeriodFactory,
+          T manifest,
+          int periodIndex,
+          @Nullable String ignoredMimeType) {
+    MediaPeriod mediaPeriod = mediaPeriodFactory.createMediaPeriod(manifest, periodIndex);
     TrackGroupArray trackGroupArray = getTrackGroups(mediaPeriod);
 
+    // Create test vector of query test selections:
+    //  - One selection with one track per group, two tracks or all tracks.
+    //  - Two selections with tracks from multiple groups, or tracks from a single group.
+    //  - Multiple selections with tracks from all groups.
+    List<List<TrackSelection>> testSelections = new ArrayList<>();
     for (int i = 0; i < trackGroupArray.length; i++) {
       TrackGroup trackGroup = trackGroupArray.get(i);
-
-      // For each track group, create various test selections.
-      List<TrackSelection> testSelections = new ArrayList<>();
       for (int j = 0; j < trackGroup.length; j++) {
-        testSelections.add(new TestTrackSelection(trackGroup, j));
+        testSelections.add(Collections.singletonList(new TestTrackSelection(trackGroup, j)));
       }
       if (trackGroup.length > 1) {
-        testSelections.add(new TestTrackSelection(trackGroup, 0, 1));
+        testSelections.add(Collections.singletonList(new TestTrackSelection(trackGroup, 0, 1)));
+        testSelections.add(
+            Arrays.asList(
+                new TrackSelection[] {
+                  new TestTrackSelection(trackGroup, 0), new TestTrackSelection(trackGroup, 1)
+                }));
       }
       if (trackGroup.length > 2) {
         int[] allTracks = new int[trackGroup.length];
         for (int j = 0; j < trackGroup.length; j++) {
           allTracks[j] = j;
         }
-        testSelections.add(new TestTrackSelection(trackGroup, allTracks));
+        testSelections.add(
+            Collections.singletonList(new TestTrackSelection(trackGroup, allTracks)));
       }
+    }
+    if (trackGroupArray.length > 1) {
+      for (int i = 0; i < trackGroupArray.length - 1; i++) {
+        for (int j = i + 1; j < trackGroupArray.length; j++) {
+          testSelections.add(
+              Arrays.asList(
+                  new TrackSelection[] {
+                    new TestTrackSelection(trackGroupArray.get(i), 0),
+                    new TestTrackSelection(trackGroupArray.get(j), 0)
+                  }));
+        }
+      }
+    }
+    if (trackGroupArray.length > 2) {
+      List<TrackSelection> selectionsFromAllGroups = new ArrayList<>();
+      for (int i = 0; i < trackGroupArray.length; i++) {
+        selectionsFromAllGroups.add(new TestTrackSelection(trackGroupArray.get(i), 0));
+      }
+      testSelections.add(selectionsFromAllGroups);
+    }
 
-      // Get stream keys for each selection and check that the resulting filtered manifest includes
-      // at least the same subset of tracks.
-      for (TrackSelection testSelection : testSelections) {
-        List<StreamKey> streamKeys = mediaPeriod.getStreamKeys(testSelection);
-        T filteredManifest = manifest.copy(streamKeys);
-        MediaPeriod filteredMediaPeriod = mediaPeriodFactory.createMediaPeriod(filteredManifest);
-        TrackGroupArray filteredTrackGroupArray = getTrackGroups(filteredMediaPeriod);
-        Format[] expectedFormats = new Format[testSelection.length()];
-        for (int k = 0; k < testSelection.length(); k++) {
-          expectedFormats[k] = testSelection.getFormat(k);
+    // Verify for each case that stream keys can be used to create filtered tracks which still
+    // contain at least all requested formats.
+    for (List<TrackSelection> testSelection : testSelections) {
+      List<StreamKey> streamKeys = mediaPeriod.getStreamKeys(testSelection);
+      if (streamKeys.isEmpty()) {
+        // Manifests won't be filtered if stream key is empty.
+        continue;
+      }
+      T filteredManifest = manifest.copy(streamKeys);
+      // The filtered manifest should only have one period left.
+      MediaPeriod filteredMediaPeriod =
+          mediaPeriodFactory.createMediaPeriod(filteredManifest, /* periodIndex= */ 0);
+      TrackGroupArray filteredTrackGroupArray = getTrackGroups(filteredMediaPeriod);
+      for (TrackSelection trackSelection : testSelection) {
+        if (ignoredMimeType != null
+            && ignoredMimeType.equals(trackSelection.getFormat(0).sampleMimeType)) {
+          continue;
+        }
+        Format[] expectedFormats = new Format[trackSelection.length()];
+        for (int k = 0; k < trackSelection.length(); k++) {
+          expectedFormats[k] = trackSelection.getFormat(k);
         }
         assertOneTrackGroupContainsFormats(filteredTrackGroupArray, expectedFormats);
       }

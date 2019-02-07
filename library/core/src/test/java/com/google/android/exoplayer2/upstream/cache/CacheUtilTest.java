@@ -336,17 +336,17 @@ public final class CacheUtilTest {
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     Uri uri = Uri.parse("test_data");
-    DataSpec dataSpec = new DataSpec(uri);
+    DataSpec dataSpec = new DataSpec(uri, DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION);
     CacheUtil.cache(
         dataSpec,
         cache,
         /* cacheKeyFactory= */ null,
-        // Set maxCacheFileSize to 10 to make sure there are multiple spans.
+        // Set fragmentSize to 10 to make sure there are multiple spans.
         new CacheDataSource(
             cache,
             dataSource,
             new FileDataSource(),
-            new CacheDataSink(cache, /* maxCacheFileSize= */ 10),
+            new CacheDataSink(cache, /* fragmentSize= */ 10),
             /* flags= */ 0,
             /* eventListener= */ null),
         new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES],

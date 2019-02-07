@@ -155,16 +155,14 @@ public final class Requirements {
    * @return Whether the requirements are met.
    */
   public boolean checkRequirements(Context context) {
-    return checkNetworkRequirements(context)
-        && checkChargingRequirement(context)
-        && checkIdleRequirement(context);
+    return getNotMetRequirements(context) == 0;
   }
 
   /**
-   * Returns the requirement flags that are not met, or 0.
+   * Returns {@link RequirementFlags} that are not met, or 0.
    *
    * @param context Any context.
-   * @return The requirement flags that are not met, or 0.
+   * @return RequirementFlags that are not met, or 0.
    */
   @RequirementFlags
   public int getNotMetRequirements(Context context) {
@@ -202,7 +200,7 @@ public final class Requirements {
       logd("Roaming: " + roaming);
       return !roaming;
     }
-    boolean activeNetworkMetered = isActiveNetworkMetered(connectivityManager, networkInfo);
+    boolean activeNetworkMetered = connectivityManager.isActiveNetworkMetered();
     logd("Metered network: " + activeNetworkMetered);
     if (networkRequirement == NETWORK_TYPE_UNMETERED) {
       return !activeNetworkMetered;
@@ -257,17 +255,6 @@ public final class Requirements {
     return !validated;
   }
 
-  private static boolean isActiveNetworkMetered(
-      ConnectivityManager connectivityManager, NetworkInfo networkInfo) {
-    if (Util.SDK_INT >= 16) {
-      return connectivityManager.isActiveNetworkMetered();
-    }
-    int type = networkInfo.getType();
-    return type != ConnectivityManager.TYPE_WIFI
-        && type != ConnectivityManager.TYPE_BLUETOOTH
-        && type != ConnectivityManager.TYPE_ETHERNET;
-  }
-
   private static void logd(String message) {
     if (Scheduler.DEBUG) {
       Log.d(TAG, message);
@@ -284,5 +271,21 @@ public final class Requirements {
         + (isChargingRequired() ? ",charging" : "")
         + (isIdleRequired() ? ",idle" : "")
         + '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    return requirements == ((Requirements) o).requirements;
+  }
+
+  @Override
+  public int hashCode() {
+    return requirements;
   }
 }

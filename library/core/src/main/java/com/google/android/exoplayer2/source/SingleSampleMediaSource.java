@@ -138,12 +138,12 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     }
 
     /**
-     * Returns a new {@link ExtractorMediaSource} using the current parameters.
+     * Returns a new {@link SingleSampleMediaSource} using the current parameters.
      *
      * @param uri The {@link Uri}.
      * @param format The {@link Format} of the media stream.
      * @param durationUs The duration of the media stream in microseconds.
-     * @return The new {@link ExtractorMediaSource}.
+     * @return The new {@link SingleSampleMediaSource}.
      */
     public SingleSampleMediaSource createMediaSource(Uri uri, Format format, long durationUs) {
       isCreateCalled = true;
@@ -313,7 +313,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
+  public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     return new SingleSampleMediaPeriod(
         dataSpec,
         dataSourceFactory,

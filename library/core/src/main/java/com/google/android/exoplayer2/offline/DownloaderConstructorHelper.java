@@ -109,16 +109,16 @@ public final class DownloaderConstructorHelper {
         cacheReadDataSourceFactory != null
             ? cacheReadDataSourceFactory
             : new FileDataSourceFactory();
-    DataSink.Factory writeDataSinkFactory =
-        cacheWriteDataSinkFactory != null
-            ? cacheWriteDataSinkFactory
-            : new CacheDataSinkFactory(cache, CacheDataSink.DEFAULT_MAX_CACHE_FILE_SIZE);
+    if (cacheWriteDataSinkFactory == null) {
+      cacheWriteDataSinkFactory =
+          new CacheDataSinkFactory(cache, CacheDataSink.DEFAULT_FRAGMENT_SIZE);
+    }
     onlineCacheDataSourceFactory =
         new CacheDataSourceFactory(
             cache,
             upstreamFactory,
             readDataSourceFactory,
-            writeDataSinkFactory,
+            cacheWriteDataSinkFactory,
             CacheDataSource.FLAG_BLOCK_ON_CACHE,
             /* eventListener= */ null,
             cacheKeyFactory);

@@ -35,8 +35,8 @@ import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
@@ -63,7 +63,7 @@ import java.util.ArrayList;
   private final SimpleExoPlayer exoPlayer;
   private final CastPlayer castPlayer;
   private final ArrayList<MediaItem> mediaQueue;
-  private final QueuePositionListener queuePositionListener;
+  private final QueueChangesListener queueChangesListener;
   private final ConcatenatingMediaSource concatenatingMediaSource;
 
   private boolean castMediaQueueCreationPending;
@@ -71,32 +71,21 @@ import java.util.ArrayList;
   private Player currentPlayer;
 
   /**
-   * @param queuePositionListener A {@link QueuePositionListener} for queue position changes.
+   * Creates a new manager for {@link SimpleExoPlayer} and {@link CastPlayer}.
+   *
+   * @param queueChangesListener A {@link QueueChangesListener} for queue position changes.
    * @param localPlayerView The {@link PlayerView} for local playback.
    * @param castControlView The {@link PlayerControlView} to control remote playback.
    * @param context A {@link Context}.
    * @param castContext The {@link CastContext}.
    */
-  public static DefaultReceiverPlayerManager createPlayerManager(
-      QueuePositionListener queuePositionListener,
+  public DefaultReceiverPlayerManager(
+      QueueChangesListener queueChangesListener,
       PlayerView localPlayerView,
       PlayerControlView castControlView,
       Context context,
       CastContext castContext) {
-    DefaultReceiverPlayerManager defaultReceiverPlayerManager =
-        new DefaultReceiverPlayerManager(
-            queuePositionListener, localPlayerView, castControlView, context, castContext);
-    defaultReceiverPlayerManager.init();
-    return defaultReceiverPlayerManager;
-  }
-
-  private DefaultReceiverPlayerManager(
-      QueuePositionListener queuePositionListener,
-      PlayerView localPlayerView,
-      PlayerControlView castControlView,
-      Context context,
-      CastContext castContext) {
-    this.queuePositionListener = queuePositionListener;
+    this.queueChangesListener = queueChangesListener;
     this.localPlayerView = localPlayerView;
     this.castControlView = castControlView;
     mediaQueue = new ArrayList<>();
@@ -113,6 +102,8 @@ import java.util.ArrayList;
     castPlayer.addListener(this);
     castPlayer.setSessionAvailabilityListener(this);
     castControlView.setPlayer(castPlayer);
+
+    setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : exoPlayer);
   }
 
   // Queue manipulation methods.
@@ -287,10 +278,6 @@ import java.util.ArrayList;
 
   // Internal methods.
 
-  private void init() {
-    setCurrentPlayer(castPlayer.isCastSessionAvailable() ? castPlayer : exoPlayer);
-  }
-
   private void updateCurrentItemIndex() {
     int playbackState = currentPlayer.getPlaybackState();
     maybeSetCurrentItemAndNotify(
@@ -372,7 +359,7 @@ import java.util.ArrayList;
     if (this.currentItemIndex != currentItemIndex) {
       int oldIndex = this.currentItemIndex;
       this.currentItemIndex = currentItemIndex;
-      queuePositionListener.onQueuePositionChanged(oldIndex, currentItemIndex);
+      queueChangesListener.onQueuePositionChanged(oldIndex, currentItemIndex);
     }
   }
 
@@ -386,7 +373,7 @@ import java.util.ArrayList;
       case DemoUtil.MIME_TYPE_HLS:
         return new HlsMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       case DemoUtil.MIME_TYPE_VIDEO_MP4:
-        return new ExtractorMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
+        return new ProgressiveMediaSource.Factory(DATA_SOURCE_FACTORY).createMediaSource(uri);
       default: {
           throw new IllegalStateException("Unsupported type: " + item.mimeType);
       }
