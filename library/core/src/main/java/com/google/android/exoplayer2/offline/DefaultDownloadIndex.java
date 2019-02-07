@@ -73,7 +73,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   private static final int COLUMN_INDEX_STREAM_KEYS = 14;
   private static final int COLUMN_INDEX_CUSTOM_METADATA = 15;
 
-  private static final String COLUMN_SELECTION_ID = COLUMN_ID + " = ?";
+  private static final String WHERE_ID_EQUALS = COLUMN_ID + " = ?";
 
   private static final String[] COLUMNS =
       new String[] {
@@ -152,7 +152,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   @Nullable
   public DownloadState getDownloadState(String id) {
     ensureInitialized();
-    try (Cursor cursor = getCursor(COLUMN_SELECTION_ID, new String[] {id})) {
+    try (Cursor cursor = getCursor(WHERE_ID_EQUALS, new String[] {id})) {
       if (cursor.getCount() == 0) {
         return null;
       }
@@ -210,9 +210,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   @Override
   public void removeDownloadState(String id) {
     ensureInitialized();
-    databaseProvider
-        .getWritableDatabase()
-        .delete(TABLE_NAME, COLUMN_SELECTION_ID, new String[] {id});
+    databaseProvider.getWritableDatabase().delete(TABLE_NAME, WHERE_ID_EQUALS, new String[] {id});
   }
 
   private void ensureInitialized() {

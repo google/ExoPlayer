@@ -68,6 +68,16 @@ public class VersionTableTest {
   }
 
   @Test
+  public void removeVersion_removesSetVersion() {
+    VersionTable.setVersion(writableDatabase, FEATURE_OFFLINE, 1);
+    assertThat(VersionTable.getVersion(readableDatabase, FEATURE_OFFLINE)).isEqualTo(1);
+
+    VersionTable.removeVersion(writableDatabase, FEATURE_OFFLINE);
+    assertThat(VersionTable.getVersion(readableDatabase, FEATURE_OFFLINE))
+        .isEqualTo(VersionTable.VERSION_UNSET);
+  }
+
+  @Test
   public void doesTableExist_nonExistingTable_returnsFalse() {
     assertThat(VersionTable.tableExists(readableDatabase, "NonExistingTable")).isFalse();
   }

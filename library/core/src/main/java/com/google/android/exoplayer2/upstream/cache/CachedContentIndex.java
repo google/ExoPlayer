@@ -24,7 +24,6 @@ import android.support.annotation.VisibleForTesting;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import com.google.android.exoplayer2.database.DatabaseProvider;
-import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
@@ -154,9 +153,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     Storage atomicFileStorage =
         new AtomicFileStorage(
             new File(cacheDir, FILE_NAME_ATOMIC), random, encrypt, cipher, secretKeySpec);
-    // Storage sqliteStorage =
-    //     new SQLiteStorage(
-    //         new File(cacheDir, FILE_NAME_DATABASE), random, encrypt, cipher, secretKeySpec);
+    // Storage sqliteStorage = new SQLiteStorage(databaseProvider);
     storage = atomicFileStorage;
     previousStorage = null;
   }
@@ -170,7 +167,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         storage.storeFully(keyToContent);
       } catch (CacheException e) {
         // We failed to copy into current storage, so keep using previous storage.
-        storage.release();
         storage = previousStorage;
         previousStorage = null;
       }
@@ -179,7 +175,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       loadFrom(storage);
     }
     if (previousStorage != null) {
-      previousStorage.release(/* delete= */ true);
+      previousStorage.delete();
       previousStorage = null;
     }
   }
@@ -193,14 +189,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       idToKey.remove(removedIds.keyAt(i));
     }
     removedIds.clear();
-  }
-
-  /** Releases any underlying resources. */
-  public void release() {
-    storage.release();
-    if (previousStorage != null) {
-      previousStorage.release();
-    }
   }
 
   /**
@@ -396,13 +384,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     /** Returns whether the persisted index exists. */
     boolean exists();
 
-    /** Releases any held resources. */
-    default void release() {
-      release(/* delete= */ false);
-    }
-
-    /** Releases and held resources and optionally deletes the persisted index. */
-    void release(boolean delete);
+    /** Deletes the persisted index. */
+    void delete();
 
     /**
      * Loads the persisted index into {@code content} and {@code idToKey}, creating it if it doesn't
@@ -479,10 +462,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
-    public void release(boolean delete) {
-      if (delete) {
-        atomicFile.delete();
-      }
+    public void delete() {
+      atomicFile.delete();
     }
 
     @Override
@@ -672,26 +653,22 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** {@link Storage} implementation that uses an SQL database. */
-  // TODO:
-  // 1. Implement upgrade/downgrade paths from/to AtomicFileStorage.
-  // 2. If encryption is enabled having previously written data, decide whether we need to rewrite
-  //    the entire table. Currently this implementation only encrypts new and updated entries.
   private static final class SQLiteStorage implements Storage {
 
     private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "CacheContentMetadata";
     private static final int TABLE_VERSION = 1;
 
     private static final String COLUMN_ID = "id";
-    private static final String COLUMN_FLAGS = "flags";
-    private static final String COLUMN_DATA = "data";
+    private static final String COLUMN_KEY = "key";
+    private static final String COLUMN_METADATA = "metadata";
 
     private static final int COLUMN_INDEX_ID = 0;
-    private static final int COLUMN_INDEX_FLAGS = 1;
-    private static final int COLUMN_INDEX_DATA = 2;
+    private static final int COLUMN_INDEX_KEY = 1;
+    private static final int COLUMN_INDEX_METADATA = 2;
 
-    private static final String COLUMN_SELECTION_ID = COLUMN_ID + " = ?";
+    private static final String WHERE_ID_EQUALS = COLUMN_ID + " = ?";
 
-    private static final String[] COLUMNS = new String[] {COLUMN_ID, COLUMN_FLAGS, COLUMN_DATA};
+    private static final String[] COLUMNS = new String[] {COLUMN_ID, COLUMN_KEY, COLUMN_METADATA};
 
     private static final String SQL_DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS " + TABLE_NAME;
     private static final String SQL_CREATE_TABLE =
@@ -700,52 +677,36 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             + " ("
             + COLUMN_ID
             + " INTEGER PRIMARY KEY NOT NULL,"
-            + COLUMN_FLAGS
-            + " INTEGER NOT NULL,"
-            + COLUMN_DATA
+            + COLUMN_KEY
+            + " TEXT NOT NULL,"
+            + COLUMN_METADATA
             + " BLOB NOT NULL)";
 
-    private static final int FLAG_ENCRYPTED = 1;
-
-    private final File file;
-    private final Random random;
-    private final boolean encrypt;
-    @Nullable private final Cipher cipher;
-    @Nullable private final SecretKeySpec secretKeySpec;
-    private final ExoDatabaseProvider databaseProvider;
+    private final DatabaseProvider databaseProvider;
     private final SparseArray<CachedContent> pendingUpdates;
 
-    @Nullable private ReusableBufferedOutputStream bufferedOutputStream;
-
-    public SQLiteStorage(
-        File file,
-        Random random,
-        boolean encrypt,
-        @Nullable Cipher cipher,
-        @Nullable SecretKeySpec secretKeySpec) {
-      this.file = file;
-      this.random = random;
-      this.encrypt = encrypt;
-      this.cipher = cipher;
-      this.secretKeySpec = secretKeySpec;
-      databaseProvider = new ExoDatabaseProvider(file);
+    public SQLiteStorage(DatabaseProvider databaseProvider) {
+      this.databaseProvider = databaseProvider;
       pendingUpdates = new SparseArray<>();
     }
 
     @Override
     public boolean exists() {
-      return file.exists()
-          && VersionTable.getVersion(
-                  databaseProvider.getReadableDatabase(),
-                  VersionTable.FEATURE_CACHE_CONTENT_METADATA)
-              != VersionTable.VERSION_UNSET;
+      return VersionTable.getVersion(
+              databaseProvider.getReadableDatabase(), VersionTable.FEATURE_CACHE_CONTENT_METADATA)
+          != VersionTable.VERSION_UNSET;
     }
 
     @Override
-    public void release(boolean delete) {
-      release();
-      if (delete) {
-        SQLiteDatabase.deleteDatabase(file);
+    public void delete() {
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      writableDatabase.beginTransaction();
+      try {
+        VersionTable.removeVersion(writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA);
+        writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
+        writableDatabase.setTransactionSuccessful();
+      } finally {
+        writableDatabase.endTransaction();
       }
     }
 
@@ -775,23 +736,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         try (Cursor cursor = getCursor()) {
           while (cursor.moveToNext()) {
             int id = cursor.getInt(COLUMN_INDEX_ID);
-            boolean encrypted = (cursor.getInt(COLUMN_INDEX_FLAGS) & FLAG_ENCRYPTED) != 0;
-            byte[] data = cursor.getBlob(COLUMN_INDEX_DATA);
+            String key = cursor.getString(COLUMN_INDEX_KEY);
+            byte[] metadataBytes = cursor.getBlob(COLUMN_INDEX_METADATA);
 
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(metadataBytes);
             DataInputStream input = new DataInputStream(inputStream);
-            if (encrypted) {
-              byte[] initializationVector = new byte[16];
-              input.readFully(initializationVector);
-              IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
-              try {
-                cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
-              } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
-                throw new IllegalStateException(e);
-              }
-              input = new DataInputStream(new CipherInputStream(inputStream, cipher));
-            }
-            String key = input.readUTF();
             DefaultContentMetadata metadata = readContentMetadata(input);
 
             CachedContent cachedContent = new CachedContent(id, key, metadata);
@@ -879,45 +828,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     private void deleteRow(SQLiteDatabase writableDatabase, int key) {
-      String[] selectionArgs = {Integer.toString(key)};
-      writableDatabase.delete(TABLE_NAME, COLUMN_SELECTION_ID, selectionArgs);
+      writableDatabase.delete(TABLE_NAME, WHERE_ID_EQUALS, new String[] {Integer.toString(key)});
     }
 
     private void addOrUpdateRow(SQLiteDatabase writableDatabase, CachedContent cachedContent)
         throws IOException {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      if (bufferedOutputStream == null) {
-        bufferedOutputStream = new ReusableBufferedOutputStream(outputStream);
-      } else {
-        bufferedOutputStream.reset(outputStream);
-      }
-      DataOutputStream output = new DataOutputStream(bufferedOutputStream);
-      try {
-        if (encrypt) {
-          byte[] initializationVector = new byte[16];
-          random.nextBytes(initializationVector);
-          output.write(initializationVector);
-          IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
-          try {
-            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
-          } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
-            throw new IllegalStateException(e); // Should never happen.
-          }
-          output.flush();
-          output = new DataOutputStream(new CipherOutputStream(bufferedOutputStream, cipher));
-        }
-        output.writeUTF(cachedContent.key);
-        writeContentMetadata(cachedContent.getMetadata(), output);
-      } finally {
-        // Necessary to finalize the cipher.
-        Util.closeQuietly(output);
-      }
+      writeContentMetadata(cachedContent.getMetadata(), new DataOutputStream(outputStream));
       byte[] data = outputStream.toByteArray();
 
       ContentValues values = new ContentValues();
       values.put(COLUMN_ID, cachedContent.id);
-      values.put(COLUMN_FLAGS, encrypt ? FLAG_ENCRYPTED : 0);
-      values.put(COLUMN_DATA, data);
+      values.put(COLUMN_KEY, cachedContent.key);
+      values.put(COLUMN_METADATA, data);
       writableDatabase.replace(TABLE_NAME, /* nullColumnHack= */ null, values);
     }
   }

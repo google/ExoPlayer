@@ -45,6 +45,8 @@ public final class VersionTable {
   private static final String COLUMN_FEATURE = "feature";
   private static final String COLUMN_VERSION = "version";
 
+  private static final String WHERE_FEATURE_EQUALS = COLUMN_FEATURE + " = ?";
+
   private static final String SQL_CREATE_TABLE_IF_NOT_EXISTS =
       "CREATE TABLE IF NOT EXISTS "
           + TABLE_NAME
@@ -62,7 +64,7 @@ public final class VersionTable {
   private VersionTable() {}
 
   /**
-   * Sets the version of tables belonging to the specified feature.
+   * Sets the version of the specified feature.
    *
    * @param writableDatabase The database to update.
    * @param feature The feature.
@@ -78,8 +80,21 @@ public final class VersionTable {
   }
 
   /**
-   * Returns the version of tables belonging to the specified feature, or {@link #VERSION_UNSET} if
-   * no version information is available.
+   * Removes the version of the specified feature.
+   *
+   * @param writableDatabase The database to update.
+   * @param feature The feature.
+   */
+  public static void removeVersion(SQLiteDatabase writableDatabase, @Feature int feature) {
+    if (!tableExists(writableDatabase, TABLE_NAME)) {
+      return;
+    }
+    writableDatabase.delete(TABLE_NAME, WHERE_FEATURE_EQUALS, featureArgument(feature));
+  }
+
+  /**
+   * Returns the version of the specified feature, or {@link #VERSION_UNSET} if no version
+   * information is available.
    *
    * @param database The database to query.
    * @param feature The feature.
@@ -88,14 +103,12 @@ public final class VersionTable {
     if (!tableExists(database, TABLE_NAME)) {
       return VERSION_UNSET;
     }
-    String selection = COLUMN_FEATURE + " = ?";
-    String[] selectionArgs = {Integer.toString(feature)};
     try (Cursor cursor =
         database.query(
             TABLE_NAME,
             new String[] {COLUMN_VERSION},
-            selection,
-            selectionArgs,
+            WHERE_FEATURE_EQUALS,
+            featureArgument(feature),
             /* groupBy= */ null,
             /* having= */ null,
             /* orderBy= */ null)) {
@@ -113,5 +126,9 @@ public final class VersionTable {
         DatabaseUtils.queryNumEntries(
             readableDatabase, "sqlite_master", "tbl_name = ?", new String[] {tableName});
     return count > 0;
+  }
+
+  private static String[] featureArgument(int feature) {
+    return new String[] {Integer.toString(feature)};
   }
 }
