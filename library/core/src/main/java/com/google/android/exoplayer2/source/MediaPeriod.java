@@ -87,18 +87,18 @@ public interface MediaPeriod extends SequenceableLoader {
   TrackGroupArray getTrackGroups();
 
   /**
-   * Returns a list of {@link StreamKey stream keys} which allow to filter the media in this period
-   * to load only the parts needed to play the provided {@link TrackSelection}.
+   * Returns a list of {@link StreamKey StreamKeys} which allow to filter the media in this period
+   * to load only the parts needed to play the provided {@link TrackSelection TrackSelections}.
    *
    * <p>This method is only called after the period has been prepared.
    *
-   * @param trackSelection The {@link TrackSelection} describing the tracks for which stream keys
-   *     are requested.
-   * @return The corresponding {@link StreamKey stream keys} for the selected tracks, or an empty
+   * @param trackSelections The {@link TrackSelection TrackSelections} describing the tracks for
+   *     which stream keys are requested.
+   * @return The corresponding {@link StreamKey StreamKeys} for the selected tracks, or an empty
    *     list if filtering is not possible and the entire media needs to be loaded to play the
    *     selected tracks.
    */
-  default List<StreamKey> getStreamKeys(TrackSelection trackSelection) {
+  default List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
     return Collections.emptyList();
   }
 

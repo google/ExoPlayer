@@ -214,6 +214,10 @@ import java.util.List;
     return trackGroups;
   }
 
+  public int getPrimaryTrackGroupIndex() {
+    return primaryTrackGroupIndex;
+  }
+
   public int bindSampleQueueToSampleStream(int trackGroupIndex) {
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     if (sampleQueueIndex == C.INDEX_UNSET) {

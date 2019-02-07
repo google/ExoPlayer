@@ -137,23 +137,40 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
   /** Returns a string containing video debugging information. */
   protected String getVideoString() {
     Format format = player.getVideoFormat();
-    if (format == null) {
+    DecoderCounters decoderCounters = player.getVideoDecoderCounters();
+    if (format == null || decoderCounters == null) {
       return "";
     }
-    return "\n" + format.sampleMimeType + "(id:" + format.id + " r:" + format.width + "x"
-        + format.height + getPixelAspectRatioString(format.pixelWidthHeightRatio)
-        + getDecoderCountersBufferCountString(player.getVideoDecoderCounters()) + ")";
+    return "\n"
+        + format.sampleMimeType
+        + "(id:"
+        + format.id
+        + " r:"
+        + format.width
+        + "x"
+        + format.height
+        + getPixelAspectRatioString(format.pixelWidthHeightRatio)
+        + getDecoderCountersBufferCountString(decoderCounters)
+        + ")";
   }
 
   /** Returns a string containing audio debugging information. */
   protected String getAudioString() {
     Format format = player.getAudioFormat();
-    if (format == null) {
+    DecoderCounters decoderCounters = player.getAudioDecoderCounters();
+    if (format == null || decoderCounters == null) {
       return "";
     }
-    return "\n" + format.sampleMimeType + "(id:" + format.id + " hz:" + format.sampleRate + " ch:"
+    return "\n"
+        + format.sampleMimeType
+        + "(id:"
+        + format.id
+        + " hz:"
+        + format.sampleRate
+        + " ch:"
         + format.channelCount
-        + getDecoderCountersBufferCountString(player.getAudioDecoderCounters()) + ")";
+        + getDecoderCountersBufferCountString(decoderCounters)
+        + ")";
   }
 
   private static String getDecoderCountersBufferCountString(DecoderCounters counters) {

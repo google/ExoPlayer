@@ -37,6 +37,7 @@ import org.robolectric.shadows.ShadowMessageQueue;
 public final class RobolectricUtil {
 
   private static final AtomicLong sequenceNumberGenerator = new AtomicLong(0);
+  private static final int ANY_MESSAGE = Integer.MIN_VALUE;
 
   private RobolectricUtil() {}
 
@@ -110,7 +111,8 @@ public final class RobolectricUtil {
             boolean isRemoved = false;
             for (RemovedMessage removedMessage : removedMessages) {
               if (removedMessage.handler == target
-                  && removedMessage.what == pendingMessage.message.what
+                  && (removedMessage.what == ANY_MESSAGE
+                      || removedMessage.what == pendingMessage.message.what)
                   && (removedMessage.object == null
                       || removedMessage.object == pendingMessage.message.obj)
                   && pendingMessage.sequenceNumber < removedMessage.sequenceNumber) {
@@ -177,6 +179,15 @@ public final class RobolectricUtil {
       if (shadowOf(looper) instanceof CustomLooper
           && shadowOf(looper) != ShadowLooper.getShadowMainLooper()) {
         ((CustomLooper) shadowOf(looper)).removeMessages(handler, what, object);
+      }
+    }
+
+    @Implementation
+    public void removeCallbacksAndMessages(Handler handler, Object object) {
+      Looper looper = ShadowLooper.getLooperForThread(looperThread);
+      if (shadowOf(looper) instanceof CustomLooper
+          && shadowOf(looper) != ShadowLooper.getShadowMainLooper()) {
+        ((CustomLooper) shadowOf(looper)).removeMessages(handler, ANY_MESSAGE, object);
       }
     }
   }

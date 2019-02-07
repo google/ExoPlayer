@@ -24,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
     }
 }

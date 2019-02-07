@@ -47,7 +47,7 @@ import org.robolectric.RuntimeEnvironment;
 public final class CacheDataSourceTest {
 
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  private static final int MAX_CACHE_FILE_SIZE = 3;
+  private static final int CACHE_FRAGMENT_SIZE = 3;
   private static final String DATASPEC_KEY = "dataSpecKey";
 
   private Uri testDataUri;
@@ -81,13 +81,13 @@ public final class CacheDataSourceTest {
   }
 
   @Test
-  public void testMaxCacheFileSize() throws Exception {
+  public void testFragmentSize() throws Exception {
     CacheDataSource cacheDataSource = createCacheDataSource(false, false);
     assertReadDataContentLength(cacheDataSource, boundedDataSpec, false, false);
     for (String key : cache.getKeys()) {
       for (CacheSpan cacheSpan : cache.getCachedSpans(key)) {
-        assertThat(cacheSpan.length <= MAX_CACHE_FILE_SIZE).isTrue();
-        assertThat(cacheSpan.file.length() <= MAX_CACHE_FILE_SIZE).isTrue();
+        assertThat(cacheSpan.length <= CACHE_FRAGMENT_SIZE).isTrue();
+        assertThat(cacheSpan.file.length() <= CACHE_FRAGMENT_SIZE).isTrue();
       }
     }
   }
@@ -548,14 +548,14 @@ public final class CacheDataSourceTest {
         setReadException,
         unknownLength,
         CacheDataSource.FLAG_BLOCK_ON_CACHE,
-        new CacheDataSink(cache, MAX_CACHE_FILE_SIZE),
+        new CacheDataSink(cache, CACHE_FRAGMENT_SIZE),
         cacheKeyFactory);
   }
 
   private CacheDataSource createCacheDataSource(
       boolean setReadException, boolean unknownLength, @CacheDataSource.Flags int flags) {
     return createCacheDataSource(
-        setReadException, unknownLength, flags, new CacheDataSink(cache, MAX_CACHE_FILE_SIZE));
+        setReadException, unknownLength, flags, new CacheDataSink(cache, CACHE_FRAGMENT_SIZE));
   }
 
   private CacheDataSource createCacheDataSource(
@@ -602,6 +602,7 @@ public final class CacheDataSourceTest {
   }
 
   private DataSpec buildDataSpec(long position, long length, @Nullable String key) {
-    return new DataSpec(testDataUri, position, length, key);
+    return new DataSpec(
+        testDataUri, position, length, key, DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION);
   }
 }

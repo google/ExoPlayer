@@ -179,6 +179,7 @@ public interface VideoRendererEventListener {
 
     /** Invokes {@link VideoRendererEventListener#onVideoDisabled(DecoderCounters)}. */
     public void disabled(DecoderCounters counters) {
+      counters.ensureUpdated();
       if (listener != null) {
         handler.post(
             () -> {

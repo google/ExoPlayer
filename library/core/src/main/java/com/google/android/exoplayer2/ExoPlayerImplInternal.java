@@ -1376,10 +1376,32 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
     }
 
-    if (!queue.updateQueuedPeriods(playingPeriodId, rendererPositionUs)) {
+    if (!queue.updateQueuedPeriods(rendererPositionUs, getMaxRendererReadPositionUs())) {
       seekToCurrentPosition(/* sendDiscontinuity= */ false);
     }
     handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
+  }
+
+  private long getMaxRendererReadPositionUs() {
+    MediaPeriodHolder readingHolder = queue.getReadingPeriod();
+    if (readingHolder == null) {
+      return 0;
+    }
+    long maxReadPositionUs = readingHolder.getRendererOffset();
+    for (int i = 0; i < renderers.length; i++) {
+      if (renderers[i].getState() == Renderer.STATE_DISABLED
+          || renderers[i].getStream() != readingHolder.sampleStreams[i]) {
+        // Ignore disabled renderers and renderers with sample streams from previous periods.
+        continue;
+      }
+      long readingPositionUs = renderers[i].getReadingPositionUs();
+      if (readingPositionUs == C.TIME_END_OF_SOURCE) {
+        return C.TIME_END_OF_SOURCE;
+      } else {
+        maxReadPositionUs = Math.max(readingPositionUs, maxReadPositionUs);
+      }
+    }
+    return maxReadPositionUs;
   }
 
   private void handleSourceInfoRefreshEndedPlayback() {

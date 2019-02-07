@@ -54,12 +54,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/**
- * A {@link MediaPeriod} that extracts data using an {@link Extractor}.
- */
-/* package */ final class ExtractorMediaPeriod implements MediaPeriod, ExtractorOutput,
-    Loader.Callback<ExtractorMediaPeriod.ExtractingLoadable>, Loader.ReleaseCallback,
-    UpstreamFormatChangedListener {
+/** A {@link MediaPeriod} that extracts data using an {@link Extractor}. */
+/* package */ final class ProgressiveMediaPeriod
+    implements MediaPeriod,
+        ExtractorOutput,
+        Loader.Callback<ProgressiveMediaPeriod.ExtractingLoadable>,
+        Loader.ReleaseCallback,
+        UpstreamFormatChangedListener {
 
   /**
    * Listener for information about the period.
@@ -145,7 +146,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     "nullness:argument.type.incompatible",
     "nullness:methodref.receiver.bound.invalid"
   })
-  public ExtractorMediaPeriod(
+  public ProgressiveMediaPeriod(
       Uri uri,
       DataSource dataSource,
       Extractor[] extractors,
@@ -163,14 +164,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.allocator = allocator;
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
-    loader = new Loader("Loader:ExtractorMediaPeriod");
+    loader = new Loader("Loader:ProgressiveMediaPeriod");
     extractorHolder = new ExtractorHolder(extractors);
     loadCondition = new ConditionVariable();
     maybeFinishPrepareRunnable = this::maybeFinishPrepare;
     onContinueLoadingRequestedRunnable =
         () -> {
           if (!released) {
-            Assertions.checkNotNull(callback).onContinueLoadingRequested(ExtractorMediaPeriod.this);
+            Assertions.checkNotNull(callback)
+                .onContinueLoadingRequested(ProgressiveMediaPeriod.this);
           }
         };
     handler = new Handler();
@@ -356,18 +358,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     } else if (isPendingReset()) {
       return pendingResetPositionUs;
     }
-    long largestQueuedTimestampUs;
+    long largestQueuedTimestampUs = Long.MAX_VALUE;
     if (haveAudioVideoTracks) {
       // Ignore non-AV tracks, which may be sparse or poorly interleaved.
-      largestQueuedTimestampUs = Long.MAX_VALUE;
       int trackCount = sampleQueues.length;
       for (int i = 0; i < trackCount; i++) {
-        if (trackIsAudioVideoFlags[i]) {
+        if (trackIsAudioVideoFlags[i] && !sampleQueues[i].isLastSampleQueued()) {
           largestQueuedTimestampUs = Math.min(largestQueuedTimestampUs,
               sampleQueues[i].getLargestQueuedTimestampUs());
         }
       }
-    } else {
+    }
+    if (largestQueuedTimestampUs == Long.MAX_VALUE) {
       largestQueuedTimestampUs = getLargestQueuedTimestampUs();
     }
     return largestQueuedTimestampUs == Long.MIN_VALUE ? lastSeekPositionUs
@@ -851,23 +853,23 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Override
     public boolean isReady() {
-      return ExtractorMediaPeriod.this.isReady(track);
+      return ProgressiveMediaPeriod.this.isReady(track);
     }
 
     @Override
     public void maybeThrowError() throws IOException {
-      ExtractorMediaPeriod.this.maybeThrowError();
+      ProgressiveMediaPeriod.this.maybeThrowError();
     }
 
     @Override
     public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
         boolean formatRequired) {
-      return ExtractorMediaPeriod.this.readData(track, formatHolder, buffer, formatRequired);
+      return ProgressiveMediaPeriod.this.readData(track, formatHolder, buffer, formatRequired);
     }
 
     @Override
     public int skipData(long positionUs) {
-      return ExtractorMediaPeriod.this.skipData(track, positionUs);
+      return ProgressiveMediaPeriod.this.skipData(track, positionUs);
     }
 
   }
@@ -988,7 +990,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           position,
           C.LENGTH_UNSET,
           customCacheKey,
-          DataSpec.FLAG_ALLOW_ICY_METADATA | DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN);
+          DataSpec.FLAG_ALLOW_ICY_METADATA
+              | DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN
+              | DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION);
     }
 
     private void setLoadPosition(long position, long timeUs) {

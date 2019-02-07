@@ -156,7 +156,7 @@ public final class DownloadAction {
       ArrayList<StreamKey> mutableKeys = new ArrayList<>(keys);
       Collections.sort(mutableKeys);
       this.keys = Collections.unmodifiableList(mutableKeys);
-      this.data = data != null ? data : Util.EMPTY_BYTE_ARRAY;
+      this.data = data != null ? Arrays.copyOf(data, data.length) : Util.EMPTY_BYTE_ARRAY;
     }
   }
 

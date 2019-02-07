@@ -68,7 +68,6 @@ import java.util.List;
  *       a {@link android.view.SurfaceView}.
  * </ul>
  */
-@TargetApi(16)
 public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private static final String TAG = "MediaCodecVideoRenderer";
@@ -375,7 +374,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     try {
       super.onDisabled();
     } finally {
-      decoderCounters.ensureUpdated();
       eventDispatcher.disabled(decoderCounters);
     }
   }
@@ -868,7 +866,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // We dropped some buffers to catch up, so update the decoder counters and flush the codec,
     // which releases all pending buffers buffers including the current output buffer.
     updateDroppedBufferCounters(buffersInCodecCount + droppedSourceBufferCount);
-    flushOrReinitCodec();
+    flushOrReinitializeCodec();
     return true;
   }
 
@@ -1096,6 +1094,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       throws DecoderQueryException {
     int maxWidth = format.width;
     int maxHeight = format.height;
+    if (codecNeedsMaxVideoSizeResetWorkaround(codecInfo.name)) {
+      maxWidth = Math.max(maxWidth, 1920);
+      maxHeight = Math.max(maxHeight, 1089);
+    }
     int maxInputSize = getMaxInputSize(codecInfo, format);
     if (streamFormats.length == 1) {
       // The single entry in streamFormats must correspond to the format for which the codec is
@@ -1283,6 +1285,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return "NVIDIA".equals(Util.MANUFACTURER);
   }
 
+  /**
+   * Returns whether the codec is known to have problems with the configuration for interlaced
+   * content and needs minimum values for the maximum video size to force reset the configuration.
+   *
+   * <p>See https://github.com/google/ExoPlayer/issues/5003.
+   *
+   * @param name The name of the codec.
+   */
+  private static boolean codecNeedsMaxVideoSizeResetWorkaround(String name) {
+    return "OMX.amlogic.avc.decoder.awesome".equals(name) && Util.SDK_INT <= 25;
+  }
+
   /*
    * TODO:
    *
@@ -1312,8 +1326,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     synchronized (MediaCodecVideoRenderer.class) {
       if (!evaluatedDeviceNeedsSetOutputSurfaceWorkaround) {
-        if (Util.SDK_INT <= 27 && "dangal".equals(Util.DEVICE)) {
-          // Dangal is affected on API level 27: https://github.com/google/ExoPlayer/issues/5169.
+        if (Util.SDK_INT <= 27 && ("dangal".equals(Util.DEVICE) || "HWEML".equals(Util.DEVICE))) {
+          // A small number of devices are affected on API level 27:
+          // https://github.com/google/ExoPlayer/issues/5169.
           deviceNeedsSetOutputSurfaceWorkaround = true;
         } else if (Util.SDK_INT >= 27) {
           // In general, devices running API level 27 or later should be unaffected. Do nothing.

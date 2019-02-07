@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.util;
 
 import static android.opengl.GLU.gluErrorString;
 
-import android.annotation.TargetApi;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.text.TextUtils;
@@ -114,7 +113,6 @@ public final class GlUtil {
    * Creates a GL_TEXTURE_EXTERNAL_OES with default configuration of GL_LINEAR filtering and
    * GL_CLAMP_TO_EDGE wrapping.
    */
-  @TargetApi(15)
   public static int createExternalTexture() {
     int[] texId = new int[1];
     GLES20.glGenTextures(1, IntBuffer.wrap(texId));

@@ -50,7 +50,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
         FLAG_IGNORE_H264_STREAM,
         FLAG_DETECT_ACCESS_UNITS,
         FLAG_IGNORE_SPLICE_INFO_STREAM,
-        FLAG_OVERRIDE_CAPTION_DESCRIPTORS
+        FLAG_OVERRIDE_CAPTION_DESCRIPTORS,
+        FLAG_IGNORE_HDMV_DTS_STREAM
       })
   public @interface Flags {}
 
@@ -86,6 +87,12 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    * closedCaptionFormats} will be ignored if the PMT contains closed captions service descriptors.
    */
   public static final int FLAG_OVERRIDE_CAPTION_DESCRIPTORS = 1 << 5;
+  /**
+   * Prevents the creation of {@link DtsReader} instances when receiving {@link
+   * TsExtractor#TS_STREAM_TYPE_HDMV_DTS} as stream type. Enabling this flag prevents a stream type
+   * collision between HDMV DTS audio and SCTE-35 subtitles.
+   */
+  public static final int FLAG_IGNORE_HDMV_DTS_STREAM = 1 << 6;
 
   private static final int DESCRIPTOR_TAG_CAPTION_SERVICE = 0x86;
 
@@ -142,8 +149,12 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
       case TsExtractor.TS_STREAM_TYPE_AC3:
       case TsExtractor.TS_STREAM_TYPE_E_AC3:
         return new PesReader(new Ac3Reader(esInfo.language));
-      case TsExtractor.TS_STREAM_TYPE_DTS:
       case TsExtractor.TS_STREAM_TYPE_HDMV_DTS:
+        if (isSet(FLAG_IGNORE_HDMV_DTS_STREAM)) {
+          return null;
+        }
+        // Fall through.
+      case TsExtractor.TS_STREAM_TYPE_DTS:
         return new PesReader(new DtsReader(esInfo.language));
       case TsExtractor.TS_STREAM_TYPE_H262:
         return new PesReader(new H262Reader(buildUserDataReader(esInfo)));

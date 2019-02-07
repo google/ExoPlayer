@@ -151,7 +151,8 @@ public class CachedContentIndexTest {
 
   @Test
   public void testLoadV1() throws Exception {
-    FileOutputStream fos = new FileOutputStream(new File(cacheDir, CachedContentIndex.FILE_NAME));
+    FileOutputStream fos =
+        new FileOutputStream(new File(cacheDir, CachedContentIndex.FILE_NAME_ATOMIC));
     fos.write(testIndexV1File);
     fos.close();
 
@@ -169,7 +170,8 @@ public class CachedContentIndexTest {
 
   @Test
   public void testLoadV2() throws Exception {
-    FileOutputStream fos = new FileOutputStream(new File(cacheDir, CachedContentIndex.FILE_NAME));
+    FileOutputStream fos =
+        new FileOutputStream(new File(cacheDir, CachedContentIndex.FILE_NAME_ATOMIC));
     fos.write(testIndexV2File);
     fos.close();
 
@@ -220,7 +222,7 @@ public class CachedContentIndexTest {
         new CachedContentIndex(cacheDir, key), new CachedContentIndex(cacheDir, key));
 
     // Rename the index file from the test above
-    File file1 = new File(cacheDir, CachedContentIndex.FILE_NAME);
+    File file1 = new File(cacheDir, CachedContentIndex.FILE_NAME_ATOMIC);
     File file2 = new File(cacheDir, "file2compare");
     assertThat(file1.renameTo(file2)).isTrue();
 

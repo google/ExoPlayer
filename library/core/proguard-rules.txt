@@ -3,7 +3,7 @@
 # Constructors accessed via reflection in DefaultRenderersFactory
 -dontnote com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer
 -keepclassmembers class com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer {
-  <init>(boolean, long, android.os.Handler, com.google.android.exoplayer2.video.VideoRendererEventListener, int);
+  <init>(long, android.os.Handler, com.google.android.exoplayer2.video.VideoRendererEventListener, int);
 }
 -dontnote com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer
 -keepclassmembers class com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer {
@@ -42,6 +42,23 @@
 -dontnote com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloader
 -keepclassmembers class com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloader {
   <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offlineDownloaderConstructorHelper);
+}
+
+# Constructors accessed via reflection in DownloadHelper
+-dontnote com.google.android.exoplayer2.source.dash.DashMediaSource$Factory
+-keepclassmembers class com.google.android.exoplayer2.source.dash.DashMediaSource$Factory {
+  <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
+  DashMediaSource createMediaSource(android.net.Uri);
+}
+-dontnote com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory
+-keepclassmembers class com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory {
+  <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
+  HlsMediaSource createMediaSource(android.net.Uri);
+}
+-dontnote com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory
+-keepclassmembers class com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory {
+  <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
+  SsMediaSource createMediaSource(android.net.Uri);
 }
 
 # Don't warn about checkerframework

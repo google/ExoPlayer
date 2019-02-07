@@ -418,7 +418,7 @@ public final class DefaultAudioSink implements AudioSink {
     isInputPcm = Util.isEncodingLinearPcm(inputEncoding);
     shouldConvertHighResIntPcmToFloat =
         enableConvertHighResIntPcmToFloat
-            && supportsOutput(channelCount, C.ENCODING_PCM_32BIT)
+            && supportsOutput(channelCount, C.ENCODING_PCM_FLOAT)
             && Util.isEncodingHighResolutionIntegerPcm(inputEncoding);
     if (isInputPcm) {
       pcmFrameSize = Util.getPcmFrameSize(inputEncoding, channelCount);

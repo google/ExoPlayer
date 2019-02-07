@@ -2028,15 +2028,17 @@ public final class ExoPlayerTest {
             .blockUntilEnded(TIMEOUT_MS);
     testRunner.assertPlayedPeriodIndices(0, 1);
     // Assert that the second period was re-created from the new timeline.
-    assertThat(mediaSource.getCreatedMediaPeriods())
-        .containsExactly(
-            new MediaPeriodId(
-                timeline1.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0),
-            new MediaPeriodId(
-                timeline1.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 1),
-            new MediaPeriodId(
-                timeline2.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 2))
-        .inOrder();
+    assertThat(mediaSource.getCreatedMediaPeriods()).hasSize(3);
+    assertThat(mediaSource.getCreatedMediaPeriods().get(0).periodUid)
+        .isEqualTo(timeline1.getUidOfPeriod(/* periodIndex= */ 0));
+    assertThat(mediaSource.getCreatedMediaPeriods().get(1).periodUid)
+        .isEqualTo(timeline1.getUidOfPeriod(/* periodIndex= */ 1));
+    assertThat(mediaSource.getCreatedMediaPeriods().get(2).periodUid)
+        .isEqualTo(timeline2.getUidOfPeriod(/* periodIndex= */ 1));
+    assertThat(mediaSource.getCreatedMediaPeriods().get(1).windowSequenceNumber)
+        .isGreaterThan(mediaSource.getCreatedMediaPeriods().get(0).windowSequenceNumber);
+    assertThat(mediaSource.getCreatedMediaPeriods().get(2).windowSequenceNumber)
+        .isGreaterThan(mediaSource.getCreatedMediaPeriods().get(1).windowSequenceNumber);
   }
 
   @Test

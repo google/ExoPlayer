@@ -61,7 +61,7 @@ public class SsMediaPeriodTest {
             createStreamElement(
                 /* name= */ "text", C.TRACK_TYPE_TEXT, createTextFormat(/* language= */ "eng")));
     FilterableManifestMediaPeriodFactory<SsManifest> mediaPeriodFactory =
-        manifest ->
+        (manifest, periodIndex) ->
             new SsMediaPeriod(
                 manifest,
                 mock(SsChunkSource.Factory.class),
