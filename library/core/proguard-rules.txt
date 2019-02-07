@@ -33,32 +33,32 @@
 # Constructors accessed via reflection in DefaultDownloaderFactory
 -dontnote com.google.android.exoplayer2.source.dash.offline.DashDownloader
 -keepclassmembers class com.google.android.exoplayer2.source.dash.offline.DashDownloader {
-  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offlineDownloaderConstructorHelper);
+  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offline.DownloaderConstructorHelper);
 }
 -dontnote com.google.android.exoplayer2.source.hls.offline.HlsDownloader
 -keepclassmembers class com.google.android.exoplayer2.source.hls.offline.HlsDownloader {
-  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offlineDownloaderConstructorHelper);
+  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offline.DownloaderConstructorHelper);
 }
 -dontnote com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloader
 -keepclassmembers class com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloader {
-  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offlineDownloaderConstructorHelper);
+  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offline.DownloaderConstructorHelper);
 }
 
 # Constructors accessed via reflection in DownloadHelper
 -dontnote com.google.android.exoplayer2.source.dash.DashMediaSource$Factory
 -keepclassmembers class com.google.android.exoplayer2.source.dash.DashMediaSource$Factory {
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
-  DashMediaSource createMediaSource(android.net.Uri);
+  com.google.android.exoplayer2.source.dash.DashMediaSource createMediaSource(android.net.Uri);
 }
 -dontnote com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory
 -keepclassmembers class com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory {
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
-  HlsMediaSource createMediaSource(android.net.Uri);
+  com.google.android.exoplayer2.source.hls.HlsMediaSource createMediaSource(android.net.Uri);
 }
 -dontnote com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory
 -keepclassmembers class com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory {
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
-  SsMediaSource createMediaSource(android.net.Uri);
+  com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource createMediaSource(android.net.Uri);
 }
 
 # Don't warn about checkerframework
