@@ -60,7 +60,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 /* package */ class CachedContentIndex {
 
   /* package */ static final String FILE_NAME_ATOMIC = "cached_content_index.exi";
-  private static final String FILE_NAME_DATABASE = "cached_content_index.db";
 
   private static final int VERSION = 2;
   private static final int VERSION_METADATA_INTRODUCED = 2;
@@ -96,13 +95,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private Storage storage;
   @Nullable private Storage previousStorage;
 
-  /**
-   * Returns whether the file is an index file, or an auxiliary file associated with an index file
-   * (e.g. an atomic file backup or auxiliary database file).
-   */
+  /** Returns whether the file is an index file. */
   public static final boolean isIndexFile(String fileName) {
-    // Atomic file backups and auxiliary database files add additional suffixes to the file name.
-    return fileName.startsWith(FILE_NAME_ATOMIC) || fileName.startsWith(FILE_NAME_DATABASE);
+    // Atomic file backups add additional suffixes to the file name.
+    return fileName.startsWith(FILE_NAME_ATOMIC);
   }
 
   /**
