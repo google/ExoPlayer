@@ -22,6 +22,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import java.io.File;
+import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,6 +47,8 @@ public final class SimpleCache implements Cache {
    * https://github.com/google/ExoPlayer/issues/4253.
    */
   private static final int SUBDIRECTORY_COUNT = 10;
+
+  private static final String UID_FILE_SUFFIX = ".uid";
 
   private static final HashSet<File> lockedCacheDirs = new HashSet<>();
 
@@ -411,16 +415,25 @@ public final class SimpleCache implements Cache {
       return;
     }
 
+    File[] files = cacheDir.listFiles();
+
+    long uid = 0;
+    try {
+      uid = loadUid(cacheDir, files);
+    } catch (IOException e) {
+      // TODO: Decide how to handle this.
+    }
+
+    // TODO: Pass the UID to the index, and use it.
     contentIndex.load();
     if (fileIndex != null) {
       Map<String, CacheFileMetadata> fileMetadata = fileIndex.getAll();
-      loadDirectory(cacheDir, /* isRoot= */ true, fileMetadata);
+      loadDirectory(cacheDir, /* isRoot= */ true, files, fileMetadata);
       fileIndex.removeAll(fileMetadata.keySet());
     } else {
-      loadDirectory(cacheDir, /* isRoot= */ true, /* fileMetadata= */ null);
+      loadDirectory(cacheDir, /* isRoot= */ true, files, /* fileMetadata= */ null);
     }
     contentIndex.removeEmpty();
-
     try {
       contentIndex.store();
     } catch (CacheException e) {
@@ -431,37 +444,40 @@ public final class SimpleCache implements Cache {
   /**
    * Loads a cache directory. If the root directory is passed, also loads any subdirectories.
    *
-   * @param directory The directory to load.
+   * @param directory The directory.
    * @param isRoot Whether the directory is the root directory.
+   * @param files The files belonging to the directory.
    * @param fileMetadata A mutable map containing cache file metadata, keyed by file name. The map
    *     is modified by removing entries for all loaded files. When the method call returns, the map
    *     will contain only metadata that was unused. May be null if no file metadata is available.
    */
   private void loadDirectory(
-      File directory, boolean isRoot, @Nullable Map<String, CacheFileMetadata> fileMetadata) {
-    File[] files = directory.listFiles();
-    if (files == null) {
-      // Not a directory.
-      return;
-    }
-    if (!isRoot && files.length == 0) {
-      // Empty non-root directory.
-      directory.delete();
+      File directory,
+      boolean isRoot,
+      File[] files,
+      @Nullable Map<String, CacheFileMetadata> fileMetadata) {
+    if (files == null || files.length == 0) {
+      // Either (a) directory isn't really a directory (b) it's empty, or (c) listing files failed.
+      if (!isRoot) {
+        // For (a) and (b) deletion is the desired result. For (c) it will be a no-op if the
+        // directory is non-empty, so there's no harm in trying.
+        directory.delete();
+      }
       return;
     }
     for (File file : files) {
       String fileName = file.getName();
       if (isRoot && fileName.indexOf('.') == -1) {
-        loadDirectory(file, /* isRoot= */ false, fileMetadata);
+        loadDirectory(file, /* isRoot= */ false, file.listFiles(), fileMetadata);
       } else {
-        if (isRoot && CachedContentIndex.isIndexFile(fileName)) {
-          // Skip the (expected) index files in the root directory.
+        if (isRoot
+            && (CachedContentIndex.isIndexFile(fileName) || fileName.endsWith(UID_FILE_SUFFIX))) {
+          // Skip expected UID and index files in the root directory.
           continue;
         }
-        CacheFileMetadata metadata =
-            fileMetadata != null ? fileMetadata.remove(file.getName()) : null;
         long length = C.LENGTH_UNSET;
         long lastAccessTimestamp = C.TIME_UNSET;
+        CacheFileMetadata metadata = fileMetadata != null ? fileMetadata.remove(fileName) : null;
         if (metadata != null) {
           length = metadata.length;
           lastAccessTimestamp = metadata.lastAccessTimestamp;
@@ -547,6 +563,49 @@ public final class SimpleCache implements Cache {
       }
     }
     evictor.onSpanTouched(this, oldSpan, newSpan);
+  }
+
+  /**
+   * Loads the cache UID from the files belonging to the root directory, generating one if needed.
+   *
+   * @param directory The root directory.
+   * @param files The files belonging to the rood directory.
+   * @return The cache loaded UID.
+   * @throws IOException If there is an error loading or generating the UID.
+   */
+  private static long loadUid(File directory, File[] files) throws IOException {
+    for (File file : files) {
+      String fileName = file.getName();
+      if (fileName.endsWith(UID_FILE_SUFFIX)) {
+        try {
+          return parseUid(fileName);
+        } catch (NumberFormatException e) {
+          // This should never happen, but if it does delete the malformed UID file and continue.
+          Log.e(TAG, "Malformed UID file: " + file);
+          file.delete();
+        }
+      }
+    }
+    return createUid(directory);
+  }
+
+  private static long createUid(File directory) throws IOException {
+    SecureRandom random = new SecureRandom();
+    // Generate a non-negative UID.
+    long uid = random.nextLong();
+    uid = uid == Long.MIN_VALUE ? 0 : Math.abs(uid);
+    // Persist it as a file.
+    String hexUid = Long.toString(uid, /* radix= */ 16);
+    File hexUidFile = new File(directory, hexUid + UID_FILE_SUFFIX);
+    if (!hexUidFile.createNewFile()) {
+      // False means that the file already exists, so this should never happen.
+      throw new IOException("Failed to create UID file: " + hexUidFile);
+    }
+    return uid;
+  }
+
+  private static long parseUid(String fileName) {
+    return Long.parseLong(fileName.substring(0, fileName.indexOf('.')), /* radix= */ 16);
   }
 
   private static synchronized boolean lockFolder(File cacheDir) {
