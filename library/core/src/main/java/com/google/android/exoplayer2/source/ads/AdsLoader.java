@@ -26,7 +26,7 @@ import java.io.IOException;
 /**
  * Interface for loaders of ads, which can be used with {@link AdsMediaSource}.
  *
- * <p>Ad loaders notify the {@link AdsMediaSource} about events via {@link EventListener}. In
+ * <p>Ads loaders notify the {@link AdsMediaSource} about events via {@link EventListener}. In
  * particular, implementations must call {@link EventListener#onAdPlaybackState(AdPlaybackState)}
  * with a new copy of the current {@link AdPlaybackState} whenever further information about ads
  * becomes known (for example, when an ad media URI is available, or an ad has played to the end).
@@ -44,9 +44,7 @@ import java.io.IOException;
  */
 public interface AdsLoader {
 
-  /**
-   * Listener for ad loader events. All methods are called on the main thread.
-   */
+  /** Listener for ads loader events. All methods are called on the main thread. */
   interface EventListener {
 
     /**
@@ -54,7 +52,7 @@ public interface AdsLoader {
      *
      * @param adPlaybackState The new ad playback state.
      */
-    void onAdPlaybackState(AdPlaybackState adPlaybackState);
+    default void onAdPlaybackState(AdPlaybackState adPlaybackState) {}
 
     /**
      * Called when there was an error loading ads.
@@ -62,18 +60,13 @@ public interface AdsLoader {
      * @param error The error.
      * @param dataSpec The data spec associated with the load error.
      */
-    void onAdLoadError(AdLoadException error, DataSpec dataSpec);
+    default void onAdLoadError(AdLoadException error, DataSpec dataSpec) {}
 
-    /**
-     * Called when the user clicks through an ad (for example, following a 'learn more' link).
-     */
-    void onAdClicked();
+    /** Called when the user clicks through an ad (for example, following a 'learn more' link). */
+    default void onAdClicked() {}
 
-    /**
-     * Called when the user taps a non-clickthrough part of an ad.
-     */
-    void onAdTapped();
-
+    /** Called when the user taps a non-clickthrough part of an ad. */
+    default void onAdTapped() {}
   }
 
   // Methods called by the application.
