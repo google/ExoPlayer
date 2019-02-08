@@ -125,7 +125,15 @@ public final class SimpleCache implements Cache {
    *     secretKey} is null.
    */
   public SimpleCache(File cacheDir, CacheEvictor evictor, byte[] secretKey, boolean encrypt) {
-    this(cacheDir, evictor, new CachedContentIndex(cacheDir, secretKey, encrypt));
+    this(
+        cacheDir,
+        evictor,
+        new CachedContentIndex(
+            /* databaseProvider= */ null,
+            cacheDir,
+            secretKey,
+            encrypt,
+            /* preferLegacyStorage= */ true));
   }
 
   /**

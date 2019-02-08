@@ -21,6 +21,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
 import com.google.android.exoplayer2.extractor.ChunkIndex;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,7 +65,7 @@ public final class CachedRegionTrackerTest {
     when(cache.addListener(anyString(), any(Cache.Listener.class))).thenReturn(new TreeSet<>());
     tracker = new CachedRegionTracker(cache, CACHE_KEY, CHUNK_INDEX);
     cacheDir = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
-    index = new CachedContentIndex(cacheDir);
+    index = new CachedContentIndex(TestUtil.getTestDatabaseProvider());
   }
 
   @After
