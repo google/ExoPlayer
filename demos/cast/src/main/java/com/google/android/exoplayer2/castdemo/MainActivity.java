@@ -48,13 +48,13 @@ import java.util.Collections;
  * Cast extension.
  */
 public class MainActivity extends AppCompatActivity
-    implements OnClickListener, ExoCastPlayerManager.QueueChangesListener {
+    implements OnClickListener, PlayerManager.QueueChangesListener {
 
   private final MediaItem.Builder mediaItemBuilder;
 
   private PlayerView localPlayerView;
   private PlayerControlView castControlView;
-  private ExoCastPlayerManager playerManager;
+  private PlayerManager playerManager;
   private RecyclerView mediaQueueList;
   private MediaQueueListAdapter mediaQueueListAdapter;
   private CastContext castContext;
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity
       return;
     }
     playerManager =
-        new ExoCastPlayerManager(
+        new PlayerManager(
             /* queueChangesListener= */ this,
             localPlayerView,
             castControlView,
