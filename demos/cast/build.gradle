@@ -52,6 +52,11 @@ android {
     flavorDimensions "receiver"
 
     productFlavors {
+        exoCast {
+            dimension "receiver"
+            manifestPlaceholders =
+                    [castOptionsProvider: "com.google.android.exoplayer2.ext.cast.ExoCastOptionsProvider"]
+        }
         defaultCast {
             dimension "receiver"
             manifestPlaceholders =
