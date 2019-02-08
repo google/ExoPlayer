@@ -56,6 +56,11 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      * Format information associated with the HLS url.
      */
     public final Format format;
+    /**
+     * Value of the NAME attribute as defined by the #EXT-X-MEDIA tag, or empty if the HLS url is
+     * not associated with any name.
+     */
+    public final String name;
 
     /**
      * Creates an HLS url from a given http url.
@@ -74,16 +79,18 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
               /* bitrate= */ Format.NO_VALUE,
               /* selectionFlags= */ 0,
               /* language= */ null);
-      return new HlsUrl(url, format);
+      return new HlsUrl(url, format, /* name= */ "");
     }
 
     /**
      * @param url See {@link #url}.
      * @param format See {@link #format}.
+     * @param name See {@link #name}.
      */
-    public HlsUrl(String url, Format format) {
+    public HlsUrl(String url, Format format, String name) {
       this.url = url;
       this.format = format;
+      this.name = name;
     }
 
   }

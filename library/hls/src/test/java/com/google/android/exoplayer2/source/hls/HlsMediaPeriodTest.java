@@ -49,7 +49,7 @@ import org.robolectric.annotation.Config;
 public final class HlsMediaPeriodTest {
 
   @Test
-  public void getSteamKeys_isCompatibleWithhHlsMasterPlaylistFilter() {
+  public void getSteamKeys_isCompatibleWithHlsMasterPlaylistFilter() {
     HlsMasterPlaylist testMasterPlaylist =
         createMasterPlaylist(
             /* variants= */ Arrays.asList(
@@ -127,7 +127,8 @@ public final class HlsMediaPeriodTest {
             /* height= */ Format.NO_VALUE,
             /* frameRate= */ Format.NO_VALUE,
             /* initializationData= */ null,
-            /* selectionFlags= */ 0));
+            /* selectionFlags= */ 0),
+        /* name= */ "");
   }
 
   private static HlsUrl createAudioOnlyVariantHlsUrl(int bitrate) {
@@ -144,15 +145,16 @@ public final class HlsMediaPeriodTest {
             /* height= */ Format.NO_VALUE,
             /* frameRate= */ Format.NO_VALUE,
             /* initializationData= */ null,
-            /* selectionFlags= */ 0));
+            /* selectionFlags= */ 0),
+        /* name= */ "");
   }
 
   private static HlsUrl createAudioHlsUrl(String language) {
-    return new HlsUrl("http://url", createAudioFormat(language));
+    return new HlsUrl("http://url", createAudioFormat(language), /* name= */ "");
   }
 
   private static HlsUrl createSubtitleHlsUrl(String language) {
-    return new HlsUrl("http://url", createSubtitleFormat(language));
+    return new HlsUrl("http://url", createSubtitleFormat(language), /* name= */ "");
   }
 
   private static Format createAudioFormat(String language) {

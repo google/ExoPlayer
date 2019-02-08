@@ -67,6 +67,9 @@ import java.util.List;
 
     /**
      * Called when the wrapper has been prepared.
+     *
+     * <p>Note: This method will be called on a later handler loop than the one on which either
+     * {@link #prepareWithMasterPlaylistInfo} or {@link #continuePreparing} are invoked.
      */
     void onPrepared();
 
@@ -203,7 +206,7 @@ import java.util.List;
     this.trackGroups = trackGroups;
     this.optionalTrackGroups = optionalTrackGroups;
     this.primaryTrackGroupIndex = primaryTrackGroupIndex;
-    callback.onPrepared();
+    handler.post(callback::onPrepared);
   }
 
   public void maybeThrowPrepareError() throws IOException {
