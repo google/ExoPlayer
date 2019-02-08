@@ -22,6 +22,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -45,22 +46,27 @@ import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
 
 /** Manages players and an internal media queue for the Cast demo app. */
 /* package */ class PlayerManager implements EventListener, SessionAvailabilityListener {
 
-  /** Listener for changes in the media queue. */
-  public interface QueueChangesListener {
+  /** Listener for events. */
+  public interface Listener {
 
     /** Called when the currently played item of the media queue changes. */
     void onQueuePositionChanged(int previousIndex, int newIndex);
 
     /** Called when the media queue changes due to modifications not caused by this manager. */
     void onQueueContentsExternallyChanged();
+
+    /** Called when an error occurs in the current player. */
+    void onPlayerError();
   }
 
+  private static final String TAG = "PlayerManager";
   private static final String USER_AGENT = "ExoCastDemoPlayer";
   private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
       new DefaultHttpDataSourceFactory(USER_AGENT);
@@ -70,7 +76,7 @@ import java.util.ArrayList;
   private final SimpleExoPlayer exoPlayer;
   private final ExoCastPlayer exoCastPlayer;
   private final ArrayList<MediaItem> mediaQueue;
-  private final QueueChangesListener queueChangesListener;
+  private final Listener listener;
   private final ConcatenatingMediaSource concatenatingMediaSource;
 
   private int currentItemIndex;
@@ -79,19 +85,19 @@ import java.util.ArrayList;
   /**
    * Creates a new manager for {@link SimpleExoPlayer} and {@link ExoCastPlayer}.
    *
-   * @param queueChangesListener A {@link QueueChangesListener}.
+   * @param listener A {@link Listener}.
    * @param localPlayerView The {@link PlayerView} for local playback.
    * @param castControlView The {@link PlayerControlView} to control remote playback.
    * @param context A {@link Context}.
    * @param castContext The {@link CastContext}.
    */
   public PlayerManager(
-      QueueChangesListener queueChangesListener,
+      Listener listener,
       PlayerView localPlayerView,
       PlayerControlView castControlView,
       Context context,
       CastContext castContext) {
-    this.queueChangesListener = queueChangesListener;
+    this.listener = listener;
     this.localPlayerView = localPlayerView;
     this.castControlView = castControlView;
     mediaQueue = new ArrayList<>();
@@ -105,7 +111,9 @@ import java.util.ArrayList;
     localPlayerView.setPlayer(exoPlayer);
 
     exoCastPlayer =
-        new ExoCastPlayer(listener -> new DefaultCastSessionManager(castContext, listener));
+        new ExoCastPlayer(
+            sessionManagerListener ->
+                new DefaultCastSessionManager(castContext, sessionManagerListener));
     exoCastPlayer.addListener(this);
     exoCastPlayer.setSessionAvailabilityListener(this);
     castControlView.setPlayer(exoCastPlayer);
@@ -238,6 +246,12 @@ import java.util.ArrayList;
     updateCurrentItemIndex();
   }
 
+  @Override
+  public void onPlayerError(ExoPlaybackException error) {
+    Log.e(TAG, "The player encountered an error.", error);
+    listener.onPlayerError();
+  }
+
   // CastPlayer.SessionAvailabilityListener implementation.
 
   @Override
@@ -269,7 +283,7 @@ import java.util.ArrayList;
       mediaQueue.add(item);
       concatenatingMediaSource.addMediaSource(buildMediaSource(item));
     }
-    queueChangesListener.onQueueContentsExternallyChanged();
+    listener.onQueueContentsExternallyChanged();
   }
 
   private void updateCurrentItemIndex() {
@@ -359,6 +373,13 @@ import java.util.ArrayList;
   private void setCurrentItem(int itemIndex, long positionMs, boolean playWhenReady) {
     maybeSetCurrentItemAndNotify(itemIndex);
     currentPlayer.seekTo(itemIndex, positionMs);
+    if (currentPlayer.getPlaybackState() == Player.STATE_IDLE) {
+      if (currentPlayer == exoCastPlayer) {
+        exoCastPlayer.prepare();
+      } else {
+        exoPlayer.prepare(concatenatingMediaSource);
+      }
+    }
     currentPlayer.setPlayWhenReady(playWhenReady);
   }
 
@@ -366,7 +387,7 @@ import java.util.ArrayList;
     if (this.currentItemIndex != currentItemIndex) {
       int oldIndex = this.currentItemIndex;
       this.currentItemIndex = currentItemIndex;
-      queueChangesListener.onQueuePositionChanged(oldIndex, currentItemIndex);
+      listener.onQueuePositionChanged(oldIndex, currentItemIndex);
     }
   }
 

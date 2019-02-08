@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
@@ -48,7 +49,7 @@ import java.util.Collections;
  * Cast extension.
  */
 public class MainActivity extends AppCompatActivity
-    implements OnClickListener, PlayerManager.QueueChangesListener {
+    implements OnClickListener, PlayerManager.Listener {
 
   private final MediaItem.Builder mediaItemBuilder;
 
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity
     }
     playerManager =
         new PlayerManager(
-            /* queueChangesListener= */ this,
+            /* listener= */ this,
             localPlayerView,
             castControlView,
             /* context= */ this,
@@ -154,7 +155,7 @@ public class MainActivity extends AppCompatActivity
         .show();
   }
 
-  // PlayerManager.QueueChangesListener implementation.
+  // PlayerManager.Listener implementation.
 
   @Override
   public void onQueuePositionChanged(int previousIndex, int newIndex) {
@@ -169,6 +170,11 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void onQueueContentsExternallyChanged() {
     mediaQueueListAdapter.notifyDataSetChanged();
+  }
+
+  @Override
+  public void onPlayerError() {
+    Toast.makeText(getApplicationContext(), R.string.player_error_msg, Toast.LENGTH_LONG).show();
   }
 
   // Internal methods.
