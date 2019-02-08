@@ -53,7 +53,7 @@ public final class DummyMainThread {
    * Runs the provided {@link Runnable} on the main thread, blocking until execution completes or
    * until timeout milliseconds have passed.
    *
-   * @param timeoutMs the maximum time to wait in milliseconds.
+   * @param timeoutMs The maximum time to wait in milliseconds.
    * @param runnable The {@link Runnable} to run.
    */
   public void runOnMainThread(int timeoutMs, final Runnable runnable) {
