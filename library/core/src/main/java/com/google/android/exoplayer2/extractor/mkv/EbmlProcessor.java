@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,41 +23,48 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * Defines EBML element IDs/types and reacts to events.
- */
-/* package */ interface EbmlReaderOutput {
+/** Defines EBML element IDs/types and processes events. */
+public interface EbmlProcessor {
 
   /**
-   * EBML element types. One of {@link #TYPE_UNKNOWN}, {@link #TYPE_MASTER}, {@link
-   * #TYPE_UNSIGNED_INT}, {@link #TYPE_STRING}, {@link #TYPE_BINARY} or {@link #TYPE_FLOAT}.
+   * EBML element types. One of {@link #ELEMENT_TYPE_UNKNOWN}, {@link #ELEMENT_TYPE_MASTER}, {@link
+   * #ELEMENT_TYPE_UNSIGNED_INT}, {@link #ELEMENT_TYPE_STRING}, {@link #ELEMENT_TYPE_BINARY} or
+   * {@link #ELEMENT_TYPE_FLOAT}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TYPE_UNKNOWN, TYPE_MASTER, TYPE_UNSIGNED_INT, TYPE_STRING, TYPE_BINARY, TYPE_FLOAT})
+  @IntDef({
+    ELEMENT_TYPE_UNKNOWN,
+    ELEMENT_TYPE_MASTER,
+    ELEMENT_TYPE_UNSIGNED_INT,
+    ELEMENT_TYPE_STRING,
+    ELEMENT_TYPE_BINARY,
+    ELEMENT_TYPE_FLOAT
+  })
   @interface ElementType {}
   /** Type for unknown elements. */
-  int TYPE_UNKNOWN = 0;
+  int ELEMENT_TYPE_UNKNOWN = 0;
   /** Type for elements that contain child elements. */
-  int TYPE_MASTER = 1;
+  int ELEMENT_TYPE_MASTER = 1;
   /** Type for integer value elements of up to 8 bytes. */
-  int TYPE_UNSIGNED_INT = 2;
+  int ELEMENT_TYPE_UNSIGNED_INT = 2;
   /** Type for string elements. */
-  int TYPE_STRING = 3;
+  int ELEMENT_TYPE_STRING = 3;
   /** Type for binary elements. */
-  int TYPE_BINARY = 4;
+  int ELEMENT_TYPE_BINARY = 4;
   /** Type for IEEE floating point value elements of either 4 or 8 bytes. */
-  int TYPE_FLOAT = 5;
+  int ELEMENT_TYPE_FLOAT = 5;
 
   /**
    * Maps an element ID to a corresponding type.
    *
-   * <p>If {@link #TYPE_UNKNOWN} is returned then the element is skipped. Note that all children of
-   * a skipped element are also skipped.
+   * <p>If {@link #ELEMENT_TYPE_UNKNOWN} is returned then the element is skipped. Note that all
+   * children of a skipped element are also skipped.
    *
    * @param id The element ID to map.
-   * @return One of {@link #TYPE_UNKNOWN}, {@link #TYPE_MASTER}, {@link #TYPE_UNSIGNED_INT}, {@link
-   *     #TYPE_STRING}, {@link #TYPE_BINARY} and {@link #TYPE_FLOAT}.
+   * @return One of {@link #ELEMENT_TYPE_UNKNOWN}, {@link #ELEMENT_TYPE_MASTER}, {@link
+   *     #ELEMENT_TYPE_UNSIGNED_INT}, {@link #ELEMENT_TYPE_STRING}, {@link #ELEMENT_TYPE_BINARY} and
+   *     {@link #ELEMENT_TYPE_FLOAT}.
    */
   @ElementType
   int getElementType(int id);
