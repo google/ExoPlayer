@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
@@ -49,13 +48,13 @@ import java.util.Collections;
  * Cast extension.
  */
 public class MainActivity extends AppCompatActivity
-    implements OnClickListener, PlayerManager.QueueChangesListener {
+    implements OnClickListener, ExoCastPlayerManager.QueueChangesListener {
 
   private final MediaItem.Builder mediaItemBuilder;
 
   private PlayerView localPlayerView;
   private PlayerControlView castControlView;
-  private PlayerManager playerManager;
+  private ExoCastPlayerManager playerManager;
   private RecyclerView mediaQueueList;
   private MediaQueueListAdapter mediaQueueListAdapter;
   private CastContext castContext;
@@ -117,29 +116,13 @@ public class MainActivity extends AppCompatActivity
       // There is no Cast context to work with. Do nothing.
       return;
     }
-    String applicationId = castContext.getCastOptions().getReceiverApplicationId();
-    switch (applicationId) {
-      case CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID:
-        playerManager =
-            new DefaultReceiverPlayerManager(
-                /* queueChangesListener= */ this,
-                localPlayerView,
-                castControlView,
-                /* context= */ this,
-                castContext);
-        break;
-      case ExoCastOptionsProvider.RECEIVER_ID:
-        playerManager =
-            new ExoCastPlayerManager(
-                /* queueChangesListener= */ this,
-                localPlayerView,
-                castControlView,
-                /* context= */ this,
-                castContext);
-        break;
-      default:
-        throw new IllegalStateException("Illegal receiver app id: " + applicationId);
-    }
+    playerManager =
+        new ExoCastPlayerManager(
+            /* queueChangesListener= */ this,
+            localPlayerView,
+            castControlView,
+            /* context= */ this,
+            castContext);
     mediaQueueList.setAdapter(mediaQueueListAdapter);
   }
 

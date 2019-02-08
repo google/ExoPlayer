@@ -48,22 +48,6 @@ android {
         // The demo app does not have translations.
         disable 'MissingTranslation'
     }
-
-    flavorDimensions "receiver"
-
-    productFlavors {
-        exoCast {
-            dimension "receiver"
-            manifestPlaceholders =
-                    [castOptionsProvider: "com.google.android.exoplayer2.ext.cast.ExoCastOptionsProvider"]
-        }
-        defaultCast {
-            dimension "receiver"
-            manifestPlaceholders =
-                    [castOptionsProvider: "com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider"]
-        }
-    }
-
 }
 
 dependencies {
