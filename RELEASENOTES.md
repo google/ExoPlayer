@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* HLS:
+  * Form an adaptive track group out of audio renditions with matching name.
 * `ExtractorMediaSource` renamed to `ProgressiveMediaSource`.
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post

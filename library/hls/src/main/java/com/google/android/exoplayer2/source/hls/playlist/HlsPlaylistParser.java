@@ -330,7 +330,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   frameRate,
                   /* initializationData= */ null,
                   /* selectionFlags= */ 0);
-          variants.add(new HlsMasterPlaylist.HlsUrl(line, format));
+          variants.add(new HlsMasterPlaylist.HlsUrl(line, format, /* name= */ ""));
         }
       }
     }
@@ -365,7 +365,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           if (isMediaTagMuxed(variants, uri)) {
             muxedAudioFormat = format;
           } else {
-            audios.add(new HlsMasterPlaylist.HlsUrl(uri, format));
+            audios.add(new HlsMasterPlaylist.HlsUrl(uri, format, name));
           }
           break;
         case TYPE_SUBTITLES:
@@ -379,7 +379,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* bitrate= */ Format.NO_VALUE,
                   selectionFlags,
                   language);
-          subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format));
+          subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format, name));
           break;
         case TYPE_CLOSED_CAPTIONS:
           String instreamId = parseStringAttr(line, REGEX_INSTREAM_ID, variableDefinitions);
