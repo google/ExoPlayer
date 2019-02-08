@@ -14,6 +14,7 @@
   * Update `TrackSelection.Factory` interface to support creating all track
     selections together.
 * Do not retry failed loads whose error is `FileNotFoundException`.
+* Support Dolby Vision extraction in MP4 and fMP4.
 * Offline:
   * Speed up removal of segmented downloads
     ([#5136](https://github.com/google/ExoPlayer/issues/5136)).

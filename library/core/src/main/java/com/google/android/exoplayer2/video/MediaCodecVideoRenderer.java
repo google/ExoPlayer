@@ -28,6 +28,7 @@ import android.os.SystemClock;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Pair;
 import android.view.Surface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -1057,6 +1058,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     MediaFormatUtil.maybeSetFloat(mediaFormat, MediaFormat.KEY_FRAME_RATE, format.frameRate);
     MediaFormatUtil.maybeSetInteger(mediaFormat, MediaFormat.KEY_ROTATION, format.rotationDegrees);
     MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
+    if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
+      // Some phones require the profile to be set on the codec.
+      // See https://github.com/google/ExoPlayer/pull/5438.
+      Pair<Integer, Integer> codecProfileAndLevel =
+          MediaCodecUtil.getCodecProfileAndLevel(format.codecs);
+      if (codecProfileAndLevel != null) {
+        MediaFormatUtil.maybeSetInteger(
+            mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
+      }
+    }
     // Set codec max values.
     mediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, codecMaxValues.width);
     mediaFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, codecMaxValues.height);

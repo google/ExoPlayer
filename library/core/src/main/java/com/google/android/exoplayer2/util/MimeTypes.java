@@ -41,6 +41,7 @@ public final class MimeTypes {
   public static final String VIDEO_MPEG = BASE_TYPE_VIDEO + "/mpeg";
   public static final String VIDEO_MPEG2 = BASE_TYPE_VIDEO + "/mpeg2";
   public static final String VIDEO_VC1 = BASE_TYPE_VIDEO + "/wvc1";
+  public static final String VIDEO_DOLBY_VISION = BASE_TYPE_VIDEO + "/dolby-vision";
   public static final String VIDEO_UNKNOWN = BASE_TYPE_VIDEO + "/x-unknown";
 
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
@@ -213,6 +214,11 @@ public final class MimeTypes {
       return MimeTypes.VIDEO_H264;
     } else if (codec.startsWith("hev1") || codec.startsWith("hvc1")) {
       return MimeTypes.VIDEO_H265;
+    } else if (codec.startsWith("dvav")
+        || codec.startsWith("dva1")
+        || codec.startsWith("dvhe")
+        || codec.startsWith("dvh1")) {
+      return MimeTypes.VIDEO_DOLBY_VISION;
     } else if (codec.startsWith("vp9") || codec.startsWith("vp09")) {
       return MimeTypes.VIDEO_VP9;
     } else if (codec.startsWith("vp8") || codec.startsWith("vp08")) {
