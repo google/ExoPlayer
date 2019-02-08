@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
+import com.google.android.exoplayer2.video.DolbyVisionConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -735,11 +736,19 @@ import java.util.List;
       int childAtomSize = stsd.readInt();
       Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = stsd.readInt();
-      if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_avc3
-          || childAtomType == Atom.TYPE_encv || childAtomType == Atom.TYPE_mp4v
-          || childAtomType == Atom.TYPE_hvc1 || childAtomType == Atom.TYPE_hev1
-          || childAtomType == Atom.TYPE_s263 || childAtomType == Atom.TYPE_vp08
-          || childAtomType == Atom.TYPE_vp09) {
+      if (childAtomType == Atom.TYPE_avc1
+          || childAtomType == Atom.TYPE_avc3
+          || childAtomType == Atom.TYPE_encv
+          || childAtomType == Atom.TYPE_mp4v
+          || childAtomType == Atom.TYPE_hvc1
+          || childAtomType == Atom.TYPE_hev1
+          || childAtomType == Atom.TYPE_s263
+          || childAtomType == Atom.TYPE_vp08
+          || childAtomType == Atom.TYPE_vp09
+          || childAtomType == Atom.TYPE_dvav
+          || childAtomType == Atom.TYPE_dva1
+          || childAtomType == Atom.TYPE_dvhe
+          || childAtomType == Atom.TYPE_dvh1) {
         parseVideoSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             rotationDegrees, drmInitData, out, i);
       } else if (childAtomType == Atom.TYPE_mp4a
@@ -852,6 +861,7 @@ import java.util.List;
 
     List<byte[]> initializationData = null;
     String mimeType = null;
+    String codecs = null;
     byte[] projectionData = null;
     @C.StereoMode
     int stereoMode = Format.NO_VALUE;
@@ -882,6 +892,13 @@ import java.util.List;
         HevcConfig hevcConfig = HevcConfig.parse(parent);
         initializationData = hevcConfig.initializationData;
         out.nalUnitLengthFieldLength = hevcConfig.nalUnitLengthFieldLength;
+      } else if (childAtomType == Atom.TYPE_dvcC || childAtomType == Atom.TYPE_dvvC) {
+        DolbyVisionConfig dolbyVisionConfig = DolbyVisionConfig.parse(parent);
+        // TODO: Support profiles 4, 8 and 9 once we have a way to fall back to AVC/HEVC decoding.
+        if (dolbyVisionConfig != null && dolbyVisionConfig.profile == 5) {
+          codecs = dolbyVisionConfig.codecs;
+          mimeType = MimeTypes.VIDEO_DOLBY_VISION;
+        }
       } else if (childAtomType == Atom.TYPE_vpcC) {
         Assertions.checkState(mimeType == null);
         mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
@@ -930,9 +947,23 @@ import java.util.List;
       return;
     }
 
-    out.format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType, null,
-        Format.NO_VALUE, Format.NO_VALUE, width, height, Format.NO_VALUE, initializationData,
-        rotationDegrees, pixelWidthHeightRatio, projectionData, stereoMode, null, drmInitData);
+    out.format =
+        Format.createVideoSampleFormat(
+            Integer.toString(trackId),
+            mimeType,
+            codecs,
+            /* bitrate= */ Format.NO_VALUE,
+            /* maxInputSize= */ Format.NO_VALUE,
+            width,
+            height,
+            /* frameRate= */ Format.NO_VALUE,
+            initializationData,
+            rotationDegrees,
+            pixelWidthHeightRatio,
+            projectionData,
+            stereoMode,
+            /* colorInfo= */ null,
+            drmInitData);
   }
 
   /**

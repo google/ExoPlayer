@@ -71,6 +71,11 @@ public final class MediaCodecUtil {
   private static final Map<String, Integer> HEVC_CODEC_STRING_TO_PROFILE_LEVEL;
   private static final String CODEC_ID_HEV1 = "hev1";
   private static final String CODEC_ID_HVC1 = "hvc1";
+  // Dolby Vision.
+  private static final Map<String, Integer> DOLBY_VISION_STRING_TO_PROFILE;
+  private static final Map<String, Integer> DOLBY_VISION_STRING_TO_LEVEL;
+  private static final String CODEC_ID_DVHE = "dvhe";
+  private static final String CODEC_ID_DVH1 = "dvh1";
   // MP4A AAC.
   private static final SparseIntArray MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE;
   private static final String CODEC_ID_MP4A = "mp4a";
@@ -208,6 +213,9 @@ public final class MediaCodecUtil {
       case CODEC_ID_HEV1:
       case CODEC_ID_HVC1:
         return getHevcProfileAndLevel(codec, parts);
+      case CODEC_ID_DVHE:
+      case CODEC_ID_DVH1:
+        return getDolbyVisionProfileAndLevel(codec, parts);
       case CODEC_ID_AVC1:
       case CODEC_ID_AVC2:
         return getAvcProfileAndLevel(codec, parts);
@@ -421,6 +429,34 @@ public final class MediaCodecUtil {
     return Util.SDK_INT <= 22
         && ("ODROID-XU3".equals(Util.MODEL) || "Nexus 10".equals(Util.MODEL))
         && ("OMX.Exynos.AVC.Decoder".equals(name) || "OMX.Exynos.AVC.Decoder.secure".equals(name));
+  }
+
+  private static Pair<Integer, Integer> getDolbyVisionProfileAndLevel(
+      String codec, String[] parts) {
+    if (parts.length < 3) {
+      // The codec has fewer parts than required by the Dolby Vision codec string format.
+      Log.w(TAG, "Ignoring malformed Dolby Vision codec string: " + codec);
+      return null;
+    }
+    // The profile_space gets ignored.
+    Matcher matcher = PROFILE_PATTERN.matcher(parts[1]);
+    if (!matcher.matches()) {
+      Log.w(TAG, "Ignoring malformed Dolby Vision codec string: " + codec);
+      return null;
+    }
+    String profileString = matcher.group(1);
+    Integer profile = DOLBY_VISION_STRING_TO_PROFILE.get(profileString);
+    if (profile == null) {
+      Log.w(TAG, "Unknown Dolby Vision profile string: " + profileString);
+      return null;
+    }
+    String levelString = parts[2];
+    Integer level = DOLBY_VISION_STRING_TO_LEVEL.get(levelString);
+    if (level == null) {
+      Log.w(TAG, "Unknown Dolby Vision level string: " + levelString);
+      return null;
+    }
+    return new Pair<>(profile, level);
   }
 
   private static Pair<Integer, Integer> getHevcProfileAndLevel(String codec, String[] parts) {
@@ -782,6 +818,29 @@ public final class MediaCodecUtil {
     HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H180", CodecProfileLevel.HEVCHighTierLevel6);
     HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H183", CodecProfileLevel.HEVCHighTierLevel61);
     HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H186", CodecProfileLevel.HEVCHighTierLevel62);
+
+    DOLBY_VISION_STRING_TO_PROFILE = new HashMap<>();
+    DOLBY_VISION_STRING_TO_PROFILE.put("00", CodecProfileLevel.DolbyVisionProfileDvavPer);
+    DOLBY_VISION_STRING_TO_PROFILE.put("01", CodecProfileLevel.DolbyVisionProfileDvavPen);
+    DOLBY_VISION_STRING_TO_PROFILE.put("02", CodecProfileLevel.DolbyVisionProfileDvheDer);
+    DOLBY_VISION_STRING_TO_PROFILE.put("03", CodecProfileLevel.DolbyVisionProfileDvheDen);
+    DOLBY_VISION_STRING_TO_PROFILE.put("04", CodecProfileLevel.DolbyVisionProfileDvheDtr);
+    DOLBY_VISION_STRING_TO_PROFILE.put("05", CodecProfileLevel.DolbyVisionProfileDvheStn);
+    DOLBY_VISION_STRING_TO_PROFILE.put("06", CodecProfileLevel.DolbyVisionProfileDvheDth);
+    DOLBY_VISION_STRING_TO_PROFILE.put("07", CodecProfileLevel.DolbyVisionProfileDvheDtb);
+    DOLBY_VISION_STRING_TO_PROFILE.put("08", CodecProfileLevel.DolbyVisionProfileDvheSt);
+    DOLBY_VISION_STRING_TO_PROFILE.put("09", CodecProfileLevel.DolbyVisionProfileDvavSe);
+
+    DOLBY_VISION_STRING_TO_LEVEL = new HashMap<>();
+    DOLBY_VISION_STRING_TO_LEVEL.put("01", CodecProfileLevel.DolbyVisionLevelHd24);
+    DOLBY_VISION_STRING_TO_LEVEL.put("02", CodecProfileLevel.DolbyVisionLevelHd30);
+    DOLBY_VISION_STRING_TO_LEVEL.put("03", CodecProfileLevel.DolbyVisionLevelFhd24);
+    DOLBY_VISION_STRING_TO_LEVEL.put("04", CodecProfileLevel.DolbyVisionLevelFhd30);
+    DOLBY_VISION_STRING_TO_LEVEL.put("05", CodecProfileLevel.DolbyVisionLevelFhd60);
+    DOLBY_VISION_STRING_TO_LEVEL.put("06", CodecProfileLevel.DolbyVisionLevelUhd24);
+    DOLBY_VISION_STRING_TO_LEVEL.put("07", CodecProfileLevel.DolbyVisionLevelUhd30);
+    DOLBY_VISION_STRING_TO_LEVEL.put("08", CodecProfileLevel.DolbyVisionLevelUhd48);
+    DOLBY_VISION_STRING_TO_LEVEL.put("09", CodecProfileLevel.DolbyVisionLevelUhd60);
 
     MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE = new SparseIntArray();
     MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(1, CodecProfileLevel.AACObjectMain);
