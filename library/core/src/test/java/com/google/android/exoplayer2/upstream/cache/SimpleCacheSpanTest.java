@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.upstream.cache;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,7 +52,7 @@ public class SimpleCacheSpanTest {
   public void setUp() throws Exception {
     cacheDir =
         Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
-    index = new CachedContentIndex(cacheDir);
+    index = new CachedContentIndex(TestUtil.getTestDatabaseProvider());
   }
 
   @After

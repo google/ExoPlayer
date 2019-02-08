@@ -102,41 +102,60 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Creates a CachedContentIndex which works on the index file in the given cacheDir.
+   * Creates an instance supporting database storage only.
    *
-   * @param cacheDir Directory where the index file is kept.
+   * @param databaseProvider Provides the database in which the index is stored.
    */
-  public CachedContentIndex(File cacheDir) {
-    this(cacheDir, null);
+  public CachedContentIndex(DatabaseProvider databaseProvider) {
+    this(
+        databaseProvider,
+        /* legacyStorageDir= */ null,
+        /* legacyStorageSecretKey= */ null,
+        /* legacyStorageEncrypt= */ false,
+        /* preferLegacyStorage= */ false);
   }
 
   /**
-   * Creates a CachedContentIndex which works on the index file in the given cacheDir.
+   * Creates an instance supporting either or both of database and legacy storage.
    *
-   * @param cacheDir Directory where the index file is kept.
-   * @param secretKey 16 byte AES key for reading and writing the cache index.
+   * @param databaseProvider Provides the database in which the index is stored, or {@code null} to
+   *     use only legacy storage.
+   * @param legacyStorageDir The directory in which any legacy storage is stored, or {@code null} to
+   *     use only database storage.
+   * @param legacyStorageSecretKey A 16 byte AES key for reading, and optionally writing, legacy
+   *     storage.
+   * @param legacyStorageEncrypt Whether to encrypt when writing to legacy storage. Must be false if
+   *     {@code secretKey} is null.
+   * @param preferLegacyStorage Whether to use prefer legacy storage if both storage types are
+   *     enabled. This option is only useful for downgrading from database storage back to legacy
+   *     storage.
    */
-  public CachedContentIndex(File cacheDir, @Nullable byte[] secretKey) {
-    this(cacheDir, secretKey, secretKey != null);
-  }
-
-  /**
-   * Creates a CachedContentIndex which works on the index file in the given cacheDir.
-   *
-   * @param cacheDir Directory where the index file is kept.
-   * @param secretKey 16 byte AES key for reading, and optionally writing, the cache index.
-   * @param encrypt Whether the index will be encrypted when written. Must be false if {@code
-   *     secretKey} is null.
-   */
-  public CachedContentIndex(File cacheDir, @Nullable byte[] secretKey, boolean encrypt) {
+  public CachedContentIndex(
+      @Nullable DatabaseProvider databaseProvider,
+      @Nullable File legacyStorageDir,
+      @Nullable byte[] legacyStorageSecretKey,
+      boolean legacyStorageEncrypt,
+      boolean preferLegacyStorage) {
+    Assertions.checkState(databaseProvider != null || legacyStorageDir != null);
     keyToContent = new HashMap<>();
     idToKey = new SparseArray<>();
     removedIds = new SparseBooleanArray();
-    Storage atomicFileStorage =
-        new AtomicFileStorage(new File(cacheDir, FILE_NAME_ATOMIC), secretKey, encrypt);
-    // Storage sqliteStorage = new SQLiteStorage(databaseProvider);
-    storage = atomicFileStorage;
-    previousStorage = null;
+    Storage databaseStorage =
+        databaseProvider != null ? new DatabaseStorage(databaseProvider) : null;
+    Storage legacyStorage =
+        legacyStorageDir != null
+            ? new LegacyStorage(
+                new File(legacyStorageDir, FILE_NAME_ATOMIC),
+                legacyStorageSecretKey,
+                legacyStorageEncrypt)
+            : null;
+    if (databaseStorage == null || (legacyStorage != null && preferLegacyStorage)) {
+      storage = legacyStorage;
+      previousStorage = databaseStorage;
+    } else {
+      storage = databaseStorage;
+      previousStorage = legacyStorage;
+    }
   }
 
   /** Loads the index file. */
@@ -413,7 +432,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** {@link Storage} implementation that uses an {@link AtomicFile}. */
-  private static class AtomicFileStorage implements Storage {
+  private static class LegacyStorage implements Storage {
 
     private final boolean encrypt;
     @Nullable private final Cipher cipher;
@@ -424,7 +443,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private boolean changed;
     @Nullable private ReusableBufferedOutputStream bufferedOutputStream;
 
-    public AtomicFileStorage(File file, @Nullable byte[] secretKey, boolean encrypt) {
+    public LegacyStorage(File file, @Nullable byte[] secretKey, boolean encrypt) {
       Cipher cipher = null;
       SecretKeySpec secretKeySpec = null;
       if (secretKey != null) {
@@ -436,7 +455,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           throw new IllegalStateException(e); // Should never happen.
         }
       } else {
-        Assertions.checkArgument(!encrypt);
+        Assertions.checkState(!encrypt);
       }
       this.encrypt = encrypt;
       this.cipher = cipher;
@@ -642,7 +661,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** {@link Storage} implementation that uses an SQL database. */
-  private static final class SQLiteStorage implements Storage {
+  private static final class DatabaseStorage implements Storage {
 
     private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "CacheContentMetadata";
     private static final int TABLE_VERSION = 1;
@@ -674,7 +693,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private final DatabaseProvider databaseProvider;
     private final SparseArray<CachedContent> pendingUpdates;
 
-    public SQLiteStorage(DatabaseProvider databaseProvider) {
+    public DatabaseStorage(DatabaseProvider databaseProvider) {
       this.databaseProvider = databaseProvider;
       pendingUpdates = new SparseArray<>();
     }

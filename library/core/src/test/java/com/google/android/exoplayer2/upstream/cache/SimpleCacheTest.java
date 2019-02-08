@@ -22,6 +22,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.Mockito.doAnswer;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
@@ -293,7 +294,8 @@ public class SimpleCacheTest {
   /* Tests https://github.com/google/ExoPlayer/issues/3260 case. */
   @Test
   public void testExceptionDuringEvictionByLeastRecentlyUsedCacheEvictorNotHang() throws Exception {
-    CachedContentIndex index = Mockito.spy(new CachedContentIndex(cacheDir));
+    CachedContentIndex index =
+        Mockito.spy(new CachedContentIndex(TestUtil.getTestDatabaseProvider()));
     SimpleCache simpleCache =
         new SimpleCache(cacheDir, new LeastRecentlyUsedCacheEvictor(20), index);
 
