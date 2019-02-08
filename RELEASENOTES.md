@@ -35,8 +35,14 @@
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
 * CEA-608: Improved conformance to the specification
   ([#3860](https://github.com/google/ExoPlayer/issues/3860)).
-* IMA extension: Require setting the `Player` on `AdsLoader` instances before
-  playback.
+* IMA extension:
+  * Require setting the `Player` on `AdsLoader` instances before
+    playback.
+  * Remove deprecated `ImaAdsMediaSource`. Create `AdsMediaSource` with an
+    `ImaAdsLoader` instead.
+  * Remove deprecated `AdsMediaSource` constructors. Listen for media source
+    events using `AdsMediaSource.addEventListener`, and ad interaction events by
+    adding a listener when building `ImaAdsLoader`.
 * Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
 * VP9 extension: Remove RGB output mode and libyuv dependency, and switch to
   surface YUV output as the default. Remove constructor parameters `scaleToFit`
