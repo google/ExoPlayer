@@ -221,6 +221,11 @@ import java.util.List;
  *       <ul>
  *         <li>Type: {@link PlayerControlView}
  *       </ul>
+ *   <li><b>{@code exo_ad_overlay}</b> - A {@link FrameLayout} positioned on top of the player which
+ *       is used to show ad UI (if applicable).
+ *       <ul>
+ *         <li>Type: {@link FrameLayout}
+ *       </ul>
  *   <li><b>{@code exo_overlay}</b> - A {@link FrameLayout} positioned on top of the player which
  *       the app can access via {@link #getOverlayFrameLayout()}, provided for convenience.
  *       <ul>
@@ -280,7 +285,8 @@ public class PlayerView extends FrameLayout {
   @Nullable private final TextView errorMessageView;
   private final PlayerControlView controller;
   private final ComponentListener componentListener;
-  private final FrameLayout overlayFrameLayout;
+  @Nullable private final FrameLayout adOverlayFrameLayout;
+  @Nullable private final FrameLayout overlayFrameLayout;
 
   private Player player;
   private boolean useController;
@@ -317,6 +323,7 @@ public class PlayerView extends FrameLayout {
       errorMessageView = null;
       controller = null;
       componentListener = null;
+      adOverlayFrameLayout = null;
       overlayFrameLayout = null;
       ImageView logo = new ImageView(context);
       if (Util.SDK_INT >= 23) {
@@ -410,6 +417,9 @@ public class PlayerView extends FrameLayout {
     } else {
       surfaceView = null;
     }
+
+    // Ad overlay frame layout.
+    adOverlayFrameLayout = findViewById(R.id.exo_ad_overlay);
 
     // Overlay frame layout.
     overlayFrameLayout = findViewById(R.id.exo_overlay);
@@ -1012,6 +1022,7 @@ public class PlayerView extends FrameLayout {
    * @return The overlay {@link FrameLayout}, or {@code null} if the layout has been customized and
    *     the overlay is not present.
    */
+  @Nullable
   public FrameLayout getOverlayFrameLayout() {
     return overlayFrameLayout;
   }
