@@ -116,7 +116,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @param cacheDir Directory where the index file is kept.
    * @param secretKey 16 byte AES key for reading and writing the cache index.
    */
-  public CachedContentIndex(File cacheDir, byte[] secretKey) {
+  public CachedContentIndex(File cacheDir, @Nullable byte[] secretKey) {
     this(cacheDir, secretKey, secretKey != null);
   }
 
@@ -128,27 +128,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @param encrypt Whether the index will be encrypted when written. Must be false if {@code
    *     secretKey} is null.
    */
-  public CachedContentIndex(File cacheDir, byte[] secretKey, boolean encrypt) {
-    Cipher cipher = null;
-    SecretKeySpec secretKeySpec = null;
-    if (secretKey != null) {
-      Assertions.checkArgument(secretKey.length == 16);
-      try {
-        cipher = getCipher();
-        secretKeySpec = new SecretKeySpec(secretKey, "AES");
-      } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-        throw new IllegalStateException(e); // Should never happen.
-      }
-    } else {
-      Assertions.checkState(!encrypt);
-    }
+  public CachedContentIndex(File cacheDir, @Nullable byte[] secretKey, boolean encrypt) {
     keyToContent = new HashMap<>();
     idToKey = new SparseArray<>();
     removedIds = new SparseBooleanArray();
-    Random random = new Random();
     Storage atomicFileStorage =
-        new AtomicFileStorage(
-            new File(cacheDir, FILE_NAME_ATOMIC), random, encrypt, cipher, secretKeySpec);
+        new AtomicFileStorage(new File(cacheDir, FILE_NAME_ATOMIC), secretKey, encrypt);
     // Storage sqliteStorage = new SQLiteStorage(databaseProvider);
     storage = atomicFileStorage;
     previousStorage = null;
@@ -430,25 +415,33 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /** {@link Storage} implementation that uses an {@link AtomicFile}. */
   private static class AtomicFileStorage implements Storage {
 
-    private final Random random;
     private final boolean encrypt;
     @Nullable private final Cipher cipher;
     @Nullable private final SecretKeySpec secretKeySpec;
+    @Nullable private final Random random;
     private final AtomicFile atomicFile;
 
     private boolean changed;
     @Nullable private ReusableBufferedOutputStream bufferedOutputStream;
 
-    public AtomicFileStorage(
-        File file,
-        Random random,
-        boolean encrypt,
-        @Nullable Cipher cipher,
-        @Nullable SecretKeySpec secretKeySpec) {
-      this.random = random;
+    public AtomicFileStorage(File file, @Nullable byte[] secretKey, boolean encrypt) {
+      Cipher cipher = null;
+      SecretKeySpec secretKeySpec = null;
+      if (secretKey != null) {
+        Assertions.checkArgument(secretKey.length == 16);
+        try {
+          cipher = getCipher();
+          secretKeySpec = new SecretKeySpec(secretKey, "AES");
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+          throw new IllegalStateException(e); // Should never happen.
+        }
+      } else {
+        Assertions.checkArgument(!encrypt);
+      }
       this.encrypt = encrypt;
       this.cipher = cipher;
       this.secretKeySpec = secretKeySpec;
+      random = encrypt ? new Random() : null;
       atomicFile = new AtomicFile(file);
     }
 
