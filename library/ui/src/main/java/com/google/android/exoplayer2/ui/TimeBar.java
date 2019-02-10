@@ -97,6 +97,13 @@ public interface TimeBar {
   void setAdGroupTimesMs(@Nullable long[] adGroupTimesMs, @Nullable boolean[] playedAdGroups,
       int adGroupCount);
 
+    /**
+     * Get width of time bar in dps
+     *
+     * @return Width of time bar in dps
+     */
+    int getTimeBarWidth();
+
   /**
    * Listener for scrubbing events.
    */
