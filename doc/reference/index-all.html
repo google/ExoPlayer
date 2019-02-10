@@ -364,7 +364,7 @@
 <dd>
 <div class="block">Appends a <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> to the playlist.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#addMediaSource-com.google.android.exoplayer2.source.MediaSource-java.lang.Runnable-">addMediaSource(MediaSource, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#addMediaSource-com.google.android.exoplayer2.source.MediaSource-android.os.Handler-java.lang.Runnable-">addMediaSource(MediaSource, Handler, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block">Appends a <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> to the playlist and executes a custom action on completion.</div>
 </dd>
@@ -372,7 +372,7 @@
 <dd>
 <div class="block">Adds a <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> to the playlist.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#addMediaSource-int-com.google.android.exoplayer2.source.MediaSource-java.lang.Runnable-">addMediaSource(int, MediaSource, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#addMediaSource-int-com.google.android.exoplayer2.source.MediaSource-android.os.Handler-java.lang.Runnable-">addMediaSource(int, MediaSource, Handler, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block">Adds a <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> to the playlist and executes a custom action on completion.</div>
 </dd>
@@ -380,7 +380,7 @@
 <dd>
 <div class="block">Appends multiple <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s to the playlist.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#addMediaSources-java.util.Collection-java.lang.Runnable-">addMediaSources(Collection&lt;MediaSource&gt;, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#addMediaSources-java.util.Collection-android.os.Handler-java.lang.Runnable-">addMediaSources(Collection&lt;MediaSource&gt;, Handler, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block">Appends multiple <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s to the playlist and executes a custom action on
  completion.</div>
@@ -389,7 +389,7 @@
 <dd>
 <div class="block">Adds multiple <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s to the playlist.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#addMediaSources-int-java.util.Collection-java.lang.Runnable-">addMediaSources(int, Collection&lt;MediaSource&gt;, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#addMediaSources-int-java.util.Collection-android.os.Handler-java.lang.Runnable-">addMediaSources(int, Collection&lt;MediaSource&gt;, Handler, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block">Adds multiple <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s to the playlist and executes a custom action on completion.</div>
 </dd>
@@ -1392,7 +1392,7 @@
 <dd>
 <div class="block">Builds an array of <a href="com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a>s that will process PCM audio before output.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#buildAudioRenderers-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.audio.AudioProcessor:A-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-int-java.util.ArrayList-">buildAudioRenderers(Context, DrmSessionManager&lt;FrameworkMediaCrypto&gt;, AudioProcessor[], Handler, AudioRendererEventListener, int, ArrayList&lt;Renderer&gt;)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#buildAudioRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-com.google.android.exoplayer2.audio.AudioProcessor:A-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-java.util.ArrayList-">buildAudioRenderers(Context, int, MediaCodecSelector, DrmSessionManager&lt;FrameworkMediaCrypto&gt;, boolean, AudioProcessor[], Handler, AudioRendererEventListener, ArrayList&lt;Renderer&gt;)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
 <dd>
 <div class="block">Builds audio renderers for use by the player.</div>
 </dd>
@@ -1528,7 +1528,7 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildUtcTimingElement-java.lang.String-java.lang.String-">buildUtcTimingElement(String, String)</a></span> - Method in class com.google.android.exoplayer2.source.dash.manifest.<a href="com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#buildVideoRenderers-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-java.util.ArrayList-">buildVideoRenderers(Context, DrmSessionManager&lt;FrameworkMediaCrypto&gt;, long, Handler, VideoRendererEventListener, int, ArrayList&lt;Renderer&gt;)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#buildVideoRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-long-java.util.ArrayList-">buildVideoRenderers(Context, int, MediaCodecSelector, DrmSessionManager&lt;FrameworkMediaCrypto&gt;, boolean, Handler, VideoRendererEventListener, long, ArrayList&lt;Renderer&gt;)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
 <dd>
 <div class="block">Builds video renderers for use by the player.</div>
 </dd>
@@ -2185,7 +2185,7 @@
 <dd>
 <div class="block">Clears the playlist.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#clear-java.lang.Runnable-">clear(Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#clear-android.os.Handler-java.lang.Runnable-">clear(Handler, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block">Clears the playlist and executes a custom action on completion.</div>
 </dd>
@@ -5068,19 +5068,28 @@
 </div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-">DefaultRenderersFactory(Context, int)</a></span> - Constructor for class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory.DefaultRenderersFactory(Context)</code></a> and <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>DefaultRenderersFactory.setExtensionRendererMode(int)</code></a>.</span></div>
+</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-int-">DefaultRenderersFactory(Context, DrmSessionManager&lt;FrameworkMediaCrypto&gt;, int)</a></span> - Constructor for class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
 <dd>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-"><code>DefaultRenderersFactory.DefaultRenderersFactory(Context, int)</code></a> and pass <a href="com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory.DefaultRenderersFactory(Context)</code></a> and <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>DefaultRenderersFactory.setExtensionRendererMode(int)</code></a>, and pass <a href="com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
 </div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-long-">DefaultRenderersFactory(Context, int, long)</a></span> - Constructor for class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory.DefaultRenderersFactory(Context)</code></a>, <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>DefaultRenderersFactory.setExtensionRendererMode(int)</code></a> and <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-"><code>DefaultRenderersFactory.setAllowedVideoJoiningTimeMs(long)</code></a>.</span></div>
+</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-int-long-">DefaultRenderersFactory(Context, DrmSessionManager&lt;FrameworkMediaCrypto&gt;, int, long)</a></span> - Constructor for class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
 <dd>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-long-"><code>DefaultRenderersFactory.DefaultRenderersFactory(Context, int, long)</code></a> and pass <a href="com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory.DefaultRenderersFactory(Context)</code></a>, <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>DefaultRenderersFactory.setExtensionRendererMode(int)</code></a> and <a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-"><code>DefaultRenderersFactory.setAllowedVideoJoiningTimeMs(long)</code></a>, and pass
+     <a href="com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
 </div>
 </dd>
 <dt><a href="com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">DefaultRenderersFactory.ExtensionRendererMode</span></a> - Annotation Type in <a href="com/google/android/exoplayer2/package-summary.html">com.google.android.exoplayer2</a></dt>
@@ -6852,6 +6861,10 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_H264_STREAM">FLAG_IGNORE_H264_STREAM</a></span> - Static variable in class com.google.android.exoplayer2.extractor.ts.<a href="com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts">DefaultTsPayloadReaderFactory</a></dt>
 <dd>
 <div class="block">Prevents the creation of <a href="com/google/android/exoplayer2/extractor/ts/H264Reader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>H264Reader</code></a> instances.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_HDMV_DTS_STREAM">FLAG_IGNORE_HDMV_DTS_STREAM</a></span> - Static variable in class com.google.android.exoplayer2.extractor.ts.<a href="com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts">DefaultTsPayloadReaderFactory</a></dt>
+<dd>
+<div class="block">Prevents the creation of <a href="com/google/android/exoplayer2/extractor/ts/DtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DtsReader</code></a> instances when receiving <a href="com/google/android/exoplayer2/extractor/ts/TsExtractor.html#TS_STREAM_TYPE_HDMV_DTS"><code>TsExtractor.TS_STREAM_TYPE_HDMV_DTS</code></a> as stream type.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_SPLICE_INFO_STREAM">FLAG_IGNORE_SPLICE_INFO_STREAM</a></span> - Static variable in class com.google.android.exoplayer2.extractor.ts.<a href="com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts">DefaultTsPayloadReaderFactory</a></dt>
 <dd>
@@ -12518,7 +12531,7 @@
 <dd>
 <div class="block">Moves an existing <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> within the playlist.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#moveMediaSource-int-int-java.lang.Runnable-">moveMediaSource(int, int, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#moveMediaSource-int-int-android.os.Handler-java.lang.Runnable-">moveMediaSource(int, int, Handler, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block">Moves an existing <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> within the playlist and executes a custom action on
  completion.</div>
@@ -14987,6 +15000,8 @@
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#performAccessibilityAction-int-android.os.Bundle-">performAccessibilityAction(int, Bundle)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/PlayerView.html#performClick--">performClick()</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/google/android/exoplayer2/source/dash/manifest/Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><span class="typeNameLink">Period</span></a> - Class in <a href="com/google/android/exoplayer2/source/dash/manifest/package-summary.html">com.google.android.exoplayer2.source.dash.manifest</a></dt>
 <dd>
 <div class="block">Encapsulates media content components over a contiguous period of time.</div>
@@ -16638,7 +16653,7 @@
 <dd>
 <div class="block">Removes a <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> from the playlist.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#removeMediaSource-int-java.lang.Runnable-">removeMediaSource(int, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#removeMediaSource-int-android.os.Handler-java.lang.Runnable-">removeMediaSource(int, Handler, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block">Removes a <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> from the playlist and executes a custom action on completion.</div>
 </dd>
@@ -16647,7 +16662,7 @@
 <div class="block">Removes a range of <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s from the playlist, by specifying an initial index
  (included) and a final index (excluded).</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#removeMediaSourceRange-int-int-java.lang.Runnable-">removeMediaSourceRange(int, int, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#removeMediaSourceRange-int-int-android.os.Handler-java.lang.Runnable-">removeMediaSourceRange(int, int, Handler, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block">Removes a range of <a href="com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s from the playlist, by specifying an initial index
  (included) and a final index (excluded), and executes a custom action on completion.</div>
@@ -17874,6 +17889,11 @@
 <dd>
 <div class="block">Sets whether chunkless preparation is allowed.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-">setAllowedVideoJoiningTimeMs(long)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
+<dd>
+<div class="block">Sets the maximum duration for which video renderers can attempt to seamlessly join an ongoing
+ playback.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setAllowMixedMimeAdaptiveness-boolean-">setAllowMixedMimeAdaptiveness(boolean)</a></span> - Method in class com.google.android.exoplayer2.trackselection.<a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.ParametersBuilder</a></dt>
 <dd>
 <div class="block">See <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowMixedMimeAdaptiveness"><code>DefaultTrackSelector.Parameters.allowMixedMimeAdaptiveness</code></a>.</div>
@@ -18201,6 +18221,11 @@
 <dd>
 <div class="block">See <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#exceedVideoConstraintsIfNecessary"><code>DefaultTrackSelector.Parameters.exceedVideoConstraintsIfNecessary</code></a>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-">setExtensionRendererMode(int)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
+<dd>
+<div class="block">Sets the extension renderer mode, which determines if and how available extension renderers are
+ used.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/PlayerControlView.html#setExtraAdGroupMarkers-long:A-boolean:A-">setExtraAdGroupMarkers(long[], boolean[])</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/PlayerControlView.html" title="class in com.google.android.exoplayer2.ui">PlayerControlView</a></dt>
 <dd>
 <div class="block">Sets the millisecond positions of extra ad markers relative to the start of the window (or
@@ -18459,6 +18484,10 @@
 <dd>
 <div class="block">Equivalent to <a href="com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html#setMaxVideoSize-int-int-"><code>setMaxVideoSize(1279, 719)</code></a>.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#setMediaCodecSelector-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-">setMediaCodecSelector(MediaCodecSelector)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
+<dd>
+<div class="block">Sets a <a href="com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> for use by <a href="https://developer.android.com/reference/android/media/MediaCodec.html" target="_top" title="class or interface in android.media"><code>MediaCodec</code></a> based renderers.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMediaLoadTimeoutMs-int-">setMediaLoadTimeoutMs(int)</a></span> - Method in class com.google.android.exoplayer2.ext.ima.<a href="com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></dt>
 <dd>
 <div class="block">Sets the ad media load timeout, in milliseconds.</div>
@@ -18611,6 +18640,11 @@
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/PlayerView.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">setPlaybackPreparer(PlaybackPreparer)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a></dt>
 <dd>
 <div class="block">Sets the <a href="com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/DefaultRenderersFactory.html#setPlayClearSamplesWithoutKeys-boolean-">setPlayClearSamplesWithoutKeys(boolean)</a></span> - Method in class com.google.android.exoplayer2.<a href="com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></dt>
+<dd>
+<div class="block">Sets whether renderers are permitted to play clear regions of encrypted media prior to having
+ obtained the keys necessary to decrypt encrypted regions of the media.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html#setPlayedAdMarkerColor-int-">setPlayedAdMarkerColor(int)</a></span> - Method in class com.google.android.exoplayer2.ui.<a href="com/google/android/exoplayer2/ui/DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></dt>
 <dd>
@@ -18907,7 +18941,7 @@
 <dd>
 <div class="block">Sets a new shuffle order to use when shuffling the child media sources.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#setShuffleOrder-com.google.android.exoplayer2.source.ShuffleOrder-java.lang.Runnable-">setShuffleOrder(ShuffleOrder, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
+<dt><span class="memberNameLink"><a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html#setShuffleOrder-com.google.android.exoplayer2.source.ShuffleOrder-android.os.Handler-java.lang.Runnable-">setShuffleOrder(ShuffleOrder, Handler, Runnable)</a></span> - Method in class com.google.android.exoplayer2.source.<a href="com/google/android/exoplayer2/source/ConcatenatingMediaSource.html" title="class in com.google.android.exoplayer2.source">ConcatenatingMediaSource</a></dt>
 <dd>
 <div class="block">Sets a new shuffle order to use when shuffling the child media sources.</div>
 </dd>

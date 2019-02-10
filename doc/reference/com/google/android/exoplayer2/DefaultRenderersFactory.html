@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -213,7 +213,7 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
                        <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                        int&nbsp;extensionRendererMode)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-"><code>DefaultRenderersFactory(Context, int)</code></a> and pass <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a>, and pass <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
 </div>
 </td>
 </tr>
@@ -223,18 +223,27 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
                        int&nbsp;extensionRendererMode,
                        long&nbsp;allowedVideoJoiningTimeMs)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-long-"><code>DefaultRenderersFactory(Context, int, long)</code></a> and pass <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a>, <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-"><code>setAllowedVideoJoiningTimeMs(long)</code></a>, and pass
+     <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-">DefaultRenderersFactory</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                       int&nbsp;extensionRendererMode)</code>&nbsp;</td>
+                       int&nbsp;extensionRendererMode)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a>.</span></div>
+</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-long-">DefaultRenderersFactory</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
                        int&nbsp;extensionRendererMode,
-                       long&nbsp;allowedVideoJoiningTimeMs)</code>&nbsp;</td>
+                       long&nbsp;allowedVideoJoiningTimeMs)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a>, <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-"><code>setAllowedVideoJoiningTimeMs(long)</code></a>.</span></div>
+</div>
+</td>
 </tr>
 </table>
 </li>
@@ -259,12 +268,14 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildAudioRenderers-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.audio.AudioProcessor:A-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-int-java.util.ArrayList-">buildAudioRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildAudioRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-com.google.android.exoplayer2.audio.AudioProcessor:A-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-java.util.ArrayList-">buildAudioRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                   int&nbsp;extensionRendererMode,
+                   <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                    <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
+                   boolean&nbsp;playClearSamplesWithoutKeys,
                    <a href="../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                    <a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
-                   int&nbsp;extensionRendererMode,
                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/ArrayList.html" target="_top" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>&gt;&nbsp;out)</code>
 <div class="block">Builds audio renderers for use by the player.</div>
 </td>
@@ -308,12 +319,14 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildVideoRenderers-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-java.util.ArrayList-">buildVideoRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildVideoRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-long-java.util.ArrayList-">buildVideoRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                   int&nbsp;extensionRendererMode,
+                   <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                    <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
-                   long&nbsp;allowedVideoJoiningTimeMs,
+                   boolean&nbsp;playClearSamplesWithoutKeys,
                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                    <a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
-                   int&nbsp;extensionRendererMode,
+                   long&nbsp;allowedVideoJoiningTimeMs,
                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/ArrayList.html" target="_top" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>&gt;&nbsp;out)</code>
 <div class="block">Builds video renderers for use by the player.</div>
 </td>
@@ -327,6 +340,33 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
                <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;metadataRendererOutput,
                <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager)</code>
 <div class="block">Builds the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> instances for a <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a>.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-">setAllowedVideoJoiningTimeMs</a></span>(long&nbsp;allowedVideoJoiningTimeMs)</code>
+<div class="block">Sets the maximum duration for which video renderers can attempt to seamlessly join an ongoing
+ playback.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-">setExtensionRendererMode</a></span>(int&nbsp;extensionRendererMode)</code>
+<div class="block">Sets the extension renderer mode, which determines if and how available extension renderers are
+ used.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setMediaCodecSelector-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-">setMediaCodecSelector</a></span>(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</code>
+<div class="block">Sets a <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> for use by <a href="https://developer.android.com/reference/android/media/MediaCodec.html" target="_top" title="class or interface in android.media"><code>MediaCodec</code></a> based renderers.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setPlayClearSamplesWithoutKeys-boolean-">setPlayClearSamplesWithoutKeys</a></span>(boolean&nbsp;playClearSamplesWithoutKeys)</code>
+<div class="block">Sets whether renderers are permitted to play clear regions of encrypted media prior to having
+ obtained the keys necessary to decrypt encrypted regions of the media.</div>
 </td>
 </tr>
 </table>
@@ -468,16 +508,11 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultRenderersFactory</h4>
-<pre>public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                               <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
-                               int&nbsp;extensionRendererMode)</pre>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
-<dd><code>extensionRendererMode</code> - The extension renderer mode, which determines if and how available
-     extension renderers are used. Note that extensions must be included in the application
-     build for them to be considered available.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                           <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
+                                           int&nbsp;extensionRendererMode)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a>.</span></div>
 </li>
 </ul>
 <a name="DefaultRenderersFactory-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-int-">
@@ -492,7 +527,7 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
                                            <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                            <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
                                            int&nbsp;extensionRendererMode)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-"><code>DefaultRenderersFactory(Context, int)</code></a> and pass <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a>, and pass <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
 </li>
 </ul>
 <a name="DefaultRenderersFactory-android.content.Context-int-long-">
@@ -501,19 +536,12 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultRenderersFactory</h4>
-<pre>public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                               <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
-                               int&nbsp;extensionRendererMode,
-                               long&nbsp;allowedVideoJoiningTimeMs)</pre>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
-<dd><code>extensionRendererMode</code> - The extension renderer mode, which determines if and how available
-     extension renderers are used. Note that extensions must be included in the application
-     build for them to be considered available.</dd>
-<dd><code>allowedVideoJoiningTimeMs</code> - The maximum duration for which video renderers can attempt to
-     seamlessly join an ongoing playback.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                           <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
+                                           int&nbsp;extensionRendererMode,
+                                           long&nbsp;allowedVideoJoiningTimeMs)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a>, <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-"><code>setAllowedVideoJoiningTimeMs(long)</code></a>.</span></div>
 </li>
 </ul>
 <a name="DefaultRenderersFactory-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-int-long-">
@@ -529,7 +557,8 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
                                            <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
                                            int&nbsp;extensionRendererMode,
                                            long&nbsp;allowedVideoJoiningTimeMs)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-long-"><code>DefaultRenderersFactory(Context, int, long)</code></a> and pass <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a>, <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-"><code>setAllowedVideoJoiningTimeMs(long)</code></a>, and pass
+     <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> directly to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a> or <a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html" title="class in com.google.android.exoplayer2"><code>ExoPlayerFactory</code></a>.</span></div>
 </li>
 </ul>
 </li>
@@ -540,6 +569,88 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="setExtensionRendererMode-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setExtensionRendererMode</h4>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setExtensionRendererMode(<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
+                                                        int&nbsp;extensionRendererMode)</pre>
+<div class="block">Sets the extension renderer mode, which determines if and how available extension renderers are
+ used. Note that extensions must be included in the application build for them to be considered
+ available.
+
+ <p>The default value is <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_OFF"><code>EXTENSION_RENDERER_MODE_OFF</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>extensionRendererMode</code> - The extension renderer mode.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a name="setPlayClearSamplesWithoutKeys-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlayClearSamplesWithoutKeys</h4>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setPlayClearSamplesWithoutKeys(boolean&nbsp;playClearSamplesWithoutKeys)</pre>
+<div class="block">Sets whether renderers are permitted to play clear regions of encrypted media prior to having
+ obtained the keys necessary to decrypt encrypted regions of the media. For encrypted media that
+ starts with a short clear region, this allows playback to begin in parallel with key
+ acquisition, which can reduce startup latency.
+
+ <p>The default value is <code>false</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playClearSamplesWithoutKeys</code> - Whether renderers are permitted to play clear regions of
+     encrypted media prior to having obtained the keys necessary to decrypt encrypted regions of
+     the media.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a name="setMediaCodecSelector-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMediaCodecSelector</h4>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setMediaCodecSelector(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</pre>
+<div class="block">Sets a <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> for use by <a href="https://developer.android.com/reference/android/media/MediaCodec.html" target="_top" title="class or interface in android.media"><code>MediaCodec</code></a> based renderers.
+
+ <p>The default value is <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html#DEFAULT"><code>MediaCodecSelector.DEFAULT</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaCodecSelector</code> - The <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a name="setAllowedVideoJoiningTimeMs-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAllowedVideoJoiningTimeMs</h4>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setAllowedVideoJoiningTimeMs(long&nbsp;allowedVideoJoiningTimeMs)</pre>
+<div class="block">Sets the maximum duration for which video renderers can attempt to seamlessly join an ongoing
+ playback.
+
+ <p>The default value is <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS"><code>DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>allowedVideoJoiningTimeMs</code> - The maximum duration for which video renderers can attempt to
+     seamlessly join an ongoing playback, in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
 <a name="createRenderers-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.text.TextOutput-com.google.android.exoplayer2.metadata.MetadataOutput-com.google.android.exoplayer2.drm.DrmSessionManager-">
 <!--   -->
 </a>
@@ -570,62 +681,74 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 </dl>
 </li>
 </ul>
-<a name="buildVideoRenderers-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-long-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-int-java.util.ArrayList-">
+<a name="buildVideoRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-long-java.util.ArrayList-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildVideoRenderers</h4>
 <pre>protected&nbsp;void&nbsp;buildVideoRenderers(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
-                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-                                   <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
-                                   long&nbsp;allowedVideoJoiningTimeMs,
-                                   <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
-                                   <a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                                    <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
                                    int&nbsp;extensionRendererMode,
+                                   <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
+                                   <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+                                   <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
+                                   boolean&nbsp;playClearSamplesWithoutKeys,
+                                   <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
+                                   <a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
+                                   long&nbsp;allowedVideoJoiningTimeMs,
                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/ArrayList.html" target="_top" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds video renderers for use by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a> associated with the player.</dd>
-<dd><code>drmSessionManager</code> - An optional <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>. May be null if the player
-     will not be used for DRM protected playbacks.</dd>
-<dd><code>allowedVideoJoiningTimeMs</code> - The maximum duration in milliseconds for which video
-     renderers can attempt to seamlessly join an ongoing playback.</dd>
+<dd><code>extensionRendererMode</code> - The extension renderer mode.</dd>
+<dd><code>mediaCodecSelector</code> - A decoder selector.</dd>
+<dd><code>drmSessionManager</code> - An optional <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>. May be null if the player will
+     not be used for DRM protected playbacks.</dd>
+<dd><code>playClearSamplesWithoutKeys</code> - Whether renderers are permitted to play clear regions of
+     encrypted media prior to having obtained the keys necessary to decrypt encrypted regions of
+     the media.</dd>
 <dd><code>eventHandler</code> - A handler associated with the main thread's looper.</dd>
 <dd><code>eventListener</code> - An event listener.</dd>
-<dd><code>extensionRendererMode</code> - The extension renderer mode.</dd>
+<dd><code>allowedVideoJoiningTimeMs</code> - The maximum duration for which video renderers can attempt to
+     seamlessly join an ongoing playback, in milliseconds.</dd>
 <dd><code>out</code> - An array to which the built renderers should be appended.</dd>
 </dl>
 </li>
 </ul>
-<a name="buildAudioRenderers-android.content.Context-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.audio.AudioProcessor:A-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-int-java.util.ArrayList-">
+<a name="buildAudioRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-com.google.android.exoplayer2.audio.AudioProcessor:A-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-java.util.ArrayList-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildAudioRenderers</h4>
 <pre>protected&nbsp;void&nbsp;buildAudioRenderers(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                   <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
+                                   int&nbsp;extensionRendererMode,
+                                   <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                                    <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                    <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
+                                   boolean&nbsp;playClearSamplesWithoutKeys,
                                    <a href="../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
                                    <a href="https://developer.android.com/reference/android/os/Handler.html" target="_top" title="class or interface in android.os">Handler</a>&nbsp;eventHandler,
                                    <a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
-                                   <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
-                                   int&nbsp;extensionRendererMode,
                                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/ArrayList.html" target="_top" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds audio renderers for use by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a> associated with the player.</dd>
-<dd><code>drmSessionManager</code> - An optional <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>. May be null if the player
-     will not be used for DRM protected playbacks.</dd>
-<dd><code>audioProcessors</code> - An array of <a href="../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a>s that will process PCM audio
-     buffers before output. May be empty.</dd>
+<dd><code>extensionRendererMode</code> - The extension renderer mode.</dd>
+<dd><code>mediaCodecSelector</code> - A decoder selector.</dd>
+<dd><code>drmSessionManager</code> - An optional <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>. May be null if the player will
+     not be used for DRM protected playbacks.</dd>
+<dd><code>playClearSamplesWithoutKeys</code> - Whether renderers are permitted to play clear regions of
+     encrypted media prior to having obtained the keys necessary to decrypt encrypted regions of
+     the media.</dd>
+<dd><code>audioProcessors</code> - An array of <a href="../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a>s that will process PCM audio buffers
+     before output. May be empty.</dd>
 <dd><code>eventHandler</code> - A handler to use when invoking event listeners and outputs.</dd>
 <dd><code>eventListener</code> - An event listener.</dd>
-<dd><code>extensionRendererMode</code> - The extension renderer mode.</dd>
 <dd><code>out</code> - An array to which the built renderers should be appended.</dd>
 </dl>
 </li>
