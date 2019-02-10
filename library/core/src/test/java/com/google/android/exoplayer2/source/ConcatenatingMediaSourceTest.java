@@ -590,29 +590,6 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testCustomCallbackIsCalledAfterRelease() throws IOException {
-    DummyMainThread dummyMainThread = new DummyMainThread();
-    ConditionVariable callbackCalledCondition = new ConditionVariable();
-    try {
-      dummyMainThread.runOnMainThread(
-          () -> {
-            SourceInfoRefreshListener listener = mock(SourceInfoRefreshListener.class);
-            mediaSource.addMediaSources(Arrays.asList(createMediaSources(2)));
-            mediaSource.prepareSource(listener, /* mediaTransferListener= */ null);
-            mediaSource.moveMediaSource(
-                /* currentIndex= */ 0,
-                /* newIndex= */ 1,
-                new Handler(),
-                callbackCalledCondition::open);
-            mediaSource.releaseSource(listener);
-          });
-      assertThat(callbackCalledCondition.block(MediaSourceTestRunner.TIMEOUT_MS)).isTrue();
-    } finally {
-      dummyMainThread.release();
-    }
-  }
-
-  @Test
   public void testPeriodCreationWithAds() throws IOException, InterruptedException {
     // Create concatenated media source with ad child source.
     Timeline timelineContentOnly =
