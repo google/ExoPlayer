@@ -17,13 +17,16 @@ package com.google.android.exoplayer2.source;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.os.ConditionVariable;
+import android.os.Handler;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
@@ -41,7 +44,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
@@ -415,57 +417,59 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testCustomCallbackBeforePreparationAddSingle() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
-    mediaSource.addMediaSource(createFakeMediaSource(), runnable);
+    mediaSource.addMediaSource(createFakeMediaSource(), new Handler(), runnable);
     verify(runnable).run();
   }
 
   @Test
   public void testCustomCallbackBeforePreparationAddMultiple() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
     mediaSource.addMediaSources(
         Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
+        new Handler(),
         runnable);
     verify(runnable).run();
   }
 
   @Test
   public void testCustomCallbackBeforePreparationAddSingleWithIndex() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
-    mediaSource.addMediaSource(/* index */ 0, createFakeMediaSource(), runnable);
+    mediaSource.addMediaSource(/* index */ 0, createFakeMediaSource(), new Handler(), runnable);
     verify(runnable).run();
   }
 
   @Test
   public void testCustomCallbackBeforePreparationAddMultipleWithIndex() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
     mediaSource.addMediaSources(
         /* index */ 0,
         Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
+        new Handler(),
         runnable);
     verify(runnable).run();
   }
 
   @Test
   public void testCustomCallbackBeforePreparationRemove() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
     mediaSource.addMediaSource(createFakeMediaSource());
-    mediaSource.removeMediaSource(/* index */ 0, runnable);
+    mediaSource.removeMediaSource(/* index */ 0, new Handler(), runnable);
     verify(runnable).run();
   }
 
   @Test
   public void testCustomCallbackBeforePreparationMove() {
-    Runnable runnable = Mockito.mock(Runnable.class);
+    Runnable runnable = mock(Runnable.class);
 
     mediaSource.addMediaSources(
         Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}));
-    mediaSource.moveMediaSource(/* fromIndex */ 1, /* toIndex */ 0, runnable);
+    mediaSource.moveMediaSource(/* fromIndex */ 1, /* toIndex */ 0, new Handler(), runnable);
     verify(runnable).run();
   }
 
@@ -476,7 +480,8 @@ public final class ConcatenatingMediaSourceTest {
       testRunner.prepareSource();
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
-          () -> mediaSource.addMediaSource(createFakeMediaSource(), timelineGrabber));
+          () ->
+              mediaSource.addMediaSource(createFakeMediaSource(), new Handler(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(1);
     } finally {
@@ -495,6 +500,7 @@ public final class ConcatenatingMediaSourceTest {
               mediaSource.addMediaSources(
                   Arrays.asList(
                       new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
+                  new Handler(),
                   timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
@@ -511,7 +517,8 @@ public final class ConcatenatingMediaSourceTest {
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
           () ->
-              mediaSource.addMediaSource(/* index */ 0, createFakeMediaSource(), timelineGrabber));
+              mediaSource.addMediaSource(
+                  /* index */ 0, createFakeMediaSource(), new Handler(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(1);
     } finally {
@@ -531,6 +538,7 @@ public final class ConcatenatingMediaSourceTest {
                   /* index */ 0,
                   Arrays.asList(
                       new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
+                  new Handler(),
                   timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
@@ -549,7 +557,7 @@ public final class ConcatenatingMediaSourceTest {
 
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
-          () -> mediaSource.removeMediaSource(/* index */ 0, timelineGrabber));
+          () -> mediaSource.removeMediaSource(/* index */ 0, new Handler(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(0);
     } finally {
@@ -571,7 +579,9 @@ public final class ConcatenatingMediaSourceTest {
 
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
-          () -> mediaSource.moveMediaSource(/* fromIndex */ 1, /* toIndex */ 0, timelineGrabber));
+          () ->
+              mediaSource.moveMediaSource(
+                  /* fromIndex */ 1, /* toIndex */ 0, new Handler(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
     } finally {
@@ -819,7 +829,7 @@ public final class ConcatenatingMediaSourceTest {
     testRunner.prepareSource();
     final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
 
-    dummyMainThread.runOnMainThread(() -> mediaSource.clear(timelineGrabber));
+    dummyMainThread.runOnMainThread(() -> mediaSource.clear(new Handler(), timelineGrabber));
 
     Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
     assertThat(timeline.isEmpty()).isTrue();
@@ -964,8 +974,9 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void testCustomCallbackBeforePreparationSetShuffleOrder() throws Exception {
-    Runnable runnable = Mockito.mock(Runnable.class);
-    mediaSource.setShuffleOrder(new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0), runnable);
+    Runnable runnable = mock(Runnable.class);
+    mediaSource.setShuffleOrder(
+        new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0), new Handler(), runnable);
 
     verify(runnable).run();
   }
@@ -981,7 +992,9 @@ public final class ConcatenatingMediaSourceTest {
       dummyMainThread.runOnMainThread(
           () ->
               mediaSource.setShuffleOrder(
-                  new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 3), timelineGrabber));
+                  new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 3),
+                  new Handler(),
+                  timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true)).isEqualTo(0);
     } finally {
