@@ -196,6 +196,9 @@ public class PlayerControlView extends FrameLayout {
   public static final int MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR = 100;
 
   private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
+  private static final int DEFAULT_UPDATE_DP = 5;
+  private static final long MIN_UPDATE_FREQUENCY_MS = 50;
+  private static final long MAX_UPDATE_FREQUENCY_MS = 1000;
 
   private final ComponentListener componentListener;
   private final View previousButton;
@@ -835,13 +838,21 @@ public class PlayerControlView extends FrameLayout {
         if (playbackSpeed <= 0.1f) {
           delayMs = 1000;
         } else if (playbackSpeed <= 5f) {
-          long mediaTimeUpdatePeriodMs = 1000 / Math.max(1, Math.round(1 / playbackSpeed));
+          /*long mediaTimeUpdatePeriodMs = 1000 / Math.max(1, Math.round(1 / playbackSpeed));
           long mediaTimeDelayMs = mediaTimeUpdatePeriodMs - (position % mediaTimeUpdatePeriodMs);
           if (mediaTimeDelayMs < (mediaTimeUpdatePeriodMs / 5)) {
             mediaTimeDelayMs += mediaTimeUpdatePeriodMs;
+          }*/
+          int timeBarWidth = timeBar.getTimeBarWidth();
+          int numberOfUpdates = timeBarWidth / DEFAULT_UPDATE_DP;
+          long mediaTimeDelayMs = duration / numberOfUpdates;
+
+          if (mediaTimeDelayMs < MIN_UPDATE_FREQUENCY_MS) {
+            mediaTimeDelayMs = MIN_UPDATE_FREQUENCY_MS;
+          } else if (mediaTimeDelayMs >= MAX_UPDATE_FREQUENCY_MS) {
+            mediaTimeDelayMs = MAX_UPDATE_FREQUENCY_MS;
           }
-          delayMs =
-              playbackSpeed == 1 ? mediaTimeDelayMs : (long) (mediaTimeDelayMs / playbackSpeed);
+          delayMs = playbackSpeed == 1 ? mediaTimeDelayMs : (long) (mediaTimeDelayMs / playbackSpeed);
         } else {
           delayMs = 200;
         }
