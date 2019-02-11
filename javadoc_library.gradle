@@ -21,7 +21,7 @@ android.libraryVariants.all { variant ->
     task("generateJavadoc", type: Javadoc) {
         description = "Generates Javadoc for the ${javadocTitle}."
         title = "ExoPlayer ${javadocTitle}"
-        source = variant.javaCompile.source
+        source = variant.javaCompileProvider.get().source
         options {
             links "http://docs.oracle.com/javase/7/docs/api/"
             linksOffline "https://developer.android.com/reference",
@@ -33,7 +33,7 @@ android.libraryVariants.all { variant ->
         doFirst {
             classpath =
                 files(
-                    variant.javaCompile.classpath.files,
+                    variant.javaCompileProvider.get().classpath.files,
                     project.android.getBootClasspath())
         }
         doLast {
