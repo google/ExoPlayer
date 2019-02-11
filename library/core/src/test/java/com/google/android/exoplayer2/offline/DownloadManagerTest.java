@@ -278,7 +278,7 @@ public class DownloadManagerTest {
     downloader1.assertStarted();
     runner.postDownloadAction(streamKey2);
 
-    downloader1.unblock().assertCanceled();
+    downloader1.assertCanceled();
 
     FakeDownloader downloader2 = runner.getDownloader(1);
     downloader2.assertStarted();
