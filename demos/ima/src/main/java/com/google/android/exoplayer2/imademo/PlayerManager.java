@@ -64,10 +64,7 @@ import com.google.android.exoplayer2.util.Util;
     // Compose the content media source into a new AdsMediaSource with both ads and content.
     MediaSource mediaSourceWithAds =
         new AdsMediaSource(
-            contentMediaSource,
-            /* adMediaSourceFactory= */ this,
-            adsLoader,
-            playerView.getOverlayFrameLayout());
+            contentMediaSource, /* adMediaSourceFactory= */ this, adsLoader, playerView);
 
     // Prepare the player with the source.
     player.seekTo(contentPosition);
