@@ -403,7 +403,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           surfaceView = new TextureView(context);
           break;
         case SURFACE_TYPE_MONO360_VIEW:
-          Assertions.checkState(Util.SDK_INT >= 15);
           SphericalSurfaceView sphericalSurfaceView = new SphericalSurfaceView(context);
           sphericalSurfaceView.setSurfaceListener(componentListener);
           sphericalSurfaceView.setSingleTapListener(componentListener);

@@ -80,6 +80,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   }
 
   private static final String TAG = "HostActivity";
+  private static final String LOCK_TAG = "ExoPlayerTestUtil:" + TAG;
   private static final long START_TIMEOUT_MS = 5000;
 
   private WakeLock wakeLock;
@@ -175,10 +176,10 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   public void onStart() {
     Context appContext = getApplicationContext();
     WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
-    wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, TAG);
+    wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, LOCK_TAG);
     wifiLock.acquire();
     PowerManager powerManager = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
-    wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+    wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, LOCK_TAG);
     wakeLock.acquire();
     super.onStart();
   }

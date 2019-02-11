@@ -18,12 +18,12 @@ package com.google.android.exoplayer2.upstream.cache;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import android.util.LongSparseArray;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.After;
@@ -112,7 +112,7 @@ public class SimpleCacheSpanTest {
     TreeSet<SimpleCacheSpan> spans = index.get(key).getSpans();
     assertWithMessage("upgradeOldFiles() shouldn't add any spans.").that(spans.isEmpty()).isTrue();
 
-    HashMap<Long, Long> cachedPositions = new HashMap<>();
+    LongSparseArray<Long> cachedPositions = new LongSparseArray<>();
     for (File file : files) {
       SimpleCacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(file, file.length(), index);
       if (cacheSpan != null) {
@@ -121,9 +121,9 @@ public class SimpleCacheSpanTest {
       }
     }
 
-    assertThat(cachedPositions.get((long) 0)).isEqualTo(1);
-    assertThat(cachedPositions.get((long) 1)).isEqualTo(2);
-    assertThat(cachedPositions.get((long) 5)).isEqualTo(6);
+    assertThat(cachedPositions.get(0)).isEqualTo(1);
+    assertThat(cachedPositions.get(1)).isEqualTo(2);
+    assertThat(cachedPositions.get(5)).isEqualTo(6);
   }
 
   private static void createTestFile(File file, long length) throws IOException {

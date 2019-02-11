@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -294,6 +295,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return cachedContent;
   }
 
+  @SuppressLint("GetInstance") // Suppress warning about specifying "BC" as an explicit provider.
   private static Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
     // Workaround for https://issuetracker.google.com/issues/36976726
     if (Util.SDK_INT == 18) {

@@ -597,10 +597,10 @@ public final class SimpleCache implements Cache {
     return createUid(directory);
   }
 
+  @SuppressWarnings("TrulyRandom")
   private static long createUid(File directory) throws IOException {
-    SecureRandom random = new SecureRandom();
     // Generate a non-negative UID.
-    long uid = random.nextLong();
+    long uid = new SecureRandom().nextLong();
     uid = uid == Long.MIN_VALUE ? 0 : Math.abs(uid);
     // Persist it as a file.
     String hexUid = Long.toString(uid, /* radix= */ 16);

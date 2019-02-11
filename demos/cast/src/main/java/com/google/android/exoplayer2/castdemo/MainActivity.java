@@ -150,8 +150,11 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public void onClick(View view) {
-    new AlertDialog.Builder(this).setTitle(R.string.sample_list_dialog_title)
-        .setView(buildSampleListView()).setPositiveButton(android.R.string.ok, null).create()
+    new AlertDialog.Builder(this)
+        .setTitle(R.string.add_samples)
+        .setView(buildSampleListView())
+        .setPositiveButton(android.R.string.ok, null)
+        .create()
         .show();
   }
 
