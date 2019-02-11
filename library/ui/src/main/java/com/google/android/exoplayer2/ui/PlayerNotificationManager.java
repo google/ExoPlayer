@@ -338,10 +338,9 @@ public class PlayerNotificationManager {
 
   private final Context context;
   private final String channelId;
-  private final NotificationCompat.Builder builder;
   private final int notificationId;
   private final MediaDescriptionAdapter mediaDescriptionAdapter;
-  private final @Nullable CustomActionReceiver customActionReceiver;
+  @Nullable private final CustomActionReceiver customActionReceiver;
   private final Handler mainHandler;
   private final NotificationManagerCompat notificationManager;
   private final IntentFilter intentFilter;
@@ -353,13 +352,15 @@ public class PlayerNotificationManager {
   private final int instanceId;
   private final Timeline.Window window;
 
+  @Nullable private NotificationCompat.Builder builder;
+  @Nullable private ArrayList<NotificationCompat.Action> builderActions;
   @Nullable private Player player;
   @Nullable private PlaybackPreparer playbackPreparer;
   private ControlDispatcher controlDispatcher;
   private boolean isNotificationStarted;
   private int currentNotificationTag;
-  private @Nullable NotificationListener notificationListener;
-  private @Nullable MediaSessionCompat.Token mediaSessionToken;
+  @Nullable private NotificationListener notificationListener;
+  @Nullable private MediaSessionCompat.Token mediaSessionToken;
   private boolean useNavigationActions;
   private boolean usePlayPauseActions;
   private boolean useStopAction;
@@ -369,9 +370,9 @@ public class PlayerNotificationManager {
   private boolean colorized;
   private int defaults;
   private int color;
-  private @DrawableRes int smallIconResourceId;
+  @DrawableRes private int smallIconResourceId;
   private int visibility;
-  private @Priority int priority;
+  @Priority private int priority;
   private boolean useChronometer;
   private boolean wasPlayWhenReady;
   private int lastPlaybackState;
@@ -538,7 +539,6 @@ public class PlayerNotificationManager {
     this.mediaDescriptionAdapter = mediaDescriptionAdapter;
     this.notificationListener = notificationListener;
     this.customActionReceiver = customActionReceiver;
-    builder = new NotificationCompat.Builder(context, channelId);
     controlDispatcher = new DefaultControlDispatcher();
     window = new Timeline.Window();
     instanceId = instanceIdCounter++;
@@ -890,11 +890,12 @@ public class PlayerNotificationManager {
   private Notification startOrUpdateNotification(@Nullable Bitmap bitmap) {
     Player player = this.player;
     boolean ongoing = getOngoing(player);
-    Notification notification = createNotification(player, builder, ongoing, bitmap);
-    if (notification == null) {
+    builder = createNotification(player, builder, ongoing, bitmap);
+    if (builder == null) {
       stopNotification(/* dismissedByUser= */ false);
       return null;
     }
+    Notification notification = builder.build();
     notificationManager.notify(notificationId, notification);
     if (!isNotificationStarted) {
       isNotificationStarted = true;
@@ -926,28 +927,27 @@ public class PlayerNotificationManager {
    * Creates the notification given the current player state.
    *
    * @param player The player for which state to build a notification.
-   * @param builder A builder that can optionally be used for creating the notification. The same
-   *     builder is passed each time this method is called, since reusing the same builder can
-   *     prevent notification flicker when {@code Util#SDK_INT} &lt; 21. This means implementations
-   *     must take care to ensure anything set on the builder during a previous call is cleared, if
-   *     no longer required.
+   * @param builder The builder used to build the last notification, or {@code null}. Re-using the
+   *     builder when possible can prevent notification flicker when {@code Util#SDK_INT} &lt; 21.
    * @param ongoing Whether the notification should be ongoing.
    * @param largeIcon The large icon to be used.
-   * @return The {@link Notification} which has been built, or {@code null} if no notification
-   *     should be displayed.
+   * @return The {@link NotificationCompat.Builder} on which to call {@link
+   *     NotificationCompat.Builder#build()} to obtain the notification, or {@code null} if no
+   *     notification should be displayed.
    */
   @Nullable
-  protected Notification createNotification(
+  protected NotificationCompat.Builder createNotification(
       Player player,
-      NotificationCompat.Builder builder,
+      @Nullable NotificationCompat.Builder builder,
       boolean ongoing,
       @Nullable Bitmap largeIcon) {
     if (player.getPlaybackState() == Player.STATE_IDLE) {
+      builderActions = null;
       return null;
     }
 
-    builder.mActions.clear();
     List<String> actionNames = getActions(player);
+    ArrayList<NotificationCompat.Action> actions = new ArrayList<>(actionNames.size());
     for (int i = 0; i < actionNames.size(); i++) {
       String actionName = actionNames.get(i);
       NotificationCompat.Action action =
@@ -955,7 +955,15 @@ public class PlayerNotificationManager {
               ? playbackActions.get(actionName)
               : customActions.get(actionName);
       if (action != null) {
-        builder.addAction(action);
+        actions.add(action);
+      }
+    }
+
+    if (builder == null || !actions.equals(builderActions)) {
+      builder = new NotificationCompat.Builder(context, channelId);
+      builderActions = actions;
+      for (int i = 0; i < actions.size(); i++) {
+        builder.addAction(actions.get(i));
       }
     }
 
@@ -1010,7 +1018,7 @@ public class PlayerNotificationManager {
     setLargeIcon(builder, largeIcon);
     builder.setContentIntent(mediaDescriptionAdapter.createCurrentContentIntent(player));
 
-    return builder.build();
+    return builder;
   }
 
   /**
