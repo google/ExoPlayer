@@ -20,7 +20,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
-import android.view.ViewGroup;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.CompositeMediaSource;
@@ -146,7 +145,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   private final MediaSource contentMediaSource;
   private final MediaSourceFactory adMediaSourceFactory;
   private final AdsLoader adsLoader;
-  private final ViewGroup adUiViewGroup;
+  private final AdsLoader.AdViewProvider adViewProvider;
   private final Handler mainHandler;
   private final Map<MediaSource, List<DeferredMediaPeriod>> deferredMediaPeriodByAdMediaSource;
   private final Timeline.Period period;
@@ -166,18 +165,18 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
    * @param contentMediaSource The {@link MediaSource} providing the content to play.
    * @param dataSourceFactory Factory for data sources used to load ad media.
    * @param adsLoader The loader for ads.
-   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
+   * @param adViewProvider Provider of views for the ad UI.
    */
   public AdsMediaSource(
       MediaSource contentMediaSource,
       DataSource.Factory dataSourceFactory,
       AdsLoader adsLoader,
-      ViewGroup adUiViewGroup) {
+      AdsLoader.AdViewProvider adViewProvider) {
     this(
         contentMediaSource,
         new ProgressiveMediaSource.Factory(dataSourceFactory),
         adsLoader,
-        adUiViewGroup);
+        adViewProvider);
   }
 
   /**
@@ -187,17 +186,17 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
    * @param contentMediaSource The {@link MediaSource} providing the content to play.
    * @param adMediaSourceFactory Factory for media sources used to load ad media.
    * @param adsLoader The loader for ads.
-   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
+   * @param adViewProvider Provider of views for the ad UI.
    */
   public AdsMediaSource(
       MediaSource contentMediaSource,
       MediaSourceFactory adMediaSourceFactory,
       AdsLoader adsLoader,
-      ViewGroup adUiViewGroup) {
+      AdsLoader.AdViewProvider adViewProvider) {
     this.contentMediaSource = contentMediaSource;
     this.adMediaSourceFactory = adMediaSourceFactory;
     this.adsLoader = adsLoader;
-    this.adUiViewGroup = adUiViewGroup;
+    this.adViewProvider = adViewProvider;
     mainHandler = new Handler(Looper.getMainLooper());
     deferredMediaPeriodByAdMediaSource = new HashMap<>();
     period = new Timeline.Period();
@@ -218,7 +217,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     ComponentListener componentListener = new ComponentListener();
     this.componentListener = componentListener;
     prepareChildSource(DUMMY_CONTENT_MEDIA_PERIOD_ID, contentMediaSource);
-    mainHandler.post(() -> adsLoader.start(componentListener, adUiViewGroup));
+    mainHandler.post(() -> adsLoader.start(componentListener, adViewProvider));
   }
 
   @Override
