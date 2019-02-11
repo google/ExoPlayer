@@ -42,7 +42,7 @@ class CombinedJavadocPlugin implements Plugin<Project> {
                 if (name == "release") {
                   classpath +=
                       libraryModule.project.files(
-                          variant.javaCompile.classpath.files,
+                          variant.javaCompileProvider.get().classpath.files,
                           libraryModule.project.android.getBootClasspath())
                 }
               }
