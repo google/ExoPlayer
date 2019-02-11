@@ -38,6 +38,8 @@ android {
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    testImplementation project(modulePrefix + 'testutils-robolectric')
+    testImplementation 'junit:junit:' + junitVersion
     androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
 }
