@@ -54,6 +54,7 @@ import com.google.android.exoplayer2.Player.VideoComponent;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -244,7 +245,7 @@ import java.util.List;
  * PlayerView. This will cause the specified layout to be inflated instead of {@code
  * exo_player_view.xml} for only the instance on which the attribute is set.
  */
-public class PlayerView extends FrameLayout {
+public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider {
 
   // LINT.IfChange
   /**
@@ -283,7 +284,7 @@ public class PlayerView extends FrameLayout {
   private final SubtitleView subtitleView;
   @Nullable private final View bufferingView;
   @Nullable private final TextView errorMessageView;
-  private final PlayerControlView controller;
+  @Nullable private final PlayerControlView controller;
   private final ComponentListener componentListener;
   @Nullable private final FrameLayout adOverlayFrameLayout;
   @Nullable private final FrameLayout overlayFrameLayout;
@@ -1105,6 +1106,21 @@ public class PlayerView extends FrameLayout {
           contentView instanceof SphericalSurfaceView ? 0 : contentAspectRatio);
     }
   }
+
+  // AdsLoader.AdViewProvider implementation.
+
+  @Override
+  public ViewGroup getAdViewGroup() {
+    return Assertions.checkNotNull(
+        adOverlayFrameLayout, "exo_ad_overlay must be present for ad playback");
+  }
+
+  @Override
+  public View[] getAdOverlayViews() {
+    return controller != null ? new View[] {controller} : new View[0];
+  }
+
+  // Internal methods.
 
   private boolean toggleControllerVisibility() {
     if (!useController || player == null) {
