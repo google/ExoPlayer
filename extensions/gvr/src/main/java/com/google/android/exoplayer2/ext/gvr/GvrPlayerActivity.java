@@ -50,9 +50,8 @@ import com.google.vr.sdk.controller.ControllerManager;
 import javax.microedition.khronos.egl.EGLConfig;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** VR 360 video player base activity class. */
-public abstract class BaseGvrPlayerActivity extends GvrActivity {
-  private static final String TAG = "GvrPlayerActivity";
+/** Base activity for VR 360 video playback. */
+public abstract class GvrPlayerActivity extends GvrActivity {
 
   private static final int EXIT_FROM_VR_REQUEST_CODE = 42;
 
@@ -66,7 +65,7 @@ public abstract class BaseGvrPlayerActivity extends GvrActivity {
   @MonotonicNonNull private SceneRenderer scene;
   @MonotonicNonNull private PlayerControlView playerControl;
 
-  public BaseGvrPlayerActivity() {
+  public GvrPlayerActivity() {
     mainHandler = new Handler(Looper.getMainLooper());
   }
 
@@ -348,7 +347,7 @@ public abstract class BaseGvrPlayerActivity extends GvrActivity {
               }
             });
       } else if (!appButtonDown && controller.appButtonState) {
-        glView.post(BaseGvrPlayerActivity.this::togglePlayerControlVisibility);
+        glView.post(GvrPlayerActivity.this::togglePlayerControlVisibility);
       }
       appButtonDown = controller.appButtonState;
     }
