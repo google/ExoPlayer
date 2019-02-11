@@ -24,7 +24,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.Nullable;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
@@ -45,11 +44,13 @@ import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.DefaultTrackNameProvider;
 import com.google.android.exoplayer2.ui.TrackNameProvider;
-import com.google.android.exoplayer2.ui.TrackSelectionView;
+import com.google.android.exoplayer2.ui.TrackSelectionDialogBuilder;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -229,8 +230,7 @@ public class DownloadTracker implements DownloadManager.Listener {
       implements DownloadHelper.Callback,
           DialogInterface.OnClickListener,
           DialogInterface.OnDismissListener,
-          View.OnClickListener,
-          TrackSelectionView.DialogCallback {
+          View.OnClickListener {
 
     private final DownloadHelper downloadHelper;
     private final String name;
@@ -290,29 +290,19 @@ public class DownloadTracker implements DownloadManager.Listener {
     @Override
     public void onClick(View v) {
       Integer rendererIndex = (Integer) v.getTag();
+      TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(rendererIndex);
       String dialogTitle = getTrackTypeString(mappedTrackInfo.getRendererType(rendererIndex));
-      Pair<AlertDialog, TrackSelectionView> dialogPair =
-          TrackSelectionView.getDialog(
+      new TrackSelectionDialogBuilder(
               dialog.getContext(),
               dialogTitle,
               mappedTrackInfo,
               rendererIndex,
-              parameters,
-              /* callback= */ this);
-      dialogPair.second.setShowDisableOption(true);
-      dialogPair.second.setAllowAdaptiveSelections(false);
-      dialogPair.first.show();
-    }
-
-    // TrackSelectionView.DialogCallback implementation.
-
-    @Override
-    public void onTracksSelected(DefaultTrackSelector.Parameters parameters) {
-      for (int i = 0; i < downloadHelper.getPeriodCount(); i++) {
-        downloadHelper.replaceTrackSelections(/* periodIndex= */ i, parameters);
-      }
-      this.parameters = parameters;
-      updateSelectionList();
+              (isDisabled, overrides) -> updateTracks(rendererIndex, isDisabled, overrides))
+          .setShowDisableOption(true)
+          .setIsDisabled(parameters.getRendererDisabled(rendererIndex))
+          .setOverride(parameters.getSelectionOverride(rendererIndex, trackGroupArray))
+          .build()
+          .show();
     }
 
     // DialogInterface.OnClickListener implementation.
@@ -331,6 +321,21 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
 
     // Internal methods.
+
+    private void updateTracks(
+        int rendererIndex, boolean isDisabled, List<SelectionOverride> overrides) {
+      parameters =
+          TrackSelectionUtil.updateParametersWithOverride(
+              parameters,
+              rendererIndex,
+              mappedTrackInfo.getTrackGroups(rendererIndex),
+              isDisabled,
+              overrides.isEmpty() ? null : overrides.get(0));
+      for (int i = 0; i < downloadHelper.getPeriodCount(); i++) {
+        downloadHelper.replaceTrackSelections(/* periodIndex= */ i, parameters);
+      }
+      updateSelectionList();
+    }
 
     private void updateSelectionList() {
       selectionList.removeAllViews();
