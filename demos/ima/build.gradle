@@ -41,8 +41,8 @@ android {
     }
 
     lintOptions {
-        // The demo app does not have translations.
-        disable 'MissingTranslation'
+        // The demo app isn't indexed and doesn't have translations.
+        disable 'GoogleAppIndexingWarning','MissingTranslation'
     }
 }
 

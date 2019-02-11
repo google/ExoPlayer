@@ -30,7 +30,7 @@ android {
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
-    implementation('com.android.support:leanback-v17:' + supportLibraryVersion)
+    implementation 'com.android.support:leanback-v17:' + supportLibraryVersion
 }
 
 ext {

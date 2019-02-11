@@ -13,13 +13,14 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<merge
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/video_ui_view"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:background="#000"
-  android:orientation="horizontal">
+  android:background="@android:color/black"
+  android:orientation="horizontal"
+  tools:ignore="Overdraw">
   <com.google.android.exoplayer2.ui.PlayerControlView
     android:id="@+id/controller"
     android:layout_width="match_parent"
