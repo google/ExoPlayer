@@ -60,6 +60,8 @@
   `PlayerNotificationManager` has been fixed. Apps using
   `DownloadNotificationUtil` should switch to using
   `DownloadNotificationHelper`.
+* Move creation of dialogs for `TrackSelectionView`s to
+  `TrackSelectionDialogBuilder` and add option to select multiple overrides.
 
 ### 2.9.5 ###
 

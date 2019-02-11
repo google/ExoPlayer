@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -68,7 +67,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.ui.TrackSelectionView;
+import com.google.android.exoplayer2.ui.TrackSelectionDialogBuilder;
 import com.google.android.exoplayer2.ui.spherical.SphericalSurfaceView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -307,11 +306,11 @@ public class PlayerActivity extends Activity
                 || (rendererType == C.TRACK_TYPE_AUDIO
                     && mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
                         == MappedTrackInfo.RENDERER_SUPPORT_NO_TRACKS);
-        Pair<AlertDialog, TrackSelectionView> dialogPair =
-            TrackSelectionView.getDialog(this, title, trackSelector, rendererIndex);
-        dialogPair.second.setShowDisableOption(true);
-        dialogPair.second.setAllowAdaptiveSelections(allowAdaptiveSelections);
-        dialogPair.first.show();
+        new TrackSelectionDialogBuilder(/* context= */ this, title, trackSelector, rendererIndex)
+            .setShowDisableOption(true)
+            .setAllowAdaptiveSelections(allowAdaptiveSelections)
+            .build()
+            .show();
       }
     }
   }
