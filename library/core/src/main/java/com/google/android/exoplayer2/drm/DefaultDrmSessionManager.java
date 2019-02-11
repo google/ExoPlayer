@@ -91,6 +91,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   /** Number of times to retry for initial provisioning and key request for reporting error. */
   public static final int INITIAL_DRM_REQUEST_RETRY_COUNT = 3;
 
+  public static String CODEC_TYPE;
+
   private static final String TAG = "DefaultDrmSessionMgr";
 
   private final UUID uuid;
@@ -446,6 +448,10 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     mediaDrm.setPropertyByteArray(key, value);
   }
 
+  public List<DefaultDrmSession<T>> getSessions(){
+    return sessions;
+  }
+
   /**
    * Sets the mode, which determines the role of sessions acquired from the instance. This must be
    * called before {@link #acquireSession(Looper, DrmInitData)} is called.
@@ -537,12 +543,13 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     } else {
       // Only use an existing session if it has matching init data.
       session = null;
-      for (DefaultDrmSession<T> existingSession : sessions) {
-        if (Util.areEqual(existingSession.schemeDatas, schemeDatas)) {
-          session = existingSession;
-          break;
-        }
-      }
+      //TODO: temporarily disabled for audioKID feature
+//      for (DefaultDrmSession<T> existingSession : sessions) {
+//        if (Util.areEqual(existingSession.schemeDatas, schemeDatas)) {
+//          session = existingSession;
+//          break;
+//        }
+//      }
     }
 
     if (session == null) {
@@ -559,7 +566,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
               callback,
               playbackLooper,
               eventDispatcher,
-              initialDrmRequestRetryCount);
+              initialDrmRequestRetryCount,
+              CODEC_TYPE);
       sessions.add(session);
     }
     session.acquire();

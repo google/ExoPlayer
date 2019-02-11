@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -1143,14 +1144,25 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     inputFormat = newFormat;
     waitingForFirstSampleInFormat = true;
 
-    boolean drmInitDataChanged =
-        !Util.areEqual(newFormat.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
+//    boolean drmInitDataChanged =
+//        !Util.areEqual(newFormat.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
+    //TODO: temporarily disabled for audioKID feature
+    boolean drmInitDataChanged = true;
+    if(drmSessionManager.getSessions().size() >= 2) {
+      drmInitDataChanged = !Util.areEqual(inputFormat.drmInitData, oldFormat == null ? null
+              : oldFormat.drmInitData);
+    } else {
+      drmInitDataChanged = true;
+    }
+
     if (drmInitDataChanged) {
       if (newFormat.drmInitData != null) {
         if (drmSessionManager == null) {
           throw ExoPlaybackException.createForRenderer(
               new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
         }
+        String codecStart = inputFormat.sampleMimeType.substring(0,5); //TODO: needs to be more generic. Parses the mime type to differentiate license requests for audio/video
+        DefaultDrmSessionManager.CODEC_TYPE = codecStart;
         DrmSession<FrameworkMediaCrypto> session =
             drmSessionManager.acquireSession(Looper.myLooper(), newFormat.drmInitData);
         if (session == sourceDrmSession || session == codecDrmSession) {

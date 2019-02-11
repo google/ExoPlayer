@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.drm;
 import android.os.Looper;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 
+import java.util.List;
+
 /**
  * Manages a DRM session.
  */
@@ -48,5 +50,8 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
    * Releases a {@link DrmSession}.
    */
   void releaseSession(DrmSession<T> drmSession);
+
+  List<DefaultDrmSession<T>> getSessions();
+
 
 }

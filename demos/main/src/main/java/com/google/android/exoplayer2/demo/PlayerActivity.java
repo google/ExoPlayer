@@ -71,6 +71,7 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.TrackSelectionView;
 import com.google.android.exoplayer2.ui.spherical.SphericalSurfaceView;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
@@ -101,6 +102,8 @@ public class PlayerActivity extends Activity
   public static final String EXTENSION_LIST_EXTRA = "extension_list";
 
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
+
+  public static final String AUDIO_KID_STRING = "";
 
   public static final String ABR_ALGORITHM_EXTRA = "abr_algorithm";
   public static final String ABR_ALGORITHM_DEFAULT = "default";
@@ -376,8 +379,9 @@ public class PlayerActivity extends Activity
           errorStringId = R.string.error_drm_not_supported;
         } else {
           try {
+            DefaultHttpDataSource.AUDIO_KIDSTRING = intent.getStringExtra(AUDIO_KID_STRING);
             String drmSchemeExtra = intent.hasExtra(DRM_SCHEME_EXTRA) ? DRM_SCHEME_EXTRA
-                : DRM_SCHEME_UUID_EXTRA;
+                      : DRM_SCHEME_UUID_EXTRA;
             UUID drmSchemeUuid = Util.getDrmUuid(intent.getStringExtra(drmSchemeExtra));
             if (drmSchemeUuid == null) {
               errorStringId = R.string.error_drm_unsupported_scheme;

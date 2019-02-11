@@ -89,6 +89,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private long bytesSkipped;
   private long bytesRead;
 
+  public static String AUDIO_KIDSTRING = "";
+
+
   /**
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
@@ -689,6 +692,19 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
 
     int read = inputStream.read(buffer, offset, readLength);
+
+    //TODO:needs to be more generic by parsing the offset of 'tenc' and replacing the following bytes according to CENC spec
+    String s = new String(buffer);
+    if (s.contains("tenc") && s.contains("enca")) {
+      String audioKid = AUDIO_KIDSTRING.replace("-", "");
+      int bufferIndex = 16;
+      int kidLength = audioKid.length();
+      for (int i = 0; i < kidLength; i += 2) {
+        buffer[buffer.length - bufferIndex] = (byte) ((Character.digit(audioKid.charAt(i), 16) << 4) + Character.digit(audioKid.charAt(i + 1), 16));
+        bufferIndex--;
+      }
+    }
+
     if (read == -1) {
       if (bytesToRead != C.LENGTH_UNSET) {
         // End of stream reached having not read sufficient data.

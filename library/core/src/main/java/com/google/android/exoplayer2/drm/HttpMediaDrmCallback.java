@@ -115,7 +115,7 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   }
 
   @Override
-  public byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws Exception {
+  public byte[] executeKeyRequest(UUID uuid, KeyRequest request, String codecType) throws Exception {
     String url = request.getLicenseServerUrl();
     if (forceDefaultLicenseUrl || TextUtils.isEmpty(url)) {
       url = defaultLicenseUrl;
@@ -129,6 +129,14 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
       requestProperties.put("SOAPAction",
           "http://schemas.microsoft.com/DRM/2007/03/protocols/AcquireLicense");
     }
+
+    // option to have separate license request for audio video
+
+    if(codecType.equals("audio")) {
+    }
+    if(codecType.equals("video")) {
+    }
+
     // Add additional request properties.
     synchronized (keyRequestProperties) {
       requestProperties.putAll(keyRequestProperties);

@@ -290,6 +290,7 @@ public class SampleChooserActivity extends Activity
       ArrayList<UriSample> playlistSamples = null;
       String adTagUri = null;
       String sphericalStereoMode = null;
+      String audioKid = null;
 
       reader.beginObject();
       while (reader.hasNext()) {
@@ -345,6 +346,9 @@ public class SampleChooserActivity extends Activity
                 !insidePlaylist, "Invalid attribute on nested item: spherical_stereo_mode");
             sphericalStereoMode = reader.nextString();
             break;
+          case "audio_kid":
+            audioKid = reader.nextString();
+            break;
           default:
             throw new ParserException("Unsupported attribute name: " + name);
         }
@@ -353,7 +357,7 @@ public class SampleChooserActivity extends Activity
       DrmInfo drmInfo =
           drmScheme == null
               ? null
-              : new DrmInfo(drmScheme, drmLicenseUrl, drmKeyRequestProperties, drmMultiSession);
+              : new DrmInfo(drmScheme, drmLicenseUrl, drmKeyRequestProperties, drmMultiSession, audioKid);
       if (playlistSamples != null) {
         UriSample[] playlistSamplesArray = playlistSamples.toArray(new UriSample[0]);
         return new PlaylistSample(sampleName, drmInfo, playlistSamplesArray);
@@ -499,16 +503,19 @@ public class SampleChooserActivity extends Activity
     public final String drmLicenseUrl;
     public final String[] drmKeyRequestProperties;
     public final boolean drmMultiSession;
+    public final String audioKid;
 
     public DrmInfo(
         String drmScheme,
         String drmLicenseUrl,
         String[] drmKeyRequestProperties,
-        boolean drmMultiSession) {
+        boolean drmMultiSession,
+        String audioKid) {
       this.drmScheme = drmScheme;
       this.drmLicenseUrl = drmLicenseUrl;
       this.drmKeyRequestProperties = drmKeyRequestProperties;
       this.drmMultiSession = drmMultiSession;
+      this.audioKid = audioKid;
     }
 
     public void updateIntent(Intent intent) {
@@ -517,6 +524,7 @@ public class SampleChooserActivity extends Activity
       intent.putExtra(PlayerActivity.DRM_LICENSE_URL_EXTRA, drmLicenseUrl);
       intent.putExtra(PlayerActivity.DRM_KEY_REQUEST_PROPERTIES_EXTRA, drmKeyRequestProperties);
       intent.putExtra(PlayerActivity.DRM_MULTI_SESSION_EXTRA, drmMultiSession);
+      intent.putExtra(PlayerActivity.AUDIO_KID_STRING, audioKid);
     }
   }
 

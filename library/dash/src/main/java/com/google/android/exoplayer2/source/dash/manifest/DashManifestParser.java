@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentLis
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTemplate;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTimelineElement;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -289,7 +290,7 @@ public class DashManifestParser extends DefaultHandler
           seenFirstBaseUrl = true;
         }
       } else if (XmlPullParserUtil.isStartTag(xpp, "ContentProtection")) {
-        Pair<String, SchemeData> contentProtection = parseContentProtection(xpp);
+        Pair<String, SchemeData> contentProtection = parseContentProtection(xpp, mimeType);
         if (contentProtection.first != null) {
           drmSchemeType = contentProtection.first;
         }
@@ -391,7 +392,7 @@ public class DashManifestParser extends DefaultHandler
    * @return The scheme type and/or {@link SchemeData} parsed from the ContentProtection element.
    *     Either or both may be null, depending on the ContentProtection element being parsed.
    */
-  protected Pair<String, SchemeData> parseContentProtection(XmlPullParser xpp)
+  protected Pair<String, SchemeData> parseContentProtection(XmlPullParser xpp, String mimeType)
       throws XmlPullParserException, IOException {
     String schemeType = null;
     String licenseServerUrl = null;
@@ -439,6 +440,19 @@ public class DashManifestParser extends DefaultHandler
           && xpp.next() == XmlPullParser.TEXT) {
         // The cenc:pssh element is defined in 23001-7:2015.
         data = Base64.decode(xpp.getText(), Base64.DEFAULT);
+        //TODO: this hard-coded value (bufferIndex=36) might not work for other pssh. It was only tested with specific content
+        //TODO: PSSH needs to be dynamically parsed using protobuf
+        if(mimeType.equals("audio/mp4")){
+          int bufferIndex = 36;
+          //TODO: get the audioKID from another location and not from DefaultHttpDataSource
+          String audioKid = DefaultHttpDataSource.AUDIO_KIDSTRING;
+          for(int i = 0 ; i < audioKid.length(); i+=2 ) {
+            data[bufferIndex + i] = (byte)((Character.digit(audioKid.charAt(i), 16) << 4) + Character.digit(audioKid.charAt(i+1), 16));
+            bufferIndex -- ;
+          }
+
+        }
+
         uuid = PsshAtomUtil.parseUuid(data);
         if (uuid == null) {
           Log.w(TAG, "Skipping malformed cenc:pssh data");
@@ -544,7 +558,7 @@ public class DashManifestParser extends DefaultHandler
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, (SegmentTemplate) segmentBase);
       } else if (XmlPullParserUtil.isStartTag(xpp, "ContentProtection")) {
-        Pair<String, SchemeData> contentProtection = parseContentProtection(xpp);
+        Pair<String, SchemeData> contentProtection = parseContentProtection(xpp, mimeType);
         if (contentProtection.first != null) {
           drmSchemeType = contentProtection.first;
         }

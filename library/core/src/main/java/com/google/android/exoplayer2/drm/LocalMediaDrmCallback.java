@@ -44,7 +44,7 @@ public final class LocalMediaDrmCallback implements MediaDrmCallback {
   }
 
   @Override
-  public byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws Exception {
+  public byte[] executeKeyRequest(UUID uuid, KeyRequest request, String codecType) throws Exception {
     return keyResponse;
   }
 

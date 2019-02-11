@@ -109,6 +109,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @Nullable KeyRequest currentKeyRequest;
   private @Nullable ProvisionRequest currentProvisionRequest;
 
+  private String codecType;
+
   /**
    * Instantiates a new DRM session.
    *
@@ -138,7 +140,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       MediaDrmCallback callback,
       Looper playbackLooper,
       EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher,
-      int initialDrmRequestRetryCount) {
+      int initialDrmRequestRetryCount,
+      String codecType) {
     if (mode == DefaultDrmSessionManager.MODE_QUERY
         || mode == DefaultDrmSessionManager.MODE_RELEASE) {
       Assertions.checkNotNull(offlineLicenseKeySetId);
@@ -157,6 +160,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.callback = callback;
     this.initialDrmRequestRetryCount = initialDrmRequestRetryCount;
     this.eventDispatcher = eventDispatcher;
+    this.codecType = codecType;
     state = STATE_OPENING;
 
     postResponseHandler = new PostResponseHandler(playbackLooper);
@@ -510,7 +514,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             response = callback.executeProvisionRequest(uuid, (ProvisionRequest) request);
             break;
           case MSG_KEYS:
-            response = callback.executeKeyRequest(uuid, (KeyRequest) request);
+            response = callback.executeKeyRequest(uuid, (KeyRequest) request, codecType);
             break;
           default:
             throw new RuntimeException();
