@@ -250,34 +250,34 @@ public final class MediaCodecUtil {
       for (int i = 0; i < numberOfCodecs; i++) {
         android.media.MediaCodecInfo codecInfo = mediaCodecList.getCodecInfoAt(i);
         String codecName = codecInfo.getName();
-        if (isCodecUsableDecoder(codecInfo, codecName, secureDecodersExplicit, requestedMimeType)) {
-          for (String supportedType : codecInfo.getSupportedTypes()) {
-            if (supportedType.equalsIgnoreCase(mimeType)) {
-              try {
-                CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(supportedType);
-                boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
-                boolean forceDisableAdaptive = codecNeedsDisableAdaptationWorkaround(codecName);
-                if ((secureDecodersExplicit && key.secure == secure)
-                    || (!secureDecodersExplicit && !key.secure)) {
-                  decoderInfos.add(MediaCodecInfo.newInstance(codecName, mimeType, capabilities,
-                      forceDisableAdaptive, false));
-                } else if (!secureDecodersExplicit && secure) {
-                  decoderInfos.add(MediaCodecInfo.newInstance(codecName + ".secure", mimeType,
-                      capabilities, forceDisableAdaptive, true));
-                  // It only makes sense to have one synthesized secure decoder, return immediately.
-                  return decoderInfos;
-                }
-              } catch (Exception e) {
-                if (Util.SDK_INT <= 23 && !decoderInfos.isEmpty()) {
-                  // Suppress error querying secondary codec capabilities up to API level 23.
-                  Log.e(TAG, "Skipping codec " + codecName + " (failed to query capabilities)");
-                } else {
-                  // Rethrow error querying primary codec capabilities, or secondary codec
-                  // capabilities if API level is greater than 23.
-                  Log.e(TAG, "Failed to query codec " + codecName + " (" + supportedType + ")");
-                  throw e;
-                }
-              }
+        String codecSupportedType =
+            getCodecSupportedType(codecInfo, codecName, secureDecodersExplicit, requestedMimeType);
+        if (codecSupportedType != null) {
+          try {
+            CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(codecSupportedType);
+            boolean secure = mediaCodecList.isSecurePlaybackSupported(mimeType, capabilities);
+            boolean forceDisableAdaptive = codecNeedsDisableAdaptationWorkaround(codecName);
+            if ((secureDecodersExplicit && key.secure == secure)
+                || (!secureDecodersExplicit && !key.secure)) {
+              decoderInfos.add(
+                  MediaCodecInfo.newInstance(
+                      codecName, mimeType, capabilities, forceDisableAdaptive, false));
+            } else if (!secureDecodersExplicit && secure) {
+              decoderInfos.add(
+                  MediaCodecInfo.newInstance(
+                      codecName + ".secure", mimeType, capabilities, forceDisableAdaptive, true));
+              // It only makes sense to have one synthesized secure decoder, return immediately.
+              return decoderInfos;
+            }
+          } catch (Exception e) {
+            if (Util.SDK_INT <= 23 && !decoderInfos.isEmpty()) {
+              // Suppress error querying secondary codec capabilities up to API level 23.
+              Log.e(TAG, "Skipping codec " + codecName + " (failed to query capabilities)");
+            } else {
+              // Rethrow error querying primary codec capabilities, or secondary codec
+              // capabilities if API level is greater than 23.
+              Log.e(TAG, "Failed to query codec " + codecName + " (" + codecSupportedType + ")");
+              throw e;
             }
           }
         }
@@ -288,6 +288,46 @@ public final class MediaCodecUtil {
       // or an IllegalArgumentException here.
       throw new DecoderQueryException(e);
     }
+  }
+
+  /**
+   * Returns the codec's supported type for decoding {@code requestedMimeType} on the current
+   * device, or {@code null} if the codec can't be used.
+   *
+   * @param info The codec information.
+   * @param name The name of the codec
+   * @param secureDecodersExplicit Whether secure decoders were explicitly listed, if present.
+   * @param requestedMimeType The originally requested MIME type, which may differ from the codec
+   *     key MIME type if the codec key is being considered as a fallback.
+   * @return The codec's supported type for decoding {@code requestedMimeType}, or {@code null} if
+   *     the codec can't be used.
+   */
+  @Nullable
+  private static String getCodecSupportedType(
+      android.media.MediaCodecInfo info,
+      String name,
+      boolean secureDecodersExplicit,
+      String requestedMimeType) {
+    if (isCodecUsableDecoder(info, name, secureDecodersExplicit, requestedMimeType)) {
+      if (requestedMimeType.equals(MimeTypes.VIDEO_DOLBY_VISION)) {
+        // Handle decoders that declare support for DV via MIME types that aren't
+        // video/dolby-vision.
+        if ("OMX.MS.HEVCDV.Decoder".equals(name)) {
+          return "video/hevcdv";
+        } else if ("OMX.RTK.video.decoder".equals(name)
+            || "OMX.realtek.video.decoder.tunneled".equals(name)) {
+          return "video/dv_hevc";
+        }
+      }
+
+      String[] supportedTypes = info.getSupportedTypes();
+      for (String supportedType : supportedTypes) {
+        if (supportedType.equalsIgnoreCase(requestedMimeType)) {
+          return supportedType;
+        }
+      }
+    }
+    return null;
   }
 
   /**
