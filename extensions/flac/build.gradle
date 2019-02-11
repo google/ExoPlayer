@@ -36,11 +36,12 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     implementation project(modulePrefix + 'library-core')
-    androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
+    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
     androidTestImplementation project(modulePrefix + 'testutils')
+    androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
     testImplementation project(modulePrefix + 'testutils-robolectric')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {

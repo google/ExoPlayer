@@ -94,7 +94,7 @@ public final class FlacExtractor implements Extractor {
 
   /** Constructs an instance with flags = 0. */
   public FlacExtractor() {
-    this(0);
+    this(/* flags= */ 0);
   }
 
   /**
