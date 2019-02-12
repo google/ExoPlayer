@@ -32,6 +32,8 @@ android {
         // which is not part of Android.
         disable 'InvalidPackage'
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {

@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
+import android.graphics.SurfaceTexture;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -2593,8 +2594,8 @@ public final class ExoPlayerTest {
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
-    final Surface surface1 = new Surface(null);
-    final Surface surface2 = new Surface(null);
+    final Surface surface1 = new Surface(new SurfaceTexture(/* texName= */ 0));
+    final Surface surface2 = new Surface(new SurfaceTexture(/* texName= */ 1));
     return builder
         .executeRunnable(
             new PlayerRunnable() {

@@ -26,6 +26,8 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {

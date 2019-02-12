@@ -27,6 +27,8 @@ android {
         targetSdkVersion project.ext.targetSdkVersion
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {

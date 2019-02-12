@@ -165,7 +165,7 @@ public final class RobolectricUtil {
     public boolean enqueueMessage(Message msg, long when) {
       Looper looper = ShadowLooper.getLooperForThread(looperThread);
       if (shadowOf(looper) instanceof CustomLooper
-          && shadowOf(looper) != ShadowLooper.getShadowMainLooper()) {
+          && shadowOf(looper) != shadowOf(Looper.getMainLooper())) {
         ((CustomLooper) shadowOf(looper)).addPendingMessage(msg, when);
       } else {
         super.enqueueMessage(msg, when);
@@ -177,7 +177,7 @@ public final class RobolectricUtil {
     public void removeMessages(Handler handler, int what, Object object) {
       Looper looper = ShadowLooper.getLooperForThread(looperThread);
       if (shadowOf(looper) instanceof CustomLooper
-          && shadowOf(looper) != ShadowLooper.getShadowMainLooper()) {
+          && shadowOf(looper) != shadowOf(Looper.getMainLooper())) {
         ((CustomLooper) shadowOf(looper)).removeMessages(handler, what, object);
       }
     }
@@ -186,7 +186,7 @@ public final class RobolectricUtil {
     public void removeCallbacksAndMessages(Handler handler, Object object) {
       Looper looper = ShadowLooper.getLooperForThread(looperThread);
       if (shadowOf(looper) instanceof CustomLooper
-          && shadowOf(looper) != ShadowLooper.getShadowMainLooper()) {
+          && shadowOf(looper) != shadowOf(Looper.getMainLooper())) {
         ((CustomLooper) shadowOf(looper)).removeMessages(handler, ANY_MESSAGE, object);
       }
     }
