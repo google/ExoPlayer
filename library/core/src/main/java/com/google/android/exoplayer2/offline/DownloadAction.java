@@ -172,11 +172,6 @@ public final class DownloadAction {
     return output.toByteArray();
   }
 
-  /** Returns whether this is an action for the same media as the {@code other}. */
-  public boolean isSameMedia(DownloadAction other) {
-    return id.equals(other.id);
-  }
-
   /** Returns keys of streams to be downloaded. */
   public List<StreamKey> getKeys() {
     return keys;

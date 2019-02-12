@@ -276,10 +276,16 @@ public class DownloadStateTest {
   }
 
   static void assertEqual(DownloadState downloadState, DownloadState expected) {
-    assertThat(areEqual(downloadState, expected)).isTrue();
+    assertEqual(downloadState, expected, false);
   }
 
-  private static boolean areEqual(DownloadState downloadState, DownloadState that) {
+  static void assertEqual(
+      DownloadState downloadState, DownloadState expected, boolean compareTimeFields) {
+    assertThat(areEqual(downloadState, expected, compareTimeFields)).isTrue();
+  }
+
+  private static boolean areEqual(
+      DownloadState downloadState, DownloadState that, boolean compareTimeFields) {
     if (downloadState.state != that.state) {
       return false;
     }
@@ -292,11 +298,13 @@ public class DownloadStateTest {
     if (downloadState.totalBytes != that.totalBytes) {
       return false;
     }
-    if (downloadState.startTimeMs != that.startTimeMs) {
-      return false;
-    }
-    if (downloadState.updateTimeMs != that.updateTimeMs) {
-      return false;
+    if (compareTimeFields) {
+      if (downloadState.startTimeMs != that.startTimeMs) {
+        return false;
+      }
+      if (downloadState.updateTimeMs != that.updateTimeMs) {
+        return false;
+      }
     }
     if (downloadState.failureReason != that.failureReason) {
       return false;

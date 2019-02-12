@@ -247,7 +247,7 @@ public final class DownloadState {
         type,
         action.uri,
         action.customCacheKey,
-        getNextState(action, state),
+        getNextState(state, action.isRemoveAction),
         /* downloadPercentage= */ C.PERCENTAGE_UNSET,
         downloadedBytes,
         /* totalBytes= */ C.LENGTH_UNSET,
@@ -256,25 +256,25 @@ public final class DownloadState {
         notMetRequirements,
         manualStopReason,
         startTimeMs,
-        updateTimeMs,
+        /* updateTimeMs= */ System.currentTimeMillis(),
         mergeStreamKeys(this, action),
         action.data);
   }
 
-  private static int getNextState(DownloadAction action, int currentState) {
-    int newState;
-    if (action.isRemoveAction) {
-      newState = STATE_REMOVING;
+  private static int getNextState(int currentState, boolean remove) {
+    int nextState;
+    if (remove) {
+      nextState = STATE_REMOVING;
     } else {
       if (currentState == STATE_REMOVING || currentState == STATE_RESTARTING) {
-        newState = STATE_RESTARTING;
+        nextState = STATE_RESTARTING;
       } else if (currentState == STATE_STOPPED) {
-        newState = STATE_STOPPED;
+        nextState = STATE_STOPPED;
       } else {
-        newState = STATE_QUEUED;
+        nextState = STATE_QUEUED;
       }
     }
-    return newState;
+    return nextState;
   }
 
   private static StreamKey[] mergeStreamKeys(DownloadState downloadState, DownloadAction action) {

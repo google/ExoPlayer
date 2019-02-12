@@ -252,21 +252,6 @@ public class DownloadManagerTest {
   }
 
   @Test
-  public void secondSameDownloadActionIgnored() throws Throwable {
-    DownloadRunner runner = new DownloadRunner(uri1);
-    FakeDownloader downloader1 = runner.getDownloader(0);
-
-    runner.postDownloadAction();
-    downloader1.assertStarted();
-    runner.postDownloadAction();
-
-    downloader1.unblock().assertNotCanceled();
-    runner.getTask().assertCompleted();
-    runner.assertCreatedDownloaderCount(1);
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
-  }
-
-  @Test
   public void differentDownloadActionsMerged() throws Throwable {
     DownloadRunner runner = new DownloadRunner(uri1);
     FakeDownloader downloader1 = runner.getDownloader(0);
