@@ -15,20 +15,12 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.support.v4.app.FragmentManager;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -46,11 +38,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
-import com.google.android.exoplayer2.ui.DefaultTrackNameProvider;
-import com.google.android.exoplayer2.ui.TrackNameProvider;
-import com.google.android.exoplayer2.ui.TrackSelectionDialogBuilder;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -81,7 +68,6 @@ public class DownloadTracker implements DownloadManager.Listener {
 
   private final Context context;
   private final DataSource.Factory dataSourceFactory;
-  private final TrackNameProvider trackNameProvider;
   private final CopyOnWriteArraySet<Listener> listeners;
   private final HashMap<Uri, DownloadState> trackedDownloadStates;
   private final DefaultDownloadIndex downloadIndex;
@@ -92,7 +78,6 @@ public class DownloadTracker implements DownloadManager.Listener {
     this.context = context.getApplicationContext();
     this.dataSourceFactory = dataSourceFactory;
     this.downloadIndex = downloadIndex;
-    trackNameProvider = new DefaultTrackNameProvider(context.getResources());
     listeners = new CopyOnWriteArraySet<>();
     trackedDownloadStates = new HashMap<>();
     HandlerThread actionFileWriteThread = new HandlerThread("DownloadTracker");
@@ -122,7 +107,7 @@ public class DownloadTracker implements DownloadManager.Listener {
   }
 
   public void toggleDownload(
-      Activity activity,
+      FragmentManager fragmentManager,
       String name,
       Uri uri,
       String extension,
@@ -133,7 +118,7 @@ public class DownloadTracker implements DownloadManager.Listener {
       startServiceWithAction(removeAction);
     } else {
       new StartDownloadDialogHelper(
-          activity, getDownloadHelper(uri, extension, renderersFactory), name);
+          fragmentManager, getDownloadHelper(uri, extension, renderersFactory), name);
     }
   }
 
@@ -225,42 +210,23 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
   }
 
-  @SuppressWarnings("UngroupedOverloads")
   private final class StartDownloadDialogHelper
       implements DownloadHelper.Callback,
           DialogInterface.OnClickListener,
-          DialogInterface.OnDismissListener,
-          View.OnClickListener {
+          DialogInterface.OnDismissListener {
 
+    private final FragmentManager fragmentManager;
     private final DownloadHelper downloadHelper;
     private final String name;
-    private final LayoutInflater dialogInflater;
-    private final AlertDialog dialog;
-    private final LinearLayout selectionList;
 
+    private TrackSelectionDialog trackSelectionDialog;
     private MappedTrackInfo mappedTrackInfo;
-    private DefaultTrackSelector.Parameters parameters;
 
-    private StartDownloadDialogHelper(
-        Activity activity, DownloadHelper downloadHelper, String name) {
+    public StartDownloadDialogHelper(
+        FragmentManager fragmentManager, DownloadHelper downloadHelper, String name) {
+      this.fragmentManager = fragmentManager;
       this.downloadHelper = downloadHelper;
       this.name = name;
-      AlertDialog.Builder builder =
-          new AlertDialog.Builder(activity)
-              .setTitle(R.string.download_preparing)
-              .setPositiveButton(android.R.string.ok, /* listener= */ this)
-              .setNegativeButton(android.R.string.cancel, /* listener= */ null);
-
-      // Inflate with the builder's context to ensure the correct style is used.
-      dialogInflater = LayoutInflater.from(builder.getContext());
-      selectionList = (LinearLayout) dialogInflater.inflate(R.layout.start_download_dialog, null);
-      builder.setView(selectionList);
-      dialog = builder.create();
-      dialog.setOnDismissListener(/* listener= */ this);
-      dialog.show();
-      dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-
-      parameters = DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS;
       downloadHelper.prepare(this);
     }
 
@@ -268,12 +234,19 @@ public class DownloadTracker implements DownloadManager.Listener {
 
     @Override
     public void onPrepared(DownloadHelper helper) {
-      if (helper.getPeriodCount() > 0) {
-        mappedTrackInfo = downloadHelper.getMappedTrackInfo(/* periodIndex= */ 0);
-        updateSelectionList();
+      if (helper.getPeriodCount() == 0) {
+        onPrepareError(helper, new IOException("No periods found."));
+        return;
       }
-      dialog.setTitle(R.string.exo_download_description);
-      dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+      mappedTrackInfo = downloadHelper.getMappedTrackInfo(/* periodIndex= */ 0);
+      trackSelectionDialog = new TrackSelectionDialog();
+      trackSelectionDialog.init(
+          mappedTrackInfo,
+          /* allowAdaptiveSelections =*/ false,
+          /* allowMultipleOverrides= */ true,
+          /* onClickListener= */ this,
+          /* onDismissListener= */ this);
+      trackSelectionDialog.show(fragmentManager, "download");
     }
 
     @Override
@@ -282,33 +255,44 @@ public class DownloadTracker implements DownloadManager.Listener {
               context.getApplicationContext(), R.string.download_start_error, Toast.LENGTH_LONG)
           .show();
       Log.e(TAG, "Failed to start download", e);
-      dialog.cancel();
-    }
-
-    // View.OnClickListener implementation.
-
-    @Override
-    public void onClick(View v) {
-      Integer rendererIndex = (Integer) v.getTag();
-      TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(rendererIndex);
-      String dialogTitle = getTrackTypeString(mappedTrackInfo.getRendererType(rendererIndex));
-      new TrackSelectionDialogBuilder(
-              dialog.getContext(),
-              dialogTitle,
-              mappedTrackInfo,
-              rendererIndex,
-              (isDisabled, overrides) -> updateTracks(rendererIndex, isDisabled, overrides))
-          .setShowDisableOption(true)
-          .setIsDisabled(parameters.getRendererDisabled(rendererIndex))
-          .setOverride(parameters.getSelectionOverride(rendererIndex, trackGroupArray))
-          .build()
-          .show();
     }
 
     // DialogInterface.OnClickListener implementation.
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
+      DefaultTrackSelector.ParametersBuilder builder =
+          DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS.buildUpon();
+      for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+        builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ true);
+      }
+      for (int i = 0; i < downloadHelper.getPeriodCount(); i++) {
+        downloadHelper.clearTrackSelections(/* periodIndex = */ i);
+      }
+      for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+        if (trackSelectionDialog.getIsDisabled(/* rendererIndex= */ i)) {
+          continue;
+        }
+        builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ false);
+        List<SelectionOverride> overrides =
+            trackSelectionDialog.getOverrides(/* rendererIndex= */ i);
+        if (overrides.isEmpty()) {
+          for (int j = 0; j < downloadHelper.getPeriodCount(); j++) {
+            downloadHelper.addTrackSelection(/* periodIndex = */ j, builder.build());
+          }
+        } else {
+          TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(/* rendererIndex= */ i);
+          for (int overrideIndex = 0; overrideIndex < overrides.size(); overrideIndex++) {
+            builder.setSelectionOverride(
+                /* rendererIndex= */ i, trackGroupArray, overrides.get(overrideIndex));
+            for (int j = 0; j < downloadHelper.getPeriodCount(); j++) {
+              downloadHelper.addTrackSelection(/* periodIndex = */ j, builder.build());
+            }
+          }
+          builder.clearSelectionOverrides();
+        }
+        builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ true);
+      }
       DownloadAction downloadAction = downloadHelper.getDownloadAction(Util.getUtf8Bytes(name));
       startDownload(downloadAction);
     }
@@ -316,86 +300,8 @@ public class DownloadTracker implements DownloadManager.Listener {
     // DialogInterface.OnDismissListener implementation.
 
     @Override
-    public void onDismiss(DialogInterface dialog) {
+    public void onDismiss(DialogInterface dialogInterface) {
       downloadHelper.release();
-    }
-
-    // Internal methods.
-
-    private void updateTracks(
-        int rendererIndex, boolean isDisabled, List<SelectionOverride> overrides) {
-      parameters =
-          TrackSelectionUtil.updateParametersWithOverride(
-              parameters,
-              rendererIndex,
-              mappedTrackInfo.getTrackGroups(rendererIndex),
-              isDisabled,
-              overrides.isEmpty() ? null : overrides.get(0));
-      for (int i = 0; i < downloadHelper.getPeriodCount(); i++) {
-        downloadHelper.replaceTrackSelections(/* periodIndex= */ i, parameters);
-      }
-      updateSelectionList();
-    }
-
-    private void updateSelectionList() {
-      selectionList.removeAllViews();
-      for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
-        TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(i);
-        if (trackGroupArray.length == 0) {
-          continue;
-        }
-        String trackTypeString =
-            getTrackTypeString(mappedTrackInfo.getRendererType(/* rendererIndex= */ i));
-        if (trackTypeString == null) {
-          return;
-        }
-        String trackSelectionsString = getTrackSelectionString(/* rendererIndex= */ i);
-        View view = dialogInflater.inflate(R.layout.download_track_item, selectionList, false);
-        TextView trackTitleView = view.findViewById(R.id.track_title);
-        TextView trackDescView = view.findViewById(R.id.track_desc);
-        ImageButton editButton = view.findViewById(R.id.edit_button);
-        trackTitleView.setText(trackTypeString);
-        trackDescView.setText(trackSelectionsString);
-        editButton.setTag(i);
-        editButton.setOnClickListener(this);
-        selectionList.addView(view);
-      }
-    }
-
-    private String getTrackSelectionString(int rendererIndex) {
-      List<TrackSelection> trackSelections =
-          downloadHelper.getTrackSelections(/* periodIndex= */ 0, rendererIndex);
-      String selectedTracks = "";
-      Resources resources = selectionList.getResources();
-      for (int i = 0; i < trackSelections.size(); i++) {
-        TrackSelection selection = trackSelections.get(i);
-        for (int j = 0; j < selection.length(); j++) {
-          String trackName = trackNameProvider.getTrackName(selection.getFormat(j));
-          if (i == 0 && j == 0) {
-            selectedTracks = trackName;
-          } else {
-            selectedTracks = resources.getString(R.string.exo_item_list, selectedTracks, trackName);
-          }
-        }
-      }
-      return selectedTracks.isEmpty()
-          ? resources.getString(R.string.exo_track_selection_none)
-          : selectedTracks;
-    }
-
-    @Nullable
-    private String getTrackTypeString(int trackType) {
-      Resources resources = selectionList.getResources();
-      switch (trackType) {
-        case C.TRACK_TYPE_VIDEO:
-          return resources.getString(R.string.exo_track_selection_title_video);
-        case C.TRACK_TYPE_AUDIO:
-          return resources.getString(R.string.exo_track_selection_title_audio);
-        case C.TRACK_TYPE_TEXT:
-          return resources.getString(R.string.exo_track_selection_title_text);
-        default:
-          return null;
-      }
     }
   }
 }
