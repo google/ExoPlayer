@@ -208,24 +208,6 @@ public class MainActivity extends AppCompatActivity
 
   // Internal classes.
 
-  private class QueueItemViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
-
-    public final TextView textView;
-    public MediaItem item;
-
-    public QueueItemViewHolder(TextView textView) {
-      super(textView);
-      this.textView = textView;
-      textView.setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(View v) {
-      playerManager.selectQueueItem(getAdapterPosition());
-    }
-
-  }
-
   private class MediaQueueListAdapter extends RecyclerView.Adapter<QueueItemViewHolder> {
 
     @Override
@@ -303,7 +285,23 @@ public class MainActivity extends AppCompatActivity
       draggingFromPosition = C.INDEX_UNSET;
       draggingToPosition = C.INDEX_UNSET;
     }
+  }
 
+  private class QueueItemViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
+
+    public final TextView textView;
+    public MediaItem item;
+
+    public QueueItemViewHolder(TextView textView) {
+      super(textView);
+      this.textView = textView;
+      textView.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+      playerManager.selectQueueItem(getAdapterPosition());
+    }
   }
 
   private static final class SampleListAdapter extends ArrayAdapter<DemoUtil.Sample> {
