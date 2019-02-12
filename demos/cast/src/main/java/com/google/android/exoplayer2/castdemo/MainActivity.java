@@ -211,6 +211,7 @@ public class MainActivity extends AppCompatActivity
   private class QueueItemViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
 
     public final TextView textView;
+    public MediaItem item;
 
     public QueueItemViewHolder(TextView textView) {
       super(textView);
@@ -236,8 +237,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBindViewHolder(QueueItemViewHolder holder, int position) {
+      holder.item = playerManager.getItem(position);
       TextView view = holder.textView;
-      view.setText(playerManager.getItem(position).title);
+      view.setText(holder.item.title);
       // TODO: Solve coloring using the theme's ColorStateList.
       view.setTextColor(ColorUtils.setAlphaComponent(view.getCurrentTextColor(),
            position == playerManager.getCurrentItemIndex() ? 255 : 100));
@@ -278,7 +280,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
       int position = viewHolder.getAdapterPosition();
-      if (playerManager.removeItem(position)) {
+      QueueItemViewHolder queueItemHolder = (QueueItemViewHolder) viewHolder;
+      if (playerManager.removeItem(queueItemHolder.item)) {
         mediaQueueListAdapter.notifyItemRemoved(position);
         // Update whichever item took its place, in case it became the new selected item.
         mediaQueueListAdapter.notifyItemChanged(position);
@@ -289,8 +292,9 @@ public class MainActivity extends AppCompatActivity
     public void clearView(RecyclerView recyclerView, ViewHolder viewHolder) {
       super.clearView(recyclerView, viewHolder);
       if (draggingFromPosition != C.INDEX_UNSET) {
+        QueueItemViewHolder queueItemHolder = (QueueItemViewHolder) viewHolder;
         // A drag has ended. We reflect the media queue change in the player.
-        if (!playerManager.moveItem(draggingFromPosition, draggingToPosition)) {
+        if (!playerManager.moveItem(queueItemHolder.item, draggingToPosition)) {
           // The move failed. The entire sequence of onMove calls since the drag started needs to be
           // invalidated.
           mediaQueueListAdapter.notifyDataSetChanged();
