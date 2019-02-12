@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.vp9;
 
+import static java.lang.Runtime.getRuntime;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -116,6 +118,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   private final TimedValueQueue<Format> formatQueue;
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
+  private final int threads;
 
   private Format format;
   private Format pendingFormat;
@@ -209,12 +212,51 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       DrmSessionManager<ExoMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
       boolean disableLoopFilter) {
+    this(
+        allowedJoiningTimeMs,
+        eventHandler,
+        eventListener,
+        maxDroppedFramesToNotify,
+        drmSessionManager,
+        playClearSamplesWithoutKeys,
+        disableLoopFilter,
+        getRuntime().availableProcessors());
+  }
+
+  /**
+   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
+   *     can attempt to seamlessly join an ongoing playback.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
+   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
+   * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
+   *     media is not required.
+   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
+   *     For example a media file may start with a short clear region so as to allow playback to
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
+   *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @param disableLoopFilter Disable the libvpx in-loop smoothing filter.
+   * @param threads Number of threads libvpx will use to decode.
+   */
+  public LibvpxVideoRenderer(
+      long allowedJoiningTimeMs,
+      Handler eventHandler,
+      VideoRendererEventListener eventListener,
+      int maxDroppedFramesToNotify,
+      DrmSessionManager<ExoMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys,
+      boolean disableLoopFilter,
+      int threads) {
     super(C.TRACK_TYPE_VIDEO);
     this.disableLoopFilter = disableLoopFilter;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
+    this.threads = threads;
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
     formatHolder = new FormatHolder();
@@ -721,7 +763,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
               NUM_OUTPUT_BUFFERS,
               initialInputBufferSize,
               mediaCrypto,
-              disableLoopFilter);
+              disableLoopFilter,
+              threads);
       decoder.setOutputMode(outputMode);
       TraceUtil.endSection();
       long decoderInitializedTimestamp = SystemClock.elapsedRealtime();
