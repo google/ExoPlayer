@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -23,6 +22,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.JsonReader;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -55,7 +55,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** An activity for selecting from a list of media samples. */
-public class SampleChooserActivity extends Activity
+public class SampleChooserActivity extends AppCompatActivity
     implements DownloadTracker.Listener, OnChildClickListener {
 
   private static final String TAG = "SampleChooserActivity";
@@ -182,7 +182,11 @@ public class SampleChooserActivity extends Activity
           ((DemoApplication) getApplication())
               .buildRenderersFactory(isNonNullAndChecked(preferExtensionDecodersMenuItem));
       downloadTracker.toggleDownload(
-          this, sample.name, uriSample.uri, uriSample.extension, renderersFactory);
+          getSupportFragmentManager(),
+          sample.name,
+          uriSample.uri,
+          uriSample.extension,
+          renderersFactory);
     }
   }
 
