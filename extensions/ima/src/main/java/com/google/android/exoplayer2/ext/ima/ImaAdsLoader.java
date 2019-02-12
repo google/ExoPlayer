@@ -1374,7 +1374,8 @@ public final class ImaAdsLoader
   private static boolean isAdGroupLoadError(AdError adError) {
     // TODO: Find out what other errors need to be handled (if any), and whether each one relates to
     // a single ad, ad group or the whole timeline.
-    return adError.getErrorCode() == AdErrorCode.VAST_LINEAR_ASSET_MISMATCH;
+    return adError.getErrorCode() == AdErrorCode.VAST_LINEAR_ASSET_MISMATCH
+        || adError.getErrorCode() == AdErrorCode.UNKNOWN_ERROR;
   }
 
   private static boolean hasMidrollAdGroups(long[] adGroupTimesUs) {
