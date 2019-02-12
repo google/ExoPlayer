@@ -24,6 +24,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -838,20 +839,32 @@ public class PlayerControlView extends FrameLayout {
         if (playbackSpeed <= 0.1f) {
           delayMs = 1000;
         } else if (playbackSpeed <= 5f) {
-          /*long mediaTimeUpdatePeriodMs = 1000 / Math.max(1, Math.round(1 / playbackSpeed));
+
+          int timeBarWidth = timeBar.getTimeBarWidth();
+          // Calculate how many updates needs to be done with DEFAULT_UPDATE_DP
+          // to fill up the time bar
+          int numberOfUpdates = timeBarWidth / DEFAULT_UPDATE_DP;
+
+          // Calculate the designated update interval, taking duration into consideration as well
+          long mediaTimeUpdatePeriodMs = duration / numberOfUpdates;
+
+          // Limit the designated update interval, to avoid too frequent / infrequent updates
+          if (mediaTimeUpdatePeriodMs < MIN_UPDATE_FREQUENCY_MS) {
+            mediaTimeUpdatePeriodMs = MIN_UPDATE_FREQUENCY_MS;
+          } else if (mediaTimeUpdatePeriodMs >= MAX_UPDATE_FREQUENCY_MS) {
+            mediaTimeUpdatePeriodMs = MAX_UPDATE_FREQUENCY_MS;
+          }
+
+          // Calculate the delay needed from the current position until the next update is due
           long mediaTimeDelayMs = mediaTimeUpdatePeriodMs - (position % mediaTimeUpdatePeriodMs);
+
+          // If the delay would be too small, then skip the next update
           if (mediaTimeDelayMs < (mediaTimeUpdatePeriodMs / 5)) {
             mediaTimeDelayMs += mediaTimeUpdatePeriodMs;
-          }*/
-          int timeBarWidth = timeBar.getTimeBarWidth();
-          int numberOfUpdates = timeBarWidth / DEFAULT_UPDATE_DP;
-          long mediaTimeDelayMs = duration / numberOfUpdates;
-
-          if (mediaTimeDelayMs < MIN_UPDATE_FREQUENCY_MS) {
-            mediaTimeDelayMs = MIN_UPDATE_FREQUENCY_MS;
-          } else if (mediaTimeDelayMs >= MAX_UPDATE_FREQUENCY_MS) {
-            mediaTimeDelayMs = MAX_UPDATE_FREQUENCY_MS;
           }
+
+          // Calculate the delay until the next update (in real time), taking
+          // playbackSpeed into consideration
           delayMs = playbackSpeed == 1 ? mediaTimeDelayMs : (long) (mediaTimeDelayMs / playbackSpeed);
         } else {
           delayMs = 200;
