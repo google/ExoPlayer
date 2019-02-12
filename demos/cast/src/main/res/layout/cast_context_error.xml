@@ -13,17 +13,10 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
-
-  <TextView
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/textView"
-    android:layout_width="0dp"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_weight="1"
-    android:textSize="20sp"
     android:gravity="center"
+    android:textSize="20sp"
     android:text="@string/cast_context_error"/>
-</LinearLayout>

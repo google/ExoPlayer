@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity
       Throwable cause = e.getCause();
       while (cause != null) {
         if (cause instanceof DynamiteModule.LoadingException) {
-          setContentView(R.layout.cast_context_error_message_layout);
+          setContentView(R.layout.cast_context_error);
           return;
         }
         cause = cause.getCause();
