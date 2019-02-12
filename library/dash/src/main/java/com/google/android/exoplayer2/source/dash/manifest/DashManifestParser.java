@@ -834,13 +834,13 @@ public class DashManifestParser extends DefaultHandler
     String schemeIdUri = parseString(xpp, "schemeIdUri", "");
     String value = parseString(xpp, "value", "");
     long timescale = parseLong(xpp, "timescale", 1);
-    List<EventMessage> eventMessages = new ArrayList<>();
+    List<Pair<Long, EventMessage>> eventMessages = new ArrayList<>();
     ByteArrayOutputStream scratchOutputStream = new ByteArrayOutputStream(512);
     do {
       xpp.next();
       if (XmlPullParserUtil.isStartTag(xpp, "Event")) {
-        EventMessage event = parseEvent(xpp, schemeIdUri, value, timescale,
-            scratchOutputStream);
+        Pair<Long, EventMessage> event =
+            parseEvent(xpp, schemeIdUri, value, timescale, scratchOutputStream);
         eventMessages.add(event);
       } else {
         maybeSkipTag(xpp);
@@ -850,9 +850,9 @@ public class DashManifestParser extends DefaultHandler
     long[] presentationTimesUs = new long[eventMessages.size()];
     EventMessage[] events = new EventMessage[eventMessages.size()];
     for (int i = 0; i < eventMessages.size(); i++) {
-      EventMessage event = eventMessages.get(i);
-      presentationTimesUs[i] = event.presentationTimeUs;
-      events[i] = event;
+      Pair<Long, EventMessage> event = eventMessages.get(i);
+      presentationTimesUs[i] = event.first;
+      events[i] = event.second;
     }
     return buildEventStream(schemeIdUri, value, timescale, presentationTimesUs, events);
   }
@@ -871,11 +871,12 @@ public class DashManifestParser extends DefaultHandler
    * @param timescale The timescale of the parent EventStream.
    * @param scratchOutputStream A {@link ByteArrayOutputStream} that is used when parsing event
    *     objects.
-   * @return The {@link EventMessage} parsed from this EventStream node.
+   * @return A pair containing the node's presentation timestamp in microseconds and the parsed
+   *     {@link EventMessage}.
    * @throws XmlPullParserException If there is any error parsing this node.
    * @throws IOException If there is any error reading from the underlying input stream.
    */
-  protected EventMessage parseEvent(
+  protected Pair<Long, EventMessage> parseEvent(
       XmlPullParser xpp,
       String schemeIdUri,
       String value,
@@ -890,13 +891,14 @@ public class DashManifestParser extends DefaultHandler
         timescale);
     String messageData = parseString(xpp, "messageData", null);
     byte[] eventObject = parseEventObject(xpp, scratchOutputStream);
-    return buildEvent(
-        schemeIdUri,
-        value,
-        id,
-        durationMs,
-        messageData == null ? eventObject : Util.getUtf8Bytes(messageData),
-        presentationTimesUs);
+    return Pair.create(
+        presentationTimesUs,
+        buildEvent(
+            schemeIdUri,
+            value,
+            id,
+            durationMs,
+            messageData == null ? eventObject : Util.getUtf8Bytes(messageData)));
   }
 
   /**
@@ -963,9 +965,9 @@ public class DashManifestParser extends DefaultHandler
     return scratchOutputStream.toByteArray();
   }
 
-  protected EventMessage buildEvent(String schemeIdUri, String value, long id,
-      long durationMs, byte[] messageData, long presentationTimeUs) {
-    return new EventMessage(schemeIdUri, value, durationMs, id, messageData, presentationTimeUs);
+  protected EventMessage buildEvent(
+      String schemeIdUri, String value, long id, long durationMs, byte[] messageData) {
+    return new EventMessage(schemeIdUri, value, durationMs, id, messageData);
   }
 
   protected List<SegmentTimelineElement> parseSegmentTimeline(XmlPullParser xpp)

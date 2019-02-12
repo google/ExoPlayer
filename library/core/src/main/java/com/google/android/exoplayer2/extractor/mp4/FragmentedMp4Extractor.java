@@ -591,6 +591,14 @@ public final class FragmentedMp4Extractor implements Extractor {
     long presentationTimeDeltaUs =
         Util.scaleLargeTimestamp(atom.readUnsignedInt(), C.MICROS_PER_SECOND, timescale);
 
+    // The presentation_time_delta is accounted for by adjusting the sample timestamp, so we zero it
+    // in the sample data before writing it to the track outputs.
+    int position = atom.getPosition();
+    atom.data[position - 4] = 0;
+    atom.data[position - 3] = 0;
+    atom.data[position - 2] = 0;
+    atom.data[position - 1] = 0;
+
     // Output the sample data.
     for (TrackOutput emsgTrackOutput : emsgTrackOutputs) {
       atom.setPosition(Atom.FULL_HEADER_SIZE);
