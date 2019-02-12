@@ -33,6 +33,8 @@ android {
         // See: https://github.com/junit-team/junit4/pull/1187.
         disable 'InvalidPackage'
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {

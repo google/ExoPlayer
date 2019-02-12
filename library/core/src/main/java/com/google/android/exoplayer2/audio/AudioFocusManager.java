@@ -21,6 +21,7 @@ import android.media.AudioManager;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
@@ -194,6 +195,11 @@ public final class AudioFocusManager {
   }
 
   // Internal methods.
+
+  @VisibleForTesting
+  /* package */ AudioManager.OnAudioFocusChangeListener getFocusListener() {
+    return focusListener;
+  }
 
   @PlayerCommand
   private int handleIdle(boolean playWhenReady) {

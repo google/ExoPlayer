@@ -35,6 +35,8 @@ android {
         //    testCoverageEnabled = true
         // }
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
