@@ -46,7 +46,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -307,7 +309,7 @@ public final class DownloadManager {
     Assertions.checkState(!released);
     for (int i = 0; i < downloads.size(); i++) {
       Download download = downloads.get(i);
-      if (download.id.equals(id)) {
+      if (download.getId().equals(id)) {
         return download.getDownloadState();
       }
     }
@@ -384,18 +386,14 @@ public final class DownloadManager {
     if (released) {
       return;
     }
-    notifyListenersDownloadStateChange(download);
-    if (download.isFinished()) {
-      downloads.remove(download);
-      saveActions();
-    }
-  }
-
-  private void notifyListenersDownloadStateChange(Download download) {
     logd("Download state is changed", download);
     DownloadState downloadState = download.getDownloadState();
     for (Listener listener : listeners) {
       listener.onDownloadStateChanged(this, downloadState);
+    }
+    if (download.isFinished()) {
+      downloads.remove(download);
+      saveActions();
     }
   }
 
@@ -464,7 +462,7 @@ public final class DownloadManager {
     }
     ArrayList<DownloadAction> actions = new ArrayList<>(downloads.size());
     for (int i = 0; i < downloads.size(); i++) {
-      actions.addAll(downloads.get(i).actionQueue);
+      downloads.get(i).addActions(actions);
     }
     final DownloadAction[] actionsArray = actions.toArray(new DownloadAction[0]);
     fileIOHandler.post(
@@ -551,6 +549,9 @@ public final class DownloadManager {
   }
 
   private void onDownloadThreadStopped(DownloadThread downloadThread, Throwable finalError) {
+    if (released) {
+      return;
+    }
     Download download = downloadThread.download;
     logd("Download is stopped", download);
     activeDownloads.remove(download);
@@ -581,12 +582,9 @@ public final class DownloadManager {
   }
 
   private static final class Download {
-
-    private final String id;
     private final DownloadManager downloadManager;
-    private final long startTimeMs;
-    private final ArrayDeque<DownloadAction> actionQueue;
 
+    private DownloadState downloadState;
     @DownloadState.State private int state;
     @MonotonicNonNull @DownloadState.FailureReason private int failureReason;
     @DownloadState.StopFlags private int stopFlags;
@@ -599,47 +597,26 @@ public final class DownloadManager {
         @DownloadState.StopFlags int stopFlags,
         @Requirements.RequirementFlags int notMetRequirements,
         int manualStopReason) {
-      this.id = action.id;
       this.downloadManager = downloadManager;
       this.notMetRequirements = notMetRequirements;
       this.manualStopReason = manualStopReason;
       this.stopFlags = stopFlags;
-      this.startTimeMs = System.currentTimeMillis();
-      actionQueue = new ArrayDeque<>();
-      actionQueue.add(action);
+      downloadState = new DownloadState(action);
 
-      // Set to queued state but don't notify listeners until we make sure we don't switch to
-      // another state immediately.
-      state = STATE_QUEUED;
-      initialize();
-      if (state == STATE_QUEUED) {
-        downloadManager.onDownloadStateChange(this);
-      }
+      initialize(downloadState.state);
+    }
+
+    public String getId() {
+      return downloadState.id;
     }
 
     public boolean addAction(DownloadAction newAction) {
-      DownloadAction action = actionQueue.peek();
-      if (!action.isSameMedia(newAction)) {
+      if (!getId().equals(newAction.id)) {
         return false;
       }
-      Assertions.checkState(action.type.equals(newAction.type));
-      actionQueue.add(newAction);
-      DownloadAction updatedAction = DownloadActionUtil.mergeActions(actionQueue);
-      if (state == STATE_REMOVING) {
-        Assertions.checkState(updatedAction.isRemoveAction);
-        if (actionQueue.size() > 1) {
-          setState(STATE_RESTARTING);
-        }
-      } else if (state == STATE_RESTARTING) {
-        Assertions.checkState(updatedAction.isRemoveAction);
-        if (actionQueue.size() == 1) {
-          setState(STATE_REMOVING);
-        }
-      } else if (!action.equals(updatedAction)) {
-        Assertions.checkState(
-            state == STATE_DOWNLOADING || state == STATE_QUEUED || state == STATE_STOPPED);
-        initialize();
-      }
+      Assertions.checkState(downloadState.type.equals(newAction.type));
+      downloadState = downloadState.mergeAction(newAction);
+      initialize(downloadState.state);
       return true;
     }
 
@@ -653,24 +630,25 @@ public final class DownloadManager {
         downloadedBytes = downloader.getDownloadedBytes();
         totalBytes = downloader.getTotalBytes();
       }
-      DownloadAction action = actionQueue.peek();
-      return new DownloadState(
-          action.id,
-          action.type,
-          action.uri,
-          action.customCacheKey,
-          state,
-          downloadPercentage,
-          downloadedBytes,
-          totalBytes,
-          failureReason,
-          stopFlags,
-          notMetRequirements,
-          manualStopReason,
-          startTimeMs,
-          /* updateTimeMs= */ System.currentTimeMillis(),
-          action.keys.toArray(new StreamKey[0]),
-          action.data);
+      downloadState =
+          new DownloadState(
+              downloadState.id,
+              downloadState.type,
+              downloadState.uri,
+              downloadState.cacheKey,
+              state,
+              downloadPercentage,
+              downloadedBytes,
+              totalBytes,
+              state != STATE_FAILED ? FAILURE_REASON_NONE : failureReason,
+              stopFlags,
+              notMetRequirements,
+              manualStopReason,
+              downloadState.startTimeMs,
+              /* updateTimeMs= */ System.currentTimeMillis(),
+              downloadState.streamKeys,
+              downloadState.customMetadata);
+      return downloadState;
     }
 
     public boolean isFinished() {
@@ -683,14 +661,14 @@ public final class DownloadManager {
 
     @Override
     public String toString() {
-      return id + ' ' + DownloadState.getStateString(state);
+      return getId() + ' ' + DownloadState.getStateString(state);
     }
 
     public void start() {
       if (state == STATE_QUEUED || state == STATE_DOWNLOADING) {
         startOrQueue();
       } else if (state == STATE_REMOVING || state == STATE_RESTARTING) {
-        downloadManager.startDownloadThread(this, actionQueue.peek());
+        downloadManager.startDownloadThread(this, getAction());
       }
     }
 
@@ -725,31 +703,46 @@ public final class DownloadManager {
       }
     }
 
-    private void initialize() {
-      DownloadAction action = actionQueue.peek();
-      if (action.isRemoveAction) {
-        int result = downloadManager.startDownloadThread(this, action);
-        Assertions.checkState(
-            result == START_THREAD_SUCCEEDED
-                || result == START_THREAD_WAIT_DOWNLOAD_CANCELLATION
-                || result == START_THREAD_NOT_ALLOWED);
-        setState(actionQueue.size() == 1 ? STATE_REMOVING : STATE_RESTARTING);
+    private void initialize(int initialState) {
+      // Don't notify listeners with initial state until we make sure we don't switch to
+      // another state immediately.
+      state = initialState;
+      if (state == STATE_REMOVING || state == STATE_RESTARTING) {
+        downloadManager.startDownloadThread(this, getAction());
       } else if (stopFlags != 0) {
         setState(STATE_STOPPED);
       } else {
         startOrQueue();
       }
+      if (state == initialState) {
+        downloadManager.onDownloadStateChange(this);
+      }
     }
 
     private void startOrQueue() {
-      DownloadAction action = Assertions.checkNotNull(actionQueue.peek());
-      Assertions.checkState(!action.isRemoveAction);
-      @StartThreadResults int result = downloadManager.startDownloadThread(this, action);
+      Assertions.checkState(!(state == STATE_REMOVING || state == STATE_RESTARTING));
+      @StartThreadResults int result = downloadManager.startDownloadThread(this, getAction());
       Assertions.checkState(result != START_THREAD_WAIT_REMOVAL_TO_FINISH);
       if (result == START_THREAD_SUCCEEDED || result == START_THREAD_WAIT_DOWNLOAD_CANCELLATION) {
         setState(STATE_DOWNLOADING);
       } else {
         setState(STATE_QUEUED);
+      }
+    }
+
+    private DownloadAction getAction() {
+      Assertions.checkState(state != STATE_REMOVED);
+      if (state == STATE_REMOVING || state == STATE_RESTARTING) {
+        return DownloadAction.createRemoveAction(
+            downloadState.type, downloadState.uri, downloadState.cacheKey);
+      }
+      return getDownloadAction(downloadState);
+    }
+
+    private void addActions(List<DownloadAction> actions) {
+      actions.add(getAction());
+      if (state == STATE_RESTARTING) {
+        actions.add(getDownloadAction(downloadState));
       }
     }
 
@@ -761,29 +754,32 @@ public final class DownloadManager {
     }
 
     private void onDownloadThreadStopped(boolean isCanceled, @Nullable Throwable error) {
-      failureReason = FAILURE_REASON_NONE;
+      if (isIdle()) {
+        return;
+      }
       if (isCanceled) {
-        if (!isIdle()) {
-          downloadManager.startDownloadThread(this, actionQueue.peek());
-        }
-        return;
-      }
-      if (error != null && state == STATE_DOWNLOADING) {
-        failureReason = FAILURE_REASON_UNKNOWN;
-        setState(STATE_FAILED);
-        return;
-      }
-      if (actionQueue.size() == 1) {
-        if (state == STATE_REMOVING) {
-          setState(STATE_REMOVED);
+        downloadManager.startDownloadThread(this, getAction());
+      } else if (state == STATE_RESTARTING) {
+        initialize(STATE_QUEUED);
+      } else if (state == STATE_REMOVING) {
+        setState(STATE_REMOVED);
+      } else { // STATE_DOWNLOADING
+        if (error != null) {
+          failureReason = FAILURE_REASON_UNKNOWN;
+          setState(STATE_FAILED);
         } else {
-          Assertions.checkState(state == STATE_DOWNLOADING);
           setState(STATE_COMPLETED);
         }
-        return;
       }
-      actionQueue.remove();
-      initialize();
+    }
+
+    private static DownloadAction getDownloadAction(DownloadState downloadState) {
+      return DownloadAction.createDownloadAction(
+          downloadState.type,
+          downloadState.uri,
+          Arrays.asList(downloadState.streamKeys),
+          downloadState.cacheKey,
+          downloadState.customMetadata);
     }
   }
 

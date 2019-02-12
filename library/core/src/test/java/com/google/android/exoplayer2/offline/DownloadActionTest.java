@@ -66,38 +66,38 @@ public class DownloadActionTest {
   }
 
   @Test
-  public void testSameUri_IsSameMedia() {
+  public void testSameUri_hasSameId() {
     DownloadAction action1 = createDownloadAction(uri1);
     DownloadAction action2 = createDownloadAction(uri1);
-    assertThat(action1.isSameMedia(action2)).isTrue();
+    assertThat(action1.id.equals(action2.id)).isTrue();
   }
 
   @Test
-  public void testSameUriDifferentAction_IsSameMedia() {
+  public void testSameUriDifferentAction_hasSameId() {
     DownloadAction action1 = createDownloadAction(uri1);
     DownloadAction action2 = createRemoveAction(uri1);
-    assertThat(action1.isSameMedia(action2)).isTrue();
+    assertThat(action1.id.equals(action2.id)).isTrue();
   }
 
   @Test
   public void testDifferentUri_IsNotSameMedia() {
     DownloadAction action1 = createDownloadAction(uri1);
     DownloadAction action2 = createDownloadAction(uri2);
-    assertThat(action1.isSameMedia(action2)).isFalse();
+    assertThat(action1.id.equals(action2.id)).isFalse();
   }
 
   @Test
-  public void testSameCacheKeyDifferentUri_IsSameMedia() {
+  public void testSameCacheKeyDifferentUri_hasSameId() {
     DownloadAction action1 = DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123");
     DownloadAction action2 = DownloadAction.createRemoveAction(TYPE_DASH, uri2, "key123");
-    assertThat(action1.isSameMedia(action2)).isTrue();
+    assertThat(action1.id.equals(action2.id)).isTrue();
   }
 
   @Test
-  public void testDifferentCacheDifferentUri_IsNotSameMedia() {
+  public void testDifferentCacheKeyDifferentUri_hasDifferentId() {
     DownloadAction action1 = DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123");
     DownloadAction action2 = DownloadAction.createRemoveAction(TYPE_DASH, uri2, "key456");
-    assertThat(action1.isSameMedia(action2)).isFalse();
+    assertThat(action1.id.equals(action2.id)).isFalse();
   }
 
   @SuppressWarnings("EqualsWithItself")
