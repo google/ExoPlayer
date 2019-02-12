@@ -168,10 +168,16 @@ import java.util.ArrayList;
   /**
    * Removes the item at the given index from the media queue.
    *
-   * @param itemIndex The index of the item to remove.
+   * @param item The item to remove.
    * @return Whether the removal was successful.
    */
-  public boolean removeItem(int itemIndex) {
+  public boolean removeItem(MediaItem item) {
+    int itemIndex = mediaQueue.indexOf(item);
+    if (itemIndex == -1) {
+      // This may happen if another sender app removes items while this sender app is in "swiping
+      // an item" state.
+      return false;
+    }
     concatenatingMediaSource.removeMediaSource(itemIndex);
     mediaQueue.remove(itemIndex);
     if (currentPlayer == exoCastPlayer) {
@@ -188,20 +194,29 @@ import java.util.ArrayList;
   /**
    * Moves an item within the queue.
    *
-   * @param fromIndex The index of the item to move.
-   * @param toIndex The target index of the item in the queue.
-   * @return Whether the item move was successful.
+   * @param item The item to move. This method does nothing if {@code item} is not contained in the
+   *     queue.
+   * @param toIndex The target index of the item in the queue. If {@code toIndex} exceeds the last
+   *     position in the queue, {@code toIndex} is clamped to match the largest possible value.
+   * @return True if {@code item} was contained in the queue, and {@code toIndex} was a valid
+   *     position. False otherwise.
    */
-  public boolean moveItem(int fromIndex, int toIndex) {
-    mediaQueue.add(toIndex, mediaQueue.remove(fromIndex));
-    concatenatingMediaSource.moveMediaSource(fromIndex, toIndex);
-    if (currentPlayer == exoCastPlayer) {
-      exoCastPlayer.moveItemInQueue(fromIndex, toIndex);
+  public boolean moveItem(MediaItem item, int toIndex) {
+    int indexOfItem = mediaQueue.indexOf(item);
+    if (indexOfItem == -1) {
+      // This may happen if another sender app removes items while this sender app is in "dragging
+      // an item" state.
+      return false;
     }
-
+    int clampedToIndex = Math.min(toIndex, mediaQueue.size() - 1);
+    mediaQueue.add(clampedToIndex, mediaQueue.remove(indexOfItem));
+    concatenatingMediaSource.moveMediaSource(indexOfItem, clampedToIndex);
+    if (currentPlayer == exoCastPlayer) {
+      exoCastPlayer.moveItemInQueue(indexOfItem, clampedToIndex);
+    }
     // Index update.
     maybeSetCurrentItemAndNotify(currentPlayer.getCurrentWindowIndex());
-    return true;
+    return clampedToIndex == toIndex;
   }
 
   // Miscellaneous methods.
