@@ -8,6 +8,9 @@
   Cast demo app to work with `ExoCastPlayer`.
 * HLS:
   * Form an adaptive track group out of audio renditions with matching name.
+* DASH:
+  * Fix issue handling large `EventStream` presentation timestamps
+    ([#5490](https://github.com/google/ExoPlayer/issues/5490)).
 * `ExtractorMediaSource` renamed to `ProgressiveMediaSource`.
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
