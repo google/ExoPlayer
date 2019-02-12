@@ -231,12 +231,6 @@ public class TrackSelectionView extends LinearLayout {
     trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
 
     // Add per-track views.
-    if (trackGroups.length == 1 && trackGroups.get(0).length == 1) {
-      // Don't add group selection if there is nothing to select from.
-      trackViews = new CheckedTextView[0][0];
-      updateViewStates();
-      return;
-    }
     trackViews = new CheckedTextView[trackGroups.length][];
     boolean enableMultipleChoiceForMultipleOverrides =
         allowMultipleOverrides && trackGroups.length > 1;
