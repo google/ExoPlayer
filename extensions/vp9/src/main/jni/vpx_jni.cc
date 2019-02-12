@@ -433,11 +433,11 @@ int vpx_release_frame_buffer(void* priv, vpx_codec_frame_buffer_t* fb) {
   return buffer_manager->release(*(int*)fb->priv);
 }
 
-DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter) {
+DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter, jint threads) {
   JniCtx* context = new JniCtx();
   context->decoder = new vpx_codec_ctx_t();
   vpx_codec_dec_cfg_t cfg = {0, 0, 0};
-  cfg.threads = android_getCpuCount();
+  cfg.threads = threads;
   errorCode = 0;
   vpx_codec_err_t err =
       vpx_codec_dec_init(context->decoder, &vpx_codec_vp9_dx_algo, &cfg, 0);
