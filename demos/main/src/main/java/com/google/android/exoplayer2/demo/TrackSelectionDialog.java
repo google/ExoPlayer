@@ -33,9 +33,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.ui.TrackSelectionView;
+import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,11 +48,53 @@ public final class TrackSelectionDialog extends DialogFragment {
   private final SparseArray<TrackSelectionViewFragment> tabFragments;
   private final List<CharSequence> tabTitles;
 
+  private int titleId;
   private MappedTrackInfo mappedTrackInfo;
+  private DefaultTrackSelector.Parameters initialSelection;
   private boolean allowAdaptiveSelections;
   private boolean allowMultipleOverrides;
   private DialogInterface.OnClickListener onClickListener;
   private DialogInterface.OnDismissListener onDismissListener;
+
+  /**
+   * Creates and initialized a dialog with a {@link DefaultTrackSelector} and automatically updates
+   * the track selector's parameters when tracks are selected.
+   *
+   * @param trackSelector A {@link DefaultTrackSelector}.
+   */
+  public static TrackSelectionDialog createForTrackSelector(DefaultTrackSelector trackSelector) {
+    MappedTrackInfo mappedTrackInfo =
+        Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo());
+    TrackSelectionDialog trackSelectionDialog = new TrackSelectionDialog();
+    DefaultTrackSelector.Parameters parameters = trackSelector.getParameters();
+    trackSelectionDialog.init(
+        /* titleId= */ R.string.track_selection_title,
+        mappedTrackInfo,
+        /* initialSelection = */ parameters,
+        /* allowAdaptiveSelections =*/ true,
+        /* allowMultipleOverrides= */ false,
+        /* onClickListener= */ (dialog, which) -> {
+          DefaultTrackSelector.ParametersBuilder builder = parameters.buildUpon();
+          for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+            builder
+                .clearSelectionOverrides(/* rendererIndex= */ i)
+                .setRendererDisabled(
+                    /* rendererIndex= */ i,
+                    trackSelectionDialog.getIsDisabled(/* rendererIndex= */ i));
+            List<SelectionOverride> overrides =
+                trackSelectionDialog.getOverrides(/* rendererIndex= */ i);
+            if (!overrides.isEmpty()) {
+              builder.setSelectionOverride(
+                  /* rendererIndex= */ i,
+                  mappedTrackInfo.getTrackGroups(/* rendererIndex= */ i),
+                  overrides.get(0));
+            }
+          }
+          trackSelector.setParameters(builder);
+        },
+        /* onDismissListener= */ (dialog) -> {});
+    return trackSelectionDialog;
+  }
 
   /** Creates the dialog. */
   public TrackSelectionDialog() {
@@ -63,7 +107,10 @@ public final class TrackSelectionDialog extends DialogFragment {
   /**
    * Initializes the dialog.
    *
+   * @param titleId The resource id of the dialog title.
    * @param mappedTrackInfo The {@link MappedTrackInfo} to display.
+   * @param initialSelection The {@link DefaultTrackSelector.Parameters} describing the initial
+   *     track selection.
    * @param allowAdaptiveSelections Whether adaptive selections (consisting of more than one track)
    *     can be made.
    * @param allowMultipleOverrides Whether tracks from multiple track groups can be selected.
@@ -72,12 +119,16 @@ public final class TrackSelectionDialog extends DialogFragment {
    *     dismissed.
    */
   public void init(
+      int titleId,
       MappedTrackInfo mappedTrackInfo,
+      DefaultTrackSelector.Parameters initialSelection,
       boolean allowAdaptiveSelections,
       boolean allowMultipleOverrides,
       DialogInterface.OnClickListener onClickListener,
       DialogInterface.OnDismissListener onDismissListener) {
+    this.titleId = titleId;
     this.mappedTrackInfo = mappedTrackInfo;
+    this.initialSelection = initialSelection;
     this.allowAdaptiveSelections = allowAdaptiveSelections;
     this.allowMultipleOverrides = allowMultipleOverrides;
     this.onClickListener = onClickListener;
@@ -112,7 +163,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     return new AlertDialog.Builder(getActivity())
-        .setTitle(R.string.exo_download_description)
+        .setTitle(titleId)
         .setPositiveButton(android.R.string.ok, onClickListener)
         .setNegativeButton(android.R.string.cancel, /* listener= */ null)
         .create();
@@ -140,7 +191,12 @@ public final class TrackSelectionDialog extends DialogFragment {
       }
       TrackSelectionViewFragment tabFragment = new TrackSelectionViewFragment();
       tabFragment.init(
-          mappedTrackInfo, /* rendererIndex= */ i, allowAdaptiveSelections, allowMultipleOverrides);
+          mappedTrackInfo,
+          /* rendererIndex= */ i,
+          initialSelection.getRendererDisabled(/* rendererIndex= */ i),
+          initialSelection.getSelectionOverride(/* rendererIndex= */ i, trackGroupArray),
+          allowAdaptiveSelections,
+          allowMultipleOverrides);
       tabFragments.put(i, tabFragment);
       tabTitles.add(trackTypeString);
     }
@@ -196,6 +252,8 @@ public final class TrackSelectionDialog extends DialogFragment {
 
     private MappedTrackInfo mappedTrackInfo;
     private int rendererIndex;
+    private boolean initialIsDisabled;
+    @Nullable private SelectionOverride initialOverride;
     private boolean allowAdaptiveSelections;
     private boolean allowMultipleOverrides;
 
@@ -204,10 +262,14 @@ public final class TrackSelectionDialog extends DialogFragment {
     public void init(
         MappedTrackInfo mappedTrackInfo,
         int rendererIndex,
+        boolean initialIsDisabled,
+        @Nullable SelectionOverride initialOverride,
         boolean allowAdaptiveSelections,
         boolean allowMultipleOverrides) {
       this.mappedTrackInfo = mappedTrackInfo;
       this.rendererIndex = rendererIndex;
+      this.initialIsDisabled = initialIsDisabled;
+      this.initialOverride = initialOverride;
       this.allowAdaptiveSelections = allowAdaptiveSelections;
       this.allowMultipleOverrides = allowMultipleOverrides;
     }
@@ -227,8 +289,10 @@ public final class TrackSelectionDialog extends DialogFragment {
       trackSelectionView.init(
           mappedTrackInfo,
           rendererIndex,
-          /* isDisabled= */ false,
-          /* overrides= */ Collections.emptyList());
+          initialIsDisabled,
+          initialOverride == null
+              ? Collections.emptyList()
+              : Collections.singletonList(initialOverride));
       return rootView;
     }
   }
