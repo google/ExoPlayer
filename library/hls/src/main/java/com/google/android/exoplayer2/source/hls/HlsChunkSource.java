@@ -290,8 +290,8 @@ import java.util.List;
       }
     }
 
-    int chunkIndex = (int) (chunkMediaSequence - mediaPlaylist.mediaSequence);
-    if (chunkIndex >= mediaPlaylist.segments.size()) {
+    int segmentIndexInPlaylist = (int) (chunkMediaSequence - mediaPlaylist.mediaSequence);
+    if (segmentIndexInPlaylist >= mediaPlaylist.segments.size()) {
       if (mediaPlaylist.hasEndTag) {
         out.endOfStream = true;
       } else /* Live */ {
@@ -306,7 +306,7 @@ import java.util.List;
     expectedPlaylistUrl = null;
 
     // Handle encryption.
-    HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(chunkIndex);
+    HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(segmentIndexInPlaylist);
 
     // Check if the segment is completely encrypted using the identity key format.
     if (segment.fullSegmentEncryptionKeyUri != null) {
@@ -324,44 +324,20 @@ import java.util.List;
       clearEncryptionData();
     }
 
-    DataSpec initDataSpec = null;
-    Segment initSegment = segment.initializationSegment;
-    if (initSegment != null) {
-      Uri initSegmentUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.url);
-      initDataSpec = new DataSpec(initSegmentUri, initSegment.byterangeOffset,
-          initSegment.byterangeLength, null);
-    }
-
-    // Compute start time of the next chunk.
-    long segmentStartTimeInPeriodUs = startOfPlaylistInPeriodUs + segment.relativeStartTimeUs;
-    int discontinuitySequence = mediaPlaylist.discontinuitySequence
-        + segment.relativeDiscontinuitySequence;
-    TimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(
-        discontinuitySequence);
-
-    // Configure the data source and spec for the chunk.
-    Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
-    DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
-        null);
     out.chunk =
-        new HlsMediaChunk(
+        HlsMediaChunk.createInstance(
             extractorFactory,
             mediaDataSource,
-            dataSpec,
-            initDataSpec,
+            startOfPlaylistInPeriodUs,
+            mediaPlaylist,
+            segmentIndexInPlaylist,
             selectedUrl,
             muxedCaptionFormats,
             trackSelection.getSelectionReason(),
             trackSelection.getSelectionData(),
-            segmentStartTimeInPeriodUs,
-            segmentStartTimeInPeriodUs + segment.durationUs,
-            chunkMediaSequence,
-            discontinuitySequence,
-            segment.hasGapTag,
             isTimestampMaster,
-            timestampAdjuster,
+            timestampAdjusterProvider,
             previous,
-            segment.drmInitData,
             encryptionKey,
             encryptionIv);
   }

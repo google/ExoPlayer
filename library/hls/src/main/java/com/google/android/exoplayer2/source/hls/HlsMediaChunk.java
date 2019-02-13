@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import android.net.Uri;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -27,10 +28,12 @@ import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
@@ -41,6 +44,112 @@ import java.util.concurrent.atomic.AtomicInteger;
  * An HLS {@link MediaChunk}.
  */
 /* package */ final class HlsMediaChunk extends MediaChunk {
+
+  /**
+   * Creates a new instance.
+   *
+   * @param extractorFactory A {@link HlsExtractorFactory} from which the HLS media chunk extractor
+   *     is obtained.
+   * @param dataSource The source from which the data should be loaded.
+   * @param startOfPlaylistInPeriodUs The position of the playlist in the period in microseconds.
+   * @param mediaPlaylist The media playlist from which this chunk was obtained.
+   * @param hlsUrl The url of the playlist from which this chunk was obtained.
+   * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
+   *     information is available in the master playlist.
+   * @param trackSelectionReason See {@link #trackSelectionReason}.
+   * @param trackSelectionData See {@link #trackSelectionData}.
+   * @param isMasterTimestampSource True if the chunk can initialize the timestamp adjuster.
+   * @param timestampAdjusterProvider The provider from which to obtain the {@link
+   *     TimestampAdjuster}.
+   * @param previousChunk The {@link HlsMediaChunk} that preceded this one. May be null.
+   * @param fullSegmentEncryptionKey The key to decrypt the full segment, or null if the segment is
+   *     not fully encrypted.
+   * @param encryptionIv The AES initialization vector, or null if the segment is not fully
+   *     encrypted.
+   */
+  public static HlsMediaChunk createInstance(
+      HlsExtractorFactory extractorFactory,
+      DataSource dataSource,
+      long startOfPlaylistInPeriodUs,
+      HlsMediaPlaylist mediaPlaylist,
+      int segmentIndexInPlaylist,
+      HlsUrl hlsUrl,
+      List<Format> muxedCaptionFormats,
+      int trackSelectionReason,
+      Object trackSelectionData,
+      boolean isMasterTimestampSource,
+      TimestampAdjusterProvider timestampAdjusterProvider,
+      HlsMediaChunk previousChunk,
+      byte[] fullSegmentEncryptionKey,
+      byte[] encryptionIv) {
+
+    HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(segmentIndexInPlaylist);
+    DataSpec dataSpec =
+        new DataSpec(
+            UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url),
+            segment.byterangeOffset,
+            segment.byterangeLength,
+            /* key= */ null);
+
+    DataSpec initDataSpec = null;
+    HlsMediaPlaylist.Segment initSegment = segment.initializationSegment;
+    if (initSegment != null) {
+      Uri initSegmentUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.url);
+      initDataSpec =
+          new DataSpec(
+              initSegmentUri,
+              initSegment.byterangeOffset,
+              initSegment.byterangeLength,
+              /* key= */ null);
+    }
+
+    long segmentStartTimeInPeriodUs = startOfPlaylistInPeriodUs + segment.relativeStartTimeUs;
+    long segmentEndTimeInPeriodUs = segmentStartTimeInPeriodUs + segment.durationUs;
+    int discontinuitySequenceNumber =
+        mediaPlaylist.discontinuitySequence + segment.relativeDiscontinuitySequence;
+
+    Extractor previousExtractor = null;
+    Id3Decoder id3Decoder;
+    ParsableByteArray scratchId3Data;
+    boolean shouldSpliceIn;
+    if (previousChunk != null) {
+      id3Decoder = previousChunk.id3Decoder;
+      scratchId3Data = previousChunk.scratchId3Data;
+      shouldSpliceIn = previousChunk.hlsUrl != hlsUrl || !previousChunk.loadCompleted;
+      previousExtractor =
+          previousChunk.discontinuitySequenceNumber != discontinuitySequenceNumber || shouldSpliceIn
+              ? null
+              : previousChunk.extractor;
+    } else {
+      id3Decoder = new Id3Decoder();
+      scratchId3Data = new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
+      shouldSpliceIn = false;
+    }
+
+    return new HlsMediaChunk(
+        extractorFactory,
+        dataSource,
+        dataSpec,
+        initDataSpec,
+        hlsUrl,
+        muxedCaptionFormats,
+        trackSelectionReason,
+        trackSelectionData,
+        segmentStartTimeInPeriodUs,
+        segmentEndTimeInPeriodUs,
+        /* chunkMediaSequence= */ mediaPlaylist.mediaSequence + segmentIndexInPlaylist,
+        discontinuitySequenceNumber,
+        segment.hasGapTag,
+        isMasterTimestampSource,
+        /* timestampAdjuster= */ timestampAdjusterProvider.getAdjuster(discontinuitySequenceNumber),
+        segment.drmInitData,
+        previousExtractor,
+        id3Decoder,
+        scratchId3Data,
+        shouldSpliceIn,
+        fullSegmentEncryptionKey,
+        encryptionIv);
+  }
 
   public static final String PRIV_TIMESTAMP_FRAME_OWNER =
       "com.apple.streaming.transportStreamTimestamp";
@@ -74,7 +183,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final DrmInitData drmInitData;
   private final Extractor previousExtractor;
   private final Id3Decoder id3Decoder;
-  private final ParsableByteArray id3Data;
+  private final ParsableByteArray scratchId3Data;
 
   private Extractor extractor;
   private HlsSampleStreamWrapper output;
@@ -84,32 +193,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private volatile boolean loadCanceled;
   private boolean loadCompleted;
 
-  /**
-   * @param extractorFactory A {@link HlsExtractorFactory} from which the HLS media chunk extractor
-   *     is obtained.
-   * @param dataSource The source from which the data should be loaded.
-   * @param dataSpec Defines the data to be loaded.
-   * @param initDataSpec Defines the initialization data to be fed to new extractors. May be null.
-   * @param hlsUrl The url of the playlist from which this chunk was obtained.
-   * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
-   *     information is available in the master playlist.
-   * @param trackSelectionReason See {@link #trackSelectionReason}.
-   * @param trackSelectionData See {@link #trackSelectionData}.
-   * @param startTimeUs The start time of the chunk in microseconds.
-   * @param endTimeUs The end time of the chunk in microseconds.
-   * @param chunkMediaSequence The media sequence number of the chunk.
-   * @param discontinuitySequenceNumber The discontinuity sequence number of the chunk.
-   * @param hasGapTag Whether the chunk is tagged with EXT-X-GAP.
-   * @param isMasterTimestampSource True if the chunk can initialize the timestamp adjuster.
-   * @param timestampAdjuster Adjuster corresponding to the provided discontinuity sequence number.
-   * @param previousChunk The {@link HlsMediaChunk} that preceded this one. May be null.
-   * @param drmInitData A {@link DrmInitData} to sideload to the extractor.
-   * @param fullSegmentEncryptionKey The key to decrypt the full segment, or null if the segment is
-   *     not fully encrypted.
-   * @param encryptionIv The AES initialization vector, or null if the segment is not fully
-   *     encrypted.
-   */
-  public HlsMediaChunk(
+  private HlsMediaChunk(
       HlsExtractorFactory extractorFactory,
       DataSource dataSource,
       DataSpec dataSpec,
@@ -125,8 +209,11 @@ import java.util.concurrent.atomic.AtomicInteger;
       boolean hasGapTag,
       boolean isMasterTimestampSource,
       TimestampAdjuster timestampAdjuster,
-      HlsMediaChunk previousChunk,
       DrmInitData drmInitData,
+      Extractor previousExtractor,
+      Id3Decoder id3Decoder,
+      ParsableByteArray scratchId3Data,
+      boolean shouldSpliceIn,
       byte[] fullSegmentEncryptionKey,
       byte[] encryptionIv) {
     super(
@@ -148,19 +235,10 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.extractorFactory = extractorFactory;
     this.muxedCaptionFormats = muxedCaptionFormats;
     this.drmInitData = drmInitData;
-    Extractor previousExtractor = null;
-    if (previousChunk != null) {
-      id3Decoder = previousChunk.id3Decoder;
-      id3Data = previousChunk.id3Data;
-      shouldSpliceIn = previousChunk.hlsUrl != hlsUrl || !previousChunk.loadCompleted;
-      previousExtractor = previousChunk.discontinuitySequenceNumber != discontinuitySequenceNumber
-          || shouldSpliceIn ? null : previousChunk.extractor;
-    } else {
-      id3Decoder = new Id3Decoder();
-      id3Data = new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
-      shouldSpliceIn = false;
-    }
     this.previousExtractor = previousExtractor;
+    this.id3Decoder = id3Decoder;
+    this.scratchId3Data = scratchId3Data;
+    this.shouldSpliceIn = shouldSpliceIn;
     initDataSource = dataSource;
     uid = uidSource.getAndIncrement();
   }
@@ -314,26 +392,26 @@ import java.util.concurrent.atomic.AtomicInteger;
   private long peekId3PrivTimestamp(ExtractorInput input) throws IOException, InterruptedException {
     input.resetPeekPosition();
     try {
-      input.peekFully(id3Data.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
+      input.peekFully(scratchId3Data.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
     } catch (EOFException e) {
       // The input isn't long enough for there to be any ID3 data.
       return C.TIME_UNSET;
     }
-    id3Data.reset(Id3Decoder.ID3_HEADER_LENGTH);
-    int id = id3Data.readUnsignedInt24();
+    scratchId3Data.reset(Id3Decoder.ID3_HEADER_LENGTH);
+    int id = scratchId3Data.readUnsignedInt24();
     if (id != Id3Decoder.ID3_TAG) {
       return C.TIME_UNSET;
     }
-    id3Data.skipBytes(3); // version(2), flags(1).
-    int id3Size = id3Data.readSynchSafeInt();
+    scratchId3Data.skipBytes(3); // version(2), flags(1).
+    int id3Size = scratchId3Data.readSynchSafeInt();
     int requiredCapacity = id3Size + Id3Decoder.ID3_HEADER_LENGTH;
-    if (requiredCapacity > id3Data.capacity()) {
-      byte[] data = id3Data.data;
-      id3Data.reset(requiredCapacity);
-      System.arraycopy(data, 0, id3Data.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
+    if (requiredCapacity > scratchId3Data.capacity()) {
+      byte[] data = scratchId3Data.data;
+      scratchId3Data.reset(requiredCapacity);
+      System.arraycopy(data, 0, scratchId3Data.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
     }
-    input.peekFully(id3Data.data, Id3Decoder.ID3_HEADER_LENGTH, id3Size);
-    Metadata metadata = id3Decoder.decode(id3Data.data, id3Size);
+    input.peekFully(scratchId3Data.data, Id3Decoder.ID3_HEADER_LENGTH, id3Size);
+    Metadata metadata = id3Decoder.decode(scratchId3Data.data, id3Size);
     if (metadata == null) {
       return C.TIME_UNSET;
     }
@@ -343,11 +421,12 @@ import java.util.concurrent.atomic.AtomicInteger;
       if (frame instanceof PrivFrame) {
         PrivFrame privFrame = (PrivFrame) frame;
         if (PRIV_TIMESTAMP_FRAME_OWNER.equals(privFrame.owner)) {
-          System.arraycopy(privFrame.privateData, 0, id3Data.data, 0, 8 /* timestamp size */);
-          id3Data.reset(8);
+          System.arraycopy(
+              privFrame.privateData, 0, scratchId3Data.data, 0, 8 /* timestamp size */);
+          scratchId3Data.reset(8);
           // The top 31 bits should be zeros, but explicitly zero them to wrap in the case that the
           // streaming provider forgot. See: https://github.com/google/ExoPlayer/pull/3495.
-          return id3Data.readLong() & 0x1FFFFFFFFL;
+          return scratchId3Data.readLong() & 0x1FFFFFFFFL;
         }
       }
     }
