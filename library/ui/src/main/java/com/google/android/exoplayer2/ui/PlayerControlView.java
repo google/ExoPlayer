@@ -836,24 +836,17 @@ public class PlayerControlView extends FrameLayout {
       long delayMs;
       if (player.getPlayWhenReady() && playbackState == Player.STATE_READY) {
         float playbackSpeed = player.getPlaybackParameters().speed;
-        if (playbackSpeed <= 0.1f) {
-          delayMs = 1000;
-        } else if (playbackSpeed <= 5f) {
+        int timeBarWidth = timeBar.getTimeBarWidthDp();
 
-          int timeBarWidth = timeBar.getTimeBarWidth();
+        if (timeBarWidth == 0 || duration == 0) {
+          delayMs = MAX_UPDATE_FREQUENCY_MS;
+        } else {
           // Calculate how many updates needs to be done with DEFAULT_UPDATE_DP
           // to fill up the time bar
           int numberOfUpdates = timeBarWidth / DEFAULT_UPDATE_DP;
 
           // Calculate the designated update interval, taking duration into consideration as well
           long mediaTimeUpdatePeriodMs = duration / numberOfUpdates;
-
-          // Limit the designated update interval, to avoid too frequent / infrequent updates
-          if (mediaTimeUpdatePeriodMs < MIN_UPDATE_FREQUENCY_MS) {
-            mediaTimeUpdatePeriodMs = MIN_UPDATE_FREQUENCY_MS;
-          } else if (mediaTimeUpdatePeriodMs >= MAX_UPDATE_FREQUENCY_MS) {
-            mediaTimeUpdatePeriodMs = MAX_UPDATE_FREQUENCY_MS;
-          }
 
           // Calculate the delay needed from the current position until the next update is due
           long mediaTimeDelayMs = mediaTimeUpdatePeriodMs - (position % mediaTimeUpdatePeriodMs);
@@ -866,11 +859,16 @@ public class PlayerControlView extends FrameLayout {
           // Calculate the delay until the next update (in real time), taking
           // playbackSpeed into consideration
           delayMs = playbackSpeed == 1 ? mediaTimeDelayMs : (long) (mediaTimeDelayMs / playbackSpeed);
-        } else {
-          delayMs = 200;
+
+          // Limit the delay if needed, to avoid too frequent / infrequent updates
+          if (delayMs < MIN_UPDATE_FREQUENCY_MS) {
+            delayMs = MIN_UPDATE_FREQUENCY_MS;
+          } else if (delayMs >= MAX_UPDATE_FREQUENCY_MS) {
+            delayMs = MAX_UPDATE_FREQUENCY_MS;
+          }
         }
       } else {
-        delayMs = 1000;
+        delayMs = MAX_UPDATE_FREQUENCY_MS;
       }
       postDelayed(updateProgressAction, delayMs);
     }
