@@ -2,10 +2,6 @@
 
 ### dev-v2 (not yet released) ###
 
-* Add `ExoCastPlayer` to cast to custom receiver apps using ExoPlayer's custom
-  communication protocol
-  ([#5486](https://github.com/google/ExoPlayer/issues/5486)). Also update the
-  Cast demo app to work with `ExoCastPlayer`.
 * HLS:
   * Form an adaptive track group out of audio renditions with matching name.
 * DASH:
