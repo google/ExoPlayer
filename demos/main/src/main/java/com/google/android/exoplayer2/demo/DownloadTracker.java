@@ -241,12 +241,14 @@ public class DownloadTracker implements DownloadManager.Listener {
       mappedTrackInfo = downloadHelper.getMappedTrackInfo(/* periodIndex= */ 0);
       trackSelectionDialog = new TrackSelectionDialog();
       trackSelectionDialog.init(
+          /* titleId= */ R.string.exo_download_description,
           mappedTrackInfo,
+          /* initialSelection= */ DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
           /* allowAdaptiveSelections =*/ false,
           /* allowMultipleOverrides= */ true,
           /* onClickListener= */ this,
           /* onDismissListener= */ this);
-      trackSelectionDialog.show(fragmentManager, "download");
+      trackSelectionDialog.show(fragmentManager, /* tag= */ null);
     }
 
     @Override

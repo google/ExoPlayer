@@ -15,7 +15,7 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <style name="PlayerTheme" parent="android:Theme.Holo">
+  <style name="PlayerTheme" parent="Theme.AppCompat.NoActionBar">
     <item name="android:windowNoTitle">true</item>
     <item name="android:windowBackground">@android:color/black</item>
   </style>
