@@ -38,14 +38,14 @@
         android:scrollbars="vertical"
         android:fadeScrollbars="false"/>
 
-    <ImageButton android:id="@+id/add_sample_button"
-        android:background="@drawable/ic_add_circle_white_24dp"
+    <android.support.design.widget.FloatingActionButton android:id="@+id/add_sample_button"
+        android:src="@drawable/ic_plus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:padding="30dp"
+        android:layout_margin="16dp"
         android:contentDescription="@string/add_samples"/>
 
   </RelativeLayout>
