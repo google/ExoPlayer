@@ -102,7 +102,7 @@ public interface TimeBar {
      *
      * @return Width of time bar in dps
      */
-    int getTimeBarWidth();
+    int getTimeBarWidthDp();
 
   /**
    * Listener for scrubbing events.
