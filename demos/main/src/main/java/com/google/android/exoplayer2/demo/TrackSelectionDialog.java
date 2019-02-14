@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
@@ -27,10 +26,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatDialog;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -162,11 +164,15 @@ public final class TrackSelectionDialog extends DialogFragment {
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
-    return new AlertDialog.Builder(getActivity())
-        .setTitle(titleId)
-        .setPositiveButton(android.R.string.ok, onClickListener)
-        .setNegativeButton(android.R.string.cancel, /* listener= */ null)
-        .create();
+    // We need to own the view to let tab layout work correctly on all API levels. That's why we
+    // can't use an AlertDialog as it owns its view itself. Using AppCompatDialog instead. We still
+    // want the "alertDialogTheme" style attribute of the current theme instead of AppCompatDialog's
+    // default "dialogTheme" style, so obtain that manually.
+    TypedValue alertDialogStyle = new TypedValue();
+    getActivity().getTheme().resolveAttribute(R.attr.alertDialogTheme, alertDialogStyle, true);
+    AppCompatDialog dialog = new AppCompatDialog(getActivity(), alertDialogStyle.resourceId);
+    dialog.setTitle(titleId);
+    return dialog;
   }
 
   @Override
@@ -200,12 +206,19 @@ public final class TrackSelectionDialog extends DialogFragment {
       tabFragments.put(i, tabFragment);
       tabTitles.add(trackTypeString);
     }
-    View dialogView = inflater.inflate(R.layout.download_dialog, container, false);
-    TabLayout tabLayout = dialogView.findViewById(R.id.download_dialog_tab_layout);
-    ViewPager viewPager = dialogView.findViewById(R.id.download_dialog_view_pager);
+    View dialogView = inflater.inflate(R.layout.track_selection_dialog, container, false);
+    TabLayout tabLayout = dialogView.findViewById(R.id.track_selection_dialog_tab_layout);
+    ViewPager viewPager = dialogView.findViewById(R.id.track_selection_dialog_view_pager);
+    Button cancelButton = dialogView.findViewById(R.id.track_selection_dialog_cancel_button);
+    Button okButton = dialogView.findViewById(R.id.track_selection_dialog_ok_button);
     viewPager.setAdapter(new FragmentAdapter(getChildFragmentManager()));
     tabLayout.setupWithViewPager(viewPager);
-    ((AlertDialog) getDialog()).setView(dialogView);
+    cancelButton.setOnClickListener(view -> dismiss());
+    okButton.setOnClickListener(
+        view -> {
+          onClickListener.onClick(getDialog(), DialogInterface.BUTTON_POSITIVE);
+          dismiss();
+        });
     return dialogView;
   }
 
@@ -281,7 +294,8 @@ public final class TrackSelectionDialog extends DialogFragment {
         @Nullable ViewGroup container,
         @Nullable Bundle savedInstanceState) {
       View rootView =
-          inflater.inflate(R.layout.download_dialog_tab, container, /* attachToRoot= */ false);
+          inflater.inflate(
+              R.layout.track_selection_dialog_tab, container, /* attachToRoot= */ false);
       trackSelectionView = rootView.findViewById(R.id.download_dialog_track_selection_view);
       trackSelectionView.setShowDisableOption(true);
       trackSelectionView.setAllowMultipleOverrides(allowMultipleOverrides);
