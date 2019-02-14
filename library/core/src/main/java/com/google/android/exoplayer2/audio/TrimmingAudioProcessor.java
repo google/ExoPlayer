@@ -147,10 +147,10 @@ import java.nio.ByteBuffer;
   public ByteBuffer getOutput() {
     if (super.isEnded() && endBufferSize > 0) {
       // Because audio processors may be drained in the middle of the stream we assume that the
-      // contents of the end buffer need to be output. Gapless transitions don't involve a call to
-      // queueEndOfStream so won't be affected. When audio is actually ending we play the padding
-      // data which is incorrect. This behavior can be fixed once we have the timestamps associated
-      // with input buffers.
+      // contents of the end buffer need to be output. For gapless transitions, configure will be
+      // always be called, which clears the end buffer as needed. When audio is actually ending we
+      // play the padding data which is incorrect. This behavior can be fixed once we have the
+      // timestamps associated with input buffers.
       replaceOutputBuffer(endBufferSize).put(endBuffer, 0, endBufferSize).flip();
       endBufferSize = 0;
     }

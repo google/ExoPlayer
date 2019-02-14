@@ -37,6 +37,12 @@
   * Replace DownloadState.action with DownloadAction fields.
 * DRM: Fix black flicker when keys rotate in DRM protected content
   ([#3561](https://github.com/google/ExoPlayer/issues/3561)).
+* Audio:
+  * Allow `AudioProcessor`s to be drained of pending output after they are
+    reconfigured.
+  * Fix an issue that caused audio to be truncated at the end of a period
+    when switching to a new period where gapless playback information was newly
+    present or newly absent.
 * Add support for SHOUTcast ICY metadata
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
 * CEA-608: Improved conformance to the specification

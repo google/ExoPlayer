@@ -69,6 +69,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   private int outputSampleRateHz;
   private int pendingOutputSampleRateHz;
 
+  private boolean pendingSonicRecreation;
   @Nullable private Sonic sonic;
   private ByteBuffer buffer;
   private ShortBuffer shortBuffer;
@@ -103,7 +104,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
     speed = Util.constrainValue(speed, MINIMUM_SPEED, MAXIMUM_SPEED);
     if (this.speed != speed) {
       this.speed = speed;
-      sonic = null;
+      pendingSonicRecreation = true;
     }
     flush();
     return speed;
@@ -120,7 +121,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
     pitch = Util.constrainValue(pitch, MINIMUM_PITCH, MAXIMUM_PITCH);
     if (this.pitch != pitch) {
       this.pitch = pitch;
-      sonic = null;
+      pendingSonicRecreation = true;
     }
     flush();
     return pitch;
@@ -172,7 +173,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
     this.sampleRateHz = sampleRateHz;
     this.channelCount = channelCount;
     this.outputSampleRateHz = outputSampleRateHz;
-    sonic = null;
+    pendingSonicRecreation = true;
     return true;
   }
 
@@ -227,7 +228,9 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void queueEndOfStream() {
-    Assertions.checkNotNull(sonic).queueEndOfStream();
+    if (sonic != null) {
+      sonic.queueEndOfStream();
+    }
     inputEnded = true;
   }
 
@@ -246,9 +249,9 @@ public final class SonicAudioProcessor implements AudioProcessor {
   @Override
   public void flush() {
     if (isActive()) {
-      if (sonic == null) {
+      if (pendingSonicRecreation) {
         sonic = new Sonic(sampleRateHz, channelCount, speed, pitch, outputSampleRateHz);
-      } else {
+      } else if (sonic != null) {
         sonic.flush();
       }
     }
@@ -269,6 +272,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
     shortBuffer = buffer.asShortBuffer();
     outputBuffer = EMPTY_BUFFER;
     pendingOutputSampleRateHz = SAMPLE_RATE_NO_CHANGE;
+    pendingSonicRecreation = false;
     sonic = null;
     inputBytes = 0;
     outputBytes = 0;
