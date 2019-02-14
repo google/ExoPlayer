@@ -93,7 +93,7 @@ public final class SilenceSkippingAudioProcessor implements AudioProcessor {
    */
   private byte[] paddingBuffer;
 
-  private @State int state;
+  @State private int state;
   private int maybeSilenceBufferSize;
   private int paddingSize;
   private boolean hasOutputNoise;

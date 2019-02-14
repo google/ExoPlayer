@@ -69,7 +69,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   private int outputSampleRateHz;
   private int pendingOutputSampleRateHz;
 
-  private @Nullable Sonic sonic;
+  @Nullable private Sonic sonic;
   private ByteBuffer buffer;
   private ShortBuffer shortBuffer;
   private ByteBuffer outputBuffer;
@@ -201,7 +201,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void queueInput(ByteBuffer inputBuffer) {
-    Assertions.checkState(sonic != null);
+    Sonic sonic = Assertions.checkNotNull(this.sonic);
     if (inputBuffer.hasRemaining()) {
       ShortBuffer shortBuffer = inputBuffer.asShortBuffer();
       int inputSize = inputBuffer.remaining();
@@ -227,8 +227,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void queueEndOfStream() {
-    Assertions.checkState(sonic != null);
-    sonic.queueEndOfStream();
+    Assertions.checkNotNull(sonic).queueEndOfStream();
     inputEnded = true;
   }
 

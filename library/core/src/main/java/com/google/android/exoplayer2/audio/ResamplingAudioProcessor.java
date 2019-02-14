@@ -28,7 +28,7 @@ import java.nio.ByteOrder;
 
   private int sampleRateHz;
   private int channelCount;
-  private @C.PcmEncoding int encoding;
+  @C.PcmEncoding private int encoding;
   private ByteBuffer buffer;
   private ByteBuffer outputBuffer;
   private boolean inputEnded;

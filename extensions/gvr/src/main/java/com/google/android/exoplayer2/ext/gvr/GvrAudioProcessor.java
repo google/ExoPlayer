@@ -194,10 +194,9 @@ public final class GvrAudioProcessor implements AudioProcessor {
   }
 
   private void maybeReleaseGvrAudioSurround() {
-    if (this.gvrAudioSurround != null) {
-      GvrAudioSurround gvrAudioSurround = this.gvrAudioSurround;
-      this.gvrAudioSurround = null;
+    if (gvrAudioSurround != null) {
       gvrAudioSurround.release();
+      gvrAudioSurround = null;
     }
   }
 
