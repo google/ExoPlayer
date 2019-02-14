@@ -38,7 +38,8 @@ public interface AudioProcessor {
   /** Exception thrown when a processor can't be configured for a given input audio format. */
   final class UnhandledFormatException extends Exception {
 
-    public UnhandledFormatException(int sampleRateHz, int channelCount, @C.Encoding int encoding) {
+    public UnhandledFormatException(
+        int sampleRateHz, int channelCount, @C.PcmEncoding int encoding) {
       super("Unhandled format: " + sampleRateHz + " Hz, " + channelCount + " channels in encoding "
           + encoding);
     }
@@ -60,7 +61,7 @@ public interface AudioProcessor {
    * @return Whether to {@link #flush()} the processor.
    * @throws UnhandledFormatException Thrown if the specified format can't be handled as input.
    */
-  boolean configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
+  boolean configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding)
       throws UnhandledFormatException;
 
   /** Returns whether the processor is configured and will process input buffers. */
@@ -78,7 +79,7 @@ public interface AudioProcessor {
    * result of calling {@link #configure(int, int, int)} and is undefined if the instance is not
    * active.
    */
-  @C.Encoding
+  @C.PcmEncoding
   int getOutputEncoding();
 
   /**
