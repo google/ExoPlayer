@@ -16,9 +16,11 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.util.Util;
 import java.io.ByteArrayInputStream;
@@ -363,6 +365,61 @@ public class HlsMediaPlaylistParserTest {
         .isSameAs(segments.get(2).initializationSegment);
     assertThat(segments.get(1).initializationSegment.url).isEqualTo("init1.ts");
     assertThat(segments.get(3).initializationSegment.url).isEqualTo("init2.ts");
+  }
+
+  @Test
+  public void testEncryptedMapTag() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-TARGETDURATION:5\n"
+            + "#EXT-X-MEDIA-SEQUENCE:10\n"
+            + "#EXT-X-KEY:METHOD=AES-128,"
+            + "URI=\"https://priv.example.com/key.php?r=2680\",IV=0x1566B\n"
+            + "#EXT-X-MAP:URI=\"init1.ts\""
+            + "#EXTINF:5.005,\n"
+            + "02/00/32.ts\n"
+            + "#EXT-X-KEY:METHOD=NONE\n"
+            + "#EXT-X-MAP:URI=\"init2.ts\""
+            + "#EXTINF:5.005,\n"
+            + "02/00/47.ts\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    List<Segment> segments = playlist.segments;
+    Segment initSegment1 = segments.get(0).initializationSegment;
+    assertThat(initSegment1.fullSegmentEncryptionKeyUri)
+        .isEqualTo("https://priv.example.com/key.php?r=2680");
+    assertThat(initSegment1.encryptionIV).isEqualTo("0x1566B");
+    Segment initSegment2 = segments.get(1).initializationSegment;
+    assertThat(initSegment2.fullSegmentEncryptionKeyUri).isNull();
+    assertThat(initSegment2.encryptionIV).isNull();
+  }
+
+  @Test
+  public void testEncryptedMapTagWithNoIvFails() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-TARGETDURATION:5\n"
+            + "#EXT-X-MEDIA-SEQUENCE:10\n"
+            + "#EXT-X-KEY:METHOD=AES-128,"
+            + "URI=\"https://priv.example.com/key.php?r=2680\"\n"
+            + "#EXT-X-MAP:URI=\"init1.ts\""
+            + "#EXTINF:5.005,\n"
+            + "02/00/32.ts\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+
+    try {
+      new HlsPlaylistParser().parse(playlistUri, inputStream);
+      fail();
+    } catch (ParserException e) {
+      // Expected because the initialization segment does not have a defined initialization vector,
+      // although it is affected by an EXT-X-KEY tag.
+    }
   }
 
   @Test
