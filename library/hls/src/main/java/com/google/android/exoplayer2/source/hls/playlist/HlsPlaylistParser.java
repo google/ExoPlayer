@@ -455,8 +455,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     boolean hasGapTag = false;
 
     DrmInitData playlistProtectionSchemes = null;
-    String encryptionKeyUri = null;
-    String encryptionIV = null;
+    String fullSegmentEncryptionKeyUri = null;
+    String fullSegmentEncryptionIV = null;
     TreeMap<String, SchemeData> currentSchemeDatas = new TreeMap<>();
     String encryptionScheme = null;
     DrmInitData cachedDrmInitData = null;
@@ -489,7 +489,19 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             segmentByteRangeOffset = Long.parseLong(splitByteRange[1]);
           }
         }
-        initializationSegment = new Segment(uri, segmentByteRangeOffset, segmentByteRangeLength);
+        if (fullSegmentEncryptionKeyUri != null && fullSegmentEncryptionIV == null) {
+          // See RFC 8216, Section 4.3.2.5.
+          throw new ParserException(
+              "The encryption IV attribute must be present when an initialization segment is "
+                  + "encrypted with METHOD=AES-128.");
+        }
+        initializationSegment =
+            new Segment(
+                uri,
+                segmentByteRangeOffset,
+                segmentByteRangeLength,
+                fullSegmentEncryptionKeyUri,
+                fullSegmentEncryptionIV);
         segmentByteRangeOffset = 0;
         segmentByteRangeLength = C.LENGTH_UNSET;
       } else if (line.startsWith(TAG_TARGET_DURATION)) {
@@ -521,17 +533,17 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         String method = parseStringAttr(line, REGEX_METHOD, variableDefinitions);
         String keyFormat =
             parseOptionalStringAttr(line, REGEX_KEYFORMAT, KEYFORMAT_IDENTITY, variableDefinitions);
-        encryptionKeyUri = null;
-        encryptionIV = null;
+        fullSegmentEncryptionKeyUri = null;
+        fullSegmentEncryptionIV = null;
         if (METHOD_NONE.equals(method)) {
           currentSchemeDatas.clear();
           cachedDrmInitData = null;
         } else /* !METHOD_NONE.equals(method) */ {
-          encryptionIV = parseOptionalStringAttr(line, REGEX_IV, variableDefinitions);
+          fullSegmentEncryptionIV = parseOptionalStringAttr(line, REGEX_IV, variableDefinitions);
           if (KEYFORMAT_IDENTITY.equals(keyFormat)) {
             if (METHOD_AES_128.equals(method)) {
               // The segment is fully encrypted using an identity key.
-              encryptionKeyUri = parseStringAttr(line, REGEX_URI, variableDefinitions);
+              fullSegmentEncryptionKeyUri = parseStringAttr(line, REGEX_URI, variableDefinitions);
             } else {
               // Do nothing. Samples are encrypted using an identity key, but this is not supported.
               // Hopefully, a traditional DRM alternative is also provided.
@@ -581,10 +593,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasEndTag = true;
       } else if (!line.startsWith("#")) {
         String segmentEncryptionIV;
-        if (encryptionKeyUri == null) {
+        if (fullSegmentEncryptionKeyUri == null) {
           segmentEncryptionIV = null;
-        } else if (encryptionIV != null) {
-          segmentEncryptionIV = encryptionIV;
+        } else if (fullSegmentEncryptionIV != null) {
+          segmentEncryptionIV = fullSegmentEncryptionIV;
         } else {
           segmentEncryptionIV = Long.toHexString(segmentMediaSequence);
         }
@@ -615,7 +627,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 relativeDiscontinuitySequence,
                 segmentStartTimeUs,
                 cachedDrmInitData,
-                encryptionKeyUri,
+                fullSegmentEncryptionKeyUri,
                 segmentEncryptionIV,
                 segmentByteRangeOffset,
                 segmentByteRangeLength,

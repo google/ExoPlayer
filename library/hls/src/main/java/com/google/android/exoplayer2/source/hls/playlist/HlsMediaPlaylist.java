@@ -88,8 +88,15 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param uri See {@link #url}.
      * @param byterangeOffset See {@link #byterangeOffset}.
      * @param byterangeLength See {@link #byterangeLength}.
+     * @param fullSegmentEncryptionKeyUri See {@link #fullSegmentEncryptionKeyUri}.
+     * @param encryptionIV See {@link #encryptionIV}.
      */
-    public Segment(String uri, long byterangeOffset, long byterangeLength) {
+    public Segment(
+        String uri,
+        long byterangeOffset,
+        long byterangeLength,
+        String fullSegmentEncryptionKeyUri,
+        String encryptionIV) {
       this(
           uri,
           /* initializationSegment= */ null,
@@ -98,8 +105,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
           /* relativeDiscontinuitySequence= */ -1,
           /* relativeStartTimeUs= */ C.TIME_UNSET,
           /* drmInitData= */ null,
-          /* fullSegmentEncryptionKeyUri= */ null,
-          /* encryptionIV= */ null,
+          fullSegmentEncryptionKeyUri,
+          encryptionIV,
           byterangeOffset,
           byterangeLength,
           /* hasGapTag= */ false);
