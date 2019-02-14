@@ -97,15 +97,13 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    */
   public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = C.MSG_CUSTOM_BASE;
 
-  /**
-   * The number of input buffers.
-   */
-  private static final int NUM_INPUT_BUFFERS = 8;
+  /** The number of input buffers. */
+  private static final int NUM_INPUT_BUFFERS = 4;
   /**
    * The number of output buffers. The renderer may limit the minimum possible value due to
    * requiring multiple output buffers to be dequeued at a time for it to make progress.
    */
-  private static final int NUM_OUTPUT_BUFFERS = 8;
+  private static final int NUM_OUTPUT_BUFFERS = 4;
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
 
