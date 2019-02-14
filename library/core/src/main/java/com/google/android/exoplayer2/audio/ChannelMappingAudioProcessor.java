@@ -32,10 +32,10 @@ import java.util.Arrays;
 
   private int channelCount;
   private int sampleRateHz;
-  private @Nullable int[] pendingOutputChannels;
+  @Nullable private int[] pendingOutputChannels;
 
   private boolean active;
-  private @Nullable int[] outputChannels;
+  @Nullable private int[] outputChannels;
   private ByteBuffer buffer;
   private ByteBuffer outputBuffer;
   private boolean inputEnded;
@@ -112,7 +112,7 @@ import java.util.Arrays;
 
   @Override
   public void queueInput(ByteBuffer inputBuffer) {
-    Assertions.checkState(outputChannels != null);
+    int[] outputChannels = Assertions.checkNotNull(this.outputChannels);
     int position = inputBuffer.position();
     int limit = inputBuffer.limit();
     int frameCount = (limit - position) / (2 * channelCount);

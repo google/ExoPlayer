@@ -56,8 +56,7 @@ public final class TeeAudioProcessor implements AudioProcessor {
 
   private int sampleRateHz;
   private int channelCount;
-  private @C.Encoding int encoding;
-  private boolean isActive;
+  @C.Encoding private int encoding;
 
   private ByteBuffer buffer;
   private ByteBuffer outputBuffer;
@@ -79,19 +78,21 @@ public final class TeeAudioProcessor implements AudioProcessor {
   }
 
   @Override
-  public boolean configure(int sampleRateHz, int channelCount, @C.Encoding int encoding)
-      throws UnhandledFormatException {
+  public boolean configure(int sampleRateHz, int channelCount, @C.Encoding int encoding) {
+    boolean formatChanged =
+        sampleRateHz != this.sampleRateHz
+            || channelCount != this.channelCount
+            || encoding != this.encoding;
     this.sampleRateHz = sampleRateHz;
     this.channelCount = channelCount;
     this.encoding = encoding;
-    boolean wasActive = isActive;
-    isActive = true;
-    return !wasActive;
+    // The sink always needs to be flushed if the format is changing.
+    return formatChanged;
   }
 
   @Override
   public boolean isActive() {
-    return isActive;
+    return sampleRateHz != Format.NO_VALUE;
   }
 
   @Override
@@ -145,7 +146,7 @@ public final class TeeAudioProcessor implements AudioProcessor {
   @SuppressWarnings("ReferenceEquality")
   @Override
   public boolean isEnded() {
-    return inputEnded && buffer == EMPTY_BUFFER;
+    return inputEnded && outputBuffer == EMPTY_BUFFER;
   }
 
   @Override

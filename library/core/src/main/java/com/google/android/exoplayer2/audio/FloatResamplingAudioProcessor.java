@@ -32,7 +32,7 @@ import java.nio.ByteOrder;
 
   private int sampleRateHz;
   private int channelCount;
-  private @C.PcmEncoding int sourceEncoding;
+  @C.PcmEncoding private int sourceEncoding;
   private ByteBuffer buffer;
   private ByteBuffer outputBuffer;
   private boolean inputEnded;
