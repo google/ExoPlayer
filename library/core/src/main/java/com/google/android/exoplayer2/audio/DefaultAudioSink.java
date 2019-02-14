@@ -242,6 +242,7 @@ public final class DefaultAudioSink implements AudioSink {
   /** Used to keep the audio session active on pre-V21 builds (see {@link #initialize()}). */
   @Nullable private AudioTrack keepSessionIdAudioTrack;
 
+  @Nullable private Configuration pendingConfiguration;
   private Configuration configuration;
   private AudioTrack audioTrack;
 
@@ -423,13 +424,13 @@ public final class DefaultAudioSink implements AudioSink {
         shouldConvertHighResIntPcmToFloat
             ? toFloatPcmAvailableAudioProcessors
             : toIntPcmAvailableAudioProcessors;
-    boolean flush = false;
+    boolean flushAudioProcessors = false;
     if (processingEnabled) {
       trimmingAudioProcessor.setTrimFrameCount(trimStartFrames, trimEndFrames);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
-          flush |= audioProcessor.configure(sampleRate, channelCount, encoding);
+          flushAudioProcessors |= audioProcessor.configure(sampleRate, channelCount, encoding);
         } catch (AudioProcessor.UnhandledFormatException e) {
           throw new ConfigurationException(e);
         }
@@ -464,8 +465,14 @@ public final class DefaultAudioSink implements AudioSink {
             processingEnabled,
             canApplyPlaybackParameters,
             availableAudioProcessors);
-    if (flush || configuration == null || !pendingConfiguration.canReuseAudioTrack(configuration)) {
+    if (configuration == null || !pendingConfiguration.canReuseAudioTrack(configuration)) {
+      // We need a new AudioTrack before we can handle more input. We should first stop() the track
+      // (if we have one) and wait for audio to play out. Tracked by [Internal: b/33161961].
       flush();
+    } else if (flushAudioProcessors) {
+      // We don't need a new AudioTrack but audio processors need to be flushed.
+      this.pendingConfiguration = pendingConfiguration;
+      return;
     }
     configuration = pendingConfiguration;
   }
@@ -567,6 +574,21 @@ public final class DefaultAudioSink implements AudioSink {
   public boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
       throws InitializationException, WriteException {
     Assertions.checkArgument(inputBuffer == null || buffer == inputBuffer);
+
+    if (pendingConfiguration != null) {
+      // We are waiting for audio processors to drain before applying a the new configuration.
+      if (!drainAudioProcessorsToEndOfStream()) {
+        return false;
+      }
+      configuration = pendingConfiguration;
+      pendingConfiguration = null;
+      playbackParameters =
+          configuration.canApplyPlaybackParameters
+              ? audioProcessorChain.applyPlaybackParameters(playbackParameters)
+              : PlaybackParameters.DEFAULT;
+      setupAudioProcessors();
+    }
+
     if (!isInitialized()) {
       initialize();
       if (playing) {
@@ -948,9 +970,9 @@ public final class DefaultAudioSink implements AudioSink {
       playbackParametersOffsetUs = 0;
       playbackParametersPositionUs = 0;
       trimmingAudioProcessor.resetTrimmedFrameCount();
+      flushAudioProcessors();
       inputBuffer = null;
       outputBuffer = null;
-      flushAudioProcessors();
       handledEndOfStream = false;
       drainingAudioProcessorIndex = C.INDEX_UNSET;
       avSyncHeader = null;
@@ -962,6 +984,10 @@ public final class DefaultAudioSink implements AudioSink {
       // AudioTrack.release can take some time, so we call it on a background thread.
       final AudioTrack toRelease = audioTrack;
       audioTrack = null;
+      if (pendingConfiguration != null) {
+        configuration = pendingConfiguration;
+        pendingConfiguration = null;
+      }
       audioTrackPositionTracker.reset();
       releasingConditionVariable.close();
       new Thread() {
