@@ -79,6 +79,9 @@ import java.util.Map;
  *   <li>An {@link ErrorMessageProvider} for providing human readable error messages and
  *       corresponding error codes can be set by calling {@link
  *       #setErrorMessageProvider(ErrorMessageProvider)}.
+ *   <li>A {@link MediaMetadataProvider} can be set by calling {@link
+ *       #setMediaMetadataProvider(MediaMetadataProvider)}. By default the {@link
+ *       DefaultMediaMetadataProvider} is used.
  * </ul>
  */
 public final class MediaSessionConnector {
@@ -562,7 +565,8 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Sets a provider of metadata to be published to the media session.
+   * Sets a provider of metadata to be published to the media session. Pass {@code null} if no
+   * metadata should be published.
    *
    * @param mediaMetadataProvider The provider of metadata to publish, or {@code null} if no
    *     metadata should be published.
@@ -579,6 +583,9 @@ public final class MediaSessionConnector {
    *
    * <p>Apps normally only need to call this method when the backing data for a given media item has
    * changed and the metadata should be updated immediately.
+   *
+   * <p>The {@link MediaMetadataCompat} which is published to the session is obtained by calling
+   * {@link MediaMetadataProvider#getMetadata(Player)}.
    */
   public final void invalidateMediaSessionMetadata() {
     MediaMetadataCompat metadata =
@@ -779,8 +786,8 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Provides a default {@link MediaMetadataCompat} with properties and extras propagated from the
-   * active queue item to the session metadata.
+   * Provides a default {@link MediaMetadataCompat} with properties and extras taken from the {@link
+   * MediaDescriptionCompat} of the {@link MediaSessionCompat.QueueItem} of the active queue item.
    */
   public static final class DefaultMediaMetadataProvider implements MediaMetadataProvider {
 
