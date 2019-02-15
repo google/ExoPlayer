@@ -20,6 +20,7 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
@@ -73,6 +74,8 @@ public class DownloadTracker implements DownloadManager.Listener {
   private final DefaultDownloadIndex downloadIndex;
   private final Handler actionFileIOHandler;
 
+  @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
+
   public DownloadTracker(
       Context context, DataSource.Factory dataSourceFactory, DefaultDownloadIndex downloadIndex) {
     this.context = context.getApplicationContext();
@@ -117,8 +120,12 @@ public class DownloadTracker implements DownloadManager.Listener {
           getDownloadHelper(uri, extension, renderersFactory).getRemoveAction();
       startServiceWithAction(removeAction);
     } else {
-      new StartDownloadDialogHelper(
-          fragmentManager, getDownloadHelper(uri, extension, renderersFactory), name);
+      if (startDownloadDialogHelper != null) {
+        startDownloadDialogHelper.release();
+      }
+      startDownloadDialogHelper =
+          new StartDownloadDialogHelper(
+              fragmentManager, getDownloadHelper(uri, extension, renderersFactory), name);
     }
   }
 
@@ -230,6 +237,11 @@ public class DownloadTracker implements DownloadManager.Listener {
       downloadHelper.prepare(this);
     }
 
+    public void release() {
+      downloadHelper.release();
+      startDownloadDialogHelper = null;
+    }
+
     // DownloadHelper.Callback implementation.
 
     @Override
@@ -303,7 +315,7 @@ public class DownloadTracker implements DownloadManager.Listener {
 
     @Override
     public void onDismiss(DialogInterface dialogInterface) {
-      downloadHelper.release();
+      release();
     }
   }
 }
