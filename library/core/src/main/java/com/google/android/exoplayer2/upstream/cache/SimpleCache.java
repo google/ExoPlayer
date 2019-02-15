@@ -577,7 +577,7 @@ public final class SimpleCache implements Cache {
    * Loads the cache UID from the files belonging to the root directory, generating one if needed.
    *
    * @param directory The root directory.
-   * @param files The files belonging to the rood directory.
+   * @param files The files belonging to the root directory.
    * @return The cache loaded UID.
    * @throws IOException If there is an error loading or generating the UID.
    */
