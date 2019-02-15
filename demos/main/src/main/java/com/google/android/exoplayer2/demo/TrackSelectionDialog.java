@@ -145,7 +145,7 @@ public final class TrackSelectionDialog extends DialogFragment {
    */
   public boolean getIsDisabled(int rendererIndex) {
     TrackSelectionViewFragment rendererView = tabFragments.get(rendererIndex);
-    return rendererView != null && rendererView.trackSelectionView.getIsDisabled();
+    return rendererView != null && rendererView.isDisabled;
   }
 
   /**
@@ -157,9 +157,7 @@ public final class TrackSelectionDialog extends DialogFragment {
    */
   public List<SelectionOverride> getOverrides(int rendererIndex) {
     TrackSelectionViewFragment rendererView = tabFragments.get(rendererIndex);
-    return rendererView == null
-        ? Collections.emptyList()
-        : rendererView.trackSelectionView.getOverrides();
+    return rendererView == null ? Collections.emptyList() : rendererView.overrides;
   }
 
   @Override
@@ -269,10 +267,13 @@ public final class TrackSelectionDialog extends DialogFragment {
     private boolean allowAdaptiveSelections;
     private boolean allowMultipleOverrides;
 
-    private boolean isDisabled;
-    private List<SelectionOverride> overrides;
+    /* package */ boolean isDisabled;
+    /* package */ List<SelectionOverride> overrides;
 
-    /* package */ TrackSelectionView trackSelectionView;
+    public TrackSelectionViewFragment() {
+      // Retain instance across orientation changes to prevent loosing access to init data.
+      setRetainInstance(true);
+    }
 
     public void init(
         MappedTrackInfo mappedTrackInfo,
@@ -301,7 +302,8 @@ public final class TrackSelectionDialog extends DialogFragment {
       View rootView =
           inflater.inflate(
               R.layout.track_selection_dialog_tab, container, /* attachToRoot= */ false);
-      trackSelectionView = rootView.findViewById(R.id.download_dialog_track_selection_view);
+      TrackSelectionView trackSelectionView =
+          rootView.findViewById(R.id.download_dialog_track_selection_view);
       trackSelectionView.setShowDisableOption(true);
       trackSelectionView.setAllowMultipleOverrides(allowMultipleOverrides);
       trackSelectionView.setAllowAdaptiveSelections(allowAdaptiveSelections);
