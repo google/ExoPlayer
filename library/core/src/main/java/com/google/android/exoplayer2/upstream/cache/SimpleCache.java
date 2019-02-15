@@ -582,15 +582,17 @@ public final class SimpleCache implements Cache {
    * @throws IOException If there is an error loading or generating the UID.
    */
   private static long loadUid(File directory, File[] files) throws IOException {
-    for (File file : files) {
-      String fileName = file.getName();
-      if (fileName.endsWith(UID_FILE_SUFFIX)) {
-        try {
-          return parseUid(fileName);
-        } catch (NumberFormatException e) {
-          // This should never happen, but if it does delete the malformed UID file and continue.
-          Log.e(TAG, "Malformed UID file: " + file);
-          file.delete();
+    if (files != null) {
+      for (File file : files) {
+        String fileName = file.getName();
+        if (fileName.endsWith(UID_FILE_SUFFIX)) {
+          try {
+            return parseUid(fileName);
+          } catch (NumberFormatException e) {
+            // This should never happen, but if it does delete the malformed UID file and continue.
+            Log.e(TAG, "Malformed UID file: " + file);
+            file.delete();
+          }
         }
       }
     }
