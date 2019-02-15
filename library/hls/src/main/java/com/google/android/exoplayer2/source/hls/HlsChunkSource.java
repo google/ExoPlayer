@@ -40,9 +40,11 @@ import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Source of Hls (possibly adaptive) chunks.
@@ -84,6 +86,12 @@ import java.util.List;
 
   }
 
+  /**
+   * The maximum number of keys that the key cache can hold. This value must be 2 or greater in
+   * order to hold initialization segment and media segment keys simultaneously.
+   */
+  private static final int KEY_CACHE_SIZE = 4;
+
   private final HlsExtractorFactory extractorFactory;
   private final DataSource mediaDataSource;
   private final DataSource encryptionDataSource;
@@ -92,17 +100,13 @@ import java.util.List;
   private final HlsPlaylistTracker playlistTracker;
   private final TrackGroup trackGroup;
   private final List<Format> muxedCaptionFormats;
+  private final FullSegmentEncryptionKeyCache keyCache;
 
   private boolean isTimestampMaster;
   private byte[] scratchSpace;
   private IOException fatalError;
   private HlsUrl expectedPlaylistUrl;
   private boolean independentSegments;
-
-  private Uri encryptionKeyUri;
-  private byte[] encryptionKey;
-  private String encryptionIvString;
-  private byte[] encryptionIv;
 
   // Note: The track group in the selection is typically *not* equal to trackGroup. This is due to
   // the way in which HlsSampleStreamWrapper generates track groups. Use only index based methods
@@ -139,6 +143,7 @@ import java.util.List;
     this.variants = variants;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
+    keyCache = new FullSegmentEncryptionKeyCache();
     liveEdgeInPeriodTimeUs = C.TIME_UNSET;
     Format[] variantFormats = new Format[variants.length];
     int[] initialTrackSelection = new int[variants.length];
@@ -308,20 +313,16 @@ import java.util.List;
     // Handle encryption.
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(segmentIndexInPlaylist);
 
-    // Check if the segment is completely encrypted using the identity key format.
-    if (segment.fullSegmentEncryptionKeyUri != null) {
-      Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.fullSegmentEncryptionKeyUri);
-      if (!keyUri.equals(encryptionKeyUri)) {
-        // Encryption is specified and the key has changed.
-        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex,
-            trackSelection.getSelectionReason(), trackSelection.getSelectionData());
-        return;
-      }
-      if (!Util.areEqual(segment.encryptionIV, encryptionIvString)) {
-        setEncryptionData(keyUri, segment.encryptionIV, encryptionKey);
-      }
-    } else {
-      clearEncryptionData();
+    // Check if the segment or its initialization segment are fully encrypted.
+    out.chunk =
+        maybeCreateEncryptionChunkFor(
+            segment.initializationSegment, mediaPlaylist, selectedVariantIndex);
+    if (out.chunk != null) {
+      return;
+    }
+    out.chunk = maybeCreateEncryptionChunkFor(segment, mediaPlaylist, selectedVariantIndex);
+    if (out.chunk != null) {
+      return;
     }
 
     out.chunk =
@@ -338,8 +339,7 @@ import java.util.List;
             isTimestampMaster,
             timestampAdjusterProvider,
             previous,
-            encryptionKey,
-            encryptionIv);
+            keyCache.asUnmodifiable());
   }
 
   /**
@@ -352,8 +352,7 @@ import java.util.List;
     if (chunk instanceof EncryptionKeyChunk) {
       EncryptionKeyChunk encryptionKeyChunk = (EncryptionKeyChunk) chunk;
       scratchSpace = encryptionKeyChunk.getDataHolder();
-      setEncryptionData(encryptionKeyChunk.dataSpec.uri, encryptionKeyChunk.iv,
-          encryptionKeyChunk.getResult());
+      keyCache.put(encryptionKeyChunk.dataSpec.uri, encryptionKeyChunk.getResult());
     }
   }
 
@@ -486,38 +485,27 @@ import java.util.List;
             : (mediaPlaylist.getEndTimeUs() - playlistTracker.getInitialStartTimeUs());
   }
 
-  private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex,
-      int trackSelectionReason, Object trackSelectionData) {
-    DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNSET, null, DataSpec.FLAG_ALLOW_GZIP);
-    return new EncryptionKeyChunk(encryptionDataSource, dataSpec, variants[variantIndex].format,
-        trackSelectionReason, trackSelectionData, scratchSpace, iv);
-  }
-
-  private void setEncryptionData(Uri keyUri, String iv, byte[] secretKey) {
-    String trimmedIv;
-    if (Util.toLowerInvariant(iv).startsWith("0x")) {
-      trimmedIv = iv.substring(2);
-    } else {
-      trimmedIv = iv;
+  private Chunk maybeCreateEncryptionChunkFor(
+      @Nullable Segment segment, HlsMediaPlaylist mediaPlaylist, int selectedVariantIndex) {
+    if (segment == null || segment.fullSegmentEncryptionKeyUri == null) {
+      return null;
     }
-
-    byte[] ivData = new BigInteger(trimmedIv, 16).toByteArray();
-    byte[] ivDataWithPadding = new byte[16];
-    int offset = ivData.length > 16 ? ivData.length - 16 : 0;
-    System.arraycopy(ivData, offset, ivDataWithPadding, ivDataWithPadding.length - ivData.length
-        + offset, ivData.length - offset);
-
-    encryptionKeyUri = keyUri;
-    encryptionKey = secretKey;
-    encryptionIvString = iv;
-    encryptionIv = ivDataWithPadding;
-  }
-
-  private void clearEncryptionData() {
-    encryptionKeyUri = null;
-    encryptionKey = null;
-    encryptionIvString = null;
-    encryptionIv = null;
+    Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.fullSegmentEncryptionKeyUri);
+    if (keyCache.containsKey(keyUri)) {
+      // The key is present in the key cache. We re-insert it to prevent it from being evicted by
+      // the following key addition. Note that removal of the key is necessary to affect the
+      // eviction order.
+      keyCache.put(keyUri, keyCache.remove(keyUri));
+      return null;
+    }
+    DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNSET, null, DataSpec.FLAG_ALLOW_GZIP);
+    return new EncryptionKeyChunk(
+        encryptionDataSource,
+        dataSpec,
+        variants[selectedVariantIndex].format,
+        trackSelection.getSelectionReason(),
+        trackSelection.getSelectionData(),
+        scratchSpace);
   }
 
   // Private classes.
@@ -575,19 +563,21 @@ import java.util.List;
 
   private static final class EncryptionKeyChunk extends DataChunk {
 
-    public final String iv;
-
     private byte[] result;
 
-    public EncryptionKeyChunk(DataSource dataSource, DataSpec dataSpec, Format trackFormat,
-        int trackSelectionReason, Object trackSelectionData, byte[] scratchSpace, String iv) {
+    public EncryptionKeyChunk(
+        DataSource dataSource,
+        DataSpec dataSpec,
+        Format trackFormat,
+        int trackSelectionReason,
+        Object trackSelectionData,
+        byte[] scratchSpace) {
       super(dataSource, dataSpec, C.DATA_TYPE_DRM, trackFormat, trackSelectionReason,
           trackSelectionData, scratchSpace);
-      this.iv = iv;
     }
 
     @Override
-    protected void consume(byte[] data, int limit) throws IOException {
+    protected void consume(byte[] data, int limit) {
       result = Arrays.copyOf(data, limit);
     }
 
@@ -640,6 +630,31 @@ import java.util.List;
       Segment segment = playlist.segments.get((int) getCurrentIndex());
       long segmentStartTimeInPeriodUs = startOfPlaylistInPeriodUs + segment.relativeStartTimeUs;
       return segmentStartTimeInPeriodUs + segment.durationUs;
+    }
+  }
+
+  /**
+   * LRU cache that holds up to {@link #KEY_CACHE_SIZE} full-segment-encryption keys. Which each
+   * addition, once the cache's size exceeds {@link #KEY_CACHE_SIZE}, the oldest item (according to
+   * insertion order) is removed.
+   */
+  private static final class FullSegmentEncryptionKeyCache extends LinkedHashMap<Uri, byte[]> {
+
+    private final Map<Uri, byte[]> unmodifiableView;
+
+    public FullSegmentEncryptionKeyCache() {
+      super(
+          /* initialCapacity= */ KEY_CACHE_SIZE * 2, /* loadFactor= */ 1, /* accessOrder= */ false);
+      unmodifiableView = Collections.unmodifiableMap(this);
+    }
+
+    @Override
+    protected boolean removeEldestEntry(Map.Entry<Uri, byte[]> entry) {
+      return size() > KEY_CACHE_SIZE;
+    }
+
+    public Map<Uri, byte[]> asUnmodifiable() {
+      return unmodifiableView;
     }
   }
 }
