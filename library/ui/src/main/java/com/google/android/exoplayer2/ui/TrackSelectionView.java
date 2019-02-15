@@ -41,6 +41,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** A view for making track selections. */
 public class TrackSelectionView extends LinearLayout {
 
+  /** Listener for changes to the selected tracks. */
+  public interface TrackSelectionListener {
+
+    /**
+     * Called when the selected tracks changed.
+     *
+     * @param isDisabled Whether the renderer is disabled.
+     * @param overrides List of selected track selection overrides for the renderer.
+     */
+    void onTrackSelectionChanged(boolean isDisabled, List<SelectionOverride> overrides);
+  }
+
   private final int selectableItemBackgroundResourceId;
   private final LayoutInflater inflater;
   private final CheckedTextView disableView;
@@ -54,10 +66,11 @@ public class TrackSelectionView extends LinearLayout {
   private TrackNameProvider trackNameProvider;
   private CheckedTextView[][] trackViews;
 
-  private @MonotonicNonNull MappedTrackInfo mappedTrackInfo;
+  @MonotonicNonNull private MappedTrackInfo mappedTrackInfo;
   private int rendererIndex;
   private TrackGroupArray trackGroups;
   private boolean isDisabled;
+  @Nullable private TrackSelectionListener listener;
 
   /** Creates a track selection view. */
   public TrackSelectionView(Context context) {
@@ -75,6 +88,9 @@ public class TrackSelectionView extends LinearLayout {
       Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     overrides = new SparseArray<>();
+
+    // Don't save view hierarchy as it needs to be reinitialized with a call to init.
+    setSaveFromParentEnabled(false);
 
     TypedArray attributeArray =
         context
@@ -177,15 +193,18 @@ public class TrackSelectionView extends LinearLayout {
    * @param overrides List of initial overrides to be shown for this renderer. There must be at most
    *     one override for each track group. If {@link #setAllowMultipleOverrides(boolean)} hasn't
    *     been set to {@code true}, only the first override is used.
+   * @param listener An optional listener for track selection updates.
    */
   public void init(
       MappedTrackInfo mappedTrackInfo,
       int rendererIndex,
       boolean isDisabled,
-      List<SelectionOverride> overrides) {
+      List<SelectionOverride> overrides,
+      @Nullable TrackSelectionListener listener) {
     this.mappedTrackInfo = mappedTrackInfo;
     this.rendererIndex = rendererIndex;
     this.isDisabled = isDisabled;
+    this.listener = listener;
     int maxOverrides = allowMultipleOverrides ? overrides.size() : Math.min(overrides.size(), 1);
     for (int i = 0; i < maxOverrides; i++) {
       SelectionOverride override = overrides.get(i);
@@ -291,6 +310,9 @@ public class TrackSelectionView extends LinearLayout {
       onTrackViewClicked(view);
     }
     updateViewStates();
+    if (listener != null) {
+      listener.onTrackSelectionChanged(getIsDisabled(), getOverrides());
+    }
   }
 
   private void onDisableViewClicked() {

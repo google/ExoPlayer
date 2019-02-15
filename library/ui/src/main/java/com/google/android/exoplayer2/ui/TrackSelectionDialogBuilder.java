@@ -219,7 +219,7 @@ public final class TrackSelectionDialogBuilder {
     if (trackNameProvider != null) {
       selectionView.setTrackNameProvider(trackNameProvider);
     }
-    selectionView.init(mappedTrackInfo, rendererIndex, isDisabled, overrides);
+    selectionView.init(mappedTrackInfo, rendererIndex, isDisabled, overrides, /* listener= */ null);
     Dialog.OnClickListener okClickListener =
         (dialog, which) ->
             callback.onTracksSelected(selectionView.getIsDisabled(), selectionView.getOverrides());

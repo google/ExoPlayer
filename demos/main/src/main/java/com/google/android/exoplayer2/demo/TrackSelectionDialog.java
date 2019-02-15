@@ -261,14 +261,16 @@ public final class TrackSelectionDialog extends DialogFragment {
   }
 
   /** Fragment to show a track seleciton in tab of the track selection dialog. */
-  public static final class TrackSelectionViewFragment extends Fragment {
+  public static final class TrackSelectionViewFragment extends Fragment
+      implements TrackSelectionView.TrackSelectionListener {
 
     private MappedTrackInfo mappedTrackInfo;
     private int rendererIndex;
-    private boolean initialIsDisabled;
-    @Nullable private SelectionOverride initialOverride;
     private boolean allowAdaptiveSelections;
     private boolean allowMultipleOverrides;
+
+    private boolean isDisabled;
+    private List<SelectionOverride> overrides;
 
     /* package */ TrackSelectionView trackSelectionView;
 
@@ -281,8 +283,11 @@ public final class TrackSelectionDialog extends DialogFragment {
         boolean allowMultipleOverrides) {
       this.mappedTrackInfo = mappedTrackInfo;
       this.rendererIndex = rendererIndex;
-      this.initialIsDisabled = initialIsDisabled;
-      this.initialOverride = initialOverride;
+      this.isDisabled = initialIsDisabled;
+      this.overrides =
+          initialOverride == null
+              ? Collections.emptyList()
+              : Collections.singletonList(initialOverride);
       this.allowAdaptiveSelections = allowAdaptiveSelections;
       this.allowMultipleOverrides = allowMultipleOverrides;
     }
@@ -301,13 +306,14 @@ public final class TrackSelectionDialog extends DialogFragment {
       trackSelectionView.setAllowMultipleOverrides(allowMultipleOverrides);
       trackSelectionView.setAllowAdaptiveSelections(allowAdaptiveSelections);
       trackSelectionView.init(
-          mappedTrackInfo,
-          rendererIndex,
-          initialIsDisabled,
-          initialOverride == null
-              ? Collections.emptyList()
-              : Collections.singletonList(initialOverride));
+          mappedTrackInfo, rendererIndex, isDisabled, overrides, /* listener= */ this);
       return rootView;
+    }
+
+    @Override
+    public void onTrackSelectionChanged(boolean isDisabled, List<SelectionOverride> overrides) {
+      this.isDisabled = isDisabled;
+      this.overrides = overrides;
     }
   }
 }
