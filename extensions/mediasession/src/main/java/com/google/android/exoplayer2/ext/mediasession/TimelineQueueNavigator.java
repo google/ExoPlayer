@@ -76,6 +76,11 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
   /**
    * Gets the {@link MediaDescriptionCompat} for a given timeline window index.
    *
+   * <p>Often artworks and icons need to be loaded asynchronously. In such a case, return a {@link
+   * MediaDescriptionCompat} without the images, load your images asynchronously off the main thread
+   * and then call {@link MediaSessionConnector#invalidateMediaSessionQueue()} to make the connector
+   * update the queue by calling {@link #getMediaDescription(Player, int)} again.
+   *
    * @param player The current player.
    * @param windowIndex The timeline window index for which to provide a description.
    * @return A {@link MediaDescriptionCompat}.
