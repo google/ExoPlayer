@@ -837,36 +837,7 @@ public class PlayerControlView extends FrameLayout {
       if (player.getPlayWhenReady() && playbackState == Player.STATE_READY) {
         float playbackSpeed = player.getPlaybackParameters().speed;
         int timeBarWidth = timeBar.getTimeBarWidthDp();
-
-        if (timeBarWidth == 0 || duration == 0) {
-          delayMs = MAX_UPDATE_FREQUENCY_MS;
-        } else {
-          // Calculate how many updates needs to be done with DEFAULT_UPDATE_DP
-          // to fill up the time bar
-          int numberOfUpdates = timeBarWidth / DEFAULT_UPDATE_DP;
-
-          // Calculate the designated update interval, taking duration into consideration as well
-          long mediaTimeUpdatePeriodMs = duration / numberOfUpdates;
-
-          // Calculate the delay needed from the current position until the next update is due
-          long mediaTimeDelayMs = mediaTimeUpdatePeriodMs - (position % mediaTimeUpdatePeriodMs);
-
-          // If the delay would be too small, then skip the next update
-          if (mediaTimeDelayMs < (mediaTimeUpdatePeriodMs / 5)) {
-            mediaTimeDelayMs += mediaTimeUpdatePeriodMs;
-          }
-
-          // Calculate the delay until the next update (in real time), taking
-          // playbackSpeed into consideration
-          delayMs = playbackSpeed == 1 ? mediaTimeDelayMs : (long) (mediaTimeDelayMs / playbackSpeed);
-
-          // Limit the delay if needed, to avoid too frequent / infrequent updates
-          if (delayMs < MIN_UPDATE_FREQUENCY_MS) {
-            delayMs = MIN_UPDATE_FREQUENCY_MS;
-          } else if (delayMs >= MAX_UPDATE_FREQUENCY_MS) {
-            delayMs = MAX_UPDATE_FREQUENCY_MS;
-          }
-        }
+        delayMs = getTimeBarUpdateDelayMs(timeBarWidth, position, duration, playbackSpeed);
       } else {
         delayMs = MAX_UPDATE_FREQUENCY_MS;
       }
@@ -1095,6 +1066,58 @@ public class PlayerControlView extends FrameLayout {
       }
     }
     return true;
+  }
+
+  /**
+   * Calculates the update delay of time bar in millis
+   *
+   * @param timeBarWidth  The width of time bar in dp
+   * @param position      The current position in millis
+   * @param duration      The duration of media in millis
+   * @param playbackSpeed The playback speed
+   * @return Update delay of time bar in millis
+   */
+  private static long getTimeBarUpdateDelayMs(int timeBarWidth, long position,
+                                              long duration, float playbackSpeed) {
+    if (timeBarWidth == 0 || duration == 0 || playbackSpeed == 0) {
+      return MAX_UPDATE_FREQUENCY_MS;
+    }
+
+    // Calculate how many updates needs to be done with DEFAULT_UPDATE_DP
+    // to fill up the time bar
+    int numberOfUpdates = timeBarWidth / DEFAULT_UPDATE_DP;
+
+    if (numberOfUpdates <= 0) {
+      return MAX_UPDATE_FREQUENCY_MS;
+    }
+
+    // Calculate the designated update interval, taking duration into consideration as well
+    long mediaTimeUpdatePeriodMs = duration / numberOfUpdates;
+
+    if (mediaTimeUpdatePeriodMs <= 0) {
+      return MAX_UPDATE_FREQUENCY_MS;
+    }
+
+    // Calculate the delay needed from the current position until the next update is due
+    long mediaTimeDelayMs = mediaTimeUpdatePeriodMs - (position % mediaTimeUpdatePeriodMs);
+
+    // If the delay would be too small, then skip the next update
+    if (mediaTimeDelayMs < (mediaTimeUpdatePeriodMs / 5)) {
+      mediaTimeDelayMs += mediaTimeUpdatePeriodMs;
+    }
+
+    // Calculate the delay until the next update (in real time), taking
+    // playbackSpeed into consideration
+    long delayMs = playbackSpeed == 1 ? mediaTimeDelayMs : (long) (mediaTimeDelayMs / playbackSpeed);
+
+    // Limit the delay if needed, to avoid too frequent / infrequent updates
+    if (delayMs < MIN_UPDATE_FREQUENCY_MS) {
+      delayMs = MIN_UPDATE_FREQUENCY_MS;
+    } else if (delayMs >= MAX_UPDATE_FREQUENCY_MS) {
+      delayMs = MAX_UPDATE_FREQUENCY_MS;
+    }
+
+    return delayMs;
   }
 
   private final class ComponentListener
