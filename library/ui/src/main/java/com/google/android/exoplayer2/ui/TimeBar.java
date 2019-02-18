@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.View;
 
 /**

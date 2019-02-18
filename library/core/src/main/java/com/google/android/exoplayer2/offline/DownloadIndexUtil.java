@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import java.io.IOException;
 
 /** {@link DownloadIndex} related utility methods. */

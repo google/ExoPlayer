@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.AttrRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.AttrRes;
+import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.util.SparseArray;

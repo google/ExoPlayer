@@ -22,7 +22,7 @@ import static com.google.android.exoplayer2.extractor.amr.AmrExtractor.frameSize
 import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.Assert.fail;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.PositionHolder;

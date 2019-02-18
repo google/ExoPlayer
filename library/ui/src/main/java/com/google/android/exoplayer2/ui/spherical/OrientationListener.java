@@ -20,7 +20,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.Matrix;
-import android.support.annotation.BinderThread;
+import androidx.annotation.BinderThread;
 import android.view.Display;
 import android.view.Surface;
 import com.google.android.exoplayer2.video.spherical.FrameRotationQueue;

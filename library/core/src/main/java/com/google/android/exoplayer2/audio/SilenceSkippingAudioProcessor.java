@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;

@@ -31,14 +31,14 @@
       android:layout_height="0dp"
       android:layout_weight="1">
 
-    <android.support.v7.widget.RecyclerView android:id="@+id/sample_list"
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/sample_list"
         android:choiceMode="singleChoice"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
         android:fadeScrollbars="false"/>
 
-    <android.support.design.widget.FloatingActionButton android:id="@+id/add_sample_button"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/add_sample_button"
         android:src="@drawable/ic_plus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

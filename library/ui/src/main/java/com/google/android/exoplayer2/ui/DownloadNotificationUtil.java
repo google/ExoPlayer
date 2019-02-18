@@ -18,8 +18,8 @@ package com.google.android.exoplayer2.ui;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadState;
 import com.google.android.exoplayer2.util.Util;
 
