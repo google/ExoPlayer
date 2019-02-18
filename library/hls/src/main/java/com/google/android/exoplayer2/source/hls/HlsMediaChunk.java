@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
-import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -133,9 +132,11 @@ import java.util.concurrent.atomic.AtomicInteger;
       scratchId3Data = previousChunk.scratchId3Data;
       shouldSpliceIn = previousChunk.hlsUrl != hlsUrl || !previousChunk.loadCompleted;
       previousExtractor =
-          previousChunk.discontinuitySequenceNumber != discontinuitySequenceNumber || shouldSpliceIn
-              ? null
-              : previousChunk.extractor;
+          previousChunk.isExtractorReusable
+                  && previousChunk.discontinuitySequenceNumber == discontinuitySequenceNumber
+                  && !shouldSpliceIn
+              ? previousChunk.extractor
+              : null;
     } else {
       id3Decoder = new Id3Decoder();
       scratchId3Data = new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
@@ -204,6 +205,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final boolean initSegmentEncrypted;
 
   private Extractor extractor;
+  private boolean isExtractorReusable;
   private HlsSampleStreamWrapper output;
   private int initSegmentBytesLoaded;
   private int nextLoadPosition;
@@ -287,6 +289,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   @Override
   public void load() throws IOException, InterruptedException {
+    if (extractor == null && previousExtractor != null) {
+      extractor = previousExtractor;
+      isExtractorReusable = true;
+      initLoadCompleted = initDataSpec != null;
+      output.init(uid, shouldSpliceIn, /* reusingExtractor= */ true);
+    }
     maybeLoadInitData();
     if (!loadCanceled) {
       if (!hasGapTag) {
@@ -380,7 +388,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       long id3Timestamp = peekId3PrivTimestamp(extractorInput);
       extractorInput.resetPeekPosition();
 
-      Pair<Extractor, Boolean> extractorData =
+      HlsExtractorFactory.Result result =
           extractorFactory.createExtractor(
               previousExtractor,
               dataSpec.uri,
@@ -390,21 +398,16 @@ import java.util.concurrent.atomic.AtomicInteger;
               timestampAdjuster,
               dataSource.getResponseHeaders(),
               extractorInput);
-      extractor = extractorData.first;
-      boolean reusingExtractor = extractor == previousExtractor;
-      boolean isPackedAudioExtractor = extractorData.second;
-      if (isPackedAudioExtractor) {
+      extractor = result.extractor;
+      isExtractorReusable = result.isReusable;
+      if (result.isPackedAudioExtractor) {
         output.setSampleOffsetUs(
             id3Timestamp != C.TIME_UNSET
                 ? timestampAdjuster.adjustTsTimestamp(id3Timestamp)
                 : startTimeUs);
       }
-      initLoadCompleted = reusingExtractor && initDataSpec != null;
-
-      output.init(uid, shouldSpliceIn, reusingExtractor);
-      if (!reusingExtractor) {
-        extractor.init(output);
-      }
+      output.init(uid, shouldSpliceIn, /* reusingExtractor= */ false);
+      extractor.init(output);
     }
 
     return extractorInput;
