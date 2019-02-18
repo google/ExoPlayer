@@ -260,7 +260,7 @@ public final class DownloadManager {
 
   /** Signals all downloads to stop. Call {@link #startDownloads()} to let them to be started. */
   public void stopDownloads() {
-    stopDownloads(0);
+    stopDownloads(/* manualStopReason= */ 0);
   }
 
   /**
@@ -274,6 +274,45 @@ public final class DownloadManager {
     stopFlags |= STOP_FLAG_MANUAL;
     for (int i = 0; i < downloads.size(); i++) {
       downloads.get(i).setManualStopReason(this.manualStopReason);
+    }
+  }
+
+  /**
+   * Clears {@link DownloadState#STOP_FLAG_MANUAL} flag of the download with the {@code id}.
+   * Download is started if the requirements are met.
+   *
+   * @param id The unique content id of the download to be started.
+   */
+  public void startDownload(String id) {
+    Download download = getDownload(id);
+    if (download != null) {
+      logd("download is started manually", download);
+      download.clearManualStopReason();
+    }
+  }
+
+  /**
+   * Signals the download with the {@code id} to stop. Call {@link #startDownload(String)} to let it
+   * to be started.
+   *
+   * @param id The unique content id of the download to be stopped.
+   */
+  public void stopDownload(String id) {
+    stopDownload(id, /* manualStopReason= */ 0);
+  }
+
+  /**
+   * Signals the download with the {@code id} to stop. Call {@link #startDownload(String)} to let it
+   * to be started.
+   *
+   * @param id The unique content id of the download to be stopped.
+   * @param manualStopReason An application defined stop reason.
+   */
+  public void stopDownload(String id, int manualStopReason) {
+    Download download = getDownload(id);
+    if (download != null) {
+      logd("download is stopped manually", download);
+      download.setManualStopReason(manualStopReason);
     }
   }
 
@@ -307,13 +346,8 @@ public final class DownloadManager {
   @Nullable
   public DownloadState getDownloadState(String id) {
     Assertions.checkState(!released);
-    for (int i = 0; i < downloads.size(); i++) {
-      Download download = downloads.get(i);
-      if (download.getId().equals(id)) {
-        return download.getDownloadState();
-      }
-    }
-    return null;
+    Download download = getDownload(id);
+    return download != null ? download.getDownloadState() : null;
   }
 
   /** Returns the states of all current downloads. */
@@ -416,6 +450,17 @@ public final class DownloadManager {
     } else {
       stopFlags |= STOP_FLAG_REQUIREMENTS_NOT_MET;
     }
+  }
+
+  @Nullable
+  private Download getDownload(String id) {
+    for (int i = 0; i < downloads.size(); i++) {
+      Download download = downloads.get(i);
+      if (download.getId().equals(id)) {
+        return download;
+      }
+    }
+    return null;
   }
 
   private void loadActions() {

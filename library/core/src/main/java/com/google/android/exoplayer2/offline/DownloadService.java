@@ -43,12 +43,26 @@ public abstract class DownloadService extends Service {
   /** Starts a download service, adding a new {@link DownloadAction} to be executed. */
   public static final String ACTION_ADD = "com.google.android.exoplayer.downloadService.action.ADD";
 
+  /** Stops one or all downloads. */
+  public static final String ACTION_STOP =
+      "com.google.android.exoplayer.downloadService.action.STOP";
+
+  /** Starts one or all downloads. */
+  public static final String ACTION_START =
+      "com.google.android.exoplayer.downloadService.action.START";
+
   /** Like {@link #ACTION_INIT}, but with {@link #KEY_FOREGROUND} implicitly set to true. */
   private static final String ACTION_RESTART =
       "com.google.android.exoplayer.downloadService.action.RESTART";
 
   /** Key for the {@link DownloadAction} in an {@link #ACTION_ADD} intent. */
   public static final String KEY_DOWNLOAD_ACTION = "download_action";
+
+  /** Key for content id in an {@link #ACTION_STOP} or {@link #ACTION_START} intent. */
+  public static final String KEY_CONTENT_ID = "content_id";
+
+  /** Key for manual stop reason in an {@link #ACTION_STOP} intent. */
+  public static final String KEY_STOP_REASON = "stop_reason";
 
   /** Invalid foreground notification id which can be used to run the service in the background. */
   public static final int FOREGROUND_NOTIFICATION_ID_NONE = 0;
@@ -166,6 +180,40 @@ public abstract class DownloadService extends Service {
   }
 
   /**
+   * Builds an {@link Intent} for stopping the download with the {@code id}. If {@code id} is null,
+   * stops all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param id The content id, or null if all downloads should be stopped.
+   * @param manualStopReason An application defined stop reason.
+   * @return Created Intent.
+   */
+  public static Intent buildStopDownloadIntent(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      @Nullable String id,
+      int manualStopReason) {
+    return getIntent(context, clazz, ACTION_STOP)
+        .putExtra(KEY_CONTENT_ID, id)
+        .putExtra(KEY_STOP_REASON, manualStopReason);
+  }
+
+  /**
+   * Builds an {@link Intent} for starting the download with the {@code id}. If {@code id} is null,
+   * starts all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param id The content id, or null if all downloads should be started.
+   * @return Created Intent.
+   */
+  public static Intent buildStartDownloadIntent(
+      Context context, Class<? extends DownloadService> clazz, @Nullable String id) {
+    return getIntent(context, clazz, ACTION_START).putExtra(KEY_CONTENT_ID, id);
+  }
+
+  /**
    * Starts the service, adding an action to be executed.
    *
    * @param context A {@link Context}.
@@ -261,6 +309,23 @@ public abstract class DownloadService extends Service {
           } catch (IOException e) {
             Log.e(TAG, "Failed to handle ADD action", e);
           }
+        }
+        break;
+      case ACTION_STOP:
+        String stopDownloadId = intent.getStringExtra(KEY_CONTENT_ID);
+        int stopReason = intent.getIntExtra(KEY_STOP_REASON, 0);
+        if (stopDownloadId == null) {
+          downloadManager.stopDownloads(stopReason);
+        } else {
+          downloadManager.stopDownload(stopDownloadId, stopReason);
+        }
+        break;
+      case ACTION_START:
+        String startDownloadId = intent.getStringExtra(KEY_CONTENT_ID);
+        if (startDownloadId == null) {
+          downloadManager.startDownloads();
+        } else {
+          downloadManager.startDownload(startDownloadId);
         }
         break;
       default:
