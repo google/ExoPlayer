@@ -2070,7 +2070,7 @@ public class MatroskaExtractor implements Extractor {
         buffer.skipBytes(16); // size(4), width(4), height(4), planes(2), bitcount(2).
         long compression = buffer.readLittleEndianUnsignedInt();
         if (compression == FOURCC_COMPRESSION_DIVX) {
-          return new Pair<>(MimeTypes.VIDEO_H263, null);
+          return new Pair<>(MimeTypes.VIDEO_DIVX, null);
         } else if (compression == FOURCC_COMPRESSION_VC1) {
           // Search for the initialization data from the end of the BITMAPINFOHEADER. The last 20
           // bytes of which are: sizeImage(4), xPel/m (4), yPel/m (4), clrUsed(4), clrImportant(4).

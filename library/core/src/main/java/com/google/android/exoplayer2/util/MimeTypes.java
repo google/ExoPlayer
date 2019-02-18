@@ -41,6 +41,7 @@ public final class MimeTypes {
   public static final String VIDEO_MPEG = BASE_TYPE_VIDEO + "/mpeg";
   public static final String VIDEO_MPEG2 = BASE_TYPE_VIDEO + "/mpeg2";
   public static final String VIDEO_VC1 = BASE_TYPE_VIDEO + "/wvc1";
+  public static final String VIDEO_DIVX = BASE_TYPE_VIDEO + "/divx";
   public static final String VIDEO_DOLBY_VISION = BASE_TYPE_VIDEO + "/dolby-vision";
   public static final String VIDEO_UNKNOWN = BASE_TYPE_VIDEO + "/x-unknown";
 
