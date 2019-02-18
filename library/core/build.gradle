@@ -58,7 +58,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation 'androidx.annotation:annotation:1.0.1'
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
     androidTestImplementation 'androidx.test:runner:' + testRunnerVersion

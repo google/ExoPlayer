@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import android.support.annotation.CallSuper;
+import androidx.annotation.CallSuper;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import java.nio.ByteBuffer;

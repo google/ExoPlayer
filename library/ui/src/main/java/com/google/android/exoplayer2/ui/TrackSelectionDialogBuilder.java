@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.ui;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import com.google.android.exoplayer2.source.TrackGroupArray;

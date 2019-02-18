@@ -53,7 +53,7 @@ dependencies {
     implementation project(modulePrefix + 'library-hls')
     implementation project(modulePrefix + 'library-smoothstreaming')
     implementation project(modulePrefix + 'extension-ima')
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation 'androidx.annotation:annotation:1.0.1'
 }
 
 apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'

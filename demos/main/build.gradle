@@ -62,10 +62,10 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
-    implementation 'com.android.support:support-core-ui:' + supportLibraryVersion
-    implementation 'com.android.support:support-fragment:' + supportLibraryVersion
-    implementation 'com.android.support:design:' + supportLibraryVersion
+    implementation 'androidx.annotation:annotation:1.0.1'
+    implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
+    implementation 'androidx.fragment:fragment:1.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-dash')
     implementation project(modulePrefix + 'library-hls')

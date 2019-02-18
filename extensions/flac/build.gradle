@@ -39,7 +39,7 @@ android {
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
-    implementation 'com.android.support:support-annotations:' + supportLibraryVersion
+    implementation 'androidx.annotation:annotation:1.0.1'
     androidTestImplementation project(modulePrefix + 'testutils')
     androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
     testImplementation project(modulePrefix + 'testutils-robolectric')
