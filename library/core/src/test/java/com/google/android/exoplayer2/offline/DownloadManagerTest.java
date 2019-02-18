@@ -403,6 +403,64 @@ public class DownloadManagerTest {
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
+  public void stopAndResumeSingleDownload() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1).postDownloadAction();
+    TaskWrapper task = runner.getTask();
+
+    task.assertDownloading();
+
+    runOnMainThread(() -> downloadManager.stopDownload(task.taskId));
+
+    task.assertStopped();
+
+    runOnMainThread(() -> downloadManager.startDownload(task.taskId));
+
+    runner.getDownloader(1).assertStarted().unblock();
+
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+  }
+
+  @Test
+  public void stoppedDownloadCanBeCancelled() throws Throwable {
+    DownloadRunner runner = new DownloadRunner(uri1).postDownloadAction();
+    TaskWrapper task = runner.getTask();
+
+    task.assertDownloading();
+
+    runOnMainThread(() -> downloadManager.stopDownload(task.taskId));
+
+    task.assertStopped();
+
+    runner.postRemoveAction();
+    runner.getDownloader(1).assertStarted().unblock();
+    task.assertRemoved();
+
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+  }
+
+  @Test
+  public void stoppedSingleDownload_doesNotAffectOthers() throws Throwable {
+    DownloadRunner runner1 = new DownloadRunner(uri1);
+    DownloadRunner runner2 = new DownloadRunner(uri2);
+    DownloadRunner runner3 = new DownloadRunner(uri3);
+
+    runner1.postDownloadAction().getTask().assertDownloading();
+    runner2.postRemoveAction().getTask().assertRemoving();
+
+    runOnMainThread(() -> downloadManager.stopDownload(runner1.getTask().taskId));
+
+    runner1.getTask().assertStopped();
+
+    // Other downloads aren't affected.
+    runner2.getDownloader(0).unblock().assertReleased();
+
+    // New download actions can be added and they start.
+    runner3.postDownloadAction().getDownloader(0).assertStarted().unblock();
+
+    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+  }
+
   private void setUpDownloadManager(final int maxActiveDownloadTasks) throws Exception {
     if (downloadManager != null) {
       releaseDownloadManager();
