@@ -85,12 +85,12 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
   protected static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
 
-  private final Context context;
-  @Nullable private DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
-  @ExtensionRendererMode private int extensionRendererMode;
-  private long allowedVideoJoiningTimeMs;
-  private boolean playClearSamplesWithoutKeys;
-  private MediaCodecSelector mediaCodecSelector;
+  protected final Context context;
+  @Nullable protected DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
+  @ExtensionRendererMode protected int extensionRendererMode;
+  protected long allowedVideoJoiningTimeMs;
+  protected boolean playClearSamplesWithoutKeys;
+  protected MediaCodecSelector mediaCodecSelector;
 
   /** @param context A {@link Context}. */
   public DefaultRenderersFactory(Context context) {
