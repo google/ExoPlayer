@@ -1472,8 +1472,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
           seekPosition.windowPositionUs);
     } catch (IndexOutOfBoundsException e) {
       // The window index of the seek position was outside the bounds of the timeline.
-      throw new IllegalSeekPositionException(timeline, seekPosition.windowIndex,
-          seekPosition.windowPositionUs);
+      throw new IllegalSeekPositionException(
+          timeline, seekPosition.windowIndex, C.usToMs(seekPosition.windowPositionUs));
     }
     if (timeline == seekTimeline) {
       // Our internal timeline is the seek timeline, so the mapped position is correct.
