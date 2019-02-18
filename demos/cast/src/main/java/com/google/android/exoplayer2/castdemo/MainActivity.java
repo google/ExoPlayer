@@ -129,15 +129,6 @@ public class MainActivity extends AppCompatActivity
                 /* context= */ this,
                 castContext);
         break;
-      case ExoCastOptionsProvider.RECEIVER_ID:
-        playerManager =
-            new ExoCastPlayerManager(
-                /* listener= */ this,
-                localPlayerView,
-                castControlView,
-                /* context= */ this,
-                castContext);
-        break;
       default:
         throw new IllegalStateException("Illegal receiver app id: " + applicationId);
     }
