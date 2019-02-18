@@ -389,14 +389,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
           /* acknowledgeStop= */ false);
       eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForSource(e)).sendToTarget();
       maybeNotifyPlaybackInfoChanged();
-    } catch (RuntimeException e) {
+    } catch (RuntimeException | OutOfMemoryError e) {
       Log.e(TAG, "Internal runtime error.", e);
       stopInternal(
           /* forceResetRenderers= */ true,
           /* resetPositionAndState= */ false,
           /* acknowledgeStop= */ false);
-      eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForUnexpected(e))
-          .sendToTarget();
+      ExoPlaybackException error =
+          e instanceof OutOfMemoryError
+              ? ExoPlaybackException.createForOutOfMemoryError((OutOfMemoryError) e)
+              : ExoPlaybackException.createForUnexpected((RuntimeException) e);
+      eventHandler.obtainMessage(MSG_ERROR, error).sendToTarget();
       maybeNotifyPlaybackInfoChanged();
     }
     return true;
