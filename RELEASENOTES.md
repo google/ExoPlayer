@@ -6,6 +6,8 @@
   * Form an adaptive track group out of audio renditions with matching name.
   * Support encrypted initialization segments
     ([#5441](https://github.com/google/ExoPlayer/issues/5441)).
+  * Prevent unnecessary reloads of the initialization segment for reused
+    extractors.
 * DASH:
   * Fix issue handling large `EventStream` presentation timestamps
     ([#5490](https://github.com/google/ExoPlayer/issues/5490)).

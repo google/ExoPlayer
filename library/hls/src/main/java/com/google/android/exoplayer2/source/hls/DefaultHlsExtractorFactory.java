@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Pair;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -71,7 +70,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
   }
 
   @Override
-  public Pair<Extractor, Boolean> createExtractor(
+  public Result createExtractor(
       Extractor previousExtractor,
       Uri uri,
       Format format,
@@ -84,21 +83,15 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
 
     if (previousExtractor != null) {
       // A extractor has already been successfully used. Return one of the same type.
-      if (previousExtractor instanceof TsExtractor
-          || previousExtractor instanceof FragmentedMp4Extractor) {
-        // TS and fMP4 extractors can be reused.
+      if (isReusable(previousExtractor)) {
         return buildResult(previousExtractor);
-      } else if (previousExtractor instanceof WebvttExtractor) {
-        return buildResult(new WebvttExtractor(format.language, timestampAdjuster));
-      } else if (previousExtractor instanceof AdtsExtractor) {
-        return buildResult(new AdtsExtractor());
-      } else if (previousExtractor instanceof Ac3Extractor) {
-        return buildResult(new Ac3Extractor());
-      } else if (previousExtractor instanceof Mp3Extractor) {
-        return buildResult(new Mp3Extractor());
       } else {
-        throw new IllegalArgumentException(
-            "Unexpected previousExtractor type: " + previousExtractor.getClass().getSimpleName());
+        Result result =
+            buildResultForSameExtractorType(previousExtractor, format, timestampAdjuster);
+        if (result == null) {
+          throw new IllegalArgumentException(
+              "Unexpected previousExtractor type: " + previousExtractor.getClass().getSimpleName());
+        }
       }
     }
 
@@ -249,12 +242,28 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         new DefaultTsPayloadReaderFactory(payloadReaderFactoryFlags, muxedCaptionFormats));
   }
 
-  private static Pair<Extractor, Boolean> buildResult(Extractor extractor) {
-    return new Pair<>(
+  private static Result buildResultForSameExtractorType(
+      Extractor previousExtractor, Format format, TimestampAdjuster timestampAdjuster) {
+    if (previousExtractor instanceof WebvttExtractor) {
+      return buildResult(new WebvttExtractor(format.language, timestampAdjuster));
+    } else if (previousExtractor instanceof AdtsExtractor) {
+      return buildResult(new AdtsExtractor());
+    } else if (previousExtractor instanceof Ac3Extractor) {
+      return buildResult(new Ac3Extractor());
+    } else if (previousExtractor instanceof Mp3Extractor) {
+      return buildResult(new Mp3Extractor());
+    } else {
+      return null;
+    }
+  }
+
+  private static Result buildResult(Extractor extractor) {
+    return new Result(
         extractor,
         extractor instanceof AdtsExtractor
             || extractor instanceof Ac3Extractor
-            || extractor instanceof Mp3Extractor);
+            || extractor instanceof Mp3Extractor,
+        isReusable(extractor));
   }
 
   private static boolean sniffQuietly(Extractor extractor, ExtractorInput input)
@@ -270,4 +279,8 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     return result;
   }
 
+  private static boolean isReusable(Extractor previousExtractor) {
+    return previousExtractor instanceof TsExtractor
+        || previousExtractor instanceof FragmentedMp4Extractor;
+  }
 }
