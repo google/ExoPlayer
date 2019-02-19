@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.mediasession;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -76,6 +77,9 @@ import java.util.Map;
  *       is recommended for most use cases.
  *   <li>To enable editing of the media queue, you can set a {@link QueueEditor} by calling {@link
  *       #setQueueEditor(QueueEditor)}.
+ *   <li>A {@link MediaButtonEventHandler} can be set by calling {@link
+ *       #setMediaButtonEventHandler(MediaButtonEventHandler)}. By default media button events are
+ *       handled by {@link MediaSessionCompat.Callback#onMediaButtonEvent(Intent)}.
  *   <li>An {@link ErrorMessageProvider} for providing human readable error messages and
  *       corresponding error codes can be set by calling {@link
  *       #setErrorMessageProvider(ErrorMessageProvider)}.
@@ -300,6 +304,21 @@ public final class MediaSessionConnector {
     void onSetRating(Player player, RatingCompat rating, Bundle extras);
   }
 
+  /** Handles a media button event. */
+  public interface MediaButtonEventHandler {
+    /**
+     * See {@link MediaSessionCompat.Callback#onMediaButtonEvent(Intent)}.
+     *
+     * @param player The {@link Player}.
+     * @param controlDispatcher A {@link ControlDispatcher} that should be used for dispatching
+     *     changes to the player.
+     * @param mediaButtonEvent The {@link Intent}.
+     * @return True if the event was handled, false otherwise.
+     */
+    boolean onMediaButtonEvent(
+        Player player, ControlDispatcher controlDispatcher, Intent mediaButtonEvent);
+  }
+
   /**
    * Provides a {@link PlaybackStateCompat.CustomAction} to be published and handles the action when
    * sent by a media controller.
@@ -357,6 +376,7 @@ public final class MediaSessionConnector {
   @Nullable private QueueNavigator queueNavigator;
   @Nullable private QueueEditor queueEditor;
   @Nullable private RatingCallback ratingCallback;
+  @Nullable private MediaButtonEventHandler mediaButtonEventHandler;
 
   private long enabledPlaybackActions;
   private int rewindMs;
@@ -430,6 +450,18 @@ public final class MediaSessionConnector {
       this.controlDispatcher =
           controlDispatcher == null ? new DefaultControlDispatcher() : controlDispatcher;
     }
+  }
+
+  /**
+   * Sets the {@link MediaButtonEventHandler}. Pass {@code null} if the media button event should be
+   * handled by {@link MediaSessionCompat.Callback#onMediaButtonEvent(Intent)}.
+   *
+   * @param mediaButtonEventHandler The {@link MediaButtonEventHandler}, or null to let the event be
+   *     handled by {@link MediaSessionCompat.Callback#onMediaButtonEvent(Intent)}.
+   */
+  public void setMediaButtonEventHandler(
+      @Nullable MediaButtonEventHandler mediaButtonEventHandler) {
+    this.mediaButtonEventHandler = mediaButtonEventHandler;
   }
 
   /**
@@ -751,6 +783,10 @@ public final class MediaSessionConnector {
 
   private boolean canDispatchQueueEdit() {
     return player != null && queueEditor != null;
+  }
+
+  private boolean canDispatchMediaButtonEvent() {
+    return player != null && mediaButtonEventHandler != null;
   }
 
   private void stopPlayerForPrepare(boolean playWhenReady) {
@@ -1168,6 +1204,15 @@ public final class MediaSessionConnector {
       if (canDispatchQueueEdit()) {
         queueEditor.onRemoveQueueItem(player, description);
       }
+    }
+
+    @Override
+    public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
+      boolean isHandled =
+          canDispatchMediaButtonEvent()
+              && mediaButtonEventHandler.onMediaButtonEvent(
+                  player, controlDispatcher, mediaButtonEvent);
+      return isHandled || super.onMediaButtonEvent(mediaButtonEvent);
     }
   }
 }
