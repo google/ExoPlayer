@@ -8,9 +8,6 @@
     ([#5441](https://github.com/google/ExoPlayer/issues/5441)).
   * Prevent unnecessary reloads of the initialization segment for reused
     extractors.
-* DASH:
-  * Fix issue handling large `EventStream` presentation timestamps
-    ([#5490](https://github.com/google/ExoPlayer/issues/5490)).
 * `ExtractorMediaSource` renamed to `ProgressiveMediaSource`.
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
@@ -51,19 +48,6 @@
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
 * CEA-608: Improved conformance to the specification
   ([#3860](https://github.com/google/ExoPlayer/issues/3860)).
-* IMA extension:
-  * Require setting the `Player` on `AdsLoader` instances before
-    playback.
-  * Remove deprecated `ImaAdsMediaSource`. Create `AdsMediaSource` with an
-    `ImaAdsLoader` instead.
-  * Remove deprecated `AdsMediaSource` constructors. Listen for media source
-    events using `AdsMediaSource.addEventListener`, and ad interaction events by
-    adding a listener when building `ImaAdsLoader`.
-  * Allow apps to register playback-related obstructing views that are on top of
-    their ad display containers via `AdsLoader.AdViewProvider`. `PlayerView`
-    implements this interface and will register its control view. This makes it
-    possible for ad loading SDKs to calculate ad viewability accurately.
-* Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
 * VP9 extension: Remove RGB output mode and libyuv dependency, and switch to
   surface YUV output as the default. Remove constructor parameters `scaleToFit`
   and `useSurfaceYuvOutput`.
@@ -77,6 +61,24 @@
   `TrackSelectionDialogBuilder` and add option to select multiple overrides.
 * MediaSessionConnector: Let apps intercept media button events
   ([#5179](https://github.com/google/ExoPlayer/issues/5179)).
+
+### 2.9.6 ###
+
+* Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
+* IMA extension:
+  * Require setting the `Player` on `AdsLoader` instances before
+    playback.
+  * Remove deprecated `ImaAdsMediaSource`. Create `AdsMediaSource` with an
+    `ImaAdsLoader` instead.
+  * Remove deprecated `AdsMediaSource` constructors. Listen for media source
+    events using `AdsMediaSource.addEventListener`, and ad interaction events by
+    adding a listener when building `ImaAdsLoader`.
+  * Allow apps to register playback-related obstructing views that are on top of
+    their ad display containers via `AdsLoader.AdViewProvider`. `PlayerView`
+    implements this interface and will register its control view. This makes it
+    possible for ad loading SDKs to calculate ad viewability accurately.
+* DASH: Fix issue handling large `EventStream` presentation timestamps
+  ([#5490](https://github.com/google/ExoPlayer/issues/5490)).
 
 ### 2.9.5 ###
 
