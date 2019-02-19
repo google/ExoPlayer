@@ -173,15 +173,6 @@ public class TrackSelectionView extends LinearLayout {
   }
 
   /**
-   * Sets whether an option is available for auto selecting the renderer.
-   *
-   * @param showAutoOption Whether the disable option is shown.
-   */
-  public void setShowAutoOption(boolean showAutoOption) {
-    defaultView.setVisibility(showAutoOption ? View.VISIBLE : View.GONE);
-  }
-
-  /**
    * Sets the {@link TrackNameProvider} used to generate the user visible name of each track and
    * updates the view with track names queried from the specified provider.
    *
