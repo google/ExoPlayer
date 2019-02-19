@@ -45,16 +45,17 @@ public final class DefaultHlsPlaylistTracker
   public static final Factory FACTORY = DefaultHlsPlaylistTracker::new;
 
   /**
-   * Coefficient applied on the target duration of a playlist to determine the amount of time after
-   * which an unchanging playlist is considered stuck.
+   * Default coefficient applied on the target duration of a playlist to determine the amount of
+   * time after which an unchanging playlist is considered stuck.
    */
-  private static final double PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT = 3.5;
+  public static final double DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT = 3.5;
 
   private final HlsDataSourceFactory dataSourceFactory;
   private final HlsPlaylistParserFactory playlistParserFactory;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final IdentityHashMap<HlsUrl, MediaPlaylistBundle> playlistBundles;
   private final List<PlaylistEventListener> listeners;
+  private final double playlistStuckTargetDurationCoefficient;
 
   private @Nullable ParsingLoadable.Parser<HlsPlaylist> mediaPlaylistParser;
   private @Nullable EventDispatcher eventDispatcher;
@@ -68,6 +69,8 @@ public final class DefaultHlsPlaylistTracker
   private long initialStartTimeUs;
 
   /**
+   * Creates an instance.
+   *
    * @param dataSourceFactory A factory for {@link DataSource} instances.
    * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
    * @param playlistParserFactory An {@link HlsPlaylistParserFactory}.
@@ -76,9 +79,33 @@ public final class DefaultHlsPlaylistTracker
       HlsDataSourceFactory dataSourceFactory,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       HlsPlaylistParserFactory playlistParserFactory) {
+    this(
+        dataSourceFactory,
+        loadErrorHandlingPolicy,
+        playlistParserFactory,
+        DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param dataSourceFactory A factory for {@link DataSource} instances.
+   * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
+   * @param playlistParserFactory An {@link HlsPlaylistParserFactory}.
+   * @param playlistStuckTargetDurationCoefficient A coefficient to apply to the target duration of
+   *     media playlists in order to determine that a non-changing playlist is stuck. Once a
+   *     playlist is deemed stuck, a {@link PlaylistStuckException} is thrown via {@link
+   *     #maybeThrowPlaylistRefreshError(HlsUrl)}.
+   */
+  public DefaultHlsPlaylistTracker(
+      HlsDataSourceFactory dataSourceFactory,
+      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
+      HlsPlaylistParserFactory playlistParserFactory,
+      double playlistStuckTargetDurationCoefficient) {
     this.dataSourceFactory = dataSourceFactory;
     this.playlistParserFactory = playlistParserFactory;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+    this.playlistStuckTargetDurationCoefficient = playlistStuckTargetDurationCoefficient;
     listeners = new ArrayList<>();
     playlistBundles = new IdentityHashMap<>();
     initialStartTimeUs = C.TIME_UNSET;
@@ -597,7 +624,7 @@ public final class DefaultHlsPlaylistTracker
           notifyPlaylistError(playlistUrl, C.TIME_UNSET);
         } else if (currentTimeMs - lastSnapshotChangeMs
             > C.usToMs(playlistSnapshot.targetDurationUs)
-                * PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT) {
+                * playlistStuckTargetDurationCoefficient) {
           // TODO: Allow customization of stuck playlists handling.
           playlistError = new PlaylistStuckException(playlistUrl.url);
           long blacklistDurationMs =
