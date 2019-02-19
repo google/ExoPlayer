@@ -131,7 +131,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * @param rendererIndex The renderer index.
      * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
      */
-    public int getRendererType(int rendererIndex) {
+    public int getRendererType(@C.RendererIndex int rendererIndex) {
       return rendererTrackTypes[rendererIndex];
     }
 
@@ -141,7 +141,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * @param rendererIndex The renderer index.
      * @return The corresponding {@link TrackGroup}s.
      */
-    public TrackGroupArray getTrackGroups(int rendererIndex) {
+    public TrackGroupArray getTrackGroups(@C.RendererIndex int rendererIndex) {
       return rendererTrackGroups[rendererIndex];
     }
 
@@ -153,7 +153,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      *     #RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS}, {@link
      *     #RENDERER_SUPPORT_UNSUPPORTED_TRACKS} and {@link #RENDERER_SUPPORT_NO_TRACKS}.
      */
-    public @RendererSupport int getRendererSupport(int rendererIndex) {
+    public @RendererSupport int getRendererSupport(@C.RendererIndex int rendererIndex) {
       int bestRendererSupport = RENDERER_SUPPORT_NO_TRACKS;
       int[][] rendererFormatSupport = rendererFormatSupports[rendererIndex];
       for (int i = 0; i < rendererFormatSupport.length; i++) {
@@ -204,7 +204,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
     /** @deprecated Use {@link #getTrackSupport(int, int, int)}. */
     @Deprecated
-    public int getTrackFormatSupport(int rendererIndex, int groupIndex, int trackIndex) {
+    public int getTrackFormatSupport(@C.RendererIndex int rendererIndex, int groupIndex, int trackIndex) {
       return getTrackSupport(rendererIndex, groupIndex, trackIndex);
     }
 
@@ -220,7 +220,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      *     RendererCapabilities#FORMAT_UNSUPPORTED_SUBTYPE} and {@link
      *     RendererCapabilities#FORMAT_UNSUPPORTED_TYPE}.
      */
-    public int getTrackSupport(int rendererIndex, int groupIndex, int trackIndex) {
+    public int getTrackSupport(@C.RendererIndex int rendererIndex, int groupIndex, int trackIndex) {
       return rendererFormatSupports[rendererIndex][groupIndex][trackIndex]
           & RendererCapabilities.FORMAT_SUPPORT_MASK;
     }
@@ -247,7 +247,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      *     RendererCapabilities#ADAPTIVE_NOT_SUPPORTED}.
      */
     public int getAdaptiveSupport(
-        int rendererIndex, int groupIndex, boolean includeCapabilitiesExceededTracks) {
+            @C.RendererIndex int rendererIndex, int groupIndex, boolean includeCapabilitiesExceededTracks) {
       int trackCount = rendererTrackGroups[rendererIndex].get(groupIndex).length;
       // Iterate over the tracks in the group, recording the indices of those to consider.
       int[] trackIndices = new int[trackCount];
@@ -274,7 +274,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      *     RendererCapabilities#ADAPTIVE_NOT_SEAMLESS} and {@link
      *     RendererCapabilities#ADAPTIVE_NOT_SUPPORTED}.
      */
-    public int getAdaptiveSupport(int rendererIndex, int groupIndex, int[] trackIndices) {
+    public int getAdaptiveSupport(@C.RendererIndex int rendererIndex, int groupIndex, int[] trackIndices) {
       int handledTrackCount = 0;
       int adaptiveSupport = RendererCapabilities.ADAPTIVE_SEAMLESS;
       boolean multipleMimeTypes = false;
@@ -356,7 +356,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
       TrackGroup group = trackGroups.get(groupIndex);
       // Associate the group to a preferred renderer.
-      int rendererIndex = findRenderer(rendererCapabilities, group);
+      @C.RendererIndex int rendererIndex = findRenderer(rendererCapabilities, group);
       // Evaluate the support that the renderer provides for each track in the group.
       int[] rendererFormatSupport = rendererIndex == rendererCapabilities.length
           ? new int[group.length] : getFormatSupport(rendererCapabilities[rendererIndex], group);

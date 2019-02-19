@@ -26,6 +26,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
+
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -67,7 +69,7 @@ public class TrackSelectionView extends LinearLayout {
   private CheckedTextView[][] trackViews;
 
   @MonotonicNonNull private MappedTrackInfo mappedTrackInfo;
-  private int rendererIndex;
+  private @C.RendererIndex int rendererIndex;
   private TrackGroupArray trackGroups;
   private boolean isDisabled;
   @Nullable private TrackSelectionListener listener;
@@ -197,7 +199,7 @@ public class TrackSelectionView extends LinearLayout {
    */
   public void init(
       MappedTrackInfo mappedTrackInfo,
-      int rendererIndex,
+      @C.RendererIndex int rendererIndex,
       boolean isDisabled,
       List<SelectionOverride> overrides,
       @Nullable TrackSelectionListener listener) {

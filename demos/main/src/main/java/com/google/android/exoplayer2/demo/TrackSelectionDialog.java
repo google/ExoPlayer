@@ -143,7 +143,7 @@ public final class TrackSelectionDialog extends DialogFragment {
    * @param rendererIndex Renderer index.
    * @return Whether the renderer is disabled.
    */
-  public boolean getIsDisabled(int rendererIndex) {
+  public boolean getIsDisabled(@C.RendererIndex int rendererIndex) {
     TrackSelectionViewFragment rendererView = tabFragments.get(rendererIndex);
     return rendererView != null && rendererView.isDisabled;
   }
@@ -155,7 +155,7 @@ public final class TrackSelectionDialog extends DialogFragment {
    * @param rendererIndex Renderer index.
    * @return The list of track selection overrides for this renderer.
    */
-  public List<SelectionOverride> getOverrides(int rendererIndex) {
+  public List<SelectionOverride> getOverrides(@C.RendererIndex int rendererIndex) {
     TrackSelectionViewFragment rendererView = tabFragments.get(rendererIndex);
     return rendererView == null ? Collections.emptyList() : rendererView.overrides;
   }
@@ -263,7 +263,7 @@ public final class TrackSelectionDialog extends DialogFragment {
       implements TrackSelectionView.TrackSelectionListener {
 
     private MappedTrackInfo mappedTrackInfo;
-    private int rendererIndex;
+    private @C.RendererIndex int rendererIndex;
     private boolean allowAdaptiveSelections;
     private boolean allowMultipleOverrides;
 
@@ -277,7 +277,7 @@ public final class TrackSelectionDialog extends DialogFragment {
 
     public void init(
         MappedTrackInfo mappedTrackInfo,
-        int rendererIndex,
+        @C.RendererIndex int rendererIndex,
         boolean initialIsDisabled,
         @Nullable SelectionOverride initialOverride,
         boolean allowAdaptiveSelections,

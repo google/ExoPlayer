@@ -21,6 +21,8 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
+
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
@@ -48,7 +50,7 @@ public final class TrackSelectionDialogBuilder {
   private final Context context;
   private final CharSequence title;
   private final MappedTrackInfo mappedTrackInfo;
-  private final int rendererIndex;
+  private @C.RendererIndex final int rendererIndex;
   private final DialogCallback callback;
 
   private boolean allowAdaptiveSelections;
@@ -72,7 +74,7 @@ public final class TrackSelectionDialogBuilder {
       Context context,
       CharSequence title,
       MappedTrackInfo mappedTrackInfo,
-      int rendererIndex,
+      @C.RendererIndex int rendererIndex,
       DialogCallback callback) {
     this.context = context;
     this.title = title;
@@ -94,7 +96,7 @@ public final class TrackSelectionDialogBuilder {
    *     selection is shown.
    */
   public TrackSelectionDialogBuilder(
-      Context context, CharSequence title, DefaultTrackSelector trackSelector, int rendererIndex) {
+      Context context, CharSequence title, DefaultTrackSelector trackSelector, @C.RendererIndex int rendererIndex) {
     this.context = context;
     this.title = title;
     this.mappedTrackInfo = Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo());

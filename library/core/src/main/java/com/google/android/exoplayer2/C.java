@@ -309,6 +309,31 @@ public final class C {
       android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
 
   /**
+   * Indexes for an Renderer Dialog. One of {@link #RENDERER_INDEX_VIDEO}, {@link
+   * #RENDERER_INDEX_AUDIO}, {@link #RENDERER_INDEX_TEXT}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+          RENDERER_INDEX_VIDEO,
+          RENDERER_INDEX_AUDIO,
+          RENDERER_INDEX_TEXT
+  })
+  public @interface RendererIndex {}
+  /**
+   * Renderer index for video
+   */
+  public static final int RENDERER_INDEX_VIDEO = 0;
+  /**
+   * Renderer index for audio
+   */
+  public static final int RENDERER_INDEX_AUDIO = 1;
+  /**
+   * Renderer index for text (subtitle)
+   */
+  public static final int RENDERER_INDEX_TEXT = 2;
+
+  /**
    * Flags for {@link com.google.android.exoplayer2.audio.AudioAttributes}. Possible flag value is
    * {@link #FLAG_AUDIBILITY_ENFORCED}.
    *

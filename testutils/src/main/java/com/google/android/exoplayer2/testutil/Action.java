@@ -227,7 +227,7 @@ public abstract class Action {
    */
   public static final class SetRendererDisabled extends Action {
 
-    private final int rendererIndex;
+    private final @C.RendererIndex int rendererIndex;
     private final boolean disabled;
 
     /**
@@ -235,7 +235,7 @@ public abstract class Action {
      * @param rendererIndex The index of the renderer.
      * @param disabled Whether the renderer should be disabled.
      */
-    public SetRendererDisabled(String tag, int rendererIndex, boolean disabled) {
+    public SetRendererDisabled(String tag, @C.RendererIndex int rendererIndex, boolean disabled) {
       super(tag, "SetRendererDisabled:" + rendererIndex + ":" + disabled);
       this.rendererIndex = rendererIndex;
       this.disabled = disabled;

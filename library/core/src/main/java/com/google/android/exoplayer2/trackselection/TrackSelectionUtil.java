@@ -90,7 +90,7 @@ public final class TrackSelectionUtil {
    */
   public static DefaultTrackSelector.Parameters updateParametersWithOverride(
       DefaultTrackSelector.Parameters parameters,
-      int rendererIndex,
+      @C.RendererIndex int rendererIndex,
       TrackGroupArray trackGroupArray,
       boolean isDisabled,
       @Nullable SelectionOverride override) {
