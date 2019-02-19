@@ -75,6 +75,8 @@
   `DownloadNotificationHelper`.
 * Move creation of dialogs for `TrackSelectionView`s to
   `TrackSelectionDialogBuilder` and add option to select multiple overrides.
+* MediaSessionConnector: Let apps intercept media button events
+  ([#5179](https://github.com/google/ExoPlayer/issues/5179)).
 
 ### 2.9.5 ###
 
