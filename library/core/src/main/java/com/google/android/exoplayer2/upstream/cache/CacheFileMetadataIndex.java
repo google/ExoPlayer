@@ -20,14 +20,16 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
+import com.google.android.exoplayer2.util.Assertions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Maintains an index of cache file metadata. */
 /* package */ final class CacheFileMetadataIndex {
 
-  private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "CacheFileMetadata";
+  private static final String TABLE_PREFIX = DatabaseProvider.TABLE_PREFIX + "CacheFileMetadata";
   private static final int TABLE_VERSION = 1;
 
   private static final String COLUMN_NAME = "name";
@@ -44,12 +46,8 @@ import java.util.Set;
       new String[] {
         COLUMN_NAME, COLUMN_LENGTH, COLUMN_LAST_ACCESS_TIMESTAMP,
       };
-
-  private static final String SQL_DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS " + TABLE_NAME;
-  private static final String SQL_CREATE_TABLE =
-      "CREATE TABLE "
-          + TABLE_NAME
-          + " ("
+  private static final String TABLE_SCHEMA =
+      "("
           + COLUMN_NAME
           + " TEXT PRIMARY KEY NOT NULL,"
           + COLUMN_LENGTH
@@ -59,10 +57,35 @@ import java.util.Set;
 
   private final DatabaseProvider databaseProvider;
 
-  private boolean initialized;
+  @MonotonicNonNull private String tableName;
 
   public CacheFileMetadataIndex(DatabaseProvider databaseProvider) {
     this.databaseProvider = databaseProvider;
+  }
+
+  /** Initializes the index for the given cache UID. */
+  public void initialize(long uid) {
+    String hexUid = Long.toHexString(uid);
+    tableName = TABLE_PREFIX + hexUid;
+    SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
+    int version =
+        VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid);
+    if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      writableDatabase.beginTransaction();
+      try {
+        VersionTable.setVersion(
+            writableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid, TABLE_VERSION);
+        writableDatabase.execSQL("DROP TABLE IF EXISTS " + tableName);
+        writableDatabase.execSQL("CREATE TABLE " + tableName + " " + TABLE_SCHEMA);
+        writableDatabase.setTransactionSuccessful();
+      } finally {
+        writableDatabase.endTransaction();
+      }
+    } else if (version < TABLE_VERSION) {
+      // There is no previous version currently.
+      throw new IllegalStateException();
+    }
   }
 
   /**
@@ -70,7 +93,6 @@ import java.util.Set;
    * by the caller.
    */
   public Map<String, CacheFileMetadata> getAll() {
-    ensureInitialized();
     try (Cursor cursor = getCursor()) {
       Map<String, CacheFileMetadata> fileMetadata = new HashMap<>(cursor.getCount());
       while (cursor.moveToNext()) {
@@ -91,13 +113,13 @@ import java.util.Set;
    * @param lastAccessTimestamp The file last access timestamp.
    */
   public void set(String name, long length, long lastAccessTimestamp) {
-    ensureInitialized();
+    Assertions.checkNotNull(tableName);
     SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
     ContentValues values = new ContentValues();
     values.put(COLUMN_NAME, name);
     values.put(COLUMN_LENGTH, length);
     values.put(COLUMN_LAST_ACCESS_TIMESTAMP, lastAccessTimestamp);
-    writableDatabase.replace(TABLE_NAME, /* nullColumnHack= */ null, values);
+    writableDatabase.replace(tableName, /* nullColumnHack= */ null, values);
   }
 
   /**
@@ -106,9 +128,9 @@ import java.util.Set;
    * @param name The name of the file whose metadata is to be removed.
    */
   public void remove(String name) {
-    ensureInitialized();
+    Assertions.checkNotNull(tableName);
     SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-    writableDatabase.delete(TABLE_NAME, WHERE_NAME_EQUALS, new String[] {name});
+    writableDatabase.delete(tableName, WHERE_NAME_EQUALS, new String[] {name});
   }
 
   /**
@@ -117,12 +139,12 @@ import java.util.Set;
    * @param names The names of the files whose metadata is to be removed.
    */
   public void removeAll(Set<String> names) {
-    ensureInitialized();
+    Assertions.checkNotNull(tableName);
     SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
     writableDatabase.beginTransaction();
     try {
       for (String name : names) {
-        writableDatabase.delete(TABLE_NAME, WHERE_NAME_EQUALS, new String[] {name});
+        writableDatabase.delete(tableName, WHERE_NAME_EQUALS, new String[] {name});
       }
       writableDatabase.setTransactionSuccessful();
     } finally {
@@ -130,37 +152,12 @@ import java.util.Set;
     }
   }
 
-  private void ensureInitialized() {
-    if (initialized) {
-      return;
-    }
-    SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
-    int version =
-        VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA);
-    if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
-      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.beginTransaction();
-      try {
-        VersionTable.setVersion(
-            writableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, TABLE_VERSION);
-        writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
-        writableDatabase.execSQL(SQL_CREATE_TABLE);
-        writableDatabase.setTransactionSuccessful();
-      } finally {
-        writableDatabase.endTransaction();
-      }
-    } else if (version < TABLE_VERSION) {
-      // There is no previous version currently.
-      throw new IllegalStateException();
-    }
-    initialized = true;
-  }
-
   private Cursor getCursor() {
+    Assertions.checkNotNull(tableName);
     return databaseProvider
         .getReadableDatabase()
         .query(
-            TABLE_NAME,
+            tableName,
             COLUMNS,
             /* selection */ null,
             /* selectionArgs= */ null,

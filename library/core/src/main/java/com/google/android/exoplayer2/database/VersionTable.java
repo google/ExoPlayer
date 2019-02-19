@@ -31,7 +31,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class VersionTable {
 
-  /** Returned by {@link #getVersion(SQLiteDatabase, int)} if the version is unset. */
+  /** Returned by {@link #getVersion(SQLiteDatabase, int, String)} if the version is unset. */
   public static final int VERSION_UNSET = -1;
   /** Version of tables used for offline functionality. */
   public static final int FEATURE_OFFLINE = 0;
@@ -43,18 +43,26 @@ public final class VersionTable {
   private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "Versions";
 
   private static final String COLUMN_FEATURE = "feature";
+  private static final String COLUMN_INSTANCE_UID = "instance_uid";
   private static final String COLUMN_VERSION = "version";
 
-  private static final String WHERE_FEATURE_EQUALS = COLUMN_FEATURE + " = ?";
+  private static final String WHERE_FEATURE_AND_INSTANCE_UID_EQUALS =
+      COLUMN_FEATURE + " = ? AND " + COLUMN_INSTANCE_UID + " = ?";
 
+  private static final String PRIMARY_KEY =
+      "PRIMARY KEY (" + COLUMN_FEATURE + ", " + COLUMN_INSTANCE_UID + ")";
   private static final String SQL_CREATE_TABLE_IF_NOT_EXISTS =
       "CREATE TABLE IF NOT EXISTS "
           + TABLE_NAME
           + " ("
           + COLUMN_FEATURE
-          + " INTEGER PRIMARY KEY NOT NULL,"
+          + " INTEGER NOT NULL,"
+          + COLUMN_INSTANCE_UID
+          + " TEXT NOT NULL,"
           + COLUMN_VERSION
-          + " INTEGER NOT NULL)";
+          + " INTEGER NOT NULL,"
+          + PRIMARY_KEY
+          + ")";
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -64,42 +72,51 @@ public final class VersionTable {
   private VersionTable() {}
 
   /**
-   * Sets the version of the specified feature.
+   * Sets the version of a specified instance of a specified feature.
    *
    * @param writableDatabase The database to update.
    * @param feature The feature.
+   * @param instanceUid The unique identifier of the instance of the feature.
    * @param version The version.
    */
   public static void setVersion(
-      SQLiteDatabase writableDatabase, @Feature int feature, int version) {
+      SQLiteDatabase writableDatabase, @Feature int feature, String instanceUid, int version) {
     writableDatabase.execSQL(SQL_CREATE_TABLE_IF_NOT_EXISTS);
     ContentValues values = new ContentValues();
     values.put(COLUMN_FEATURE, feature);
+    values.put(COLUMN_INSTANCE_UID, instanceUid);
     values.put(COLUMN_VERSION, version);
     writableDatabase.replace(TABLE_NAME, /* nullColumnHack= */ null, values);
   }
 
   /**
-   * Removes the version of the specified feature.
+   * Removes the version of a specified instance of a feature.
    *
    * @param writableDatabase The database to update.
    * @param feature The feature.
+   * @param instanceUid The unique identifier of the instance of the feature.
    */
-  public static void removeVersion(SQLiteDatabase writableDatabase, @Feature int feature) {
+  public static void removeVersion(
+      SQLiteDatabase writableDatabase, @Feature int feature, String instanceUid) {
     if (!tableExists(writableDatabase, TABLE_NAME)) {
       return;
     }
-    writableDatabase.delete(TABLE_NAME, WHERE_FEATURE_EQUALS, featureArgument(feature));
+    writableDatabase.delete(
+        TABLE_NAME,
+        WHERE_FEATURE_AND_INSTANCE_UID_EQUALS,
+        featureAndInstanceUidArguments(feature, instanceUid));
   }
 
   /**
-   * Returns the version of the specified feature, or {@link #VERSION_UNSET} if no version
-   * information is available.
+   * Returns the version of a specified instance of a feature, or {@link #VERSION_UNSET} if no
+   * version is set.
    *
    * @param database The database to query.
    * @param feature The feature.
+   * @param instanceUid The unique identifier of the instance of the feature.
+   * @return The version, or {@link #VERSION_UNSET} if no version is set.
    */
-  public static int getVersion(SQLiteDatabase database, @Feature int feature) {
+  public static int getVersion(SQLiteDatabase database, @Feature int feature, String instanceUid) {
     if (!tableExists(database, TABLE_NAME)) {
       return VERSION_UNSET;
     }
@@ -107,8 +124,8 @@ public final class VersionTable {
         database.query(
             TABLE_NAME,
             new String[] {COLUMN_VERSION},
-            WHERE_FEATURE_EQUALS,
-            featureArgument(feature),
+            WHERE_FEATURE_AND_INSTANCE_UID_EQUALS,
+            featureAndInstanceUidArguments(feature, instanceUid),
             /* groupBy= */ null,
             /* having= */ null,
             /* orderBy= */ null)) {
@@ -128,7 +145,7 @@ public final class VersionTable {
     return count > 0;
   }
 
-  private static String[] featureArgument(int feature) {
-    return new String[] {Integer.toString(feature)};
+  private static String[] featureAndInstanceUidArguments(int feature, String instance) {
+    return new String[] {Integer.toString(feature), instance};
   }
 }

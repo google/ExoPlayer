@@ -160,7 +160,7 @@ public class CachedContentIndexTest {
     fos.write(testIndexV1File);
     fos.close();
 
-    index.load();
+    index.initialize(/* uid= */ 0);
     assertThat(index.getAll()).hasSize(2);
 
     assertThat(index.assignIdForKey("ABCDE")).isEqualTo(5);
@@ -181,7 +181,7 @@ public class CachedContentIndexTest {
     fos.write(testIndexV2File);
     fos.close();
 
-    index.load();
+    index.initialize(/* uid= */ 0);
     assertThat(index.getAll()).hasSize(2);
 
     assertThat(index.assignIdForKey("ABCDE")).isEqualTo(5);
@@ -325,7 +325,7 @@ public class CachedContentIndexTest {
     index.getOrAdd("ABCDE").applyMetadataMutations(mutations2);
     index.store();
 
-    index2.load();
+    index2.initialize(/* uid= */ 0);
     Set<String> keys = index.getKeys();
     Set<String> keys2 = index2.getKeys();
     assertThat(keys2).isEqualTo(keys);

@@ -37,6 +37,8 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   @VisibleForTesting
   /* package */ static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "Downloads";
 
+  // TODO: Support multiple instances. Probably using the underlying cache UID.
+  @VisibleForTesting /* package */ static final String INSTANCE_UID = "singleton";
   @VisibleForTesting /* package */ static final int TABLE_VERSION = 1;
 
   private static final String COLUMN_ID = "id";
@@ -218,12 +220,14 @@ public final class DefaultDownloadIndex implements DownloadIndex {
       return;
     }
     SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
-    int version = VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE);
+    int version =
+        VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID);
     if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.beginTransaction();
       try {
-        VersionTable.setVersion(writableDatabase, VersionTable.FEATURE_OFFLINE, TABLE_VERSION);
+        VersionTable.setVersion(
+            writableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID, TABLE_VERSION);
         writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
         writableDatabase.execSQL(SQL_CREATE_TABLE);
         writableDatabase.setTransactionSuccessful();
