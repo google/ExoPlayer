@@ -159,8 +159,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
-  /** Loads the index file. */
-  public void load() {
+  /**
+   * Loads the index file for the given cache UID.
+   *
+   * @param uid The UID of the cache whose index is to be loaded.
+   */
+  public void initialize(long uid) {
+    storage.initialize(uid);
+    if (previousStorage != null) {
+      previousStorage.initialize(uid);
+    }
     if (!storage.exists() && previousStorage != null && previousStorage.exists()) {
       // Copy from previous storage into current storage.
       loadFrom(previousStorage);
@@ -383,6 +391,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /** Interface for the persistent index. */
   private interface Storage {
 
+    /** Initializes the storage for the given cache UID. */
+    void initialize(long uid);
+
     /** Returns whether the persisted index exists. */
     boolean exists();
 
@@ -409,9 +420,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     void storeFully(HashMap<String, CachedContent> content) throws CacheException;
 
     /**
-     * Ensures incremental changes to the index since the last {@link #load()} or {@link
-     * #storeFully(HashMap)} are persisted. The storage will have been notified of all such changes
-     * via {@link #onUpdate(CachedContent)} and {@link #onRemove(CachedContent)}.
+     * Ensures incremental changes to the index since the initial {@link #initialize(long)} or last
+     * {@link #storeFully(HashMap)} are persisted. The storage will have been notified of all such
+     * changes via {@link #onUpdate(CachedContent)} and {@link #onRemove(CachedContent)}.
      *
      * @param content The key to content map to persist.
      * @throws CacheException If an error occurs persisting the index.
@@ -457,13 +468,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           throw new IllegalStateException(e); // Should never happen.
         }
       } else {
-        Assertions.checkState(!encrypt);
+        Assertions.checkArgument(!encrypt);
       }
       this.encrypt = encrypt;
       this.cipher = cipher;
       this.secretKeySpec = secretKeySpec;
       random = encrypt ? new Random() : null;
       atomicFile = new AtomicFile(file);
+    }
+
+    @Override
+    public void initialize(long uid) {
+      // Do nothing. Legacy storage uses a separate file for each cache.
     }
 
     @Override
@@ -665,7 +681,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /** {@link Storage} implementation that uses an SQL database. */
   private static final class DatabaseStorage implements Storage {
 
-    private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "CacheContentMetadata";
+    private static final String TABLE_PREFIX = DatabaseProvider.TABLE_PREFIX + "CacheIndex";
     private static final int TABLE_VERSION = 1;
 
     private static final String COLUMN_ID = "id";
@@ -679,12 +695,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private static final String WHERE_ID_EQUALS = COLUMN_ID + " = ?";
 
     private static final String[] COLUMNS = new String[] {COLUMN_ID, COLUMN_KEY, COLUMN_METADATA};
-
-    private static final String SQL_DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS " + TABLE_NAME;
-    private static final String SQL_CREATE_TABLE =
-        "CREATE TABLE "
-            + TABLE_NAME
-            + " ("
+    private static final String TABLE_SCHEMA =
+        "("
             + COLUMN_ID
             + " INTEGER PRIMARY KEY NOT NULL,"
             + COLUMN_KEY
@@ -695,15 +707,26 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private final DatabaseProvider databaseProvider;
     private final SparseArray<CachedContent> pendingUpdates;
 
+    private String hexUid;
+    private String tableName;
+
     public DatabaseStorage(DatabaseProvider databaseProvider) {
       this.databaseProvider = databaseProvider;
       pendingUpdates = new SparseArray<>();
     }
 
     @Override
+    public void initialize(long uid) {
+      hexUid = Long.toHexString(uid);
+      tableName = TABLE_PREFIX + hexUid;
+    }
+
+    @Override
     public boolean exists() {
       return VersionTable.getVersion(
-              databaseProvider.getReadableDatabase(), VersionTable.FEATURE_CACHE_CONTENT_METADATA)
+              databaseProvider.getReadableDatabase(),
+              VersionTable.FEATURE_CACHE_CONTENT_METADATA,
+              hexUid)
           != VersionTable.VERSION_UNSET;
     }
 
@@ -712,8 +735,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.beginTransaction();
       try {
-        VersionTable.removeVersion(writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA);
-        writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
+        VersionTable.removeVersion(
+            writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, hexUid);
+        dropTable(writableDatabase);
         writableDatabase.setTransactionSuccessful();
       } finally {
         writableDatabase.endTransaction();
@@ -728,7 +752,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         int version =
             VersionTable.getVersion(
                 databaseProvider.getReadableDatabase(),
-                VersionTable.FEATURE_CACHE_CONTENT_METADATA);
+                VersionTable.FEATURE_CACHE_CONTENT_METADATA,
+                hexUid);
         if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
           SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
           writableDatabase.beginTransaction();
@@ -821,7 +846,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       return databaseProvider
           .getReadableDatabase()
           .query(
-              TABLE_NAME,
+              tableName,
               COLUMNS,
               /* selection= */ null,
               /* selectionArgs= */ null,
@@ -832,13 +857,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     private void initializeTable(SQLiteDatabase writableDatabase) {
       VersionTable.setVersion(
-          writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, TABLE_VERSION);
-      writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
-      writableDatabase.execSQL(SQL_CREATE_TABLE);
+          writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, hexUid, TABLE_VERSION);
+      dropTable(writableDatabase);
+      writableDatabase.execSQL("CREATE TABLE " + tableName + " " + TABLE_SCHEMA);
+    }
+
+    private void dropTable(SQLiteDatabase writableDatabase) {
+      writableDatabase.execSQL("DROP TABLE IF EXISTS " + tableName);
     }
 
     private void deleteRow(SQLiteDatabase writableDatabase, int key) {
-      writableDatabase.delete(TABLE_NAME, WHERE_ID_EQUALS, new String[] {Integer.toString(key)});
+      writableDatabase.delete(tableName, WHERE_ID_EQUALS, new String[] {Integer.toString(key)});
     }
 
     private void addOrUpdateRow(SQLiteDatabase writableDatabase, CachedContent cachedContent)
@@ -851,7 +880,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       values.put(COLUMN_ID, cachedContent.id);
       values.put(COLUMN_KEY, cachedContent.key);
       values.put(COLUMN_METADATA, data);
-      writableDatabase.replace(TABLE_NAME, /* nullColumnHack= */ null, values);
+      writableDatabase.replace(tableName, /* nullColumnHack= */ null, values);
     }
   }
 }

@@ -254,8 +254,8 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized @Nullable SimpleCacheSpan startReadWriteNonBlocking(String key, long position)
-      throws CacheException {
+  public synchronized @Nullable SimpleCacheSpan startReadWriteNonBlocking(
+      String key, long position) {
     Assertions.checkState(!released);
     SimpleCacheSpan span = getSpan(key, position);
 
@@ -290,7 +290,7 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized File startFile(String key, long position, long length) throws CacheException {
+  public synchronized File startFile(String key, long position, long length) {
     Assertions.checkState(!released);
     CachedContent cachedContent = contentIndex.get(key);
     Assertions.checkNotNull(cachedContent);
@@ -399,7 +399,7 @@ public final class SimpleCache implements Cache {
    * @param position The position of the span being requested.
    * @return The corresponding cache {@link SimpleCacheSpan}.
    */
-  private SimpleCacheSpan getSpan(String key, long position) throws CacheException {
+  private SimpleCacheSpan getSpan(String key, long position) {
     CachedContent cachedContent = contentIndex.get(key);
     if (cachedContent == null) {
       return SimpleCacheSpan.createOpenHole(key, position);
@@ -432,9 +432,9 @@ public final class SimpleCache implements Cache {
       // TODO: Decide how to handle this.
     }
 
-    // TODO: Pass the UID to the index, and use it.
-    contentIndex.load();
+    contentIndex.initialize(uid);
     if (fileIndex != null) {
+      fileIndex.initialize(uid);
       Map<String, CacheFileMetadata> fileMetadata = fileIndex.getAll();
       loadDirectory(cacheDir, /* isRoot= */ true, files, fileMetadata);
       fileIndex.removeAll(fileMetadata.keySet());
