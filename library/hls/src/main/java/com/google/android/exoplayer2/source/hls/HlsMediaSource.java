@@ -36,15 +36,12 @@ import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistParse
 import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistTracker;
 import com.google.android.exoplayer2.source.hls.playlist.FilteringHlsPlaylistParserFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
-import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
-import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
-import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -296,99 +293,6 @@ public final class HlsMediaSource extends BaseMediaSource
   private final @Nullable Object tag;
 
   private @Nullable TransferListener mediaTransferListener;
-
-  /**
-   * @param manifestUri The {@link Uri} of the HLS manifest.
-   * @param dataSourceFactory An {@link HlsDataSourceFactory} for {@link DataSource}s for manifests,
-   *     segments and keys.
-   * @param eventHandler A handler for events. May be null if delivery of events is not required.
-   * @param eventListener A {@link MediaSourceEventListener}. May be null if delivery of events is
-   *     not required.
-   * @deprecated Use {@link Factory} instead.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public HlsMediaSource(
-      Uri manifestUri,
-      DataSource.Factory dataSourceFactory,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
-    this(
-        manifestUri,
-        dataSourceFactory,
-        DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT,
-        eventHandler,
-        eventListener);
-  }
-
-  /**
-   * @param manifestUri The {@link Uri} of the HLS manifest.
-   * @param dataSourceFactory An {@link HlsDataSourceFactory} for {@link DataSource}s for manifests,
-   *     segments and keys.
-   * @param minLoadableRetryCount The minimum number of times loads must be retried before errors
-   *     are propagated.
-   * @param eventHandler A handler for events. May be null if delivery of events is not required.
-   * @param eventListener A {@link MediaSourceEventListener}. May be null if delivery of events is
-   *     not required.
-   * @deprecated Use {@link Factory} instead.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public HlsMediaSource(
-      Uri manifestUri,
-      DataSource.Factory dataSourceFactory,
-      int minLoadableRetryCount,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener) {
-    this(
-        manifestUri,
-        new DefaultHlsDataSourceFactory(dataSourceFactory),
-        HlsExtractorFactory.DEFAULT,
-        minLoadableRetryCount,
-        eventHandler,
-        eventListener,
-        new HlsPlaylistParser());
-  }
-
-  /**
-   * @param manifestUri The {@link Uri} of the HLS manifest.
-   * @param dataSourceFactory An {@link HlsDataSourceFactory} for {@link DataSource}s for manifests,
-   *     segments and keys.
-   * @param extractorFactory An {@link HlsExtractorFactory} for {@link Extractor}s for the segments.
-   * @param minLoadableRetryCount The minimum number of times loads must be retried before errors
-   *     are propagated.
-   * @param eventHandler A handler for events. May be null if delivery of events is not required.
-   * @param eventListener A {@link MediaSourceEventListener}. May be null if delivery of events is
-   *     not required.
-   * @param playlistParser A {@link ParsingLoadable.Parser} for HLS playlists.
-   * @deprecated Use {@link Factory} instead.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public HlsMediaSource(
-      Uri manifestUri,
-      HlsDataSourceFactory dataSourceFactory,
-      HlsExtractorFactory extractorFactory,
-      int minLoadableRetryCount,
-      Handler eventHandler,
-      MediaSourceEventListener eventListener,
-      ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
-    this(
-        manifestUri,
-        dataSourceFactory,
-        extractorFactory,
-        new DefaultCompositeSequenceableLoaderFactory(),
-        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
-        new DefaultHlsPlaylistTracker(
-            dataSourceFactory,
-            new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
-            playlistParser),
-        /* allowChunklessPreparation= */ false,
-        /* tag= */ null);
-    if (eventHandler != null && eventListener != null) {
-      addEventListener(eventHandler, eventListener);
-    }
-  }
 
   private HlsMediaSource(
       Uri manifestUri,

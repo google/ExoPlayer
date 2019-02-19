@@ -70,23 +70,6 @@ public final class DefaultHlsPlaylistTracker
   /**
    * @param dataSourceFactory A factory for {@link DataSource} instances.
    * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
-   * @param playlistParser A {@link ParsingLoadable.Parser} for HLS playlists.
-   * @deprecated Use {@link #DefaultHlsPlaylistTracker(HlsDataSourceFactory,
-   *     LoadErrorHandlingPolicy, HlsPlaylistParserFactory)} instead. Using this constructor
-   *     prevents support for attributes that are carried over from the master playlist to the media
-   *     playlists.
-   */
-  @Deprecated
-  public DefaultHlsPlaylistTracker(
-      HlsDataSourceFactory dataSourceFactory,
-      LoadErrorHandlingPolicy loadErrorHandlingPolicy,
-      ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
-    this(dataSourceFactory, loadErrorHandlingPolicy, createFixedFactory(playlistParser));
-  }
-
-  /**
-   * @param dataSourceFactory A factory for {@link DataSource} instances.
-   * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
    * @param playlistParserFactory An {@link HlsPlaylistParserFactory}.
    */
   public DefaultHlsPlaylistTracker(
@@ -653,27 +636,5 @@ public final class DefaultHlsPlaylistTracker
       blacklistUntilMs = SystemClock.elapsedRealtime() + blacklistDurationMs;
       return primaryHlsUrl == playlistUrl && !maybeSelectNewPrimaryUrl();
     }
-  }
-
-  /**
-   * Creates a factory which always returns the given playlist parser.
-   *
-   * @param playlistParser The parser to return.
-   * @return A factory which always returns the given playlist parser.
-   */
-  private static HlsPlaylistParserFactory createFixedFactory(
-      ParsingLoadable.Parser<HlsPlaylist> playlistParser) {
-    return new HlsPlaylistParserFactory() {
-      @Override
-      public ParsingLoadable.Parser<HlsPlaylist> createPlaylistParser() {
-        return playlistParser;
-      }
-
-      @Override
-      public ParsingLoadable.Parser<HlsPlaylist> createPlaylistParser(
-          HlsMasterPlaylist masterPlaylist) {
-        return playlistParser;
-      }
-    };
   }
 }
