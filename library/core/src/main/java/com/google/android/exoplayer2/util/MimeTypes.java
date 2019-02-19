@@ -120,42 +120,22 @@ public final class MimeTypes {
     customMimeTypes.add(customMimeType);
   }
 
-  /**
-   * Whether the top-level type of {@code mimeType} is audio.
-   *
-   * @param mimeType The mimeType to test.
-   * @return Whether the top level type is audio.
-   */
+  /** Returns whether the given string is an audio mime type. */
   public static boolean isAudio(@Nullable String mimeType) {
     return BASE_TYPE_AUDIO.equals(getTopLevelType(mimeType));
   }
 
-  /**
-   * Whether the top-level type of {@code mimeType} is video.
-   *
-   * @param mimeType The mimeType to test.
-   * @return Whether the top level type is video.
-   */
+  /** Returns whether the given string is a video mime type. */
   public static boolean isVideo(@Nullable String mimeType) {
     return BASE_TYPE_VIDEO.equals(getTopLevelType(mimeType));
   }
 
-  /**
-   * Whether the top-level type of {@code mimeType} is text.
-   *
-   * @param mimeType The mimeType to test.
-   * @return Whether the top level type is text.
-   */
+  /** Returns whether the given string is a text mime type. */
   public static boolean isText(@Nullable String mimeType) {
     return BASE_TYPE_TEXT.equals(getTopLevelType(mimeType));
   }
 
-  /**
-   * Whether the top-level type of {@code mimeType} is application.
-   *
-   * @param mimeType The mimeType to test.
-   * @return Whether the top level type is application.
-   */
+  /** Returns whether the given string is an application mime type. */
   public static boolean isApplication(@Nullable String mimeType) {
     return BASE_TYPE_APPLICATION.equals(getTopLevelType(mimeType));
   }
@@ -384,10 +364,8 @@ public final class MimeTypes {
   }
 
   /**
-   * Returns the top-level type of {@code mimeType}.
-   *
-   * @param mimeType The mimeType whose top-level type is required.
-   * @return The top-level type, or null if the mimeType is null.
+   * Returns the top-level type of {@code mimeType}, or null if {@code mimeType} is null or does not
+   * contain a forward slash character ({@code '/'}).
    */
   private static @Nullable String getTopLevelType(@Nullable String mimeType) {
     if (mimeType == null) {
@@ -395,7 +373,7 @@ public final class MimeTypes {
     }
     int indexOfSlash = mimeType.indexOf('/');
     if (indexOfSlash == -1) {
-      throw new IllegalArgumentException("Invalid mime type: " + mimeType);
+      return null;
     }
     return mimeType.substring(0, indexOfSlash);
   }
