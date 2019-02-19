@@ -1,5 +1,23 @@
 # Release notes #
 
+### 2.9.6 ###
+
+* Remove `player` and `isTopLevelSource` parameters from `MediaSource.prepare`.
+* IMA extension:
+  * Require setting the `Player` on `AdsLoader` instances before
+    playback.
+  * Remove deprecated `ImaAdsMediaSource`. Create `AdsMediaSource` with an
+    `ImaAdsLoader` instead.
+  * Remove deprecated `AdsMediaSource` constructors. Listen for media source
+    events using `AdsMediaSource.addEventListener`, and ad interaction events by
+    adding a listener when building `ImaAdsLoader`.
+  * Allow apps to register playback-related obstructing views that are on top of
+    their ad display containers via `AdsLoader.AdViewProvider`. `PlayerView`
+    implements this interface and will register its control view. This makes it
+    possible for ad loading SDKs to calculate ad viewability accurately.
+* DASH: Fix issue handling large `EventStream` presentation timestamps
+  ([#5490](https://github.com/google/ExoPlayer/issues/5490)).
+
 ### 2.9.5 ###
 
 * HLS: Parse `CHANNELS` attribute from `EXT-X-MEDIA` tag.
