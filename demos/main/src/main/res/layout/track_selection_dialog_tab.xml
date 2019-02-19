@@ -16,9 +16,10 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
+
   <com.google.android.exoplayer2.ui.TrackSelectionView
       android:id="@+id/download_dialog_track_selection_view"
-      android:orientation="vertical"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"/>
+
 </ScrollView>

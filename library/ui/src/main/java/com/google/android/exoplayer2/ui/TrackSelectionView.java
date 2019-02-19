@@ -87,6 +87,8 @@ public class TrackSelectionView extends LinearLayout {
   public TrackSelectionView(
       Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
     super(context, attrs, defStyleAttr);
+    setOrientation(LinearLayout.VERTICAL);
+
     overrides = new SparseArray<>();
 
     // Don't save view hierarchy as it needs to be reinitialized with a call to init.
