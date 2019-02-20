@@ -39,7 +39,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -64,7 +63,9 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param timestampAdjusterProvider The provider from which to obtain the {@link
    *     TimestampAdjuster}.
    * @param previousChunk The {@link HlsMediaChunk} that preceded this one. May be null.
-   * @param keyCache A map from encryption key URI to the corresponding encryption key.
+   * @param mediaSegmentKey The media segment decryption key, if fully encrypted. Null otherwise.
+   * @param initSegmentKey The initialization segment decryption key, if fully encrypted. Null
+   *     otherwise.
    */
   public static HlsMediaChunk createInstance(
       HlsExtractorFactory extractorFactory,
@@ -79,7 +80,8 @@ import java.util.concurrent.atomic.AtomicInteger;
       boolean isMasterTimestampSource,
       TimestampAdjusterProvider timestampAdjusterProvider,
       @Nullable HlsMediaChunk previousChunk,
-      Map<Uri, byte[]> keyCache) {
+      @Nullable byte[] mediaSegmentKey,
+      @Nullable byte[] initSegmentKey) {
     // Media segment.
     HlsMediaPlaylist.Segment mediaSegment = mediaPlaylist.segments.get(segmentIndexInPlaylist);
     DataSpec dataSpec =
@@ -88,9 +90,6 @@ import java.util.concurrent.atomic.AtomicInteger;
             mediaSegment.byterangeOffset,
             mediaSegment.byterangeLength,
             /* key= */ null);
-    byte[] mediaSegmentKey =
-        keyCache.get(
-            UriUtil.resolveToUri(mediaPlaylist.baseUri, mediaSegment.fullSegmentEncryptionKeyUri));
     boolean mediaSegmentEncrypted = mediaSegmentKey != null;
     byte[] mediaSegmentIv =
         mediaSegmentEncrypted ? getEncryptionIvArray(mediaSegment.encryptionIV) : null;
@@ -102,9 +101,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     boolean initSegmentEncrypted = false;
     DataSource initDataSource = null;
     if (initSegment != null) {
-      byte[] initSegmentKey =
-          keyCache.get(
-              UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.fullSegmentEncryptionKeyUri));
       initSegmentEncrypted = initSegmentKey != null;
       byte[] initSegmentIv =
           initSegmentEncrypted ? getEncryptionIvArray(initSegment.encryptionIV) : null;
