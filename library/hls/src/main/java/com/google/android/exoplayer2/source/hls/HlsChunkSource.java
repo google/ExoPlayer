@@ -36,12 +36,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -314,13 +314,13 @@ import java.util.Map;
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(segmentIndexInPlaylist);
 
     // Check if the segment or its initialization segment are fully encrypted.
-    out.chunk =
-        maybeCreateEncryptionChunkFor(
-            segment.initializationSegment, mediaPlaylist, selectedVariantIndex);
+    Uri initSegmentKeyUri = getFullEncryptionKeyUri(mediaPlaylist, segment.initializationSegment);
+    out.chunk = maybeCreateEncryptionChunkFor(initSegmentKeyUri, selectedVariantIndex);
     if (out.chunk != null) {
       return;
     }
-    out.chunk = maybeCreateEncryptionChunkFor(segment, mediaPlaylist, selectedVariantIndex);
+    Uri mediaSegmentKeyUri = getFullEncryptionKeyUri(mediaPlaylist, segment);
+    out.chunk = maybeCreateEncryptionChunkFor(mediaSegmentKeyUri, selectedVariantIndex);
     if (out.chunk != null) {
       return;
     }
@@ -339,7 +339,8 @@ import java.util.Map;
             isTimestampMaster,
             timestampAdjusterProvider,
             previous,
-            keyCache.asUnmodifiable());
+            /* mediaSegmentKey= */ keyCache.get(mediaSegmentKeyUri),
+            /* initSegmentKey= */ keyCache.get(initSegmentKeyUri));
   }
 
   /**
@@ -485,12 +486,11 @@ import java.util.Map;
             : (mediaPlaylist.getEndTimeUs() - playlistTracker.getInitialStartTimeUs());
   }
 
-  private Chunk maybeCreateEncryptionChunkFor(
-      @Nullable Segment segment, HlsMediaPlaylist mediaPlaylist, int selectedVariantIndex) {
-    if (segment == null || segment.fullSegmentEncryptionKeyUri == null) {
+  @Nullable
+  private Chunk maybeCreateEncryptionChunkFor(@Nullable Uri keyUri, int selectedVariantIndex) {
+    if (keyUri == null) {
       return null;
     }
-    Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.fullSegmentEncryptionKeyUri);
     if (keyCache.containsKey(keyUri)) {
       // The key is present in the key cache. We re-insert it to prevent it from being evicted by
       // the following key addition. Note that removal of the key is necessary to affect the
@@ -506,6 +506,14 @@ import java.util.Map;
         trackSelection.getSelectionReason(),
         trackSelection.getSelectionData(),
         scratchSpace);
+  }
+
+  @Nullable
+  private static Uri getFullEncryptionKeyUri(HlsMediaPlaylist playlist, @Nullable Segment segment) {
+    if (segment == null || segment.fullSegmentEncryptionKeyUri == null) {
+      return null;
+    }
+    return UriUtil.resolveToUri(playlist.baseUri, segment.fullSegmentEncryptionKeyUri);
   }
 
   // Private classes.
@@ -640,21 +648,27 @@ import java.util.Map;
    */
   private static final class FullSegmentEncryptionKeyCache extends LinkedHashMap<Uri, byte[]> {
 
-    private final Map<Uri, byte[]> unmodifiableView;
-
     public FullSegmentEncryptionKeyCache() {
       super(
           /* initialCapacity= */ KEY_CACHE_SIZE * 2, /* loadFactor= */ 1, /* accessOrder= */ false);
-      unmodifiableView = Collections.unmodifiableMap(this);
+    }
+
+    @Override
+    public byte[] get(Object keyUri) {
+      if (keyUri == null) {
+        return null;
+      }
+      return super.get(keyUri);
+    }
+
+    @Override
+    public byte[] put(Uri keyUri, byte[] key) {
+      return super.put(keyUri, Assertions.checkNotNull(key));
     }
 
     @Override
     protected boolean removeEldestEntry(Map.Entry<Uri, byte[]> entry) {
       return size() > KEY_CACHE_SIZE;
-    }
-
-    public Map<Uri, byte[]> asUnmodifiable() {
-      return unmodifiableView;
     }
   }
 }
