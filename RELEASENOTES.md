@@ -76,6 +76,8 @@
 * DASH: Fix issue handling large `EventStream` presentation timestamps
   ([#5490](https://github.com/google/ExoPlayer/issues/5490)).
 * HLS:
+  * Fix transition to STATE_ENDED when playing fragmented mp4 in chunkless
+    preparation ([#5524](https://github.com/google/ExoPlayer/issues/5524)).
   * Prevent unnecessary reloads of initialization segments.
   * Support encrypted initialization segments
     ([#5441](https://github.com/google/ExoPlayer/issues/5441)).
