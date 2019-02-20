@@ -3,7 +3,10 @@
 ### dev-v2 (not yet released) ###
 
 * HLS:
+  * Prevent unnecessary reloads of initialization segments.
   * Form an adaptive track group out of audio renditions with matching name.
+  * Support encrypted initialization segments
+    ([#5441](https://github.com/google/ExoPlayer/issues/5441)).
 * `ExtractorMediaSource` renamed to `ProgressiveMediaSource`.
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
@@ -75,12 +78,8 @@
     possible for ad loading SDKs to calculate ad viewability accurately.
 * DASH: Fix issue handling large `EventStream` presentation timestamps
   ([#5490](https://github.com/google/ExoPlayer/issues/5490)).
-* HLS:
-  * Fix transition to STATE_ENDED when playing fragmented mp4 in chunkless
-    preparation ([#5524](https://github.com/google/ExoPlayer/issues/5524)).
-  * Prevent unnecessary reloads of initialization segments.
-  * Support encrypted initialization segments
-    ([#5441](https://github.com/google/ExoPlayer/issues/5441)).
+* HLS: Fix transition to STATE_ENDED when playing fragmented mp4 in chunkless
+  preparation ([#5524](https://github.com/google/ExoPlayer/issues/5524)).
 
 ### 2.9.5 ###
 
