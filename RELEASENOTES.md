@@ -80,6 +80,9 @@
   ([#5490](https://github.com/google/ExoPlayer/issues/5490)).
 * HLS: Fix transition to STATE_ENDED when playing fragmented mp4 in chunkless
   preparation ([#5524](https://github.com/google/ExoPlayer/issues/5524)).
+* Revert workaround for video quality problems with Amlogic decoders, as this
+  may cause problems for some devices and/or non-interlaced content
+  ([#5003](https://github.com/google/ExoPlayer/issues/5003)).
 
 ### 2.9.5 ###
 
