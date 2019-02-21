@@ -2,7 +2,7 @@
 name: Feature request
 about: Issue template for a feature request.
 title: ''
-labels: enhancement, 'needs triage'
+labels: enhancement, needs triage
 assignees: ''
 ---
 
