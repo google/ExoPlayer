@@ -45,7 +45,10 @@ public final class ChapterTocFrame extends Id3Frame {
     this.subFrames = subFrames;
   }
 
-  /* package */ ChapterTocFrame(Parcel in) {
+  /* package */
+  // TODO(b/124903498): incompatible types in assignment.
+  @SuppressWarnings("nullness:assignment.type.incompatible")
+  ChapterTocFrame(Parcel in) {
     super(ID);
     this.elementId = castNonNull(in.readString());
     this.isRoot = in.readByte() != 0;

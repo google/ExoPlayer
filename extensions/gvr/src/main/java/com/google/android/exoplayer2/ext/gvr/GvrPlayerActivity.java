@@ -68,6 +68,8 @@ public abstract class GvrPlayerActivity extends GvrActivity {
     mainHandler = new Handler(Looper.getMainLooper());
   }
 
+  // TODO(b/124903498): Incompatible parameter type for savedInstanceState.
+  @SuppressWarnings("nullness:override.param.invalid")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
