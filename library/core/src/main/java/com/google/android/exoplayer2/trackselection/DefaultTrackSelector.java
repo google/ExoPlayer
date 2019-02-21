@@ -888,7 +888,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.rendererDisabledFlags = rendererDisabledFlags;
     }
 
-    /* package */ Parameters(Parcel in) {
+    /* package */
+    // TODO(b/124903498): incompatible types in assignment.
+    @SuppressWarnings("nullness:assignment.type.incompatible")
+    Parameters(Parcel in) {
       super(in);
       // Video
       this.maxVideoWidth = in.readInt();

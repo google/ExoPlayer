@@ -363,6 +363,8 @@ public final class DownloadHelper {
    *     Looper}, in which case it will be called on the application's main thread.
    * @throws IllegalStateException If the download helper has already been prepared.
    */
+  // TODO(b/124903498): incompatible types in argument.
+  @SuppressWarnings("nullness:argument.type.incompatible")
   public void prepare(Callback callback) {
     Assertions.checkState(this.callback == null);
     this.callback = callback;

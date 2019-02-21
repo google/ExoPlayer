@@ -1265,6 +1265,8 @@ public class PlayerNotificationManager {
 
   private class NotificationBroadcastReceiver extends BroadcastReceiver {
 
+    // TODO(b/124903498): incompatible types in argument.
+    @SuppressWarnings("nullness:argument.type.incompatible")
     @Override
     public void onReceive(Context context, Intent intent) {
       Player player = PlayerNotificationManager.this.player;
