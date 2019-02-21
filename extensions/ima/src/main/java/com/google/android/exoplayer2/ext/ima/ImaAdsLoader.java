@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import android.view.View;
 import android.view.ViewGroup;
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
@@ -46,7 +47,6 @@ import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -73,7 +73,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Loads ads using the IMA SDK. All methods are called on the main thread. */
+/**
+ * {@link AdsLoader} using the IMA SDK. All methods must be called on the main thread.
+ *
+ * <p>The player instance that will play the loaded ads must be set before playback using {@link
+ * #setPlayer(Player)}. If the ads loader is no longer required, it must be released by calling
+ * {@link #release()}.
+ *
+ * <p>The IMA SDK can take into account video control overlay views when calculating ad viewability.
+ * For more details see {@link AdDisplayContainer#registerVideoControlsOverlay(View)} and {@link
+ * AdViewProvider#getAdOverlayViews()}.
+ */
 public final class ImaAdsLoader
     implements Player.EventListener,
         AdsLoader,
@@ -92,9 +102,9 @@ public final class ImaAdsLoader
 
     private final Context context;
 
-    private @Nullable ImaSdkSettings imaSdkSettings;
-    private @Nullable AdEventListener adEventListener;
-    private @Nullable Set<UiElement> adUiElements;
+    @Nullable private ImaSdkSettings imaSdkSettings;
+    @Nullable private AdEventListener adEventListener;
+    @Nullable private Set<UiElement> adUiElements;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
     private int mediaBitrate;
@@ -316,10 +326,11 @@ public final class ImaAdsLoader
   private final AdDisplayContainer adDisplayContainer;
   private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
 
+  @Nullable private Player nextPlayer;
   private Object pendingAdRequestContext;
   private List<String> supportedMimeTypes;
-  private EventListener eventListener;
-  private Player player;
+  @Nullable private EventListener eventListener;
+  @Nullable private Player player;
   private VideoProgressUpdate lastContentProgress;
   private VideoProgressUpdate lastAdProgress;
   private int lastVolumePercentage;
@@ -459,11 +470,11 @@ public final class ImaAdsLoader
     }
     imaSdkSettings.setPlayerType(IMA_SDK_SETTINGS_PLAYER_TYPE);
     imaSdkSettings.setPlayerVersion(IMA_SDK_SETTINGS_PLAYER_VERSION);
-    adsLoader = imaFactory.createAdsLoader(context, imaSdkSettings);
     period = new Timeline.Period();
     adCallbacks = new ArrayList<>(/* initialCapacity= */ 1);
     adDisplayContainer = imaFactory.createAdDisplayContainer();
     adDisplayContainer.setPlayer(/* videoAdPlayer= */ this);
+    adsLoader = imaFactory.createAdsLoader(context, imaSdkSettings, adDisplayContainer);
     adsLoader.addAdErrorListener(/* adErrorListener= */ this);
     adsLoader.addAdsLoadedListener(/* adsLoadedListener= */ this);
     fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
@@ -482,12 +493,28 @@ public final class ImaAdsLoader
   }
 
   /**
+   * Returns the {@link AdDisplayContainer} used by this loader.
+   *
+   * <p>Note: any video controls overlays registered via {@link
+   * AdDisplayContainer#registerVideoControlsOverlay(View)} will be unregistered automatically when
+   * the media source detaches from this instance. It is therefore necessary to re-register views
+   * each time the ads loader is reused. Alternatively, provide overlay views via the {@link
+   * AdsLoader.AdViewProvider} when creating the media source to benefit from automatic
+   * registration.
+   */
+  public AdDisplayContainer getAdDisplayContainer() {
+    return adDisplayContainer;
+  }
+
+  /**
    * Sets the slots for displaying companion ads. Individual slots can be created using {@link
    * ImaSdkFactory#createCompanionAdSlot()}.
    *
    * @param companionSlots Slots for displaying companion ads.
    * @see AdDisplayContainer#setCompanionSlots(Collection)
+   * @deprecated Use {@code getAdDisplayContainer().setCompanionSlots(...)}.
    */
+  @Deprecated
   public void setCompanionSlots(Collection<CompanionAdSlot> companionSlots) {
     adDisplayContainer.setCompanionSlots(companionSlots);
   }
@@ -499,14 +526,14 @@ public final class ImaAdsLoader
    * called, so it is only necessary to call this method if you want to request ads before preparing
    * the player.
    *
-   * @param adUiViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
+   * @param adViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
    */
-  public void requestAds(ViewGroup adUiViewGroup) {
+  public void requestAds(ViewGroup adViewGroup) {
     if (adPlaybackState != null || adsManager != null || pendingAdRequestContext != null) {
       // Ads have already been requested.
       return;
     }
-    adDisplayContainer.setAdContainer(adUiViewGroup);
+    adDisplayContainer.setAdContainer(adViewGroup);
     pendingAdRequestContext = new Object();
     AdsRequest request = imaFactory.createAdsRequest();
     if (adTagUri != null) {
@@ -517,13 +544,20 @@ public final class ImaAdsLoader
     if (vastLoadTimeoutMs != TIMEOUT_UNSET) {
       request.setVastLoadTimeout(vastLoadTimeoutMs);
     }
-    request.setAdDisplayContainer(adDisplayContainer);
     request.setContentProgressProvider(this);
     request.setUserRequestContext(pendingAdRequestContext);
     adsLoader.requestAds(request);
   }
 
   // AdsLoader implementation.
+
+  @Override
+  public void setPlayer(@Nullable Player player) {
+    Assertions.checkState(Looper.getMainLooper() == Looper.myLooper());
+    Assertions.checkState(
+        player == null || player.getApplicationLooper() == Looper.getMainLooper());
+    nextPlayer = player;
+  }
 
   @Override
   public void setSupportedContentTypes(@C.ContentType int... contentTypes) {
@@ -549,14 +583,20 @@ public final class ImaAdsLoader
   }
 
   @Override
-  public void attachPlayer(ExoPlayer player, EventListener eventListener, ViewGroup adUiViewGroup) {
-    Assertions.checkArgument(player.getApplicationLooper() == Looper.getMainLooper());
-    this.player = player;
+  public void start(EventListener eventListener, AdViewProvider adViewProvider) {
+    Assertions.checkNotNull(
+        nextPlayer, "Set player using adsLoader.setPlayer before preparing the player.");
+    player = nextPlayer;
     this.eventListener = eventListener;
     lastVolumePercentage = 0;
     lastAdProgress = null;
     lastContentProgress = null;
-    adDisplayContainer.setAdContainer(adUiViewGroup);
+    ViewGroup adViewGroup = adViewProvider.getAdViewGroup();
+    adDisplayContainer.setAdContainer(adViewGroup);
+    View[] adOverlayViews = adViewProvider.getAdOverlayViews();
+    for (View view : adOverlayViews) {
+      adDisplayContainer.registerVideoControlsOverlay(view);
+    }
     player.addListener(this);
     maybeNotifyPendingAdLoadError();
     if (adPlaybackState != null) {
@@ -570,12 +610,12 @@ public final class ImaAdsLoader
       startAdPlayback();
     } else {
       // Ads haven't loaded yet, so request them.
-      requestAds(adUiViewGroup);
+      requestAds(adViewGroup);
     }
   }
 
   @Override
-  public void detachPlayer() {
+  public void stop() {
     if (adsManager != null && imaPausedContent) {
       adPlaybackState =
           adPlaybackState.withAdResumePositionUs(
@@ -585,6 +625,7 @@ public final class ImaAdsLoader
     lastVolumePercentage = getVolume();
     lastAdProgress = getAdProgress();
     lastContentProgress = getContentProgress();
+    adDisplayContainer.unregisterAllVideoControlsOverlays();
     player.removeListener(this);
     player = null;
     eventListener = null;
@@ -1331,7 +1372,8 @@ public final class ImaAdsLoader
   private static boolean isAdGroupLoadError(AdError adError) {
     // TODO: Find out what other errors need to be handled (if any), and whether each one relates to
     // a single ad, ad group or the whole timeline.
-    return adError.getErrorCode() == AdErrorCode.VAST_LINEAR_ASSET_MISMATCH;
+    return adError.getErrorCode() == AdErrorCode.VAST_LINEAR_ASSET_MISMATCH
+        || adError.getErrorCode() == AdErrorCode.UNKNOWN_ERROR;
   }
 
   private static boolean hasMidrollAdGroups(long[] adGroupTimesUs) {
@@ -1357,9 +1399,9 @@ public final class ImaAdsLoader
     AdDisplayContainer createAdDisplayContainer();
     /** @see com.google.ads.interactivemedia.v3.api.ImaSdkFactory#createAdsRequest() */
     AdsRequest createAdsRequest();
-    /** @see ImaSdkFactory#createAdsLoader(Context, ImaSdkSettings) */
+    /** @see ImaSdkFactory#createAdsLoader(Context, ImaSdkSettings, AdDisplayContainer) */
     com.google.ads.interactivemedia.v3.api.AdsLoader createAdsLoader(
-        Context context, ImaSdkSettings imaSdkSettings);
+        Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer);
   }
 
   /** Default {@link ImaFactory} for non-test usage, which delegates to {@link ImaSdkFactory}. */
@@ -1386,8 +1428,9 @@ public final class ImaAdsLoader
 
     @Override
     public com.google.ads.interactivemedia.v3.api.AdsLoader createAdsLoader(
-        Context context, ImaSdkSettings imaSdkSettings) {
-      return ImaSdkFactory.getInstance().createAdsLoader(context, imaSdkSettings);
+        Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer) {
+      return ImaSdkFactory.getInstance()
+          .createAdsLoader(context, imaSdkSettings, adDisplayContainer);
     }
   }
 }

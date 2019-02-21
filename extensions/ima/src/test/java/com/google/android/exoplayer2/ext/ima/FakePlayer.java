@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.testutil.StubExoPlayer;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import java.util.ArrayList;
 
 /** A fake player for testing content/ad playback. */
@@ -110,6 +111,11 @@ import java.util.ArrayList;
   // ExoPlayer methods. Other methods are unsupported.
 
   @Override
+  public AudioComponent getAudioComponent() {
+    return null;
+  }
+
+  @Override
   public Looper getApplicationLooper() {
     return Looper.getMainLooper();
   }
@@ -132,6 +138,16 @@ import java.util.ArrayList;
   @Override
   public boolean getPlayWhenReady() {
     return playWhenReady;
+  }
+
+  @Override
+  public int getRendererCount() {
+    return 0;
+  }
+
+  @Override
+  public TrackSelectionArray getCurrentTrackSelections() {
+    return new TrackSelectionArray();
   }
 
   @Override

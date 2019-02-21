@@ -33,25 +33,27 @@ public final class EventMessageEncoderTest {
 
   @Test
   public void testEncodeEventStream() throws IOException {
-    EventMessage eventMessage = new EventMessage("urn:test", "123", 3000, 1000403,
-        new byte[] {0, 1, 2, 3, 4}, 1000000);
-    byte[] expectedEmsgBody = new byte[] {
-        117, 114, 110, 58, 116, 101, 115, 116, 0, // scheme_id_uri = "urn:test"
-        49, 50, 51, 0, // value = "123"
-        0, 0, -69, -128, // timescale = 48000
-        0, 0, -69, -128, // presentation_time_delta = 48000
-        0, 2, 50, -128, // event_duration = 144000
-        0, 15, 67, -45, // id = 1000403
-        0, 1, 2, 3, 4}; // message_data = {0, 1, 2, 3, 4}
-    byte[] encodedByteArray = new EventMessageEncoder().encode(eventMessage, 48000);
+    EventMessage eventMessage =
+        new EventMessage("urn:test", "123", 3000, 1000403, new byte[] {0, 1, 2, 3, 4});
+    byte[] expectedEmsgBody =
+        new byte[] {
+          117, 114, 110, 58, 116, 101, 115, 116, 0, // scheme_id_uri = "urn:test"
+          49, 50, 51, 0, // value = "123"
+          0, 0, 3, -24, // timescale = 1000
+          0, 0, 0, 0, // presentation_time_delta = 0
+          0, 0, 11, -72, // event_duration = 3000
+          0, 15, 67, -45, // id = 1000403
+          0, 1, 2, 3, 4
+        }; // message_data = {0, 1, 2, 3, 4}
+    byte[] encodedByteArray = new EventMessageEncoder().encode(eventMessage);
     assertThat(encodedByteArray).isEqualTo(expectedEmsgBody);
   }
 
   @Test
   public void testEncodeDecodeEventStream() throws IOException {
-    EventMessage expectedEmsg = new EventMessage("urn:test", "123", 3000, 1000403,
-        new byte[] {0, 1, 2, 3, 4}, 1000000);
-    byte[] encodedByteArray = new EventMessageEncoder().encode(expectedEmsg, 48000);
+    EventMessage expectedEmsg =
+        new EventMessage("urn:test", "123", 3000, 1000403, new byte[] {0, 1, 2, 3, 4});
+    byte[] encodedByteArray = new EventMessageEncoder().encode(expectedEmsg);
     MetadataInputBuffer buffer = new MetadataInputBuffer();
     buffer.data = ByteBuffer.allocate(encodedByteArray.length).put(encodedByteArray);
 
@@ -63,30 +65,34 @@ public final class EventMessageEncoderTest {
 
   @Test
   public void testEncodeEventStreamMultipleTimesWorkingCorrectly() throws IOException {
-    EventMessage eventMessage = new EventMessage("urn:test", "123", 3000, 1000403,
-        new byte[] {0, 1, 2, 3, 4}, 1000000);
-    byte[] expectedEmsgBody = new byte[] {
-        117, 114, 110, 58, 116, 101, 115, 116, 0, // scheme_id_uri = "urn:test"
-        49, 50, 51, 0, // value = "123"
-        0, 0, -69, -128, // timescale = 48000
-        0, 0, -69, -128, // presentation_time_delta = 48000
-        0, 2, 50, -128, // event_duration = 144000
-        0, 15, 67, -45, // id = 1000403
-        0, 1, 2, 3, 4}; // message_data = {0, 1, 2, 3, 4}
-    EventMessage eventMessage1 = new EventMessage("urn:test", "123", 3000, 1000402,
-        new byte[] {4, 3, 2, 1, 0}, 1000000);
-    byte[] expectedEmsgBody1 = new byte[] {
-        117, 114, 110, 58, 116, 101, 115, 116, 0, // scheme_id_uri = "urn:test"
-        49, 50, 51, 0, // value = "123"
-        0, 0, -69, -128, // timescale = 48000
-        0, 0, -69, -128, // presentation_time_delta = 48000
-        0, 2, 50, -128, // event_duration = 144000
-        0, 15, 67, -46, // id = 1000402
-        4, 3, 2, 1, 0}; // message_data = {4, 3, 2, 1, 0}
+    EventMessage eventMessage =
+        new EventMessage("urn:test", "123", 3000, 1000403, new byte[] {0, 1, 2, 3, 4});
+    byte[] expectedEmsgBody =
+        new byte[] {
+          117, 114, 110, 58, 116, 101, 115, 116, 0, // scheme_id_uri = "urn:test"
+          49, 50, 51, 0, // value = "123"
+          0, 0, 3, -24, // timescale = 1000
+          0, 0, 0, 0, // presentation_time_delta = 0
+          0, 0, 11, -72, // event_duration = 3000
+          0, 15, 67, -45, // id = 1000403
+          0, 1, 2, 3, 4
+        }; // message_data = {0, 1, 2, 3, 4}
+    EventMessage eventMessage1 =
+        new EventMessage("urn:test", "123", 3000, 1000402, new byte[] {4, 3, 2, 1, 0});
+    byte[] expectedEmsgBody1 =
+        new byte[] {
+          117, 114, 110, 58, 116, 101, 115, 116, 0, // scheme_id_uri = "urn:test"
+          49, 50, 51, 0, // value = "123"
+          0, 0, 3, -24, // timescale = 1000
+          0, 0, 0, 0, // presentation_time_delta = 0
+          0, 0, 11, -72, // event_duration = 3000
+          0, 15, 67, -46, // id = 1000402
+          4, 3, 2, 1, 0
+        }; // message_data = {4, 3, 2, 1, 0}
     EventMessageEncoder eventMessageEncoder = new EventMessageEncoder();
-    byte[] encodedByteArray = eventMessageEncoder.encode(eventMessage, 48000);
+    byte[] encodedByteArray = eventMessageEncoder.encode(eventMessage);
     assertThat(encodedByteArray).isEqualTo(expectedEmsgBody);
-    byte[] encodedByteArray1 = eventMessageEncoder.encode(eventMessage1, 48000);
+    byte[] encodedByteArray1 = eventMessageEncoder.encode(eventMessage1);
     assertThat(encodedByteArray1).isEqualTo(expectedEmsgBody1);
   }
 

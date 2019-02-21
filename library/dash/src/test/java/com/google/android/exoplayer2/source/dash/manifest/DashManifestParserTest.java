@@ -104,52 +104,53 @@ public class DashManifestParserTest {
             "call",
             10000,
             0,
-            "+ 1 800 10101010".getBytes(Charset.forName(C.UTF8_NAME)),
-            0);
+            "+ 1 800 10101010".getBytes(Charset.forName(C.UTF8_NAME)));
     assertThat(eventStream1.events[0]).isEqualTo(expectedEvent1);
+    assertThat(eventStream1.presentationTimesUs[0]).isEqualTo(0);
 
     // assert CData-structured event stream
     EventStream eventStream2 = period.eventStreams.get(1);
     assertThat(eventStream2.events.length).isEqualTo(1);
-    assertThat(eventStream2.events[0])
-        .isEqualTo(
-            new EventMessage(
-                "urn:dvb:iptv:cpm:2014",
-                "",
-                1500000,
-                1,
-                Util.getUtf8Bytes(
-                    "<![CDATA[<BroadcastEvent>\n"
-                        + "      <Program crid=\"crid://broadcaster.example.com/ABCDEF\"/>\n"
-                        + "      <InstanceDescription>\n"
-                        + "      <Title xml:lang=\"en\">The title</Title>\n"
-                        + "      <Synopsis xml:lang=\"en\" length=\"medium\">"
-                        + "The description</Synopsis>\n"
-                        + "      <ParentalGuidance>\n"
-                        + "      <mpeg7:ParentalRating href=\"urn:dvb:iptv:rating:2014:15\"/>\n"
-                        + "      <mpeg7:Region>GB</mpeg7:Region>\n"
-                        + "      </ParentalGuidance>\n"
-                        + "      </InstanceDescription>\n"
-                        + "      </BroadcastEvent>]]>"),
-                300000000));
+    EventMessage expectedEvent2 =
+        new EventMessage(
+            "urn:dvb:iptv:cpm:2014",
+            "",
+            1500000,
+            1,
+            Util.getUtf8Bytes(
+                "<![CDATA[<BroadcastEvent>\n"
+                    + "      <Program crid=\"crid://broadcaster.example.com/ABCDEF\"/>\n"
+                    + "      <InstanceDescription>\n"
+                    + "      <Title xml:lang=\"en\">The title</Title>\n"
+                    + "      <Synopsis xml:lang=\"en\" length=\"medium\">"
+                    + "The description</Synopsis>\n"
+                    + "      <ParentalGuidance>\n"
+                    + "      <mpeg7:ParentalRating href=\"urn:dvb:iptv:rating:2014:15\"/>\n"
+                    + "      <mpeg7:Region>GB</mpeg7:Region>\n"
+                    + "      </ParentalGuidance>\n"
+                    + "      </InstanceDescription>\n"
+                    + "      </BroadcastEvent>]]>"));
+
+    assertThat(eventStream2.events[0]).isEqualTo(expectedEvent2);
+    assertThat(eventStream2.presentationTimesUs[0]).isEqualTo(300000000);
 
     // assert xml-structured event stream
     EventStream eventStream3 = period.eventStreams.get(2);
     assertThat(eventStream3.events.length).isEqualTo(1);
-    assertThat(eventStream3.events[0])
-        .isEqualTo(
-            new EventMessage(
-                "urn:scte:scte35:2014:xml+bin",
-                "",
-                1000000,
-                2,
-                Util.getUtf8Bytes(
-                    "<scte35:Signal>\n"
-                        + "         <scte35:Binary>\n"
-                        + "         /DAIAAAAAAAAAAAQAAZ/I0VniQAQAgBDVUVJQAAAAH+cAAAAAA==\n"
-                        + "         </scte35:Binary>\n"
-                        + "       </scte35:Signal>"),
-                1000000000));
+    EventMessage expectedEvent3 =
+        new EventMessage(
+            "urn:scte:scte35:2014:xml+bin",
+            "",
+            1000000,
+            2,
+            Util.getUtf8Bytes(
+                "<scte35:Signal>\n"
+                    + "         <scte35:Binary>\n"
+                    + "         /DAIAAAAAAAAAAAQAAZ/I0VniQAQAgBDVUVJQAAAAH+cAAAAAA==\n"
+                    + "         </scte35:Binary>\n"
+                    + "       </scte35:Signal>"));
+    assertThat(eventStream3.events[0]).isEqualTo(expectedEvent3);
+    assertThat(eventStream3.presentationTimesUs[0]).isEqualTo(1000000000);
   }
 
   @Test

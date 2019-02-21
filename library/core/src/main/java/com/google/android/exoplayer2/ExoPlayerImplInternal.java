@@ -93,7 +93,6 @@ import java.util.Collections;
   private final HandlerWrapper handler;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
-  private final ExoPlayer player;
   private final Timeline.Window window;
   private final Timeline.Period period;
   private final long backBufferDurationUs;
@@ -131,7 +130,6 @@ import java.util.Collections;
       @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled,
       Handler eventHandler,
-      ExoPlayer player,
       Clock clock) {
     this.renderers = renderers;
     this.trackSelector = trackSelector;
@@ -142,7 +140,6 @@ import java.util.Collections;
     this.repeatMode = repeatMode;
     this.shuffleModeEnabled = shuffleModeEnabled;
     this.eventHandler = eventHandler;
-    this.player = player;
     this.clock = clock;
     this.queue = new MediaPeriodQueue();
 
@@ -398,11 +395,7 @@ import java.util.Collections;
     loadControl.onPrepared();
     this.mediaSource = mediaSource;
     setState(Player.STATE_BUFFERING);
-    mediaSource.prepareSource(
-        player,
-        /* isTopLevelSource= */ true,
-        /* listener= */ this,
-        bandwidthMeter.getTransferListener());
+    mediaSource.prepareSource(/* listener= */ this, bandwidthMeter.getTransferListener());
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 

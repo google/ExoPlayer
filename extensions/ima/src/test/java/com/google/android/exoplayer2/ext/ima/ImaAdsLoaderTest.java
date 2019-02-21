@@ -17,11 +17,13 @@ package com.google.android.exoplayer2.ext.ima;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import com.google.ads.interactivemedia.v3.api.Ad;
@@ -49,6 +51,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
@@ -73,7 +76,9 @@ public class ImaAdsLoaderTest {
   private @Mock AdDisplayContainer adDisplayContainer;
   private @Mock AdsManager adsManager;
   private SingletonImaFactory testImaFactory;
-  private ViewGroup adUiViewGroup;
+  private ViewGroup adViewGroup;
+  private View adOverlayView;
+  private AdsLoader.AdViewProvider adViewProvider;
   private TestAdsLoaderListener adsLoaderListener;
   private FakePlayer fakeExoPlayer;
   private ImaAdsLoader imaAdsLoader;
@@ -90,7 +95,20 @@ public class ImaAdsLoaderTest {
             adDisplayContainer,
             fakeAdsRequest,
             fakeAdsLoader);
-    adUiViewGroup = new FrameLayout(RuntimeEnvironment.application);
+    adViewGroup = new FrameLayout(RuntimeEnvironment.application);
+    adOverlayView = new View(RuntimeEnvironment.application);
+    adViewProvider =
+        new AdsLoader.AdViewProvider() {
+          @Override
+          public ViewGroup getAdViewGroup() {
+            return adViewGroup;
+          }
+
+          @Override
+          public View[] getAdOverlayViews() {
+            return new View[] {adOverlayView};
+          }
+        };
   }
 
   @After
@@ -109,17 +127,18 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testAttachPlayer_setsAdUiViewGroup() {
+  public void testStart_setsAdUiViewGroup() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
-    imaAdsLoader.attachPlayer(fakeExoPlayer, adsLoaderListener, adUiViewGroup);
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
 
-    verify(adDisplayContainer, atLeastOnce()).setAdContainer(adUiViewGroup);
+    verify(adDisplayContainer, atLeastOnce()).setAdContainer(adViewGroup);
+    verify(adDisplayContainer, atLeastOnce()).registerVideoControlsOverlay(adOverlayView);
   }
 
   @Test
-  public void testAttachPlayer_updatesAdPlaybackState() {
+  public void testStart_updatesAdPlaybackState() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
-    imaAdsLoader.attachPlayer(fakeExoPlayer, adsLoaderListener, adUiViewGroup);
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
@@ -128,17 +147,17 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testAttachAfterRelease() {
+  public void testStartAfterRelease() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.release();
-    imaAdsLoader.attachPlayer(fakeExoPlayer, adsLoaderListener, adUiViewGroup);
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
   }
 
   @Test
-  public void testAttachAndCallbacksAfterRelease() {
+  public void testStartAndCallbacksAfterRelease() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.release();
-    imaAdsLoader.attachPlayer(fakeExoPlayer, adsLoaderListener, adUiViewGroup);
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
     fakeExoPlayer.setPlayingContentPosition(/* position= */ 0);
     fakeExoPlayer.setState(Player.STATE_READY, true);
 
@@ -146,7 +165,7 @@ public class ImaAdsLoaderTest {
     // Note: we can't currently call getContentProgress/getAdProgress as a VerifyError is thrown
     // when using Robolectric and accessing VideoProgressUpdate.VIDEO_TIME_NOT_READY, due to the IMA
     // SDK being proguarded.
-    imaAdsLoader.requestAds(adUiViewGroup);
+    imaAdsLoader.requestAds(adViewGroup);
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, UNSKIPPABLE_AD));
     imaAdsLoader.loadAd(TEST_URI.toString());
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, UNSKIPPABLE_AD));
@@ -166,7 +185,7 @@ public class ImaAdsLoaderTest {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
 
     // Load the preroll ad.
-    imaAdsLoader.attachPlayer(fakeExoPlayer, adsLoaderListener, adUiViewGroup);
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, UNSKIPPABLE_AD));
     imaAdsLoader.loadAd(TEST_URI.toString());
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, UNSKIPPABLE_AD));
@@ -201,6 +220,18 @@ public class ImaAdsLoaderTest {
                 .withAdResumePositionUs(/* adResumePositionUs= */ 0));
   }
 
+  @Test
+  public void testStop_unregistersAllVideoControlOverlays() {
+    setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
+    imaAdsLoader.requestAds(adViewGroup);
+    imaAdsLoader.stop();
+
+    InOrder inOrder = inOrder(adDisplayContainer);
+    inOrder.verify(adDisplayContainer).registerVideoControlsOverlay(adOverlayView);
+    inOrder.verify(adDisplayContainer).unregisterAllVideoControlsOverlays();
+  }
+
   private void setupPlayback(Timeline contentTimeline, long[][] adDurationsUs, Float[] cuePoints) {
     fakeExoPlayer = new FakePlayer();
     adsLoaderListener = new TestAdsLoaderListener(fakeExoPlayer, contentTimeline, adDurationsUs);
@@ -210,6 +241,7 @@ public class ImaAdsLoaderTest {
             .setImaFactory(testImaFactory)
             .setImaSdkSettings(imaSdkSettings)
             .buildForAdTag(TEST_URI);
+    imaAdsLoader.setPlayer(fakeExoPlayer);
   }
 
   private static AdEvent getAdEvent(AdEventType adEventType, @Nullable Ad ad) {
