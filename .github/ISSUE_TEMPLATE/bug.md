@@ -2,7 +2,7 @@
 name: Bug report
 about: Issue template for a bug report.
 title: ''
-labels: bug, 'needs triage'
+labels: bug, needs triage
 assignees: ''
 ---
 
