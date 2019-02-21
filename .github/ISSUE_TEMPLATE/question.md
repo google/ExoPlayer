@@ -2,7 +2,7 @@
 name: Question
 about: Issue template for a question.
 title: ''
-labels: question, 'needs triage'
+labels: question, needs triage
 assignees: ''
 ---
 
