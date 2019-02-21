@@ -205,7 +205,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private HlsSampleStreamWrapper output;
   private int initSegmentBytesLoaded;
   private int nextLoadPosition;
-  private boolean initLoadCompleted;
+  private boolean initDataLoadRequired;
   private volatile boolean loadCanceled;
   private boolean loadCompleted;
 
@@ -258,6 +258,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.id3Decoder = id3Decoder;
     this.scratchId3Data = scratchId3Data;
     this.shouldSpliceIn = shouldSpliceIn;
+    initDataLoadRequired = initDataSpec != null;
     uid = uidSource.getAndIncrement();
   }
 
@@ -288,7 +289,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     if (extractor == null && previousExtractor != null) {
       extractor = previousExtractor;
       isExtractorReusable = true;
-      initLoadCompleted = initDataSpec != null;
+      initDataLoadRequired = false;
       output.init(uid, shouldSpliceIn, /* reusingExtractor= */ true);
     }
     maybeLoadInitData();
@@ -303,8 +304,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   // Internal methods.
 
   private void maybeLoadInitData() throws IOException, InterruptedException {
-    if (initLoadCompleted || initDataSpec == null) {
-      // Note: The HLS spec forbids initialization segments for packed audio.
+    if (!initDataLoadRequired) {
       return;
     }
     DataSpec initSegmentDataSpec;
@@ -332,7 +332,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     } finally {
       Util.closeQuietly(initDataSource);
     }
-    initLoadCompleted = true;
+    initDataLoadRequired = false;
   }
 
   private void loadMedia() throws IOException, InterruptedException {
