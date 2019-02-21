@@ -114,9 +114,10 @@ var activeTableTab = "activeTableTab";
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoder</a></pre>
 <div class="block">Decodes Event Message (emsg) atoms, as defined in ISO/IEC 23009-1:2014, Section 5.10.3.3.
- <p>
- Atom data should be provided to the decoder without the full atom header (i.e. starting from the
- first byte of the scheme_id_uri field).</div>
+
+ <p>Atom data should be provided to the decoder without the full atom header (i.e. starting from
+ the first byte of the scheme_id_uri field). It is expected that the presentation_time_delta field
+ should be 0, having already been accounted for by adjusting the sample timestamp.</div>
 </li>
 </ul>
 </div>

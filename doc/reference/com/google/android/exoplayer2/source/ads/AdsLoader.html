@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.AdState.html" title="annotation in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/ads/AdsLoader.html" target="_top">Frames</a></li>
@@ -105,21 +105,20 @@ var activeTableTab = "activeTableTab";
 <pre>public interface <span class="typeNameLabel">AdsLoader</span></pre>
 <div class="block">Interface for loaders of ads, which can be used with <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.
 
- <p>Ad loaders notify the <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a> about events via <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader.EventListener</code></a>. In
+ <p>Ads loaders notify the <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a> about events via <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader.EventListener</code></a>. In
  particular, implementations must call <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html#onAdPlaybackState-com.google.android.exoplayer2.source.ads.AdPlaybackState-"><code>AdsLoader.EventListener.onAdPlaybackState(AdPlaybackState)</code></a>
  with a new copy of the current <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a> whenever further information about ads
  becomes known (for example, when an ad media URI is available, or an ad has played to the end).
 
- <p><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#attachPlayer-com.google.android.exoplayer2.ExoPlayer-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-android.view.ViewGroup-"><code>attachPlayer(ExoPlayer, EventListener, ViewGroup)</code></a> will be called when the ads media
- source first initializes, at which point the loader can request ads. If the player enters the
- background, <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#detachPlayer--"><code>detachPlayer()</code></a> will be called. Loaders should maintain any ad playback state
- in preparation for a later call to <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#attachPlayer-com.google.android.exoplayer2.ExoPlayer-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-android.view.ViewGroup-"><code>attachPlayer(ExoPlayer, EventListener, ViewGroup)</code></a>. If
- an ad is playing when the player is detached, update the ad playback state with the current
- playback position using <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html#withAdResumePositionUs-long-"><code>AdPlaybackState.withAdResumePositionUs(long)</code></a>.
+ <p><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#start-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-"><code>start(EventListener, AdViewProvider)</code></a> will be called when the ads media source first
+ initializes, at which point the loader can request ads. If the player enters the background,
+ <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#stop--"><code>stop()</code></a> will be called. Loaders should maintain any ad playback state in preparation for
+ a later call to <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#start-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-"><code>start(EventListener, AdViewProvider)</code></a>. If an ad is playing when the
+ player is detached, update the ad playback state with the current playback position using <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html#withAdResumePositionUs-long-"><code>AdPlaybackState.withAdResumePositionUs(long)</code></a>.
 
  <p>If <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html#onAdPlaybackState-com.google.android.exoplayer2.source.ads.AdPlaybackState-"><code>AdsLoader.EventListener.onAdPlaybackState(AdPlaybackState)</code></a> has been called, the
- implementation of <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#attachPlayer-com.google.android.exoplayer2.ExoPlayer-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-android.view.ViewGroup-"><code>attachPlayer(ExoPlayer, EventListener, ViewGroup)</code></a> should invoke the
- same listener to provide the existing playback state to the new player.</div>
+ implementation of <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#start-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-"><code>start(EventListener, AdViewProvider)</code></a> should invoke the same listener
+ to provide the existing playback state to the new player.</div>
 </li>
 </ul>
 </div>
@@ -140,8 +139,14 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a></span></code>
+<div class="block">Provides views for the ad UI.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a></span></code>
-<div class="block">Listener for ad loader events.</div>
+<div class="block">Listener for ads loader events.</div>
 </td>
 </tr>
 </table>
@@ -161,36 +166,41 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#attachPlayer-com.google.android.exoplayer2.ExoPlayer-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-android.view.ViewGroup-">attachPlayer</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-            <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a>&nbsp;eventListener,
-            <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a>&nbsp;adUiViewGroup)</code>
-<div class="block">Attaches a player that will play ads loaded using this instance.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#detachPlayer--">detachPlayer</a></span>()</code>
-<div class="block">Detaches the attached player and event listener.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#handlePrepareError-int-int-java.io.IOException-">handlePrepareError</a></span>(int&nbsp;adGroupIndex,
                   int&nbsp;adIndexInAdGroup,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;exception)</code>
 <div class="block">Notifies the ads loader that the player was not able to prepare media for a given ad.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#release--">release</a></span>()</code>
 <div class="block">Releases the loader.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
+<div class="block">Sets the player that will play the loaded ads.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#setSupportedContentTypes-int...-">setSupportedContentTypes</a></span>(int...&nbsp;contentTypes)</code>
 <div class="block">Sets the supported content types for ad media.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#start-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-">start</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a>&nbsp;eventListener,
+     <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a>&nbsp;adViewProvider)</code>
+<div class="block">Starts using the ads loader for playback.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#stop--">stop</a></span>()</code>
+<div class="block">Stops using the ads loader for playback and deregisters the event listener.</div>
 </td>
 </tr>
 </table>
@@ -208,53 +218,26 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setSupportedContentTypes-int...-">
+<a name="setPlayer-com.google.android.exoplayer2.Player-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setSupportedContentTypes</h4>
-<pre>void&nbsp;setSupportedContentTypes(<a href="../../../../../../com/google/android/exoplayer2/C.ContentType.html" title="annotation in com.google.android.exoplayer2">@C.ContentType</a>
-                              int...&nbsp;contentTypes)</pre>
-<div class="block">Sets the supported content types for ad media. Must be called before the first call to
- <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#attachPlayer-com.google.android.exoplayer2.ExoPlayer-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-android.view.ViewGroup-"><code>attachPlayer(ExoPlayer, EventListener, ViewGroup)</code></a>. Subsequent calls may be ignored.</div>
+<h4>setPlayer</h4>
+<pre>void&nbsp;setPlayer(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+               <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block">Sets the player that will play the loaded ads.
+
+ <p>This method must be called before the player is prepared with media using this ads loader.
+
+ <p>This method must also be called on the main thread and only players which are accessed on
+ the main thread are supported (<code>player.getApplicationLooper() ==
+ Looper.getMainLooper()</code>).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>contentTypes</code> - The supported content types for ad media. Each element must be one of
-     <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_DASH"><code>C.TYPE_DASH</code></a>, <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_HLS"><code>C.TYPE_HLS</code></a>, <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_SS"><code>C.TYPE_SS</code></a> and <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_OTHER"><code>C.TYPE_OTHER</code></a>.</dd>
+<dd><code>player</code> - The player instance that will play the loaded ads. May be null to delete the
+     reference to a previously set player.</dd>
 </dl>
-</li>
-</ul>
-<a name="attachPlayer-com.google.android.exoplayer2.ExoPlayer-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-android.view.ViewGroup-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>attachPlayer</h4>
-<pre>void&nbsp;attachPlayer(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                  <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a>&nbsp;eventListener,
-                  <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a>&nbsp;adUiViewGroup)</pre>
-<div class="block">Attaches a player that will play ads loaded using this instance. Called on the main thread by
- <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The player instance that will play the loaded ads. Only players which are
-     accessed on the main thread are supported (<code>player.getApplicationLooper() ==
-     Looper.getMainLooper()</code>).</dd>
-<dd><code>eventListener</code> - Listener for ads loader events.</dd>
-<dd><code>adUiViewGroup</code> - A <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view"><code>ViewGroup</code></a> on top of the player that will show any ad UI.</dd>
-</dl>
-</li>
-</ul>
-<a name="detachPlayer--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>detachPlayer</h4>
-<pre>void&nbsp;detachPlayer()</pre>
-<div class="block">Detaches the attached player and event listener. Called on the main thread by
- <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
 </li>
 </ul>
 <a name="release--">
@@ -264,8 +247,52 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>release</h4>
 <pre>void&nbsp;release()</pre>
-<div class="block">Releases the loader. Called by the application on the main thread when the instance is no
- longer needed.</div>
+<div class="block">Releases the loader. Must be called by the application on the main thread when the instance is
+ no longer needed.</div>
+</li>
+</ul>
+<a name="setSupportedContentTypes-int...-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSupportedContentTypes</h4>
+<pre>void&nbsp;setSupportedContentTypes(<a href="../../../../../../com/google/android/exoplayer2/C.ContentType.html" title="annotation in com.google.android.exoplayer2">@C.ContentType</a>
+                              int...&nbsp;contentTypes)</pre>
+<div class="block">Sets the supported content types for ad media. Must be called before the first call to <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#start-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-"><code>start(EventListener, AdViewProvider)</code></a>. Subsequent calls may be ignored. Called on the main
+ thread by <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>contentTypes</code> - The supported content types for ad media. Each element must be one of
+     <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_DASH"><code>C.TYPE_DASH</code></a>, <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_HLS"><code>C.TYPE_HLS</code></a>, <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_SS"><code>C.TYPE_SS</code></a> and <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_OTHER"><code>C.TYPE_OTHER</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="start-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>start</h4>
+<pre>void&nbsp;start(<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a>&nbsp;eventListener,
+           <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a>&nbsp;adViewProvider)</pre>
+<div class="block">Starts using the ads loader for playback. Called on the main thread by <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventListener</code> - Listener for ads loader events.</dd>
+<dd><code>adViewProvider</code> - Provider of views for the ad UI.</dd>
+</dl>
+</li>
+</ul>
+<a name="stop--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>stop</h4>
+<pre>void&nbsp;stop()</pre>
+<div class="block">Stops using the ads loader for playback and deregisters the event listener. Called on the main
+ thread by <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
 </li>
 </ul>
 <a name="handlePrepareError-int-int-java.io.IOException-">
@@ -278,7 +305,8 @@ var activeTableTab = "activeTableTab";
                         int&nbsp;adIndexInAdGroup,
                         <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;exception)</pre>
 <div class="block">Notifies the ads loader that the player was not able to prepare media for a given ad.
- Implementations should update the ad playback state as the specified ad has failed to load.</div>
+ Implementations should update the ad playback state as the specified ad has failed to load.
+ Called on the main thread by <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adGroupIndex</code> - The index of the ad group.</dd>
@@ -315,7 +343,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.AdState.html" title="annotation in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/ads/AdsLoader.html" target="_top">Frames</a></li>

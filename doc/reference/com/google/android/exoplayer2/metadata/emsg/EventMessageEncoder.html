@@ -146,10 +146,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageEncoder.html#encode-com.google.android.exoplayer2.metadata.emsg.EventMessage-long-">encode</a></span>(<a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&nbsp;eventMessage,
-      long&nbsp;timescale)</code>
-<div class="block">Encodes an <a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessage</code></a> to a byte array that can be decoded by
- <a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageDecoder.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessageDecoder</code></a>.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageEncoder.html#encode-com.google.android.exoplayer2.metadata.emsg.EventMessage-">encode</a></span>(<a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&nbsp;eventMessage)</code>
+<div class="block">Encodes an <a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessage</code></a> to a byte array that can be decoded by <a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageDecoder.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessageDecoder</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -191,21 +189,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="encode-com.google.android.exoplayer2.metadata.emsg.EventMessage-long-">
+<a name="encode-com.google.android.exoplayer2.metadata.emsg.EventMessage-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>encode</h4>
 <pre><a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
-public&nbsp;byte[]&nbsp;encode(<a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&nbsp;eventMessage,
-                               long&nbsp;timescale)</pre>
-<div class="block">Encodes an <a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessage</code></a> to a byte array that can be decoded by
- <a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageDecoder.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessageDecoder</code></a>.</div>
+public&nbsp;byte[]&nbsp;encode(<a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&nbsp;eventMessage)</pre>
+<div class="block">Encodes an <a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessage</code></a> to a byte array that can be decoded by <a href="../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessageDecoder.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessageDecoder</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventMessage</code> - The event message to be encoded.</dd>
-<dd><code>timescale</code> - Timescale of the event message, in units per second.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The serialized byte array.</dd>
 </dl>

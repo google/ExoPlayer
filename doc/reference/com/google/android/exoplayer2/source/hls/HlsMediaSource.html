@@ -241,9 +241,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/hls/p
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></span>(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                     boolean&nbsp;isTopLevelSource,
-                     <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code>
 <div class="block">Starts source preparation.</div>
 </td>
 </tr>
@@ -265,7 +263,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/hls/p
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-com.google.android.exoplayer2.upstream.TransferListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">refreshSourceInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">releaseSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-com.google.android.exoplayer2.upstream.TransferListener-">prepareSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">refreshSourceInfo</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.SourceInfoRefreshListener-">releaseSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -391,25 +389,20 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 </dl>
 </li>
 </ul>
-<a name="prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">
+<a name="prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>prepareSourceInternal</h4>
-<pre>public&nbsp;void&nbsp;prepareSourceInternal(<a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>&nbsp;player,
-                                  boolean&nbsp;isTopLevelSource,
-                                  <a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
+<pre>public&nbsp;void&nbsp;prepareSourceInternal(<a href="https://developer.android.com/reference/android/support.annotation.Nullable.html" target="_top" title="class or interface in android">@Nullable</a>
                                   <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">BaseMediaSource</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">BaseMediaSource</a></code></span></div>
 <div class="block">Starts source preparation. This method is called at most once until the next call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--"><code>BaseMediaSource.releaseSourceInternal()</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>player</code> - The player for which this source is being prepared.</dd>
-<dd><code>isTopLevelSource</code> - Whether this source has been passed directly to <a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-"><code>ExoPlayer.prepare(MediaSource)</code></a> or <a href="../../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-"><code>ExoPlayer.prepare(MediaSource, boolean,
-     boolean)</code></a>.</dd>
 <dd><code>mediaTransferListener</code> - The transfer listener which should be informed of any media data
      transfers. May be null if no listener is available. Note that this listener should usually
      be only informed of transfers related to the media loads and not of auxiliary loads for
@@ -490,7 +483,7 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <h4>releaseSourceInternal</h4>
 <pre>public&nbsp;void&nbsp;releaseSourceInternal()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--">BaseMediaSource</a></code></span></div>
-<div class="block">Releases the source. This method is called exactly once after each call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.ExoPlayer-boolean-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseMediaSource.prepareSourceInternal(ExoPlayer, boolean, TransferListener)</code></a>.</div>
+<div class="block">Releases the source. This method is called exactly once after each call to <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseMediaSource.prepareSourceInternal(TransferListener)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSourceInternal--">releaseSourceInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></code></dd>

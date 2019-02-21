@@ -190,12 +190,11 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildEvent-java.lang.String-java.lang.String-long-long-byte:A-long-">buildEvent</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;schemeIdUri,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildEvent-java.lang.String-java.lang.String-long-long-byte:A-">buildEvent</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;schemeIdUri,
           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value,
           long&nbsp;id,
           long&nbsp;durationMs,
-          byte[]&nbsp;messageData,
-          long&nbsp;presentationTimeUs)</code>&nbsp;</td>
+          byte[]&nbsp;messageData)</code>&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest">EventStream</a></code></td>
@@ -386,7 +385,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseEac3SupplementalProperties-java.util.List-">parseEac3SupplementalProperties</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&gt;&nbsp;supplementalProperties)</code>&nbsp;</td>
 </tr>
 <tr id="i29" class="rowColor">
-<td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></code></td>
+<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Long.html" target="_top" title="class or interface in java.lang">Long</a>,<a href="../../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseEvent-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-long-java.io.ByteArrayOutputStream-">parseEvent</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" target="_top" title="class or interface in org.xmlpull.v1">XmlPullParser</a>&nbsp;xpp,
           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;schemeIdUri,
           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value,
@@ -998,13 +997,13 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 <ul class="blockList">
 <li class="blockList">
 <h4>parseEvent</h4>
-<pre>protected&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&nbsp;parseEvent(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" target="_top" title="class or interface in org.xmlpull.v1">XmlPullParser</a>&nbsp;xpp,
-                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;schemeIdUri,
-                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value,
-                                  long&nbsp;timescale,
-                                  <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/ByteArrayOutputStream.html" target="_top" title="class or interface in java.io">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)
-                           throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
-                                  <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" target="_top" title="class or interface in org.xmlpull.v1">XmlPullParserException</a></pre>
+<pre>protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" target="_top" title="class or interface in android.util">Pair</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Long.html" target="_top" title="class or interface in java.lang">Long</a>,<a href="../../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>&gt;&nbsp;parseEvent(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" target="_top" title="class or interface in org.xmlpull.v1">XmlPullParser</a>&nbsp;xpp,
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;schemeIdUri,
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value,
+                                             long&nbsp;timescale,
+                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/ByteArrayOutputStream.html" target="_top" title="class or interface in java.io">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)
+                                      throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
+                                             <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" target="_top" title="class or interface in org.xmlpull.v1">XmlPullParserException</a></pre>
 <div class="block">Parses a single Event node in the manifest.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1015,7 +1014,8 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 <dd><code>scratchOutputStream</code> - A <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/ByteArrayOutputStream.html" target="_top" title="class or interface in java.io"><code>ByteArrayOutputStream</code></a> that is used when parsing event
      objects.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="../../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessage</code></a> parsed from this EventStream node.</dd>
+<dd>A pair containing the node's presentation timestamp in microseconds and the parsed
+     <a href="../../../../../../../com/google/android/exoplayer2/metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg"><code>EventMessage</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" target="_top" title="class or interface in org.xmlpull.v1">XmlPullParserException</a></code> - If there is any error parsing this node.</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If there is any error reading from the underlying input stream.</dd>
@@ -1045,7 +1045,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </dl>
 </li>
 </ul>
-<a name="buildEvent-java.lang.String-java.lang.String-long-long-byte:A-long-">
+<a name="buildEvent-java.lang.String-java.lang.String-long-long-byte:A-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1055,8 +1055,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
                                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;value,
                                   long&nbsp;id,
                                   long&nbsp;durationMs,
-                                  byte[]&nbsp;messageData,
-                                  long&nbsp;presentationTimeUs)</pre>
+                                  byte[]&nbsp;messageData)</pre>
 </li>
 </ul>
 <a name="parseSegmentTimeline-org.xmlpull.v1.XmlPullParser-">

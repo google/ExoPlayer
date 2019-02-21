@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":18,"i1":18,"i2":18,"i3":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -103,7 +103,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public static interface <span class="typeNameLabel">AdsLoader.EventListener</span></pre>
-<div class="block">Listener for ad loader events. All methods are called on the main thread.</div>
+<div class="block">Listener for ads loader events. All methods are called on the main thread.</div>
 </li>
 </ul>
 </div>
@@ -117,32 +117,32 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html#onAdClicked--">onAdClicked</a></span>()</code>
 <div class="block">Called when the user clicks through an ad (for example, following a 'learn more' link).</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html#onAdLoadError-com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException-com.google.android.exoplayer2.upstream.DataSpec-">onAdLoadError</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource.AdLoadException</a>&nbsp;error,
              <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
 <div class="block">Called when there was an error loading ads.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html#onAdPlaybackState-com.google.android.exoplayer2.source.ads.AdPlaybackState-">onAdPlaybackState</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code>
 <div class="block">Called when the ad playback state has been updated.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html#onAdTapped--">onAdTapped</a></span>()</code>
 <div class="block">Called when the user taps a non-clickthrough part of an ad.</div>
 </td>
@@ -168,7 +168,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onAdPlaybackState</h4>
-<pre>void&nbsp;onAdPlaybackState(<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
+<pre>default&nbsp;void&nbsp;onAdPlaybackState(<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
 <div class="block">Called when the ad playback state has been updated.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -182,8 +182,8 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onAdLoadError</h4>
-<pre>void&nbsp;onAdLoadError(<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource.AdLoadException</a>&nbsp;error,
-                   <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
+<pre>default&nbsp;void&nbsp;onAdLoadError(<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource.AdLoadException</a>&nbsp;error,
+                           <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
 <div class="block">Called when there was an error loading ads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -198,7 +198,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onAdClicked</h4>
-<pre>void&nbsp;onAdClicked()</pre>
+<pre>default&nbsp;void&nbsp;onAdClicked()</pre>
 <div class="block">Called when the user clicks through an ad (for example, following a 'learn more' link).</div>
 </li>
 </ul>
@@ -208,7 +208,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onAdTapped</h4>
-<pre>void&nbsp;onAdTapped()</pre>
+<pre>default&nbsp;void&nbsp;onAdTapped()</pre>
 <div class="block">Called when the user taps a non-clickthrough part of an ad.</div>
 </li>
 </ul>
@@ -239,7 +239,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

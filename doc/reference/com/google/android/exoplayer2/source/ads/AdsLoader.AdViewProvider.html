@@ -2,7 +2,7 @@
 <!-- NewPage -->
 <html lang="en">
 <head>
-<title>AdsMediaSource.MediaSourceFactory (ExoPlayer library)</title>
+<title>AdsLoader.AdViewProvider (ExoPlayer library)</title>
 <link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
 <script type="text/javascript" src="../../../../../../script.js"></script>
 </head>
@@ -10,7 +10,7 @@
 <script type="text/javascript"><!--
     try {
         if (location.href.indexOf('is-external=true') == -1) {
-            parent.document.title="AdsMediaSource.MediaSourceFactory (ExoPlayer library)";
+            parent.document.title="AdsLoader.AdViewProvider (ExoPlayer library)";
         }
     }
     catch(err) {
@@ -46,12 +46,12 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.Type.html" title="annotation in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/SinglePeriodAdTimeline.html" title="class in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" target="_top">Frames</a></li>
-<li><a href="AdsMediaSource.MediaSourceFactory.html" target="_top">No&nbsp;Frames</a></li>
+<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" target="_top">Frames</a></li>
+<li><a href="AdsLoader.AdViewProvider.html" target="_top">No&nbsp;Frames</a></li>
 </ul>
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
@@ -90,7 +90,7 @@ var activeTableTab = "activeTableTab";
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="subTitle">com.google.android.exoplayer2.source.ads</div>
-<h2 title="Interface AdsMediaSource.MediaSourceFactory" class="title">Interface AdsMediaSource.MediaSourceFactory</h2>
+<h2 title="Interface AdsLoader.AdViewProvider" class="title">Interface AdsLoader.AdViewProvider</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
@@ -98,16 +98,16 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ExtractorMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">ExtractorMediaSource.Factory</a>, <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>, <a href="../../../../../../com/google/android/exoplayer2/source/smoothstreaming/SsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource.Factory</a></dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/ui/PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a>, <a href="../../../../../../com/google/android/exoplayer2/ui/SimpleExoPlayerView.html" title="class in com.google.android.exoplayer2.ui">SimpleExoPlayerView</a></dd>
 </dl>
 <dl>
-<dt>Enclosing class:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource</a></dd>
+<dt>Enclosing interface:</dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a></dd>
 </dl>
 <hr>
 <br>
-<pre>public static interface <span class="typeNameLabel">AdsMediaSource.MediaSourceFactory</span></pre>
-<div class="block">Factory for creating <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s to play ad media.</div>
+<pre>public static interface <span class="typeNameLabel">AdsLoader.AdViewProvider</span></pre>
+<div class="block">Provides views for the ad UI.</div>
 </li>
 </ul>
 </div>
@@ -127,15 +127,17 @@ var activeTableTab = "activeTableTab";
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html#createMediaSource-android.net.Uri-">createMediaSource</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri)</code>
-<div class="block">Creates a new <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> for loading the ad media with the specified <code>uri</code>.</div>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view">View</a>[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayViews--">getAdOverlayViews</a></span>()</code>
+<div class="block">Returns an array of views that are shown on top of the ad view group, but that are essential
+ for controlling playback and should be excluded from ad viewability measurements by the
+ <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> (if it supports this).</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>int[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html#getSupportedTypes--">getSupportedTypes</a></span>()</code>
-<div class="block">Returns the content types supported by media sources created by this factory.</div>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdViewGroup--">getAdViewGroup</a></span>()</code>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view"><code>ViewGroup</code></a> on top of the player that will show any ad UI.</div>
 </td>
 </tr>
 </table>
@@ -153,35 +155,31 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createMediaSource-android.net.Uri-">
+<a name="getAdViewGroup--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>createMediaSource</h4>
-<pre><a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;createMediaSource(<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;uri)</pre>
-<div class="block">Creates a new <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> for loading the ad media with the specified <code>uri</code>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>uri</code> - The URI of the media or manifest to play.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new media source.</dd>
-</dl>
+<h4>getAdViewGroup</h4>
+<pre><a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view">ViewGroup</a>&nbsp;getAdViewGroup()</pre>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" target="_top" title="class or interface in android.view"><code>ViewGroup</code></a> on top of the player that will show any ad UI.</div>
 </li>
 </ul>
-<a name="getSupportedTypes--">
+<a name="getAdOverlayViews--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>getSupportedTypes</h4>
-<pre>int[]&nbsp;getSupportedTypes()</pre>
-<div class="block">Returns the content types supported by media sources created by this factory. Each element
- should be one of <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_DASH"><code>C.TYPE_DASH</code></a>, <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_SS"><code>C.TYPE_SS</code></a>, <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_HLS"><code>C.TYPE_HLS</code></a> or <a href="../../../../../../com/google/android/exoplayer2/C.html#TYPE_OTHER"><code>C.TYPE_OTHER</code></a>.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The content types supported by media sources created by this factory.</dd>
-</dl>
+<h4>getAdOverlayViews</h4>
+<pre><a href="https://developer.android.com/reference/android/view/View.html" target="_top" title="class or interface in android.view">View</a>[]&nbsp;getAdOverlayViews()</pre>
+<div class="block">Returns an array of views that are shown on top of the ad view group, but that are essential
+ for controlling playback and should be excluded from ad viewability measurements by the
+ <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> (if it supports this).
+
+ <p>Each view must be either a fully transparent overlay (for capturing touch events), or a
+ small piece of transient UI that is essential to the user experience of playback (such as a
+ button to pause/resume playback or a transient full-screen or cast button). For more
+ information see the documentation for your ads loader.</div>
 </li>
 </ul>
 </li>
@@ -211,12 +209,12 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.AdLoadException.Type.html" title="annotation in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/SinglePeriodAdTimeline.html" title="class in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
-<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/ads/AdsMediaSource.MediaSourceFactory.html" target="_top">Frames</a></li>
-<li><a href="AdsMediaSource.MediaSourceFactory.html" target="_top">No&nbsp;Frames</a></li>
+<li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" target="_top">Frames</a></li>
+<li><a href="AdsLoader.AdViewProvider.html" target="_top">No&nbsp;Frames</a></li>
 </ul>
 <ul class="navList" id="allclasses_navbar_bottom">
 <li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
