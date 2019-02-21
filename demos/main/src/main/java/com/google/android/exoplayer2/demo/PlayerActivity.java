@@ -27,9 +27,7 @@ import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -151,7 +149,6 @@ public class PlayerActivity extends Activity
 
   private AdsLoader adsLoader;
   private Uri loadedAdTagUri;
-  private ViewGroup adUiViewGroup;
 
   // Activity lifecycle
 
@@ -474,7 +471,6 @@ public class PlayerActivity extends Activity
     return buildMediaSource(uri, null);
   }
 
-  @SuppressWarnings("unchecked")
   private MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
     @ContentType int type = Util.inferContentType(uri, overrideExtension);
     switch (type) {
@@ -533,6 +529,9 @@ public class PlayerActivity extends Activity
       player = null;
       mediaSource = null;
       trackSelector = null;
+    }
+    if (adsLoader != null) {
+      adsLoader.setPlayer(null);
     }
     releaseMediaDrm();
   }
@@ -593,10 +592,8 @@ public class PlayerActivity extends Activity
                 .getConstructor(android.content.Context.class, android.net.Uri.class);
         // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
         adsLoader = loaderConstructor.newInstance(this, adTagUri);
-        adUiViewGroup = new FrameLayout(this);
-        // The demo app has a non-null overlay frame layout.
-        playerView.getOverlayFrameLayout().addView(adUiViewGroup);
       }
+      adsLoader.setPlayer(player);
       AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
           new AdsMediaSource.MediaSourceFactory() {
             @Override
@@ -609,7 +606,7 @@ public class PlayerActivity extends Activity
               return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
             }
           };
-      return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, adUiViewGroup);
+      return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, playerView);
     } catch (ClassNotFoundException e) {
       // IMA extension not loaded.
       return null;
