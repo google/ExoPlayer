@@ -70,6 +70,7 @@ import com.google.android.exoplayer2.video.VideoListener;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -1116,7 +1117,14 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
   @Override
   public View[] getAdOverlayViews() {
-    return controller != null ? new View[] {controller} : new View[0];
+    ArrayList<View> overlayViews = new ArrayList<>();
+    if (overlayFrameLayout != null) {
+      overlayViews.add(overlayFrameLayout);
+    }
+    if (controller != null) {
+      overlayViews.add(controller);
+    }
+    return overlayViews.toArray(new View[0]);
   }
 
   // Internal methods.
