@@ -2,7 +2,7 @@
 name: Content not playing correctly
 about: Issue template for a content not playing issue.
 title: ''
-labels: 'content not playing', 'needs triage'
+labels: content not playing, needs triage
 assignees: ''
 ---
 
