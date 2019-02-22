@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.trackselection;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -44,6 +43,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
+import org.mockito.hamcrest.MockitoHamcrest;
 import org.robolectric.RobolectricTestRunner;
 
 /** Unit test for {@link AdaptiveTrackSelection}. */
@@ -276,7 +276,7 @@ public final class AdaptiveTrackSelectionTest {
         };
     verify(estimator)
         .getBitrates(
-            argThat(matcher),
+            MockitoHamcrest.argThat(matcher),
             eq(Collections.emptyList()),
             eq(THREE_EMPTY_MEDIA_CHUNK_ITERATORS),
             any());
