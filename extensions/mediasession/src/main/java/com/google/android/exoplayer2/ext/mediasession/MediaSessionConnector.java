@@ -971,6 +971,7 @@ public final class MediaSessionConnector {
               ? PlaybackStateCompat.SHUFFLE_MODE_ALL
               : PlaybackStateCompat.SHUFFLE_MODE_NONE);
       invalidateMediaSessionPlaybackState();
+      invalidateMediaSessionQueue();
     }
 
     @Override

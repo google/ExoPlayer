@@ -60,6 +60,8 @@
   `TrackSelectionDialogBuilder` and add option to select multiple overrides.
 * MediaSessionConnector: Let apps intercept media button events
   ([#5179](https://github.com/google/ExoPlayer/issues/5179)).
+* Fix issue with `TimelineQueueNavigator` not publishing the queue in shuffled
+  order when in shuffle mode.
 
 ### 2.9.6 ###
 
