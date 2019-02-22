@@ -203,7 +203,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   private Extractor extractor;
   private boolean isExtractorReusable;
   private HlsSampleStreamWrapper output;
-  private int initSegmentBytesLoaded;
+  // nextLoadPosition refers to the init segment if initDataLoadRequired is true.
+  // Otherwise, nextLoadPosition refers to the media segment.
   private int nextLoadPosition;
   private boolean initDataLoadRequired;
   private volatile boolean loadCanceled;
@@ -307,53 +308,41 @@ import java.util.concurrent.atomic.AtomicInteger;
     if (!initDataLoadRequired) {
       return;
     }
-    DataSpec initSegmentDataSpec;
-    boolean skipLoadedBytes;
-    if (initSegmentEncrypted) {
-      initSegmentDataSpec = initDataSpec;
-      skipLoadedBytes = initSegmentBytesLoaded != 0;
-    } else {
-      initSegmentDataSpec = initDataSpec.subrange(initSegmentBytesLoaded);
-      skipLoadedBytes = false;
-    }
-    try {
-      DefaultExtractorInput input = prepareExtraction(initDataSource, initSegmentDataSpec);
-      if (skipLoadedBytes) {
-        input.skipFully(initSegmentBytesLoaded);
-      }
-      try {
-        int result = Extractor.RESULT_CONTINUE;
-        while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-          result = extractor.read(input, null);
-        }
-      } finally {
-        initSegmentBytesLoaded = (int) (input.getPosition() - initDataSpec.absoluteStreamPosition);
-      }
-    } finally {
-      Util.closeQuietly(initDataSource);
-    }
+    feedDataToExtractor(initDataSource, initDataSpec, initSegmentEncrypted);
+    nextLoadPosition = 0;
     initDataLoadRequired = false;
   }
 
   private void loadMedia() throws IOException, InterruptedException {
+    if (!isMasterTimestampSource) {
+      timestampAdjuster.waitUntilInitialized();
+    } else if (timestampAdjuster.getFirstSampleTimestampUs() == TimestampAdjuster.DO_NOT_OFFSET) {
+      // We're the master and we haven't set the desired first sample timestamp yet.
+      timestampAdjuster.setFirstSampleTimestampUs(startTimeUs);
+    }
+    feedDataToExtractor(dataSource, dataSpec, mediaSegmentEncrypted);
+  }
+
+  /**
+   * Attempts to feed the given {@code dataSpec} to {@code this.extractor}. Whenever the operation
+   * concludes (because of a thrown exception or because the operation finishes), the number of fed
+   * bytes is written to {@code nextLoadPosition}.
+   */
+  private void feedDataToExtractor(
+      DataSource dataSource, DataSpec dataSpec, boolean dataIsEncrypted)
+      throws IOException, InterruptedException {
     // If we previously fed part of this chunk to the extractor, we need to skip it this time. For
     // encrypted content we need to skip the data by reading it through the source, so as to ensure
     // correct decryption of the remainder of the chunk. For clear content, we can request the
     // remainder of the chunk directly.
     DataSpec loadDataSpec;
     boolean skipLoadedBytes;
-    if (mediaSegmentEncrypted) {
+    if (dataIsEncrypted) {
       loadDataSpec = dataSpec;
       skipLoadedBytes = nextLoadPosition != 0;
     } else {
       loadDataSpec = dataSpec.subrange(nextLoadPosition);
       skipLoadedBytes = false;
-    }
-    if (!isMasterTimestampSource) {
-      timestampAdjuster.waitUntilInitialized();
-    } else if (timestampAdjuster.getFirstSampleTimestampUs() == TimestampAdjuster.DO_NOT_OFFSET) {
-      // We're the master and we haven't set the desired first sample timestamp yet.
-      timestampAdjuster.setFirstSampleTimestampUs(startTimeUs);
     }
     try {
       ExtractorInput input = prepareExtraction(dataSource, loadDataSpec);
@@ -363,7 +352,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       try {
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-          result = extractor.read(input, null);
+          result = extractor.read(input, /* seekPosition= */ null);
         }
       } finally {
         nextLoadPosition = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
