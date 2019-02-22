@@ -19,6 +19,7 @@ import android.os.ConditionVariable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import java.io.File;
@@ -61,6 +62,7 @@ public final class SimpleCache implements Cache {
   private final HashMap<String, ArrayList<Listener>> listeners;
   private final Random random;
 
+  private long uid;
   private long totalSpace;
   private boolean released;
 
@@ -109,7 +111,7 @@ public final class SimpleCache implements Cache {
    * @param secretKey If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
    *     The key must be 16 bytes long.
    */
-  public SimpleCache(File cacheDir, CacheEvictor evictor, byte[] secretKey) {
+  public SimpleCache(File cacheDir, CacheEvictor evictor, @Nullable byte[] secretKey) {
     this(cacheDir, evictor, secretKey, secretKey != null);
   }
 
@@ -124,16 +126,55 @@ public final class SimpleCache implements Cache {
    * @param encrypt Whether the index will be encrypted when written. Must be false if {@code
    *     secretKey} is null.
    */
-  public SimpleCache(File cacheDir, CacheEvictor evictor, byte[] secretKey, boolean encrypt) {
+  public SimpleCache(
+      File cacheDir, CacheEvictor evictor, @Nullable byte[] secretKey, boolean encrypt) {
+    this(
+        cacheDir,
+        evictor,
+        /* databaseProvider= */ null,
+        secretKey,
+        encrypt,
+        /* preferLegacyIndex= */ true);
+  }
+
+  // TODO: Make public and consider a constructor that takes DatabaseProvider but not legacy args.
+  /**
+   * Constructs the cache. The cache will delete any unrecognized files from the cache directory.
+   * Hence the directory cannot be used to store other files.
+   *
+   * @param cacheDir A dedicated cache directory.
+   * @param evictor The evictor to be used.
+   * @param databaseProvider Provides the database in which the cache index is stored, or {@code
+   *     null} to use a legacy index. Using the database index is highly recommended for performance
+   *     reasons.
+   * @param legacyIndexSecretKey A 16 byte AES key for reading, and optionally writing, the legacy
+   *     index. Not used by the database index, however should still be provided when using the
+   *     database index in cases where upgrading from the legacy index may be necessary.
+   * @param legacyIndexEncrypt Whether to encrypt when writing to the legacy index. Must be false if
+   *     {@code legacyIndexSecretKey} is null. Not used by the database index.
+   * @param preferLegacyIndex Whether to use the legacy index even if a {@code databaseProvider} is
+   *     provided. Should be {@code false} in most cases. Setting this to {@code true} is only
+   *     useful for downgrading from the database index back to the legacy index.
+   */
+  /* package */ SimpleCache(
+      File cacheDir,
+      CacheEvictor evictor,
+      @Nullable DatabaseProvider databaseProvider,
+      @Nullable byte[] legacyIndexSecretKey,
+      boolean legacyIndexEncrypt,
+      boolean preferLegacyIndex) {
     this(
         cacheDir,
         evictor,
         new CachedContentIndex(
-            /* databaseProvider= */ null,
+            databaseProvider,
             cacheDir,
-            secretKey,
-            encrypt,
-            /* preferLegacyStorage= */ true));
+            legacyIndexSecretKey,
+            legacyIndexEncrypt,
+            preferLegacyIndex),
+        databaseProvider != null && !preferLegacyIndex
+            ? new CacheFileMetadataIndex(databaseProvider)
+            : null);
   }
 
   /**
@@ -143,8 +184,13 @@ public final class SimpleCache implements Cache {
    * @param cacheDir A dedicated cache directory.
    * @param evictor The evictor to be used.
    * @param contentIndex The content index to be used.
+   * @param fileIndex The file index to be used.
    */
-  /* package */ SimpleCache(File cacheDir, CacheEvictor evictor, CachedContentIndex contentIndex) {
+  /* package */ SimpleCache(
+      File cacheDir,
+      CacheEvictor evictor,
+      CachedContentIndex contentIndex,
+      @Nullable CacheFileMetadataIndex fileIndex) {
     if (!lockFolder(cacheDir)) {
       throw new IllegalStateException("Another SimpleCache instance uses the folder: " + cacheDir);
     }
@@ -152,9 +198,10 @@ public final class SimpleCache implements Cache {
     this.cacheDir = cacheDir;
     this.evictor = evictor;
     this.contentIndex = contentIndex;
-    this.fileIndex = null;
+    this.fileIndex = fileIndex;
     listeners = new HashMap<>();
     random = new Random();
+    uid = -1;
 
     // Start cache initialization.
     final ConditionVariable conditionVariable = new ConditionVariable();
@@ -261,7 +308,7 @@ public final class SimpleCache implements Cache {
 
     // Read case.
     if (span.isCached) {
-      String fileName = span.file.getName();
+      String fileName = Assertions.checkNotNull(span.file).getName();
       long length = span.length;
       long lastAccessTimestamp = System.currentTimeMillis();
       boolean updateFile = false;
@@ -386,6 +433,11 @@ public final class SimpleCache implements Cache {
     return contentIndex.getContentMetadata(key);
   }
 
+  /** Returns the non-negative cache UID, or -1 if cache initialization failed. */
+  /* package */ synchronized long getUid() {
+    return uid;
+  }
+
   /**
    * Returns the cache {@link SimpleCacheSpan} corresponding to the provided lookup {@link
    * SimpleCacheSpan}.
@@ -419,21 +471,30 @@ public final class SimpleCache implements Cache {
   /** Ensures that the cache's in-memory representation has been initialized. */
   private void initialize() {
     if (!cacheDir.exists()) {
-      cacheDir.mkdirs();
-      return;
+      // Attempt to create the cache directory.
+      if (!cacheDir.mkdirs()) {
+        // TODO: Initialization failed. Decide how to handle this.
+        return;
+      }
     }
 
     File[] files = cacheDir.listFiles();
+    if (files == null) {
+      // TODO: Initialization failed. Decide how to handle this.
+      return;
+    }
 
-    long uid = 0;
     try {
       uid = loadUid(cacheDir, files);
     } catch (IOException e) {
-      // TODO: Decide how to handle this.
+      // TODO: Initialization failed. Decide how to handle this.
+      return;
     }
 
+    // TODO: Handle content index initialization failures.
     contentIndex.initialize(uid);
     if (fileIndex != null) {
+      // TODO: Handle file index initialization failures.
       fileIndex.initialize(uid);
       Map<String, CacheFileMetadata> fileMetadata = fileIndex.getAll();
       loadDirectory(cacheDir, /* isRoot= */ true, files, fileMetadata);
@@ -462,7 +523,7 @@ public final class SimpleCache implements Cache {
   private void loadDirectory(
       File directory,
       boolean isRoot,
-      File[] files,
+      @Nullable File[] files,
       @Nullable Map<String, CacheFileMetadata> fileMetadata) {
     if (files == null || files.length == 0) {
       // Either (a) directory isn't really a directory (b) it's empty, or (c) listing files failed.
@@ -582,17 +643,15 @@ public final class SimpleCache implements Cache {
    * @throws IOException If there is an error loading or generating the UID.
    */
   private static long loadUid(File directory, File[] files) throws IOException {
-    if (files != null) {
-      for (File file : files) {
-        String fileName = file.getName();
-        if (fileName.endsWith(UID_FILE_SUFFIX)) {
-          try {
-            return parseUid(fileName);
-          } catch (NumberFormatException e) {
-            // This should never happen, but if it does delete the malformed UID file and continue.
-            Log.e(TAG, "Malformed UID file: " + file);
-            file.delete();
-          }
+    for (File file : files) {
+      String fileName = file.getName();
+      if (fileName.endsWith(UID_FILE_SUFFIX)) {
+        try {
+          return parseUid(fileName);
+        } catch (NumberFormatException e) {
+          // This should never happen, but if it does delete the malformed UID file and continue.
+          Log.e(TAG, "Malformed UID file: " + file);
+          file.delete();
         }
       }
     }
