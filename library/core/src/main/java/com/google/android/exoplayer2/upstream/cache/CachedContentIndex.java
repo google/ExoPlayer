@@ -126,7 +126,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @param legacyStorageSecretKey A 16 byte AES key for reading, and optionally writing, legacy
    *     storage.
    * @param legacyStorageEncrypt Whether to encrypt when writing to legacy storage. Must be false if
-   *     {@code secretKey} is null.
+   *     {@code legacyStorageSecretKey} is null.
    * @param preferLegacyStorage Whether to use prefer legacy storage if both storage types are
    *     enabled. This option is only useful for downgrading from database storage back to legacy
    *     storage.

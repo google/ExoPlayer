@@ -55,12 +55,41 @@ public class SimpleCacheTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    cacheDir = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
+    cacheDir = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
+    // Delete the file. SimpleCache initialization should create a directory with the same name.
+    assertThat(cacheDir.delete()).isTrue();
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     Util.recursiveDelete(cacheDir);
+  }
+
+  @Test
+  public void testCacheInitialization() {
+    SimpleCache cache = getSimpleCache();
+
+    // Cache initialization should have created a non-negative UID.
+    long uid = cache.getUid();
+    assertThat(uid).isAtLeast(0L);
+    // And the cache directory.
+    assertThat(cacheDir.exists()).isTrue();
+
+    // Reinitialization should load the same non-negative UID.
+    cache.release();
+    cache = getSimpleCache();
+    assertThat(cache.getUid()).isEqualTo(uid);
+  }
+
+  @Test
+  public void testCacheInitializationError() throws IOException {
+    // Creating a file where the cache should be will cause an error during initialization.
+    assertThat(cacheDir.createNewFile()).isTrue();
+
+    // Cache initialization should not throw an exception, but no UID will be generated.
+    SimpleCache cache = getSimpleCache();
+    long uid = cache.getUid();
+    assertThat(uid).isEqualTo(-1L);
   }
 
   @Test
@@ -294,10 +323,11 @@ public class SimpleCacheTest {
   /* Tests https://github.com/google/ExoPlayer/issues/3260 case. */
   @Test
   public void testExceptionDuringEvictionByLeastRecentlyUsedCacheEvictorNotHang() throws Exception {
-    CachedContentIndex index =
+    CachedContentIndex contentIndex =
         Mockito.spy(new CachedContentIndex(TestUtil.getTestDatabaseProvider()));
     SimpleCache simpleCache =
-        new SimpleCache(cacheDir, new LeastRecentlyUsedCacheEvictor(20), index);
+        new SimpleCache(
+            cacheDir, new LeastRecentlyUsedCacheEvictor(20), contentIndex, /* fileIndex= */ null);
 
     // Add some content.
     CacheSpan cacheSpan = simpleCache.startReadWrite(KEY_1, 0);
@@ -308,7 +338,7 @@ public class SimpleCacheTest {
             invocation -> {
               throw new CacheException("SimpleCacheTest");
             })
-        .when(index)
+        .when(contentIndex)
         .store();
 
     // Adding more content will make LeastRecentlyUsedCacheEvictor evict previous content.
