@@ -1047,6 +1047,7 @@ public final class Format implements Parcelable {
       int bitrate,
       int width,
       int height,
+      int channelCount,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language) {
     return new Format(

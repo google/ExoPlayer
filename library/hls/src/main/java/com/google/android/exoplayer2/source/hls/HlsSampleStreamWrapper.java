@@ -1094,6 +1094,10 @@ import java.util.List;
       return sampleFormat;
     }
     int bitrate = propagateBitrate ? playlistFormat.bitrate : Format.NO_VALUE;
+    int channelCount =
+        playlistFormat.channelCount != Format.NO_VALUE
+            ? playlistFormat.channelCount
+            : sampleFormat.channelCount;
     int sampleTrackType = MimeTypes.getTrackType(sampleFormat.sampleMimeType);
     String codecs = Util.getCodecsOfType(playlistFormat.codecs, sampleTrackType);
     String mimeType = MimeTypes.getMediaMimeType(codecs);
@@ -1108,6 +1112,7 @@ import java.util.List;
         bitrate,
         playlistFormat.width,
         playlistFormat.height,
+        channelCount,
         playlistFormat.selectionFlags,
         playlistFormat.language);
   }
