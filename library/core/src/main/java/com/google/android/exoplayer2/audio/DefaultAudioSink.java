@@ -465,14 +465,17 @@ public final class DefaultAudioSink implements AudioSink {
             processingEnabled,
             canApplyPlaybackParameters,
             availableAudioProcessors);
-    if (configuration == null || !pendingConfiguration.canReuseAudioTrack(configuration)) {
-      // We need a new AudioTrack before we can handle more input. We should first stop() the track
-      // (if we have one) and wait for audio to play out. Tracked by [Internal: b/33161961].
-      flush();
-    } else if (flushAudioProcessors) {
-      // We don't need a new AudioTrack but audio processors need to be flushed.
-      this.pendingConfiguration = pendingConfiguration;
-      return;
+    if (isInitialized()) {
+      if (!pendingConfiguration.canReuseAudioTrack(configuration)) {
+        // We need a new AudioTrack before we can handle more input. We should first stop() the
+        // track and wait for audio to play out (tracked by [Internal: b/33161961]), but for now we
+        // discard the audio track immediately.
+        flush();
+      } else if (flushAudioProcessors) {
+        // We don't need a new AudioTrack but audio processors need to be drained and flushed.
+        this.pendingConfiguration = pendingConfiguration;
+        return;
+      }
     }
     configuration = pendingConfiguration;
   }
