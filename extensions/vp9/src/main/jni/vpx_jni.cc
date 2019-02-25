@@ -433,7 +433,8 @@ int vpx_release_frame_buffer(void* priv, vpx_codec_frame_buffer_t* fb) {
   return buffer_manager->release(*(int*)fb->priv);
 }
 
-DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter, jint threads) {
+DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
+             jboolean enableRowMultiThreadMode, jint threads) {
   JniCtx* context = new JniCtx();
   context->decoder = new vpx_codec_ctx_t();
   vpx_codec_dec_cfg_t cfg = {0, 0, 0};
@@ -446,6 +447,13 @@ DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter, jint threads) {
     errorCode = err;
     return 0;
   }
+#ifdef VPX_CTRL_VP9_DECODE_SET_ROW_MT
+  err = vpx_codec_control_(context->decoder, VP9D_SET_ROW_MT,
+                           enableRowMultiThreadMode);
+  if (err) {
+    LOGE("ERROR: Failed to enable row multi thread mode, error = %d.", err);
+  }
+#endif
   if (disableLoopFilter) {
     // TODO(b/71930387): Use vpx_codec_control(), not vpx_codec_control_().
     err = vpx_codec_control_(context->decoder, VP9_SET_SKIP_LOOP_FILTER, true);

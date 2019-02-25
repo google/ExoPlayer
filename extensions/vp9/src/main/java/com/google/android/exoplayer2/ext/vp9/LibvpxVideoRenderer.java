@@ -107,6 +107,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
 
+  private final boolean enableRowMultiThreadMode;
   private final boolean disableLoopFilter;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
@@ -218,6 +219,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
         drmSessionManager,
         playClearSamplesWithoutKeys,
         disableLoopFilter,
+        /* enableRowMultiThreadMode= */ false,
         getRuntime().availableProcessors());
   }
 
@@ -237,6 +239,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param disableLoopFilter Disable the libvpx in-loop smoothing filter.
+   * @param enableRowMultiThreadMode Whether row multi threading decoding is enabled.
    * @param threads Number of threads libvpx will use to decode.
    */
   public LibvpxVideoRenderer(
@@ -247,6 +250,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       DrmSessionManager<ExoMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
       boolean disableLoopFilter,
+      boolean enableRowMultiThreadMode,
       int threads) {
     super(C.TRACK_TYPE_VIDEO);
     this.disableLoopFilter = disableLoopFilter;
@@ -254,6 +258,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
+    this.enableRowMultiThreadMode = enableRowMultiThreadMode;
     this.threads = threads;
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
@@ -762,6 +767,7 @@ public class LibvpxVideoRenderer extends BaseRenderer {
               initialInputBufferSize,
               mediaCrypto,
               disableLoopFilter,
+              enableRowMultiThreadMode,
               threads);
       decoder.setOutputMode(outputMode);
       TraceUtil.endSection();
