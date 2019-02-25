@@ -219,8 +219,9 @@ public class MatroskaExtractor implements Extractor {
   private static final int LACING_FIXED_SIZE = 2;
   private static final int LACING_EBML = 3;
 
-  private static final int FOURCC_COMPRESSION_VC1 = 0x31435657;
   private static final int FOURCC_COMPRESSION_DIVX = 0x58564944;
+  private static final int FOURCC_COMPRESSION_H263 = 0x33363248;
+  private static final int FOURCC_COMPRESSION_VC1 = 0x31435657;
 
   /**
    * A template for the prefix that must be added to each subrip sample. The 12 byte end timecode
@@ -2057,8 +2058,6 @@ public class MatroskaExtractor implements Extractor {
     /**
      * Builds initialization data for a {@link Format} from FourCC codec private data.
      *
-     * <p>VC1 and H263 are the only supported compression types.
-     *
      * @return The codec mime type and initialization data. If the compression type is not supported
      *     then the mime type is set to {@link MimeTypes#VIDEO_UNKNOWN} and the initialization data
      *     is {@code null}.
@@ -2071,6 +2070,8 @@ public class MatroskaExtractor implements Extractor {
         long compression = buffer.readLittleEndianUnsignedInt();
         if (compression == FOURCC_COMPRESSION_DIVX) {
           return new Pair<>(MimeTypes.VIDEO_DIVX, null);
+        } else if (compression == FOURCC_COMPRESSION_H263) {
+          return new Pair<>(MimeTypes.VIDEO_H263, null);
         } else if (compression == FOURCC_COMPRESSION_VC1) {
           // Search for the initialization data from the end of the BITMAPINFOHEADER. The last 20
           // bytes of which are: sizeImage(4), xPel/m (4), yPel/m (4), clrUsed(4), clrImportant(4).
