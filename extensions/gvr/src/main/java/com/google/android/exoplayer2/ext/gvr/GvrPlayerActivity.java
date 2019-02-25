@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.android.exoplayer2.ext.gvr;
 
 import android.content.Context;
@@ -68,10 +69,8 @@ public abstract class GvrPlayerActivity extends GvrActivity {
     mainHandler = new Handler(Looper.getMainLooper());
   }
 
-  // TODO(b/124903498): Incompatible parameter type for savedInstanceState.
-  @SuppressWarnings("nullness:override.param.invalid")
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setScreenAlwaysOn(true);
 
