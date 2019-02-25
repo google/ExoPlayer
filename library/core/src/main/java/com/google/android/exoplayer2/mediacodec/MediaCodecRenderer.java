@@ -559,7 +559,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   public final void setOperatingRate(float operatingRate) throws ExoPlaybackException {
     rendererOperatingRate = operatingRate;
-    if (codec != null && codecDrainAction != DRAIN_ACTION_REINITIALIZE) {
+    if (codec != null
+        && codecDrainAction != DRAIN_ACTION_REINITIALIZE
+        && getState() != STATE_DISABLED) {
       updateCodecOperatingRate();
     }
   }
