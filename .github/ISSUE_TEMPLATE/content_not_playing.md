@@ -41,4 +41,7 @@ Specify the absolute version number. Avoid using terms such as "latest".
 Specify the devices and versions of Android on which you expect the content to
 play. If possible, please test on multiple devices and Android versions.
 
-
+<!-- DO NOT DELETE
+validate_template=true
+template_path=.github/ISSUE_TEMPLATE/content_not_playing.md
+-->
