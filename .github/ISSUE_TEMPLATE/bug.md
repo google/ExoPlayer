@@ -52,3 +52,7 @@ Specify the devices and versions of Android on which the issue can be
 reproduced, and how easily it reproduces. If possible, please test on multiple
 devices and Android versions.
 
+<!-- DO NOT DELETE
+validate_template=true
+template_path=.github/ISSUE_TEMPLATE/bug.md
+-->

@@ -28,4 +28,7 @@ important for us to know this so that we can improve our documentation.
 ### [REQUIRED] Question
 Describe your question in detail.
 
-
+<!-- DO NOT DELETE
+validate_template=true
+template_path=.github/ISSUE_TEMPLATE/question.md
+-->
