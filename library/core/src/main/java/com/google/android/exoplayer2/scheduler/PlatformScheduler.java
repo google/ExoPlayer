@@ -153,6 +153,8 @@ public final class PlatformScheduler implements Scheduler {
         logd("Requirements are met");
         String serviceAction = extras.getString(KEY_SERVICE_ACTION);
         String servicePackage = extras.getString(KEY_SERVICE_PACKAGE);
+        // FIXME: incompatible types in argument.
+        @SuppressWarnings("nullness:argument.type.incompatible")
         Intent intent = new Intent(serviceAction).setPackage(servicePackage);
         logd("Starting service action: " + serviceAction + " package: " + servicePackage);
         Util.startForegroundService(this, intent);

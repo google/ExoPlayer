@@ -75,6 +75,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     }
   }
 
+  // FIXME: incompatible types in argument.
+  @SuppressWarnings("nullness:argument.type.incompatible")
   @Override
   public void setOnEventListener(
       final ExoMediaDrm.OnEventListener<? super FrameworkMediaCrypto> listener) {
@@ -146,6 +148,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     return new KeyRequest(requestData, licenseServerUrl);
   }
 
+  // FIXME: incompatible types in return.
+  @SuppressWarnings("nullness:return.type.incompatible")
   @Override
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException {
