@@ -405,7 +405,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* bitrate= */ Format.NO_VALUE,
                   selectionFlags,
                   language,
-                  accessibilityChannel));
+                  accessibilityChannel,
+                  /* role= */ null,
+                  /* accessibility= */ null));
           break;
         default:
           // Do nothing.

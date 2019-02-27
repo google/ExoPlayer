@@ -276,6 +276,7 @@ public class DashManifestParser extends DefaultHandler
     ArrayList<SchemeData> drmSchemeDatas = new ArrayList<>();
     ArrayList<Descriptor> inbandEventStreams = new ArrayList<>();
     ArrayList<Descriptor> accessibilityDescriptors = new ArrayList<>();
+    ArrayList<Descriptor> roleDescriptors = new ArrayList<>();
     ArrayList<Descriptor> supplementalProperties = new ArrayList<>();
     List<RepresentationInfo> representationInfos = new ArrayList<>();
     @C.SelectionFlags int selectionFlags = 0;
@@ -300,7 +301,10 @@ public class DashManifestParser extends DefaultHandler
         language = checkLanguageConsistency(language, xpp.getAttributeValue(null, "lang"));
         contentType = checkContentTypeConsistency(contentType, parseContentType(xpp));
       } else if (XmlPullParserUtil.isStartTag(xpp, "Role")) {
-        selectionFlags |= parseRole(xpp);
+        Descriptor descriptor = parseDescriptor(xpp, "Role");
+        selectionFlags |= "urn:mpeg:dash:role:2011".equals(descriptor.schemeIdUri)
+                && "main".equals(descriptor.value) ? C.SELECTION_FLAG_DEFAULT : 0;
+        roleDescriptors.add(descriptor);
       } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "Accessibility")) {
@@ -322,6 +326,7 @@ public class DashManifestParser extends DefaultHandler
                 audioSamplingRate,
                 language,
                 selectionFlags,
+                roleDescriptors,
                 accessibilityDescriptors,
                 segmentBase);
         contentType = checkContentTypeConsistency(contentType,
@@ -509,6 +514,7 @@ public class DashManifestParser extends DefaultHandler
       int adaptationSetAudioSamplingRate,
       String adaptationSetLanguage,
       @C.SelectionFlags int adaptationSetSelectionFlags,
+      List<Descriptor> adaptationSetRoleDescriptors,
       List<Descriptor> adaptationSetAccessibilityDescriptors,
       SegmentBase segmentBase)
       throws XmlPullParserException, IOException {
@@ -573,6 +579,7 @@ public class DashManifestParser extends DefaultHandler
             bandwidth,
             adaptationSetLanguage,
             adaptationSetSelectionFlags,
+            adaptationSetRoleDescriptors,
             adaptationSetAccessibilityDescriptors,
             codecs,
             supplementalProperties);
@@ -594,6 +601,7 @@ public class DashManifestParser extends DefaultHandler
       int bitrate,
       String language,
       @C.SelectionFlags int selectionFlags,
+      List<Descriptor> roleDescriptors,
       List<Descriptor> accessibilityDescriptors,
       String codecs,
       List<Descriptor> supplementalProperties) {
@@ -637,6 +645,10 @@ public class DashManifestParser extends DefaultHandler
         } else {
           accessibilityChannel = Format.NO_VALUE;
         }
+
+        String role = parseRole(roleDescriptors);
+        String accessibility = parseAccessibility(accessibilityDescriptors);
+
         return Format.createTextContainerFormat(
             id,
             label,
@@ -646,7 +658,9 @@ public class DashManifestParser extends DefaultHandler
             bitrate,
             selectionFlags,
             language,
-            accessibilityChannel);
+            accessibilityChannel,
+            role,
+            accessibility);
       }
     }
     return Format.createContainerFormat(
@@ -1264,6 +1278,32 @@ public class DashManifestParser extends DefaultHandler
       }
     }
     return MimeTypes.AUDIO_E_AC3;
+  }
+
+  protected static String parseRole(List<Descriptor> roleDescriptors) {
+    for (int i = 0; i < roleDescriptors.size(); i++) {
+      Descriptor descriptor = roleDescriptors.get(i);
+      if ("urn:mpeg:dash:role:2011".equals(descriptor.schemeIdUri) && descriptor.value != null) {
+        return descriptor.value;
+      }
+    }
+    return null;
+  }
+
+  protected static String parseAccessibility(List<Descriptor> accessibilityDescriptors) {
+    for (int i = 0; i < accessibilityDescriptors.size(); i++) {
+      Descriptor descriptor = accessibilityDescriptors.get(i);
+      if ("urn:mpeg:dash:role:2011".equals(descriptor.schemeIdUri) && descriptor.value != null) {
+        return descriptor.value;
+      }
+
+      if ("urn:tva:metadata:cs:AudioPurposeCS:2007".equals(descriptor.schemeIdUri)) {
+        if ("1".equals(descriptor.value) || "2".equals(descriptor.value)) {
+          return descriptor.value;
+        }
+      }
+    }
+    return null;
   }
 
   protected static float parseFrameRate(XmlPullParser xpp, float defaultValue) {
