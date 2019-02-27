@@ -167,6 +167,16 @@ public final class Format implements Parcelable {
    */
   public final int accessibilityChannel;
 
+  /**
+   * The Role descriptor value.
+   */
+  public final String role;
+
+  /**
+   * The Accessibility descriptor value.
+   */
+  public final String accessibility;
+
   // Lazily initialized hashcode.
   private int hashCode;
 
@@ -234,6 +244,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
+        /* role= */ null,
+        /* accessibility= */ null,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         /* drmInitData= */ null,
@@ -337,6 +349,8 @@ public final class Format implements Parcelable {
         /* selectionFlags= */ 0,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
+        /* role= */ null,
+        /* accessibility= */ null,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
@@ -407,6 +421,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
+        /* role= */ null,
+        /* accessibility= */ null,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         /* drmInitData= */ null,
@@ -511,6 +527,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
+        /* role= */ null,
+        /* accessibility= */ null,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
@@ -557,7 +575,9 @@ public final class Format implements Parcelable {
         bitrate,
         selectionFlags,
         language,
-        /* accessibilityChannel= */ NO_VALUE);
+        /* accessibilityChannel= */ NO_VALUE,
+        /* role= */ null,
+        /* accessibility= */ null);
   }
 
   public static Format createTextContainerFormat(
@@ -569,7 +589,9 @@ public final class Format implements Parcelable {
       int bitrate,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
-      int accessibilityChannel) {
+      int accessibilityChannel,
+      @Nullable String role,
+      @Nullable String accessibility) {
     return new Format(
         id,
         label,
@@ -594,6 +616,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        role,
+        accessibility,
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
         /* drmInitData= */ null,
@@ -706,6 +730,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        /* role= */ null,
+        /* accessibility= */ null,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -747,6 +773,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
+        /* role= */ null,
+        /* accessibility= */ null,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
@@ -808,6 +836,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
+        /* role= */ null,
+        /* accessibility= */ null,
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
         /* drmInitData= */ null,
@@ -840,6 +870,8 @@ public final class Format implements Parcelable {
         /* selectionFlags= */ 0,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
+        /* role= */ null,
+        /* accessibility= */ null,
         subsampleOffsetUs,
         /* initializationData= */ null,
         /* drmInitData= */ null,
@@ -876,6 +908,8 @@ public final class Format implements Parcelable {
         /* selectionFlags= */ 0,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
+        /* role= */ null,
+        /* accessibility= */ null,
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
         drmInitData,
@@ -906,6 +940,8 @@ public final class Format implements Parcelable {
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
       int accessibilityChannel,
+      @Nullable String role,
+      @Nullable String accessibility,
       long subsampleOffsetUs,
       @Nullable List<byte[]> initializationData,
       @Nullable DrmInitData drmInitData,
@@ -934,6 +970,8 @@ public final class Format implements Parcelable {
     this.selectionFlags = selectionFlags;
     this.language = Util.normalizeLanguageCode(language);
     this.accessibilityChannel = accessibilityChannel;
+    this.role = role;
+    this.accessibility = accessibility;
     this.subsampleOffsetUs = subsampleOffsetUs;
     this.initializationData =
         initializationData == null ? Collections.emptyList() : initializationData;
@@ -967,6 +1005,8 @@ public final class Format implements Parcelable {
     selectionFlags = in.readInt();
     language = in.readString();
     accessibilityChannel = in.readInt();
+    role = in.readString();
+    accessibility = in.readString();
     subsampleOffsetUs = in.readLong();
     int initializationDataSize = in.readInt();
     initializationData = new ArrayList<>(initializationDataSize);
@@ -1002,6 +1042,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        role,
+        accessibility,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1033,6 +1075,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        role,
+        accessibility,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1073,6 +1117,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        role,
+        accessibility,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1144,6 +1190,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        role,
+        accessibility,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1175,6 +1223,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        role,
+        accessibility,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1206,6 +1256,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        role,
+        accessibility,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1237,6 +1289,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        role,
+        accessibility,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1268,6 +1322,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        role,
+        accessibility,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1299,6 +1355,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        role,
+        accessibility,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1330,6 +1388,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
+        role,
+        accessibility,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1439,6 +1499,8 @@ public final class Format implements Parcelable {
         && Util.areEqual(label, other.label)
         && Util.areEqual(language, other.language)
         && accessibilityChannel == other.accessibilityChannel
+        && Util.areEqual(role, other.role)
+        && Util.areEqual(accessibility, other.accessibility)
         && Util.areEqual(containerMimeType, other.containerMimeType)
         && Util.areEqual(sampleMimeType, other.sampleMimeType)
         && Util.areEqual(codecs, other.codecs)
@@ -1540,6 +1602,8 @@ public final class Format implements Parcelable {
     dest.writeInt(selectionFlags);
     dest.writeString(language);
     dest.writeInt(accessibilityChannel);
+    dest.writeString(role);
+    dest.writeString(accessibility);
     dest.writeLong(subsampleOffsetUs);
     int initializationDataSize = initializationData.size();
     dest.writeInt(initializationDataSize);
