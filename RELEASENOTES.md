@@ -64,6 +64,9 @@
   ([#5179](https://github.com/google/ExoPlayer/issues/5179)).
 * Fix issue with `TimelineQueueNavigator` not publishing the queue in shuffled
   order when in shuffle mode.
+* Fix issue where not resetting the position for a new `MediaSource` in calls to
+  `ExoPlayer.prepare` causes an `IndexOutOfBoundsException`
+  ([#5520](https://github.com/google/ExoPlayer/issues/5520)).
 
 ### 2.9.6 ###
 
