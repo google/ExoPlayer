@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released) ###
 
+* Add new `ExoPlaybackException` types for remote exceptions and out-of-memory
+  errors.
 * HLS:
   * Prevent unnecessary reloads of initialization segments.
   * Form an adaptive track group out of audio renditions with matching name.

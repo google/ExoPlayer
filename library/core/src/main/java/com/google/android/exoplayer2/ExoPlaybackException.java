@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -31,7 +32,8 @@ public final class ExoPlaybackException extends Exception {
 
   /**
    * The type of source that produced the error. One of {@link #TYPE_SOURCE}, {@link #TYPE_RENDERER}
-   * {@link #TYPE_UNEXPECTED}, {@link #TYPE_REMOTE} or {@link #TYPE_OUT_OF_MEMORY}.
+   * {@link #TYPE_UNEXPECTED}, {@link #TYPE_REMOTE} or {@link #TYPE_OUT_OF_MEMORY}. Note that new
+   * types may be added in the future and error handling should handle unknown type values.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -64,10 +66,7 @@ public final class ExoPlaybackException extends Exception {
   /** The error was an {@link OutOfMemoryError}. */
   public static final int TYPE_OUT_OF_MEMORY = 4;
 
-  /**
-   * The type of the playback failure. One of {@link #TYPE_SOURCE}, {@link #TYPE_RENDERER}, {@link
-   * #TYPE_UNEXPECTED}, {@link #TYPE_REMOTE} and {@link #TYPE_OUT_OF_MEMORY}.
-   */
+  /** The {@link Type} of the playback failure. */
   @Type public final int type;
 
   /**
@@ -104,7 +103,8 @@ public final class ExoPlaybackException extends Exception {
    * @param cause The cause of the failure.
    * @return The created instance.
    */
-  /* package */ static ExoPlaybackException createForUnexpected(RuntimeException cause) {
+  @VisibleForTesting
+  public static ExoPlaybackException createForUnexpected(RuntimeException cause) {
     return new ExoPlaybackException(TYPE_UNEXPECTED, cause, /* rendererIndex= */ C.INDEX_UNSET);
   }
 
@@ -124,7 +124,8 @@ public final class ExoPlaybackException extends Exception {
    * @param cause The cause of the failure.
    * @return The created instance.
    */
-  /* package */ static ExoPlaybackException createForOutOfMemoryError(OutOfMemoryError cause) {
+  @VisibleForTesting
+  public static ExoPlaybackException createForOutOfMemoryError(OutOfMemoryError cause) {
     return new ExoPlaybackException(TYPE_OUT_OF_MEMORY, cause, /* rendererIndex= */ C.INDEX_UNSET);
   }
 
