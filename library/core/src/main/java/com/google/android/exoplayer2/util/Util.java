@@ -162,8 +162,7 @@ public final class Util {
    * @param intent The intent to pass to the called method.
    * @return The result of the called method.
    */
-  // TODO(b/124903498): incompatible types in return.
-  @SuppressWarnings("nullness:return.type.incompatible")
+  @Nullable
   public static ComponentName startForegroundService(Context context, Intent intent) {
     if (Util.SDK_INT >= 26) {
       return context.startForegroundService(intent);

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.metadata.id3;
 
 import android.os.Parcel;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
 /** MPEG location lookup table frame. */
@@ -45,15 +46,13 @@ public final class MlltFrame extends Id3Frame {
   }
 
   /* package */
-  // TODO(b/124903498): incompatible types in assignment.
-  @SuppressWarnings("nullness:assignment.type.incompatible")
   MlltFrame(Parcel in) {
     super(ID);
     this.mpegFramesBetweenReference = in.readInt();
     this.bytesBetweenReference = in.readInt();
     this.millisecondsBetweenReference = in.readInt();
-    this.bytesDeviations = in.createIntArray();
-    this.millisecondsDeviations = in.createIntArray();
+    this.bytesDeviations = Util.castNonNull(in.createIntArray());
+    this.millisecondsDeviations = Util.castNonNull(in.createIntArray());
   }
 
   @Override
