@@ -1125,6 +1125,45 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void testReprepareAndKeepPositionWithNewMediaSource() throws Exception {
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ new Object()));
+    Timeline secondTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ new Object()));
+    MediaSource secondSource = new FakeMediaSource(secondTimeline, /* manifest= */ null);
+    AtomicLong positionAfterReprepare = new AtomicLong();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("testReprepareAndKeepPositionWithNewMediaSource")
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 2000)
+            .prepareSource(secondSource, /* resetPosition= */ false, /* resetState= */ true)
+            .waitForTimelineChanged(secondTimeline)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    positionAfterReprepare.set(player.getCurrentPosition());
+                  }
+                })
+            .play()
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder()
+            .setTimeline(timeline)
+            .setActionSchedule(actionSchedule)
+            .build(context)
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+
+    testRunner.assertTimelinesEqual(timeline, Timeline.EMPTY, secondTimeline);
+    assertThat(positionAfterReprepare.get()).isAtLeast(2000L);
+  }
+
+  @Test
   public void testStopDuringPreparationOverwritesPreparation() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     ActionSchedule actionSchedule =

@@ -436,6 +436,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void prepareInternal(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     pendingPrepareCount++;
+    if (!resetPosition && pendingInitialSeekPosition == null && !playbackInfo.timeline.isEmpty()) {
+      playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period);
+      long windowPositionUs = playbackInfo.positionUs + period.getPositionInWindowUs();
+      pendingInitialSeekPosition =
+          new SeekPosition(Timeline.EMPTY, period.windowIndex, windowPositionUs);
+    }
     resetInternal(
         /* resetRenderers= */ false, /* releaseMediaSource= */ true, resetPosition, resetState);
     loadControl.onPrepared();
