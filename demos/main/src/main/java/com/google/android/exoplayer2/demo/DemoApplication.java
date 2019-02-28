@@ -89,7 +89,8 @@ public class DemoApplication extends Application {
                 ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
                 : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
             : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
-    return new DefaultRenderersFactory(this, extensionRendererMode);
+    return new DefaultRenderersFactory(/* context= */ this)
+        .setExtensionRendererMode(extensionRendererMode);
   }
 
   public DownloadManager getDownloadManager() {
