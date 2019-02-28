@@ -126,6 +126,7 @@ public class PlayerActivity extends AppCompatActivity
   private LinearLayout debugRootView;
   private Button selectTracksButton;
   private TextView debugTextView;
+  private boolean isShowingTrackSelectionDialog;
 
   private DataSource.Factory dataSourceFactory;
   private SimpleExoPlayer player;
@@ -293,9 +294,13 @@ public class PlayerActivity extends AppCompatActivity
 
   @Override
   public void onClick(View view) {
-    if (view == selectTracksButton) {
-      TrackSelectionDialog dialog = TrackSelectionDialog.createForTrackSelector(trackSelector);
-      dialog.show(getSupportFragmentManager(), /* tag= */ null);
+    if (view == selectTracksButton && !isShowingTrackSelectionDialog) {
+      isShowingTrackSelectionDialog = true;
+      TrackSelectionDialog newDialog =
+          TrackSelectionDialog.createForTrackSelector(
+              trackSelector,
+              /* onDismissListener= */ dialog -> isShowingTrackSelectionDialog = false);
+      newDialog.show(getSupportFragmentManager(), /* tag= */ null);
     }
   }
 
