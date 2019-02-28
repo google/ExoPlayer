@@ -102,6 +102,14 @@ public class DemoApplication extends Application {
     return downloadTracker;
   }
 
+  protected synchronized Cache getDownloadCache() {
+    if (downloadCache == null) {
+      File downloadContentDirectory = new File(getDownloadDirectory(), DOWNLOAD_CONTENT_DIRECTORY);
+      downloadCache = new SimpleCache(downloadContentDirectory, new NoOpCacheEvictor());
+    }
+    return downloadCache;
+  }
+
   private synchronized void initDownloadManager() {
     if (downloadManager == null) {
       DefaultDownloadIndex downloadIndex = new DefaultDownloadIndex(new ExoDatabaseProvider(this));
@@ -130,14 +138,6 @@ public class DemoApplication extends Application {
     }
   }
 
-  private synchronized Cache getDownloadCache() {
-    if (downloadCache == null) {
-      File downloadContentDirectory = new File(getDownloadDirectory(), DOWNLOAD_CONTENT_DIRECTORY);
-      downloadCache = new SimpleCache(downloadContentDirectory, new NoOpCacheEvictor());
-    }
-    return downloadCache;
-  }
-
   private File getDownloadDirectory() {
     if (downloadDirectory == null) {
       downloadDirectory = getExternalFilesDir(null);
@@ -148,8 +148,8 @@ public class DemoApplication extends Application {
     return downloadDirectory;
   }
 
-  private static CacheDataSourceFactory buildReadOnlyCacheDataSource(
-      DefaultDataSourceFactory upstreamFactory, Cache cache) {
+  protected static CacheDataSourceFactory buildReadOnlyCacheDataSource(
+      DataSource.Factory upstreamFactory, Cache cache) {
     return new CacheDataSourceFactory(
         cache,
         upstreamFactory,
