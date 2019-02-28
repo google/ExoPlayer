@@ -63,8 +63,11 @@ public final class TrackSelectionDialog extends DialogFragment {
    * the track selector's parameters when tracks are selected.
    *
    * @param trackSelector A {@link DefaultTrackSelector}.
+   * @param onDismissListener {@link DialogInterface.OnDismissListener} called when the dialog is
+   *     dismissed.
    */
-  public static TrackSelectionDialog createForTrackSelector(DefaultTrackSelector trackSelector) {
+  public static TrackSelectionDialog createForTrackSelector(
+      DefaultTrackSelector trackSelector, DialogInterface.OnDismissListener onDismissListener) {
     MappedTrackInfo mappedTrackInfo =
         Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo());
     TrackSelectionDialog trackSelectionDialog = new TrackSelectionDialog();
@@ -94,7 +97,7 @@ public final class TrackSelectionDialog extends DialogFragment {
           }
           trackSelector.setParameters(builder);
         },
-        /* onDismissListener= */ (dialog) -> {});
+        onDismissListener);
     return trackSelectionDialog;
   }
 
