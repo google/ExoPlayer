@@ -338,15 +338,8 @@ public class TrackSelectionView extends LinearLayout {
       overrides.clear();
     }
     if (override == null || !adaptiveSelectionsEnabled) {
-      // Update override for current group.
-      if (((CheckedTextView) view).isChecked()) {
-        overrides.remove(groupIndex);
-        if (overrides.size() == 0) {
-          isDisabled = true;
-        }
-      } else {
-        overrides.put(groupIndex, new SelectionOverride(groupIndex, trackIndex));
-      }
+      // Set new override for current group.
+      overrides.put(groupIndex, new SelectionOverride(groupIndex, trackIndex));
     } else {
       // An existing override is being modified.
       int overrideLength = override.length;
