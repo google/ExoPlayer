@@ -247,7 +247,10 @@ public class DownloadTracker implements DownloadManager.Listener {
     @Override
     public void onPrepared(DownloadHelper helper) {
       if (helper.getPeriodCount() == 0) {
-        onPrepareError(helper, new IOException("No periods found."));
+        Log.d(TAG, "No periods found. Downloading entire stream.");
+        DownloadAction downloadAction = downloadHelper.getDownloadAction(Util.getUtf8Bytes(name));
+        startDownload(downloadAction);
+        downloadHelper.release();
         return;
       }
       mappedTrackInfo = downloadHelper.getMappedTrackInfo(/* periodIndex= */ 0);
