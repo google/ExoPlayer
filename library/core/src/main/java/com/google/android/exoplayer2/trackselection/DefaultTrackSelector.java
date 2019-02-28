@@ -889,8 +889,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /* package */
-    // TODO(b/124903498): incompatible types in assignment.
-    @SuppressWarnings("nullness:assignment.type.incompatible")
     Parameters(Parcel in) {
       super(in);
       // Video
@@ -917,7 +915,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.tunnelingAudioSessionId = in.readInt();
       // Overrides
       this.selectionOverrides = readSelectionOverrides(in);
-      this.rendererDisabledFlags = in.readSparseBooleanArray();
+      this.rendererDisabledFlags = Util.castNonNull(in.readSparseBooleanArray());
       // Deprecated fields.
       this.allowMixedMimeAdaptiveness = allowVideoMixedMimeTypeAdaptiveness;
       this.allowNonSeamlessAdaptiveness = allowVideoNonSeamlessAdaptiveness;

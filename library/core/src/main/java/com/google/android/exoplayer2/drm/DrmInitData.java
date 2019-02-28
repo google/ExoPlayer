@@ -137,11 +137,9 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
   }
 
   /* package */
-  // TODO(b/124903498): incompatible types in assignment.
-  @SuppressWarnings("nullness:assignment.type.incompatible")
   DrmInitData(Parcel in) {
     schemeType = in.readString();
-    schemeDatas = in.createTypedArray(SchemeData.CREATOR);
+    schemeDatas = Util.castNonNull(in.createTypedArray(SchemeData.CREATOR));
     schemeDataCount = schemeDatas.length;
   }
 

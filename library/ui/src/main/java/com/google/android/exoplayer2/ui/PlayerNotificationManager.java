@@ -1265,8 +1265,6 @@ public class PlayerNotificationManager {
 
   private class NotificationBroadcastReceiver extends BroadcastReceiver {
 
-    // TODO(b/124903498): incompatible types in argument.
-    @SuppressWarnings("nullness:argument.type.incompatible")
     @Override
     public void onReceive(Context context, Intent intent) {
       Player player = PlayerNotificationManager.this.player;
@@ -1299,7 +1297,9 @@ public class PlayerNotificationManager {
         controlDispatcher.dispatchStop(player, /* reset= */ true);
       } else if (ACTION_DISMISS.equals(action)) {
         stopNotification(/* dismissedByUser= */ true);
-      } else if (customActionReceiver != null && customActions.containsKey(action)) {
+      } else if (action != null
+          && customActionReceiver != null
+          && customActions.containsKey(action)) {
         customActionReceiver.onCustomAction(player, action, intent);
       }
     }
