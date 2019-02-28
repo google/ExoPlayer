@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A view for making track selections. */
 public class TrackSelectionView extends LinearLayout {
@@ -257,11 +258,7 @@ public class TrackSelectionView extends LinearLayout {
         allowMultipleOverrides && trackGroups.length > 1;
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
       TrackGroup group = trackGroups.get(groupIndex);
-      boolean enableMultipleChoiceForAdaptiveSelections =
-          allowAdaptiveSelections
-              && trackGroups.get(groupIndex).length > 1
-              && mappedTrackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false)
-                  != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
+      boolean enableMultipleChoiceForAdaptiveSelections = shouldEnableAdaptiveSelection(groupIndex);
       trackViews[groupIndex] = new CheckedTextView[group.length];
       for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
         if (trackIndex == 0) {
@@ -334,11 +331,13 @@ public class TrackSelectionView extends LinearLayout {
     int groupIndex = tag.first;
     int trackIndex = tag.second;
     SelectionOverride override = overrides.get(groupIndex);
+    Assertions.checkNotNull(mappedTrackInfo);
+    boolean adaptiveSelectionsEnabled = shouldEnableAdaptiveSelection(groupIndex);
     if (!allowMultipleOverrides && override == null && overrides.size() > 0) {
       // A new override is being started and we don't allow multiple overrides.
       overrides.clear();
     }
-    if (override == null || !allowAdaptiveSelections) {
+    if (override == null || !adaptiveSelectionsEnabled) {
       // Update override for current group.
       if (((CheckedTextView) view).isChecked()) {
         overrides.remove(groupIndex);
@@ -369,6 +368,14 @@ public class TrackSelectionView extends LinearLayout {
         overrides.put(groupIndex, new SelectionOverride(groupIndex, tracks));
       }
     }
+  }
+
+  @RequiresNonNull("mappedTrackInfo")
+  private boolean shouldEnableAdaptiveSelection(int groupIndex) {
+    return allowAdaptiveSelections
+        && trackGroups.get(groupIndex).length > 1
+        && mappedTrackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false)
+            != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
   }
 
   private static int[] getTracksAdding(int[] tracks, int addedTrack) {
