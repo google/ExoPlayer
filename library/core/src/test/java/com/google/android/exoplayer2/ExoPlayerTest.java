@@ -549,12 +549,9 @@ public final class ExoPlayerTest {
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("testSeekProcessedCalledWithIllegalSeekPosition")
             .waitForPlaybackState(Player.STATE_BUFFERING)
-            // Cause an illegal seek exception by seeking to an invalid position while the media
-            // source is still being prepared and the player doesn't immediately know it will fail.
-            // Because the media source prepares immediately, the exception will be thrown when the
-            // player processed the seek.
+            // The illegal seek position will end playback.
             .seek(/* windowIndex= */ 100, /* positionMs= */ 0)
-            .waitForPlaybackState(Player.STATE_IDLE)
+            .waitForPlaybackState(Player.STATE_ENDED)
             .build();
     final boolean[] onSeekProcessedCalled = new boolean[1];
     EventListener listener =
@@ -566,13 +563,7 @@ public final class ExoPlayerTest {
         };
     ExoPlayerTestRunner testRunner =
         new Builder().setActionSchedule(actionSchedule).setEventListener(listener).build(context);
-    try {
-      testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
-      fail();
-    } catch (ExoPlaybackException e) {
-      // Expected exception.
-      assertThat(e.getUnexpectedException()).isInstanceOf(IllegalSeekPositionException.class);
-    }
+    testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
     assertThat(onSeekProcessedCalled[0]).isTrue();
   }
 
@@ -1295,59 +1286,51 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void testPlaybackErrorDuringSourceInfoRefreshStillUpdatesTimeline() throws Exception {
+  public void testInvalidSeekPositionAfterSourceInfoRefreshStillUpdatesTimeline() throws Exception {
     final Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     final FakeMediaSource mediaSource =
         new FakeMediaSource(/* timeline= */ null, /* manifest= */ null);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder("testPlaybackErrorDuringSourceInfoRefreshStillUpdatesTimeline")
+        new ActionSchedule.Builder("testInvalidSeekPositionSourceInfoRefreshStillUpdatesTimeline")
             .waitForPlaybackState(Player.STATE_BUFFERING)
-            // Cause an internal exception by seeking to an invalid position while the media source
-            // is still being prepared. The error will be thrown while the player handles the new
-            // source info.
+            // Seeking to an invalid position will end playback.
             .seek(/* windowIndex= */ 100, /* positionMs= */ 0)
             .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline, /* newManifest= */ null))
-            .waitForPlaybackState(Player.STATE_IDLE)
+            .waitForPlaybackState(Player.STATE_ENDED)
             .build();
     ExoPlayerTestRunner testRunner =
         new ExoPlayerTestRunner.Builder()
             .setMediaSource(mediaSource)
             .setActionSchedule(actionSchedule)
             .build(context);
-    try {
-      testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
-      fail();
-    } catch (ExoPlaybackException e) {
-      // Expected exception.
-      assertThat(e.getUnexpectedException()).isInstanceOf(IllegalSeekPositionException.class);
-    }
+    testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
+
     testRunner.assertTimelinesEqual(timeline);
     testRunner.assertTimelineChangeReasonsEqual(Player.TIMELINE_CHANGE_REASON_PREPARED);
   }
 
   @Test
-  public void testPlaybackErrorDuringSourceInfoRefreshWithShuffleModeEnabledUsesCorrectFirstPeriod()
-      throws Exception {
+  public void
+      testInvalidSeekPositionAfterSourceInfoRefreshWithShuffleModeEnabledUsesCorrectFirstPeriod()
+          throws Exception {
     FakeMediaSource mediaSource =
         new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), /* manifest= */ null);
     ConcatenatingMediaSource concatenatingMediaSource =
         new ConcatenatingMediaSource(
             /* isAtomic= */ false, new FakeShuffleOrder(0), mediaSource, mediaSource);
-    AtomicInteger windowIndexAfterError = new AtomicInteger();
+    AtomicInteger windowIndexAfterUpdate = new AtomicInteger();
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder("testPlaybackErrorDuringSourceInfoRefreshUsesCorrectFirstPeriod")
+        new ActionSchedule.Builder("testInvalidSeekPositionSourceInfoRefreshUsesCorrectFirstPeriod")
             .setShuffleModeEnabled(true)
             .waitForPlaybackState(Player.STATE_BUFFERING)
-            // Cause an internal exception by seeking to an invalid position while the media source
-            // is still being prepared. The error will be thrown while the player handles the new
-            // source info.
+            // Seeking to an invalid position will end playback.
             .seek(/* windowIndex= */ 100, /* positionMs= */ 0)
-            .waitForPlaybackState(Player.STATE_IDLE)
+            .waitForPlaybackState(Player.STATE_ENDED)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
                   public void run(SimpleExoPlayer player) {
-                    windowIndexAfterError.set(player.getCurrentWindowIndex());
+                    windowIndexAfterUpdate.set(player.getCurrentWindowIndex());
                   }
                 })
             .build();
@@ -1356,14 +1339,9 @@ public final class ExoPlayerTest {
             .setMediaSource(concatenatingMediaSource)
             .setActionSchedule(actionSchedule)
             .build(context);
-    try {
-      testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
-      fail();
-    } catch (ExoPlaybackException e) {
-      // Expected exception.
-      assertThat(e.getUnexpectedException()).isInstanceOf(IllegalSeekPositionException.class);
-    }
-    assertThat(windowIndexAfterError.get()).isEqualTo(1);
+    testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(windowIndexAfterUpdate.get()).isEqualTo(1);
   }
 
   @Test
