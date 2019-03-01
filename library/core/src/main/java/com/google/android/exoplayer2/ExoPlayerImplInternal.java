@@ -1268,20 +1268,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       playbackInfoUpdate.incrementPendingOperationAcks(pendingPrepareCount);
       pendingPrepareCount = 0;
       if (pendingInitialSeekPosition != null) {
-        Pair<Object, Long> periodPosition;
-        try {
-          periodPosition =
-              resolveSeekPosition(pendingInitialSeekPosition, /* trySubsequentPeriods= */ true);
-        } catch (IllegalSeekPositionException e) {
-          MediaPeriodId firstMediaPeriodId =
-              playbackInfo.getDummyFirstMediaPeriodId(shuffleModeEnabled, window);
-          playbackInfo =
-              playbackInfo.resetToNewPosition(
-                  firstMediaPeriodId,
-                  /* startPositionUs= */ C.TIME_UNSET,
-                  /* contentPositionUs= */ C.TIME_UNSET);
-          throw e;
-        }
+        Pair<Object, Long> periodPosition =
+            resolveSeekPosition(pendingInitialSeekPosition, /* trySubsequentPeriods= */ true);
         pendingInitialSeekPosition = null;
         if (periodPosition == null) {
           // The seek position was valid for the timeline that it was performed into, but the
@@ -1481,8 +1469,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
           seekPosition.windowPositionUs);
     } catch (IndexOutOfBoundsException e) {
       // The window index of the seek position was outside the bounds of the timeline.
-      throw new IllegalSeekPositionException(
-          timeline, seekPosition.windowIndex, C.usToMs(seekPosition.windowPositionUs));
+      return null;
     }
     if (timeline == seekTimeline) {
       // Our internal timeline is the seek timeline, so the mapped position is correct.
