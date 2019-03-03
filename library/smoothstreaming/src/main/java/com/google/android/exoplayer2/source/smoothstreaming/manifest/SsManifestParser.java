@@ -681,7 +681,9 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
                 height,
                 /* frameRate= */ Format.NO_VALUE,
                 codecSpecificData,
-                /* selectionFlags= */ 0);
+                /* selectionFlags= */ 0,
+                /* role= */ C.ROLE_UNSET,
+                /* accessibility= */ C.ACCESSIBILITY_UNSET);
       } else if (type == C.TRACK_TYPE_AUDIO) {
         sampleMimeType = sampleMimeType == null ? MimeTypes.AUDIO_AAC : sampleMimeType;
         int channels = parseRequiredInt(parser, KEY_CHANNELS);
@@ -705,7 +707,9 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
                 samplingRate,
                 codecSpecificData,
                 /* selectionFlags= */ 0,
-                language);
+                language,
+                /* role= */ C.ROLE_UNSET,
+                /* accessibility= */ C.ACCESSIBILITY_UNSET);
       } else if (type == C.TRACK_TYPE_TEXT) {
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
         format =

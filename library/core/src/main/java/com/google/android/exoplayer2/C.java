@@ -977,6 +977,54 @@ public final class C {
   public static final int NETWORK_TYPE_OTHER = 8;
 
   /**
+   * Adaptation set's role descriptor value (ISO 23009-1)
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    ROLE_UNSET,
+    ROLE_MAIN,
+    ROLE_ALTERNATE,
+    ROLE_SUPPLEMENTARY,
+    ROLE_COMMENTARY,
+    ROLE_DUB,
+    ROLE_EMERGENCY,
+    ROLE_CAPTION,
+    ROLE_SIGN
+  })
+  public @interface Role {}
+
+  public static final int ROLE_UNSET = -1;
+  public static final int ROLE_MAIN = 0;
+  public static final int ROLE_ALTERNATE = 1;
+  public static final int ROLE_SUPPLEMENTARY = 2;
+  public static final int ROLE_COMMENTARY = 3;
+  public static final int ROLE_DUB = 4;
+  public static final int ROLE_EMERGENCY = 5;
+  public static final int ROLE_CAPTION = 6;
+  public static final int ROLE_SIGN = 7;
+
+  /**
+   * Adaptation set's accessibility descriptor value (ISO 23009-1)
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    ACCESSIBILITY_UNSET,
+    ACCESSIBILITY_ENHANCED_AUDIO_INTELLIGIBILITY,
+    ACCESSIBILITY_DESCRIPTION,
+    ACCESSIBILITY_CAPTION,
+    ACCESSIBILITY_SIGN
+  })
+  public @interface Accessibility {}
+
+  public static final int ACCESSIBILITY_UNSET = -1;
+  public static final int ACCESSIBILITY_ENHANCED_AUDIO_INTELLIGIBILITY = 1;
+  public static final int ACCESSIBILITY_DESCRIPTION = 2;
+  public static final int ACCESSIBILITY_CAPTION = 3;
+  public static final int ACCESSIBILITY_SIGN = 4;
+
+  /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving
    * {@link #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.
    *
