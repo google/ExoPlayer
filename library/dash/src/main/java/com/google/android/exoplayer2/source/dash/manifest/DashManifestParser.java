@@ -302,8 +302,7 @@ public class DashManifestParser extends DefaultHandler
         contentType = checkContentTypeConsistency(contentType, parseContentType(xpp));
       } else if (XmlPullParserUtil.isStartTag(xpp, "Role")) {
         Descriptor descriptor = parseDescriptor(xpp, "Role");
-        selectionFlags |= "urn:mpeg:dash:role:2011".equals(descriptor.schemeIdUri)
-                && "main".equals(descriptor.value) ? C.SELECTION_FLAG_DEFAULT : 0;
+        selectionFlags |= parseSelectionFlags(descriptor);
         roleDescriptors.add(descriptor);
       } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
@@ -589,6 +588,8 @@ public class DashManifestParser extends DefaultHandler
       List<Descriptor> supplementalProperties) {
     String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
     if (sampleMimeType != null) {
+      int role = parseRole(roleDescriptors);
+      int accessibility = parseAccessibility(accessibilityDescriptors);
       if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType)) {
         sampleMimeType = parseEac3SupplementalProperties(supplementalProperties);
       }
@@ -604,7 +605,9 @@ public class DashManifestParser extends DefaultHandler
             height,
             frameRate,
             /* initializationData= */ null,
-            selectionFlags);
+            selectionFlags,
+            role,
+            accessibility);
       } else if (MimeTypes.isAudio(sampleMimeType)) {
         return Format.createAudioContainerFormat(
             id,
@@ -617,7 +620,9 @@ public class DashManifestParser extends DefaultHandler
             audioSamplingRate,
             /* initializationData= */ null,
             selectionFlags,
-            language);
+            language,
+            role,
+            accessibility);
       } else if (mimeTypeIsRawText(sampleMimeType)) {
         int accessibilityChannel;
         if (MimeTypes.APPLICATION_CEA608.equals(sampleMimeType)) {
@@ -627,10 +632,6 @@ public class DashManifestParser extends DefaultHandler
         } else {
           accessibilityChannel = Format.NO_VALUE;
         }
-
-        String role = parseRole(roleDescriptors);
-        String accessibility = parseAccessibility(accessibilityDescriptors);
-
         return Format.createTextContainerFormat(
             id,
             label,
@@ -1060,6 +1061,77 @@ public class DashManifestParser extends DefaultHandler
     return audioChannels;
   }
 
+  // Selection flag parsing.
+
+  protected int parseSelectionFlags(Descriptor roleDescriptor) {
+    return "urn:mpeg:dash:role:2011".equals(roleDescriptor.schemeIdUri)
+      && "main".equals(roleDescriptor.value) ? C.SELECTION_FLAG_DEFAULT : 0;
+  }
+
+  // Role and Accessibility parsing.
+
+  protected @C.Role int parseRole(List<Descriptor> roleDescriptors) {
+    for (int i = 0; i < roleDescriptors.size(); i++) {
+      Descriptor descriptor = roleDescriptors.get(i);
+      if ("urn:mpeg:dash:role:2011".equalsIgnoreCase(descriptor.schemeIdUri) && descriptor.value != null) {
+        switch (descriptor.value) {
+          case "main":
+            return C.ROLE_MAIN;
+          case "alternate":
+            return C.ROLE_ALTERNATE;
+          case "supplementary":
+            return C.ROLE_SUPPLEMENTARY;
+          case "commentary":
+            return C.ROLE_COMMENTARY;
+          case "dub":
+            return C.ROLE_DUB;
+          case "emergency":
+            return C.ROLE_EMERGENCY;
+          case "caption":
+            return C.ROLE_CAPTION;
+          case "sign":
+            return C.ROLE_SIGN;
+          default:
+            return C.ROLE_UNSET;
+        }
+      }
+    }
+    return C.ROLE_UNSET;
+  }
+
+  protected @C.Accessibility int parseAccessibility(List<Descriptor> accessibilityDescriptors) {
+    for (int i = 0; i < accessibilityDescriptors.size(); i++) {
+      Descriptor descriptor = accessibilityDescriptors.get(i);
+      if ("urn:mpeg:dash:role:2011".equalsIgnoreCase(descriptor.schemeIdUri) && descriptor.value != null) {
+        switch (descriptor.value){
+          case "description":
+            return C.ACCESSIBILITY_DESCRIPTION;
+          case "enhanced-audio-intelligibility":
+            return C.ACCESSIBILITY_ENHANCED_AUDIO_INTELLIGIBILITY;
+          case "caption":
+            return C.ACCESSIBILITY_CAPTION;
+          case "sign":
+            return C.ACCESSIBILITY_SIGN;
+          default:
+            return C.ACCESSIBILITY_UNSET;
+        }
+      }
+
+      if ("urn:tva:metadata:cs:AudioPurposeCS:2007".equalsIgnoreCase(descriptor.schemeIdUri) &&
+              descriptor.value != null) {
+        switch (descriptor.value){
+          case "1":
+            return C.ACCESSIBILITY_ENHANCED_AUDIO_INTELLIGIBILITY;
+          case "2":
+            return C.ACCESSIBILITY_CAPTION;
+          default:
+            return C.ACCESSIBILITY_UNSET;
+        }
+      }
+    }
+    return C.ACCESSIBILITY_UNSET;
+  }
+
   // Utility methods.
 
   /**
@@ -1260,32 +1332,6 @@ public class DashManifestParser extends DefaultHandler
       }
     }
     return MimeTypes.AUDIO_E_AC3;
-  }
-
-  protected static String parseRole(List<Descriptor> roleDescriptors) {
-    for (int i = 0; i < roleDescriptors.size(); i++) {
-      Descriptor descriptor = roleDescriptors.get(i);
-      if ("urn:mpeg:dash:role:2011".equals(descriptor.schemeIdUri) && descriptor.value != null) {
-        return descriptor.value;
-      }
-    }
-    return null;
-  }
-
-  protected static String parseAccessibility(List<Descriptor> accessibilityDescriptors) {
-    for (int i = 0; i < accessibilityDescriptors.size(); i++) {
-      Descriptor descriptor = accessibilityDescriptors.get(i);
-      if ("urn:mpeg:dash:role:2011".equals(descriptor.schemeIdUri) && descriptor.value != null) {
-        return descriptor.value;
-      }
-
-      if ("urn:tva:metadata:cs:AudioPurposeCS:2007".equals(descriptor.schemeIdUri)) {
-        if ("1".equals(descriptor.value) || "2".equals(descriptor.value)) {
-          return descriptor.value;
-        }
-      }
-    }
-    return null;
   }
 
   protected static float parseFrameRate(XmlPullParser xpp, float defaultValue) {

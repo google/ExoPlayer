@@ -48,7 +48,18 @@ public final class Format implements Parcelable {
   public final @Nullable String id;
   /** The human readable label, or null if unknown or not applicable. */
   public final @Nullable String label;
-
+  /** Track selection flags. **/
+  @C.SelectionFlags
+  public final int selectionFlags;
+  /** Track role descriptor value, or {@link C#ROLE_UNSET} if unknown or not applicable. **/
+  @C.Role
+  public final int role;
+  /**
+   * Track accessibility descriptor value, or {@link C#ACCESSIBILITY_UNSET} if unknown
+   * or not applicable.
+   */
+  @C.Accessibility
+  public final int accessibility;
   /**
    * The average bandwidth in bits per second, or {@link #NO_VALUE} if unknown or not applicable.
    */
@@ -153,12 +164,6 @@ public final class Format implements Parcelable {
 
   // Audio and text specific.
 
-  /**
-   * Track selection flags.
-   */
-  @C.SelectionFlags
-  public final int selectionFlags;
-
   /** The language as ISO 639-2/T three-letter code, or null if unknown or not applicable. */
   public final @Nullable String language;
 
@@ -166,16 +171,6 @@ public final class Format implements Parcelable {
    * The Accessibility channel, or {@link #NO_VALUE} if not known or applicable.
    */
   public final int accessibilityChannel;
-
-  /**
-   * The Role descriptor value.
-   */
-  public final String role;
-
-  /**
-   * The Accessibility descriptor value.
-   */
-  public final String accessibility;
 
   // Lazily initialized hashcode.
   private int hashCode;
@@ -193,7 +188,9 @@ public final class Format implements Parcelable {
       int height,
       float frameRate,
       @Nullable List<byte[]> initializationData,
-      @C.SelectionFlags int selectionFlags) {
+      @C.SelectionFlags int selectionFlags,
+      @C.Role int role,
+      @C.Accessibility int accessibility) {
     return createVideoContainerFormat(
         id,
         /* label= */ null,
@@ -205,7 +202,9 @@ public final class Format implements Parcelable {
         height,
         frameRate,
         initializationData,
-        selectionFlags);
+        selectionFlags,
+        role,
+        accessibility);
   }
 
   public static Format createVideoContainerFormat(
@@ -219,7 +218,9 @@ public final class Format implements Parcelable {
       int height,
       float frameRate,
       @Nullable List<byte[]> initializationData,
-      @C.SelectionFlags int selectionFlags) {
+      @C.SelectionFlags int selectionFlags,
+      @C.Role int role,
+      @C.Accessibility int accessibility) {
     return new Format(
         id,
         label,
@@ -244,8 +245,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
-        /* role= */ null,
-        /* accessibility= */ null,
+        role,
+        accessibility,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         /* drmInitData= */ null,
@@ -349,8 +350,8 @@ public final class Format implements Parcelable {
         /* selectionFlags= */ 0,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
-        /* role= */ null,
-        /* accessibility= */ null,
+        /* role= */ C.ROLE_UNSET,
+        /* accessibility= */ C.ACCESSIBILITY_UNSET,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
@@ -370,7 +371,9 @@ public final class Format implements Parcelable {
       int sampleRate,
       @Nullable List<byte[]> initializationData,
       @C.SelectionFlags int selectionFlags,
-      @Nullable String language) {
+      @Nullable String language,
+      @C.Role int role,
+      @C.Accessibility int accessibility) {
     return createAudioContainerFormat(
         id,
         /* label= */ null,
@@ -382,7 +385,9 @@ public final class Format implements Parcelable {
         sampleRate,
         initializationData,
         selectionFlags,
-        language);
+        language,
+        role,
+        accessibility);
   }
 
   public static Format createAudioContainerFormat(
@@ -396,7 +401,9 @@ public final class Format implements Parcelable {
       int sampleRate,
       @Nullable List<byte[]> initializationData,
       @C.SelectionFlags int selectionFlags,
-      @Nullable String language) {
+      @Nullable String language,
+      @C.Role int role,
+      @C.Accessibility int accessibility) {
     return new Format(
         id,
         label,
@@ -421,8 +428,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
-        /* role= */ null,
-        /* accessibility= */ null,
+        role,
+        accessibility,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         /* drmInitData= */ null,
@@ -527,8 +534,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
-        /* role= */ null,
-        /* accessibility= */ null,
+        /* role= */ C.ROLE_UNSET,
+        /* accessibility= */ C.ACCESSIBILITY_UNSET,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
@@ -576,8 +583,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
-        /* role= */ null,
-        /* accessibility= */ null);
+        /* role= */ C.ROLE_UNSET,
+        /* accessibility= */ C.ACCESSIBILITY_UNSET);
   }
 
   public static Format createTextContainerFormat(
@@ -590,8 +597,8 @@ public final class Format implements Parcelable {
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
       int accessibilityChannel,
-      @Nullable String role,
-      @Nullable String accessibility) {
+      @C.Role int role,
+      @C.Accessibility int accessibility) {
     return new Format(
         id,
         label,
@@ -730,8 +737,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         accessibilityChannel,
-        /* role= */ null,
-        /* accessibility= */ null,
+        /* role= */ C.ROLE_UNSET,
+        /* accessibility= */ C.ACCESSIBILITY_UNSET,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -773,8 +780,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
-        /* role= */ null,
-        /* accessibility= */ null,
+        /* role= */ C.ROLE_UNSET,
+        /* accessibility= */ C.ACCESSIBILITY_UNSET,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
@@ -836,8 +843,8 @@ public final class Format implements Parcelable {
         selectionFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
-        /* role= */ null,
-        /* accessibility= */ null,
+        /* role= */ C.ROLE_UNSET,
+        /* accessibility= */ C.ACCESSIBILITY_UNSET,
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
         /* drmInitData= */ null,
@@ -870,8 +877,8 @@ public final class Format implements Parcelable {
         /* selectionFlags= */ 0,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
-        /* role= */ null,
-        /* accessibility= */ null,
+        /* role= */ C.ROLE_UNSET,
+        /* accessibility= */ C.ACCESSIBILITY_UNSET,
         subsampleOffsetUs,
         /* initializationData= */ null,
         /* drmInitData= */ null,
@@ -908,8 +915,8 @@ public final class Format implements Parcelable {
         /* selectionFlags= */ 0,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
-        /* role= */ null,
-        /* accessibility= */ null,
+        /* role= */ C.ROLE_UNSET,
+        /* accessibility= */ C.ACCESSIBILITY_UNSET,
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
         drmInitData,
@@ -940,8 +947,8 @@ public final class Format implements Parcelable {
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
       int accessibilityChannel,
-      @Nullable String role,
-      @Nullable String accessibility,
+      @C.Role int role,
+      @C.Accessibility int accessibility,
       long subsampleOffsetUs,
       @Nullable List<byte[]> initializationData,
       @Nullable DrmInitData drmInitData,
@@ -1005,8 +1012,8 @@ public final class Format implements Parcelable {
     selectionFlags = in.readInt();
     language = in.readString();
     accessibilityChannel = in.readInt();
-    role = in.readString();
-    accessibility = in.readString();
+    role = in.readInt();
+    accessibility = in.readInt();
     subsampleOffsetUs = in.readLong();
     int initializationDataSize = in.readInt();
     initializationData = new ArrayList<>(initializationDataSize);
@@ -1602,8 +1609,8 @@ public final class Format implements Parcelable {
     dest.writeInt(selectionFlags);
     dest.writeString(language);
     dest.writeInt(accessibilityChannel);
-    dest.writeString(role);
-    dest.writeString(accessibility);
+    dest.writeInt(role);
+    dest.writeInt(accessibility);
     dest.writeLong(subsampleOffsetUs);
     int initializationDataSize = initializationData.size();
     dest.writeInt(initializationDataSize);
