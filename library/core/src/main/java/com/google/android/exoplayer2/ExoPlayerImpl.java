@@ -661,6 +661,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
       maskingPeriodIndex = getCurrentPeriodIndex();
       maskingWindowPositionMs = getCurrentPosition();
     }
+    // Also reset period-based PlaybackInfo positions if resetting the state.
+    resetPosition = resetPosition || resetState;
     MediaPeriodId mediaPeriodId =
         resetPosition
             ? playbackInfo.getDummyFirstMediaPeriodId(shuffleModeEnabled, window)
