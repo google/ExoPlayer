@@ -635,22 +635,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       renderToEndOfStream();
       return;
     }
-    if (inputFormat == null) {
-      // We don't have a format yet, so try and read one.
-      flagsOnlyBuffer.clear();
-      int result = readSource(formatHolder, flagsOnlyBuffer, true);
-      if (result == C.RESULT_FORMAT_READ) {
-        onInputFormatChanged(formatHolder.format);
-      } else if (result == C.RESULT_BUFFER_READ) {
-        // End of stream read having not read a format.
-        Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
-        inputStreamEnded = true;
-        processEndOfStream();
-        return;
-      } else {
+    if (inputFormat == null && !readToFlagsOnlyBuffer(/* requireFormat= */ true)) {
         // We still don't have a format and can't make progress without one.
         return;
-      }
     }
     // We have a format.
     maybeInitCodec();
@@ -666,15 +653,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       // updated, and so that we have the most recent format should the codec be initialized. We may
       // also reach the end of the stream. Note that readSource will not read a sample into a
       // flags-only buffer.
-      flagsOnlyBuffer.clear();
-      int result = readSource(formatHolder, flagsOnlyBuffer, false);
-      if (result == C.RESULT_FORMAT_READ) {
-        onInputFormatChanged(formatHolder.format);
-      } else if (result == C.RESULT_BUFFER_READ) {
-        Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
-        inputStreamEnded = true;
-        processEndOfStream();
-      }
+      readToFlagsOnlyBuffer(/* requireFormat= */ false);
     }
     decoderCounters.ensureUpdated();
   }
@@ -734,6 +713,21 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // guarantee that it's processed.
     codecReconfigurationState =
         codecReconfigured ? RECONFIGURATION_STATE_WRITE_PENDING : RECONFIGURATION_STATE_NONE;
+    return false;
+  }
+
+  /** Reads into {@link #flagsOnlyBuffer} and returns whether a format was read. */
+  private boolean readToFlagsOnlyBuffer(boolean requireFormat) throws ExoPlaybackException {
+    flagsOnlyBuffer.clear();
+    int result = readSource(formatHolder, flagsOnlyBuffer, requireFormat);
+    if (result == C.RESULT_FORMAT_READ) {
+      onInputFormatChanged(formatHolder.format);
+      return true;
+    } else if (result == C.RESULT_BUFFER_READ) {
+      Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
+      inputStreamEnded = true;
+      processEndOfStream();
+    }
     return false;
   }
 
