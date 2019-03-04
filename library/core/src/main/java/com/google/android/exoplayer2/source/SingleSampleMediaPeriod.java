@@ -251,7 +251,7 @@ import java.util.Arrays;
       int errorCount) {
     long retryDelay =
         loadErrorHandlingPolicy.getRetryDelayMsFor(
-            C.DATA_TYPE_MEDIA, durationUs, error, errorCount);
+            C.DATA_TYPE_MEDIA, loadDurationMs, error, errorCount);
     boolean errorCanBePropagated =
         retryDelay == C.TIME_UNSET
             || errorCount
