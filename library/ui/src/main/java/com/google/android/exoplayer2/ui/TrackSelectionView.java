@@ -254,8 +254,7 @@ public class TrackSelectionView extends LinearLayout {
 
     // Add per-track views.
     trackViews = new CheckedTextView[trackGroups.length][];
-    boolean enableMultipleChoiceForMultipleOverrides =
-        allowMultipleOverrides && trackGroups.length > 1;
+    boolean enableMultipleChoiceForMultipleOverrides = shouldEnableMultiGroupSelection();
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
       TrackGroup group = trackGroups.get(groupIndex);
       boolean enableMultipleChoiceForAdaptiveSelections = shouldEnableAdaptiveSelection(groupIndex);
@@ -332,19 +331,21 @@ public class TrackSelectionView extends LinearLayout {
     int trackIndex = tag.second;
     SelectionOverride override = overrides.get(groupIndex);
     Assertions.checkNotNull(mappedTrackInfo);
-    boolean adaptiveSelectionsEnabled = shouldEnableAdaptiveSelection(groupIndex);
-    if (!allowMultipleOverrides && override == null && overrides.size() > 0) {
-      // A new override is being started and we don't allow multiple overrides.
-      overrides.clear();
-    }
-    if (override == null || !adaptiveSelectionsEnabled) {
-      // Set new override for current group.
+    if (override == null) {
+      // Start new override.
+      if (!allowMultipleOverrides && overrides.size() > 0) {
+        // Removed other overrides if we don't allow multiple overrides.
+        overrides.clear();
+      }
       overrides.put(groupIndex, new SelectionOverride(groupIndex, trackIndex));
     } else {
       // An existing override is being modified.
       int overrideLength = override.length;
       int[] overrideTracks = override.tracks;
-      if (((CheckedTextView) view).isChecked()) {
+      boolean isCurrentlySelected = ((CheckedTextView) view).isChecked();
+      boolean isAdaptiveAllowed = shouldEnableAdaptiveSelection(groupIndex);
+      boolean isUsingCheckBox = isAdaptiveAllowed || shouldEnableMultiGroupSelection();
+      if (isCurrentlySelected && isUsingCheckBox) {
         // Remove the track from the override.
         if (overrideLength == 1) {
           // The last track is being removed, so the override becomes empty.
@@ -356,9 +357,15 @@ public class TrackSelectionView extends LinearLayout {
           int[] tracks = getTracksRemoving(overrideTracks, trackIndex);
           overrides.put(groupIndex, new SelectionOverride(groupIndex, tracks));
         }
-      } else {
-        int[] tracks = getTracksAdding(overrideTracks, trackIndex);
-        overrides.put(groupIndex, new SelectionOverride(groupIndex, tracks));
+      } else if (!isCurrentlySelected) {
+        if (isAdaptiveAllowed) {
+          // Add new track to adaptive override.
+          int[] tracks = getTracksAdding(overrideTracks, trackIndex);
+          overrides.put(groupIndex, new SelectionOverride(groupIndex, tracks));
+        } else {
+          // Replace existing track in override.
+          overrides.put(groupIndex, new SelectionOverride(groupIndex, trackIndex));
+        }
       }
     }
   }
@@ -369,6 +376,10 @@ public class TrackSelectionView extends LinearLayout {
         && trackGroups.get(groupIndex).length > 1
         && mappedTrackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false)
             != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
+  }
+
+  private boolean shouldEnableMultiGroupSelection() {
+    return allowMultipleOverrides && trackGroups.length > 1;
   }
 
   private static int[] getTracksAdding(int[] tracks, int addedTrack) {
