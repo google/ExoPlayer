@@ -239,6 +239,9 @@ public class DownloadTracker implements DownloadManager.Listener {
 
     public void release() {
       downloadHelper.release();
+      if (trackSelectionDialog != null) {
+        trackSelectionDialog.dismiss();
+      }
       startDownloadDialogHelper = null;
     }
 
@@ -318,7 +321,8 @@ public class DownloadTracker implements DownloadManager.Listener {
 
     @Override
     public void onDismiss(DialogInterface dialogInterface) {
-      release();
+      trackSelectionDialog = null;
+      downloadHelper.release();
     }
   }
 }

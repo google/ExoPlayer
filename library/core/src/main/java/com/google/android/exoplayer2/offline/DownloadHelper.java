@@ -366,8 +366,7 @@ public final class DownloadHelper {
   public void prepare(Callback callback) {
     Assertions.checkState(this.callback == null);
     this.callback = callback;
-    Looper myLooper = Looper.myLooper();
-    callbackHandler = new Handler(myLooper != null ? myLooper : Looper.getMainLooper());
+    callbackHandler = new Handler(Util.getLooper());
     if (mediaSource != null) {
       mediaPreparer = new MediaPreparer(mediaSource, /* downloadHelper= */ this);
     } else {
@@ -745,23 +744,32 @@ public final class DownloadHelper {
     private static final int MESSAGE_PREPARE_SOURCE = 0;
     private static final int MESSAGE_CHECK_FOR_FAILURE = 1;
     private static final int MESSAGE_CONTINUE_LOADING = 2;
+    private static final int MESSAGE_RELEASE = 3;
+
+    private static final int DOWNLOAD_HELPER_CALLBACK_MESSAGE_PREPARED = 0;
+    private static final int DOWNLOAD_HELPER_CALLBACK_MESSAGE_FAILED = 1;
 
     private final MediaSource mediaSource;
     private final DownloadHelper downloadHelper;
     private final Allocator allocator;
     private final HandlerThread mediaSourceThread;
     private final Handler mediaSourceHandler;
+    private final Handler downloadHelperHandler;
+    private final ArrayList<MediaPeriod> pendingMediaPeriods;
 
     @Nullable public Object manifest;
     public @MonotonicNonNull Timeline timeline;
     public MediaPeriod @MonotonicNonNull [] mediaPeriods;
 
-    private final ArrayList<MediaPeriod> pendingMediaPeriods;
+    private boolean released;
 
     public MediaPreparer(MediaSource mediaSource, DownloadHelper downloadHelper) {
       this.mediaSource = mediaSource;
       this.downloadHelper = downloadHelper;
       allocator = new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE);
+      @SuppressWarnings("methodref.receiver.bound.invalid")
+      Handler downloadThreadHandler = Util.createHandler(this::handleDownloadHelperCallbackMessage);
+      this.downloadHelperHandler = downloadThreadHandler;
       mediaSourceThread = new HandlerThread("DownloadHelper");
       mediaSourceThread.start();
       mediaSourceHandler = Util.createHandler(mediaSourceThread.getLooper(), /* callback= */ this);
@@ -770,13 +778,11 @@ public final class DownloadHelper {
     }
 
     public void release() {
-      if (mediaPeriods != null) {
-        for (MediaPeriod mediaPeriod : mediaPeriods) {
-          mediaSource.releasePeriod(mediaPeriod);
-        }
+      if (released) {
+        return;
       }
-      mediaSource.releaseSource(this);
-      mediaSourceThread.quit();
+      released = true;
+      mediaSourceHandler.sendEmptyMessage(MESSAGE_RELEASE);
     }
 
     // Handler.Callback
@@ -800,7 +806,9 @@ public final class DownloadHelper {
             mediaSourceHandler.sendEmptyMessageDelayed(
                 MESSAGE_CHECK_FOR_FAILURE, /* delayMillis= */ 100);
           } catch (IOException e) {
-            downloadHelper.onMediaPreparationFailed(e);
+            downloadHelperHandler
+                .obtainMessage(DOWNLOAD_HELPER_CALLBACK_MESSAGE_FAILED, /* obj= */ e)
+                .sendToTarget();
           }
           return true;
         case MESSAGE_CONTINUE_LOADING:
@@ -808,6 +816,16 @@ public final class DownloadHelper {
           if (pendingMediaPeriods.contains(mediaPeriod)) {
             mediaPeriod.continueLoading(/* positionUs= */ 0);
           }
+          return true;
+        case MESSAGE_RELEASE:
+          if (mediaPeriods != null) {
+            for (MediaPeriod period : mediaPeriods) {
+              mediaSource.releasePeriod(period);
+            }
+          }
+          mediaSource.releaseSource(this);
+          mediaSourceHandler.removeCallbacksAndMessages(null);
+          mediaSourceThread.quit();
           return true;
         default:
           return false;
@@ -847,7 +865,7 @@ public final class DownloadHelper {
       pendingMediaPeriods.remove(mediaPeriod);
       if (pendingMediaPeriods.isEmpty()) {
         mediaSourceHandler.removeMessages(MESSAGE_CHECK_FOR_FAILURE);
-        downloadHelper.onMediaPrepared();
+        downloadHelperHandler.sendEmptyMessage(DOWNLOAD_HELPER_CALLBACK_MESSAGE_PREPARED);
       }
     }
 
@@ -855,6 +873,23 @@ public final class DownloadHelper {
     public void onContinueLoadingRequested(MediaPeriod mediaPeriod) {
       if (pendingMediaPeriods.contains(mediaPeriod)) {
         mediaSourceHandler.obtainMessage(MESSAGE_CONTINUE_LOADING, mediaPeriod).sendToTarget();
+      }
+    }
+
+    private boolean handleDownloadHelperCallbackMessage(Message msg) {
+      if (released) {
+        // Stale message.
+        return false;
+      }
+      switch (msg.what) {
+        case DOWNLOAD_HELPER_CALLBACK_MESSAGE_PREPARED:
+          downloadHelper.onMediaPrepared();
+          return true;
+        case DOWNLOAD_HELPER_CALLBACK_MESSAGE_FAILED:
+          downloadHelper.onMediaPreparationFailed((IOException) Util.castNonNull(msg.obj));
+          return true;
+        default:
+          return false;
       }
     }
   }
