@@ -14,35 +14,46 @@
      limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
   <androidx.viewpager.widget.ViewPager
       android:id="@+id/track_selection_dialog_view_pager"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:layout_weight="1">
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/track_selection_dialog_tab_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        app:tabGravity="fill"
+        app:tabMode="fixed"/>
+
   </androidx.viewpager.widget.ViewPager>
+
   <LinearLayout
       android:orientation="horizontal"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:gravity="end">
+
     <Button
         android:id="@+id/track_selection_dialog_cancel_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@android:string/cancel"
         style="?android:attr/borderlessButtonStyle"/>
+
     <Button
         android:id="@+id/track_selection_dialog_ok_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@android:string/ok"
         style="?android:attr/borderlessButtonStyle"/>
+
   </LinearLayout>
+
 </LinearLayout>
