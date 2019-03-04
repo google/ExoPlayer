@@ -436,12 +436,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void prepareInternal(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     pendingPrepareCount++;
-    if (!resetPosition && pendingInitialSeekPosition == null && !playbackInfo.timeline.isEmpty()) {
-      playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period);
-      long windowPositionUs = playbackInfo.positionUs + period.getPositionInWindowUs();
-      pendingInitialSeekPosition =
-          new SeekPosition(Timeline.EMPTY, period.windowIndex, windowPositionUs);
-    }
     resetInternal(
         /* resetRenderers= */ false, /* releaseMediaSource= */ true, resetPosition, resetState);
     loadControl.onPrepared();
@@ -864,11 +858,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
     }
     enabledRenderers = new Renderer[0];
-    queue.clear(/* keepFrontPeriodUid= */ !resetPosition);
-    setIsLoading(false);
+
     if (resetPosition) {
       pendingInitialSeekPosition = null;
+    } else if (resetState) {
+      // When resetting the state, also reset the period-based PlaybackInfo position and convert
+      // existing position to initial seek instead.
+      resetPosition = true;
+      if (pendingInitialSeekPosition == null && !playbackInfo.timeline.isEmpty()) {
+        playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period);
+        long windowPositionUs = playbackInfo.positionUs + period.getPositionInWindowUs();
+        pendingInitialSeekPosition =
+            new SeekPosition(Timeline.EMPTY, period.windowIndex, windowPositionUs);
+      }
     }
+
+    queue.clear(/* keepFrontPeriodUid= */ !resetPosition);
+    setIsLoading(false);
     if (resetState) {
       queue.setTimeline(Timeline.EMPTY);
       for (PendingMessageInfo pendingMessageInfo : pendingMessages) {
