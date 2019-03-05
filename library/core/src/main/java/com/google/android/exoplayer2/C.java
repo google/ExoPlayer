@@ -977,52 +977,36 @@ public final class C {
   public static final int NETWORK_TYPE_OTHER = 8;
 
   /**
-   * Adaptation set's role descriptor value (ISO 23009-1)
+   * Adaptation set's role and accessibility descriptor value.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    ROLE_UNSET,
-    ROLE_MAIN,
-    ROLE_ALTERNATE,
-    ROLE_SUPPLEMENTARY,
-    ROLE_COMMENTARY,
-    ROLE_DUB,
-    ROLE_EMERGENCY,
-    ROLE_CAPTION,
-    ROLE_SIGN
+  @IntDef(
+      flag = true,
+      value = {
+        ROLE_FLAGS_MAIN,
+        ROLE_FLAGS_ALTERNATE,
+        ROLE_FLAGS_SUPPLEMENTARY,
+        ROLE_FLAGS_COMMENTARY,
+        ROLE_FLAGS_DUB,
+        ROLE_FLAGS_EMERGENCY,
+        ROLE_FLAGS_CAPTION,
+        ROLE_FLAGS_SIGN,
+        ROLE_FLAGS_ENHANCED_AUDIO_INTELLIGIBILITY,
+        ROLE_FLAGS_DESCRIPTION
   })
-  public @interface Role {}
+  public @interface RoleFlags {}
 
-  public static final int ROLE_UNSET = -1;
-  public static final int ROLE_MAIN = 0;
-  public static final int ROLE_ALTERNATE = 1;
-  public static final int ROLE_SUPPLEMENTARY = 2;
-  public static final int ROLE_COMMENTARY = 3;
-  public static final int ROLE_DUB = 4;
-  public static final int ROLE_EMERGENCY = 5;
-  public static final int ROLE_CAPTION = 6;
-  public static final int ROLE_SIGN = 7;
-
-  /**
-   * Adaptation set's accessibility descriptor value (ISO 23009-1)
-   */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    ACCESSIBILITY_UNSET,
-    ACCESSIBILITY_ENHANCED_AUDIO_INTELLIGIBILITY,
-    ACCESSIBILITY_DESCRIPTION,
-    ACCESSIBILITY_CAPTION,
-    ACCESSIBILITY_SIGN
-  })
-  public @interface Accessibility {}
-
-  public static final int ACCESSIBILITY_UNSET = -1;
-  public static final int ACCESSIBILITY_ENHANCED_AUDIO_INTELLIGIBILITY = 1;
-  public static final int ACCESSIBILITY_DESCRIPTION = 2;
-  public static final int ACCESSIBILITY_CAPTION = 3;
-  public static final int ACCESSIBILITY_SIGN = 4;
+  public static final int ROLE_FLAGS_MAIN = 1;
+  public static final int ROLE_FLAGS_ALTERNATE = 1 << 1;
+  public static final int ROLE_FLAGS_SUPPLEMENTARY = 1 << 2;
+  public static final int ROLE_FLAGS_COMMENTARY = 1 << 3;
+  public static final int ROLE_FLAGS_DUB = 1 << 4;
+  public static final int ROLE_FLAGS_EMERGENCY = 1 << 5;
+  public static final int ROLE_FLAGS_CAPTION = 1 << 6;
+  public static final int ROLE_FLAGS_SIGN = 1 << 7;
+  public static final int ROLE_FLAGS_ENHANCED_AUDIO_INTELLIGIBILITY = 1 << 8;
+  public static final int ROLE_FLAGS_DESCRIPTION = 1 << 9;
 
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving
