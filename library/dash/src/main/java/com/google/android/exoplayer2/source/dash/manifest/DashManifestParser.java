@@ -588,8 +588,9 @@ public class DashManifestParser extends DefaultHandler
       List<Descriptor> supplementalProperties) {
     String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
     if (sampleMimeType != null) {
-      int role = parseRole(roleDescriptors);
-      int accessibility = parseAccessibility(accessibilityDescriptors);
+      @C.RoleFlags int role = parseRole(roleDescriptors);
+      @C.RoleFlags int accessibility = parseAccessibility(accessibilityDescriptors);
+      @C.RoleFlags int roleFlags = role | accessibility;
       if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType)) {
         sampleMimeType = parseEac3SupplementalProperties(supplementalProperties);
       }
@@ -606,8 +607,7 @@ public class DashManifestParser extends DefaultHandler
             frameRate,
             /* initializationData= */ null,
             selectionFlags,
-            role,
-            accessibility);
+            roleFlags);
       } else if (MimeTypes.isAudio(sampleMimeType)) {
         return Format.createAudioContainerFormat(
             id,
@@ -621,8 +621,7 @@ public class DashManifestParser extends DefaultHandler
             /* initializationData= */ null,
             selectionFlags,
             language,
-            role,
-            accessibility);
+            roleFlags);
       } else if (mimeTypeIsRawText(sampleMimeType)) {
         int accessibilityChannel;
         if (MimeTypes.APPLICATION_CEA608.equals(sampleMimeType)) {
@@ -642,8 +641,7 @@ public class DashManifestParser extends DefaultHandler
             selectionFlags,
             language,
             accessibilityChannel,
-            role,
-            accessibility);
+            roleFlags);
       }
     }
     return Format.createContainerFormat(
@@ -1070,66 +1068,83 @@ public class DashManifestParser extends DefaultHandler
 
   // Role and Accessibility parsing.
 
-  protected @C.Role int parseRole(List<Descriptor> roleDescriptors) {
+  protected @C.RoleFlags int parseRole(List<Descriptor> roleDescriptors) {
+    @C.RoleFlags int result = 0;
     for (int i = 0; i < roleDescriptors.size(); i++) {
       Descriptor descriptor = roleDescriptors.get(i);
       if ("urn:mpeg:dash:role:2011".equalsIgnoreCase(descriptor.schemeIdUri) && descriptor.value != null) {
-        switch (descriptor.value) {
-          case "main":
-            return C.ROLE_MAIN;
-          case "alternate":
-            return C.ROLE_ALTERNATE;
-          case "supplementary":
-            return C.ROLE_SUPPLEMENTARY;
-          case "commentary":
-            return C.ROLE_COMMENTARY;
-          case "dub":
-            return C.ROLE_DUB;
-          case "emergency":
-            return C.ROLE_EMERGENCY;
-          case "caption":
-            return C.ROLE_CAPTION;
-          case "sign":
-            return C.ROLE_SIGN;
-          default:
-            return C.ROLE_UNSET;
-        }
+        result |= parseRoleSchemeValue(descriptor.value);
       }
     }
-    return C.ROLE_UNSET;
+    return result;
   }
 
-  protected @C.Accessibility int parseAccessibility(List<Descriptor> accessibilityDescriptors) {
+  protected @C.RoleFlags int parseAccessibility(List<Descriptor> accessibilityDescriptors) {
+    @C.RoleFlags int result = 0;
     for (int i = 0; i < accessibilityDescriptors.size(); i++) {
       Descriptor descriptor = accessibilityDescriptors.get(i);
       if ("urn:mpeg:dash:role:2011".equalsIgnoreCase(descriptor.schemeIdUri) && descriptor.value != null) {
-        switch (descriptor.value){
-          case "description":
-            return C.ACCESSIBILITY_DESCRIPTION;
-          case "enhanced-audio-intelligibility":
-            return C.ACCESSIBILITY_ENHANCED_AUDIO_INTELLIGIBILITY;
-          case "caption":
-            return C.ACCESSIBILITY_CAPTION;
-          case "sign":
-            return C.ACCESSIBILITY_SIGN;
-          default:
-            return C.ACCESSIBILITY_UNSET;
-        }
+        result |= parseRoleSchemeValue(descriptor.value);
       }
-
       if ("urn:tva:metadata:cs:AudioPurposeCS:2007".equalsIgnoreCase(descriptor.schemeIdUri) &&
               descriptor.value != null) {
         switch (descriptor.value){
-          case "1":
-            return C.ACCESSIBILITY_ENHANCED_AUDIO_INTELLIGIBILITY;
-          case "2":
-            return C.ACCESSIBILITY_CAPTION;
-          default:
-            return C.ACCESSIBILITY_UNSET;
+          case "1": // Audio description for the visually impaired
+            result |= C.ROLE_FLAGS_DESCRIPTION;
+            break;
+          case "2": // Audio description for the hard of hearing
+            result |= C.ROLE_FLAGS_ENHANCED_AUDIO_INTELLIGIBILITY;
+            break;
+          case "3": // Supplemental commentary
+            result |= C.ROLE_FLAGS_SUPPLEMENTARY;
+            break;
+          case "4": // Director's commentary
+            result |= C.ROLE_FLAGS_COMMENTARY;
+            break;
+          case "6": // Main programme audio
+            result |= C.ROLE_FLAGS_MAIN;
+            break;
         }
       }
     }
-    return C.ACCESSIBILITY_UNSET;
+    return result;
+  }
+
+  protected @C.RoleFlags int parseRoleSchemeValue(String value){
+    @C.RoleFlags int result = 0;
+    switch (value) {
+      case "main":
+        result |= C.ROLE_FLAGS_MAIN;
+        break;
+      case "alternate":
+        result |= C.ROLE_FLAGS_ALTERNATE;
+        break;
+      case "supplementary":
+        result |= C.ROLE_FLAGS_SUPPLEMENTARY;
+        break;
+      case "commentary":
+        result |= C.ROLE_FLAGS_COMMENTARY;
+        break;
+      case "dub":
+        result |= C.ROLE_FLAGS_DUB;
+        break;
+      case "emergency":
+        result |= C.ROLE_FLAGS_EMERGENCY;
+        break;
+      case "caption":
+        result |= C.ROLE_FLAGS_CAPTION;
+        break;
+      case "sign":
+        result |= C.ROLE_FLAGS_SIGN;
+        break;
+      case "description":
+        result |= C.ROLE_FLAGS_DESCRIPTION;
+        break;
+      case "enhanced-audio-intelligibility":
+        result |= C.ROLE_FLAGS_ENHANCED_AUDIO_INTELLIGIBILITY;
+        break;
+    }
+    return result;
   }
 
   // Utility methods.

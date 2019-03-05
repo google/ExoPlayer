@@ -703,8 +703,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         variantFormat.frameRate,
         /* initializationData= */ null,
         variantFormat.selectionFlags,
-        /* role= */ C.ROLE_UNSET,
-        /* accessibility= */ C.ACCESSIBILITY_UNSET);
+        /* roleFlags= */ 0);
   }
 
   private static Format deriveAudioFormat(
@@ -743,8 +742,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         /* initializationData= */ null,
         selectionFlags,
         language,
-        /* role= */ C.ROLE_UNSET,
-        /* accessibility= */ C.ACCESSIBILITY_UNSET);
+        /* roleFlags= */ 0);
   }
 
 }

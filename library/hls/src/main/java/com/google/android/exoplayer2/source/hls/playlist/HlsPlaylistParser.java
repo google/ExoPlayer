@@ -330,8 +330,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   frameRate,
                   /* initializationData= */ null,
                   /* selectionFlags= */ 0,
-                  /* role= */ C.ROLE_UNSET,
-                  /* accessibility= */ C.ACCESSIBILITY_UNSET);
+                  /* roleFlags= */ 0);
           variants.add(new HlsMasterPlaylist.HlsUrl(line, format, /* name= */ ""));
         }
       }
@@ -364,8 +363,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* initializationData= */ null,
                   selectionFlags,
                   language,
-                  /* role= */ C.ROLE_UNSET,
-                  /* accessibility= */ C.ACCESSIBILITY_UNSET);
+                  /* roleFlags= */ 0);
           if (isMediaTagMuxed(variants, uri)) {
             muxedAudioFormat = format;
           } else {
@@ -410,8 +408,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   selectionFlags,
                   language,
                   accessibilityChannel,
-                  /* role= */ C.ROLE_UNSET,
-                  /* accessibility= */ C.ACCESSIBILITY_UNSET));
+                  /* roleFlags= */ 0));
           break;
         default:
           // Do nothing.
