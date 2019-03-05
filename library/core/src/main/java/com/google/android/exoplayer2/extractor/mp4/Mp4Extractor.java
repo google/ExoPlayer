@@ -520,9 +520,13 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       while (sampleBytesWritten < sampleSize) {
         if (sampleCurrentNalBytesRemaining == 0) {
           // Read the NAL length so that we know where we find the next one.
-          input.readFully(nalLength.data, nalUnitLengthFieldLengthDiff, nalUnitLengthFieldLength);
+          input.readFully(nalLengthData, nalUnitLengthFieldLengthDiff, nalUnitLengthFieldLength);
           nalLength.setPosition(0);
-          sampleCurrentNalBytesRemaining = nalLength.readUnsignedIntToInt();
+          int nalLengthInt = nalLength.readInt();
+          if (nalLengthInt < 0) {
+            throw new ParserException("Invalid NAL length");
+          }
+          sampleCurrentNalBytesRemaining = nalLengthInt;
           // Write a start code for the current NAL unit.
           nalStartCode.setPosition(0);
           trackOutput.sampleData(nalStartCode, 4);

@@ -1251,7 +1251,11 @@ public class FragmentedMp4Extractor implements Extractor {
           // Read the NAL length so that we know where we find the next one, and its type.
           input.readFully(nalPrefixData, nalUnitLengthFieldLengthDiff, nalUnitPrefixLength);
           nalPrefix.setPosition(0);
-          sampleCurrentNalBytesRemaining = nalPrefix.readUnsignedIntToInt() - 1;
+          int nalLengthInt = nalPrefix.readInt();
+          if (nalLengthInt < 1) {
+            throw new ParserException("Invalid NAL length");
+          }
+          sampleCurrentNalBytesRemaining = nalLengthInt - 1;
           // Write a start code for the current NAL unit.
           nalStartCode.setPosition(0);
           output.sampleData(nalStartCode, 4);
