@@ -350,9 +350,6 @@ public class TrackSelectionView extends LinearLayout {
         if (overrideLength == 1) {
           // The last track is being removed, so the override becomes empty.
           overrides.remove(groupIndex);
-          if (overrides.size() == 0) {
-            isDisabled = true;
-          }
         } else {
           int[] tracks = getTracksRemoving(overrideTracks, trackIndex);
           overrides.put(groupIndex, new SelectionOverride(groupIndex, tracks));
