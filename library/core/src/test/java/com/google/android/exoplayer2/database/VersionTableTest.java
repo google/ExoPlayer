@@ -43,20 +43,20 @@ public class VersionTableTest {
   }
 
   @Test
-  public void getVersion_unsetFeature_returnsVersionUnset() {
+  public void getVersion_unsetFeature_returnsVersionUnset() throws DatabaseIOException {
     int version = VersionTable.getVersion(database, FEATURE_1, INSTANCE_1);
     assertThat(version).isEqualTo(VersionTable.VERSION_UNSET);
   }
 
   @Test
-  public void getVersion_unsetVersion_returnsVersionUnset() {
+  public void getVersion_unsetVersion_returnsVersionUnset() throws DatabaseIOException {
     VersionTable.setVersion(database, FEATURE_1, INSTANCE_1, 1);
     int version = VersionTable.getVersion(database, FEATURE_1, INSTANCE_2);
     assertThat(version).isEqualTo(VersionTable.VERSION_UNSET);
   }
 
   @Test
-  public void getVersion_returnsSetVersion() {
+  public void getVersion_returnsSetVersion() throws DatabaseIOException {
     VersionTable.setVersion(database, FEATURE_1, INSTANCE_1, 1);
     assertThat(VersionTable.getVersion(database, FEATURE_1, INSTANCE_1)).isEqualTo(1);
 
@@ -74,7 +74,7 @@ public class VersionTableTest {
   }
 
   @Test
-  public void removeVersion_removesSetVersion() {
+  public void removeVersion_removesSetVersion() throws DatabaseIOException {
     VersionTable.setVersion(database, FEATURE_1, INSTANCE_1, 1);
     VersionTable.setVersion(database, FEATURE_1, INSTANCE_2, 2);
     assertThat(VersionTable.getVersion(database, FEATURE_1, INSTANCE_1)).isEqualTo(1);

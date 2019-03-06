@@ -17,10 +17,13 @@ package com.google.android.exoplayer2.offline;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
 import com.google.android.exoplayer2.util.Assertions;
@@ -152,7 +155,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
 
   @Override
   @Nullable
-  public DownloadState getDownloadState(String id) {
+  public DownloadState getDownloadState(String id) throws DatabaseIOException {
     ensureInitialized();
     try (Cursor cursor = getCursor(WHERE_ID_EQUALS, new String[] {id})) {
       if (cursor.getCount() == 0) {
@@ -162,83 +165,102 @@ public final class DefaultDownloadIndex implements DownloadIndex {
       DownloadState downloadState = getDownloadStateForCurrentRow(cursor);
       Assertions.checkState(id.equals(downloadState.id));
       return downloadState;
+    } catch (SQLiteException e) {
+      throw new DatabaseIOException(e);
     }
   }
 
   @Override
-  public DownloadStateCursor getDownloadStates(@DownloadState.State int... states) {
+  public DownloadStateCursor getDownloadStates(@DownloadState.State int... states)
+      throws DatabaseIOException {
     ensureInitialized();
-    String selection = null;
-    if (states.length > 0) {
-      StringBuilder selectionBuilder = new StringBuilder();
-      selectionBuilder.append(COLUMN_STATE).append(" IN (");
-      for (int i = 0; i < states.length; i++) {
-        if (i > 0) {
-          selectionBuilder.append(',');
+    try {
+      String selection = null;
+      if (states.length > 0) {
+        StringBuilder selectionBuilder = new StringBuilder();
+        selectionBuilder.append(COLUMN_STATE).append(" IN (");
+        for (int i = 0; i < states.length; i++) {
+          if (i > 0) {
+            selectionBuilder.append(',');
+          }
+          selectionBuilder.append(states[i]);
         }
-        selectionBuilder.append(states[i]);
+        selectionBuilder.append(')');
+        selection = selectionBuilder.toString();
       }
-      selectionBuilder.append(')');
-      selection = selectionBuilder.toString();
+      Cursor cursor = getCursor(selection, /* selectionArgs= */ null);
+      return new DownloadStateCursorImpl(cursor);
+    } catch (SQLiteException e) {
+      throw new DatabaseIOException(e);
     }
-    Cursor cursor = getCursor(selection, /* selectionArgs= */ null);
-    return new DownloadStateCursorImpl(cursor);
   }
 
   @Override
-  public void putDownloadState(DownloadState downloadState) {
+  public void putDownloadState(DownloadState downloadState) throws DatabaseIOException {
     ensureInitialized();
-    SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-    ContentValues values = new ContentValues();
-    values.put(COLUMN_ID, downloadState.id);
-    values.put(COLUMN_TYPE, downloadState.type);
-    values.put(COLUMN_URI, downloadState.uri.toString());
-    values.put(COLUMN_CACHE_KEY, downloadState.cacheKey);
-    values.put(COLUMN_STATE, downloadState.state);
-    values.put(COLUMN_DOWNLOAD_PERCENTAGE, downloadState.downloadPercentage);
-    values.put(COLUMN_DOWNLOADED_BYTES, downloadState.downloadedBytes);
-    values.put(COLUMN_TOTAL_BYTES, downloadState.totalBytes);
-    values.put(COLUMN_FAILURE_REASON, downloadState.failureReason);
-    values.put(COLUMN_STOP_FLAGS, downloadState.stopFlags);
-    values.put(COLUMN_NOT_MET_REQUIREMENTS, downloadState.notMetRequirements);
-    values.put(COLUMN_MANUAL_STOP_REASON, downloadState.manualStopReason);
-    values.put(COLUMN_START_TIME_MS, downloadState.startTimeMs);
-    values.put(COLUMN_UPDATE_TIME_MS, downloadState.updateTimeMs);
-    values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(downloadState.streamKeys));
-    values.put(COLUMN_CUSTOM_METADATA, downloadState.customMetadata);
-    writableDatabase.replace(TABLE_NAME, /* nullColumnHack= */ null, values);
+    try {
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      ContentValues values = new ContentValues();
+      values.put(COLUMN_ID, downloadState.id);
+      values.put(COLUMN_TYPE, downloadState.type);
+      values.put(COLUMN_URI, downloadState.uri.toString());
+      values.put(COLUMN_CACHE_KEY, downloadState.cacheKey);
+      values.put(COLUMN_STATE, downloadState.state);
+      values.put(COLUMN_DOWNLOAD_PERCENTAGE, downloadState.downloadPercentage);
+      values.put(COLUMN_DOWNLOADED_BYTES, downloadState.downloadedBytes);
+      values.put(COLUMN_TOTAL_BYTES, downloadState.totalBytes);
+      values.put(COLUMN_FAILURE_REASON, downloadState.failureReason);
+      values.put(COLUMN_STOP_FLAGS, downloadState.stopFlags);
+      values.put(COLUMN_NOT_MET_REQUIREMENTS, downloadState.notMetRequirements);
+      values.put(COLUMN_MANUAL_STOP_REASON, downloadState.manualStopReason);
+      values.put(COLUMN_START_TIME_MS, downloadState.startTimeMs);
+      values.put(COLUMN_UPDATE_TIME_MS, downloadState.updateTimeMs);
+      values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(downloadState.streamKeys));
+      values.put(COLUMN_CUSTOM_METADATA, downloadState.customMetadata);
+      writableDatabase.replaceOrThrow(TABLE_NAME, /* nullColumnHack= */ null, values);
+    } catch (SQLiteException e) {
+      throw new DatabaseIOException(e);
+    }
   }
 
   @Override
-  public void removeDownloadState(String id) {
+  public void removeDownloadState(String id) throws DatabaseIOException {
     ensureInitialized();
-    databaseProvider.getWritableDatabase().delete(TABLE_NAME, WHERE_ID_EQUALS, new String[] {id});
+    try {
+      databaseProvider.getWritableDatabase().delete(TABLE_NAME, WHERE_ID_EQUALS, new String[] {id});
+    } catch (SQLiteException e) {
+      throw new DatabaseIOException(e);
+    }
   }
 
-  private void ensureInitialized() {
+  private void ensureInitialized() throws DatabaseIOException {
     if (initialized) {
       return;
     }
-    SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
-    int version =
-        VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID);
-    if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
-      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.beginTransaction();
-      try {
-        VersionTable.setVersion(
-            writableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID, TABLE_VERSION);
-        writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
-        writableDatabase.execSQL(SQL_CREATE_TABLE);
-        writableDatabase.setTransactionSuccessful();
-      } finally {
-        writableDatabase.endTransaction();
+    try {
+      SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
+      int version =
+          VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID);
+      if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
+        SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+        writableDatabase.beginTransaction();
+        try {
+          VersionTable.setVersion(
+              writableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID, TABLE_VERSION);
+          writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
+          writableDatabase.execSQL(SQL_CREATE_TABLE);
+          writableDatabase.setTransactionSuccessful();
+        } finally {
+          writableDatabase.endTransaction();
+        }
+      } else if (version < TABLE_VERSION) {
+        // There is no previous version currently.
+        throw new IllegalStateException();
       }
-    } else if (version < TABLE_VERSION) {
-      // There is no previous version currently.
-      throw new IllegalStateException();
+      initialized = true;
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
     }
-    initialized = true;
   }
 
   private Cursor getCursor(@Nullable String selection, @Nullable String[] selectionArgs) {

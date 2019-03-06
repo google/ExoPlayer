@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.offline.ActionFile;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
+import com.google.android.exoplayer2.offline.DownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloadState;
@@ -71,8 +72,8 @@ public class DownloadTracker implements DownloadManager.Listener {
   private final DataSource.Factory dataSourceFactory;
   private final CopyOnWriteArraySet<Listener> listeners;
   private final HashMap<Uri, DownloadState> trackedDownloadStates;
-  private final DefaultDownloadIndex downloadIndex;
-  private final Handler actionFileIOHandler;
+  private final DownloadIndex downloadIndex;
+  private final Handler indexHandler;
 
   @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
 
@@ -83,9 +84,9 @@ public class DownloadTracker implements DownloadManager.Listener {
     this.downloadIndex = downloadIndex;
     listeners = new CopyOnWriteArraySet<>();
     trackedDownloadStates = new HashMap<>();
-    HandlerThread actionFileWriteThread = new HandlerThread("DownloadTracker");
-    actionFileWriteThread.start();
-    actionFileIOHandler = new Handler(actionFileWriteThread.getLooper());
+    HandlerThread indexThread = new HandlerThread("DownloadTracker");
+    indexThread.start();
+    indexHandler = new Handler(indexThread.getLooper());
     loadTrackedActions();
   }
 
@@ -163,24 +164,32 @@ public class DownloadTracker implements DownloadManager.Listener {
   // Internal methods
 
   private void loadTrackedActions() {
-    DownloadStateCursor downloadStates = downloadIndex.getDownloadStates();
-    while (downloadStates.moveToNext()) {
-      DownloadState downloadState = downloadStates.getDownloadState();
-      trackedDownloadStates.put(downloadState.uri, downloadState);
+    try {
+      DownloadStateCursor downloadStates = downloadIndex.getDownloadStates();
+      while (downloadStates.moveToNext()) {
+        DownloadState downloadState = downloadStates.getDownloadState();
+        trackedDownloadStates.put(downloadState.uri, downloadState);
+      }
+      downloadStates.close();
+    } catch (IOException e) {
+      Log.w(TAG, "Failed to query download states", e);
     }
-    downloadStates.close();
   }
 
   private void handleTrackedDownloadStateChanged(DownloadState downloadState) {
     for (Listener listener : listeners) {
       listener.onDownloadsChanged();
     }
-    actionFileIOHandler.post(
+    indexHandler.post(
         () -> {
-          if (downloadState.state == DownloadState.STATE_REMOVED) {
-            downloadIndex.removeDownloadState(downloadState.id);
-          } else {
-            downloadIndex.putDownloadState(downloadState);
+          try {
+            if (downloadState.state == DownloadState.STATE_REMOVED) {
+              downloadIndex.removeDownloadState(downloadState.id);
+            } else {
+              downloadIndex.putDownloadState(downloadState);
+            }
+          } catch (IOException e) {
+            // TODO: This whole method is going away in cr/232854678.
           }
         });
   }

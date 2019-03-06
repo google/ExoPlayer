@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.offline.DefaultDownloadIndex.INSTANC
 import static com.google.common.truth.Truth.assertThat;
 
 import android.database.sqlite.SQLiteDatabase;
+import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
 import org.junit.After;
@@ -47,12 +48,13 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
-  public void getDownloadState_nonExistingId_returnsNull() {
+  public void getDownloadState_nonExistingId_returnsNull() throws DatabaseIOException {
     assertThat(downloadIndex.getDownloadState("non existing id")).isNull();
   }
 
   @Test
-  public void addAndGetDownloadState_nonExistingId_returnsTheSameDownloadState() {
+  public void addAndGetDownloadState_nonExistingId_returnsTheSameDownloadState()
+      throws DatabaseIOException {
     String id = "id";
     DownloadState downloadState = new DownloadStateBuilder(id).build();
 
@@ -63,7 +65,8 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
-  public void addAndGetDownloadState_existingId_returnsUpdatedDownloadState() {
+  public void addAndGetDownloadState_existingId_returnsUpdatedDownloadState()
+      throws DatabaseIOException {
     String id = "id";
     DownloadStateBuilder downloadStateBuilder = new DownloadStateBuilder(id);
     downloadIndex.putDownloadState(downloadStateBuilder.build());
@@ -97,7 +100,8 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
-  public void releaseAndRecreateDownloadIndex_returnsTheSameDownloadState() {
+  public void releaseAndRecreateDownloadIndex_returnsTheSameDownloadState()
+      throws DatabaseIOException {
     String id = "id";
     DownloadState downloadState = new DownloadStateBuilder(id).build();
     downloadIndex.putDownloadState(downloadState);
@@ -109,12 +113,13 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
-  public void removeDownloadState_nonExistingId_doesNotFail() {
+  public void removeDownloadState_nonExistingId_doesNotFail() throws DatabaseIOException {
     downloadIndex.removeDownloadState("non existing id");
   }
 
   @Test
-  public void removeDownloadState_existingId_getDownloadStateReturnsNull() {
+  public void removeDownloadState_existingId_getDownloadStateReturnsNull()
+      throws DatabaseIOException {
     String id = "id";
     DownloadState downloadState = new DownloadStateBuilder(id).build();
     downloadIndex.putDownloadState(downloadState);
@@ -125,12 +130,13 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
-  public void getDownloadStates_emptyDownloadIndex_returnsEmptyArray() {
+  public void getDownloadStates_emptyDownloadIndex_returnsEmptyArray() throws DatabaseIOException {
     assertThat(downloadIndex.getDownloadStates().getCount()).isEqualTo(0);
   }
 
   @Test
-  public void getDownloadStates_noState_returnsAllDownloadStatusSortedByStartTime() {
+  public void getDownloadStates_noState_returnsAllDownloadStatusSortedByStartTime()
+      throws DatabaseIOException {
     DownloadState downloadState1 = new DownloadStateBuilder("id1").setStartTimeMs(1).build();
     downloadIndex.putDownloadState(downloadState1);
     DownloadState downloadState2 = new DownloadStateBuilder("id2").setStartTimeMs(0).build();
@@ -147,7 +153,8 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
-  public void getDownloadStates_withStates_returnsAllDownloadStatusWithTheSameStates() {
+  public void getDownloadStates_withStates_returnsAllDownloadStatusWithTheSameStates()
+      throws DatabaseIOException {
     DownloadState downloadState1 =
         new DownloadStateBuilder("id1")
             .setStartTimeMs(0)
@@ -179,7 +186,7 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
-  public void putDownloadState_setsVersion() {
+  public void putDownloadState_setsVersion() throws DatabaseIOException {
     SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
     assertThat(
             VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID))
@@ -193,7 +200,7 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
-  public void downloadIndex_versionDowngradeWipesData() {
+  public void downloadIndex_versionDowngradeWipesData() throws DatabaseIOException {
     DownloadState downloadState1 = new DownloadStateBuilder("id1").build();
     downloadIndex.putDownloadState(downloadState1);
     DownloadStateCursor cursor = downloadIndex.getDownloadStates();
