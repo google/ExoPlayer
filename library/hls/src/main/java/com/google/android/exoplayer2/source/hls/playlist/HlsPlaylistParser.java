@@ -362,8 +362,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* sampleRate= */ Format.NO_VALUE,
                   /* initializationData= */ null,
                   selectionFlags,
-                  language,
-                  /* roleFlags= */ 0);
+                  /* roleFlags= */ 0,
+                  language);
           if (isMediaTagMuxed(variants, uri)) {
             muxedAudioFormat = format;
           } else {
@@ -406,9 +406,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* codecs= */ null,
                   /* bitrate= */ Format.NO_VALUE,
                   selectionFlags,
+                  /* roleFlags= */ 0,
                   language,
-                  accessibilityChannel,
-                  /* roleFlags= */ 0));
+                  accessibilityChannel));
           break;
         default:
           // Do nothing.

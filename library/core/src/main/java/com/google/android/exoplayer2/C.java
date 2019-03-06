@@ -977,7 +977,10 @@ public final class C {
   public static final int NETWORK_TYPE_OTHER = 8;
 
   /**
-   * Adaptation set's role and accessibility descriptor value.
+   * Track role flags. Possible values are {@link #ROLE_FLAGS_MAIN}, {@link #ROLE_FLAGS_ALTERNATE},
+   * {@link #ROLE_FLAGS_SUPPLEMENTARY}, {@link #ROLE_FLAGS_COMMENTARY}, {@link #ROLE_FLAGS_DUB},
+   * {@link #ROLE_FLAGS_EMERGENCY}, {@link #ROLE_FLAGS_CAPTION}, {@link #ROLE_FLAGS_SIGN},
+   * {@link #ROLE_FLAGS_ENHANCED_AUDIO_INTELLIGIBILITY}, {@link #ROLE_FLAGS_DESCRIPTION}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)

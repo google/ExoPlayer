@@ -78,6 +78,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
               /* codecs= */ null,
               /* bitrate= */ Format.NO_VALUE,
               /* selectionFlags= */ 0,
+              /* roleFlags= */ 0,
               /* language= */ null);
       return new HlsUrl(url, format, /* name= */ "");
     }

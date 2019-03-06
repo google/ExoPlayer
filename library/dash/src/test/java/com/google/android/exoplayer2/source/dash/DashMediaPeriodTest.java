@@ -193,6 +193,7 @@ public final class DashMediaPeriodTest {
         /* codecs= */ null,
         bitrate,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         /* language= */ null);
   }
 
@@ -207,6 +208,7 @@ public final class DashMediaPeriodTest {
             /* codecs= */ null,
             bitrate,
             /* selectionFlags= */ 0,
+            /* roleFlags= */ 0,
             /* language= */ null),
         /* baseUrl= */ "",
         new SingleSegmentBase());
@@ -223,6 +225,7 @@ public final class DashMediaPeriodTest {
             /* codecs= */ null,
             /* bitrate= */ Format.NO_VALUE,
             /* selectionFlags= */ 0,
+            /* roleFlags= */ 0,
             language),
         /* baseUrl= */ "",
         new SingleSegmentBase());

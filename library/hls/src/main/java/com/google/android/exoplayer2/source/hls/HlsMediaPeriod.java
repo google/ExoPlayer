@@ -741,8 +741,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         /* sampleRate= */ Format.NO_VALUE,
         /* initializationData= */ null,
         selectionFlags,
-        language,
-        /* roleFlags= */ 0);
+        /* roleFlags= */ 0,
+        language);
   }
 
 }
