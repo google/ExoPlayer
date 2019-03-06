@@ -706,8 +706,8 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
                 samplingRate,
                 codecSpecificData,
                 /* selectionFlags= */ 0,
-                language,
-                /* roleFlags= */ 0);
+                /* roleFlags= */ 0,
+                language);
       } else if (type == C.TRACK_TYPE_TEXT) {
         String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
         format =
@@ -730,6 +730,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
                 /* codecs= */ null,
                 bitrate,
                 /* selectionFlags= */ 0,
+                /* roleFlags= */ 0,
                 /* language= */ null);
       }
     }

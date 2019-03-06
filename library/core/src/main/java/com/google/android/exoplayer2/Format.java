@@ -51,7 +51,7 @@ public final class Format implements Parcelable {
   /** Track selection flags. **/
   @C.SelectionFlags
   public final int selectionFlags;
-  /** Track role and accessibility descriptor values. **/
+  /** Track role flags. **/
   @C.RoleFlags
   public final int roleFlags;
   /**
@@ -234,9 +234,9 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
+        roleFlags,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
-        roleFlags,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         /* drmInitData= */ null,
@@ -338,9 +338,9 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
-        /* roleFlags= */ 0,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
@@ -360,8 +360,8 @@ public final class Format implements Parcelable {
       int sampleRate,
       @Nullable List<byte[]> initializationData,
       @C.SelectionFlags int selectionFlags,
-      @Nullable String language,
-      @C.RoleFlags int roleFlags) {
+      @C.RoleFlags int roleFlags,
+      @Nullable String language) {
     return createAudioContainerFormat(
         id,
         /* label= */ null,
@@ -373,8 +373,8 @@ public final class Format implements Parcelable {
         sampleRate,
         initializationData,
         selectionFlags,
-        language,
-        roleFlags);
+        roleFlags,
+        language);
   }
 
   public static Format createAudioContainerFormat(
@@ -388,8 +388,8 @@ public final class Format implements Parcelable {
       int sampleRate,
       @Nullable List<byte[]> initializationData,
       @C.SelectionFlags int selectionFlags,
-      @Nullable String language,
-      @C.RoleFlags int roleFlags) {
+      @C.RoleFlags int roleFlags,
+      @Nullable String language) {
     return new Format(
         id,
         label,
@@ -412,9 +412,9 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
+        roleFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
-        roleFlags,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         /* drmInitData= */ null,
@@ -517,9 +517,9 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         selectionFlags,
+        /* roleFlags= */ 0,
         language,
         /* accessibilityChannel= */ NO_VALUE,
-        /* roleFlags= */ 0,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
@@ -565,9 +565,9 @@ public final class Format implements Parcelable {
         codecs,
         bitrate,
         selectionFlags,
+        /* roleFlags= */ 0,
         language,
-        /* accessibilityChannel= */ NO_VALUE,
-        /* roleFlags= */ 0);
+        /* accessibilityChannel= */ NO_VALUE);
   }
 
   public static Format createTextContainerFormat(
@@ -578,9 +578,9 @@ public final class Format implements Parcelable {
       @Nullable String codecs,
       int bitrate,
       @C.SelectionFlags int selectionFlags,
+      @C.RoleFlags int roleFlags,
       @Nullable String language,
-      int accessibilityChannel,
-      @C.RoleFlags int roleFlags) {
+      int accessibilityChannel) {
     return new Format(
         id,
         label,
@@ -603,9 +603,9 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
+        roleFlags,
         language,
         accessibilityChannel,
-        roleFlags,
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
         /* drmInitData= */ null,
@@ -716,9 +716,9 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
+        /* roleFlags= */ 0,
         language,
         accessibilityChannel,
-        /* roleFlags= */ 0,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -758,9 +758,9 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
+        /* roleFlags= */ 0,
         language,
         /* accessibilityChannel= */ NO_VALUE,
-        /* roleFlags= */ 0,
         OFFSET_SAMPLE_RELATIVE,
         initializationData,
         drmInitData,
@@ -777,6 +777,7 @@ public final class Format implements Parcelable {
       @Nullable String codecs,
       int bitrate,
       @C.SelectionFlags int selectionFlags,
+      @C.RoleFlags int roleFlags,
       @Nullable String language) {
     return createContainerFormat(
         id,
@@ -786,6 +787,7 @@ public final class Format implements Parcelable {
         codecs,
         bitrate,
         selectionFlags,
+        roleFlags,
         language);
   }
 
@@ -797,6 +799,7 @@ public final class Format implements Parcelable {
       @Nullable String codecs,
       int bitrate,
       @C.SelectionFlags int selectionFlags,
+      @C.RoleFlags int roleFlags,
       @Nullable String language) {
     return new Format(
         id,
@@ -820,9 +823,9 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         selectionFlags,
+        roleFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE,
-        /* roleFlags= */ 0,
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
         /* drmInitData= */ null,
@@ -853,9 +856,9 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
-        /* roleFlags= */ 0,
         subsampleOffsetUs,
         /* initializationData= */ null,
         /* drmInitData= */ null,
@@ -890,9 +893,9 @@ public final class Format implements Parcelable {
         /* encoderDelay= */ NO_VALUE,
         /* encoderPadding= */ NO_VALUE,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         /* language= */ null,
         /* accessibilityChannel= */ NO_VALUE,
-        /* roleFlags= */ 0,
         OFFSET_SAMPLE_RELATIVE,
         /* initializationData= */ null,
         drmInitData,
@@ -921,9 +924,9 @@ public final class Format implements Parcelable {
       int encoderDelay,
       int encoderPadding,
       @C.SelectionFlags int selectionFlags,
+      @C.RoleFlags int roleFlags,
       @Nullable String language,
       int accessibilityChannel,
-      @C.RoleFlags int roleFlags,
       long subsampleOffsetUs,
       @Nullable List<byte[]> initializationData,
       @Nullable DrmInitData drmInitData,
@@ -950,9 +953,9 @@ public final class Format implements Parcelable {
     this.encoderDelay = encoderDelay == Format.NO_VALUE ? 0 : encoderDelay;
     this.encoderPadding = encoderPadding == Format.NO_VALUE ? 0 : encoderPadding;
     this.selectionFlags = selectionFlags;
+    this.roleFlags = roleFlags;
     this.language = Util.normalizeLanguageCode(language);
     this.accessibilityChannel = accessibilityChannel;
-    this.roleFlags = roleFlags;
     this.subsampleOffsetUs = subsampleOffsetUs;
     this.initializationData =
         initializationData == null ? Collections.emptyList() : initializationData;
@@ -984,9 +987,9 @@ public final class Format implements Parcelable {
     encoderDelay = in.readInt();
     encoderPadding = in.readInt();
     selectionFlags = in.readInt();
+    roleFlags = in.readInt();
     language = in.readString();
     accessibilityChannel = in.readInt();
-    roleFlags = in.readInt();
     subsampleOffsetUs = in.readLong();
     int initializationDataSize = in.readInt();
     initializationData = new ArrayList<>(initializationDataSize);
@@ -1020,9 +1023,9 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         selectionFlags,
+        roleFlags,
         language,
         accessibilityChannel,
-        roleFlags,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1052,9 +1055,9 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         selectionFlags,
+        roleFlags,
         language,
         accessibilityChannel,
-        roleFlags,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1093,9 +1096,9 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         selectionFlags,
+        roleFlags,
         language,
         accessibilityChannel,
-        roleFlags,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1165,9 +1168,9 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         selectionFlags,
+        roleFlags,
         language,
         accessibilityChannel,
-        roleFlags,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1197,9 +1200,9 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         selectionFlags,
+        roleFlags,
         language,
         accessibilityChannel,
-        roleFlags,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1229,9 +1232,9 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         selectionFlags,
+        roleFlags,
         language,
         accessibilityChannel,
-        roleFlags,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1261,9 +1264,9 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         selectionFlags,
+        roleFlags,
         language,
         accessibilityChannel,
-        roleFlags,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1293,9 +1296,9 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         selectionFlags,
+        roleFlags,
         language,
         accessibilityChannel,
-        roleFlags,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1325,9 +1328,9 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         selectionFlags,
+        roleFlags,
         language,
         accessibilityChannel,
-        roleFlags,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1357,9 +1360,9 @@ public final class Format implements Parcelable {
         encoderDelay,
         encoderPadding,
         selectionFlags,
+        roleFlags,
         language,
         accessibilityChannel,
-        roleFlags,
         subsampleOffsetUs,
         initializationData,
         drmInitData,
@@ -1465,11 +1468,11 @@ public final class Format implements Parcelable {
         && encoderPadding == other.encoderPadding
         && subsampleOffsetUs == other.subsampleOffsetUs
         && selectionFlags == other.selectionFlags
+        && roleFlags == other.roleFlags
         && Util.areEqual(id, other.id)
         && Util.areEqual(label, other.label)
         && Util.areEqual(language, other.language)
         && accessibilityChannel == other.accessibilityChannel
-        && roleFlags == other.roleFlags
         && Util.areEqual(containerMimeType, other.containerMimeType)
         && Util.areEqual(sampleMimeType, other.sampleMimeType)
         && Util.areEqual(codecs, other.codecs)
@@ -1569,9 +1572,9 @@ public final class Format implements Parcelable {
     dest.writeInt(encoderDelay);
     dest.writeInt(encoderPadding);
     dest.writeInt(selectionFlags);
+    dest.writeInt(roleFlags);
     dest.writeString(language);
     dest.writeInt(accessibilityChannel);
-    dest.writeInt(roleFlags);
     dest.writeLong(subsampleOffsetUs);
     int initializationDataSize = initializationData.size();
     dest.writeInt(initializationDataSize);
