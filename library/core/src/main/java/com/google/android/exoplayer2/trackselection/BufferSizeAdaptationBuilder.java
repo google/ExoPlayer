@@ -352,7 +352,8 @@ public final class BufferSizeAdaptationBuilder {
       // buffer = slope * ln(bitrate) + intercept,
       // with buffer(minBitrate) = minBuffer and buffer(maxBitrate) = maxBuffer - hysteresisBuffer.
       bitrateToBufferFunctionSlope =
-          (maxBufferUs - hysteresisBufferUs - minBufferUs) / Math.log(maxBitrate / minBitrate);
+          (maxBufferUs - hysteresisBufferUs - minBufferUs)
+              / Math.log((double) maxBitrate / minBitrate);
       bitrateToBufferFunctionIntercept =
           minBufferUs - bitrateToBufferFunctionSlope * Math.log(minBitrate);
     }
