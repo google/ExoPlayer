@@ -810,6 +810,7 @@ public final class DownloadManager {
         setState(STATE_REMOVED);
       } else { // STATE_DOWNLOADING
         if (error != null) {
+          Log.e(TAG, "Download failed: " + downloadState.id, error);
           failureReason = FAILURE_REASON_UNKNOWN;
           setState(STATE_FAILED);
         } else {

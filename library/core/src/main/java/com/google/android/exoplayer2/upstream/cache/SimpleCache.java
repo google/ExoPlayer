@@ -33,6 +33,7 @@ import java.util.NavigableSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link Cache} implementation that maintains an in-memory representation. Note, only one
@@ -65,6 +66,7 @@ public final class SimpleCache implements Cache {
   private long uid;
   private long totalSpace;
   private boolean released;
+  @MonotonicNonNull private CacheException initializationException;
 
   /**
    * Returns whether {@code cacheFolder} is locked by a {@link SimpleCache} instance. To unlock the
@@ -218,6 +220,17 @@ public final class SimpleCache implements Cache {
     conditionVariable.block();
   }
 
+  /**
+   * Checks whether the cache was initialized successfully.
+   *
+   * @throws CacheException If an error occurred during initialization.
+   */
+  public synchronized void checkInitialization() throws CacheException {
+    if (initializationException != null) {
+      throw initializationException;
+    }
+  }
+
   @Override
   public synchronized void release() {
     if (released) {
@@ -227,7 +240,7 @@ public final class SimpleCache implements Cache {
     removeStaleSpans();
     try {
       contentIndex.store();
-    } catch (CacheException e) {
+    } catch (IOException e) {
       Log.e(TAG, "Storing index file failed", e);
     } finally {
       unlockFolder(cacheDir);
@@ -286,6 +299,9 @@ public final class SimpleCache implements Cache {
   @Override
   public synchronized SimpleCacheSpan startReadWrite(String key, long position)
       throws InterruptedException, CacheException {
+    Assertions.checkState(!released);
+    checkInitialization();
+
     while (true) {
       SimpleCacheSpan span = startReadWriteNonBlocking(key, position);
       if (span != null) {
@@ -301,9 +317,12 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized @Nullable SimpleCacheSpan startReadWriteNonBlocking(
-      String key, long position) {
+  @Nullable
+  public synchronized SimpleCacheSpan startReadWriteNonBlocking(String key, long position)
+      throws CacheException {
     Assertions.checkState(!released);
+    checkInitialization();
+
     SimpleCacheSpan span = getSpan(key, position);
 
     // Read case.
@@ -313,7 +332,11 @@ public final class SimpleCache implements Cache {
       long lastAccessTimestamp = System.currentTimeMillis();
       boolean updateFile = false;
       if (fileIndex != null) {
-        fileIndex.set(fileName, length, lastAccessTimestamp);
+        try {
+          fileIndex.set(fileName, length, lastAccessTimestamp);
+        } catch (IOException e) {
+          throw new CacheException(e);
+        }
       } else {
         // Updating the file itself to incorporate the new last access timestamp is much slower than
         // updating the file index. Hence we only update the file if we don't have a file index.
@@ -337,8 +360,10 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized File startFile(String key, long position, long length) {
+  public synchronized File startFile(String key, long position, long length) throws CacheException {
     Assertions.checkState(!released);
+    checkInitialization();
+
     CachedContent cachedContent = contentIndex.get(key);
     Assertions.checkNotNull(cachedContent);
     Assertions.checkState(cachedContent.isLocked());
@@ -368,10 +393,9 @@ public final class SimpleCache implements Cache {
       return;
     }
 
-    SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(file, length, contentIndex);
-    Assertions.checkState(span != null);
-    CachedContent cachedContent = contentIndex.get(span.key);
-    Assertions.checkNotNull(cachedContent);
+    SimpleCacheSpan span =
+        Assertions.checkNotNull(SimpleCacheSpan.createCacheEntry(file, length, contentIndex));
+    CachedContent cachedContent = Assertions.checkNotNull(contentIndex.get(span.key));
     Assertions.checkState(cachedContent.isLocked());
 
     // Check if the span conflicts with the set content length
@@ -381,10 +405,19 @@ public final class SimpleCache implements Cache {
     }
 
     if (fileIndex != null) {
-      fileIndex.set(file.getName(), span.length, span.lastAccessTimestamp);
+      String fileName = file.getName();
+      try {
+        fileIndex.set(fileName, span.length, span.lastAccessTimestamp);
+      } catch (IOException e) {
+        throw new CacheException(e);
+      }
     }
     addSpan(span);
-    contentIndex.store();
+    try {
+      contentIndex.store();
+    } catch (IOException e) {
+      throw new CacheException(e);
+    }
     notifyAll();
   }
 
@@ -423,8 +456,14 @@ public final class SimpleCache implements Cache {
   public synchronized void applyContentMetadataMutations(
       String key, ContentMetadataMutations mutations) throws CacheException {
     Assertions.checkState(!released);
+    checkInitialization();
+
     contentIndex.applyContentMetadataMutations(key, mutations);
-    contentIndex.store();
+    try {
+      contentIndex.store();
+    } catch (IOException e) {
+      throw new CacheException(e);
+    }
   }
 
   @Override
@@ -471,41 +510,46 @@ public final class SimpleCache implements Cache {
   /** Ensures that the cache's in-memory representation has been initialized. */
   private void initialize() {
     if (!cacheDir.exists()) {
-      // Attempt to create the cache directory.
       if (!cacheDir.mkdirs()) {
-        // TODO: Initialization failed. Decide how to handle this.
+        initializationException =
+            new CacheException("Failed to create cache directory: " + cacheDir);
         return;
       }
     }
 
     File[] files = cacheDir.listFiles();
     if (files == null) {
-      // TODO: Initialization failed. Decide how to handle this.
+      initializationException =
+          new CacheException("Failed to list cache directory files: " + cacheDir);
       return;
     }
 
     try {
       uid = loadUid(cacheDir, files);
     } catch (IOException e) {
-      // TODO: Initialization failed. Decide how to handle this.
+      initializationException = new CacheException("Failed to load cache UID: " + cacheDir);
       return;
     }
 
-    // TODO: Handle content index initialization failures.
-    contentIndex.initialize(uid);
-    if (fileIndex != null) {
-      // TODO: Handle file index initialization failures.
-      fileIndex.initialize(uid);
-      Map<String, CacheFileMetadata> fileMetadata = fileIndex.getAll();
-      loadDirectory(cacheDir, /* isRoot= */ true, files, fileMetadata);
-      fileIndex.removeAll(fileMetadata.keySet());
-    } else {
-      loadDirectory(cacheDir, /* isRoot= */ true, files, /* fileMetadata= */ null);
+    try {
+      contentIndex.initialize(uid);
+      if (fileIndex != null) {
+        fileIndex.initialize(uid);
+        Map<String, CacheFileMetadata> fileMetadata = fileIndex.getAll();
+        loadDirectory(cacheDir, /* isRoot= */ true, files, fileMetadata);
+        fileIndex.removeAll(fileMetadata.keySet());
+      } else {
+        loadDirectory(cacheDir, /* isRoot= */ true, files, /* fileMetadata= */ null);
+      }
+    } catch (IOException e) {
+      initializationException = new CacheException(e);
+      return;
     }
+
     contentIndex.removeEmpty();
     try {
       contentIndex.store();
-    } catch (CacheException e) {
+    } catch (IOException e) {
       Log.e(TAG, "Storing index file failed", e);
     }
   }
@@ -580,7 +624,14 @@ public final class SimpleCache implements Cache {
     }
     totalSpace -= span.length;
     if (fileIndex != null) {
-      fileIndex.remove(span.file.getName());
+      String fileName = span.file.getName();
+      try {
+        fileIndex.remove(fileName);
+      } catch (IOException e) {
+        // This will leave a stale entry in the file index. It will be removed next time the cache
+        // is initialized.
+        Log.w(TAG, "Failed to remove file index entry for: " + fileName);
+      }
     }
     contentIndex.maybeRemove(cachedContent.key);
     notifySpanRemoved(span);

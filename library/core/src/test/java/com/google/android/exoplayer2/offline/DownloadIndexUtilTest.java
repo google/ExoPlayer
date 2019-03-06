@@ -22,6 +22,7 @@ import android.net.Uri;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
@@ -53,7 +54,7 @@ public class DownloadIndexUtilTest {
   }
 
   @Test
-  public void addAction_nonExistingDownloadState_createsNewDownloadState() {
+  public void addAction_nonExistingDownloadState_createsNewDownloadState() throws IOException {
     byte[] data = new byte[] {1, 2, 3, 4};
     DownloadAction action =
         DownloadAction.createDownloadAction(
@@ -71,7 +72,7 @@ public class DownloadIndexUtilTest {
   }
 
   @Test
-  public void addAction_existingDownloadState_createsMergedDownloadState() {
+  public void addAction_existingDownloadState_createsMergedDownloadState() throws IOException {
     StreamKey streamKey1 =
         new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5);
     StreamKey streamKey2 =
@@ -105,7 +106,7 @@ public class DownloadIndexUtilTest {
   }
 
   @Test
-  public void upgradeActionFile_createsDownloadStates() throws Exception {
+  public void upgradeActionFile_createsDownloadStates() throws IOException {
     ActionFile actionFile = new ActionFile(tempFile);
     StreamKey streamKey1 =
         new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5);
@@ -138,7 +139,8 @@ public class DownloadIndexUtilTest {
     assertDownloadIndexContainsAction(action3, DownloadState.STATE_REMOVING);
   }
 
-  private void assertDownloadIndexContainsAction(DownloadAction action, int state) {
+  private void assertDownloadIndexContainsAction(DownloadAction action, int state)
+      throws IOException {
     DownloadState downloadState = downloadIndex.getDownloadState(action.id);
     assertThat(downloadState).isNotNull();
     assertThat(downloadState.type).isEqualTo(action.type);

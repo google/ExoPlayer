@@ -17,7 +17,9 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
 import com.google.android.exoplayer2.util.Assertions;
@@ -63,36 +65,48 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.databaseProvider = databaseProvider;
   }
 
-  /** Initializes the index for the given cache UID. */
-  public void initialize(long uid) {
-    String hexUid = Long.toHexString(uid);
-    tableName = TABLE_PREFIX + hexUid;
-    SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
-    int version =
-        VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid);
-    if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
-      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.beginTransaction();
-      try {
-        VersionTable.setVersion(
-            writableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid, TABLE_VERSION);
-        writableDatabase.execSQL("DROP TABLE IF EXISTS " + tableName);
-        writableDatabase.execSQL("CREATE TABLE " + tableName + " " + TABLE_SCHEMA);
-        writableDatabase.setTransactionSuccessful();
-      } finally {
-        writableDatabase.endTransaction();
+  /**
+   * Initializes the index for the given cache UID.
+   *
+   * @throws DatabaseIOException If an error occurs initializing the index.
+   */
+  public void initialize(long uid) throws DatabaseIOException {
+    try {
+      String hexUid = Long.toHexString(uid);
+      tableName = TABLE_PREFIX + hexUid;
+      SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
+      int version =
+          VersionTable.getVersion(
+              readableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid);
+      if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
+        SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+        writableDatabase.beginTransaction();
+        try {
+          VersionTable.setVersion(
+              writableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid, TABLE_VERSION);
+          writableDatabase.execSQL("DROP TABLE IF EXISTS " + tableName);
+          writableDatabase.execSQL("CREATE TABLE " + tableName + " " + TABLE_SCHEMA);
+          writableDatabase.setTransactionSuccessful();
+        } finally {
+          writableDatabase.endTransaction();
+        }
+      } else if (version < TABLE_VERSION) {
+        // There is no previous version currently.
+        throw new IllegalStateException();
       }
-    } else if (version < TABLE_VERSION) {
-      // There is no previous version currently.
-      throw new IllegalStateException();
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
     }
   }
 
   /**
    * Returns all file metadata keyed by file name. The returned map is mutable and may be modified
    * by the caller.
+   *
+   * @return The file metadata keyed by file name.
+   * @throws DatabaseIOException If an error occurs loading the metadata.
    */
-  public Map<String, CacheFileMetadata> getAll() {
+  public Map<String, CacheFileMetadata> getAll() throws DatabaseIOException {
     try (Cursor cursor = getCursor()) {
       Map<String, CacheFileMetadata> fileMetadata = new HashMap<>(cursor.getCount());
       while (cursor.moveToNext()) {
@@ -102,6 +116,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         fileMetadata.put(name, new CacheFileMetadata(length, lastAccessTimestamp));
       }
       return fileMetadata;
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
     }
   }
 
@@ -111,44 +127,59 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param name The name of the file.
    * @param length The file length.
    * @param lastAccessTimestamp The file last access timestamp.
+   * @throws DatabaseIOException If an error occurs setting the metadata.
    */
-  public void set(String name, long length, long lastAccessTimestamp) {
+  public void set(String name, long length, long lastAccessTimestamp) throws DatabaseIOException {
     Assertions.checkNotNull(tableName);
-    SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-    ContentValues values = new ContentValues();
-    values.put(COLUMN_NAME, name);
-    values.put(COLUMN_LENGTH, length);
-    values.put(COLUMN_LAST_ACCESS_TIMESTAMP, lastAccessTimestamp);
-    writableDatabase.replace(tableName, /* nullColumnHack= */ null, values);
+    try {
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      ContentValues values = new ContentValues();
+      values.put(COLUMN_NAME, name);
+      values.put(COLUMN_LENGTH, length);
+      values.put(COLUMN_LAST_ACCESS_TIMESTAMP, lastAccessTimestamp);
+      writableDatabase.replaceOrThrow(tableName, /* nullColumnHack= */ null, values);
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
+    }
   }
 
   /**
    * Removes metadata.
    *
    * @param name The name of the file whose metadata is to be removed.
+   * @throws DatabaseIOException If an error occurs removing the metadata.
    */
-  public void remove(String name) {
+  public void remove(String name) throws DatabaseIOException {
     Assertions.checkNotNull(tableName);
-    SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-    writableDatabase.delete(tableName, WHERE_NAME_EQUALS, new String[] {name});
+    try {
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      writableDatabase.delete(tableName, WHERE_NAME_EQUALS, new String[] {name});
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
+    }
   }
 
   /**
    * Removes metadata.
    *
    * @param names The names of the files whose metadata is to be removed.
+   * @throws DatabaseIOException If an error occurs removing the metadata.
    */
-  public void removeAll(Set<String> names) {
+  public void removeAll(Set<String> names) throws DatabaseIOException {
     Assertions.checkNotNull(tableName);
-    SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-    writableDatabase.beginTransaction();
     try {
-      for (String name : names) {
-        writableDatabase.delete(tableName, WHERE_NAME_EQUALS, new String[] {name});
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      writableDatabase.beginTransaction();
+      try {
+        for (String name : names) {
+          writableDatabase.delete(tableName, WHERE_NAME_EQUALS, new String[] {name});
+        }
+        writableDatabase.setTransactionSuccessful();
+      } finally {
+        writableDatabase.endTransaction();
       }
-      writableDatabase.setTransactionSuccessful();
-    } finally {
-      writableDatabase.endTransaction();
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
     }
   }
 

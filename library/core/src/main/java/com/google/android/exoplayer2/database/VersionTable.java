@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.database;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import androidx.annotation.IntDef;
 import androidx.annotation.VisibleForTesting;
@@ -78,15 +79,21 @@ public final class VersionTable {
    * @param feature The feature.
    * @param instanceUid The unique identifier of the instance of the feature.
    * @param version The version.
+   * @throws DatabaseIOException If an error occurs executing the SQL.
    */
   public static void setVersion(
-      SQLiteDatabase writableDatabase, @Feature int feature, String instanceUid, int version) {
-    writableDatabase.execSQL(SQL_CREATE_TABLE_IF_NOT_EXISTS);
-    ContentValues values = new ContentValues();
-    values.put(COLUMN_FEATURE, feature);
-    values.put(COLUMN_INSTANCE_UID, instanceUid);
-    values.put(COLUMN_VERSION, version);
-    writableDatabase.replace(TABLE_NAME, /* nullColumnHack= */ null, values);
+      SQLiteDatabase writableDatabase, @Feature int feature, String instanceUid, int version)
+      throws DatabaseIOException {
+    try {
+      writableDatabase.execSQL(SQL_CREATE_TABLE_IF_NOT_EXISTS);
+      ContentValues values = new ContentValues();
+      values.put(COLUMN_FEATURE, feature);
+      values.put(COLUMN_INSTANCE_UID, instanceUid);
+      values.put(COLUMN_VERSION, version);
+      writableDatabase.replaceOrThrow(TABLE_NAME, /* nullColumnHack= */ null, values);
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
+    }
   }
 
   /**
@@ -95,16 +102,22 @@ public final class VersionTable {
    * @param writableDatabase The database to update.
    * @param feature The feature.
    * @param instanceUid The unique identifier of the instance of the feature.
+   * @throws DatabaseIOException If an error occurs executing the SQL.
    */
   public static void removeVersion(
-      SQLiteDatabase writableDatabase, @Feature int feature, String instanceUid) {
-    if (!tableExists(writableDatabase, TABLE_NAME)) {
-      return;
+      SQLiteDatabase writableDatabase, @Feature int feature, String instanceUid)
+      throws DatabaseIOException {
+    try {
+      if (!tableExists(writableDatabase, TABLE_NAME)) {
+        return;
+      }
+      writableDatabase.delete(
+          TABLE_NAME,
+          WHERE_FEATURE_AND_INSTANCE_UID_EQUALS,
+          featureAndInstanceUidArguments(feature, instanceUid));
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
     }
-    writableDatabase.delete(
-        TABLE_NAME,
-        WHERE_FEATURE_AND_INSTANCE_UID_EQUALS,
-        featureAndInstanceUidArguments(feature, instanceUid));
   }
 
   /**
@@ -115,25 +128,31 @@ public final class VersionTable {
    * @param feature The feature.
    * @param instanceUid The unique identifier of the instance of the feature.
    * @return The version, or {@link #VERSION_UNSET} if no version is set.
+   * @throws DatabaseIOException If an error occurs executing the SQL.
    */
-  public static int getVersion(SQLiteDatabase database, @Feature int feature, String instanceUid) {
-    if (!tableExists(database, TABLE_NAME)) {
-      return VERSION_UNSET;
-    }
-    try (Cursor cursor =
-        database.query(
-            TABLE_NAME,
-            new String[] {COLUMN_VERSION},
-            WHERE_FEATURE_AND_INSTANCE_UID_EQUALS,
-            featureAndInstanceUidArguments(feature, instanceUid),
-            /* groupBy= */ null,
-            /* having= */ null,
-            /* orderBy= */ null)) {
-      if (cursor.getCount() == 0) {
+  public static int getVersion(SQLiteDatabase database, @Feature int feature, String instanceUid)
+      throws DatabaseIOException {
+    try {
+      if (!tableExists(database, TABLE_NAME)) {
         return VERSION_UNSET;
       }
-      cursor.moveToNext();
-      return cursor.getInt(/* COLUMN_VERSION index */ 0);
+      try (Cursor cursor =
+          database.query(
+              TABLE_NAME,
+              new String[] {COLUMN_VERSION},
+              WHERE_FEATURE_AND_INSTANCE_UID_EQUALS,
+              featureAndInstanceUidArguments(feature, instanceUid),
+              /* groupBy= */ null,
+              /* having= */ null,
+              /* orderBy= */ null)) {
+        if (cursor.getCount() == 0) {
+          return VERSION_UNSET;
+        }
+        cursor.moveToNext();
+        return cursor.getInt(/* COLUMN_VERSION index */ 0);
+      }
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
     }
   }
 

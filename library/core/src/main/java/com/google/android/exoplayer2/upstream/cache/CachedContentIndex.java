@@ -18,15 +18,16 @@ package com.google.android.exoplayer2.upstream.cache;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
-import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.AtomicFile;
 import com.google.android.exoplayer2.util.ReusableBufferedOutputStream;
@@ -160,28 +161,23 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Loads the index file for the given cache UID.
+   * Loads the index data for the given cache UID.
    *
    * @param uid The UID of the cache whose index is to be loaded.
+   * @throws IOException If an error occurs initializing the index data.
    */
-  public void initialize(long uid) {
+  public void initialize(long uid) throws IOException {
     storage.initialize(uid);
     if (previousStorage != null) {
       previousStorage.initialize(uid);
     }
     if (!storage.exists() && previousStorage != null && previousStorage.exists()) {
       // Copy from previous storage into current storage.
-      loadFrom(previousStorage);
-      try {
-        storage.storeFully(keyToContent);
-      } catch (CacheException e) {
-        // We failed to copy into current storage, so keep using previous storage.
-        storage = previousStorage;
-        previousStorage = null;
-      }
+      previousStorage.load(keyToContent, idToKey);
+      storage.storeFully(keyToContent);
     } else {
       // Load from the current storage.
-      loadFrom(storage);
+      storage.load(keyToContent, idToKey);
     }
     if (previousStorage != null) {
       previousStorage.delete();
@@ -189,8 +185,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
-  /** Stores the index data to index file if there is a change. */
-  public void store() throws CacheException {
+  /**
+   * Stores the index data to index file if there is a change.
+   *
+   * @throws IOException If an error occurs storing the index data.
+   */
+  public void store() throws IOException {
     storage.storeIncremental(keyToContent);
     // Make ids that were removed since the index was last stored eligible for re-use.
     int removedIdCount = removedIds.size();
@@ -286,14 +286,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return cachedContent != null ? cachedContent.getMetadata() : DefaultContentMetadata.EMPTY;
   }
 
-  /** Loads the index from the specified storage. */
-  private void loadFrom(Storage storage) {
-    if (!storage.load(keyToContent, idToKey)) {
-      keyToContent.clear();
-      idToKey.clear();
-    }
-  }
-
   private CachedContent addNew(String key) {
     int id = getNewId(idToKey);
     CachedContent cachedContent = new CachedContent(id, key);
@@ -341,7 +333,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    *
    * @param input Input stream to read from.
    * @return a {@link DefaultContentMetadata} instance.
-   * @throws IOException If an error occurs during reading from input.
+   * @throws IOException If an error occurs during reading from the input.
    */
   private static DefaultContentMetadata readContentMetadata(DataInputStream input)
       throws IOException {
@@ -374,7 +366,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * Serializes itself to a {@link DataOutputStream}.
    *
    * @param output Output stream to store the values.
-   * @throws IOException If an error occurs during writing values to output.
+   * @throws IOException If an error occurs writing to the output.
    */
   private static void writeContentMetadata(DefaultContentMetadata metadata, DataOutputStream output)
       throws IOException {
@@ -394,30 +386,43 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     /** Initializes the storage for the given cache UID. */
     void initialize(long uid);
 
-    /** Returns whether the persisted index exists. */
-    boolean exists();
+    /**
+     * Returns whether the persisted index exists.
+     *
+     * @throws IOException If an error occurs determining whether the persisted index exists.
+     */
+    boolean exists() throws IOException;
 
-    /** Deletes the persisted index. */
-    void delete();
+    /**
+     * Deletes the persisted index.
+     *
+     * @throws IOException If an error occurs deleting the index.
+     */
+    void delete() throws IOException;
 
     /**
      * Loads the persisted index into {@code content} and {@code idToKey}, creating it if it doesn't
      * already exist.
      *
+     * <p>If the persisted index is in a permanently bad state (i.e. all further attempts to load it
+     * are also expected to fail) then it will be deleted and the call will return successfully. For
+     * transient failures, {@link IOException} will be thrown.
+     *
      * @param content The key to content map to populate with persisted data.
      * @param idToKey The id to key map to populate with persisted data.
-     * @return Whether the load was successful.
+     * @throws IOException If an error occurs loading the index.
      */
-    boolean load(HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey);
+    void load(HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey)
+        throws IOException;
 
     /**
      * Writes the persisted index, creating it if it doesn't already exist and replacing any
      * existing content if it does.
      *
      * @param content The key to content map to persist.
-     * @throws CacheException If an error occurs persisting the index.
+     * @throws IOException If an error occurs persisting the index.
      */
-    void storeFully(HashMap<String, CachedContent> content) throws CacheException;
+    void storeFully(HashMap<String, CachedContent> content) throws IOException;
 
     /**
      * Ensures incremental changes to the index since the initial {@link #initialize(long)} or last
@@ -425,9 +430,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
      * changes via {@link #onUpdate(CachedContent)} and {@link #onRemove(CachedContent)}.
      *
      * @param content The key to content map to persist.
-     * @throws CacheException If an error occurs persisting the index.
+     * @throws IOException If an error occurs persisting the index.
      */
-    void storeIncremental(HashMap<String, CachedContent> content) throws CacheException;
+    void storeIncremental(HashMap<String, CachedContent> content) throws IOException;
 
     /**
      * Called when a {@link CachedContent} is added or updated.
@@ -493,24 +498,24 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
-    public boolean load(
+    public void load(
         HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey) {
       Assertions.checkState(!changed);
       if (!readFile(content, idToKey)) {
+        content.clear();
+        idToKey.clear();
         atomicFile.delete();
-        return false;
       }
-      return true;
     }
 
     @Override
-    public void storeFully(HashMap<String, CachedContent> content) throws CacheException {
+    public void storeFully(HashMap<String, CachedContent> content) throws IOException {
       writeFile(content);
       changed = false;
     }
 
     @Override
-    public void storeIncremental(HashMap<String, CachedContent> content) throws CacheException {
+    public void storeIncremental(HashMap<String, CachedContent> content) throws IOException {
       if (!changed) {
         return;
       }
@@ -529,6 +534,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     private boolean readFile(
         HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey) {
+      if (!atomicFile.exists()) {
+        return true;
+      }
+
       DataInputStream input = null;
       try {
         InputStream inputStream = new BufferedInputStream(atomicFile.openRead());
@@ -579,7 +588,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       return true;
     }
 
-    private void writeFile(HashMap<String, CachedContent> content) throws CacheException {
+    private void writeFile(HashMap<String, CachedContent> content) throws IOException {
       DataOutputStream output = null;
       try {
         OutputStream outputStream = atomicFile.startWrite();
@@ -619,8 +628,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         // Avoid calling close twice. Duplicate CipherOutputStream.close calls did
         // not used to be no-ops: https://android-review.googlesource.com/#/c/272799/
         output = null;
-      } catch (IOException e) {
-        throw new CacheException(e);
       } finally {
         Util.closeQuietly(output);
       }
@@ -722,7 +729,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
-    public boolean exists() {
+    public boolean exists() throws DatabaseIOException {
       return VersionTable.getVersion(
               databaseProvider.getReadableDatabase(),
               VersionTable.FEATURE_CACHE_CONTENT_METADATA,
@@ -731,22 +738,27 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
-    public void delete() {
-      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.beginTransaction();
+    public void delete() throws DatabaseIOException {
       try {
-        VersionTable.removeVersion(
-            writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, hexUid);
-        dropTable(writableDatabase);
-        writableDatabase.setTransactionSuccessful();
-      } finally {
-        writableDatabase.endTransaction();
+        SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+        writableDatabase.beginTransaction();
+        try {
+          VersionTable.removeVersion(
+              writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, hexUid);
+          dropTable(writableDatabase);
+          writableDatabase.setTransactionSuccessful();
+        } finally {
+          writableDatabase.endTransaction();
+        }
+      } catch (SQLException e) {
+        throw new DatabaseIOException(e);
       }
     }
 
     @Override
-    public boolean load(
-        HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey) {
+    public void load(
+        HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey)
+        throws IOException {
       Assertions.checkState(pendingUpdates.size() == 0);
       try {
         int version =
@@ -783,52 +795,57 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             idToKey.put(cachedContent.id, cachedContent.key);
           }
         }
-        return true;
-      } catch (IOException | SQLiteException e) {
-        return false;
+      } catch (SQLiteException e) {
+        content.clear();
+        idToKey.clear();
+        throw new DatabaseIOException(e);
       }
     }
 
     @Override
-    public void storeFully(HashMap<String, CachedContent> content) throws CacheException {
-      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.beginTransaction();
+    public void storeFully(HashMap<String, CachedContent> content) throws IOException {
       try {
-        initializeTable(writableDatabase);
-        for (CachedContent cachedContent : content.values()) {
-          addOrUpdateRow(writableDatabase, cachedContent);
+        SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+        writableDatabase.beginTransaction();
+        try {
+          initializeTable(writableDatabase);
+          for (CachedContent cachedContent : content.values()) {
+            addOrUpdateRow(writableDatabase, cachedContent);
+          }
+          writableDatabase.setTransactionSuccessful();
+          pendingUpdates.clear();
+        } finally {
+          writableDatabase.endTransaction();
         }
-        writableDatabase.setTransactionSuccessful();
-        pendingUpdates.clear();
-      } catch (IOException | SQLiteException e) {
-        throw new CacheException(e);
-      } finally {
-        writableDatabase.endTransaction();
+      } catch (SQLException e) {
+        throw new DatabaseIOException(e);
       }
     }
 
     @Override
-    public void storeIncremental(HashMap<String, CachedContent> content) throws CacheException {
+    public void storeIncremental(HashMap<String, CachedContent> content) throws IOException {
       if (pendingUpdates.size() == 0) {
         return;
       }
-      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.beginTransaction();
       try {
-        for (int i = 0; i < pendingUpdates.size(); i++) {
-          CachedContent cachedContent = pendingUpdates.valueAt(i);
-          if (cachedContent == null) {
-            deleteRow(writableDatabase, pendingUpdates.keyAt(i));
-          } else {
-            addOrUpdateRow(writableDatabase, cachedContent);
+        SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+        writableDatabase.beginTransaction();
+        try {
+          for (int i = 0; i < pendingUpdates.size(); i++) {
+            CachedContent cachedContent = pendingUpdates.valueAt(i);
+            if (cachedContent == null) {
+              deleteRow(writableDatabase, pendingUpdates.keyAt(i));
+            } else {
+              addOrUpdateRow(writableDatabase, cachedContent);
+            }
           }
+          writableDatabase.setTransactionSuccessful();
+          pendingUpdates.clear();
+        } finally {
+          writableDatabase.endTransaction();
         }
-        writableDatabase.setTransactionSuccessful();
-        pendingUpdates.clear();
-      } catch (IOException | SQLiteException e) {
-        throw new CacheException(e);
-      } finally {
-        writableDatabase.endTransaction();
+      } catch (SQLException e) {
+        throw new DatabaseIOException(e);
       }
     }
 
@@ -855,7 +872,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               /* orderBy= */ null);
     }
 
-    private void initializeTable(SQLiteDatabase writableDatabase) {
+    private void initializeTable(SQLiteDatabase writableDatabase) throws DatabaseIOException {
       VersionTable.setVersion(
           writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, hexUid, TABLE_VERSION);
       dropTable(writableDatabase);
@@ -880,7 +897,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       values.put(COLUMN_ID, cachedContent.id);
       values.put(COLUMN_KEY, cachedContent.key);
       values.put(COLUMN_METADATA, data);
-      writableDatabase.replace(tableName, /* nullColumnHack= */ null, values);
+      writableDatabase.replaceOrThrow(tableName, /* nullColumnHack= */ null, values);
     }
   }
 }

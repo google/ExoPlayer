@@ -69,9 +69,10 @@ public final class DownloadIndexUtil {
    * @param downloadIndex The action is converted to {@link DownloadState} and stored in this index.
    * @param id A nullable custom download id which overwrites {@link DownloadAction#id}.
    * @param action The action to be stored in {@link DownloadIndex}.
+   * @throws IOException If an error occurs storing the state in the {@link DownloadIndex}.
    */
   public static void addAction(
-      DownloadIndex downloadIndex, @Nullable String id, DownloadAction action) {
+      DownloadIndex downloadIndex, @Nullable String id, DownloadAction action) throws IOException {
     DownloadState downloadState = downloadIndex.getDownloadState(id != null ? id : action.id);
     if (downloadState != null) {
       downloadState = downloadState.mergeAction(action);

@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import android.util.SparseArray;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
@@ -222,8 +221,8 @@ public class CachedContentIndexTest {
 
   @Test
   public void testLegacyEncryption() throws Exception {
-    byte[] key = "Bar12345Bar12345".getBytes(C.UTF8_NAME); // 128 bit key
-    byte[] key2 = "Foo12345Foo12345".getBytes(C.UTF8_NAME); // 128 bit key
+    byte[] key = Util.getUtf8Bytes("Bar12345Bar12345"); // 128 bit key
+    byte[] key2 = Util.getUtf8Bytes("Foo12345Foo12345"); // 128 bit key
 
     assertStoredAndLoadedEqual(newLegacyInstance(key), newLegacyInstance(key));
 
