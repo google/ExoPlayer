@@ -58,7 +58,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   private DialogInterface.OnDismissListener onDismissListener;
 
   /**
-   * Creates and initialized a dialog with a {@link DefaultTrackSelector} and automatically updates
+   * Creates and initializes a dialog with a {@link DefaultTrackSelector} and automatically updates
    * the track selector's parameters when tracks are selected.
    *
    * @param trackSelector A {@link DefaultTrackSelector}.
@@ -104,7 +104,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   public TrackSelectionDialog() {
     tabFragments = new SparseArray<>();
     tabTitles = new ArrayList<>();
-    // Retain instance across orientation changes to prevent loosing access to init data.
+    // Retain instance across activity re-creation to prevent losing access to init data.
     setRetainInstance(true);
   }
 
@@ -211,6 +211,7 @@ public final class TrackSelectionDialog extends DialogFragment {
     Button okButton = dialogView.findViewById(R.id.track_selection_dialog_ok_button);
     viewPager.setAdapter(new FragmentAdapter(getChildFragmentManager()));
     tabLayout.setupWithViewPager(viewPager);
+    tabLayout.setVisibility(tabFragments.size() > 1 ? View.VISIBLE : View.GONE);
     cancelButton.setOnClickListener(view -> dismiss());
     okButton.setOnClickListener(
         view -> {
@@ -271,7 +272,7 @@ public final class TrackSelectionDialog extends DialogFragment {
     /* package */ List<SelectionOverride> overrides;
 
     public TrackSelectionViewFragment() {
-      // Retain instance across orientation changes to prevent loosing access to init data.
+      // Retain instance across activity re-creation to prevent losing access to init data.
       setRetainInstance(true);
     }
 
