@@ -28,7 +28,6 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatDialog;
 import android.util.SparseArray;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -165,13 +164,11 @@ public final class TrackSelectionDialog extends DialogFragment {
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
-    // We need to own the view to let tab layout work correctly on all API levels. That's why we
-    // can't use an AlertDialog as it owns its view itself. Using AppCompatDialog instead. We still
-    // want the "alertDialogTheme" style attribute of the current theme instead of AppCompatDialog's
-    // default "dialogTheme" style, so obtain that manually.
-    TypedValue alertDialogStyle = new TypedValue();
-    getActivity().getTheme().resolveAttribute(R.attr.alertDialogTheme, alertDialogStyle, true);
-    AppCompatDialog dialog = new AppCompatDialog(getActivity(), alertDialogStyle.resourceId);
+    // We need to own the view to let tab layout work correctly on all API levels. We can't use
+    // AlertDialog because it owns the view itself, so we use AppCompatDialog instead, themed using
+    // the AlertDialog theme overlay with force-enabled title.
+    AppCompatDialog dialog =
+        new AppCompatDialog(getActivity(), R.style.TrackSelectionDialogThemeOverlay);
     dialog.setTitle(titleId);
     return dialog;
   }
