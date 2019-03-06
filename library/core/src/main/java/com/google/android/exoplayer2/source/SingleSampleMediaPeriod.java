@@ -326,8 +326,11 @@ import java.util.Arrays;
         return C.RESULT_FORMAT_READ;
       } else if (loadingFinished) {
         if (loadingSucceeded) {
-          buffer.timeUs = 0;
           buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
+          buffer.timeUs = 0;
+          if (buffer.isFlagsOnly()) {
+            return C.RESULT_BUFFER_READ;
+          }
           buffer.ensureSpaceForWrite(sampleSize);
           buffer.data.put(sampleData, 0, sampleSize);
         } else {

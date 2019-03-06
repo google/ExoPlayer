@@ -723,8 +723,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder.format);
       return true;
-    } else if (result == C.RESULT_BUFFER_READ) {
-      Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
+    } else if (result == C.RESULT_BUFFER_READ && flagsOnlyBuffer.isEndOfStream()) {
       inputStreamEnded = true;
       processEndOfStream();
     }
