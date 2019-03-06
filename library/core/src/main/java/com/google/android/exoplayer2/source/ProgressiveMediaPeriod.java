@@ -576,7 +576,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     copyLengthFromLoader(loadable);
     LoadErrorAction loadErrorAction;
     long retryDelayMs =
-        loadErrorHandlingPolicy.getRetryDelayMsFor(dataType, durationUs, error, errorCount);
+        loadErrorHandlingPolicy.getRetryDelayMsFor(dataType, loadDurationMs, error, errorCount);
     if (retryDelayMs == C.TIME_UNSET) {
       loadErrorAction = Loader.DONT_RETRY_FATAL;
     } else /* the load should be retried */ {
