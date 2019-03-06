@@ -12,7 +12,7 @@ track 0:
     maxInputSize = 36722
     width = 1080
     height = 720
-    frameRate = -1.0
+    frameRate = 29.970028
     rotationDegrees = 0
     pixelWidthHeightRatio = 1.0
     channelCount = -1
