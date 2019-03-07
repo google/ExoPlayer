@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
@@ -218,6 +219,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Override
   public void maybeThrowPrepareError() throws IOException {
     maybeThrowError();
+    if (loadingFinished && !prepared) {
+      throw new ParserException("Loading finished before preparation is complete.");
+    }
   }
 
   @Override
@@ -512,12 +516,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Override
   public void onLoadCompleted(ExtractingLoadable loadable, long elapsedRealtimeMs,
       long loadDurationMs) {
-    if (durationUs == C.TIME_UNSET) {
-      SeekMap seekMap = Assertions.checkNotNull(this.seekMap);
+    if (durationUs == C.TIME_UNSET && seekMap != null) {
+      boolean isSeekable = seekMap.isSeekable();
       long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
       durationUs = largestQueuedTimestampUs == Long.MIN_VALUE ? 0
           : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
-      listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable());
+      listener.onSourceInfoRefreshed(durationUs, isSeekable);
     }
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
