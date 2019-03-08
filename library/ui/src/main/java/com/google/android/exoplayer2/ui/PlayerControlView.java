@@ -293,6 +293,10 @@ public class PlayerControlView extends FrameLayout {
         repeatToggleModes = getRepeatToggleModes(a, repeatToggleModes);
         showShuffleButton =
             a.getBoolean(R.styleable.PlayerControlView_show_shuffle_button, showShuffleButton);
+        setTimeBarMinUpdateInterval(
+            a.getInt(
+                R.styleable.PlayerControlView_time_bar_min_update_interval,
+                timeBarMinUpdateIntervalMs));
       } finally {
         a.recycle();
       }
