@@ -120,8 +120,8 @@ public class VpxPlaybackTest {
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(
-                  new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"))
-              .setExtractorsFactory(MatroskaExtractor.FACTORY)
+                  new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"),
+                  MatroskaExtractor.FACTORY)
               .createMediaSource(uri);
       player
           .createMessage(videoRenderer)

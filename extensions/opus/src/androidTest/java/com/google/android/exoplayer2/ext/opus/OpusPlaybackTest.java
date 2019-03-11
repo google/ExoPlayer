@@ -87,8 +87,8 @@ public class OpusPlaybackTest {
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(
-                  new DefaultDataSourceFactory(context, "ExoPlayerExtOpusTest"))
-              .setExtractorsFactory(MatroskaExtractor.FACTORY)
+                  new DefaultDataSourceFactory(context, "ExoPlayerExtOpusTest"),
+                  MatroskaExtractor.FACTORY)
               .createMediaSource(uri);
       player.prepare(mediaSource);
       player.setPlayWhenReady(true);

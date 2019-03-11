@@ -70,6 +70,11 @@
 * Update `DefaultTimeBar` based on duration of media and add parameter to set
   the minimum update interval to control the smoothness of the updates
   ([#5040](https://github.com/google/ExoPlayer/issues/5040)).
+* Fix issue where using `ProgressiveMediaSource.Factory` would mean that
+  `DefaultExtractorsFactory` would be kept by proguard. Custom
+  `ExtractorsFactory` instances must now be passed via the
+  `ProgressiveMediaSource.Factory` constructor, and `setExtractorsFactory` is
+  deprecated.
 
 ### 2.9.6 ###
 
