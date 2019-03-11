@@ -412,8 +412,9 @@ public class MatroskaExtractor implements Extractor {
     extractorOutput = output;
   }
 
+  @CallSuper
   @Override
-  public final void seek(long position, long timeUs) {
+  public void seek(long position, long timeUs) {
     clusterTimecodeUs = C.TIME_UNSET;
     blockState = BLOCK_STATE_START;
     reader.reset();
