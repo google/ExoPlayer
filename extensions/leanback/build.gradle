@@ -33,7 +33,7 @@ android {
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:1.0.1'
-    implementation 'androidx.leanback:leanback:1.1.0-alpha01'
+    implementation 'androidx.leanback:leanback:1.0.0'
 }
 
 ext {
