@@ -49,7 +49,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
 
     private final DataSource.Factory dataSourceFactory;
 
-    @Nullable private ExtractorsFactory extractorsFactory;
+    private ExtractorsFactory extractorsFactory;
     @Nullable private String customCacheKey;
     @Nullable private Object tag;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -57,12 +57,24 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     private boolean isCreateCalled;
 
     /**
-     * Creates a new factory for {@link ProgressiveMediaSource}s.
+     * Creates a new factory for {@link ProgressiveMediaSource}s, using the extractors provided by
+     * {@link DefaultExtractorsFactory}.
      *
      * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
      */
     public Factory(DataSource.Factory dataSourceFactory) {
+      this(dataSourceFactory, new DefaultExtractorsFactory());
+    }
+
+    /**
+     * Creates a new factory for {@link ProgressiveMediaSource}s.
+     *
+     * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
+     * @param extractorsFactory A factory for extractors used to extract media from its container.
+     */
+    public Factory(DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
       this.dataSourceFactory = dataSourceFactory;
+      this.extractorsFactory = extractorsFactory;
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       continueLoadingCheckIntervalBytes = DEFAULT_LOADING_CHECK_INTERVAL_BYTES;
     }
@@ -76,7 +88,11 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      *     formats.
      * @return This factory, for convenience.
      * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     * @deprecated Pass the {@link ExtractorsFactory} via {@link #Factory(DataSource.Factory,
+     *     ExtractorsFactory)}. This is necessary so that proguard can treat the default extractors
+     *     factory as unused.
      */
+    @Deprecated
     public Factory setExtractorsFactory(ExtractorsFactory extractorsFactory) {
       Assertions.checkState(!isCreateCalled);
       this.extractorsFactory = extractorsFactory;
@@ -153,9 +169,6 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     @Override
     public ProgressiveMediaSource createMediaSource(Uri uri) {
       isCreateCalled = true;
-      if (extractorsFactory == null) {
-        extractorsFactory = new DefaultExtractorsFactory();
-      }
       return new ProgressiveMediaSource(
           uri,
           dataSourceFactory,
