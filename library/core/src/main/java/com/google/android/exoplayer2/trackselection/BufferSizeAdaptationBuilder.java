@@ -114,7 +114,7 @@ public final class BufferSizeAdaptationBuilder {
   private int startUpMinBufferForQualityIncreaseMs;
   @Nullable private PriorityTaskManager priorityTaskManager;
   private DynamicFormatFilter dynamicFormatFilter;
-  boolean buildCalled;
+  private boolean buildCalled;
 
   /** Creates builder with default values. */
   public BufferSizeAdaptationBuilder() {
@@ -434,7 +434,7 @@ public final class BufferSizeAdaptationBuilder {
       int lowestBitrateNonBlacklistedIndex = 0;
       for (int i = 0; i < formatBitrates.length; i++) {
         if (formatBitrates[i] != BITRATE_BLACKLISTED) {
-          if (getTargetBufferForBitrateUs(formatBitrates[i]) < bufferUs
+          if (getTargetBufferForBitrateUs(formatBitrates[i]) <= bufferUs
               && dynamicFormatFilter.isFormatAllowed(
                   getFormat(i), formatBitrates[i], /* isInitialSelection= */ false)) {
             return i;
