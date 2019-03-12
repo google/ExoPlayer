@@ -247,7 +247,7 @@ public final class DownloadState {
         type,
         action.uri,
         action.customCacheKey,
-        getNextState(state, action.isRemoveAction),
+        getNextState(state, stopFlags != 0, action.isRemoveAction),
         /* downloadPercentage= */ C.PERCENTAGE_UNSET,
         downloadedBytes,
         /* totalBytes= */ C.LENGTH_UNSET,
@@ -261,14 +261,14 @@ public final class DownloadState {
         action.data);
   }
 
-  private static int getNextState(int currentState, boolean remove) {
+  private static int getNextState(int currentState, boolean stopFlagsSet, boolean remove) {
     int nextState;
     if (remove) {
       nextState = STATE_REMOVING;
     } else {
       if (currentState == STATE_REMOVING || currentState == STATE_RESTARTING) {
         nextState = STATE_RESTARTING;
-      } else if (currentState == STATE_STOPPED) {
+      } else if (stopFlagsSet) {
         nextState = STATE_STOPPED;
       } else {
         nextState = STATE_QUEUED;

@@ -196,6 +196,22 @@ public class DownloadStateTest {
   }
 
   @Test
+  public void mergeAction_stopFlagSetButNotInStoppedState_stateBecomesStopped() {
+    DownloadAction downloadAction = createDownloadAction();
+    DownloadStateBuilder downloadStateBuilder =
+        new DownloadStateBuilder(downloadAction)
+            .setState(DownloadState.STATE_COMPLETED)
+            .setStopFlags(DownloadState.STOP_FLAG_MANUAL);
+    DownloadState downloadState = downloadStateBuilder.build();
+
+    DownloadState mergedDownloadState = downloadState.mergeAction(downloadAction);
+
+    DownloadState expectedDownloadState =
+        downloadStateBuilder.setState(DownloadState.STATE_STOPPED).build();
+    assertEqual(mergedDownloadState, expectedDownloadState);
+  }
+
+  @Test
   public void mergeAction_restartingDownloadRemoveAction_stateBecomesRemoving() {
     DownloadAction downloadAction = createRemoveAction();
     DownloadStateBuilder downloadStateBuilder =
