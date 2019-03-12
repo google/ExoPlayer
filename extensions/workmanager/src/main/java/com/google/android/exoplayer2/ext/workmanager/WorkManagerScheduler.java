@@ -62,7 +62,7 @@ public final class WorkManagerScheduler implements Scheduler {
         Data inputData = buildInputData(requirements, servicePackage, serviceAction);
         OneTimeWorkRequest workRequest = buildWorkRequest(constraints, inputData);
         logd("Scheduling work: " + workName);
-        WorkManager.getInstance().enqueueUniqueWork(workName, ExistingWorkPolicy.KEEP, workRequest);
+        WorkManager.getInstance().enqueueUniqueWork(workName, ExistingWorkPolicy.REPLACE, workRequest);
         return true;
     }
 
