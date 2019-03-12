@@ -18,18 +18,16 @@ package com.google.android.exoplayer2.upstream;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit tests for {@link DataSourceInputStream}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link DataSourceInputStream}. */
+@RunWith(AndroidJUnit4.class)
 public final class DataSourceInputStreamTest {
 
   private static final byte[] TEST_DATA = TestUtil.buildTestData(16);

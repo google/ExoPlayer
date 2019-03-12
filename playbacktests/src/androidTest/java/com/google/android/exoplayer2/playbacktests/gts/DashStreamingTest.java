@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-import static androidx.test.InstrumentationRegistry.getInstrumentation;
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
@@ -91,7 +90,7 @@ public final class DashStreamingTest {
 
   @Before
   public void setUp() {
-    testRunner = new DashTestRunner(TAG, testRule.getActivity(), getInstrumentation());
+    testRunner = new DashTestRunner(TAG, testRule.getActivity());
   }
 
   @After

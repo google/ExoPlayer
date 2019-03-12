@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.trackselection;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
@@ -28,10 +29,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** {@link TrackSelectionUtil} tests. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class TrackSelectionUtilTest {
 
   public static final long MAX_DURATION_US = 30 * C.MICROS_PER_SECOND;

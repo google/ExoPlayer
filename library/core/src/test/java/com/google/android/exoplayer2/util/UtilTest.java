@@ -24,6 +24,7 @@ import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.util.ArrayList;
@@ -33,12 +34,9 @@ import java.util.Random;
 import java.util.zip.Deflater;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit tests for {@link Util}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link Util}. */
+@RunWith(AndroidJUnit4.class)
 public class UtilTest {
 
   @Test

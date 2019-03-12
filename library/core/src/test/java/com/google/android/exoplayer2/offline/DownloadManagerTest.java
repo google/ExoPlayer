@@ -19,6 +19,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadState.State;
 import com.google.android.exoplayer2.scheduler.Requirements;
@@ -39,13 +41,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
 
 /** Tests {@link DownloadManager}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
 public class DownloadManagerTest {
 
@@ -77,7 +77,7 @@ public class DownloadManagerTest {
     uri2 = Uri.parse("http://abc.com/media2");
     uri3 = Uri.parse("http://abc.com/media3");
     dummyMainThread = new DummyMainThread();
-    actionFile = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
+    actionFile = Util.createTempFile(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     downloaderFactory = new FakeDownloaderFactory();
     setUpDownloadManager(100);
   }
@@ -470,7 +470,7 @@ public class DownloadManagerTest {
           () -> {
             downloadManager =
                 new DownloadManager(
-                    RuntimeEnvironment.application,
+                    ApplicationProvider.getApplicationContext(),
                     actionFile,
                     downloaderFactory,
                     maxActiveDownloadTasks,

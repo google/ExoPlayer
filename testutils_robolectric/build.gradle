@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+    api 'androidx.test:core:' + androidXTestVersion
     api 'org.robolectric:robolectric:' + robolectricVersion
     api project(modulePrefix + 'testutils')
     implementation project(modulePrefix + 'library-core')

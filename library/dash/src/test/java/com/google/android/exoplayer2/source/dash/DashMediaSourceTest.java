@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.dash;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Util;
@@ -25,10 +26,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit test for {@link DashMediaSource}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class DashMediaSourceTest {
 
   @Test

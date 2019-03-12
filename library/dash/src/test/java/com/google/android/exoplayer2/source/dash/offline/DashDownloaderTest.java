@@ -26,6 +26,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadException;
@@ -53,11 +55,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link DashDownloader}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DashDownloaderTest {
 
   private SimpleCache cache;
@@ -66,7 +66,8 @@ public class DashDownloaderTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    tempFolder = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
+    tempFolder =
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
   }
 

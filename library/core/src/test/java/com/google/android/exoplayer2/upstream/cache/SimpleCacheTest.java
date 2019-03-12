@@ -21,6 +21,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.Mockito.doAnswer;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Util;
@@ -37,13 +39,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
-/**
- * Unit tests for {@link SimpleCache}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link SimpleCache}. */
+@RunWith(AndroidJUnit4.class)
 public class SimpleCacheTest {
 
   private static final String KEY_1 = "key1";
@@ -54,7 +52,7 @@ public class SimpleCacheTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    cacheDir = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
+    cacheDir = Util.createTempFile(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     // Delete the file. SimpleCache initialization should create a directory with the same name.
     assertThat(cacheDir.delete()).isTrue();
   }
@@ -209,7 +207,8 @@ public class SimpleCacheTest {
     // Don't release the cache. This means the index file wont have been written to disk after the
     // data for KEY_2 was removed. Move the cache instead, so we can reload it without failing the
     // folder locking check.
-    File cacheDir2 = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
+    File cacheDir2 =
+        Util.createTempFile(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     cacheDir2.delete();
     cacheDir.renameTo(cacheDir2);
 

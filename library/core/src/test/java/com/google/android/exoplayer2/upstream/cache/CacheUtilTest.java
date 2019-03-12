@@ -22,6 +22,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
@@ -39,13 +41,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
-/**
- * Tests {@link CacheUtil}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests {@link CacheUtil}. */
+@RunWith(AndroidJUnit4.class)
 public final class CacheUtilTest {
 
   /**
@@ -96,7 +94,8 @@ public final class CacheUtilTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     mockCache.init();
-    tempFolder = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
+    tempFolder =
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
   }
 

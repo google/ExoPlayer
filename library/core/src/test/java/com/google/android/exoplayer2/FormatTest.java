@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_WEBM;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
@@ -32,12 +33,9 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link Format}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link Format}. */
+@RunWith(AndroidJUnit4.class)
 public final class FormatTest {
 
   private static final List<byte[]> INIT_DATA;

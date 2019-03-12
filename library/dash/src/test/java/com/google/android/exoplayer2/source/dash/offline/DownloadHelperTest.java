@@ -16,15 +16,15 @@
 package com.google.android.exoplayer2.source.dash.offline;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit test to verify creation of a DASH {@link DownloadHelper}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class DownloadHelperTest {
 
   @Test

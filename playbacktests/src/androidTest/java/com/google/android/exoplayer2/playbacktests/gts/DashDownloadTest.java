@@ -15,12 +15,11 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-import static androidx.test.InstrumentationRegistry.getInstrumentation;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.DashUtil;
@@ -64,7 +63,7 @@ public final class DashDownloadTest {
   @Before
   public void setUp() throws Exception {
     testRunner =
-        new DashTestRunner(TAG, testRule.getActivity(), getInstrumentation())
+        new DashTestRunner(TAG, testRule.getActivity())
             .setManifestUrl(DashTestData.H264_MANIFEST)
             .setFullPlaybackNoSeeking(true)
             .setCanIncludeAdditionalVideoFormats(false)

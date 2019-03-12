@@ -34,8 +34,7 @@ dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'net.butterflytv.utils:rtmp-client:3.0.1'
     implementation 'androidx.annotation:annotation:1.0.1'
-    testImplementation 'junit:junit:' + junitVersion
-    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation project(modulePrefix + 'testutils-robolectric')
 }
 
 ext {

@@ -15,13 +15,12 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-import static androidx.test.InstrumentationRegistry.getInstrumentation;
 
 import android.media.MediaCodecInfo.AudioCapabilities;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
@@ -41,16 +40,11 @@ public class EnumerateDecodersTest {
 
   private static final String TAG = "EnumerateDecodersTest";
 
-  private static final String REPORT_NAME = "GtsExoPlayerTestCases";
-  private static final String REPORT_OBJECT_NAME = "enumeratedecoderstest";
-
   private MetricsLogger metricsLogger;
 
   @Before
   public void setUp() {
-    metricsLogger =
-        MetricsLogger.Factory.createDefault(
-            getInstrumentation(), TAG, REPORT_NAME, REPORT_OBJECT_NAME);
+    metricsLogger = MetricsLogger.Factory.createDefault(TAG);
   }
 
   @Test

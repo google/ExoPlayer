@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-import static androidx.test.InstrumentationRegistry.getInstrumentation;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
@@ -23,8 +22,8 @@ import static org.junit.Assert.fail;
 import android.media.MediaDrm.MediaDrmStateException;
 import android.net.Uri;
 import android.util.Pair;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
@@ -62,7 +61,7 @@ public final class DashWidevineOfflineTest {
   @Before
   public void setUp() throws Exception {
     testRunner =
-        new DashTestRunner(TAG, testRule.getActivity(), getInstrumentation())
+        new DashTestRunner(TAG, testRule.getActivity())
             .setStreamName("test_widevine_h264_fixed_offline")
             .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
             .setWidevineInfo(MimeTypes.VIDEO_H264, true)

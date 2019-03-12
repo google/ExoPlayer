@@ -41,7 +41,6 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.0.1'
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     testImplementation project(modulePrefix + 'testutils-robolectric')
-    testImplementation 'junit:junit:' + junitVersion
 }
 
 ext {

@@ -40,8 +40,8 @@ android {
 dependencies {
     implementation project(modulePrefix + 'library-core')
     testImplementation project(modulePrefix + 'testutils-robolectric')
-    testImplementation 'junit:junit:' + junitVersion
-    androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
+    androidTestImplementation 'androidx.test:runner:' + androidXTestVersion
+    androidTestImplementation 'androidx.test.ext:junit:' + androidXTestVersion
 }
 
 ext {

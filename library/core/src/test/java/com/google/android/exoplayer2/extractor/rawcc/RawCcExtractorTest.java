@@ -15,15 +15,15 @@
  */
 package com.google.android.exoplayer2.extractor.rawcc;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link RawCcExtractor}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class RawCcExtractorTest {
 
   @Test

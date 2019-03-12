@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -27,29 +28,12 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
 /**
  * Assertion methods for {@link Extractor}.
  */
 public final class ExtractorAsserts {
-
-  private static Context robolectricContext;
-
-  static {
-    try {
-      Class<?> runtimeEnvironmentClass = Class.forName("org.robolectric.RuntimeEnvironment");
-      Field applicationField = runtimeEnvironmentClass.getDeclaredField("application");
-      robolectricContext = (Context) applicationField.get(null);
-    } catch (ClassNotFoundException e) {
-      // Keep Robolectric context at null if not found.
-    } catch (NoSuchFieldException e) {
-      // Keep Robolectric context at null if not found.
-    } catch (IllegalAccessException e) {
-      // Keep Robolectric context at null if not found.
-    }
-  }
 
   /**
    * A factory for {@link Extractor} instances.
@@ -85,8 +69,8 @@ public final class ExtractorAsserts {
     extractor.seek(0, 0);
     extractor.release();
     // Assert output.
-    byte[] fileData = TestUtil.getByteArray(robolectricContext, file);
-    assertOutput(factory, file, fileData, robolectricContext);
+    byte[] fileData = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), file);
+    assertOutput(factory, file, fileData, ApplicationProvider.getApplicationContext());
   }
 
   /**

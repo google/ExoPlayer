@@ -39,7 +39,8 @@ android {
 
 dependencies {
     api 'org.mockito:mockito-core:' + mockitoVersion
-    api 'com.google.truth:truth:' + truthVersion
+    api 'androidx.test.ext:junit:' + androidXTestVersion
+    api 'androidx.test.ext:truth:' + androidXTestVersion
     implementation 'androidx.annotation:annotation:1.0.1'
     implementation project(modulePrefix + 'library-core')
     implementation 'com.google.auto.value:auto-value-annotations:' + autoValueVersion

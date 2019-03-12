@@ -21,6 +21,8 @@ import android.os.Handler;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import android.view.Surface;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -56,12 +58,10 @@ import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 /** Integration test for {@link AnalyticsCollector}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
 public final class AnalyticsCollectorTest {
 
@@ -727,7 +727,7 @@ public final class AnalyticsCollectorTest {
           .setRenderersFactory(renderersFactory)
           .setAnalyticsListener(listener)
           .setActionSchedule(actionSchedule)
-          .build(RuntimeEnvironment.application)
+          .build(ApplicationProvider.getApplicationContext())
           .start()
           .blockUntilActionScheduleFinished(TIMEOUT_MS)
           .blockUntilEnded(TIMEOUT_MS);

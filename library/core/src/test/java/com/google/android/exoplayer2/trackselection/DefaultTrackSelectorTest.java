@@ -30,6 +30,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import android.os.Parcel;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -53,12 +54,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit tests for {@link DefaultTrackSelector}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link DefaultTrackSelector}. */
+@RunWith(AndroidJUnit4.class)
 public final class DefaultTrackSelectorTest {
 
   private static final RendererCapabilities ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES =

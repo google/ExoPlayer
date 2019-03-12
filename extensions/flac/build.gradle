@@ -41,9 +41,8 @@ dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:1.0.1'
     androidTestImplementation project(modulePrefix + 'testutils')
-    androidTestImplementation 'androidx.test:runner:' + testRunnerVersion
+    androidTestImplementation 'androidx.test:runner:' + androidXTestVersion
     testImplementation project(modulePrefix + 'testutils-robolectric')
-    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {

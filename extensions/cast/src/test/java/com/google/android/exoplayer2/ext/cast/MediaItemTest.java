@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.cast;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
@@ -26,10 +27,9 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Test for {@link MediaItem}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class MediaItemTest {
 
   @Test

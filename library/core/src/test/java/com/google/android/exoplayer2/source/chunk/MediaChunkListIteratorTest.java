@@ -17,16 +17,16 @@ package com.google.android.exoplayer2.source.chunk;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.testutil.FakeMediaChunk;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link MediaChunkListIterator}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class MediaChunkListIteratorTest {
 
   private static final Format TEST_FORMAT = Format.createSampleFormat(null, null, 0);

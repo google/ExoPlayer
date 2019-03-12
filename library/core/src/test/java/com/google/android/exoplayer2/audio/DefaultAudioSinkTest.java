@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.robolectric.annotation.Config.NEWEST_SDK;
 import static org.robolectric.annotation.Config.OLDEST_SDK;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
 import java.nio.ByteBuffer;
@@ -27,7 +28,6 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 /**
@@ -42,7 +42,7 @@ import org.robolectric.annotation.Config;
  * draining to the end of the stream. This could be worked around by having a test-only mode where
  * {@link DefaultAudioSink} automatically treats audio as consumed.
  */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class DefaultAudioSinkTest {
 
   private static final int CHANNEL_COUNT_MONO = 1;

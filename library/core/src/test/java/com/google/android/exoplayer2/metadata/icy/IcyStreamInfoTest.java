@@ -18,12 +18,12 @@ package com.google.android.exoplayer2.metadata.icy;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Test for {@link IcyInfo}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class IcyStreamInfoTest {
 
   @Test

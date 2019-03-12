@@ -20,6 +20,8 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -33,11 +35,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Tests for {@link CachedRegionTracker}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class CachedRegionTrackerTest {
 
   private static final String CACHE_KEY = "abc";
@@ -64,7 +64,8 @@ public final class CachedRegionTrackerTest {
     MockitoAnnotations.initMocks(this);
     when(cache.addListener(anyString(), any(Cache.Listener.class))).thenReturn(new TreeSet<>());
     tracker = new CachedRegionTracker(cache, CACHE_KEY, CHUNK_INDEX);
-    cacheDir = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
+    cacheDir =
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     index = new CachedContentIndex(TestUtil.getTestDatabaseProvider());
   }
 

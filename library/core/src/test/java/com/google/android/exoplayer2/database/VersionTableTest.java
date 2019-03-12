@@ -18,14 +18,14 @@ package com.google.android.exoplayer2.database;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.database.sqlite.SQLiteDatabase;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit tests for {@link VersionTable}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class VersionTableTest {
 
   private static final int FEATURE_1 = 1;

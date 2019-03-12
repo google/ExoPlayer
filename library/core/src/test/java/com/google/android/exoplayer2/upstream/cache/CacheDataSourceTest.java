@@ -21,6 +21,8 @@ import static org.junit.Assert.fail;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.CacheAsserts;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
@@ -37,13 +39,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
-/**
- * Unit tests for {@link CacheDataSource}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link CacheDataSource}. */
+@RunWith(AndroidJUnit4.class)
 public final class CacheDataSourceTest {
 
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -71,7 +69,8 @@ public final class CacheDataSourceTest {
     defaultCacheKey = CacheUtil.DEFAULT_CACHE_KEY_FACTORY.buildCacheKey(unboundedDataSpec);
     customCacheKey = "customKey." + defaultCacheKey;
     cacheKeyFactory = dataSpec -> customCacheKey;
-    tempFolder = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
+    tempFolder =
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
   }
 

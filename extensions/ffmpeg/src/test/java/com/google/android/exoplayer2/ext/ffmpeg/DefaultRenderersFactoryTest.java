@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer2.ext.ffmpeg;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.DefaultRenderersFactoryAsserts;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
 /** Unit test for {@link DefaultRenderersFactoryTest} with {@link FfmpegAudioRenderer}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class DefaultRenderersFactoryTest {
 
   @Test

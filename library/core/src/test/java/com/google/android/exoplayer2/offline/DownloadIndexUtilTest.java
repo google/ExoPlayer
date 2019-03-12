@@ -19,6 +19,8 @@ import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_DASH;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
@@ -29,11 +31,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link DownloadIndexUtil}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DownloadIndexUtilTest {
 
   private File tempFile;
@@ -42,8 +42,8 @@ public class DownloadIndexUtilTest {
 
   @Before
   public void setUp() throws Exception {
-    tempFile = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
-    databaseProvider = new ExoDatabaseProvider(RuntimeEnvironment.application);
+    tempFile = Util.createTempFile(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
+    databaseProvider = new ExoDatabaseProvider(ApplicationProvider.getApplicationContext());
     downloadIndex = new DefaultDownloadIndex(databaseProvider);
   }
 
