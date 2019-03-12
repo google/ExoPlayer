@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.playbacktests.gts;
 import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
 
 import android.annotation.TargetApi;
-import android.app.Instrumentation;
 import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.net.Uri;
@@ -72,9 +71,6 @@ public final class DashTestRunner {
 
   private static final long TEST_TIMEOUT_MS = 5 * 60 * 1000;
 
-  private static final String REPORT_NAME = "GtsExoPlayerTestCases";
-  private static final String REPORT_OBJECT_NAME = "playbacktest";
-
   // Whether adaptive tests should enable video formats beyond those mandated by the Android CDD
   // if the device advertises support for them.
   private static final boolean ALLOW_ADDITIONAL_VIDEO_FORMATS = Util.SDK_INT >= 24;
@@ -92,7 +88,6 @@ public final class DashTestRunner {
 
   private final String tag;
   private final HostActivity activity;
-  private final Instrumentation instrumentation;
 
   private String streamName;
   private boolean fullPlaybackNoSeeking;
@@ -125,10 +120,9 @@ public final class DashTestRunner {
     return false;
   }
 
-  public DashTestRunner(String tag, HostActivity activity, Instrumentation instrumentation) {
+  public DashTestRunner(String tag, HostActivity activity) {
     this.tag = tag;
     this.activity = activity;
-    this.instrumentation = instrumentation;
   }
 
   public DashTestRunner setStreamName(String streamName) {
@@ -182,20 +176,18 @@ public final class DashTestRunner {
   }
 
   public void run() {
-    DashHostedTest test = createDashHostedTest(canIncludeAdditionalVideoFormats, false,
-        instrumentation);
+    DashHostedTest test = createDashHostedTest(canIncludeAdditionalVideoFormats, false);
     activity.runTest(test, TEST_TIMEOUT_MS);
     // Retry test exactly once if adaptive test fails due to excessive dropped buffers when
     // playing non-CDD required formats (b/28220076).
     if (test.needsCddLimitedRetry) {
-      activity.runTest(createDashHostedTest(false, true, instrumentation), TEST_TIMEOUT_MS);
+      activity.runTest(createDashHostedTest(false, true), TEST_TIMEOUT_MS);
     }
   }
 
-  private DashHostedTest createDashHostedTest(boolean canIncludeAdditionalVideoFormats,
-      boolean isCddLimitedRetry, Instrumentation instrumentation) {
-    MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(instrumentation, tag,
-        REPORT_NAME, REPORT_OBJECT_NAME);
+  private DashHostedTest createDashHostedTest(
+      boolean canIncludeAdditionalVideoFormats, boolean isCddLimitedRetry) {
+    MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(tag);
     return new DashHostedTest(tag, streamName, manifestUrl, metricsLogger, fullPlaybackNoSeeking,
         audioFormat, canIncludeAdditionalVideoFormats, isCddLimitedRetry, actionSchedule,
         offlineLicenseKeySetId, widevineLicenseUrl, useL1Widevine, dataSourceFactory,

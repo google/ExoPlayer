@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.extractor.ogg.VorbisReader.readBits;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ogg.VorbisReader.VorbisSetup;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
@@ -28,12 +29,9 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link VorbisReader}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link VorbisReader}. */
+@RunWith(AndroidJUnit4.class)
 public final class VorbisReaderTest {
 
   @Test

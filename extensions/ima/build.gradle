@@ -35,10 +35,6 @@ dependencies {
     api 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
     implementation project(modulePrefix + 'library-core')
     implementation 'com.google.android.gms:play-services-ads:17.1.3'
-    testImplementation 'com.google.truth:truth:' + truthVersion
-    testImplementation 'junit:junit:' + junitVersion
-    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
-    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation project(modulePrefix + 'testutils-robolectric')
 }
 

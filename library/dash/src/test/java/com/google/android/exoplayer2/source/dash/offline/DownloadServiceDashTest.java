@@ -24,6 +24,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
@@ -52,12 +54,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link DownloadService}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
 public class DownloadServiceDashTest {
 
@@ -75,7 +75,7 @@ public class DownloadServiceDashTest {
   @Before
   public void setUp() throws IOException {
     dummyMainThread = new DummyMainThread();
-    context = RuntimeEnvironment.application;
+    context = ApplicationProvider.getApplicationContext();
     tempFolder = Util.createTempDirectory(context, "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
 
@@ -118,7 +118,7 @@ public class DownloadServiceDashTest {
           actionFile.delete();
           final DownloadManager dashDownloadManager =
               new DownloadManager(
-                  RuntimeEnvironment.application,
+                  ApplicationProvider.getApplicationContext(),
                   actionFile,
                   new DefaultDownloaderFactory(
                       new DownloaderConstructorHelper(cache, fakeDataSourceFactory)),

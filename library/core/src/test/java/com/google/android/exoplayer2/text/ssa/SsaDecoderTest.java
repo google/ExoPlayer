@@ -17,16 +17,16 @@ package com.google.android.exoplayer2.text.ssa;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit test for {@link SsaDecoder}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class SsaDecoderTest {
 
   private static final String EMPTY = "ssa/empty";
@@ -40,7 +40,7 @@ public final class SsaDecoderTest {
   @Test
   public void testDecodeEmpty() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, EMPTY);
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY);
     SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(0);
@@ -50,7 +50,7 @@ public final class SsaDecoderTest {
   @Test
   public void testDecodeTypical() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL);
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL);
     SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -61,13 +61,16 @@ public final class SsaDecoderTest {
 
   @Test
   public void testDecodeTypicalWithInitializationData() throws IOException {
-    byte[] headerBytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_HEADER_ONLY);
-    byte[] formatBytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_FORMAT_ONLY);
+    byte[] headerBytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_HEADER_ONLY);
+    byte[] formatBytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_FORMAT_ONLY);
     ArrayList<byte[]> initializationData = new ArrayList<>();
     initializationData.add(formatBytes);
     initializationData.add(headerBytes);
     SsaDecoder decoder = new SsaDecoder(initializationData);
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_DIALOGUE_ONLY);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_DIALOGUE_ONLY);
     SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -80,7 +83,8 @@ public final class SsaDecoderTest {
   public void testDecodeInvalidTimecodes() throws IOException {
     // Parsing should succeed, parsing the third cue only.
     SsaDecoder decoder = new SsaDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, INVALID_TIMECODES);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INVALID_TIMECODES);
     SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
@@ -90,7 +94,8 @@ public final class SsaDecoderTest {
   @Test
   public void testDecodeNoEndTimecodes() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, NO_END_TIMECODES);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NO_END_TIMECODES);
     SsaSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(3);

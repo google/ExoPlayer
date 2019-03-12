@@ -22,6 +22,8 @@ import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_SS;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,11 +37,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link DownloadAction}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DownloadActionTest {
 
   private Uri uri1;
@@ -291,7 +291,8 @@ public class DownloadActionTest {
   private static void assertDeserialization(String fileName, DownloadAction expectedAction)
       throws IOException {
     InputStream input =
-        TestUtil.getInputStream(RuntimeEnvironment.application, "download-actions/" + fileName);
+        TestUtil.getInputStream(
+            ApplicationProvider.getApplicationContext(), "download-actions/" + fileName);
     DownloadAction deserializedAction = DownloadAction.deserializeFromStream(input);
 
     assertEqual(deserializedAction, expectedAction);

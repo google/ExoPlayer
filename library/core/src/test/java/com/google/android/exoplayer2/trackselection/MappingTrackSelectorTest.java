@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.trackselection;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.util.Pair;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -32,12 +33,9 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit tests for {@link MappingTrackSelector}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link MappingTrackSelector}. */
+@RunWith(AndroidJUnit4.class)
 public final class MappingTrackSelectorTest {
 
   private static final RendererCapabilities VIDEO_CAPABILITIES =

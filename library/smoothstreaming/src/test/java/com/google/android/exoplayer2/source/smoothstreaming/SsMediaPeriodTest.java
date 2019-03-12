@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.source.smoothstreaming.SsTestUtils.c
 import static com.google.android.exoplayer2.source.smoothstreaming.SsTestUtils.createStreamElement;
 import static org.mockito.Mockito.mock;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
@@ -35,11 +36,10 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link SsMediaPeriod}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 @Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
 public class SsMediaPeriodTest {
 

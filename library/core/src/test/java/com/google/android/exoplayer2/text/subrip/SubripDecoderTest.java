@@ -17,16 +17,16 @@ package com.google.android.exoplayer2.text.subrip;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit test for {@link SubripDecoder}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class SubripDecoderTest {
 
   private static final String EMPTY_FILE = "subrip/empty";
@@ -43,7 +43,7 @@ public final class SubripDecoderTest {
   @Test
   public void testDecodeEmpty() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, EMPTY_FILE);
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY_FILE);
     SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(0);
@@ -53,7 +53,7 @@ public final class SubripDecoderTest {
   @Test
   public void testDecodeTypical() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_FILE);
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_FILE);
     SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -66,7 +66,8 @@ public final class SubripDecoderTest {
   public void testDecodeTypicalWithByteOrderMark() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
-        TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_WITH_BYTE_ORDER_MARK);
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), TYPICAL_WITH_BYTE_ORDER_MARK);
     SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -78,7 +79,9 @@ public final class SubripDecoderTest {
   @Test
   public void testDecodeTypicalExtraBlankLine() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_EXTRA_BLANK_LINE);
+    byte[] bytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), TYPICAL_EXTRA_BLANK_LINE);
     SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -91,7 +94,9 @@ public final class SubripDecoderTest {
   public void testDecodeTypicalMissingTimecode() throws IOException {
     // Parsing should succeed, parsing the first and third cues only.
     SubripDecoder decoder = new SubripDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_MISSING_TIMECODE);
+    byte[] bytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), TYPICAL_MISSING_TIMECODE);
     SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -103,7 +108,9 @@ public final class SubripDecoderTest {
   public void testDecodeTypicalMissingSequence() throws IOException {
     // Parsing should succeed, parsing the first and third cues only.
     SubripDecoder decoder = new SubripDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_MISSING_SEQUENCE);
+    byte[] bytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), TYPICAL_MISSING_SEQUENCE);
     SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -116,7 +123,8 @@ public final class SubripDecoderTest {
     // Parsing should succeed, parsing the third cue only.
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
-        TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_NEGATIVE_TIMESTAMPS);
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), TYPICAL_NEGATIVE_TIMESTAMPS);
     SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
@@ -127,7 +135,8 @@ public final class SubripDecoderTest {
   public void testDecodeTypicalUnexpectedEnd() throws IOException {
     // Parsing should succeed, parsing the first and second cues only.
     SubripDecoder decoder = new SubripDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_UNEXPECTED_END);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_UNEXPECTED_END);
     SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -138,7 +147,8 @@ public final class SubripDecoderTest {
   @Test
   public void testDecodeNoEndTimecodes() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, NO_END_TIMECODES_FILE);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NO_END_TIMECODES_FILE);
     SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(3);
@@ -159,7 +169,8 @@ public final class SubripDecoderTest {
   @Test
   public void testDecodeCueWithTag() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
-    byte[] bytes = TestUtil.getByteArray(RuntimeEnvironment.application, TYPICAL_WITH_TAGS);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_WITH_TAGS);
     SubripSubtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertTypicalCue1(subtitle, 0);

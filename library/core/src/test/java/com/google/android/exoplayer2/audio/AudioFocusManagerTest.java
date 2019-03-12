@@ -24,20 +24,20 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.Util;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAudioManager;
 
 /** Unit tests for {@link AudioFocusManager}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class AudioFocusManagerTest {
   private static final int NO_COMMAND_RECEIVED = ~PLAYER_COMMAND_WAIT_FOR_CALLBACK;
 
@@ -49,10 +49,12 @@ public class AudioFocusManagerTest {
   @Before
   public void setUp() {
     audioManager =
-        (AudioManager) RuntimeEnvironment.application.getSystemService(Context.AUDIO_SERVICE);
+        (AudioManager)
+            ApplicationProvider.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
     testPlayerControl = new TestPlayerControl();
-    audioFocusManager = new AudioFocusManager(RuntimeEnvironment.application, testPlayerControl);
+    audioFocusManager =
+        new AudioFocusManager(ApplicationProvider.getApplicationContext(), testPlayerControl);
   }
 
   @Test

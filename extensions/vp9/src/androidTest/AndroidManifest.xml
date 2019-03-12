@@ -19,6 +19,7 @@
     package="com.google.android.exoplayer2.ext.vp9.test">
 
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+  <uses-sdk/>
 
   <application android:debuggable="true"
       android:allowBackup="false"

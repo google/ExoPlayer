@@ -19,14 +19,14 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.view.MotionEvent;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Tests for {@link TouchTracker}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class TouchTrackerTest {
   private static final float EPSILON = 0.00001f;
   private static final int SWIPE_PX = 100;
@@ -45,7 +45,7 @@ public class TouchTrackerTest {
 
   @Before
   public void setUp() {
-    Context context = RuntimeEnvironment.application;
+    Context context = ApplicationProvider.getApplicationContext();
     tracker =
         new TouchTracker(
             context,

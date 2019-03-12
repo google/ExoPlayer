@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.DataOutputStream;
@@ -30,11 +32,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link ActionFile}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ActionFileTest {
 
   private File tempFile;
@@ -43,7 +43,7 @@ public class ActionFileTest {
 
   @Before
   public void setUp() throws Exception {
-    tempFile = Util.createTempFile(RuntimeEnvironment.application, "ExoPlayerTest");
+    tempFile = Util.createTempFile(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     action1 =
         buildAction(
             DownloadAction.TYPE_PROGRESSIVE,

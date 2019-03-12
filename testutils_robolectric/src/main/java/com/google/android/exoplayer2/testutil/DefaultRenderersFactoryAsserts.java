@@ -22,6 +22,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Handler;
 import android.os.Looper;
+import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
@@ -29,7 +30,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.List;
-import org.robolectric.RuntimeEnvironment;
 
 /** Assertions for {@link DefaultRenderersFactory}. */
 public final class DefaultRenderersFactoryAsserts {
@@ -86,7 +86,7 @@ public final class DefaultRenderersFactoryAsserts {
   private static Renderer[] createRenderers(
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode) {
     DefaultRenderersFactory factory =
-        new DefaultRenderersFactory(RuntimeEnvironment.application)
+        new DefaultRenderersFactory(ApplicationProvider.getApplicationContext())
             .setExtensionRendererMode(extensionRendererMode);
     return factory.createRenderers(
         new Handler(Looper.getMainLooper()),

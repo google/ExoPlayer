@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.ogg;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.testutil.OggTestData;
@@ -24,12 +25,9 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link OggPageHeader}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link OggPageHeader}. */
+@RunWith(AndroidJUnit4.class)
 public final class OggPageHeaderTest {
 
   @Test

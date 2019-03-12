@@ -19,6 +19,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.util.LongSparseArray;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
@@ -30,11 +32,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
 /** Unit tests for {@link SimpleCacheSpan}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class SimpleCacheSpanTest {
 
   public static File createCacheSpanFile(
@@ -51,7 +51,7 @@ public class SimpleCacheSpanTest {
   @Before
   public void setUp() throws Exception {
     cacheDir =
-        Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     index = new CachedContentIndex(TestUtil.getTestDatabaseProvider());
   }
 
