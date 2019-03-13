@@ -20,9 +20,11 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.MediaCodec;
+import android.media.MediaPlayer;
 import android.media.PlaybackParams;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -70,6 +72,8 @@ public class SimpleExoPlayer extends BasePlayer
         Player.VideoComponent,
         Player.TextComponent,
         Player.MetadataComponent {
+
+  private PowerManager.WakeLock mWakeLock;
 
   /** @deprecated Use {@link com.google.android.exoplayer2.video.VideoListener}. */
   @Deprecated
@@ -481,6 +485,37 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public float getVolume() {
     return audioVolume;
+  }
+
+  /**
+   * <p>This function has the SimpleExoPlayer access the low-level power manager
+   * service to control the device's power usage while playing is occurring.
+   * The parameter is a combination of {@link android.os.PowerManager} wake flags.
+   * Use of this method requires {@link android.Manifest.permission#WAKE_LOCK}
+   * permission.
+   * By default, no attempt is made to keep the device awake during playback.
+   *
+   * @param context the Context to use
+   * @param mode    the power/wake mode to set
+   * @see android.os.PowerManager
+   */
+  public void setWakeMode(Context context, int mode) {
+    boolean washeld = false;
+
+    if (mWakeLock != null) {
+      if (mWakeLock.isHeld()) {
+        washeld = true;
+        mWakeLock.release();
+      }
+      mWakeLock = null;
+    }
+
+    PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+    mWakeLock = pm.newWakeLock(mode|PowerManager.ON_AFTER_RELEASE, MediaPlayer.class.getName());
+    mWakeLock.setReferenceCounted(false);
+    if (washeld) {
+      mWakeLock.acquire();
+    }
   }
 
   /**
