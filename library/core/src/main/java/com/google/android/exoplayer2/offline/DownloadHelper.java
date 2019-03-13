@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
@@ -542,6 +543,38 @@ public final class DownloadHelper {
       for (String language : languages) {
         parametersBuilder.setPreferredTextLanguage(language);
         addTrackSelection(periodIndex, parametersBuilder.build());
+      }
+    }
+  }
+
+  /**
+   * Convenience method to add a selection of tracks to be downloaded for a single renderer. Must
+   * not be called until after preparation completes.
+   *
+   * @param periodIndex The period index the track selection is added for.
+   * @param rendererIndex The renderer index the track selection is added for.
+   * @param trackSelectorParameters The {@link DefaultTrackSelector.Parameters} to obtain the new
+   *     selection of tracks.
+   * @param overrides A list of {@link SelectionOverride SelectionOverrides} to apply to the {@code
+   *     trackSelectorParameters}. If empty, {@code trackSelectorParameters} are used as they are.
+   */
+  public void addTrackSelectionForSingleRenderer(
+      int periodIndex,
+      int rendererIndex,
+      DefaultTrackSelector.Parameters trackSelectorParameters,
+      List<SelectionOverride> overrides) {
+    assertPreparedWithMedia();
+    DefaultTrackSelector.ParametersBuilder builder = trackSelectorParameters.buildUpon();
+    for (int i = 0; i < mappedTrackInfos[periodIndex].getRendererCount(); i++) {
+      builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ i != rendererIndex);
+    }
+    if (overrides.isEmpty()) {
+      addTrackSelection(periodIndex, builder.build());
+    } else {
+      TrackGroupArray trackGroupArray = mappedTrackInfos[periodIndex].getTrackGroups(rendererIndex);
+      for (int i = 0; i < overrides.size(); i++) {
+        builder.setSelectionOverride(rendererIndex, trackGroupArray, overrides.get(i));
+        addTrackSelection(periodIndex, builder.build());
       }
     }
   }

@@ -36,9 +36,6 @@ import com.google.android.exoplayer2.offline.DownloadState;
 import com.google.android.exoplayer2.offline.DownloadStateCursor;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Requirements;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Log;
@@ -290,37 +287,17 @@ public class DownloadTracker implements DownloadManager.Listener {
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-      DefaultTrackSelector.ParametersBuilder builder =
-          DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS.buildUpon();
-      for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
-        builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ true);
-      }
-      for (int i = 0; i < downloadHelper.getPeriodCount(); i++) {
-        downloadHelper.clearTrackSelections(/* periodIndex = */ i);
-      }
-      for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
-        if (trackSelectionDialog.getIsDisabled(/* rendererIndex= */ i)) {
-          continue;
-        }
-        builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ false);
-        List<SelectionOverride> overrides =
-            trackSelectionDialog.getOverrides(/* rendererIndex= */ i);
-        if (overrides.isEmpty()) {
-          for (int j = 0; j < downloadHelper.getPeriodCount(); j++) {
-            downloadHelper.addTrackSelection(/* periodIndex = */ j, builder.build());
+      for (int periodIndex = 0; periodIndex < downloadHelper.getPeriodCount(); periodIndex++) {
+        downloadHelper.clearTrackSelections(periodIndex);
+        for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+          if (!trackSelectionDialog.getIsDisabled(/* rendererIndex= */ i)) {
+            downloadHelper.addTrackSelectionForSingleRenderer(
+                periodIndex,
+                /* rendererIndex= */ i,
+                DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
+                trackSelectionDialog.getOverrides(/* rendererIndex= */ i));
           }
-        } else {
-          TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(/* rendererIndex= */ i);
-          for (int overrideIndex = 0; overrideIndex < overrides.size(); overrideIndex++) {
-            builder.setSelectionOverride(
-                /* rendererIndex= */ i, trackGroupArray, overrides.get(overrideIndex));
-            for (int j = 0; j < downloadHelper.getPeriodCount(); j++) {
-              downloadHelper.addTrackSelection(/* periodIndex = */ j, builder.build());
-            }
-          }
-          builder.clearSelectionOverrides();
         }
-        builder.setRendererDisabled(/* rendererIndex= */ i, /* disabled= */ true);
       }
       DownloadAction downloadAction = downloadHelper.getDownloadAction(Util.getUtf8Bytes(name));
       startDownload(downloadAction);
