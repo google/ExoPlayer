@@ -171,7 +171,7 @@ public class DownloadStateTest {
     DownloadStateBuilder downloadStateBuilder =
         new DownloadStateBuilder(downloadAction)
             .setState(DownloadState.STATE_STOPPED)
-            .setStopFlags(DownloadState.STOP_FLAG_MANUAL);
+            .setManualStopReason(DownloadState.MANUAL_STOP_REASON_UNDEFINED);
     DownloadState downloadState = downloadStateBuilder.build();
 
     DownloadState mergedDownloadState = downloadState.mergeAction(downloadAction);
@@ -185,7 +185,7 @@ public class DownloadStateTest {
     DownloadStateBuilder downloadStateBuilder =
         new DownloadStateBuilder(downloadAction)
             .setState(DownloadState.STATE_STOPPED)
-            .setStopFlags(DownloadState.STOP_FLAG_MANUAL);
+            .setManualStopReason(DownloadState.MANUAL_STOP_REASON_UNDEFINED);
     DownloadState downloadState = downloadStateBuilder.build();
 
     DownloadState mergedDownloadState = downloadState.mergeAction(downloadAction);
@@ -196,12 +196,28 @@ public class DownloadStateTest {
   }
 
   @Test
-  public void mergeAction_stopFlagSetButNotInStoppedState_stateBecomesStopped() {
+  public void mergeAction_manualStopReasonSetButNotInStoppedState_stateBecomesStopped() {
     DownloadAction downloadAction = createDownloadAction();
     DownloadStateBuilder downloadStateBuilder =
         new DownloadStateBuilder(downloadAction)
             .setState(DownloadState.STATE_COMPLETED)
-            .setStopFlags(DownloadState.STOP_FLAG_MANUAL);
+            .setManualStopReason(DownloadState.MANUAL_STOP_REASON_UNDEFINED);
+    DownloadState downloadState = downloadStateBuilder.build();
+
+    DownloadState mergedDownloadState = downloadState.mergeAction(downloadAction);
+
+    DownloadState expectedDownloadState =
+        downloadStateBuilder.setState(DownloadState.STATE_STOPPED).build();
+    assertEqual(mergedDownloadState, expectedDownloadState);
+  }
+
+  @Test
+  public void mergeAction_notMetRequirementsSetButNotInStoppedState_stateBecomesStopped() {
+    DownloadAction downloadAction = createDownloadAction();
+    DownloadStateBuilder downloadStateBuilder =
+        new DownloadStateBuilder(downloadAction)
+            .setState(DownloadState.STATE_COMPLETED)
+            .setNotMetRequirements(0x12345678);
     DownloadState downloadState = downloadStateBuilder.build();
 
     DownloadState mergedDownloadState = downloadState.mergeAction(downloadAction);
@@ -325,7 +341,7 @@ public class DownloadStateTest {
     if (downloadState.failureReason != that.failureReason) {
       return false;
     }
-    if (downloadState.stopFlags != that.stopFlags) {
+    if (downloadState.manualStopReason != that.manualStopReason) {
       return false;
     }
     if (downloadState.notMetRequirements != that.notMetRequirements) {

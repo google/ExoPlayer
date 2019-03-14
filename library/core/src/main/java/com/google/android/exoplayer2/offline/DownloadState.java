@@ -76,20 +76,10 @@ public final class DownloadState {
   /** The download is failed because of unknown reason. */
   public static final int FAILURE_REASON_UNKNOWN = 1;
 
-  /**
-   * Download stop flags. Possible flag values are {@link #STOP_FLAG_MANUAL} and {@link
-   * #STOP_FLAG_REQUIREMENTS_NOT_MET}.
-   */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef(
-      flag = true,
-      value = {STOP_FLAG_MANUAL, STOP_FLAG_REQUIREMENTS_NOT_MET})
-  public @interface StopFlags {}
-  /** Download is stopped by the application. */
-  public static final int STOP_FLAG_MANUAL = 1;
-  /** Download is stopped as the requirements are not met. */
-  public static final int STOP_FLAG_REQUIREMENTS_NOT_MET = 1 << 1;
+  /** The download isn't manually stopped. */
+  public static final int MANUAL_STOP_REASON_NONE = 0;
+  /** The download is manually stopped but a reason isn't specified. */
+  public static final int MANUAL_STOP_REASON_UNDEFINED = Integer.MAX_VALUE;
 
   /** Returns the state string for the given state value. */
   public static String getStateString(@State int state) {
@@ -156,11 +146,9 @@ public final class DownloadState {
    * #FAILURE_REASON_NONE}.
    */
   @FailureReason public final int failureReason;
-  /** Download stop flags. These flags stop downloading any content. */
-  @StopFlags public final int stopFlags;
   /** Not met requirements to download. */
   @Requirements.RequirementFlags public final int notMetRequirements;
-  /** If {@link #STOP_FLAG_MANUAL} is set then this field holds the manual stop reason. */
+  /** The manual stop reason. */
   public final int manualStopReason;
 
   /**
@@ -183,7 +171,6 @@ public final class DownloadState {
         /* downloadedBytes= */ 0,
         /* totalBytes= */ C.LENGTH_UNSET,
         FAILURE_REASON_NONE,
-        /* stopFlags= */ 0,
         /* notMetRequirements= */ 0,
         /* manualStopReason= */ 0,
         /* startTimeMs= */ currentTimeMs,
@@ -202,7 +189,6 @@ public final class DownloadState {
       long downloadedBytes,
       long totalBytes,
       @FailureReason int failureReason,
-      @StopFlags int stopFlags,
       @RequirementFlags int notMetRequirements,
       int manualStopReason,
       long startTimeMs,
@@ -210,10 +196,9 @@ public final class DownloadState {
       StreamKey[] streamKeys,
       byte[] customMetadata) {
     Assertions.checkState((failureReason == FAILURE_REASON_NONE) == (state != STATE_FAILED));
-    Assertions.checkState(stopFlags == 0 || (state != STATE_DOWNLOADING && state != STATE_QUEUED));
-    Assertions.checkState(
-        ((stopFlags & STOP_FLAG_REQUIREMENTS_NOT_MET) == 0) == (notMetRequirements == 0));
-    Assertions.checkState(((stopFlags & STOP_FLAG_MANUAL) != 0) || (manualStopReason == 0));
+    if (manualStopReason != 0 || notMetRequirements != 0) {
+      Assertions.checkState(state != STATE_DOWNLOADING && state != STATE_QUEUED);
+    }
     this.id = id;
     this.type = type;
     this.uri = uri;
@@ -223,7 +208,6 @@ public final class DownloadState {
     this.downloadedBytes = downloadedBytes;
     this.totalBytes = totalBytes;
     this.failureReason = failureReason;
-    this.stopFlags = stopFlags;
     this.notMetRequirements = notMetRequirements;
     this.manualStopReason = manualStopReason;
     this.startTimeMs = startTimeMs;
@@ -247,12 +231,12 @@ public final class DownloadState {
         type,
         action.uri,
         action.customCacheKey,
-        getNextState(state, stopFlags != 0, action.isRemoveAction),
+        getNextState(
+            state, manualStopReason != 0 || notMetRequirements != 0, action.isRemoveAction),
         /* downloadPercentage= */ C.PERCENTAGE_UNSET,
         downloadedBytes,
         /* totalBytes= */ C.LENGTH_UNSET,
         FAILURE_REASON_NONE,
-        stopFlags,
         notMetRequirements,
         manualStopReason,
         startTimeMs,
@@ -261,14 +245,14 @@ public final class DownloadState {
         action.data);
   }
 
-  private static int getNextState(int currentState, boolean stopFlagsSet, boolean remove) {
+  private static int getNextState(int currentState, boolean isStopped, boolean remove) {
     int nextState;
     if (remove) {
       nextState = STATE_REMOVING;
     } else {
       if (currentState == STATE_REMOVING || currentState == STATE_RESTARTING) {
         nextState = STATE_RESTARTING;
-      } else if (stopFlagsSet) {
+      } else if (isStopped) {
         nextState = STATE_STOPPED;
       } else {
         nextState = STATE_QUEUED;
