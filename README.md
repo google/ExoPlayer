@@ -95,20 +95,6 @@ compileOptions {
 }
 ```
 
-Note that if you want to use Java 8 features in your own code, the following
-additional options need to be set:
-
-```gradle
-// For Java compilers:
-compileOptions {
-  sourceCompatibility JavaVersion.VERSION_1_8
-}
-// For Kotlin compilers:
-kotlinOptions {
-  jvmTarget = JavaVersion.VERSION_1_8
-}
-```
-
 ### Locally ###
 
 Cloning the repository and depending on the modules locally is required when
