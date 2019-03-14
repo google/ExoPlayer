@@ -36,7 +36,6 @@ class DownloadStateBuilder {
   private long downloadedBytes;
   private long totalBytes;
   private int failureReason;
-  private int stopFlags;
   private int notMetRequirements;
   private int manualStopReason;
   private long startTimeMs;
@@ -74,7 +73,6 @@ class DownloadStateBuilder {
     this.downloadedBytes = (long) 0;
     this.totalBytes = (long) C.LENGTH_UNSET;
     this.failureReason = DownloadState.FAILURE_REASON_NONE;
-    this.stopFlags = 0;
     this.startTimeMs = (long) 0;
     this.updateTimeMs = (long) 0;
     this.streamKeys = streamKeys;
@@ -131,11 +129,6 @@ class DownloadStateBuilder {
     return this;
   }
 
-  public DownloadStateBuilder setStopFlags(int stopFlags) {
-    this.stopFlags = stopFlags;
-    return this;
-  }
-
   public DownloadStateBuilder setNotMetRequirements(int notMetRequirements) {
     this.notMetRequirements = notMetRequirements;
     return this;
@@ -177,7 +170,6 @@ class DownloadStateBuilder {
         downloadedBytes,
         totalBytes,
         failureReason,
-        stopFlags,
         notMetRequirements,
         manualStopReason,
         startTimeMs,

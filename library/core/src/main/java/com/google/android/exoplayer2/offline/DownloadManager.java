@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.offline;
 
 import static com.google.android.exoplayer2.offline.DownloadState.FAILURE_REASON_NONE;
 import static com.google.android.exoplayer2.offline.DownloadState.FAILURE_REASON_UNKNOWN;
+import static com.google.android.exoplayer2.offline.DownloadState.MANUAL_STOP_REASON_NONE;
+import static com.google.android.exoplayer2.offline.DownloadState.MANUAL_STOP_REASON_UNDEFINED;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_COMPLETED;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_DOWNLOADING;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_FAILED;
@@ -25,8 +27,6 @@ import static com.google.android.exoplayer2.offline.DownloadState.STATE_REMOVED;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_REMOVING;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_RESTARTING;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_STOPPED;
-import static com.google.android.exoplayer2.offline.DownloadState.STOP_FLAG_MANUAL;
-import static com.google.android.exoplayer2.offline.DownloadState.STOP_FLAG_REQUIREMENTS_NOT_MET;
 
 import android.content.Context;
 import android.os.ConditionVariable;
@@ -140,7 +140,6 @@ public final class DownloadManager {
 
   private boolean initialized;
   private boolean released;
-  @DownloadState.StopFlags private int stopFlags;
   @Requirements.RequirementFlags private int notMetRequirements;
   private int manualStopReason;
   private RequirementsWatcher requirementsWatcher;
@@ -186,7 +185,7 @@ public final class DownloadManager {
     this.maxSimultaneousDownloads = maxSimultaneousDownloads;
     this.minRetryCount = minRetryCount;
 
-    stopFlags = STOP_FLAG_MANUAL;
+    manualStopReason = MANUAL_STOP_REASON_UNDEFINED;
     downloads = new ArrayList<>();
     activeDownloads = new HashMap<>();
 
@@ -203,7 +202,7 @@ public final class DownloadManager {
     listeners = new CopyOnWriteArraySet<>();
     actionQueue = new ArrayDeque<>();
 
-    setNotMetRequirements(watchRequirements(requirements));
+    notMetRequirements = watchRequirements(requirements);
     loadActions();
     logd("Created");
   }
@@ -246,48 +245,49 @@ public final class DownloadManager {
   }
 
   /**
-   * Clears {@link DownloadState#STOP_FLAG_MANUAL} flag of all downloads. Downloads are started if
-   * the requirements are met.
+   * Clears manual stop reason of all downloads. Downloads are started if the requirements are met.
    */
   public void startDownloads() {
-    logd("manual stopped is cancelled");
-    manualStopReason = 0;
-    stopFlags &= ~STOP_FLAG_MANUAL;
+    logd("manual stop is cancelled");
+    manualStopReason = MANUAL_STOP_REASON_NONE;
     for (int i = 0; i < downloads.size(); i++) {
-      downloads.get(i).clearManualStopReason();
+      downloads.get(i).setManualStopReason(MANUAL_STOP_REASON_NONE);
     }
   }
 
   /** Signals all downloads to stop. Call {@link #startDownloads()} to let them to be started. */
   public void stopDownloads() {
-    stopDownloads(/* manualStopReason= */ 0);
+    stopDownloads(/* manualStopReason= */ MANUAL_STOP_REASON_UNDEFINED);
   }
 
   /**
    * Signals all downloads to stop. Call {@link #startDownloads()} to let them to be started.
    *
-   * @param manualStopReason An application defined stop reason.
+   * @param manualStopReason An application defined stop reason. Value {@value
+   *     DownloadState#MANUAL_STOP_REASON_NONE} is not allowed and value {@value
+   *     DownloadState#MANUAL_STOP_REASON_UNDEFINED} is reserved for {@link
+   *     DownloadState#MANUAL_STOP_REASON_UNDEFINED}.
    */
   public void stopDownloads(int manualStopReason) {
+    Assertions.checkArgument(manualStopReason != MANUAL_STOP_REASON_NONE);
     logd("downloads are stopped manually");
     this.manualStopReason = manualStopReason;
-    stopFlags |= STOP_FLAG_MANUAL;
     for (int i = 0; i < downloads.size(); i++) {
       downloads.get(i).setManualStopReason(this.manualStopReason);
     }
   }
 
   /**
-   * Clears {@link DownloadState#STOP_FLAG_MANUAL} flag of the download with the {@code id}.
-   * Download is started if the requirements are met.
+   * Clears manual stop reason of the download with the {@code id}. Download is started if the
+   * requirements are met.
    *
    * @param id The unique content id of the download to be started.
    */
   public void startDownload(String id) {
     Download download = getDownload(id);
     if (download != null) {
-      logd("download is started manually", download);
-      download.clearManualStopReason();
+      logd("manual stop is cancelled", download);
+      download.setManualStopReason(MANUAL_STOP_REASON_NONE);
     }
   }
 
@@ -298,7 +298,7 @@ public final class DownloadManager {
    * @param id The unique content id of the download to be stopped.
    */
   public void stopDownload(String id) {
-    stopDownload(id, /* manualStopReason= */ 0);
+    stopDownload(id, /* manualStopReason= */ MANUAL_STOP_REASON_UNDEFINED);
   }
 
   /**
@@ -306,9 +306,13 @@ public final class DownloadManager {
    * to be started.
    *
    * @param id The unique content id of the download to be stopped.
-   * @param manualStopReason An application defined stop reason.
+   * @param manualStopReason An application defined stop reason. Value {@value
+   *     DownloadState#MANUAL_STOP_REASON_NONE} is not allowed and value {@value
+   *     DownloadState#MANUAL_STOP_REASON_UNDEFINED} is reserved for {@link
+   *     DownloadState#MANUAL_STOP_REASON_UNDEFINED}.
    */
   public void stopDownload(String id, int manualStopReason) {
+    Assertions.checkArgument(manualStopReason != MANUAL_STOP_REASON_NONE);
     Download download = getDownload(id);
     if (download != null) {
       logd("download is stopped manually", download);
@@ -401,7 +405,7 @@ public final class DownloadManager {
         return;
       }
     }
-    Download download = new Download(this, action, stopFlags, notMetRequirements, manualStopReason);
+    Download download = new Download(this, action, notMetRequirements, manualStopReason);
     downloads.add(download);
     logd("Download is added", download);
   }
@@ -432,7 +436,7 @@ public final class DownloadManager {
   }
 
   private void onRequirementsStateChanged(@Requirements.RequirementFlags int notMetRequirements) {
-    setNotMetRequirements(notMetRequirements);
+    this.notMetRequirements = notMetRequirements;
     logdFlags("Not met requirements are changed", notMetRequirements);
     Requirements requirements = requirementsWatcher.getRequirements();
     for (Listener listener : listeners) {
@@ -440,15 +444,6 @@ public final class DownloadManager {
     }
     for (int i = 0; i < downloads.size(); i++) {
       downloads.get(i).setNotMetRequirements(notMetRequirements);
-    }
-  }
-
-  private void setNotMetRequirements(@Requirements.RequirementFlags int notMetRequirements) {
-    this.notMetRequirements = notMetRequirements;
-    if (notMetRequirements == 0) {
-      stopFlags &= ~STOP_FLAG_REQUIREMENTS_NOT_MET;
-    } else {
-      stopFlags |= STOP_FLAG_REQUIREMENTS_NOT_MET;
     }
   }
 
@@ -632,20 +627,17 @@ public final class DownloadManager {
     private DownloadState downloadState;
     @DownloadState.State private int state;
     @MonotonicNonNull @DownloadState.FailureReason private int failureReason;
-    @DownloadState.StopFlags private int stopFlags;
     @Requirements.RequirementFlags private int notMetRequirements;
     private int manualStopReason;
 
     private Download(
         DownloadManager downloadManager,
         DownloadAction action,
-        @DownloadState.StopFlags int stopFlags,
         @Requirements.RequirementFlags int notMetRequirements,
         int manualStopReason) {
       this.downloadManager = downloadManager;
       this.notMetRequirements = notMetRequirements;
       this.manualStopReason = manualStopReason;
-      this.stopFlags = stopFlags;
       downloadState = new DownloadState(action);
 
       initialize(downloadState.state);
@@ -686,7 +678,6 @@ public final class DownloadManager {
               downloadedBytes,
               totalBytes,
               state != STATE_FAILED ? FAILURE_REASON_NONE : failureReason,
-              stopFlags,
               notMetRequirements,
               manualStopReason,
               downloadState.startTimeMs,
@@ -719,32 +710,24 @@ public final class DownloadManager {
 
     public void setNotMetRequirements(@Requirements.RequirementFlags int notMetRequirements) {
       this.notMetRequirements = notMetRequirements;
-      updateStopFlags(STOP_FLAG_REQUIREMENTS_NOT_MET, /* setFlags= */ notMetRequirements != 0);
+      updateStopState();
     }
 
     public void setManualStopReason(int manualStopReason) {
       this.manualStopReason = manualStopReason;
-      updateStopFlags(STOP_FLAG_MANUAL, /* setFlags= */ true);
+      updateStopState();
     }
 
-    public void clearManualStopReason() {
-      this.manualStopReason = 0;
-      updateStopFlags(STOP_FLAG_MANUAL, /* setFlags= */ false);
-    }
-
-    private void updateStopFlags(int flags, boolean setFlags) {
-      if (setFlags) {
-        stopFlags |= flags;
+    private void updateStopState() {
+      if (canStart()) {
+        if (state == STATE_STOPPED) {
+          startOrQueue();
+        }
       } else {
-        stopFlags &= ~flags;
-      }
-      if (stopFlags != 0) {
         if (state == STATE_DOWNLOADING || state == STATE_QUEUED) {
           downloadManager.stopDownloadThread(this);
           setState(STATE_STOPPED);
         }
-      } else if (state == STATE_STOPPED) {
-        startOrQueue();
       }
     }
 
@@ -754,14 +737,18 @@ public final class DownloadManager {
       state = initialState;
       if (state == STATE_REMOVING || state == STATE_RESTARTING) {
         downloadManager.startDownloadThread(this, getAction());
-      } else if (stopFlags != 0) {
-        setState(STATE_STOPPED);
-      } else {
+      } else if (canStart()) {
         startOrQueue();
+      } else {
+        setState(STATE_STOPPED);
       }
       if (state == initialState) {
         downloadManager.onDownloadStateChange(this);
       }
+    }
+
+    private boolean canStart() {
+      return manualStopReason == MANUAL_STOP_REASON_NONE && notMetRequirements == 0;
     }
 
     private void startOrQueue() {
