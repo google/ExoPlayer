@@ -85,6 +85,12 @@ import java.util.Locale;
  *         <li>Corresponding method: {@link #setShowShuffleButton(boolean)}
  *         <li>Default: false
  *       </ul>
+ *   <li><b>{@code time_bar_min_update_interval}</b> - Specifies the minimum interval between time
+ *       bar position updates.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setTimeBarMinUpdateInterval(int)}
+ *         <li>Default: {@link #DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS}
+ *       </ul>
  *   <li><b>{@code controller_layout_id}</b> - Specifies the id of the layout to be inflated. See
  *       below for more details.
  *       <ul>
@@ -191,11 +197,14 @@ public class PlayerControlView extends FrameLayout {
   /** The default repeat toggle modes. */
   public static final @RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES =
       RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE;
-
+  /** The default minimum interval between time bar position updates. */
+  public static final int DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS = 200;
   /** The maximum number of windows that can be shown in a multi-window time bar. */
   public static final int MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR = 100;
 
   private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
+  /** The maximum interval between time bar position updates. */
+  private static final int MAX_UPDATE_INTERVAL_MS = 1000;
 
   private final ComponentListener componentListener;
   private final View previousButton;
@@ -236,6 +245,7 @@ public class PlayerControlView extends FrameLayout {
   private int rewindMs;
   private int fastForwardMs;
   private int showTimeoutMs;
+  private int timeBarMinUpdateIntervalMs;
   private @RepeatModeUtil.RepeatToggleModes int repeatToggleModes;
   private boolean showShuffleButton;
   private long hideAtMs;
@@ -243,6 +253,7 @@ public class PlayerControlView extends FrameLayout {
   private boolean[] playedAdGroups;
   private long[] extraAdGroupTimesMs;
   private boolean[] extraPlayedAdGroups;
+  private long currentWindowOffset;
 
   public PlayerControlView(Context context) {
     this(context, null);
@@ -264,6 +275,7 @@ public class PlayerControlView extends FrameLayout {
     fastForwardMs = DEFAULT_FAST_FORWARD_MS;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
+    timeBarMinUpdateIntervalMs = DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS;
     hideAtMs = C.TIME_UNSET;
     showShuffleButton = false;
     if (playbackAttrs != null) {
@@ -402,7 +414,7 @@ public class PlayerControlView extends FrameLayout {
    */
   public void setShowMultiWindowTimeBar(boolean showMultiWindowTimeBar) {
     this.showMultiWindowTimeBar = showMultiWindowTimeBar;
-    updateTimeBarMode();
+    updateTimeline();
   }
 
   /**
@@ -426,7 +438,7 @@ public class PlayerControlView extends FrameLayout {
       this.extraAdGroupTimesMs = extraAdGroupTimesMs;
       this.extraPlayedAdGroups = extraPlayedAdGroups;
     }
-    updateProgress();
+    updateTimeline();
   }
 
   /**
@@ -584,6 +596,22 @@ public class PlayerControlView extends FrameLayout {
   }
 
   /**
+   * Sets the minimum interval between time bar position updates.
+   *
+   * <p>Note that smaller intervals, e.g. 33ms, will result in a smooth movement but will use more
+   * CPU resources while the time bar is visible, whereas larger intervals, e.g. 200ms, will result
+   * in a step-wise update with less CPU usage.
+   *
+   * @param minUpdateIntervalMs The minimum interval between time bar position updates, in
+   *     milliseconds.
+   */
+  public void setTimeBarMinUpdateInterval(int minUpdateIntervalMs) {
+    // Do not accept values below 16ms (60fps) and larger than the maximum update interval.
+    timeBarMinUpdateIntervalMs =
+        Util.constrainValue(minUpdateIntervalMs, 16, MAX_UPDATE_INTERVAL_MS);
+  }
+
+  /**
    * Shows the playback controls. If {@link #getShowTimeoutMs()} is positive then the controls will
    * be automatically hidden after this duration of time has elapsed without user input.
    */
@@ -635,7 +663,7 @@ public class PlayerControlView extends FrameLayout {
     updateNavigation();
     updateRepeatModeButton();
     updateShuffleButton();
-    updateProgress();
+    updateTimeline();
   }
 
   private void updatePlayPauseButton() {
@@ -735,12 +763,74 @@ public class PlayerControlView extends FrameLayout {
     }
   }
 
-  private void updateTimeBarMode() {
+  private void updateTimeline() {
     if (player == null) {
       return;
     }
     multiWindowTimeBar =
         showMultiWindowTimeBar && canShowMultiWindowTimeBar(player.getCurrentTimeline(), window);
+    currentWindowOffset = 0;
+    long durationUs = 0;
+    int adGroupCount = 0;
+    Timeline timeline = player.getCurrentTimeline();
+    if (!timeline.isEmpty()) {
+      int currentWindowIndex = player.getCurrentWindowIndex();
+      int firstWindowIndex = multiWindowTimeBar ? 0 : currentWindowIndex;
+      int lastWindowIndex = multiWindowTimeBar ? timeline.getWindowCount() - 1 : currentWindowIndex;
+      for (int i = firstWindowIndex; i <= lastWindowIndex; i++) {
+        if (i == currentWindowIndex) {
+          currentWindowOffset = C.usToMs(durationUs);
+        }
+        timeline.getWindow(i, window);
+        if (window.durationUs == C.TIME_UNSET) {
+          Assertions.checkState(!multiWindowTimeBar);
+          break;
+        }
+        for (int j = window.firstPeriodIndex; j <= window.lastPeriodIndex; j++) {
+          timeline.getPeriod(j, period);
+          int periodAdGroupCount = period.getAdGroupCount();
+          for (int adGroupIndex = 0; adGroupIndex < periodAdGroupCount; adGroupIndex++) {
+            long adGroupTimeInPeriodUs = period.getAdGroupTimeUs(adGroupIndex);
+            if (adGroupTimeInPeriodUs == C.TIME_END_OF_SOURCE) {
+              if (period.durationUs == C.TIME_UNSET) {
+                // Don't show ad markers for postrolls in periods with unknown duration.
+                continue;
+              }
+              adGroupTimeInPeriodUs = period.durationUs;
+            }
+            long adGroupTimeInWindowUs = adGroupTimeInPeriodUs + period.getPositionInWindowUs();
+            if (adGroupTimeInWindowUs >= 0 && adGroupTimeInWindowUs <= window.durationUs) {
+              if (adGroupCount == adGroupTimesMs.length) {
+                int newLength = adGroupTimesMs.length == 0 ? 1 : adGroupTimesMs.length * 2;
+                adGroupTimesMs = Arrays.copyOf(adGroupTimesMs, newLength);
+                playedAdGroups = Arrays.copyOf(playedAdGroups, newLength);
+              }
+              adGroupTimesMs[adGroupCount] = C.usToMs(durationUs + adGroupTimeInWindowUs);
+              playedAdGroups[adGroupCount] = period.hasPlayedAdGroup(adGroupIndex);
+              adGroupCount++;
+            }
+          }
+        }
+        durationUs += window.durationUs;
+      }
+    }
+    long durationMs = C.usToMs(durationUs);
+    if (durationView != null) {
+      durationView.setText(Util.getStringForTime(formatBuilder, formatter, durationMs));
+    }
+    if (timeBar != null) {
+      timeBar.setDuration(durationMs);
+      int extraAdGroupCount = extraAdGroupTimesMs.length;
+      int totalAdGroupCount = adGroupCount + extraAdGroupCount;
+      if (totalAdGroupCount > adGroupTimesMs.length) {
+        adGroupTimesMs = Arrays.copyOf(adGroupTimesMs, totalAdGroupCount);
+        playedAdGroups = Arrays.copyOf(playedAdGroups, totalAdGroupCount);
+      }
+      System.arraycopy(extraAdGroupTimesMs, 0, adGroupTimesMs, adGroupCount, extraAdGroupCount);
+      System.arraycopy(extraPlayedAdGroups, 0, playedAdGroups, adGroupCount, extraAdGroupCount);
+      timeBar.setAdGroupTimesMs(adGroupTimesMs, playedAdGroups, totalAdGroupCount);
+    }
+    updateProgress();
   }
 
   private void updateProgress() {
@@ -750,71 +840,9 @@ public class PlayerControlView extends FrameLayout {
 
     long position = 0;
     long bufferedPosition = 0;
-    long duration = 0;
     if (player != null) {
-      long currentWindowTimeBarOffsetMs = 0;
-      long durationUs = 0;
-      int adGroupCount = 0;
-      Timeline timeline = player.getCurrentTimeline();
-      if (!timeline.isEmpty()) {
-        int currentWindowIndex = player.getCurrentWindowIndex();
-        int firstWindowIndex = multiWindowTimeBar ? 0 : currentWindowIndex;
-        int lastWindowIndex =
-            multiWindowTimeBar ? timeline.getWindowCount() - 1 : currentWindowIndex;
-        for (int i = firstWindowIndex; i <= lastWindowIndex; i++) {
-          if (i == currentWindowIndex) {
-            currentWindowTimeBarOffsetMs = C.usToMs(durationUs);
-          }
-          timeline.getWindow(i, window);
-          if (window.durationUs == C.TIME_UNSET) {
-            Assertions.checkState(!multiWindowTimeBar);
-            break;
-          }
-          for (int j = window.firstPeriodIndex; j <= window.lastPeriodIndex; j++) {
-            timeline.getPeriod(j, period);
-            int periodAdGroupCount = period.getAdGroupCount();
-            for (int adGroupIndex = 0; adGroupIndex < periodAdGroupCount; adGroupIndex++) {
-              long adGroupTimeInPeriodUs = period.getAdGroupTimeUs(adGroupIndex);
-              if (adGroupTimeInPeriodUs == C.TIME_END_OF_SOURCE) {
-                if (period.durationUs == C.TIME_UNSET) {
-                  // Don't show ad markers for postrolls in periods with unknown duration.
-                  continue;
-                }
-                adGroupTimeInPeriodUs = period.durationUs;
-              }
-              long adGroupTimeInWindowUs = adGroupTimeInPeriodUs + period.getPositionInWindowUs();
-              if (adGroupTimeInWindowUs >= 0 && adGroupTimeInWindowUs <= window.durationUs) {
-                if (adGroupCount == adGroupTimesMs.length) {
-                  int newLength = adGroupTimesMs.length == 0 ? 1 : adGroupTimesMs.length * 2;
-                  adGroupTimesMs = Arrays.copyOf(adGroupTimesMs, newLength);
-                  playedAdGroups = Arrays.copyOf(playedAdGroups, newLength);
-                }
-                adGroupTimesMs[adGroupCount] = C.usToMs(durationUs + adGroupTimeInWindowUs);
-                playedAdGroups[adGroupCount] = period.hasPlayedAdGroup(adGroupIndex);
-                adGroupCount++;
-              }
-            }
-          }
-          durationUs += window.durationUs;
-        }
-      }
-      duration = C.usToMs(durationUs);
-      position = currentWindowTimeBarOffsetMs + player.getContentPosition();
-      bufferedPosition = currentWindowTimeBarOffsetMs + player.getContentBufferedPosition();
-      if (timeBar != null) {
-        int extraAdGroupCount = extraAdGroupTimesMs.length;
-        int totalAdGroupCount = adGroupCount + extraAdGroupCount;
-        if (totalAdGroupCount > adGroupTimesMs.length) {
-          adGroupTimesMs = Arrays.copyOf(adGroupTimesMs, totalAdGroupCount);
-          playedAdGroups = Arrays.copyOf(playedAdGroups, totalAdGroupCount);
-        }
-        System.arraycopy(extraAdGroupTimesMs, 0, adGroupTimesMs, adGroupCount, extraAdGroupCount);
-        System.arraycopy(extraPlayedAdGroups, 0, playedAdGroups, adGroupCount, extraAdGroupCount);
-        timeBar.setAdGroupTimesMs(adGroupTimesMs, playedAdGroups, totalAdGroupCount);
-      }
-    }
-    if (durationView != null) {
-      durationView.setText(Util.getStringForTime(formatBuilder, formatter, duration));
+      position = currentWindowOffset + player.getContentPosition();
+      bufferedPosition = currentWindowOffset + player.getContentBufferedPosition();
     }
     if (positionView != null && !scrubbing) {
       positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
@@ -822,33 +850,29 @@ public class PlayerControlView extends FrameLayout {
     if (timeBar != null) {
       timeBar.setPosition(position);
       timeBar.setBufferedPosition(bufferedPosition);
-      timeBar.setDuration(duration);
     }
 
     // Cancel any pending updates and schedule a new one if necessary.
     removeCallbacks(updateProgressAction);
     int playbackState = player == null ? Player.STATE_IDLE : player.getPlaybackState();
-    if (playbackState != Player.STATE_IDLE && playbackState != Player.STATE_ENDED) {
-      long delayMs;
-      if (player.getPlayWhenReady() && playbackState == Player.STATE_READY) {
-        float playbackSpeed = player.getPlaybackParameters().speed;
-        if (playbackSpeed <= 0.1f) {
-          delayMs = 1000;
-        } else if (playbackSpeed <= 5f) {
-          long mediaTimeUpdatePeriodMs = 1000 / Math.max(1, Math.round(1 / playbackSpeed));
-          long mediaTimeDelayMs = mediaTimeUpdatePeriodMs - (position % mediaTimeUpdatePeriodMs);
-          if (mediaTimeDelayMs < (mediaTimeUpdatePeriodMs / 5)) {
-            mediaTimeDelayMs += mediaTimeUpdatePeriodMs;
-          }
-          delayMs =
-              playbackSpeed == 1 ? mediaTimeDelayMs : (long) (mediaTimeDelayMs / playbackSpeed);
-        } else {
-          delayMs = 200;
-        }
-      } else {
-        delayMs = 1000;
-      }
+    if (playbackState == Player.STATE_READY && player.getPlayWhenReady()) {
+      long mediaTimeDelayMs =
+          timeBar != null ? timeBar.getPreferredUpdateDelay() : MAX_UPDATE_INTERVAL_MS;
+
+      // Limit delay to the start of the next full second to ensure position display is smooth.
+      long mediaTimeUntilNextFullSecondMs = 1000 - position % 1000;
+      mediaTimeDelayMs = Math.min(mediaTimeDelayMs, mediaTimeUntilNextFullSecondMs);
+
+      // Calculate the delay until the next update in real time, taking playbackSpeed into account.
+      float playbackSpeed = player.getPlaybackParameters().speed;
+      long delayMs =
+          playbackSpeed > 0 ? (long) (mediaTimeDelayMs / playbackSpeed) : MAX_UPDATE_INTERVAL_MS;
+
+      // Constrain the delay to avoid too frequent / infrequent updates.
+      delayMs = Util.constrainValue(delayMs, timeBarMinUpdateIntervalMs, MAX_UPDATE_INTERVAL_MS);
       postDelayed(updateProgressAction, delayMs);
+    } else if (playbackState != Player.STATE_ENDED && playbackState != Player.STATE_IDLE) {
+      postDelayed(updateProgressAction, MAX_UPDATE_INTERVAL_MS);
     }
   }
 
@@ -1119,15 +1143,14 @@ public class PlayerControlView extends FrameLayout {
     @Override
     public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
       updateNavigation();
-      updateProgress();
+      updateTimeline();
     }
 
     @Override
     public void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
       updateNavigation();
-      updateTimeBarMode();
-      updateProgress();
+      updateTimeline();
     }
 
     @Override

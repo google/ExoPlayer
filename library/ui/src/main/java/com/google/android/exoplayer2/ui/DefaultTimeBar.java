@@ -205,6 +205,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   private final CopyOnWriteArraySet<OnScrubListener> listeners;
   private final int[] locationOnScreen;
   private final Point touchPosition;
+  private final float density;
 
   private int keyCountIncrement;
   private long keyTimeIncrement;
@@ -242,13 +243,14 @@ public class DefaultTimeBar extends View implements TimeBar {
     // Calculate the dimensions and paints for drawn elements.
     Resources res = context.getResources();
     DisplayMetrics displayMetrics = res.getDisplayMetrics();
-    fineScrubYThreshold = dpToPx(displayMetrics, FINE_SCRUB_Y_THRESHOLD_DP);
-    int defaultBarHeight = dpToPx(displayMetrics, DEFAULT_BAR_HEIGHT_DP);
-    int defaultTouchTargetHeight = dpToPx(displayMetrics, DEFAULT_TOUCH_TARGET_HEIGHT_DP);
-    int defaultAdMarkerWidth = dpToPx(displayMetrics, DEFAULT_AD_MARKER_WIDTH_DP);
-    int defaultScrubberEnabledSize = dpToPx(displayMetrics, DEFAULT_SCRUBBER_ENABLED_SIZE_DP);
-    int defaultScrubberDisabledSize = dpToPx(displayMetrics, DEFAULT_SCRUBBER_DISABLED_SIZE_DP);
-    int defaultScrubberDraggedSize = dpToPx(displayMetrics, DEFAULT_SCRUBBER_DRAGGED_SIZE_DP);
+    density = displayMetrics.density;
+    fineScrubYThreshold = dpToPx(density, FINE_SCRUB_Y_THRESHOLD_DP);
+    int defaultBarHeight = dpToPx(density, DEFAULT_BAR_HEIGHT_DP);
+    int defaultTouchTargetHeight = dpToPx(density, DEFAULT_TOUCH_TARGET_HEIGHT_DP);
+    int defaultAdMarkerWidth = dpToPx(density, DEFAULT_AD_MARKER_WIDTH_DP);
+    int defaultScrubberEnabledSize = dpToPx(density, DEFAULT_SCRUBBER_ENABLED_SIZE_DP);
+    int defaultScrubberDisabledSize = dpToPx(density, DEFAULT_SCRUBBER_DISABLED_SIZE_DP);
+    int defaultScrubberDraggedSize = dpToPx(density, DEFAULT_SCRUBBER_DRAGGED_SIZE_DP);
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.DefaultTimeBar, 0,
           0);
@@ -434,6 +436,14 @@ public class DefaultTimeBar extends View implements TimeBar {
       stopScrubbing(true);
     }
     update();
+  }
+
+  @Override
+  public long getPreferredUpdateDelay() {
+    int timeBarWidthDp = pxToDp(density, progressBar.width());
+    return timeBarWidthDp == 0 || duration == 0 || duration == C.TIME_UNSET
+        ? Long.MAX_VALUE
+        : duration / timeBarWidthDp;
   }
 
   @Override
@@ -832,7 +842,11 @@ public class DefaultTimeBar extends View implements TimeBar {
     return 0x33000000 | (adMarkerColor & 0x00FFFFFF);
   }
 
-  private static int dpToPx(DisplayMetrics displayMetrics, int dps) {
-    return (int) (dps * displayMetrics.density + 0.5f);
+  private static int dpToPx(float density, int dps) {
+    return (int) (dps * density + 0.5f);
+  }
+
+  private static int pxToDp(float density, int px) {
+    return (int) (px / density);
   }
 }
