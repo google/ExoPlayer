@@ -2,6 +2,7 @@
 
 ### dev-v2 (not yet released) ###
 
+* Update to Mockito 2
 * Add new `ExoPlaybackException` types for remote exceptions and out-of-memory
   errors.
 * HLS:

@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.trackselection;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -268,7 +268,7 @@ public final class AdaptiveTrackSelectionTest {
     ArgumentMatcher<Format[]> matcher =
         new ArgumentMatcher<Format[]>() {
           @Override
-          public boolean matches(Object argument) {
+          public boolean matches(Format[] argument) {
             Format[] formats = (Format[]) argument;
             return formats.length == 3
                 && Arrays.asList(formats).containsAll(Arrays.asList(format1, format2, format3));
