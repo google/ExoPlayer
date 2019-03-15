@@ -85,6 +85,14 @@ public interface TimeBar {
   void setDuration(long duration);
 
   /**
+   * Returns the preferred delay in milliseconds of media time after which the time bar position
+   * should be updated.
+   *
+   * @return Preferred delay, in milliseconds of media time.
+   */
+  long getPreferredUpdateDelay();
+
+  /**
    * Sets the times of ad groups and whether each ad group has been played.
    *
    * @param adGroupTimesMs An array where the first {@code adGroupCount} elements are the times of
