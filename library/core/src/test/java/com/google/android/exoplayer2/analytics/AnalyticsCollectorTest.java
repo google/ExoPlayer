@@ -533,7 +533,7 @@ public final class AnalyticsCollectorTest {
         .containsExactly(WINDOW_0 /* prepared */, WINDOW_0 /* prepared */);
     assertThat(listener.getEvents(EVENT_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq0, period0Seq0);
-    assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(WINDOW_0);
+    assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED)).containsExactly(period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_LOAD_STARTED))
         .containsExactly(

@@ -375,31 +375,31 @@ import java.util.concurrent.atomic.AtomicBoolean;
       maybeNotifyPlaybackInfoChanged();
     } catch (ExoPlaybackException e) {
       Log.e(TAG, "Playback error.", e);
+      eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
       stopInternal(
           /* forceResetRenderers= */ true,
           /* resetPositionAndState= */ false,
           /* acknowledgeStop= */ false);
-      eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
       maybeNotifyPlaybackInfoChanged();
     } catch (IOException e) {
       Log.e(TAG, "Source error.", e);
+      eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForSource(e)).sendToTarget();
       stopInternal(
           /* forceResetRenderers= */ false,
           /* resetPositionAndState= */ false,
           /* acknowledgeStop= */ false);
-      eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForSource(e)).sendToTarget();
       maybeNotifyPlaybackInfoChanged();
     } catch (RuntimeException | OutOfMemoryError e) {
       Log.e(TAG, "Internal runtime error.", e);
-      stopInternal(
-          /* forceResetRenderers= */ true,
-          /* resetPositionAndState= */ false,
-          /* acknowledgeStop= */ false);
       ExoPlaybackException error =
           e instanceof OutOfMemoryError
               ? ExoPlaybackException.createForOutOfMemoryError((OutOfMemoryError) e)
               : ExoPlaybackException.createForUnexpected((RuntimeException) e);
       eventHandler.obtainMessage(MSG_ERROR, error).sendToTarget();
+      stopInternal(
+          /* forceResetRenderers= */ true,
+          /* resetPositionAndState= */ false,
+          /* acknowledgeStop= */ false);
       maybeNotifyPlaybackInfoChanged();
     }
     return true;
