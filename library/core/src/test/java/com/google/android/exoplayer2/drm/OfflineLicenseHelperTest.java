@@ -148,7 +148,7 @@ public class OfflineLicenseHelperTest {
 
   private void setStubKeySetId(byte[] keySetId)
       throws android.media.NotProvisionedException, android.media.DeniedByServerException {
-    when(mediaDrm.provideKeyResponse(any(byte[].class), any())).thenReturn(keySetId);
+    when(mediaDrm.provideKeyResponse(any(byte[].class), any(byte[].class))).thenReturn(keySetId);
   }
 
   private static void assertOfflineLicenseKeySetIdEqual(
