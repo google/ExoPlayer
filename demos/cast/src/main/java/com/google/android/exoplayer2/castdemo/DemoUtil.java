@@ -97,6 +97,7 @@ import java.util.UUID;
     samples.add(
         new Sample(
             "https://html5demos.com/assets/dizzy.mp4", "Clear MP4: Dizzy", MIME_TYPE_VIDEO_MP4));
+
     SAMPLES = Collections.unmodifiableList(samples);
   }
 

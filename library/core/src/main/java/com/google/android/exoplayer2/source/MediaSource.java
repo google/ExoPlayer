@@ -238,6 +238,7 @@ public interface MediaSource {
   default Object getTag() {
     return null;
   }
+
   /**
    * Starts source preparation if not yet started, and adds a listener for timeline and/or manifest
    * updates.
