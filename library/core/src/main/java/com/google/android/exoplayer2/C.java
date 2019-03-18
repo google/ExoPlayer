@@ -101,6 +101,9 @@ public final class C {
    */
   public static final String UTF16_NAME = "UTF-16";
 
+  /** The name of the UTF-16 little-endian charset. */
+  public static final String UTF16LE_NAME = "UTF-16LE";
+
   /**
    * The name of the serif font family.
    */
