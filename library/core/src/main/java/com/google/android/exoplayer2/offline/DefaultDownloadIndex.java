@@ -183,7 +183,12 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     return new DownloadStateCursorImpl(cursor);
   }
 
-  @Override
+  /**
+   * Adds or replaces a {@link DownloadState}.
+   *
+   * @param downloadState The {@link DownloadState} to be added.
+   * @throws DatabaseIOException If an error occurs setting the state.
+   */
   public void putDownloadState(DownloadState downloadState) throws DatabaseIOException {
     ensureInitialized();
     Assertions.checkState(downloadState.state != DownloadState.STATE_REMOVED);
@@ -212,7 +217,11 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     }
   }
 
-  @Override
+  /**
+   * Removes the {@link DownloadState} with the given {@code id}.
+   *
+   * @throws DatabaseIOException If an error occurs removing the state.
+   */
   public void removeDownloadState(String id) throws DatabaseIOException {
     ensureInitialized();
     try {
