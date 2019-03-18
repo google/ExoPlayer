@@ -96,6 +96,7 @@ public class MatroskaExtractor implements Extractor {
   private static final String DOC_TYPE_WEBM = "webm";
   private static final String CODEC_ID_VP8 = "V_VP8";
   private static final String CODEC_ID_VP9 = "V_VP9";
+  private static final String CODEC_ID_AV1 = "V_AV1";
   private static final String CODEC_ID_MPEG2 = "V_MPEG2";
   private static final String CODEC_ID_MPEG4_SP = "V_MPEG4/ISO/SP";
   private static final String CODEC_ID_MPEG4_ASP = "V_MPEG4/ISO/ASP";
@@ -1536,6 +1537,7 @@ public class MatroskaExtractor implements Extractor {
   private static boolean isCodecSupported(String codecId) {
     return CODEC_ID_VP8.equals(codecId)
         || CODEC_ID_VP9.equals(codecId)
+        || CODEC_ID_AV1.equals(codecId)
         || CODEC_ID_MPEG2.equals(codecId)
         || CODEC_ID_MPEG4_SP.equals(codecId)
         || CODEC_ID_MPEG4_ASP.equals(codecId)
@@ -1779,6 +1781,9 @@ public class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_VP9:
           mimeType = MimeTypes.VIDEO_VP9;
+          break;
+        case CODEC_ID_AV1:
+          mimeType = MimeTypes.VIDEO_AV1;
           break;
         case CODEC_ID_MPEG2:
           mimeType = MimeTypes.VIDEO_MPEG2;

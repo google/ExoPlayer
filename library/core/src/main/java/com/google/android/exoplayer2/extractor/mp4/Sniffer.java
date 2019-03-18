@@ -41,6 +41,7 @@ import java.io.IOException;
         Util.getIntegerCodeForString("avc1"),
         Util.getIntegerCodeForString("hvc1"),
         Util.getIntegerCodeForString("hev1"),
+        Util.getIntegerCodeForString("av01"),
         Util.getIntegerCodeForString("mp41"),
         Util.getIntegerCodeForString("mp42"),
         Util.getIntegerCodeForString("3g2a"),

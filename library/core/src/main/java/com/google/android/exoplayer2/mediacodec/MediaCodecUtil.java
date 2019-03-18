@@ -110,7 +110,8 @@ public final class MediaCodecUtil {
    * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder exists.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
-  public static @Nullable MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
+  @Nullable
+  public static MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
     MediaCodecInfo decoderInfo = getDecoderInfo(MimeTypes.AUDIO_RAW, /* secure= */ false);
     return decoderInfo == null ? null : MediaCodecInfo.newPassthroughInstance(decoderInfo.name);
   }
@@ -124,7 +125,8 @@ public final class MediaCodecUtil {
    * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder exists.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
-  public static @Nullable MediaCodecInfo getDecoderInfo(String mimeType, boolean secure)
+  @Nullable
+  public static MediaCodecInfo getDecoderInfo(String mimeType, boolean secure)
       throws DecoderQueryException {
     List<MediaCodecInfo> decoderInfos = getDecoderInfos(mimeType, secure);
     return decoderInfos.isEmpty() ? null : decoderInfos.get(0);
@@ -204,21 +206,24 @@ public final class MediaCodecUtil {
    * @return A pair (profile constant, level constant) if {@code codec} is well-formed and
    *     recognized, or null otherwise
    */
-  public static @Nullable Pair<Integer, Integer> getCodecProfileAndLevel(String codec) {
+  @Nullable
+  public static Pair<Integer, Integer> getCodecProfileAndLevel(String codec) {
     if (codec == null) {
       return null;
     }
+    // TODO: Check codec profile/level for AV1 once targeting Android Q and [Internal: b/128552878]
+    // has been fixed.
     String[] parts = codec.split("\\.");
     switch (parts[0]) {
+      case CODEC_ID_AVC1:
+      case CODEC_ID_AVC2:
+        return getAvcProfileAndLevel(codec, parts);
       case CODEC_ID_HEV1:
       case CODEC_ID_HVC1:
         return getHevcProfileAndLevel(codec, parts);
       case CODEC_ID_DVHE:
       case CODEC_ID_DVH1:
         return getDolbyVisionProfileAndLevel(codec, parts);
-      case CODEC_ID_AVC1:
-      case CODEC_ID_AVC2:
-        return getAvcProfileAndLevel(codec, parts);
       case CODEC_ID_MP4A:
         return getAacCodecProfileAndLevel(codec, parts);
       default:
@@ -536,8 +541,8 @@ public final class MediaCodecUtil {
       Log.w(TAG, "Ignoring malformed AVC codec string: " + codec);
       return null;
     }
-    Integer profileInteger;
-    Integer levelInteger;
+    int profileInteger;
+    int levelInteger;
     try {
       if (parts[1].length() == 6) {
         // Format: avc1.xxccyy, where xx is profile and yy level, both hexadecimal.
@@ -610,8 +615,8 @@ public final class MediaCodecUtil {
     }
   }
 
-  private static @Nullable Pair<Integer, Integer> getAacCodecProfileAndLevel(
-      String codec, String[] parts) {
+  @Nullable
+  private static Pair<Integer, Integer> getAacCodecProfileAndLevel(String codec, String[] parts) {
     if (parts.length != 3) {
       Log.w(TAG, "Ignoring malformed MP4A codec string: " + codec);
       return null;
