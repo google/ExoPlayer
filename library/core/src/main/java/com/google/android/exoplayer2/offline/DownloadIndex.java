@@ -41,18 +41,4 @@ public interface DownloadIndex {
    */
   DownloadStateCursor getDownloadStates(@DownloadState.State int... states) throws IOException;
 
-  /**
-   * Adds or replaces a {@link DownloadState}.
-   *
-   * @param downloadState The {@link DownloadState} to be added.
-   * @throws IOException If an error occurs setting the state.
-   */
-  void putDownloadState(DownloadState downloadState) throws IOException;
-
-  /**
-   * Removes the {@link DownloadState} with the given {@code id}.
-   *
-   * @throws IOException If an error occurs removing the state.
-   */
-  void removeDownloadState(String id) throws IOException;
 }

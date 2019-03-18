@@ -48,7 +48,7 @@ public final class DownloadIndexUtil {
    */
   public static void upgradeActionFile(
       ActionFile actionFile,
-      DownloadIndex downloadIndex,
+      DefaultDownloadIndex downloadIndex,
       @Nullable DownloadIdProvider downloadIdProvider)
       throws IOException {
     if (downloadIdProvider == null) {
@@ -72,7 +72,8 @@ public final class DownloadIndexUtil {
    * @throws IOException If an error occurs storing the state in the {@link DownloadIndex}.
    */
   public static void addAction(
-      DownloadIndex downloadIndex, @Nullable String id, DownloadAction action) throws IOException {
+      DefaultDownloadIndex downloadIndex, @Nullable String id, DownloadAction action)
+      throws IOException {
     DownloadState downloadState = downloadIndex.getDownloadState(id != null ? id : action.id);
     if (downloadState != null) {
       downloadState = downloadState.mergeAction(action);

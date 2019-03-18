@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.offline.ActionFile;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadHelper;
-import com.google.android.exoplayer2.offline.DownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloadState;
@@ -68,7 +67,7 @@ public class DownloadTracker implements DownloadManager.Listener {
   private final DataSource.Factory dataSourceFactory;
   private final CopyOnWriteArraySet<Listener> listeners;
   private final HashMap<Uri, DownloadState> trackedDownloadStates;
-  private final DownloadIndex downloadIndex;
+  private final DefaultDownloadIndex downloadIndex;
   private final Handler indexHandler;
 
   @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
