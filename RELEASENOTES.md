@@ -6,6 +6,7 @@
 * Add new `ExoPlaybackException` types for remote exceptions and out-of-memory
   errors.
 * HLS:
+  * Work around lack of LA_URL attribute in PlayReady key request init data.
   * Prevent unnecessary reloads of initialization segments.
   * Form an adaptive track group out of audio renditions with matching name.
   * Support encrypted initialization segments
