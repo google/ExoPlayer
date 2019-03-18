@@ -68,21 +68,23 @@ public final class DownloadManager {
      *
      * @param downloadManager The reporting instance.
      */
-    void onInitialized(DownloadManager downloadManager);
+    default void onInitialized(DownloadManager downloadManager) {}
+
     /**
      * Called when the state of a download changes.
      *
      * @param downloadManager The reporting instance.
      * @param downloadState The state of the download.
      */
-    void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState);
+    default void onDownloadStateChanged(
+        DownloadManager downloadManager, DownloadState downloadState) {}
 
     /**
      * Called when there is no active download left.
      *
      * @param downloadManager The reporting instance.
      */
-    void onIdle(DownloadManager downloadManager);
+    default void onIdle(DownloadManager downloadManager) {}
 
     /**
      * Called when the download requirements state changed.
@@ -92,10 +94,10 @@ public final class DownloadManager {
      * @param notMetRequirements {@link Requirements.RequirementFlags RequirementFlags} that are not
      *     met, or 0.
      */
-    void onRequirementsStateChanged(
+    default void onRequirementsStateChanged(
         DownloadManager downloadManager,
         Requirements requirements,
-        @Requirements.RequirementFlags int notMetRequirements);
+        @Requirements.RequirementFlags int notMetRequirements) {}
   }
 
   /** The default maximum number of simultaneous downloads. */
