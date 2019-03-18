@@ -81,6 +81,8 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   private static final int COLUMN_INDEX_CUSTOM_METADATA = 14;
 
   private static final String WHERE_ID_EQUALS = COLUMN_ID + " = ?";
+  private static final String WHERE_STATE_TERMINAL =
+      getStateQuery(DownloadState.STATE_COMPLETED, DownloadState.STATE_FAILED);
 
   private static final String[] COLUMNS =
       new String[] {
@@ -139,6 +141,8 @@ public final class DefaultDownloadIndex implements DownloadIndex {
           + COLUMN_CUSTOM_METADATA
           + " BLOB NOT NULL)";
 
+  private static final String TRUE = "1";
+
   private final DatabaseProvider databaseProvider;
 
   private boolean initialized;
@@ -175,32 +179,15 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   public DownloadStateCursor getDownloadStates(@DownloadState.State int... states)
       throws DatabaseIOException {
     ensureInitialized();
-    try {
-      String selection = null;
-      if (states.length > 0) {
-        StringBuilder selectionBuilder = new StringBuilder();
-        selectionBuilder.append(COLUMN_STATE).append(" IN (");
-        for (int i = 0; i < states.length; i++) {
-          if (i > 0) {
-            selectionBuilder.append(',');
-          }
-          selectionBuilder.append(states[i]);
-        }
-        selectionBuilder.append(')');
-        selection = selectionBuilder.toString();
-      }
-      Cursor cursor = getCursor(selection, /* selectionArgs= */ null);
-      return new DownloadStateCursorImpl(cursor);
-    } catch (SQLiteException e) {
-      throw new DatabaseIOException(e);
-    }
+    Cursor cursor = getCursor(getStateQuery(states), /* selectionArgs= */ null);
+    return new DownloadStateCursorImpl(cursor);
   }
 
   @Override
   public void putDownloadState(DownloadState downloadState) throws DatabaseIOException {
     ensureInitialized();
+    Assertions.checkState(downloadState.state != DownloadState.STATE_REMOVED);
     try {
-      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       ContentValues values = new ContentValues();
       values.put(COLUMN_ID, downloadState.id);
       values.put(COLUMN_TYPE, downloadState.type);
@@ -218,6 +205,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
       values.put(COLUMN_UPDATE_TIME_MS, downloadState.updateTimeMs);
       values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(downloadState.streamKeys));
       values.put(COLUMN_CUSTOM_METADATA, downloadState.customMetadata);
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.replaceOrThrow(TABLE_NAME, /* nullColumnHack= */ null, values);
     } catch (SQLiteException e) {
       throw new DatabaseIOException(e);
@@ -230,6 +218,25 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     try {
       databaseProvider.getWritableDatabase().delete(TABLE_NAME, WHERE_ID_EQUALS, new String[] {id});
     } catch (SQLiteException e) {
+      throw new DatabaseIOException(e);
+    }
+  }
+
+  /**
+   * Sets the manual stop reason of the downloads in a terminal state ({@link
+   * DownloadState#STATE_COMPLETED}, {@link DownloadState#STATE_FAILED}).
+   *
+   * @param manualStopReason The manual stop reason.
+   * @throws DatabaseIOException If an error occurs updating the state.
+   */
+  public void setManualStopReason(int manualStopReason) throws DatabaseIOException {
+    ensureInitialized();
+    try {
+      ContentValues values = new ContentValues();
+      values.put(COLUMN_MANUAL_STOP_REASON, manualStopReason);
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      writableDatabase.update(TABLE_NAME, values, WHERE_STATE_TERMINAL, /* whereArgs= */ null);
+    } catch (SQLException e) {
       throw new DatabaseIOException(e);
     }
   }
@@ -264,18 +271,39 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     }
   }
 
-  private Cursor getCursor(@Nullable String selection, @Nullable String[] selectionArgs) {
-    String sortOrder = COLUMN_START_TIME_MS + " ASC";
-    return databaseProvider
-        .getReadableDatabase()
-        .query(
-            TABLE_NAME,
-            COLUMNS,
-            selection,
-            selectionArgs,
-            /* groupBy= */ null,
-            /* having= */ null,
-            sortOrder);
+  private Cursor getCursor(String selection, @Nullable String[] selectionArgs)
+      throws DatabaseIOException {
+    try {
+      String sortOrder = COLUMN_START_TIME_MS + " ASC";
+      return databaseProvider
+          .getReadableDatabase()
+          .query(
+              TABLE_NAME,
+              COLUMNS,
+              selection,
+              selectionArgs,
+              /* groupBy= */ null,
+              /* having= */ null,
+              sortOrder);
+    } catch (SQLiteException e) {
+      throw new DatabaseIOException(e);
+    }
+  }
+
+  private static String getStateQuery(@DownloadState.State int... states) {
+    if (states.length == 0) {
+      return TRUE;
+    }
+    StringBuilder selectionBuilder = new StringBuilder();
+    selectionBuilder.append(COLUMN_STATE).append(" IN (");
+    for (int i = 0; i < states.length; i++) {
+      if (i > 0) {
+        selectionBuilder.append(',');
+      }
+      selectionBuilder.append(states[i]);
+    }
+    selectionBuilder.append(')');
+    return selectionBuilder.toString();
   }
 
   private static DownloadState getDownloadStateForCurrentRow(Cursor cursor) {

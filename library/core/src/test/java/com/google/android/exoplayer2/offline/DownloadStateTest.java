@@ -312,60 +312,24 @@ public class DownloadStateTest {
   }
 
   static void assertEqual(
-      DownloadState downloadState, DownloadState expected, boolean compareTimeFields) {
-    assertThat(areEqual(downloadState, expected, compareTimeFields)).isTrue();
-  }
-
-  private static boolean areEqual(
       DownloadState downloadState, DownloadState that, boolean compareTimeFields) {
-    if (downloadState.state != that.state) {
-      return false;
-    }
-    if (Float.compare(that.downloadPercentage, downloadState.downloadPercentage) != 0) {
-      return false;
-    }
-    if (downloadState.downloadedBytes != that.downloadedBytes) {
-      return false;
-    }
-    if (downloadState.totalBytes != that.totalBytes) {
-      return false;
-    }
+    assertThat(downloadState.state).isEqualTo(that.state);
+    assertThat(downloadState.downloadPercentage).isEqualTo(that.downloadPercentage);
+    assertThat(downloadState.downloadedBytes).isEqualTo(that.downloadedBytes);
+    assertThat(downloadState.totalBytes).isEqualTo(that.totalBytes);
     if (compareTimeFields) {
-      if (downloadState.startTimeMs != that.startTimeMs) {
-        return false;
-      }
-      if (downloadState.updateTimeMs != that.updateTimeMs) {
-        return false;
-      }
+      assertThat(downloadState.startTimeMs).isEqualTo(that.startTimeMs);
+      assertThat(downloadState.updateTimeMs).isEqualTo(that.updateTimeMs);
     }
-    if (downloadState.failureReason != that.failureReason) {
-      return false;
-    }
-    if (downloadState.manualStopReason != that.manualStopReason) {
-      return false;
-    }
-    if (downloadState.notMetRequirements != that.notMetRequirements) {
-      return false;
-    }
-    if (!downloadState.id.equals(that.id)) {
-      return false;
-    }
-    if (!downloadState.type.equals(that.type)) {
-      return false;
-    }
-    if (!downloadState.uri.equals(that.uri)) {
-      return false;
-    }
-    if (downloadState.cacheKey != null
-        ? !downloadState.cacheKey.equals(that.cacheKey)
-        : that.cacheKey != null) {
-      return false;
-    }
-    if (downloadState.streamKeys.length != that.streamKeys.length
-        || !Arrays.asList(downloadState.streamKeys).containsAll(Arrays.asList(that.streamKeys))) {
-      return false;
-    }
-    return Arrays.equals(downloadState.customMetadata, that.customMetadata);
+    assertThat(downloadState.failureReason).isEqualTo(that.failureReason);
+    assertThat(downloadState.manualStopReason).isEqualTo(that.manualStopReason);
+    assertThat(downloadState.notMetRequirements).isEqualTo(that.notMetRequirements);
+    assertThat(downloadState.id).isEqualTo(that.id);
+    assertThat(downloadState.type).isEqualTo(that.type);
+    assertThat(downloadState.uri).isEqualTo(that.uri);
+    assertThat(downloadState.cacheKey).isEqualTo(that.cacheKey);
+    assertThat(Arrays.asList(downloadState.streamKeys)).containsExactlyElementsIn(that.streamKeys);
+    assertThat(downloadState.customMetadata).isEqualTo(that.customMetadata);
   }
 
   private DownloadAction createDownloadAction() {
