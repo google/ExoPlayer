@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloadState;
 import com.google.android.exoplayer2.offline.DownloadStateCursor;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Log;
@@ -130,11 +129,6 @@ public class DownloadTracker implements DownloadManager.Listener {
   // DownloadManager.Listener
 
   @Override
-  public void onInitialized(DownloadManager downloadManager) {
-    // Do nothing.
-  }
-
-  @Override
   public void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState) {
     if (downloadState.state == DownloadState.STATE_REMOVED
         || downloadState.state == DownloadState.STATE_FAILED) {
@@ -143,19 +137,6 @@ public class DownloadTracker implements DownloadManager.Listener {
         handleTrackedDownloadStateChanged(downloadState);
       }
     }
-  }
-
-  @Override
-  public void onIdle(DownloadManager downloadManager) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onRequirementsStateChanged(
-      DownloadManager downloadManager,
-      Requirements requirements,
-      @Requirements.RequirementFlags int notMetRequirements) {
-    // Do nothing.
   }
 
   // Internal methods

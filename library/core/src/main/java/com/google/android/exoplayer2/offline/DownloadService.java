@@ -533,11 +533,6 @@ public abstract class DownloadService extends Service {
     }
 
     @Override
-    public void onInitialized(DownloadManager downloadManager) {
-      // Do nothing.
-    }
-
-    @Override
     public void onDownloadStateChanged(
         DownloadManager downloadManager, DownloadState downloadState) {
       if (downloadService != null) {
