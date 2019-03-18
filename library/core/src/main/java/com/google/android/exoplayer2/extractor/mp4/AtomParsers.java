@@ -745,6 +745,7 @@ import java.util.List;
           || childAtomType == Atom.TYPE_s263
           || childAtomType == Atom.TYPE_vp08
           || childAtomType == Atom.TYPE_vp09
+          || childAtomType == Atom.TYPE_av01
           || childAtomType == Atom.TYPE_dvav
           || childAtomType == Atom.TYPE_dva1
           || childAtomType == Atom.TYPE_dvhe
@@ -902,6 +903,9 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_vpcC) {
         Assertions.checkState(mimeType == null);
         mimeType = (atomType == Atom.TYPE_vp08) ? MimeTypes.VIDEO_VP8 : MimeTypes.VIDEO_VP9;
+      } else if (childAtomType == Atom.TYPE_av1C) {
+        Assertions.checkState(mimeType == null);
+        mimeType = MimeTypes.VIDEO_AV1;
       } else if (childAtomType == Atom.TYPE_d263) {
         Assertions.checkState(mimeType == null);
         mimeType = MimeTypes.VIDEO_H263;
