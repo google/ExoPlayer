@@ -31,13 +31,11 @@ public final class ActionFile {
   /* package */ static final int VERSION = 0;
 
   private final AtomicFile atomicFile;
-  private final File actionFile;
 
   /**
    * @param actionFile File to be used to store and load {@link DownloadAction}s.
    */
   public ActionFile(File actionFile) {
-    this.actionFile = actionFile;
     atomicFile = new AtomicFile(actionFile);
   }
 
@@ -48,7 +46,7 @@ public final class ActionFile {
    * @throws IOException If there is an error during loading.
    */
   public DownloadAction[] load() throws IOException {
-    if (!actionFile.exists()) {
+    if (!exists()) {
       return new DownloadAction[0];
     }
     InputStream inputStream = null;
@@ -93,4 +91,13 @@ public final class ActionFile {
     }
   }
 
+  /** Returns whether the file or its backup exists. */
+  public boolean exists() {
+    return atomicFile.exists();
+  }
+
+  /** Delete the action file and its backup. */
+  public void delete() {
+    atomicFile.delete();
+  }
 }
