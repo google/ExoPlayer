@@ -52,7 +52,7 @@ public final class AtomicFile {
     backupName = new File(baseName.getPath() + ".bak");
   }
 
-  /** Whether the file or its backup exists. */
+  /** Returns whether the file or its backup exists. */
   public boolean exists() {
     return baseName.exists() || backupName.exists();
   }
