@@ -1059,7 +1059,7 @@ public class FragmentedMp4Extractor implements Extractor {
     byte[] keyId = new byte[16];
     sgpd.readBytes(keyId, 0, keyId.length);
     byte[] constantIv = null;
-    if (isProtected && perSampleIvSize == 0) {
+    if (perSampleIvSize == 0) {
       int constantIvSize = sgpd.readUnsignedByte();
       constantIv = new byte[constantIvSize];
       sgpd.readBytes(constantIv, 0, constantIvSize);
