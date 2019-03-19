@@ -19,11 +19,9 @@ import android.os.ConditionVariable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -38,13 +36,8 @@ import java.util.TreeSet;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A {@link Cache} implementation that maintains an in-memory representation.
- *
- * <p>Only one instance of SimpleCache is allowed for a given directory at a given time.
- *
- * <p>To delete a SimpleCache, use {@link #delete(File, DatabaseProvider)} rather than deleting the
- * directory and its contents directly. This is necessary to ensure that associated index data is
- * also removed.
+ * A {@link Cache} implementation that maintains an in-memory representation. Note, only one
+ * instance of SimpleCache is allowed for a given directory at a given time.
  */
 public final class SimpleCache implements Cache {
 
@@ -98,45 +91,6 @@ public final class SimpleCache implements Cache {
   public static synchronized void disableCacheFolderLocking() {
     cacheFolderLockingDisabled = true;
     lockedCacheDirs.clear();
-  }
-
-  /**
-   * Deletes all content belonging to a cache instance.
-   *
-   * @param cacheDir The cache directory.
-   * @param databaseProvider The database in which index data is stored, or {@code null} if the
-   *     cache used a legacy index.
-   */
-  public static void delete(File cacheDir, @Nullable DatabaseProvider databaseProvider) {
-    if (!cacheDir.exists()) {
-      return;
-    }
-
-    File[] files = cacheDir.listFiles();
-    if (files == null) {
-      cacheDir.delete();
-      return;
-    }
-
-    if (databaseProvider != null) {
-      // Make a best effort to read the cache UID and delete associated index data before deleting
-      // cache directory itself.
-      long uid = loadUid(files);
-      if (uid != -1) {
-        try {
-          CacheFileMetadataIndex.delete(databaseProvider, uid);
-        } catch (DatabaseIOException e) {
-          Log.w(TAG, "Failed to delete file metadata: " + uid);
-        }
-        try {
-          CachedContentIndex.delete(databaseProvider, uid);
-        } catch (DatabaseIOException e) {
-          Log.w(TAG, "Failed to delete file metadata: " + uid);
-        }
-      }
-    }
-
-    Util.recursiveDelete(cacheDir);
   }
 
   /**
@@ -570,14 +524,11 @@ public final class SimpleCache implements Cache {
       return;
     }
 
-    uid = loadUid(files);
-    if (uid == -1) {
-      try {
-        uid = createUid(cacheDir);
-      } catch (IOException e) {
-        initializationException = new CacheException("Failed to create cache UID: " + cacheDir);
-        return;
-      }
+    try {
+      uid = loadUid(cacheDir, files);
+    } catch (IOException e) {
+      initializationException = new CacheException("Failed to load cache UID: " + cacheDir);
+      return;
     }
 
     try {
@@ -735,13 +686,14 @@ public final class SimpleCache implements Cache {
   }
 
   /**
-   * Loads the cache UID from the files belonging to the root directory.
+   * Loads the cache UID from the files belonging to the root directory, generating one if needed.
    *
+   * @param directory The root directory.
    * @param files The files belonging to the root directory.
-   * @return The loaded UID, or -1 if a UID has not yet been created.
+   * @return The cache loaded UID.
    * @throws IOException If there is an error loading or generating the UID.
    */
-  private static long loadUid(File[] files) {
+  private static long loadUid(File directory, File[] files) throws IOException {
     for (File file : files) {
       String fileName = file.getName();
       if (fileName.endsWith(UID_FILE_SUFFIX)) {
@@ -754,7 +706,7 @@ public final class SimpleCache implements Cache {
         }
       }
     }
-    return -1;
+    return createUid(directory);
   }
 
   @SuppressWarnings("TrulyRandom")

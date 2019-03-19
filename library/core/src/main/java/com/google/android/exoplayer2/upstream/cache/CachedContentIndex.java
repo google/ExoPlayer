@@ -104,18 +104,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Deletes index data for the specified cache.
-   *
-   * @param databaseProvider Provides the database in which the index is stored.
-   * @param uid The cache UID.
-   * @throws DatabaseIOException If an error occurs deleting the index data.
-   */
-  public static void delete(DatabaseProvider databaseProvider, long uid)
-      throws DatabaseIOException {
-    DatabaseStorage.delete(databaseProvider, uid);
-  }
-
-  /**
    * Creates an instance supporting database storage only.
    *
    * @param databaseProvider Provides the database in which the index is stored.
@@ -729,11 +717,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private String hexUid;
     private String tableName;
 
-    public static void delete(DatabaseProvider databaseProvider, long uid)
-        throws DatabaseIOException {
-      delete(databaseProvider, Long.toHexString(uid));
-    }
-
     public DatabaseStorage(DatabaseProvider databaseProvider) {
       this.databaseProvider = databaseProvider;
       pendingUpdates = new SparseArray<>();
@@ -742,7 +725,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     @Override
     public void initialize(long uid) {
       hexUid = Long.toHexString(uid);
-      tableName = getTableName(hexUid);
+      tableName = TABLE_PREFIX + hexUid;
     }
 
     @Override
@@ -756,7 +739,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     @Override
     public void delete() throws DatabaseIOException {
-      delete(databaseProvider, hexUid);
+      try {
+        SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+        writableDatabase.beginTransaction();
+        try {
+          VersionTable.removeVersion(
+              writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, hexUid);
+          dropTable(writableDatabase);
+          writableDatabase.setTransactionSuccessful();
+        } finally {
+          writableDatabase.endTransaction();
+        }
+      } catch (SQLException e) {
+        throw new DatabaseIOException(e);
+      }
     }
 
     @Override
@@ -879,8 +875,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private void initializeTable(SQLiteDatabase writableDatabase) throws DatabaseIOException {
       VersionTable.setVersion(
           writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, hexUid, TABLE_VERSION);
-      dropTable(writableDatabase, tableName);
+      dropTable(writableDatabase);
       writableDatabase.execSQL("CREATE TABLE " + tableName + " " + TABLE_SCHEMA);
+    }
+
+    private void dropTable(SQLiteDatabase writableDatabase) {
+      writableDatabase.execSQL("DROP TABLE IF EXISTS " + tableName);
     }
 
     private void deleteRow(SQLiteDatabase writableDatabase, int key) {
@@ -898,33 +898,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       values.put(COLUMN_KEY, cachedContent.key);
       values.put(COLUMN_METADATA, data);
       writableDatabase.replaceOrThrow(tableName, /* nullColumnHack= */ null, values);
-    }
-
-    private static void delete(DatabaseProvider databaseProvider, String hexUid)
-        throws DatabaseIOException {
-      try {
-        String tableName = getTableName(hexUid);
-        SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-        writableDatabase.beginTransaction();
-        try {
-          VersionTable.removeVersion(
-              writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, hexUid);
-          dropTable(writableDatabase, tableName);
-          writableDatabase.setTransactionSuccessful();
-        } finally {
-          writableDatabase.endTransaction();
-        }
-      } catch (SQLException e) {
-        throw new DatabaseIOException(e);
-      }
-    }
-
-    private static void dropTable(SQLiteDatabase writableDatabase, String tableName) {
-      writableDatabase.execSQL("DROP TABLE IF EXISTS " + tableName);
-    }
-
-    private static String getTableName(String hexUid) {
-      return TABLE_PREFIX + hexUid;
     }
   }
 }
