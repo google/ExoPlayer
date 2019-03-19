@@ -74,7 +74,8 @@ public class SimpleExoPlayer extends BasePlayer
         Player.MetadataComponent {
 
   private PowerManager.WakeLock mWakeLock;
-
+  private WifiManager.WifiLock wifiLock;
+            
   /** @deprecated Use {@link com.google.android.exoplayer2.video.VideoListener}. */
   @Deprecated
   public interface VideoListener extends com.google.android.exoplayer2.video.VideoListener {}
@@ -487,35 +488,59 @@ public class SimpleExoPlayer extends BasePlayer
     return audioVolume;
   }
 
-  /**
-   * <p>This function has the SimpleExoPlayer access the low-level power manager
-   * service to control the device's power usage while playing is occurring.
-   * The parameter is a combination of {@link android.os.PowerManager} wake flags.
-   * Use of this method requires {@link android.Manifest.permission#WAKE_LOCK}
-   * permission.
-   * By default, no attempt is made to keep the device awake during playback.
+ /**
+   * This function has the SimpleExoPlayer access the low-level power manager
+   * service to control the device's power usage while playing is occurring. The parameter is a
+   * combination of {@link android.os.PowerManager} wake flags. Use of this method requires {@link
+   * android.Manifest.permission#WAKE_LOCK} permission. By default, no attempt is made to keep the
+   * device awake during playback.
    *
    * @param context the Context to use
-   * @param mode    the power/wake mode to set
+   * @param mode the power/wake mode to set
    * @see android.os.PowerManager
    */
+  @SuppressLint("WakelockTimeout")
   public void setWakeMode(Context context, int mode) {
-    boolean washeld = false;
-
     if (mWakeLock != null) {
       if (mWakeLock.isHeld()) {
-        washeld = true;
         mWakeLock.release();
       }
       mWakeLock = null;
     }
 
-    PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
-    mWakeLock = pm.newWakeLock(mode|PowerManager.ON_AFTER_RELEASE, SimpleExoPlayer.class.getName());
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    mWakeLock = pm.newWakeLock(mode | PowerManager.ON_AFTER_RELEASE,
+        SimpleExoPlayer.class.getName() + ":WakeLock");
     mWakeLock.setReferenceCounted(false);
-    if (washeld) {
+    WifiManager wm = (WifiManager) context.getApplicationContext()
+        .getSystemService(Context.WIFI_SERVICE);
+    wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF,
+        SimpleExoPlayer.class.getName() + ":WifiLock");
+    wifiLock.setReferenceCounted(false);
+
+    if (mStayAwake) {
+      wifiLock.acquire();
       mWakeLock.acquire();
     }
+  }
+
+  /**
+   * Sets whatever the wakeLock should be released or held if wakeLock is instantiated
+   */
+  @SuppressLint("WakelockTimeout")
+  public void stayAwake(boolean awake) {
+    if (mWakeLock != null) {
+      if (awake && !mWakeLock.isHeld()) {
+        mWakeLock.acquire();
+      } else if (!awake && mWakeLock.isHeld()) {
+        mWakeLock.release();
+      }
+    } else {
+      throw new NullPointerException(
+          "WakeLock was null! You must call setWakeMode(Context, mode) before!"
+      );
+    }
+    mStayAwake = awake;
   }
 
   /**
