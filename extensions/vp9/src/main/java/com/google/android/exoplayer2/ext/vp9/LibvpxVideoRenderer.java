@@ -98,12 +98,12 @@ public class LibvpxVideoRenderer extends BaseRenderer {
   public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = C.MSG_CUSTOM_BASE;
 
   /** The number of input buffers. */
-  private static final int NUM_INPUT_BUFFERS = 4;
+  private final int numInputBuffers;
   /**
    * The number of output buffers. The renderer may limit the minimum possible value due to
    * requiring multiple output buffers to be dequeued at a time for it to make progress.
    */
-  private static final int NUM_OUTPUT_BUFFERS = 4;
+  private final int numOutputBuffers;
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
 
@@ -220,7 +220,9 @@ public class LibvpxVideoRenderer extends BaseRenderer {
         playClearSamplesWithoutKeys,
         disableLoopFilter,
         /* enableRowMultiThreadMode= */ false,
-        getRuntime().availableProcessors());
+        getRuntime().availableProcessors(),
+        /* numInputBuffers= */ 8,
+        /* numOutputBuffers= */ 8);
   }
 
   /**
@@ -241,6 +243,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
    * @param disableLoopFilter Disable the libvpx in-loop smoothing filter.
    * @param enableRowMultiThreadMode Whether row multi threading decoding is enabled.
    * @param threads Number of threads libvpx will use to decode.
+   * @param numInputBuffers Number of input buffers.
+   * @param numOutputBuffers Number of output buffers.
    */
   public LibvpxVideoRenderer(
       long allowedJoiningTimeMs,
@@ -251,7 +255,9 @@ public class LibvpxVideoRenderer extends BaseRenderer {
       boolean playClearSamplesWithoutKeys,
       boolean disableLoopFilter,
       boolean enableRowMultiThreadMode,
-      int threads) {
+      int threads,
+      int numInputBuffers,
+      int numOutputBuffers) {
     super(C.TRACK_TYPE_VIDEO);
     this.disableLoopFilter = disableLoopFilter;
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
@@ -260,6 +266,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     this.enableRowMultiThreadMode = enableRowMultiThreadMode;
     this.threads = threads;
+    this.numInputBuffers = numInputBuffers;
+    this.numOutputBuffers = numOutputBuffers;
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
     formatHolder = new FormatHolder();
@@ -762,8 +770,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
           format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
       decoder =
           new VpxDecoder(
-              NUM_INPUT_BUFFERS,
-              NUM_OUTPUT_BUFFERS,
+              numInputBuffers,
+              numOutputBuffers,
               initialInputBufferSize,
               mediaCrypto,
               disableLoopFilter,
