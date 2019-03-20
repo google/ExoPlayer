@@ -127,7 +127,8 @@ public final class HlsMediaPeriodTest {
             /* height= */ Format.NO_VALUE,
             /* frameRate= */ Format.NO_VALUE,
             /* initializationData= */ null,
-            /* selectionFlags= */ 0),
+            /* selectionFlags= */ 0,
+            /* roleFlags= */ 0),
         /* name= */ "");
   }
 
@@ -145,7 +146,8 @@ public final class HlsMediaPeriodTest {
             /* height= */ Format.NO_VALUE,
             /* frameRate= */ Format.NO_VALUE,
             /* initializationData= */ null,
-            /* selectionFlags= */ 0),
+            /* selectionFlags= */ 0,
+            /* roleFlags= */ 0),
         /* name= */ "");
   }
 
@@ -169,6 +171,7 @@ public final class HlsMediaPeriodTest {
         /* sampleRate= */ Format.NO_VALUE,
         /* initializationData= */ null,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         language);
   }
 

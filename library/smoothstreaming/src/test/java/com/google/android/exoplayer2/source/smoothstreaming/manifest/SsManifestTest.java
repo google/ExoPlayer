@@ -122,6 +122,7 @@ public class SsManifestTest {
         /* codecs= */ null,
         /* bitrate= */ Format.NO_VALUE,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         /* language= */ null);
   }
 }

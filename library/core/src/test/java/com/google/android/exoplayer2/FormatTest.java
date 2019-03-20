@@ -39,7 +39,6 @@ import org.junit.runner.RunWith;
 public final class FormatTest {
 
   private static final List<byte[]> initData;
-
   static {
     byte[] initData1 = new byte[] {1, 2, 3};
     byte[] initData2 = new byte[] {4, 5, 6};
@@ -68,6 +67,7 @@ public final class FormatTest {
             "id",
             "label",
             C.SELECTION_FLAG_DEFAULT,
+            C.ROLE_FLAG_MAIN,
             /* bitrate= */ 1024,
             "codec",
             metadata,

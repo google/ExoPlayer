@@ -276,9 +276,9 @@ public class DashManifestParser extends DefaultHandler
     ArrayList<SchemeData> drmSchemeDatas = new ArrayList<>();
     ArrayList<Descriptor> inbandEventStreams = new ArrayList<>();
     ArrayList<Descriptor> accessibilityDescriptors = new ArrayList<>();
+    ArrayList<Descriptor> roleDescriptors = new ArrayList<>();
     ArrayList<Descriptor> supplementalProperties = new ArrayList<>();
     List<RepresentationInfo> representationInfos = new ArrayList<>();
-    @C.SelectionFlags int selectionFlags = 0;
 
     boolean seenFirstBaseUrl = false;
     do {
@@ -300,7 +300,7 @@ public class DashManifestParser extends DefaultHandler
         language = checkLanguageConsistency(language, xpp.getAttributeValue(null, "lang"));
         contentType = checkContentTypeConsistency(contentType, parseContentType(xpp));
       } else if (XmlPullParserUtil.isStartTag(xpp, "Role")) {
-        selectionFlags |= parseRole(xpp);
+        roleDescriptors.add(parseDescriptor(xpp, "Role"));
       } else if (XmlPullParserUtil.isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "Accessibility")) {
@@ -321,7 +321,7 @@ public class DashManifestParser extends DefaultHandler
                 audioChannels,
                 audioSamplingRate,
                 language,
-                selectionFlags,
+                roleDescriptors,
                 accessibilityDescriptors,
                 segmentBase);
         contentType = checkContentTypeConsistency(contentType,
@@ -465,24 +465,6 @@ public class DashManifestParser extends DefaultHandler
   }
 
   /**
-   * Parses a Role element.
-   *
-   * @param xpp The parser from which to read.
-   * @throws XmlPullParserException If an error occurs parsing the element.
-   * @throws IOException If an error occurs reading the element.
-   * @return {@link C.SelectionFlags} parsed from the element.
-   */
-  protected int parseRole(XmlPullParser xpp) throws XmlPullParserException, IOException {
-    String schemeIdUri = parseString(xpp, "schemeIdUri", null);
-    String value = parseString(xpp, "value", null);
-    do {
-      xpp.next();
-    } while (!XmlPullParserUtil.isEndTag(xpp, "Role"));
-    return "urn:mpeg:dash:role:2011".equals(schemeIdUri) && "main".equals(value)
-        ? C.SELECTION_FLAG_DEFAULT : 0;
-  }
-
-  /**
    * Parses children of AdaptationSet elements not specifically parsed elsewhere.
    *
    * @param xpp The XmpPullParser from which the AdaptationSet child should be parsed.
@@ -508,7 +490,7 @@ public class DashManifestParser extends DefaultHandler
       int adaptationSetAudioChannels,
       int adaptationSetAudioSamplingRate,
       String adaptationSetLanguage,
-      @C.SelectionFlags int adaptationSetSelectionFlags,
+      List<Descriptor> adaptationSetRoleDescriptors,
       List<Descriptor> adaptationSetAccessibilityDescriptors,
       SegmentBase segmentBase)
       throws XmlPullParserException, IOException {
@@ -572,7 +554,7 @@ public class DashManifestParser extends DefaultHandler
             audioSamplingRate,
             bandwidth,
             adaptationSetLanguage,
-            adaptationSetSelectionFlags,
+            adaptationSetRoleDescriptors,
             adaptationSetAccessibilityDescriptors,
             codecs,
             supplementalProperties);
@@ -593,11 +575,14 @@ public class DashManifestParser extends DefaultHandler
       int audioSamplingRate,
       int bitrate,
       String language,
-      @C.SelectionFlags int selectionFlags,
+      List<Descriptor> roleDescriptors,
       List<Descriptor> accessibilityDescriptors,
       String codecs,
       List<Descriptor> supplementalProperties) {
     String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
+    @C.SelectionFlags int selectionFlags = parseSelectionFlagsFromRoleDescriptors(roleDescriptors);
+    @C.RoleFlags int roleFlags = parseRoleFlagsFromRoleDescriptors(roleDescriptors);
+    roleFlags |= parseRoleFlagsFromAccessibilityDescriptors(accessibilityDescriptors);
     if (sampleMimeType != null) {
       if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType)) {
         sampleMimeType = parseEac3SupplementalProperties(supplementalProperties);
@@ -614,7 +599,8 @@ public class DashManifestParser extends DefaultHandler
             height,
             frameRate,
             /* initializationData= */ null,
-            selectionFlags);
+            selectionFlags,
+            roleFlags);
       } else if (MimeTypes.isAudio(sampleMimeType)) {
         return Format.createAudioContainerFormat(
             id,
@@ -627,6 +613,7 @@ public class DashManifestParser extends DefaultHandler
             audioSamplingRate,
             /* initializationData= */ null,
             selectionFlags,
+            roleFlags,
             language);
       } else if (mimeTypeIsRawText(sampleMimeType)) {
         int accessibilityChannel;
@@ -645,12 +632,21 @@ public class DashManifestParser extends DefaultHandler
             codecs,
             bitrate,
             selectionFlags,
+            roleFlags,
             language,
             accessibilityChannel);
       }
     }
     return Format.createContainerFormat(
-        id, label, containerMimeType, sampleMimeType, codecs, bitrate, selectionFlags, language);
+        id,
+        label,
+        containerMimeType,
+        sampleMimeType,
+        codecs,
+        bitrate,
+        selectionFlags,
+        roleFlags,
+        language);
   }
 
   protected Representation buildRepresentation(
@@ -1062,6 +1058,103 @@ public class DashManifestParser extends DefaultHandler
       xpp.next();
     } while (!XmlPullParserUtil.isEndTag(xpp, "AudioChannelConfiguration"));
     return audioChannels;
+  }
+
+  // Selection flag parsing.
+
+  protected int parseSelectionFlagsFromRoleDescriptors(List<Descriptor> roleDescriptors) {
+    for (int i = 0; i < roleDescriptors.size(); i++) {
+      Descriptor descriptor = roleDescriptors.get(i);
+      if ("urn:mpeg:dash:role:2011".equalsIgnoreCase(descriptor.schemeIdUri)
+          && "main".equals(descriptor.value)) {
+        return C.SELECTION_FLAG_DEFAULT;
+      }
+    }
+    return 0;
+  }
+
+  // Role and Accessibility parsing.
+
+  @C.RoleFlags
+  protected int parseRoleFlagsFromRoleDescriptors(List<Descriptor> roleDescriptors) {
+    @C.RoleFlags int result = 0;
+    for (int i = 0; i < roleDescriptors.size(); i++) {
+      Descriptor descriptor = roleDescriptors.get(i);
+      if ("urn:mpeg:dash:role:2011".equalsIgnoreCase(descriptor.schemeIdUri)) {
+        result |= parseDashRoleSchemeValue(descriptor.value);
+      }
+    }
+    return result;
+  }
+
+  @C.RoleFlags
+  protected int parseRoleFlagsFromAccessibilityDescriptors(
+      List<Descriptor> accessibilityDescriptors) {
+    @C.RoleFlags int result = 0;
+    for (int i = 0; i < accessibilityDescriptors.size(); i++) {
+      Descriptor descriptor = accessibilityDescriptors.get(i);
+      if ("urn:mpeg:dash:role:2011".equalsIgnoreCase(descriptor.schemeIdUri)) {
+        result |= parseDashRoleSchemeValue(descriptor.value);
+      } else if ("urn:tva:metadata:cs:AudioPurposeCS:2007"
+          .equalsIgnoreCase(descriptor.schemeIdUri)) {
+        result |= parseTvaAudioPurposeCsValue(descriptor.value);
+      }
+    }
+    return result;
+  }
+
+  @C.RoleFlags
+  protected int parseDashRoleSchemeValue(String value) {
+    if (value == null) {
+      return 0;
+    }
+    switch (value) {
+      case "main":
+        return C.ROLE_FLAG_MAIN;
+      case "alternate":
+        return C.ROLE_FLAG_ALTERNATE;
+      case "supplementary":
+        return C.ROLE_FLAG_SUPPLEMENTARY;
+      case "commentary":
+        return C.ROLE_FLAG_COMMENTARY;
+      case "dub":
+        return C.ROLE_FLAG_DUB;
+      case "emergency":
+        return C.ROLE_FLAG_EMERGENCY;
+      case "caption":
+        return C.ROLE_FLAG_CAPTION;
+      case "subtitle":
+        return C.ROLE_FLAG_SUBTITLE;
+      case "sign":
+        return C.ROLE_FLAG_SIGN;
+      case "description":
+        return C.ROLE_FLAG_DESCRIPTION;
+      case "enhanced-audio-intelligibility":
+        return C.ROLE_FLAG_ENHANCED_AUDIO_INTELLIGIBILITY;
+      default:
+        return 0;
+    }
+  }
+
+  @C.RoleFlags
+  protected int parseTvaAudioPurposeCsValue(String value) {
+    if (value == null) {
+      return 0;
+    }
+    switch (value) {
+      case "1": // Audio description for the visually impaired.
+        return C.ROLE_FLAG_DESCRIPTION;
+      case "2": // Audio description for the hard of hearing.
+        return C.ROLE_FLAG_ENHANCED_AUDIO_INTELLIGIBILITY;
+      case "3": // Supplemental commentary.
+        return C.ROLE_FLAG_SUPPLEMENTARY;
+      case "4": // Director's commentary.
+        return C.ROLE_FLAG_COMMENTARY;
+      case "6": // Main programme audio.
+        return C.ROLE_FLAG_MAIN;
+      default:
+        return 0;
+    }
   }
 
   // Utility methods.

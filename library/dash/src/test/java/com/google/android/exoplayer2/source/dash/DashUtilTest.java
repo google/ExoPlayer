@@ -85,7 +85,8 @@ public final class DashUtilTest {
             /* height= */ 768,
             Format.NO_VALUE,
             /* initializationData= */ null,
-            /* selectionFlags= */ 0);
+            /* selectionFlags= */ 0,
+            /* roleFlags= */ 0);
     if (drmInitData != null) {
       format = format.copyWithDrmInitData(drmInitData);
     }
