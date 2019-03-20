@@ -557,16 +557,18 @@ public final class SimpleCache implements Cache {
   private void initialize() {
     if (!cacheDir.exists()) {
       if (!cacheDir.mkdirs()) {
-        initializationException =
-            new CacheException("Failed to create cache directory: " + cacheDir);
+        String message = "Failed to create cache directory: " + cacheDir;
+        Log.e(TAG, message);
+        initializationException = new CacheException(message);
         return;
       }
     }
 
     File[] files = cacheDir.listFiles();
     if (files == null) {
-      initializationException =
-          new CacheException("Failed to list cache directory files: " + cacheDir);
+      String message = "Failed to list cache directory files: " + cacheDir;
+      Log.e(TAG, message);
+      initializationException = new CacheException(message);
       return;
     }
 
@@ -575,8 +577,11 @@ public final class SimpleCache implements Cache {
       try {
         uid = createUid(cacheDir);
       } catch (IOException e) {
-        initializationException = new CacheException("Failed to create cache UID: " + cacheDir);
-        return;
+        String message = "Failed to create cache UID: " + cacheDir;
+        Log.e(TAG, message, e);
+        // TODO: Reinstate this only when a database index is used [Internal ref: b/128933265].
+        // initializationException = new CacheException(message, e);
+        // return;
       }
     }
 
@@ -591,7 +596,9 @@ public final class SimpleCache implements Cache {
         loadDirectory(cacheDir, /* isRoot= */ true, files, /* fileMetadata= */ null);
       }
     } catch (IOException e) {
-      initializationException = new CacheException(e);
+      String message = "Failed to initialize cache indices: " + cacheDir;
+      Log.e(TAG, message, e);
+      initializationException = new CacheException(message, e);
       return;
     }
 
