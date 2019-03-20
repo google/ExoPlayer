@@ -77,6 +77,9 @@ public interface Cache {
       super(cause);
     }
 
+    public CacheException(String message, Throwable cause) {
+      super(message, cause);
+    }
   }
 
   /**
