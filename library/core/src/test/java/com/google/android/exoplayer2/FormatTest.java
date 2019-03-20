@@ -38,14 +38,15 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class FormatTest {
 
-  private static final List<byte[]> INIT_DATA;
+  private static final List<byte[]> initData;
+
   static {
     byte[] initData1 = new byte[] {1, 2, 3};
     byte[] initData2 = new byte[] {4, 5, 6};
-    List<byte[]> initData = new ArrayList<>();
-    initData.add(initData1);
-    initData.add(initData2);
-    INIT_DATA = Collections.unmodifiableList(initData);
+    List<byte[]> initDataList = new ArrayList<>();
+    initDataList.add(initData1);
+    initDataList.add(initData2);
+    initData = Collections.unmodifiableList(initDataList);
   }
 
   @Test
@@ -66,11 +67,16 @@ public final class FormatTest {
         new Format(
             "id",
             "label",
+            C.SELECTION_FLAG_DEFAULT,
+            /* bitrate= */ 1024,
+            "codec",
+            metadata,
             /* containerMimeType= */ MimeTypes.VIDEO_MP4,
             /* sampleMimeType= */ MimeTypes.VIDEO_H264,
-            "codec",
-            /* bitrate= */ 1024,
             /* maxInputSize= */ 2048,
+            initData,
+            drmInitData,
+            Format.OFFSET_SAMPLE_RELATIVE,
             /* width= */ 1920,
             /* height= */ 1080,
             /* frameRate= */ 24,
@@ -84,13 +90,8 @@ public final class FormatTest {
             C.ENCODING_PCM_24BIT,
             /* encoderDelay= */ 1001,
             /* encoderPadding= */ 1002,
-            C.SELECTION_FLAG_DEFAULT,
             "language",
-            /* accessibilityChannel= */ Format.NO_VALUE,
-            Format.OFFSET_SAMPLE_RELATIVE,
-            INIT_DATA,
-            drmInitData,
-            metadata);
+            /* accessibilityChannel= */ Format.NO_VALUE);
 
     Parcel parcel = Parcel.obtain();
     formatToParcel.writeToParcel(parcel, 0);
