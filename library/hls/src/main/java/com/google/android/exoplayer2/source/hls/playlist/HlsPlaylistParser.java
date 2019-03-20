@@ -329,7 +329,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   height,
                   frameRate,
                   /* initializationData= */ null,
-                  /* selectionFlags= */ 0);
+                  /* selectionFlags= */ 0,
+                  /* roleFlags= */ 0);
           variants.add(new HlsMasterPlaylist.HlsUrl(line, format, /* name= */ ""));
         }
       }
@@ -361,6 +362,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* sampleRate= */ Format.NO_VALUE,
                   /* initializationData= */ null,
                   selectionFlags,
+                  /* roleFlags= */ 0,
                   language);
           if (isMediaTagMuxed(variants, uri)) {
             muxedAudioFormat = format;
@@ -404,6 +406,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* codecs= */ null,
                   /* bitrate= */ Format.NO_VALUE,
                   selectionFlags,
+                  /* roleFlags= */ 0,
                   language,
                   accessibilityChannel));
           break;

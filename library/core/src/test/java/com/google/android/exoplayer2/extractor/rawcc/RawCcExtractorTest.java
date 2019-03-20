@@ -39,6 +39,7 @@ public final class RawCcExtractorTest {
                     /* codecs= */ "cea608",
                     /* bitrate= */ Format.NO_VALUE,
                     /* selectionFlags= */ 0,
+                    /* roleFlags= */ 0,
                     /* language= */ null,
                     /* accessibilityChannel= */ 1)),
         "rawcc/sample.rawcc");

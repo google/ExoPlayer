@@ -109,6 +109,7 @@ import com.google.android.gms.cast.MediaTrack;
         /* codecs= */ null,
         /* bitrate= */ Format.NO_VALUE,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         mediaTrack.getLanguage());
   }
 

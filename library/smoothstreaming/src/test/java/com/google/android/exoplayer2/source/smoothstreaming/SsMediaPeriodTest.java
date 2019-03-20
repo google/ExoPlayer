@@ -89,6 +89,7 @@ public class SsMediaPeriodTest {
         /* codecs= */ null,
         bitrate,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         /* language= */ null);
   }
 
@@ -101,6 +102,7 @@ public class SsMediaPeriodTest {
         /* codecs= */ null,
         bitrate,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         /* language= */ null);
   }
 
@@ -113,6 +115,7 @@ public class SsMediaPeriodTest {
         /* codecs= */ null,
         /* bitrate= */ Format.NO_VALUE,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         language);
   }
 }

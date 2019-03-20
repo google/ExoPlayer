@@ -50,6 +50,8 @@ public final class Format implements Parcelable {
   public final @Nullable String label;
   /** Track selection flags. */
   @C.SelectionFlags public final int selectionFlags;
+  /** Track role flags. */
+  @C.RoleFlags public final int roleFlags;
   /**
    * The average bandwidth in bits per second, or {@link #NO_VALUE} if unknown or not applicable.
    */
@@ -189,7 +191,8 @@ public final class Format implements Parcelable {
         height,
         frameRate,
         initializationData,
-        selectionFlags);
+        selectionFlags,
+        /* roleFlags= */ 0);
   }
 
   public static Format createVideoContainerFormat(
@@ -203,11 +206,13 @@ public final class Format implements Parcelable {
       int height,
       float frameRate,
       @Nullable List<byte[]> initializationData,
-      @C.SelectionFlags int selectionFlags) {
+      @C.SelectionFlags int selectionFlags,
+      @C.RoleFlags int roleFlags) {
     return new Format(
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         /* metadata= */ null,
@@ -311,6 +316,7 @@ public final class Format implements Parcelable {
         id,
         /* label= */ null,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         bitrate,
         codecs,
         /* metadata= */ null,
@@ -362,6 +368,7 @@ public final class Format implements Parcelable {
         sampleRate,
         initializationData,
         selectionFlags,
+        /* roleFlags= */ 0,
         language);
   }
 
@@ -376,11 +383,13 @@ public final class Format implements Parcelable {
       int sampleRate,
       @Nullable List<byte[]> initializationData,
       @C.SelectionFlags int selectionFlags,
+      @C.RoleFlags int roleFlags,
       @Nullable String language) {
     return new Format(
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         /* metadata= */ null,
@@ -485,6 +494,7 @@ public final class Format implements Parcelable {
         id,
         /* label= */ null,
         selectionFlags,
+        /* roleFlags= */ 0,
         bitrate,
         codecs,
         metadata,
@@ -550,6 +560,7 @@ public final class Format implements Parcelable {
         codecs,
         bitrate,
         selectionFlags,
+        /* roleFlags= */ 0,
         language,
         /* accessibilityChannel= */ NO_VALUE);
   }
@@ -562,12 +573,14 @@ public final class Format implements Parcelable {
       @Nullable String codecs,
       int bitrate,
       @C.SelectionFlags int selectionFlags,
+      @C.RoleFlags int roleFlags,
       @Nullable String language,
       int accessibilityChannel) {
     return new Format(
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         /* metadata= */ null,
@@ -680,6 +693,7 @@ public final class Format implements Parcelable {
         id,
         /* label= */ null,
         selectionFlags,
+        /* roleFlags= */ 0,
         bitrate,
         codecs,
         /* metadata= */ null,
@@ -721,6 +735,7 @@ public final class Format implements Parcelable {
         id,
         /* label= */ null,
         selectionFlags,
+        /* roleFlags= */ 0,
         bitrate,
         codecs,
         /* metadata=*/ null,
@@ -766,6 +781,7 @@ public final class Format implements Parcelable {
         codecs,
         bitrate,
         selectionFlags,
+        /* roleFlags= */ 0,
         language);
   }
 
@@ -777,11 +793,13 @@ public final class Format implements Parcelable {
       @Nullable String codecs,
       int bitrate,
       @C.SelectionFlags int selectionFlags,
+      @C.RoleFlags int roleFlags,
       @Nullable String language) {
     return new Format(
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         /* metadata= */ null,
@@ -814,6 +832,7 @@ public final class Format implements Parcelable {
         id,
         /* label= */ null,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         /* bitrate= */ NO_VALUE,
         /* codecs= */ null,
         /* metadata= */ null,
@@ -850,6 +869,7 @@ public final class Format implements Parcelable {
         id,
         /* label= */ null,
         /* selectionFlags= */ 0,
+        /* roleFlags= */ 0,
         bitrate,
         codecs,
         /* metadata= */ null,
@@ -880,6 +900,7 @@ public final class Format implements Parcelable {
       @Nullable String id,
       @Nullable String label,
       @C.SelectionFlags int selectionFlags,
+      @C.RoleFlags int roleFlags,
       int bitrate,
       @Nullable String codecs,
       @Nullable Metadata metadata,
@@ -912,6 +933,7 @@ public final class Format implements Parcelable {
     this.id = id;
     this.label = label;
     this.selectionFlags = selectionFlags;
+    this.roleFlags = roleFlags;
     this.bitrate = bitrate;
     this.codecs = codecs;
     this.metadata = metadata;
@@ -950,6 +972,7 @@ public final class Format implements Parcelable {
     id = in.readString();
     label = in.readString();
     selectionFlags = in.readInt();
+    roleFlags = in.readInt();
     bitrate = in.readInt();
     codecs = in.readString();
     metadata = in.readParcelable(Metadata.class.getClassLoader());
@@ -986,12 +1009,12 @@ public final class Format implements Parcelable {
     accessibilityChannel = in.readInt();
   }
 
-
   public Format copyWithMaxInputSize(int maxInputSize) {
     return new Format(
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         metadata,
@@ -1023,6 +1046,7 @@ public final class Format implements Parcelable {
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         metadata,
@@ -1064,6 +1088,7 @@ public final class Format implements Parcelable {
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         metadata,
@@ -1128,6 +1153,7 @@ public final class Format implements Parcelable {
 
     // Merge manifest and sample format values.
     @C.SelectionFlags int selectionFlags = this.selectionFlags | manifestFormat.selectionFlags;
+    @C.RoleFlags int roleFlags = this.roleFlags | manifestFormat.roleFlags;
     DrmInitData drmInitData =
         DrmInitData.createSessionCreationData(manifestFormat.drmInitData, this.drmInitData);
 
@@ -1135,6 +1161,7 @@ public final class Format implements Parcelable {
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         metadata,
@@ -1166,6 +1193,7 @@ public final class Format implements Parcelable {
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         metadata,
@@ -1197,6 +1225,7 @@ public final class Format implements Parcelable {
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         metadata,
@@ -1228,6 +1257,7 @@ public final class Format implements Parcelable {
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         metadata,
@@ -1259,6 +1289,7 @@ public final class Format implements Parcelable {
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         metadata,
@@ -1290,6 +1321,7 @@ public final class Format implements Parcelable {
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         metadata,
@@ -1321,6 +1353,7 @@ public final class Format implements Parcelable {
         id,
         label,
         selectionFlags,
+        roleFlags,
         bitrate,
         codecs,
         metadata,
@@ -1393,6 +1426,7 @@ public final class Format implements Parcelable {
       result = 31 * result + (id == null ? 0 : id.hashCode());
       result = 31 * result + (label != null ? label.hashCode() : 0);
       result = 31 * result + selectionFlags;
+      result = 31 * result + roleFlags;
       result = 31 * result + bitrate;
       result = 31 * result + (codecs == null ? 0 : codecs.hashCode());
       result = 31 * result + (metadata == null ? 0 : metadata.hashCode());
@@ -1441,6 +1475,7 @@ public final class Format implements Parcelable {
     }
     // Field equality checks ordered by type, with the cheapest checks first.
     return selectionFlags == other.selectionFlags
+        && roleFlags == other.roleFlags
         && bitrate == other.bitrate
         && maxInputSize == other.maxInputSize
         && subsampleOffsetUs == other.subsampleOffsetUs
@@ -1537,6 +1572,7 @@ public final class Format implements Parcelable {
     dest.writeString(id);
     dest.writeString(label);
     dest.writeInt(selectionFlags);
+    dest.writeInt(roleFlags);
     dest.writeInt(bitrate);
     dest.writeString(codecs);
     dest.writeParcelable(metadata, 0);
