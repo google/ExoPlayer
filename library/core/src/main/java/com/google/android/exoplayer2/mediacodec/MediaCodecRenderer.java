@@ -1623,6 +1623,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       reinitializeCodec();
       return;
     }
+    if (C.PLAYREADY_UUID.equals(sessionMediaCrypto.uuid)) {
+      // The PlayReady CDM does not implement setMediaDrmSession.
+      // TODO: Add API check once [Internal ref: b/128835874] is fixed.
+      reinitializeCodec();
+      return;
+    }
 
     if (flushOrReinitializeCodec()) {
       // The codec was reinitialized. The new codec will be using the new DRM session, so there's
