@@ -61,6 +61,34 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @MonotonicNonNull private String tableName;
 
+  /**
+   * Deletes index data for the specified cache.
+   *
+   * @param databaseProvider Provides the database in which the index is stored.
+   * @param uid The cache UID.
+   * @throws DatabaseIOException If an error occurs deleting the index data.
+   */
+  public static void delete(DatabaseProvider databaseProvider, long uid)
+      throws DatabaseIOException {
+    String hexUid = Long.toHexString(uid);
+    try {
+      String tableName = getTableName(hexUid);
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      writableDatabase.beginTransaction();
+      try {
+        VersionTable.removeVersion(
+            writableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid);
+        dropTable(writableDatabase, tableName);
+        writableDatabase.setTransactionSuccessful();
+      } finally {
+        writableDatabase.endTransaction();
+      }
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
+    }
+  }
+
+  /** @param databaseProvider Provides the database in which the index is stored. */
   public CacheFileMetadataIndex(DatabaseProvider databaseProvider) {
     this.databaseProvider = databaseProvider;
   }
@@ -68,12 +96,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Initializes the index for the given cache UID.
    *
+   * @param uid The cache UID.
    * @throws DatabaseIOException If an error occurs initializing the index.
    */
   public void initialize(long uid) throws DatabaseIOException {
     try {
       String hexUid = Long.toHexString(uid);
-      tableName = TABLE_PREFIX + hexUid;
+      tableName = getTableName(hexUid);
       SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
       int version =
           VersionTable.getVersion(
@@ -84,7 +113,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         try {
           VersionTable.setVersion(
               writableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid, TABLE_VERSION);
-          writableDatabase.execSQL("DROP TABLE IF EXISTS " + tableName);
+          dropTable(writableDatabase, tableName);
           writableDatabase.execSQL("CREATE TABLE " + tableName + " " + TABLE_SCHEMA);
           writableDatabase.setTransactionSuccessful();
         } finally {
@@ -195,5 +224,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* groupBy= */ null,
             /* having= */ null,
             /* orderBy= */ null);
+  }
+
+  private static void dropTable(SQLiteDatabase writableDatabase, String tableName) {
+    writableDatabase.execSQL("DROP TABLE IF EXISTS " + tableName);
+  }
+
+  private static String getTableName(String hexUid) {
+    return TABLE_PREFIX + hexUid;
   }
 }
