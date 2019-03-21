@@ -980,6 +980,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Override
   public void release() {
+    verifyApplicationThread();
     audioFocusManager.handleStop();
     player.release();
     removeSurfaceCallbacks();
