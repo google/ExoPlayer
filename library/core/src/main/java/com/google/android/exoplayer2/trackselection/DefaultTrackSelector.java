@@ -1485,34 +1485,38 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     AudioTrackScore selectedAudioTrackScore = null;
     int selectedAudioRendererIndex = C.INDEX_UNSET;
+    for (int i = 0; i < rendererCount; i++) {
+      if (C.TRACK_TYPE_AUDIO == mappedTrackInfo.getRendererType(i)) {
+        Pair<TrackSelection.Definition, AudioTrackScore> audioSelection =
+            selectAudioTrack(
+                mappedTrackInfo.getTrackGroups(i),
+                rendererFormatSupports[i],
+                rendererMixedMimeTypeAdaptationSupports[i],
+                params,
+                !seenVideoRendererWithMappedTracks);
+        if (audioSelection != null
+            && (selectedAudioTrackScore == null
+                || audioSelection.second.compareTo(selectedAudioTrackScore) > 0)) {
+          if (selectedAudioRendererIndex != C.INDEX_UNSET) {
+            // We've already made a selection for another audio renderer, but it had a lower
+            // score. Clear the selection for that renderer.
+            definitions[selectedAudioRendererIndex] = null;
+          }
+          definitions[i] = audioSelection.first;
+          selectedAudioTrackScore = audioSelection.second;
+          selectedAudioRendererIndex = i;
+        }
+      }
+    }
+
     int selectedTextTrackScore = Integer.MIN_VALUE;
     int selectedTextRendererIndex = C.INDEX_UNSET;
     for (int i = 0; i < rendererCount; i++) {
       int trackType = mappedTrackInfo.getRendererType(i);
       switch (trackType) {
         case C.TRACK_TYPE_VIDEO:
-          // Already done. Do nothing.
-          break;
         case C.TRACK_TYPE_AUDIO:
-          Pair<TrackSelection.Definition, AudioTrackScore> audioSelection =
-              selectAudioTrack(
-                  mappedTrackInfo.getTrackGroups(i),
-                  rendererFormatSupports[i],
-                  rendererMixedMimeTypeAdaptationSupports[i],
-                  params,
-                  !seenVideoRendererWithMappedTracks);
-          if (audioSelection != null
-              && (selectedAudioTrackScore == null
-                  || audioSelection.second.compareTo(selectedAudioTrackScore) > 0)) {
-            if (selectedAudioRendererIndex != C.INDEX_UNSET) {
-              // We've already made a selection for another audio renderer, but it had a lower
-              // score. Clear the selection for that renderer.
-              definitions[selectedAudioRendererIndex] = null;
-            }
-            definitions[i] = audioSelection.first;
-            selectedAudioTrackScore = audioSelection.second;
-            selectedAudioRendererIndex = i;
-          }
+          // Already done. Do nothing.
           break;
         case C.TRACK_TYPE_TEXT:
           Pair<TrackSelection.Definition, Integer> textSelection =
