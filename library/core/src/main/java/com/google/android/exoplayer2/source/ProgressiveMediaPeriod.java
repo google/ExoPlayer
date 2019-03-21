@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekMap.SeekPoints;
+import com.google.android.exoplayer2.extractor.SeekMap.Unseekable;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
@@ -626,7 +627,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public void seekMap(SeekMap seekMap) {
-    this.seekMap = seekMap;
+    this.seekMap = icyHeaders == null ? seekMap : new Unseekable(/* durationUs */ C.TIME_UNSET);
     handler.post(maybeFinishPrepareRunnable);
   }
 

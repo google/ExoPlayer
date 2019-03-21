@@ -78,6 +78,8 @@
   `ExtractorsFactory` instances must now be passed via the
   `ProgressiveMediaSource.Factory` constructor, and `setExtractorsFactory` is
   deprecated.
+* Prevent seeking when ICY metadata is present to prevent playback problems
+  ([#5658](https://github.com/google/ExoPlayer/issues/5658)).
 
 ### 2.9.6 ###
 
