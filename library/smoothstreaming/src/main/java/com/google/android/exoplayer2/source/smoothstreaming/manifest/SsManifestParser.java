@@ -719,6 +719,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
                 /* codecs= */ null,
                 bitrate,
                 /* selectionFlags= */ 0,
+                /* roleFlags= */ 0,
                 language);
       } else {
         format =

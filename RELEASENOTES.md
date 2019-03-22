@@ -12,6 +12,7 @@
   * Form an adaptive track group out of audio renditions with matching name.
   * Support encrypted initialization segments
     ([#5441](https://github.com/google/ExoPlayer/issues/5441)).
+  * Parse `EXT-X-MEDIA` `CHARACTERISTICS` attribute into `Format.roleFlags`.
 * `ExtractorMediaSource` renamed to `ProgressiveMediaSource`.
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
