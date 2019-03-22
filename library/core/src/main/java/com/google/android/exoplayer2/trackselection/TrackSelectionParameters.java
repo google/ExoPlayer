@@ -59,8 +59,7 @@ public class TrackSelectionParameters implements Parcelable {
     /**
      * See {@link TrackSelectionParameters#preferredAudioLanguage}.
      *
-     * @param preferredAudioLanguage Preferred audio language as an ISO 639-1 two-letter or ISO
-     *     639-2 three-letter code.
+     * @param preferredAudioLanguage Preferred audio language as an IETF BCP 47 conformant tag.
      * @return This builder.
      */
     public Builder setPreferredAudioLanguage(@Nullable String preferredAudioLanguage) {
@@ -73,8 +72,7 @@ public class TrackSelectionParameters implements Parcelable {
     /**
      * See {@link TrackSelectionParameters#preferredTextLanguage}.
      *
-     * @param preferredTextLanguage Preferred text language as an ISO 639-1 two-letter or ISO 639-2
-     *     three-letter code.
+     * @param preferredTextLanguage Preferred text language as an IETF BCP 47 conformant tag.
      * @return This builder.
      */
     public Builder setPreferredTextLanguage(@Nullable String preferredTextLanguage) {

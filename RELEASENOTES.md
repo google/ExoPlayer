@@ -80,6 +80,7 @@
   deprecated.
 * Prevent seeking when ICY metadata is present to prevent playback problems
   ([#5658](https://github.com/google/ExoPlayer/issues/5658)).
+* Use full BCP 47 language tags in `Format`.
 
 ### 2.9.6 ###
 

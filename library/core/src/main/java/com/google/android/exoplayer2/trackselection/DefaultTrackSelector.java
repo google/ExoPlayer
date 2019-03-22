@@ -2017,28 +2017,24 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           boolean isDefault = (maskedSelectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
           boolean isForced = (maskedSelectionFlags & C.SELECTION_FLAG_FORCED) != 0;
           int trackScore;
-          boolean preferredLanguageFound = formatHasLanguage(format, params.preferredTextLanguage);
-          if (preferredLanguageFound
+          int languageScore = getFormatLanguageScore(format, params.preferredTextLanguage);
+          if (languageScore > 0
               || (params.selectUndeterminedTextLanguage && formatHasNoLanguage(format))) {
             if (isDefault) {
-              trackScore = 8;
+              trackScore = 11;
             } else if (!isForced) {
               // Prefer non-forced to forced if a preferred text language has been specified. Where
               // both are provided the non-forced track will usually contain the forced subtitles as
               // a subset.
-              trackScore = 6;
+              trackScore = 8;
             } else {
-              trackScore = 4;
+              trackScore = 5;
             }
-            trackScore += preferredLanguageFound ? 1 : 0;
+            trackScore += languageScore;
           } else if (isDefault) {
-            trackScore = 3;
+            trackScore = 4;
           } else if (isForced) {
-            if (formatHasLanguage(format, params.preferredAudioLanguage)) {
-              trackScore = 2;
-            } else {
-              trackScore = 1;
-            }
+            trackScore = 1 + languageScore;
           } else {
             // Track should not be selected.
             continue;
@@ -2234,20 +2230,26 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @return Whether the {@link Format} does not define a language.
    */
   protected static boolean formatHasNoLanguage(Format format) {
-    return TextUtils.isEmpty(format.language) || formatHasLanguage(format, C.LANGUAGE_UNDETERMINED);
+    return TextUtils.isEmpty(format.language)
+        || TextUtils.equals(format.language, C.LANGUAGE_UNDETERMINED);
   }
 
   /**
-   * Returns whether a {@link Format} specifies a particular language, or {@code false} if {@code
-   * language} is null.
+   * Returns a score for how well a language specified in a {@link Format} fits a given language.
    *
    * @param format The {@link Format}.
-   * @param language The language.
-   * @return Whether the format specifies the language, or {@code false} if {@code language} is
-   *     null.
+   * @param language The language, or null.
+   * @return A score of 0 if the languages don't fit, a score of 1 if the languages fit partly and a
+   *     score of 2 if the languages fit fully.
    */
-  protected static boolean formatHasLanguage(Format format, @Nullable String language) {
-    return language != null && TextUtils.equals(language, format.language);
+  protected static int getFormatLanguageScore(Format format, @Nullable String language) {
+    if (language == null) {
+      return 0;
+    }
+    if (TextUtils.equals(language, format.language)) {
+      return 2;
+    }
+    return format.language != null && format.language.startsWith(language) ? 1 : 0;
   }
 
   private static List<Integer> getViewportFilteredTrackIndices(TrackGroup group, int viewportWidth,
@@ -2335,7 +2337,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public AudioTrackScore(Format format, Parameters parameters, int formatSupport) {
       this.parameters = parameters;
       withinRendererCapabilitiesScore = isSupported(formatSupport, false) ? 1 : 0;
-      matchLanguageScore = formatHasLanguage(format, parameters.preferredAudioLanguage) ? 1 : 0;
+      matchLanguageScore = getFormatLanguageScore(format, parameters.preferredAudioLanguage);
       defaultSelectionFlagScore = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0 ? 1 : 0;
       channelCount = format.channelCount;
       sampleRate = format.sampleRate;

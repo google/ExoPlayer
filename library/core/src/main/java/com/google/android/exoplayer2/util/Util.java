@@ -419,16 +419,26 @@ public final class Util {
   }
 
   /**
-   * Returns a normalized ISO 639-2/T code for {@code language}.
+   * Returns a normalized IETF BCP 47 language tag for {@code language}.
    *
-   * @param language A case-insensitive ISO 639-1 two-letter or ISO 639-2 three-letter language
-   *     code.
+   * @param language A case-insensitive language code supported by {@link
+   *     Locale#forLanguageTag(String)}.
    * @return The all-lowercase normalized code, or null if the input was null, or {@code
    *     language.toLowerCase()} if the language could not be normalized.
    */
   public static @Nullable String normalizeLanguageCode(@Nullable String language) {
+    if (language == null) {
+      return null;
+    }
     try {
-      return language == null ? null : new Locale(language).getISO3Language();
+      Locale locale = Util.SDK_INT >= 21 ? Locale.forLanguageTag(language) : new Locale(language);
+      int localeLanguageLength = locale.getLanguage().length();
+      String normLanguage = locale.getISO3Language();
+      if (normLanguage.isEmpty()) {
+        return toLowerInvariant(language);
+      }
+      String normTag = Util.SDK_INT >= 21 ? locale.toLanguageTag() : locale.toString();
+      return toLowerInvariant(normLanguage + normTag.substring(localeLanguageLength));
     } catch (MissingResourceException e) {
       return toLowerInvariant(language);
     }

@@ -930,7 +930,7 @@ public final class DefaultTrackSelectorTest {
     // matches the preferred audio language.
     trackGroups = wrapFormats(forcedDefault, forcedOnly, defaultOnly, noFlag, forcedOnlySpanish);
     trackSelector.setParameters(
-        trackSelector.getParameters().buildUpon().setPreferredAudioLanguage("spa").build());
+        trackSelector.getParameters().buildUpon().setPreferredTextLanguage("spa").build());
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections.get(0), trackGroups, forcedOnlySpanish);
 
