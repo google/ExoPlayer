@@ -523,26 +523,6 @@ public final class Format implements Parcelable {
 
   // Text.
 
-  @Deprecated
-  public static Format createTextContainerFormat(
-      @Nullable String id,
-      @Nullable String containerMimeType,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
-      @C.SelectionFlags int selectionFlags,
-      @Nullable String language) {
-    return createTextContainerFormat(
-        id,
-        /* label= */ null,
-        containerMimeType,
-        sampleMimeType,
-        codecs,
-        bitrate,
-        selectionFlags,
-        language);
-  }
-
   public static Format createTextContainerFormat(
       @Nullable String id,
       @Nullable String label,
@@ -551,6 +531,7 @@ public final class Format implements Parcelable {
       @Nullable String codecs,
       int bitrate,
       @C.SelectionFlags int selectionFlags,
+      @C.RoleFlags int roleFlags,
       @Nullable String language) {
     return createTextContainerFormat(
         id,
@@ -560,7 +541,7 @@ public final class Format implements Parcelable {
         codecs,
         bitrate,
         selectionFlags,
-        /* roleFlags= */ 0,
+        roleFlags,
         language,
         /* accessibilityChannel= */ NO_VALUE);
   }

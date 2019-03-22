@@ -703,7 +703,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         variantFormat.frameRate,
         /* initializationData= */ null,
         variantFormat.selectionFlags,
-        /* roleFlags= */ 0);
+        variantFormat.roleFlags);
   }
 
   private static Format deriveAudioFormat(
@@ -711,12 +711,14 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     String codecs;
     int channelCount = Format.NO_VALUE;
     int selectionFlags = 0;
+    int roleFlags = 0;
     String language = null;
     String label = null;
     if (mediaTagFormat != null) {
       codecs = mediaTagFormat.codecs;
       channelCount = mediaTagFormat.channelCount;
       selectionFlags = mediaTagFormat.selectionFlags;
+      roleFlags = mediaTagFormat.roleFlags;
       language = mediaTagFormat.language;
       label = mediaTagFormat.label;
     } else {
@@ -724,6 +726,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       if (isPrimaryTrackInVariant) {
         channelCount = variantFormat.channelCount;
         selectionFlags = variantFormat.selectionFlags;
+        roleFlags = mediaTagFormat.roleFlags;
         language = variantFormat.language;
         label = variantFormat.label;
       }
@@ -741,7 +744,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         /* sampleRate= */ Format.NO_VALUE,
         /* initializationData= */ null,
         selectionFlags,
-        /* roleFlags= */ 0,
+        roleFlags,
         language);
   }
 

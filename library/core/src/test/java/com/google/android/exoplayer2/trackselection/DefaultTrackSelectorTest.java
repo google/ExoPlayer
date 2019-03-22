@@ -1603,6 +1603,7 @@ public final class DefaultTrackSelectorTest {
         /* codecs= */ null,
         /* bitrate= */ Format.NO_VALUE,
         selectionFlags,
+        /* roleFlags= */ 0,
         language);
   }
 

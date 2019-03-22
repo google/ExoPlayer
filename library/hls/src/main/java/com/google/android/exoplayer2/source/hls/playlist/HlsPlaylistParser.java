@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Base64;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -145,6 +146,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_LANGUAGE = Pattern.compile("LANGUAGE=\"(.+?)\"");
   private static final Pattern REGEX_NAME = Pattern.compile("NAME=\"(.+?)\"");
   private static final Pattern REGEX_GROUP_ID = Pattern.compile("GROUP-ID=\"(.+?)\"");
+  private static final Pattern REGEX_CHARACTERISTICS = Pattern.compile("CHARACTERISTICS=\"(.+?)\"");
   private static final Pattern REGEX_INSTREAM_ID =
       Pattern.compile("INSTREAM-ID=\"((?:CC|SERVICE)\\d+)\"");
   private static final Pattern REGEX_AUTOSELECT = compileBooleanAttrPattern("AUTOSELECT");
@@ -339,6 +341,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     for (int i = 0; i < mediaTags.size(); i++) {
       line = mediaTags.get(i);
       @C.SelectionFlags int selectionFlags = parseSelectionFlags(line);
+      @C.RoleFlags int roleFlags = parseRoleFlags(line, variableDefinitions);
       String uri = parseOptionalStringAttr(line, REGEX_URI, variableDefinitions);
       String name = parseStringAttr(line, REGEX_NAME, variableDefinitions);
       String language = parseOptionalStringAttr(line, REGEX_LANGUAGE, variableDefinitions);
@@ -362,7 +365,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* sampleRate= */ Format.NO_VALUE,
                   /* initializationData= */ null,
                   selectionFlags,
-                  /* roleFlags= */ 0,
+                  roleFlags,
                   language);
           if (isMediaTagMuxed(variants, uri)) {
             muxedAudioFormat = format;
@@ -380,6 +383,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* codecs= */ null,
                   /* bitrate= */ Format.NO_VALUE,
                   selectionFlags,
+                  roleFlags,
                   language);
           subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format, name));
           break;
@@ -406,7 +410,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* codecs= */ null,
                   /* bitrate= */ Format.NO_VALUE,
                   selectionFlags,
-                  /* roleFlags= */ 0,
+                  roleFlags,
                   language,
                   accessibilityChannel));
           break;
@@ -676,6 +680,30 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       flags |= C.SELECTION_FLAG_AUTOSELECT;
     }
     return flags;
+  }
+
+  @C.RoleFlags
+  private static int parseRoleFlags(String line, Map<String, String> variableDefinitions) {
+    String concatenatedCharacteristics =
+        parseOptionalStringAttr(line, REGEX_CHARACTERISTICS, variableDefinitions);
+    if (TextUtils.isEmpty(concatenatedCharacteristics)) {
+      return 0;
+    }
+    String[] characteristics = Util.split(concatenatedCharacteristics, ",");
+    @C.RoleFlags int roleFlags = 0;
+    if (Util.contains(characteristics, "public.accessibility.describes-video")) {
+      roleFlags |= C.ROLE_FLAG_DESCRIBES_VIDEO;
+    }
+    if (Util.contains(characteristics, "public.accessibility.transcribes-spoken-dialog")) {
+      roleFlags |= C.ROLE_FLAG_TRANSCRIBES_DIALOG;
+    }
+    if (Util.contains(characteristics, "public.accessibility.describes-music-and-sound")) {
+      roleFlags |= C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND;
+    }
+    if (Util.contains(characteristics, "public.easy-to-read")) {
+      roleFlags |= C.ROLE_FLAG_EASY_TO_READ;
+    }
+    return roleFlags;
   }
 
   private static int parseChannelsAttribute(String line, Map<String, String> variableDefinitions) {

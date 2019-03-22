@@ -1128,9 +1128,9 @@ public class DashManifestParser extends DefaultHandler
       case "sign":
         return C.ROLE_FLAG_SIGN;
       case "description":
-        return C.ROLE_FLAG_DESCRIPTION;
+        return C.ROLE_FLAG_DESCRIBES_VIDEO;
       case "enhanced-audio-intelligibility":
-        return C.ROLE_FLAG_ENHANCED_AUDIO_INTELLIGIBILITY;
+        return C.ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY;
       default:
         return 0;
     }
@@ -1143,9 +1143,9 @@ public class DashManifestParser extends DefaultHandler
     }
     switch (value) {
       case "1": // Audio description for the visually impaired.
-        return C.ROLE_FLAG_DESCRIPTION;
+        return C.ROLE_FLAG_DESCRIBES_VIDEO;
       case "2": // Audio description for the hard of hearing.
-        return C.ROLE_FLAG_ENHANCED_AUDIO_INTELLIGIBILITY;
+        return C.ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY;
       case "3": // Supplemental commentary.
         return C.ROLE_FLAG_SUPPLEMENTARY;
       case "4": // Director's commentary.
