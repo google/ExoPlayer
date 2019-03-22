@@ -156,7 +156,7 @@ public final class Format implements Parcelable {
 
   // Audio and text specific.
 
-  /** The language as ISO 639-2/T three-letter code, or null if unknown or not applicable. */
+  /** The language as an IETF BCP 47 conformant tag, or null if unknown or not applicable. */
   public final @Nullable String language;
   /**
    * The Accessibility channel, or {@link #NO_VALUE} if not known or applicable.

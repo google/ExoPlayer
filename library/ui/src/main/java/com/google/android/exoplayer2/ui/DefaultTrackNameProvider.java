@@ -100,7 +100,7 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
 
   private String buildLanguageString(String language) {
     Locale locale = Util.SDK_INT >= 21 ? Locale.forLanguageTag(language) : new Locale(language);
-    return locale.getDisplayLanguage();
+    return locale.getDisplayName();
   }
 
   private String joinWithSeparator(String... items) {
