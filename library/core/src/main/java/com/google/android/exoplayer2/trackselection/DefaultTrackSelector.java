@@ -1510,6 +1510,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     AudioTrackScore selectedAudioTrackScore = null;
+    String selectedAudioLanguage = null;
     int selectedAudioRendererIndex = C.INDEX_UNSET;
     for (int i = 0; i < rendererCount; i++) {
       if (C.TRACK_TYPE_AUDIO == mappedTrackInfo.getRendererType(i)) {
@@ -1528,7 +1529,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             // score. Clear the selection for that renderer.
             definitions[selectedAudioRendererIndex] = null;
           }
-          definitions[i] = audioSelection.first;
+          TrackSelection.Definition definition = audioSelection.first;
+          definitions[i] = definition;
+          // We assume that audio tracks in the same group have matching language.
+          selectedAudioLanguage = definition.group.getFormat(definition.tracks[0]).language;
           selectedAudioTrackScore = audioSelection.second;
           selectedAudioRendererIndex = i;
         }
@@ -1546,7 +1550,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           break;
         case C.TRACK_TYPE_TEXT:
           Pair<TrackSelection.Definition, Integer> textSelection =
-              selectTextTrack(mappedTrackInfo.getTrackGroups(i), rendererFormatSupports[i], params);
+              selectTextTrack(
+                  mappedTrackInfo.getTrackGroups(i),
+                  rendererFormatSupports[i],
+                  params,
+                  selectedAudioLanguage);
           if (textSelection != null && textSelection.second > selectedTextTrackScore) {
             if (selectedTextRendererIndex != C.INDEX_UNSET) {
               // We've already made a selection for another text renderer, but it had a lower score.
@@ -2020,13 +2028,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @param formatSupport The result of {@link RendererCapabilities#supportsFormat} for each mapped
    *     track, indexed by track group index and track index (in that order).
    * @param params The selector's current constraint parameters.
+   * @param selectedAudioLanguage The language of the selected audio track. May be null if the
+   *     selected audio track declares no language or no audio track was selected.
    * @return The {@link TrackSelection.Definition} and corresponding track score, or null if no
    *     selection was made.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
   @Nullable
   protected Pair<TrackSelection.Definition, Integer> selectTextTrack(
-      TrackGroupArray groups, int[][] formatSupport, Parameters params)
+      TrackGroupArray groups,
+      int[][] formatSupport,
+      Parameters params,
+      @Nullable String selectedAudioLanguage)
       throws ExoPlaybackException {
     TrackGroup selectedGroup = null;
     int selectedTrackIndex = 0;
@@ -2047,20 +2060,26 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           if (languageScore > 0
               || (params.selectUndeterminedTextLanguage && formatHasNoLanguage(format))) {
             if (isDefault) {
-              trackScore = 11;
+              trackScore = 13;
             } else if (!isForced) {
               // Prefer non-forced to forced if a preferred text language has been specified. Where
               // both are provided the non-forced track will usually contain the forced subtitles as
               // a subset.
-              trackScore = 8;
+              trackScore = 10;
             } else {
-              trackScore = 5;
+              trackScore = 7;
             }
             trackScore += languageScore;
           } else if (isDefault) {
-            trackScore = 4;
+            trackScore = 6;
           } else if (isForced) {
-            trackScore = 1 + languageScore;
+            int preferredAudioLanguageScore =
+                getFormatLanguageScore(format, params.preferredAudioLanguage);
+            if (preferredAudioLanguageScore > 0) {
+              trackScore = 3 + preferredAudioLanguageScore;
+            } else {
+              trackScore = 1 + getFormatLanguageScore(format, selectedAudioLanguage);
+            }
           } else {
             // Track should not be selected.
             continue;

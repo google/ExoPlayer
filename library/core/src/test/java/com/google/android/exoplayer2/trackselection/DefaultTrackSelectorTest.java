@@ -888,7 +888,7 @@ public final class DefaultTrackSelectorTest {
 
   /** Tests text track selection flags. */
   @Test
-  public void testsTextTrackSelectionFlags() throws ExoPlaybackException {
+  public void testTextTrackSelectionFlags() throws ExoPlaybackException {
     Format forcedOnly = buildTextFormat("forcedOnly", "eng", C.SELECTION_FLAG_FORCED);
     Format forcedDefault =
         buildTextFormat("forcedDefault", "eng", C.SELECTION_FLAG_FORCED | C.SELECTION_FLAG_DEFAULT);
@@ -965,6 +965,55 @@ public final class DefaultTrackSelectorTest {
             .build());
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections.get(0), trackGroups, noFlag);
+  }
+
+  /**
+   * Tests that the default track selector will select a forced text track matching the selected
+   * audio language when no text language preferences match.
+   */
+  @Test
+  public void testSelectingForcedTextTrackMatchesAudioLanguage() throws ExoPlaybackException {
+    Format forcedEnglish =
+        buildTextFormat(/* id= */ "forcedEnglish", /* language= */ "eng", C.SELECTION_FLAG_FORCED);
+    Format forcedGerman =
+        buildTextFormat(/* id= */ "forcedGerman", /* language= */ "deu", C.SELECTION_FLAG_FORCED);
+    Format audio = buildAudioFormat(/* id= */ "audio");
+    Format germanAudio =
+        buildAudioFormat(
+            /* id= */ "germanAudio",
+            MimeTypes.AUDIO_AAC,
+            /* bitrate= */ Format.NO_VALUE,
+            "deu",
+            /* selectionFlags= */ 0,
+            /* channelCount= */ Format.NO_VALUE,
+            /* sampleRate= */ Format.NO_VALUE);
+
+    RendererCapabilities[] rendererCapabilities =
+        new RendererCapabilities[] {
+          ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES,
+          ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES
+        };
+
+    // The audio declares no language. The first forced text track should be selected.
+    TrackGroupArray trackGroups = wrapFormats(audio, forcedEnglish, forcedGerman);
+    TrackSelectorResult result =
+        trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(1), trackGroups, forcedEnglish);
+
+    // Ditto.
+    trackGroups = wrapFormats(audio, forcedGerman, forcedEnglish);
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(1), trackGroups, forcedGerman);
+
+    // The audio declares german. The german forced track should be selected.
+    trackGroups = wrapFormats(germanAudio, forcedGerman, forcedEnglish);
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(1), trackGroups, forcedGerman);
+
+    // Ditto
+    trackGroups = wrapFormats(germanAudio, forcedEnglish, forcedGerman);
+    result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
+    assertFixedSelection(result.selections.get(1), trackGroups, forcedGerman);
   }
 
   /**
