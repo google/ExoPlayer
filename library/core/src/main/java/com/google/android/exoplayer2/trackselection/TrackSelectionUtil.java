@@ -71,7 +71,9 @@ public final class TrackSelectionUtil {
         createdAdaptiveTrackSelection = true;
         selections[i] = adaptiveTrackSelectionFactory.createAdaptiveTrackSelection(definition);
       } else {
-        selections[i] = new FixedTrackSelection(definition.group, definition.tracks[0]);
+        selections[i] =
+            new FixedTrackSelection(
+                definition.group, definition.tracks[0], definition.reason, definition.data);
       }
     }
     return selections;
