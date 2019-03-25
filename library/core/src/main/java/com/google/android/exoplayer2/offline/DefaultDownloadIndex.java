@@ -220,6 +220,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   /**
    * Removes the {@link DownloadState} with the given {@code id}.
    *
+   * @param id ID of a {@link DownloadState}.
    * @throws DatabaseIOException If an error occurs removing the state.
    */
   public void removeDownloadState(String id) throws DatabaseIOException {
@@ -245,6 +246,30 @@ public final class DefaultDownloadIndex implements DownloadIndex {
       values.put(COLUMN_MANUAL_STOP_REASON, manualStopReason);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.update(TABLE_NAME, values, WHERE_STATE_TERMINAL, /* whereArgs= */ null);
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
+    }
+  }
+
+  /**
+   * Sets the manual stop reason of the download with the given {@code id} in a terminal state
+   * ({@link DownloadState#STATE_COMPLETED}, {@link DownloadState#STATE_FAILED}).
+   *
+   * <p>If there's no {@link DownloadState} with the given {@code id} or it isn't in a terminal
+   * state, then nothing happens.
+   *
+   * @param id ID of a {@link DownloadState}.
+   * @param manualStopReason The manual stop reason.
+   * @throws DatabaseIOException If an error occurs updating the state.
+   */
+  public void setManualStopReason(String id, int manualStopReason) throws DatabaseIOException {
+    ensureInitialized();
+    try {
+      ContentValues values = new ContentValues();
+      values.put(COLUMN_MANUAL_STOP_REASON, manualStopReason);
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      writableDatabase.update(
+          TABLE_NAME, values, WHERE_STATE_TERMINAL + " AND " + WHERE_ID_EQUALS, new String[] {id});
     } catch (SQLException e) {
       throw new DatabaseIOException(e);
     }
