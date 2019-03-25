@@ -23,8 +23,10 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -230,7 +232,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     public @NullableType TrackSelection[] createTrackSelections(
         @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
       TrackSelection[] selections = new TrackSelection[definitions.length];
-      AdaptiveTrackSelection adaptiveSelection = null;
+      List<AdaptiveTrackSelection> adaptiveSelections = new ArrayList<>();
       int totalFixedBandwidth = 0;
       for (int i = 0; i < definitions.length; i++) {
         Definition definition = definitions[i];
@@ -238,8 +240,9 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           continue;
         }
         if (definition.tracks.length > 1) {
-          adaptiveSelection =
+          AdaptiveTrackSelection adaptiveSelection =
               createAdaptiveTrackSelection(definition.group, bandwidthMeter, definition.tracks);
+          adaptiveSelections.add(adaptiveSelection);
           selections[i] = adaptiveSelection;
         } else {
           selections[i] =
@@ -251,8 +254,27 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           }
         }
       }
-      if (blockFixedTrackSelectionBandwidth && adaptiveSelection != null) {
-        adaptiveSelection.experimental_setNonAllocatableBandwidth(totalFixedBandwidth);
+      if (blockFixedTrackSelectionBandwidth) {
+        for (int i = 0; i < adaptiveSelections.size(); i++) {
+          adaptiveSelections.get(i).experimental_setNonAllocatableBandwidth(totalFixedBandwidth);
+        }
+      }
+      if (adaptiveSelections.size() > 1) {
+        long[][] adaptiveTrackBitrates = new long[adaptiveSelections.size()][];
+        for (int i = 0; i < adaptiveSelections.size(); i++) {
+          AdaptiveTrackSelection adaptiveSelection = adaptiveSelections.get(i);
+          adaptiveTrackBitrates[i] = new long[adaptiveSelection.length()];
+          for (int j = 0; j < adaptiveSelection.length(); j++) {
+            adaptiveTrackBitrates[i][j] =
+                adaptiveSelection.getFormat(adaptiveSelection.length() - j - 1).bitrate;
+          }
+        }
+        long[][][] bandwidthCheckpoints = getAllocationCheckpoints(adaptiveTrackBitrates);
+        for (int i = 0; i < adaptiveSelections.size(); i++) {
+          adaptiveSelections
+              .get(i)
+              .experimental_setBandwidthAllocationCheckpoints(bandwidthCheckpoints[i]);
+        }
       }
       return selections;
     }
@@ -428,6 +450,17 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   public void experimental_setNonAllocatableBandwidth(long nonAllocatableBandwidth) {
     ((DefaultBandwidthProvider) bandwidthProvider)
         .experimental_setNonAllocatableBandwidth(nonAllocatableBandwidth);
+  }
+
+  /**
+   * Sets checkpoints to determine the allocation bandwidth based on the total bandwidth.
+   *
+   * @param allocationCheckpoints List of checkpoints. Each element must be a long[2], with [0]
+   *     being the total bandwidth and [1] being the allocated bandwidth.
+   */
+  public void experimental_setBandwidthAllocationCheckpoints(long[][] allocationCheckpoints) {
+    ((DefaultBandwidthProvider) bandwidthProvider)
+        .experimental_setBandwidthAllocationCheckpoints(allocationCheckpoints);
   }
 
   @Override
@@ -630,6 +663,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
 
     private long nonAllocatableBandwidth;
 
+    @Nullable private long[][] allocationCheckpoints;
+
     /* package */ DefaultBandwidthProvider(BandwidthMeter bandwidthMeter, float bandwidthFraction) {
       this.bandwidthMeter = bandwidthMeter;
       this.bandwidthFraction = bandwidthFraction;
@@ -638,11 +673,140 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     @Override
     public long getAllocatedBandwidth() {
       long totalBandwidth = (long) (bandwidthMeter.getBitrateEstimate() * bandwidthFraction);
-      return Math.max(0L, totalBandwidth - nonAllocatableBandwidth);
+      long allocatableBandwidth = Math.max(0L, totalBandwidth - nonAllocatableBandwidth);
+      if (allocationCheckpoints == null) {
+        return allocatableBandwidth;
+      }
+      int nextIndex = 1;
+      while (nextIndex < allocationCheckpoints.length - 1
+          && allocationCheckpoints[nextIndex][0] < allocatableBandwidth) {
+        nextIndex++;
+      }
+      long[] previous = allocationCheckpoints[nextIndex - 1];
+      long[] next = allocationCheckpoints[nextIndex];
+      float fractionBetweenCheckpoints =
+          (float) (allocatableBandwidth - previous[0]) / (next[0] - previous[0]);
+      return previous[1] + (long) (fractionBetweenCheckpoints * (next[1] - previous[1]));
     }
 
     /* package */ void experimental_setNonAllocatableBandwidth(long nonAllocatableBandwidth) {
       this.nonAllocatableBandwidth = nonAllocatableBandwidth;
+    }
+
+    /* package */ void experimental_setBandwidthAllocationCheckpoints(
+        long[][] allocationCheckpoints) {
+      Assertions.checkArgument(allocationCheckpoints.length >= 2);
+      this.allocationCheckpoints = allocationCheckpoints;
+    }
+  }
+
+  /**
+   * Returns allocation checkpoints for allocating bandwidth between multiple adaptive track
+   * selections.
+   *
+   * @param trackBitrates Array of [selectionIndex][trackIndex] -> trackBitrate.
+   * @return Array of allocation checkpoints [selectionIndex][checkpointIndex][2] with [0]=total
+   *     bandwidth at checkpoint and [1]=allocated bandwidth at checkpoint.
+   */
+  private static long[][][] getAllocationCheckpoints(long[][] trackBitrates) {
+    // Algorithm:
+    //  1. Use log bitrates to treat all resolution update steps equally.
+    //  2. Distribute switch points for each selection equally in the same [0.0-1.0] range.
+    //  3. Switch up one format at a time in the order of the switch points.
+    double[][] logBitrates = getLogArrayValues(trackBitrates);
+    double[][] switchPoints = getSwitchPoints(logBitrates);
+
+    // There will be (count(switch point) + 3) checkpoints:
+    // [0] = all zero, [1] = minimum bitrates, [2-(end-1)] = up-switch points,
+    // [end] = extra point to set slope for additional bitrate.
+    int checkpointCount = countArrayElements(switchPoints) + 3;
+    long[][][] checkpoints = new long[logBitrates.length][checkpointCount][2];
+    int[] currentSelection = new int[logBitrates.length];
+    setCheckpointValues(checkpoints, /* checkpointIndex= */ 1, trackBitrates, currentSelection);
+    for (int checkpointIndex = 2; checkpointIndex < checkpointCount - 1; checkpointIndex++) {
+      int nextUpdateIndex = 0;
+      double nextUpdateSwitchPoint = Double.MAX_VALUE;
+      for (int i = 0; i < logBitrates.length; i++) {
+        if (currentSelection[i] + 1 == logBitrates[i].length) {
+          continue;
+        }
+        double switchPoint = switchPoints[i][currentSelection[i]];
+        if (switchPoint < nextUpdateSwitchPoint) {
+          nextUpdateSwitchPoint = switchPoint;
+          nextUpdateIndex = i;
+        }
+      }
+      currentSelection[nextUpdateIndex]++;
+      setCheckpointValues(checkpoints, checkpointIndex, trackBitrates, currentSelection);
+    }
+    for (long[][] points : checkpoints) {
+      points[checkpointCount - 1][0] = 2 * points[checkpointCount - 2][0];
+      points[checkpointCount - 1][1] = 2 * points[checkpointCount - 2][1];
+    }
+    return checkpoints;
+  }
+
+  /** Converts all input values to Math.log(value). */
+  private static double[][] getLogArrayValues(long[][] values) {
+    double[][] logValues = new double[values.length][];
+    for (int i = 0; i < values.length; i++) {
+      logValues[i] = new double[values[i].length];
+      for (int j = 0; j < values[i].length; j++) {
+        logValues[i][j] = Math.log(values[i][j]);
+      }
+    }
+    return logValues;
+  }
+
+  /**
+   * Returns idealized switch points for each switch between consecutive track selection bitrates.
+   *
+   * @param logBitrates Log bitrates with [selectionCount][formatCount].
+   * @return Linearly distributed switch points in the range of [0.0-1.0].
+   */
+  private static double[][] getSwitchPoints(double[][] logBitrates) {
+    double[][] switchPoints = new double[logBitrates.length][];
+    for (int i = 0; i < logBitrates.length; i++) {
+      switchPoints[i] = new double[logBitrates[i].length - 1];
+      if (switchPoints[i].length == 0) {
+        continue;
+      }
+      double totalBitrateDiff = logBitrates[i][logBitrates[i].length - 1] - logBitrates[i][0];
+      for (int j = 0; j < logBitrates[i].length - 1; j++) {
+        double switchBitrate = 0.5 * (logBitrates[i][j] + logBitrates[i][j + 1]);
+        switchPoints[i][j] = (switchBitrate - logBitrates[i][0]) / totalBitrateDiff;
+      }
+    }
+    return switchPoints;
+  }
+
+  /** Returns total number of elements in a 2D array. */
+  private static int countArrayElements(double[][] array) {
+    int count = 0;
+    for (double[] subArray : array) {
+      count += subArray.length;
+    }
+    return count;
+  }
+
+  /**
+   * Sets checkpoint bitrates.
+   *
+   * @param checkpoints Output checkpoints with [selectionIndex][checkpointIndex][2] where [0]=Total
+   *     bitrate and [1]=Allocated bitrate.
+   * @param checkpointIndex The checkpoint index.
+   * @param trackBitrates The track bitrates with [selectionIndex][trackIndex].
+   * @param selectedTracks The indices of selected tracks for each selection for this checkpoint.
+   */
+  private static void setCheckpointValues(
+      long[][][] checkpoints, int checkpointIndex, long[][] trackBitrates, int[] selectedTracks) {
+    long totalBitrate = 0;
+    for (int i = 0; i < checkpoints.length; i++) {
+      checkpoints[i][checkpointIndex][1] = trackBitrates[i][selectedTracks[i]];
+      totalBitrate += checkpoints[i][checkpointIndex][1];
+    }
+    for (long[][] points : checkpoints) {
+      points[checkpointIndex][0] = totalBitrate;
     }
   }
 }

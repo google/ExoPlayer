@@ -1283,6 +1283,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private final TrackSelection.Factory trackSelectionFactory;
   private final AtomicReference<Parameters> parametersReference;
 
+  private boolean allowMultipleAdaptiveSelections;
+
   public DefaultTrackSelector() {
     this(new AdaptiveTrackSelection.Factory());
   }
@@ -1395,6 +1397,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   @Deprecated
   public void setTunnelingAudioSessionId(int tunnelingAudioSessionId) {
     setParameters(buildUponParameters().setTunnelingAudioSessionId(tunnelingAudioSessionId));
+  }
+
+  /**
+   * Allows the creation of multiple adaptive track selections.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   */
+  public void experimental_allowMultipleAdaptiveSelections() {
+    this.allowMultipleAdaptiveSelections = true;
   }
 
   // MappingTrackSelector implementation.
@@ -1514,13 +1525,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     int selectedAudioRendererIndex = C.INDEX_UNSET;
     for (int i = 0; i < rendererCount; i++) {
       if (C.TRACK_TYPE_AUDIO == mappedTrackInfo.getRendererType(i)) {
+        boolean enableAdaptiveTrackSelection =
+            allowMultipleAdaptiveSelections || !seenVideoRendererWithMappedTracks;
         Pair<TrackSelection.Definition, AudioTrackScore> audioSelection =
             selectAudioTrack(
                 mappedTrackInfo.getTrackGroups(i),
                 rendererFormatSupports[i],
                 rendererMixedMimeTypeAdaptationSupports[i],
                 params,
-                !seenVideoRendererWithMappedTracks);
+                enableAdaptiveTrackSelection);
         if (audioSelection != null
             && (selectedAudioTrackScore == null
                 || audioSelection.second.compareTo(selectedAudioTrackScore) > 0)) {
