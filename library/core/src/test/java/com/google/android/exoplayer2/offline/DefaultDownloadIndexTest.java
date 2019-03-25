@@ -221,7 +221,7 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
-  public void setManualStopReason_setToReasonNone() throws Exception {
+  public void setManualStopReason_setReasonToNone() throws Exception {
     String id = "id";
     DownloadStateBuilder downloadStateBuilder =
         new DownloadStateBuilder(id)
@@ -267,6 +267,59 @@ public class DefaultDownloadIndexTest {
     int notMetRequirements = 0x12345678;
 
     downloadIndex.setManualStopReason(notMetRequirements);
+
+    DownloadState readDownloadState = downloadIndex.getDownloadState(id);
+    DownloadStateTest.assertEqual(readDownloadState, downloadState);
+  }
+
+  @Test
+  public void setSingleDownloadManualStopReason_setReasonToNone() throws Exception {
+    String id = "id";
+    DownloadStateBuilder downloadStateBuilder =
+        new DownloadStateBuilder(id)
+            .setState(DownloadState.STATE_COMPLETED)
+            .setManualStopReason(0x12345678);
+    DownloadState downloadState = downloadStateBuilder.build();
+    downloadIndex.putDownloadState(downloadState);
+
+    downloadIndex.setManualStopReason(id, DownloadState.MANUAL_STOP_REASON_NONE);
+
+    DownloadState readDownloadState = downloadIndex.getDownloadState(id);
+    DownloadState expectedDownloadState =
+        downloadStateBuilder.setManualStopReason(DownloadState.MANUAL_STOP_REASON_NONE).build();
+    DownloadStateTest.assertEqual(readDownloadState, expectedDownloadState);
+  }
+
+  @Test
+  public void setSingleDownloadManualStopReason_setReason() throws Exception {
+    String id = "id";
+    DownloadStateBuilder downloadStateBuilder =
+        new DownloadStateBuilder(id)
+            .setState(DownloadState.STATE_FAILED)
+            .setFailureReason(DownloadState.FAILURE_REASON_UNKNOWN);
+    DownloadState downloadState = downloadStateBuilder.build();
+    downloadIndex.putDownloadState(downloadState);
+    int manualStopReason = 0x12345678;
+
+    downloadIndex.setManualStopReason(id, manualStopReason);
+
+    DownloadState readDownloadState = downloadIndex.getDownloadState(id);
+    DownloadState expectedDownloadState =
+        downloadStateBuilder.setManualStopReason(manualStopReason).build();
+    DownloadStateTest.assertEqual(readDownloadState, expectedDownloadState);
+  }
+
+  @Test
+  public void setSingleDownloadManualStopReason_notTerminalState_doesNotSetManualStopReason()
+      throws Exception {
+    String id = "id";
+    DownloadStateBuilder downloadStateBuilder =
+        new DownloadStateBuilder(id).setState(DownloadState.STATE_DOWNLOADING);
+    DownloadState downloadState = downloadStateBuilder.build();
+    downloadIndex.putDownloadState(downloadState);
+    int notMetRequirements = 0x12345678;
+
+    downloadIndex.setManualStopReason(id, notMetRequirements);
 
     DownloadState readDownloadState = downloadIndex.getDownloadState(id);
     DownloadStateTest.assertEqual(readDownloadState, downloadState);
