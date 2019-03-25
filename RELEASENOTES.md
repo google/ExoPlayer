@@ -22,6 +22,7 @@
     ([#3314](https://github.com/google/ExoPlayer/issues/3314)).
   * Update `TrackSelection.Factory` interface to support creating all track
     selections together.
+  * Allow to specify a selection reason for a `SelectionOverride`.
 * Do not retry failed loads whose error is `FileNotFoundException`.
 * Support Dolby Vision extraction in MP4 and fMP4.
 * Offline:

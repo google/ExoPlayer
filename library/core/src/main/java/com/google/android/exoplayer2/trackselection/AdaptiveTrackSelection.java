@@ -242,7 +242,9 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
               createAdaptiveTrackSelection(definition.group, bandwidthMeter, definition.tracks);
           selections[i] = adaptiveSelection;
         } else {
-          selections[i] = new FixedTrackSelection(definition.group, definition.tracks[0]);
+          selections[i] =
+              new FixedTrackSelection(
+                  definition.group, definition.tracks[0], definition.reason, definition.data);
           int trackBitrate = definition.group.getFormat(definition.tracks[0]).bitrate;
           if (trackBitrate != Format.NO_VALUE) {
             totalFixedBandwidth += trackBitrate;
