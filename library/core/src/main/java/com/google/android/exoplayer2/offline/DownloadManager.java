@@ -818,26 +818,24 @@ public final class DownloadManager {
     }
   }
 
-  private class DownloadThread implements Runnable {
+  private class DownloadThread extends Thread {
 
     private final Download download;
     private final Downloader downloader;
     private final boolean isRemoveThread;
-    private final Thread thread;
     private volatile boolean isCanceled;
 
     private DownloadThread(Download download, Downloader downloader, boolean isRemoveThread) {
       this.download = download;
       this.downloader = downloader;
       this.isRemoveThread = isRemoveThread;
-      thread = new Thread(this);
-      thread.start();
+      start();
     }
 
     public void cancel() {
       isCanceled = true;
       downloader.cancel();
-      thread.interrupt();
+      interrupt();
     }
 
     // Methods running on download thread.
