@@ -36,50 +36,94 @@ import java.util.HashMap;
 /** A {@link Service} for downloading media. */
 public abstract class DownloadService extends Service {
 
-  /** Starts a download service without adding a new {@link DownloadAction}. */
+  /**
+   * Starts a download service without adding a new {@link DownloadAction}. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
   public static final String ACTION_INIT =
       "com.google.android.exoplayer.downloadService.action.INIT";
-
-  /** Starts a download service, adding a new {@link DownloadAction} to be executed. */
-  public static final String ACTION_ADD = "com.google.android.exoplayer.downloadService.action.ADD";
-
-  /** Stops one or all downloads. */
-  public static final String ACTION_STOP =
-      "com.google.android.exoplayer.downloadService.action.STOP";
-
-  /** Starts one or all downloads. */
-  public static final String ACTION_START =
-      "com.google.android.exoplayer.downloadService.action.START";
-
-  /** Removes one download. */
-  public static final String ACTION_REMOVE =
-      "com.google.android.exoplayer.downloadService.action.REMOVE";
 
   /** Like {@link #ACTION_INIT}, but with {@link #KEY_FOREGROUND} implicitly set to true. */
   private static final String ACTION_RESTART =
       "com.google.android.exoplayer.downloadService.action.RESTART";
 
-  /** Key for the {@link DownloadAction} in an {@link #ACTION_ADD} intent. */
+  /**
+   * Adds a new download. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_DOWNLOAD_ACTION} - The {@code byte[]} representation of the {@link
+   *       DownloadAction} that defines the download to be added. The required representation can be
+   *       obtained by calling {@link DownloadAction#toByteArray()}.
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_ADD = "com.google.android.exoplayer.downloadService.action.ADD";
+
+  /**
+   * Starts one or all of the current downloads. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_CONTENT_ID} - The content id of a single download to start. If omitted, all
+   *       of the current downloads will be started.
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_START =
+      "com.google.android.exoplayer.downloadService.action.START";
+
+  /**
+   * Stops one or all of the current downloads. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_CONTENT_ID} - The content id of a single download to stop. If omitted, all of
+   *       the current downloads will be stopped.
+   *   <li>{@link #KEY_STOP_REASON} - An application provided reason for stopping the download or
+   *       downloads. Must not be {@link DownloadState#MANUAL_STOP_REASON_NONE}. If omitted, the
+   *       stop reason will be {@link DownloadState#MANUAL_STOP_REASON_UNDEFINED}.
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_STOP =
+      "com.google.android.exoplayer.downloadService.action.STOP";
+
+  /**
+   * Removes an existing download. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_CONTENT_ID} - The content id of a download to remove.
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_REMOVE =
+      "com.google.android.exoplayer.downloadService.action.REMOVE";
+
+  /**
+   * Key for the {@code byte[]} representation of the {@link DownloadAction} in {@link #ACTION_ADD}
+   * intents.
+   */
   public static final String KEY_DOWNLOAD_ACTION = "download_action";
 
   /**
-   * Key for content id in an {@link #ACTION_STOP}, {@link #ACTION_START} or {@link #ACTION_REMOVE}
-   * intent.
+   * Key for the content id in {@link #ACTION_START}, {@link #ACTION_STOP} and {@link
+   * #ACTION_REMOVE} intents.
    */
   public static final String KEY_CONTENT_ID = "content_id";
 
-  /** Key for manual stop reason in an {@link #ACTION_STOP} intent. */
+  /** Key for the stop reason in {@link #ACTION_STOP} intents. */
   public static final String KEY_STOP_REASON = "stop_reason";
 
-  /** Invalid foreground notification id which can be used to run the service in the background. */
-  public static final int FOREGROUND_NOTIFICATION_ID_NONE = 0;
-
   /**
-   * Key for a boolean flag in any intent to indicate whether the service was started in the
-   * foreground. If set, the service is guaranteed to call {@link #startForeground(int,
-   * Notification)}.
+   * Key for a boolean extra that can be set on any intent to indicate whether the service was
+   * started in the foreground. If set, the service is guaranteed to call {@link
+   * #startForeground(int, Notification)}.
    */
   public static final String KEY_FOREGROUND = "foreground";
+
+  /** Invalid foreground notification id that can be used to run the service in the background. */
+  public static final int FOREGROUND_NOTIFICATION_ID_NONE = 0;
 
   /** Default foreground notification update interval in milliseconds. */
   public static final long DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL = 1000;
@@ -121,7 +165,7 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * Creates a DownloadService which will run in the foreground. {@link
+   * Creates a DownloadService that will run in the foreground. {@link
    * #getForegroundNotification(DownloadState[])} should be overridden in the subclass.
    *
    * @param foregroundNotificationId The notification id for the foreground notification, must not
@@ -139,7 +183,7 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * Creates a DownloadService which will run in the foreground. {@link
+   * Creates a DownloadService that will run in the foreground. {@link
    * #getForegroundNotification(DownloadState[])} should be overridden in the subclass.
    *
    * @param foregroundNotificationId The notification id for the foreground notification. Must not
@@ -340,42 +384,47 @@ public abstract class DownloadService extends Service {
       case ACTION_ADD:
         byte[] actionData = intent.getByteArrayExtra(KEY_DOWNLOAD_ACTION);
         if (actionData == null) {
-          Log.e(TAG, "Ignoring ADD action with no action data");
+          Log.e(TAG, "Ignored ADD action: Missing download_action extra");
         } else {
+          DownloadAction downloadAction = null;
           try {
-            downloadManager.handleAction(DownloadAction.fromByteArray(actionData));
+            downloadAction = DownloadAction.fromByteArray(actionData);
           } catch (IOException e) {
-            Log.e(TAG, "Failed to handle ADD action", e);
+            Log.e(TAG, "Ignored ADD action: Failed to deserialize download_action extra", e);
+          }
+          if (downloadAction != null) {
+            downloadManager.handleAction(downloadAction);
           }
         }
         break;
-      case ACTION_STOP:
-        String stopDownloadId = intent.getStringExtra(KEY_CONTENT_ID);
-        int stopReason = intent.getIntExtra(KEY_STOP_REASON, 0);
-        if (stopDownloadId == null) {
-          downloadManager.stopDownloads(stopReason);
-        } else {
-          downloadManager.stopDownload(stopDownloadId, stopReason);
-        }
-        break;
       case ACTION_START:
-        String startDownloadId = intent.getStringExtra(KEY_CONTENT_ID);
-        if (startDownloadId == null) {
+        String contentId = intent.getStringExtra(KEY_CONTENT_ID);
+        if (contentId == null) {
           downloadManager.startDownloads();
         } else {
-          downloadManager.startDownload(startDownloadId);
+          downloadManager.startDownload(contentId);
+        }
+        break;
+      case ACTION_STOP:
+        contentId = intent.getStringExtra(KEY_CONTENT_ID);
+        int stopReason =
+            intent.getIntExtra(KEY_STOP_REASON, DownloadState.MANUAL_STOP_REASON_UNDEFINED);
+        if (contentId == null) {
+          downloadManager.stopDownloads(stopReason);
+        } else {
+          downloadManager.stopDownload(contentId, stopReason);
         }
         break;
       case ACTION_REMOVE:
-        String id3 = intent.getStringExtra(KEY_CONTENT_ID);
-        if (id3 == null) {
-          Log.e(TAG, "Ignoring REMOVE action with no id");
+        contentId = intent.getStringExtra(KEY_CONTENT_ID);
+        if (contentId == null) {
+          Log.e(TAG, "Ignored REMOVE action: Missing content_id extra");
         } else {
-          downloadManager.removeDownload(id3);
+          downloadManager.removeDownload(contentId);
         }
         break;
       default:
-        Log.e(TAG, "Ignoring unrecognized action: " + intentAction);
+        Log.e(TAG, "Ignored unrecognized action: " + intentAction);
         break;
     }
 
@@ -402,7 +451,9 @@ public abstract class DownloadService extends Service {
     }
   }
 
-  /** DownloadService isn't designed to be bound. */
+  /**
+   * Throws {@link UnsupportedOperationException} because this service is not designed to be bound.
+   */
   @Nullable
   @Override
   public final IBinder onBind(Intent intent) {
@@ -445,9 +496,9 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * Called when the state of a download changes.
+   * Called when the state of a download changes. The default implementation is a no-op.
    *
-   * @param downloadState The state of the download.
+   * @param downloadState The new state of the download.
    */
   protected void onDownloadStateChanged(DownloadState downloadState) {
     // Do nothing.
