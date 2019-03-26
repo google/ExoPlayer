@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
@@ -52,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
@@ -102,6 +104,7 @@ import java.util.List;
   private final Runnable onTracksEndedRunnable;
   private final Handler handler;
   private final ArrayList<HlsSampleStream> hlsSampleStreams;
+  private final Map<String, DrmInitData> overridingDrmInitData;
 
   private SampleQueue[] sampleQueues;
   private int[] sampleQueueTrackIds;
@@ -144,6 +147,10 @@ import java.util.List;
    * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
    * @param callback A callback for the wrapper.
    * @param chunkSource A {@link HlsChunkSource} from which chunks to load are obtained.
+   * @param overridingDrmInitData Overriding {@link DrmInitData}, keyed by protection scheme type
+   *     (i.e. {@link DrmInitData#schemeType}). If the stream has {@link DrmInitData} and uses a
+   *     protection scheme type for which overriding {@link DrmInitData} is provided, then the
+   *     stream's {@link DrmInitData} will be overridden.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param positionUs The position from which to start loading media.
    * @param muxedAudioFormat Optional muxed audio {@link Format} as defined by the master playlist.
@@ -154,6 +161,7 @@ import java.util.List;
       int trackType,
       Callback callback,
       HlsChunkSource chunkSource,
+      Map<String, DrmInitData> overridingDrmInitData,
       Allocator allocator,
       long positionUs,
       Format muxedAudioFormat,
@@ -162,6 +170,7 @@ import java.util.List;
     this.trackType = trackType;
     this.callback = callback;
     this.chunkSource = chunkSource;
+    this.overridingDrmInitData = overridingDrmInitData;
     this.allocator = allocator;
     this.muxedAudioFormat = muxedAudioFormat;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
@@ -484,18 +493,28 @@ import java.util.List;
     int result =
         sampleQueues[sampleQueueIndex].read(
             formatHolder, buffer, requireFormat, loadingFinished, lastSeekPositionUs);
-    if (result == C.RESULT_FORMAT_READ && sampleQueueIndex == primarySampleQueueIndex) {
-      // Fill in primary sample format with information from the track format.
-      int chunkUid = sampleQueues[sampleQueueIndex].peekSourceId();
-      int chunkIndex = 0;
-      while (chunkIndex < mediaChunks.size() && mediaChunks.get(chunkIndex).uid != chunkUid) {
-        chunkIndex++;
+    if (result == C.RESULT_FORMAT_READ) {
+      Format format = formatHolder.format;
+      if (sampleQueueIndex == primarySampleQueueIndex) {
+        // Fill in primary sample format with information from the track format.
+        int chunkUid = sampleQueues[sampleQueueIndex].peekSourceId();
+        int chunkIndex = 0;
+        while (chunkIndex < mediaChunks.size() && mediaChunks.get(chunkIndex).uid != chunkUid) {
+          chunkIndex++;
+        }
+        Format trackFormat =
+            chunkIndex < mediaChunks.size()
+                ? mediaChunks.get(chunkIndex).trackFormat
+                : upstreamTrackFormat;
+        format = format.copyWithManifestFormatInfo(trackFormat);
       }
-      Format trackFormat =
-          chunkIndex < mediaChunks.size()
-              ? mediaChunks.get(chunkIndex).trackFormat
-              : upstreamTrackFormat;
-      formatHolder.format = formatHolder.format.copyWithManifestFormatInfo(trackFormat);
+      if (format.drmInitData != null) {
+        DrmInitData drmInitData = overridingDrmInitData.get(format.drmInitData.schemeType);
+        if (drmInitData != null) {
+          format = format.copyWithDrmInitData(drmInitData);
+        }
+      }
+      formatHolder.format = format;
     }
     return result;
   }

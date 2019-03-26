@@ -88,7 +88,8 @@ public final class HlsMediaPeriodTest {
                       /* mediaTimeOffsetMs= */ 0),
               mock(Allocator.class),
               mock(CompositeSequenceableLoaderFactory.class),
-              /* allowChunklessPreparation =*/ true);
+              /* allowChunklessPreparation =*/ true,
+              /* useSessionKeys= */ false);
         };
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(
@@ -110,7 +111,8 @@ public final class HlsMediaPeriodTest {
         muxedAudioFormat,
         muxedCaptionFormats,
         /* hasIndependentSegments= */ true,
-        /* variableDefinitions= */ Collections.emptyMap());
+        /* variableDefinitions= */ Collections.emptyMap(),
+        /* sessionKeyDrmInitData= */ Collections.emptyList());
   }
 
   private static HlsUrl createMuxedVideoAudioVariantHlsUrl(int bitrate) {

@@ -456,7 +456,8 @@ public class HlsMediaPlaylistParserTest {
             /* muxedAudioFormat= */ null,
             /* muxedCaptionFormats= */ null,
             /* hasIndependentSegments= */ true,
-            /* variableDefinitions */ Collections.emptyMap());
+            /* variableDefinitions= */ Collections.emptyMap(),
+            /* sessionKeyDrmInitData= */ Collections.emptyList());
     HlsMediaPlaylist playlistWithInheritance =
         (HlsMediaPlaylist) new HlsPlaylistParser(masterPlaylist).parse(playlistUri, inputStream);
     assertThat(playlistWithInheritance.hasIndependentSegments).isTrue();
@@ -515,7 +516,8 @@ public class HlsMediaPlaylistParserTest {
             /* muxedAudioFormat= */ null,
             /* muxedCaptionFormats= */ Collections.emptyList(),
             /* hasIndependentSegments= */ false,
-            variableDefinitions);
+            variableDefinitions,
+            /* sessionKeyDrmInitData= */ Collections.emptyList());
     HlsMediaPlaylist playlist =
         (HlsMediaPlaylist) new HlsPlaylistParser(masterPlaylist).parse(playlistUri, inputStream);
     for (int i = 1; i <= 4; i++) {

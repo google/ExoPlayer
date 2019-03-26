@@ -315,6 +315,25 @@ public final class Util {
   }
 
   /**
+   * Concatenates two non-null type arrays.
+   *
+   * @param first The first array.
+   * @param second The second array.
+   * @return The concatenated result.
+   */
+  @SuppressWarnings({"nullness:assignment.type.incompatible"})
+  public static <T> T[] nullSafeArrayConcatenation(T[] first, T[] second) {
+    T[] concatenation = Arrays.copyOf(first, first.length + second.length);
+    System.arraycopy(
+        /* src= */ second,
+        /* srcPos= */ 0,
+        /* dest= */ concatenation,
+        /* destPos= */ first.length,
+        /* length= */ second.length);
+    return concatenation;
+  }
+
+  /**
    * Creates a {@link Handler} with the specified {@link Handler.Callback} on the current {@link
    * Looper} thread. The method accepts partially initialized objects as callback under the
    * assumption that the Handler won't be used to send messages until the callback is fully

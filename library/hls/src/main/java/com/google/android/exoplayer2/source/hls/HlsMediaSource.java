@@ -67,6 +67,7 @@ public final class HlsMediaSource extends BaseMediaSource
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean allowChunklessPreparation;
+    private boolean useSessionKeys;
     private boolean isCreateCalled;
     @Nullable private Object tag;
 
@@ -237,6 +238,20 @@ public final class HlsMediaSource extends BaseMediaSource
     }
 
     /**
+     * Sets whether to use #EXT-X-SESSION-KEY tags provided in the master playlist. If enabled, it's
+     * assumed that any single session key declared in the master playlist can be used to obtain all
+     * of the keys required for playback. For media where this is not true, this option should not
+     * be enabled.
+     *
+     * @param useSessionKeys Whether to use #EXT-X-SESSION-KEY tags.
+     * @return This factory, for convenience.
+     */
+    public Factory setUseSessionKeys(boolean useSessionKeys) {
+      this.useSessionKeys = useSessionKeys;
+      return this;
+    }
+
+    /**
      * Returns a new {@link HlsMediaSource} using the current parameters.
      *
      * @return The new {@link HlsMediaSource}.
@@ -257,6 +272,7 @@ public final class HlsMediaSource extends BaseMediaSource
           playlistTrackerFactory.createTracker(
               hlsDataSourceFactory, loadErrorHandlingPolicy, playlistParserFactory),
           allowChunklessPreparation,
+          useSessionKeys,
           tag);
     }
 
@@ -289,6 +305,7 @@ public final class HlsMediaSource extends BaseMediaSource
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final boolean allowChunklessPreparation;
+  private final boolean useSessionKeys;
   private final HlsPlaylistTracker playlistTracker;
   private final @Nullable Object tag;
 
@@ -302,6 +319,7 @@ public final class HlsMediaSource extends BaseMediaSource
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       HlsPlaylistTracker playlistTracker,
       boolean allowChunklessPreparation,
+      boolean useSessionKeys,
       @Nullable Object tag) {
     this.manifestUri = manifestUri;
     this.dataSourceFactory = dataSourceFactory;
@@ -310,6 +328,7 @@ public final class HlsMediaSource extends BaseMediaSource
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.playlistTracker = playlistTracker;
     this.allowChunklessPreparation = allowChunklessPreparation;
+    this.useSessionKeys = useSessionKeys;
     this.tag = tag;
   }
 
@@ -343,7 +362,8 @@ public final class HlsMediaSource extends BaseMediaSource
         eventDispatcher,
         allocator,
         compositeSequenceableLoaderFactory,
-        allowChunklessPreparation);
+        allowChunklessPreparation,
+        useSessionKeys);
   }
 
   @Override

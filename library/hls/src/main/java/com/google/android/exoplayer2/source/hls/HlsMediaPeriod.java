@@ -16,9 +16,11 @@
 package com.google.android.exoplayer2.source.hls;
 
 import androidx.annotation.Nullable;
+import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
@@ -43,9 +45,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link MediaPeriod} that loads an HLS stream.
@@ -64,6 +68,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final TimestampAdjusterProvider timestampAdjusterProvider;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final boolean allowChunklessPreparation;
+  private final boolean useSessionKeys;
 
   private @Nullable Callback callback;
   private int pendingPrepareCount;
@@ -90,6 +95,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
    * @param compositeSequenceableLoaderFactory A factory to create composite {@link
    *     SequenceableLoader}s for when this media source loads data from multiple streams.
    * @param allowChunklessPreparation Whether chunkless preparation is allowed.
+   * @param useSessionKeys Whether to use #EXT-X-SESSION-KEY tags.
    */
   public HlsMediaPeriod(
       HlsExtractorFactory extractorFactory,
@@ -100,7 +106,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       EventDispatcher eventDispatcher,
       Allocator allocator,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
-      boolean allowChunklessPreparation) {
+      boolean allowChunklessPreparation,
+      boolean useSessionKeys) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
@@ -110,6 +117,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     this.allocator = allocator;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.allowChunklessPreparation = allowChunklessPreparation;
+    this.useSessionKeys = useSessionKeys;
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader();
     streamWrapperIndices = new IdentityHashMap<>();
@@ -427,7 +435,12 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   // Internal methods.
 
   private void buildAndPrepareSampleStreamWrappers(long positionUs) {
-    HlsMasterPlaylist masterPlaylist = playlistTracker.getMasterPlaylist();
+    HlsMasterPlaylist masterPlaylist = Assertions.checkNotNull(playlistTracker.getMasterPlaylist());
+    Map<String, DrmInitData> overridingDrmInitData =
+        useSessionKeys
+            ? deriveOverridingDrmInitData(masterPlaylist.sessionKeyDrmInitData)
+            : Collections.emptyMap();
+
     boolean hasVariants = !masterPlaylist.variants.isEmpty();
     List<HlsUrl> audioRenditions = masterPlaylist.audios;
     List<HlsUrl> subtitleRenditions = masterPlaylist.subtitles;
@@ -438,20 +451,33 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
     if (hasVariants) {
       buildAndPrepareMainSampleStreamWrapper(
-          masterPlaylist, positionUs, sampleStreamWrappers, manifestUrlIndicesPerWrapper);
+          masterPlaylist,
+          positionUs,
+          sampleStreamWrappers,
+          manifestUrlIndicesPerWrapper,
+          overridingDrmInitData);
     }
 
     // TODO: Build video stream wrappers here.
 
     buildAndPrepareAudioSampleStreamWrappers(
-        positionUs, audioRenditions, sampleStreamWrappers, manifestUrlIndicesPerWrapper);
+        positionUs,
+        audioRenditions,
+        sampleStreamWrappers,
+        manifestUrlIndicesPerWrapper,
+        overridingDrmInitData);
 
     // Subtitle stream wrappers. We can always use master playlist information to prepare these.
     for (int i = 0; i < subtitleRenditions.size(); i++) {
       HlsUrl url = subtitleRenditions.get(i);
       HlsSampleStreamWrapper sampleStreamWrapper =
           buildSampleStreamWrapper(
-              C.TRACK_TYPE_TEXT, new HlsUrl[] {url}, null, Collections.emptyList(), positionUs);
+              C.TRACK_TYPE_TEXT,
+              new HlsUrl[] {url},
+              null,
+              Collections.emptyList(),
+              overridingDrmInitData,
+              positionUs);
       manifestUrlIndicesPerWrapper.add(new int[] {i});
       sampleStreamWrappers.add(sampleStreamWrapper);
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
@@ -495,12 +521,15 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
    *     which downloading should start. Ignored otherwise.
    * @param sampleStreamWrappers List to which the built main sample stream wrapper should be added.
    * @param manifestUrlIndicesPerWrapper List to which the selected variant indices should be added.
+   * @param overridingDrmInitData Overriding {@link DrmInitData}, keyed by protection scheme type
+   *     (i.e. {@link DrmInitData#schemeType}).
    */
   private void buildAndPrepareMainSampleStreamWrapper(
       HlsMasterPlaylist masterPlaylist,
       long positionUs,
       List<HlsSampleStreamWrapper> sampleStreamWrappers,
-      List<int[]> manifestUrlIndicesPerWrapper) {
+      List<int[]> manifestUrlIndicesPerWrapper,
+      Map<String, DrmInitData> overridingDrmInitData) {
     int[] variantTypes = new int[masterPlaylist.variants.size()];
     int videoVariantCount = 0;
     int audioVariantCount = 0;
@@ -549,6 +578,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
             selectedVariants,
             masterPlaylist.muxedAudioFormat,
             masterPlaylist.muxedCaptionFormats,
+            overridingDrmInitData,
             positionUs);
     sampleStreamWrappers.add(sampleStreamWrapper);
     manifestUrlIndicesPerWrapper.add(selectedVariantIndices);
@@ -616,8 +646,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       long positionUs,
       List<HlsUrl> audioRenditions,
       List<HlsSampleStreamWrapper> sampleStreamWrappers,
-      List<int[]> manifestUrlsIndicesPerWrapper) {
-
+      List<int[]> manifestUrlsIndicesPerWrapper,
+      Map<String, DrmInitData> overridingDrmInitData) {
     ArrayList<HlsUrl> scratchRenditionList =
         new ArrayList<>(/* initialCapacity= */ audioRenditions.size());
     ArrayList<Integer> scratchIndicesList =
@@ -651,6 +681,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
               scratchRenditionList.toArray(new HlsUrl[0]),
               /* muxedAudioFormat= */ null,
               /* muxedCaptionFormats= */ Collections.emptyList(),
+              overridingDrmInitData,
               positionUs);
       manifestUrlsIndicesPerWrapper.add(Util.toArray(scratchIndicesList));
       sampleStreamWrappers.add(sampleStreamWrapper);
@@ -666,8 +697,13 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     }
   }
 
-  private HlsSampleStreamWrapper buildSampleStreamWrapper(int trackType, HlsUrl[] variants,
-      Format muxedAudioFormat, List<Format> muxedCaptionFormats, long positionUs) {
+  private HlsSampleStreamWrapper buildSampleStreamWrapper(
+      int trackType,
+      HlsUrl[] variants,
+      Format muxedAudioFormat,
+      List<Format> muxedCaptionFormats,
+      Map<String, DrmInitData> overridingDrmInitData,
+      long positionUs) {
     HlsChunkSource defaultChunkSource =
         new HlsChunkSource(
             extractorFactory,
@@ -681,11 +717,38 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         trackType,
         /* callback= */ this,
         defaultChunkSource,
+        overridingDrmInitData,
         allocator,
         positionUs,
         muxedAudioFormat,
         loadErrorHandlingPolicy,
         eventDispatcher);
+  }
+
+  private static Map<String, DrmInitData> deriveOverridingDrmInitData(
+      List<DrmInitData> sessionKeyDrmInitData) {
+    ArrayList<DrmInitData> mutableSessionKeyDrmInitData = new ArrayList<>(sessionKeyDrmInitData);
+    HashMap<String, DrmInitData> drmInitDataBySchemeType = new HashMap<>();
+    for (int i = 0; i < mutableSessionKeyDrmInitData.size(); i++) {
+      DrmInitData drmInitData = sessionKeyDrmInitData.get(i);
+      String scheme = drmInitData.schemeType;
+      // Merge any subsequent drmInitData instances that have the same scheme type. This is valid
+      // due to the assumptions documented on HlsMediaSource.Builder.setUseSessionKeys, and is
+      // necessary to get data for different CDNs (e.g. Widevine and PlayReady) into a single
+      // drmInitData.
+      int j = i + 1;
+      while (j < mutableSessionKeyDrmInitData.size()) {
+        DrmInitData nextDrmInitData = mutableSessionKeyDrmInitData.get(j);
+        if (TextUtils.equals(nextDrmInitData.schemeType, scheme)) {
+          drmInitData = drmInitData.merge(nextDrmInitData);
+          mutableSessionKeyDrmInitData.remove(j);
+        } else {
+          j++;
+        }
+      }
+      drmInitDataBySchemeType.put(scheme, drmInitData);
+    }
+    return drmInitDataBySchemeType;
   }
 
   private static Format deriveVideoFormat(Format variantFormat) {

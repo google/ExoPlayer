@@ -34,7 +34,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,6 +72,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_START = "#EXT-X-START";
   private static final String TAG_ENDLIST = "#EXT-X-ENDLIST";
   private static final String TAG_KEY = "#EXT-X-KEY";
+  private static final String TAG_SESSION_KEY = "#EXT-X-SESSION-KEY";
   private static final String TAG_BYTERANGE = "#EXT-X-BYTERANGE";
   private static final String TAG_GAP = "#EXT-X-GAP";
 
@@ -253,6 +253,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     ArrayList<HlsMasterPlaylist.HlsUrl> audios = new ArrayList<>();
     ArrayList<HlsMasterPlaylist.HlsUrl> subtitles = new ArrayList<>();
     ArrayList<String> mediaTags = new ArrayList<>();
+    ArrayList<DrmInitData> sessionKeyDrmInitData = new ArrayList<>();
     ArrayList<String> tags = new ArrayList<>();
     Format muxedAudioFormat = null;
     List<Format> muxedCaptionFormats = null;
@@ -278,6 +279,15 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         // Media tags are parsed at the end to include codec information from #EXT-X-STREAM-INF
         // tags.
         mediaTags.add(line);
+      } else if (line.startsWith(TAG_SESSION_KEY)) {
+        String keyFormat =
+            parseOptionalStringAttr(line, REGEX_KEYFORMAT, KEYFORMAT_IDENTITY, variableDefinitions);
+        SchemeData schemeData = parseDrmSchemeData(line, keyFormat, variableDefinitions);
+        if (schemeData != null) {
+          String method = parseStringAttr(line, REGEX_METHOD, variableDefinitions);
+          String scheme = parseEncryptionScheme(method);
+          sessionKeyDrmInitData.add(new DrmInitData(scheme, schemeData));
+        }
       } else if (line.startsWith(TAG_STREAM_INF)) {
         noClosedCaptions |= line.contains(ATTR_CLOSED_CAPTIONS_NONE);
         int bitrate = parseIntAttr(line, REGEX_BANDWIDTH);
@@ -423,6 +433,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     if (noClosedCaptions) {
       muxedCaptionFormats = Collections.emptyList();
     }
+
     return new HlsMasterPlaylist(
         baseUri,
         tags,
@@ -432,7 +443,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         muxedAudioFormat,
         muxedCaptionFormats,
         hasIndependentSegmentsTag,
-        variableDefinitions);
+        variableDefinitions,
+        sessionKeyDrmInitData);
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(
@@ -557,17 +569,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             }
           } else {
             if (encryptionScheme == null) {
-              encryptionScheme =
-                  METHOD_SAMPLE_AES_CENC.equals(method) || METHOD_SAMPLE_AES_CTR.equals(method)
-                      ? C.CENC_TYPE_cenc
-                      : C.CENC_TYPE_cbcs;
+              encryptionScheme = parseEncryptionScheme(method);
             }
-            SchemeData schemeData;
-            if (KEYFORMAT_PLAYREADY.equals(keyFormat)) {
-              schemeData = parsePlayReadySchemeData(line, variableDefinitions);
-            } else {
-              schemeData = parseWidevineSchemeData(line, keyFormat, variableDefinitions);
-            }
+            SchemeData schemeData = parseDrmSchemeData(line, keyFormat, variableDefinitions);
             if (schemeData != null) {
               cachedDrmInitData = null;
               currentSchemeDatas.put(keyFormat, schemeData);
@@ -713,38 +717,33 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         : Format.NO_VALUE;
   }
 
-  private static @Nullable SchemeData parsePlayReadySchemeData(
-      String line, Map<String, String> variableDefinitions) throws ParserException {
-    String keyFormatVersions =
-        parseOptionalStringAttr(line, REGEX_KEYFORMATVERSIONS, "1", variableDefinitions);
-    if (!"1".equals(keyFormatVersions)) {
-      // Not supported.
-      return null;
-    }
-    String uriString = parseStringAttr(line, REGEX_URI, variableDefinitions);
-    byte[] data = Base64.decode(uriString.substring(uriString.indexOf(',')), Base64.DEFAULT);
-    byte[] psshData = PsshAtomUtil.buildPsshAtom(C.PLAYREADY_UUID, data);
-    return new SchemeData(C.PLAYREADY_UUID, MimeTypes.VIDEO_MP4, psshData);
-  }
-
-  private static @Nullable SchemeData parseWidevineSchemeData(
+  @Nullable
+  private static SchemeData parseDrmSchemeData(
       String line, String keyFormat, Map<String, String> variableDefinitions)
       throws ParserException {
+    String keyFormatVersions =
+        parseOptionalStringAttr(line, REGEX_KEYFORMATVERSIONS, "1", variableDefinitions);
     if (KEYFORMAT_WIDEVINE_PSSH_BINARY.equals(keyFormat)) {
       String uriString = parseStringAttr(line, REGEX_URI, variableDefinitions);
       return new SchemeData(
           C.WIDEVINE_UUID,
           MimeTypes.VIDEO_MP4,
           Base64.decode(uriString.substring(uriString.indexOf(',')), Base64.DEFAULT));
-    }
-    if (KEYFORMAT_WIDEVINE_PSSH_JSON.equals(keyFormat)) {
-      try {
-        return new SchemeData(C.WIDEVINE_UUID, "hls", line.getBytes(C.UTF8_NAME));
-      } catch (UnsupportedEncodingException e) {
-        throw new ParserException(e);
-      }
+    } else if (KEYFORMAT_WIDEVINE_PSSH_JSON.equals(keyFormat)) {
+      return new SchemeData(C.WIDEVINE_UUID, "hls", Util.getUtf8Bytes(line));
+    } else if (KEYFORMAT_PLAYREADY.equals(keyFormat) && "1".equals(keyFormatVersions)) {
+      String uriString = parseStringAttr(line, REGEX_URI, variableDefinitions);
+      byte[] data = Base64.decode(uriString.substring(uriString.indexOf(',')), Base64.DEFAULT);
+      byte[] psshData = PsshAtomUtil.buildPsshAtom(C.PLAYREADY_UUID, data);
+      return new SchemeData(C.PLAYREADY_UUID, MimeTypes.VIDEO_MP4, psshData);
     }
     return null;
+  }
+
+  private static String parseEncryptionScheme(String method) {
+    return METHOD_SAMPLE_AES_CENC.equals(method) || METHOD_SAMPLE_AES_CTR.equals(method)
+        ? C.CENC_TYPE_cenc
+        : C.CENC_TYPE_cbcs;
   }
 
   private static int parseIntAttr(String line, Pattern pattern) throws ParserException {
