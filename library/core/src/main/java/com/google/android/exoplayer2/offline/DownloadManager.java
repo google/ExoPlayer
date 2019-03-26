@@ -138,7 +138,7 @@ public final class DownloadManager {
   private final HandlerThread fileIOThread;
   private final Handler fileIOHandler;
   private final CopyOnWriteArraySet<Listener> listeners;
-  private final ArrayDeque<DownloadAction> actionQueue;
+  private final ArrayDeque<DownloadUpdater> dowloadUpdateQueue;
 
   private boolean initialized;
   private boolean released;
@@ -230,7 +230,7 @@ public final class DownloadManager {
     fileIOHandler = new Handler(fileIOThread.getLooper());
 
     listeners = new CopyOnWriteArraySet<>();
-    actionQueue = new ArrayDeque<>();
+    dowloadUpdateQueue = new ArrayDeque<>();
 
     setNotMetRequirements(watchRequirements(requirements));
     loadDownloads();
@@ -348,9 +348,56 @@ public final class DownloadManager {
    */
   public void handleAction(DownloadAction action) {
     Assertions.checkState(!released);
-    actionQueue.add(action);
+    dowloadUpdateQueue.add(
+        new DownloadUpdater(action.id) {
+          @Override
+          void onExisting(Download download) {
+            download.addAction(action);
+            logd("Action is added to existing download", download);
+          }
+
+          @Override
+          DownloadState onLoad(@Nullable DownloadState downloadState) {
+            DownloadState state;
+            if (downloadState == null) {
+              state = new DownloadState(action);
+              logd("Download state is created for " + id);
+            } else {
+              state = downloadState.mergeAction(action);
+              logd("Download state is loaded for " + id);
+            }
+            return state;
+          }
+        });
     if (initialized) {
-      processActionQueue();
+      processDownloadUpdateQueue();
+    }
+  }
+
+  /**
+   * Cancels the download with the {@code id} and removes all downloaded data.
+   *
+   * @param id The unique content id of the download to be started.
+   */
+  public void removeDownload(String id) {
+    Assertions.checkState(!released);
+    dowloadUpdateQueue.add(
+        new DownloadUpdater(id) {
+          @Override
+          void onExisting(Download download) {
+            download.remove();
+          }
+
+          @Override
+          DownloadState onLoad(@Nullable DownloadState downloadState) {
+            if (downloadState != null) {
+              downloadState = downloadState.setRemoveState();
+            }
+            return downloadState;
+          }
+        });
+    if (initialized) {
+      processDownloadUpdateQueue();
     }
   }
 
@@ -379,7 +426,10 @@ public final class DownloadManager {
   /** Returns whether there are no active downloads. */
   public boolean isIdle() {
     Assertions.checkState(!released);
-    return initialized && activeDownloads.isEmpty() && actionQueue.isEmpty() && !loadingDownload;
+    return initialized
+        && activeDownloads.isEmpty()
+        && dowloadUpdateQueue.isEmpty()
+        && !loadingDownload;
   }
 
   /**
@@ -490,27 +540,26 @@ public final class DownloadManager {
     return null;
   }
 
-  private void processActionQueue() {
-    if (loadingDownload || actionQueue.isEmpty()) {
+  private void processDownloadUpdateQueue() {
+    if (loadingDownload || dowloadUpdateQueue.isEmpty()) {
       return;
     }
-    DownloadAction action = actionQueue.remove();
-    Download download = getDownload(action.id);
+    DownloadUpdater downloadUpdater = dowloadUpdateQueue.remove();
+    Download download = getDownload(downloadUpdater.id);
     if (download != null) {
-      download.addAction(action);
-      logd("Action is added to existing download", download);
-      return;
+      downloadUpdater.onExisting(download);
+    } else {
+      loadDownload(downloadUpdater);
     }
-    loadDownload(action);
   }
 
-  private void loadDownload(DownloadAction action) {
+  private void loadDownload(DownloadUpdater callback) {
     loadingDownload = true;
     fileIOHandler.post(
         () -> {
           DownloadState downloadState = null;
           try {
-            downloadState = downloadIndex.getDownloadState(action.id);
+            downloadState = downloadIndex.getDownloadState(callback.id);
           } catch (DatabaseIOException e) {
             Log.e(TAG, "loadDownload failed", e);
           }
@@ -518,19 +567,13 @@ public final class DownloadManager {
           handler.post(
               () -> {
                 loadingDownload = false;
-                if (released) {
-                  return;
+                if (!released) {
+                  DownloadState state = callback.onLoad(finalDownloadState);
+                  if (state != null) {
+                    addDownloadForState(state);
+                  }
+                  processDownloadUpdateQueue();
                 }
-                DownloadState state;
-                if (finalDownloadState == null) {
-                  state = new DownloadState(action);
-                  logd("Download state is created for " + action.id);
-                } else {
-                  state = finalDownloadState.mergeAction(action);
-                  logd("Download state is loaded for " + action.id);
-                }
-                addDownloadForState(state);
-                processActionQueue();
               });
         });
   }
@@ -568,7 +611,7 @@ public final class DownloadManager {
                 }
                 logd("Downloads are created.");
                 initialized = true;
-                processActionQueue();
+                processDownloadUpdateQueue();
                 for (Listener listener : listeners) {
                   listener.onInitialized(DownloadManager.this);
                 }
@@ -728,6 +771,10 @@ public final class DownloadManager {
       }
       downloadState = downloadState.mergeAction(newAction);
       initialize(downloadState.state);
+    }
+
+    public void remove() {
+      initialize(STATE_REMOVING);
     }
 
     public DownloadState getUpdatedDownloadState() {
@@ -948,4 +995,15 @@ public final class DownloadManager {
     }
   }
 
+  private abstract static class DownloadUpdater {
+    final String id;
+
+    private DownloadUpdater(String id) {
+      this.id = id;
+    }
+
+    abstract void onExisting(Download download);
+
+    abstract DownloadState onLoad(@Nullable DownloadState downloadState);
+  }
 }

@@ -51,6 +51,10 @@ public abstract class DownloadService extends Service {
   public static final String ACTION_START =
       "com.google.android.exoplayer.downloadService.action.START";
 
+  /** Removes one download. */
+  public static final String ACTION_REMOVE =
+      "com.google.android.exoplayer.downloadService.action.REMOVE";
+
   /** Like {@link #ACTION_INIT}, but with {@link #KEY_FOREGROUND} implicitly set to true. */
   private static final String ACTION_RESTART =
       "com.google.android.exoplayer.downloadService.action.RESTART";
@@ -58,7 +62,10 @@ public abstract class DownloadService extends Service {
   /** Key for the {@link DownloadAction} in an {@link #ACTION_ADD} intent. */
   public static final String KEY_DOWNLOAD_ACTION = "download_action";
 
-  /** Key for content id in an {@link #ACTION_STOP} or {@link #ACTION_START} intent. */
+  /**
+   * Key for content id in an {@link #ACTION_STOP}, {@link #ACTION_START} or {@link #ACTION_REMOVE}
+   * intent.
+   */
   public static final String KEY_CONTENT_ID = "content_id";
 
   /** Key for manual stop reason in an {@link #ACTION_STOP} intent. */
@@ -214,6 +221,19 @@ public abstract class DownloadService extends Service {
   }
 
   /**
+   * Builds an {@link Intent} for removing the download with the {@code id}.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param id The content id.
+   * @return Created Intent.
+   */
+  public static Intent buildRemoveDownloadIntent(
+      Context context, Class<? extends DownloadService> clazz, String id) {
+    return getIntent(context, clazz, ACTION_REMOVE).putExtra(KEY_CONTENT_ID, id);
+  }
+
+  /**
    * Starts the service, adding an action to be executed.
    *
    * @param context A {@link Context}.
@@ -227,6 +247,24 @@ public abstract class DownloadService extends Service {
       DownloadAction downloadAction,
       boolean foreground) {
     Intent intent = buildAddActionIntent(context, clazz, downloadAction, foreground);
+    if (foreground) {
+      Util.startForegroundService(context, intent);
+    } else {
+      context.startService(intent);
+    }
+  }
+
+  /**
+   * Starts the service to remove a download.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param id The content id.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void startWithRemoveDownload(
+      Context context, Class<? extends DownloadService> clazz, String id, boolean foreground) {
+    Intent intent = buildRemoveDownloadIntent(context, clazz, id);
     if (foreground) {
       Util.startForegroundService(context, intent);
     } else {
@@ -326,6 +364,14 @@ public abstract class DownloadService extends Service {
           downloadManager.startDownloads();
         } else {
           downloadManager.startDownload(startDownloadId);
+        }
+        break;
+      case ACTION_REMOVE:
+        String id3 = intent.getStringExtra(KEY_CONTENT_ID);
+        if (id3 == null) {
+          Log.e(TAG, "Ignoring REMOVE action with no id");
+        } else {
+          downloadManager.removeDownload(id3);
         }
         break;
       default:
