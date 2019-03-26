@@ -78,8 +78,8 @@ public final class JobDispatcherScheduler implements Scheduler {
   }
 
   @Override
-  public boolean schedule(Requirements requirements, String serviceAction, String servicePackage) {
-    Job job = buildJob(jobDispatcher, requirements, jobTag, serviceAction, servicePackage);
+  public boolean schedule(Requirements requirements, String servicePackage, String serviceAction) {
+    Job job = buildJob(jobDispatcher, requirements, jobTag, servicePackage, serviceAction);
     int result = jobDispatcher.schedule(job);
     logd("Scheduling job: " + jobTag + " result: " + result);
     return result == FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS;
@@ -96,8 +96,8 @@ public final class JobDispatcherScheduler implements Scheduler {
       FirebaseJobDispatcher dispatcher,
       Requirements requirements,
       String tag,
-      String serviceAction,
-      String servicePackage) {
+      String servicePackage,
+      String serviceAction) {
     Job.Builder builder =
         dispatcher
             .newJobBuilder()
