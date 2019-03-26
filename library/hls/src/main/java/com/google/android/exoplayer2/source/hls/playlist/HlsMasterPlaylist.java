@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
@@ -37,7 +38,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
           /* muxedAudioFormat= */ null,
           /* muxedCaptionFormats= */ Collections.emptyList(),
           /* hasIndependentSegments= */ false,
-          /* variableDefinitions= */ Collections.emptyMap());
+          /* variableDefinitions= */ Collections.emptyMap(),
+          /* sessionKeyDrmInitData= */ Collections.emptyList());
 
   public static final int GROUP_INDEX_VARIANT = 0;
   public static final int GROUP_INDEX_AUDIO = 1;
@@ -122,6 +124,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   public final List<Format> muxedCaptionFormats;
   /** Contains variable definitions, as defined by the #EXT-X-DEFINE tag. */
   public final Map<String, String> variableDefinitions;
+  /** DRM initialization data derived from #EXT-X-SESSION-KEY tags. */
+  public final List<DrmInitData> sessionKeyDrmInitData;
 
   /**
    * @param baseUri See {@link #baseUri}.
@@ -133,6 +137,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    * @param muxedCaptionFormats See {@link #muxedCaptionFormats}.
    * @param hasIndependentSegments See {@link #hasIndependentSegments}.
    * @param variableDefinitions See {@link #variableDefinitions}.
+   * @param sessionKeyDrmInitData See {@link #sessionKeyDrmInitData}.
    */
   public HlsMasterPlaylist(
       String baseUri,
@@ -143,7 +148,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
       Format muxedAudioFormat,
       List<Format> muxedCaptionFormats,
       boolean hasIndependentSegments,
-      Map<String, String> variableDefinitions) {
+      Map<String, String> variableDefinitions,
+      List<DrmInitData> sessionKeyDrmInitData) {
     super(baseUri, tags, hasIndependentSegments);
     this.variants = Collections.unmodifiableList(variants);
     this.audios = Collections.unmodifiableList(audios);
@@ -152,6 +158,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     this.muxedCaptionFormats = muxedCaptionFormats != null
         ? Collections.unmodifiableList(muxedCaptionFormats) : null;
     this.variableDefinitions = Collections.unmodifiableMap(variableDefinitions);
+    this.sessionKeyDrmInitData = Collections.unmodifiableList(sessionKeyDrmInitData);
   }
 
   @Override
@@ -165,7 +172,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
         muxedAudioFormat,
         muxedCaptionFormats,
         hasIndependentSegments,
-        variableDefinitions);
+        variableDefinitions,
+        sessionKeyDrmInitData);
   }
 
   /**
@@ -186,7 +194,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
         /* muxedAudioFormat= */ null,
         /* muxedCaptionFormats= */ null,
         /* hasIndependentSegments= */ false,
-        /* variableDefinitions= */ Collections.emptyMap());
+        /* variableDefinitions= */ Collections.emptyMap(),
+        /* sessionKeyDrmInitData= */ Collections.emptyList());
   }
 
   private static List<HlsUrl> copyRenditionsList(
