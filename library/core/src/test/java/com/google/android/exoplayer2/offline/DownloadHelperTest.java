@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.offline.DownloadHelper.Callback;
 import com.google.android.exoplayer2.source.MediaPeriod;
-import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -409,16 +408,6 @@ public class DownloadHelperTest {
             new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 3, /* trackIndex= */ 0),
             new StreamKey(/* periodIndex= */ 1, /* groupIndex= */ 0, /* trackIndex= */ 0),
             new StreamKey(/* periodIndex= */ 1, /* groupIndex= */ 1, /* trackIndex= */ 0));
-  }
-
-  @Test
-  public void getRemoveAction_returnsRemoveAction() {
-    DownloadAction removeAction = downloadHelper.getRemoveAction();
-
-    assertThat(removeAction.type).isEqualTo(TEST_DOWNLOAD_TYPE);
-    assertThat(removeAction.uri).isEqualTo(testUri);
-    assertThat(removeAction.customCacheKey).isEqualTo(TEST_CACHE_KEY);
-    assertThat(removeAction.isRemoveAction).isTrue();
   }
 
   private static void prepareDownloadHelper(DownloadHelper downloadHelper) throws Exception {
