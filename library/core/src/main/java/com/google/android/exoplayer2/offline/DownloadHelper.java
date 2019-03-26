@@ -606,15 +606,6 @@ public final class DownloadHelper {
     return DownloadAction.createDownloadAction(downloadType, uri, streamKeys, cacheKey, data);
   }
 
-  /**
-   * Builds a {@link DownloadAction} for removing the media. May be called in any state.
-   *
-   * @return The built {@link DownloadAction}.
-   */
-  public DownloadAction getRemoveAction() {
-    return DownloadAction.createRemoveAction(downloadType, uri, cacheKey);
-  }
-
   // Initialization of array of Lists.
   @SuppressWarnings("unchecked")
   private void onMediaPrepared() {

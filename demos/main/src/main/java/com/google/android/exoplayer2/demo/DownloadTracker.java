@@ -106,10 +106,10 @@ public class DownloadTracker implements DownloadManager.Listener {
       Uri uri,
       String extension,
       RenderersFactory renderersFactory) {
-    if (isDownloaded(uri)) {
-      DownloadAction removeAction =
-          getDownloadHelper(uri, extension, renderersFactory).getRemoveAction();
-      startServiceWithAction(removeAction);
+    DownloadState downloadState = downloadStates.get(uri);
+    if (downloadState != null) {
+      DownloadService.startWithRemoveDownload(
+          context, DemoDownloadService.class, downloadState.id, /* foreground= */ false);
     } else {
       if (startDownloadDialogHelper != null) {
         startDownloadDialogHelper.release();
@@ -153,7 +153,8 @@ public class DownloadTracker implements DownloadManager.Listener {
   }
 
   private void startServiceWithAction(DownloadAction action) {
-    DownloadService.startWithAction(context, DemoDownloadService.class, action, false);
+    DownloadService.startWithAction(
+        context, DemoDownloadService.class, action, /* foreground= */ false);
   }
 
   private DownloadHelper getDownloadHelper(
