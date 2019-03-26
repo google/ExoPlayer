@@ -27,6 +27,11 @@ import java.util.concurrent.atomic.AtomicReference;
 /** Helper class to simulate main/UI thread in tests. */
 public final class DummyMainThread {
 
+  /** {@link Runnable} variant which can throw a checked exception. */
+  public interface TestRunnable {
+    void run() throws Exception;
+  }
+
   /** Default timeout value used for {@link #runOnMainThread(Runnable)}. */
   public static final int TIMEOUT_MS = 10000;
 
@@ -57,8 +62,33 @@ public final class DummyMainThread {
    * @param runnable The {@link Runnable} to run.
    */
   public void runOnMainThread(int timeoutMs, final Runnable runnable) {
+    runTestOnMainThread(timeoutMs, runnable::run);
+  }
+
+  /**
+   * Runs the provided {@link TestRunnable} on the main thread, blocking until execution completes
+   * or until {@link #TIMEOUT_MS} milliseconds have passed.
+   *
+   * @param runnable The {@link TestRunnable} to run.
+   */
+  public void runTestOnMainThread(final TestRunnable runnable) {
+    runTestOnMainThread(TIMEOUT_MS, runnable);
+  }
+
+  /**
+   * Runs the provided {@link TestRunnable} on the main thread, blocking until execution completes
+   * or until timeout milliseconds have passed.
+   *
+   * @param timeoutMs The maximum time to wait in milliseconds.
+   * @param runnable The {@link TestRunnable} to run.
+   */
+  public void runTestOnMainThread(int timeoutMs, final TestRunnable runnable) {
     if (Looper.myLooper() == handler.getLooper()) {
-      runnable.run();
+      try {
+        runnable.run();
+      } catch (Exception e) {
+        Util.sneakyThrow(e);
+      }
     } else {
       ConditionVariable finishedCondition = new ConditionVariable();
       AtomicReference<Throwable> thrown = new AtomicReference<>();

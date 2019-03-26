@@ -25,10 +25,10 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadState.State;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
+import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
-import com.google.android.exoplayer2.util.Util;
-import java.io.File;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +64,7 @@ public class DownloadManagerTest {
   private Uri uri2;
   private Uri uri3;
   private DummyMainThread dummyMainThread;
-  private File actionFile;
+  private DefaultDownloadIndex downloadIndex;
   private TestDownloadManagerListener downloadManagerListener;
   private FakeDownloaderFactory downloaderFactory;
   private DownloadManager downloadManager;
@@ -77,7 +77,7 @@ public class DownloadManagerTest {
     uri2 = Uri.parse("http://abc.com/media2");
     uri3 = Uri.parse("http://abc.com/media3");
     dummyMainThread = new DummyMainThread();
-    actionFile = Util.createTempFile(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
+    downloadIndex = new DefaultDownloadIndex(TestUtil.getTestDatabaseProvider());
     downloaderFactory = new FakeDownloaderFactory();
     setUpDownloadManager(100);
   }
@@ -85,7 +85,6 @@ public class DownloadManagerTest {
   @After
   public void tearDown() throws Exception {
     releaseDownloadManager();
-    actionFile.delete();
     dummyMainThread.release();
   }
 
@@ -359,6 +358,7 @@ public class DownloadManagerTest {
     TaskWrapper task2 = new DownloadRunner(uri2).postDownloadAction().getTask();
     TaskWrapper task3 = new DownloadRunner(uri3).postRemoveAction().getTask();
 
+    task3.assertRemoving();
     DownloadState[] states = downloadManager.getAllDownloadStates();
 
     assertThat(states).hasLength(3);
@@ -471,7 +471,7 @@ public class DownloadManagerTest {
             downloadManager =
                 new DownloadManager(
                     ApplicationProvider.getApplicationContext(),
-                    actionFile,
+                    downloadIndex,
                     downloaderFactory,
                     maxActiveDownloadTasks,
                     MIN_RETRY_COUNT,
@@ -494,8 +494,8 @@ public class DownloadManagerTest {
     }
   }
 
-  private void runOnMainThread(final Runnable r) {
-    dummyMainThread.runOnMainThread(r);
+  private void runOnMainThread(final TestRunnable r) {
+    dummyMainThread.runTestOnMainThread(r);
   }
 
   private final class DownloadRunner {
