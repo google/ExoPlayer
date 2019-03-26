@@ -95,7 +95,7 @@ public class HlsMasterPlaylistParserTest {
 
   private static final String PLAYLIST_WITHOUT_CC =
       " #EXTM3U \n"
-          + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,"
+          + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID=\"cc1\","
           + "LANGUAGE=\"es\",NAME=\"Eng\",INSTREAM-ID=\"SERVICE4\"\n"
           + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,"
           + "CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128,"
@@ -150,7 +150,7 @@ public class HlsMasterPlaylistParserTest {
   public void testParseMasterPlaylist() throws IOException {
     HlsMasterPlaylist masterPlaylist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
 
-    List<HlsMasterPlaylist.HlsUrl> variants = masterPlaylist.variants;
+    List<HlsMasterPlaylist.Variant> variants = masterPlaylist.variants;
     assertThat(variants).hasSize(5);
     assertThat(masterPlaylist.muxedCaptionFormats).isNull();
 
@@ -191,7 +191,7 @@ public class HlsMasterPlaylistParserTest {
     HlsMasterPlaylist masterPlaylist =
         parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AVG_BANDWIDTH);
 
-    List<HlsMasterPlaylist.HlsUrl> variants = masterPlaylist.variants;
+    List<HlsMasterPlaylist.Variant> variants = masterPlaylist.variants;
 
     assertThat(variants.get(0).format.bitrate).isEqualTo(1280000);
     assertThat(variants.get(1).format.bitrate).isEqualTo(1270000);
@@ -221,7 +221,7 @@ public class HlsMasterPlaylistParserTest {
   public void testPlaylistWithChannelsAttribute() throws IOException {
     HlsMasterPlaylist playlist =
         parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CHANNELS_ATTRIBUTE);
-    List<HlsMasterPlaylist.HlsUrl> audios = playlist.audios;
+    List<HlsMasterPlaylist.Rendition> audios = playlist.audios;
     assertThat(audios).hasSize(3);
     assertThat(audios.get(0).format.channelCount).isEqualTo(6);
     assertThat(audios.get(1).format.channelCount).isEqualTo(2);

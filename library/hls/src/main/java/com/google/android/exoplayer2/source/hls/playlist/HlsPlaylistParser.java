@@ -26,6 +26,8 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.source.UnrecognizedInputFormatException;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Rendition;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -100,7 +102,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static final Pattern REGEX_AVERAGE_BANDWIDTH =
       Pattern.compile("AVERAGE-BANDWIDTH=(\\d+)\\b");
+  private static final Pattern REGEX_VIDEO = Pattern.compile("VIDEO=\"(.+?)\"");
   private static final Pattern REGEX_AUDIO = Pattern.compile("AUDIO=\"(.+?)\"");
+  private static final Pattern REGEX_SUBTITLES = Pattern.compile("SUBTITLES=\"(.+?)\"");
+  private static final Pattern REGEX_CLOSED_CAPTIONS = Pattern.compile("CLOSED-CAPTIONS=\"(.+?)\"");
   private static final Pattern REGEX_BANDWIDTH = Pattern.compile("[^-]BANDWIDTH=(\\d+)\\b");
   private static final Pattern REGEX_CHANNELS = Pattern.compile("CHANNELS=\"(.+?)\"");
   private static final Pattern REGEX_CODECS = Pattern.compile("CODECS=\"(.+?)\"");
@@ -249,9 +254,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     HashSet<String> variantUrls = new HashSet<>();
     HashMap<String, String> audioGroupIdToCodecs = new HashMap<>();
     HashMap<String, String> variableDefinitions = new HashMap<>();
-    ArrayList<HlsMasterPlaylist.HlsUrl> variants = new ArrayList<>();
-    ArrayList<HlsMasterPlaylist.HlsUrl> audios = new ArrayList<>();
-    ArrayList<HlsMasterPlaylist.HlsUrl> subtitles = new ArrayList<>();
+    ArrayList<Variant> variants = new ArrayList<>();
+    ArrayList<Rendition> audios = new ArrayList<>();
+    ArrayList<Rendition> subtitles = new ArrayList<>();
     ArrayList<String> mediaTags = new ArrayList<>();
     ArrayList<DrmInitData> sessionKeyDrmInitData = new ArrayList<>();
     ArrayList<String> tags = new ArrayList<>();
@@ -321,7 +326,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         if (frameRateString != null) {
           frameRate = Float.parseFloat(frameRateString);
         }
+        String videoGroupId = parseOptionalStringAttr(line, REGEX_VIDEO, variableDefinitions);
         String audioGroupId = parseOptionalStringAttr(line, REGEX_AUDIO, variableDefinitions);
+        String subtitlesGroupId =
+            parseOptionalStringAttr(line, REGEX_SUBTITLES, variableDefinitions);
+        String closedCaptionsGroupId =
+            parseOptionalStringAttr(line, REGEX_CLOSED_CAPTIONS, variableDefinitions);
         if (audioGroupId != null && codecs != null) {
           audioGroupIdToCodecs.put(audioGroupId, Util.getCodecsOfType(codecs, C.TRACK_TYPE_AUDIO));
         }
@@ -343,20 +353,27 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   /* initializationData= */ null,
                   /* selectionFlags= */ 0,
                   /* roleFlags= */ 0);
-          variants.add(new HlsMasterPlaylist.HlsUrl(line, format, /* name= */ ""));
+          variants.add(
+              new Variant(
+                  line,
+                  format,
+                  videoGroupId,
+                  audioGroupId,
+                  subtitlesGroupId,
+                  closedCaptionsGroupId));
         }
       }
     }
 
     for (int i = 0; i < mediaTags.size(); i++) {
       line = mediaTags.get(i);
+      String groupId = parseStringAttr(line, REGEX_GROUP_ID, variableDefinitions);
+      String name = parseStringAttr(line, REGEX_NAME, variableDefinitions);
+      String uri = parseOptionalStringAttr(line, REGEX_URI, variableDefinitions);
+      String language = parseOptionalStringAttr(line, REGEX_LANGUAGE, variableDefinitions);
       @C.SelectionFlags int selectionFlags = parseSelectionFlags(line);
       @C.RoleFlags int roleFlags = parseRoleFlags(line, variableDefinitions);
-      String uri = parseOptionalStringAttr(line, REGEX_URI, variableDefinitions);
-      String name = parseStringAttr(line, REGEX_NAME, variableDefinitions);
-      String language = parseOptionalStringAttr(line, REGEX_LANGUAGE, variableDefinitions);
-      String groupId = parseOptionalStringAttr(line, REGEX_GROUP_ID, variableDefinitions);
-      String id = groupId + ":" + name;
+      String formatId = groupId + ":" + name;
       Format format;
       switch (parseStringAttr(line, REGEX_TYPE, variableDefinitions)) {
         case TYPE_AUDIO:
@@ -365,7 +382,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           String sampleMimeType = codecs != null ? MimeTypes.getMediaMimeType(codecs) : null;
           format =
               Format.createAudioContainerFormat(
-                  /* id= */ id,
+                  /* id= */ formatId,
                   /* label= */ name,
                   /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
                   sampleMimeType,
@@ -380,13 +397,13 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           if (uri == null) {
             muxedAudioFormat = format;
           } else {
-            audios.add(new HlsMasterPlaylist.HlsUrl(uri, format, name));
+            audios.add(new Rendition(uri, format, groupId, name));
           }
           break;
         case TYPE_SUBTITLES:
           format =
               Format.createTextContainerFormat(
-                  /* id= */ id,
+                  /* id= */ formatId,
                   /* label= */ name,
                   /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
                   /* sampleMimeType= */ MimeTypes.TEXT_VTT,
@@ -395,7 +412,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   selectionFlags,
                   roleFlags,
                   language);
-          subtitles.add(new HlsMasterPlaylist.HlsUrl(uri, format, name));
+          subtitles.add(new Rendition(uri, format, groupId, name));
           break;
         case TYPE_CLOSED_CAPTIONS:
           String instreamId = parseStringAttr(line, REGEX_INSTREAM_ID, variableDefinitions);
@@ -413,7 +430,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           }
           muxedCaptionFormats.add(
               Format.createTextContainerFormat(
-                  /* id= */ id,
+                  /* id= */ formatId,
                   /* label= */ name,
                   /* containerMimeType= */ null,
                   /* sampleMimeType= */ mimeType,

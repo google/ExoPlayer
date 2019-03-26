@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -298,7 +299,7 @@ public final class DefaultHlsPlaylistTracker
   // Internal methods.
 
   private boolean maybeSelectNewPrimaryUrl() {
-    List<HlsUrl> variants = masterPlaylist.variants;
+    List<Variant> variants = masterPlaylist.variants;
     int variantsSize = variants.size();
     long currentTimeMs = SystemClock.elapsedRealtime();
     for (int i = 0; i < variantsSize; i++) {

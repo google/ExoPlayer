@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Rendition;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -442,8 +443,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
             : Collections.emptyMap();
 
     boolean hasVariants = !masterPlaylist.variants.isEmpty();
-    List<HlsUrl> audioRenditions = masterPlaylist.audios;
-    List<HlsUrl> subtitleRenditions = masterPlaylist.subtitles;
+    List<Rendition> audioRenditions = masterPlaylist.audios;
+    List<Rendition> subtitleRenditions = masterPlaylist.subtitles;
 
     pendingPrepareCount = 0;
     ArrayList<HlsSampleStreamWrapper> sampleStreamWrappers = new ArrayList<>();
@@ -644,7 +645,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   private void buildAndPrepareAudioSampleStreamWrappers(
       long positionUs,
-      List<HlsUrl> audioRenditions,
+      List<Rendition> audioRenditions,
       List<HlsSampleStreamWrapper> sampleStreamWrappers,
       List<int[]> manifestUrlsIndicesPerWrapper,
       Map<String, DrmInitData> overridingDrmInitData) {

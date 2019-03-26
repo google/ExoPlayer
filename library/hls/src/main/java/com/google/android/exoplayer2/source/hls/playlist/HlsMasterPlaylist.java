@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -45,10 +46,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   public static final int GROUP_INDEX_AUDIO = 1;
   public static final int GROUP_INDEX_SUBTITLE = 2;
 
-  /**
-   * Represents a url in an HLS master playlist.
-   */
-  public static final class HlsUrl {
+  /** Represents a url in an HLS master playlist. */
+  public abstract static class HlsUrl {
 
     /**
      * The http url from which the media playlist can be obtained.
@@ -58,19 +57,61 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      * Format information associated with the HLS url.
      */
     public final Format format;
-    /**
-     * Value of the NAME attribute as defined by the #EXT-X-MEDIA tag, or empty if the HLS url is
-     * not associated with any name.
-     */
-    public final String name;
 
     /**
-     * Creates an HLS url from a given http url.
-     *
-     * @param url The url.
-     * @return An HLS url.
+     * @param url See {@link #url}.
+     * @param format See {@link #format}.
      */
-    public static HlsUrl createMediaPlaylistHlsUrl(String url) {
+    public HlsUrl(String url, Format format) {
+      this.url = url;
+      this.format = format;
+    }
+  }
+
+  /** A variant in a master playlist. */
+  public static final class Variant extends HlsUrl {
+
+    /** The video rendition group referenced by this variant, or {@code null}. */
+    @Nullable public final String videoGroupId;
+
+    /** The audio rendition group referenced by this variant, or {@code null}. */
+    @Nullable public final String audioGroupId;
+
+    /** The subtitle rendition group referenced by this variant, or {@code null}. */
+    @Nullable public final String subtitleGroupId;
+
+    /** The caption rendition group referenced by this variant, or {@code null}. */
+    @Nullable public final String captionGroupId;
+
+    /**
+     * @param url See {@link #url}.
+     * @param format See {@link #format}.
+     * @param videoGroupId See {@link #videoGroupId}.
+     * @param audioGroupId See {@link #audioGroupId}.
+     * @param subtitleGroupId See {@link #subtitleGroupId}.
+     * @param captionGroupId See {@link #captionGroupId}.
+     */
+    public Variant(
+        String url,
+        Format format,
+        @Nullable String videoGroupId,
+        @Nullable String audioGroupId,
+        @Nullable String subtitleGroupId,
+        @Nullable String captionGroupId) {
+      super(url, format);
+      this.videoGroupId = videoGroupId;
+      this.audioGroupId = audioGroupId;
+      this.subtitleGroupId = subtitleGroupId;
+      this.captionGroupId = captionGroupId;
+    }
+
+    /**
+     * Creates a variant for a given media playlist url.
+     *
+     * @param url The media playlist url.
+     * @return The variant instance.
+     */
+    public static Variant createMediaPlaylistVariantUrl(String url) {
       Format format =
           Format.createContainerFormat(
               "0",
@@ -82,34 +123,45 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
               /* selectionFlags= */ 0,
               /* roleFlags= */ 0,
               /* language= */ null);
-      return new HlsUrl(url, format, /* name= */ "");
+      return new Variant(
+          url,
+          format,
+          /* videoGroupId= */ null,
+          /* audioGroupId= */ null,
+          /* subtitleGroupId= */ null,
+          /* captionGroupId= */ null);
     }
+  }
+
+  /** A rendition in a master playlist. */
+  public static final class Rendition extends HlsUrl {
+
+    /** The group to which this rendition belongs. */
+    public final String groupId;
+
+    /** The name of the rendition. */
+    public final String name;
 
     /**
      * @param url See {@link #url}.
      * @param format See {@link #format}.
+     * @param groupId See {@link #groupId}.
      * @param name See {@link #name}.
      */
-    public HlsUrl(String url, Format format, String name) {
-      this.url = url;
-      this.format = format;
+    public Rendition(String url, Format format, String groupId, String name) {
+      super(url, format);
+      this.groupId = groupId;
       this.name = name;
     }
 
   }
 
-  /**
-   * The list of variants declared by the playlist.
-   */
-  public final List<HlsUrl> variants;
-  /**
-   * The list of demuxed audios declared by the playlist.
-   */
-  public final List<HlsUrl> audios;
-  /**
-   * The list of subtitles declared by the playlist.
-   */
-  public final List<HlsUrl> subtitles;
+  /** The list of variants declared by the playlist. */
+  public final List<Variant> variants;
+  /** The list of demuxed audios declared by the playlist. */
+  public final List<Rendition> audios;
+  /** The list of subtitles declared by the playlist. */
+  public final List<Rendition> subtitles;
 
   /**
    * The format of the audio muxed in the variants. May be null if the playlist does not declare any
@@ -142,9 +194,9 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   public HlsMasterPlaylist(
       String baseUri,
       List<String> tags,
-      List<HlsUrl> variants,
-      List<HlsUrl> audios,
-      List<HlsUrl> subtitles,
+      List<Variant> variants,
+      List<Rendition> audios,
+      List<Rendition> subtitles,
       Format muxedAudioFormat,
       List<Format> muxedCaptionFormats,
       boolean hasIndependentSegments,
@@ -183,14 +235,14 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    * @return A master playlist with a single variant for the provided url.
    */
   public static HlsMasterPlaylist createSingleVariantMasterPlaylist(String variantUrl) {
-    List<HlsUrl> variant = Collections.singletonList(HlsUrl.createMediaPlaylistHlsUrl(variantUrl));
-    List<HlsUrl> emptyList = Collections.emptyList();
+    List<Variant> variant =
+        Collections.singletonList(Variant.createMediaPlaylistVariantUrl(variantUrl));
     return new HlsMasterPlaylist(
         null,
         Collections.emptyList(),
         variant,
-        emptyList,
-        emptyList,
+        Collections.emptyList(),
+        Collections.emptyList(),
         /* muxedAudioFormat= */ null,
         /* muxedCaptionFormats= */ null,
         /* hasIndependentSegments= */ false,
@@ -198,11 +250,11 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
         /* sessionKeyDrmInitData= */ Collections.emptyList());
   }
 
-  private static List<HlsUrl> copyRenditionsList(
-      List<HlsUrl> renditions, int groupIndex, List<StreamKey> streamKeys) {
-    List<HlsUrl> copiedRenditions = new ArrayList<>(streamKeys.size());
+  private static <T extends HlsUrl> List<T> copyRenditionsList(
+      List<T> renditions, int groupIndex, List<StreamKey> streamKeys) {
+    List<T> copiedRenditions = new ArrayList<>(streamKeys.size());
     for (int i = 0; i < renditions.size(); i++) {
-      HlsUrl rendition = renditions.get(i);
+      T rendition = renditions.get(i);
       for (int j = 0; j < streamKeys.size(); j++) {
         StreamKey streamKey = streamKeys.get(j);
         if (streamKey.groupIndex == groupIndex && streamKey.trackIndex == i) {
