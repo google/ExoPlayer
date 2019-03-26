@@ -245,6 +245,26 @@ public final class DownloadState {
         action.data);
   }
 
+  /** Returns a duplicate {@link DownloadState} in {@link #STATE_REMOVING}. */
+  public DownloadState setRemoveState() {
+    return new DownloadState(
+        id,
+        type,
+        uri,
+        cacheKey,
+        getNextState(state, manualStopReason != 0 || notMetRequirements != 0, true),
+        /* downloadPercentage= */ C.PERCENTAGE_UNSET,
+        downloadedBytes,
+        /* totalBytes= */ C.LENGTH_UNSET,
+        FAILURE_REASON_NONE,
+        notMetRequirements,
+        manualStopReason,
+        startTimeMs,
+        /* updateTimeMs= */ System.currentTimeMillis(),
+        streamKeys,
+        customMetadata);
+  }
+
   private static int getNextState(int currentState, boolean isStopped, boolean remove) {
     int nextState;
     if (remove) {
