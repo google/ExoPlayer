@@ -87,7 +87,29 @@ public final class DownloadAction {
       List<StreamKey> keys,
       @Nullable String customCacheKey,
       @Nullable byte[] data) {
-    return new DownloadAction(type, uri, /* isRemoveAction= */ false, keys, customCacheKey, data);
+    return createDownloadAction(
+        generateId(uri, customCacheKey), type, uri, keys, customCacheKey, data);
+  }
+
+  /**
+   * Creates a DASH download action.
+   *
+   * @param id The content id.
+   * @param type The type of the action.
+   * @param uri The URI of the media to be downloaded.
+   * @param keys Keys of streams to be downloaded. If empty, all streams will be downloaded.
+   * @param customCacheKey A custom key for cache indexing, or null.
+   * @param data Optional custom data for this action. If {@code null} an empty array will be used.
+   */
+  public static DownloadAction createDownloadAction(
+      String id,
+      String type,
+      Uri uri,
+      List<StreamKey> keys,
+      @Nullable String customCacheKey,
+      @Nullable byte[] data) {
+    return new DownloadAction(
+        id, type, uri, /* isRemoveAction= */ false, keys, customCacheKey, data);
   }
 
   /**
@@ -100,6 +122,7 @@ public final class DownloadAction {
   public static DownloadAction createRemoveAction(
       String type, Uri uri, @Nullable String customCacheKey) {
     return new DownloadAction(
+        generateId(uri, customCacheKey),
         type,
         uri,
         /* isRemoveAction= */ true,
@@ -127,6 +150,7 @@ public final class DownloadAction {
   public final byte[] data;
 
   /**
+   * @param id The content id.
    * @param type The type of the action.
    * @param uri The uri being downloaded or removed.
    * @param isRemoveAction Whether this is a remove action. If false, this is a download action.
@@ -136,13 +160,14 @@ public final class DownloadAction {
    * @param data Custom data for this action. Null if this action is a remove action.
    */
   private DownloadAction(
+      String id,
       String type,
       Uri uri,
       boolean isRemoveAction,
       List<StreamKey> keys,
       @Nullable String customCacheKey,
       @Nullable byte[] data) {
-    this.id = customCacheKey != null ? customCacheKey : uri.toString();
+    this.id = id;
     this.type = type;
     this.uri = uri;
     this.isRemoveAction = isRemoveAction;
@@ -272,7 +297,12 @@ public final class DownloadAction {
       customCacheKey = input.readBoolean() ? input.readUTF() : null;
     }
 
-    return new DownloadAction(type, uri, isRemoveAction, keys, customCacheKey, data);
+    return new DownloadAction(
+        generateId(uri, customCacheKey), type, uri, isRemoveAction, keys, customCacheKey, data);
+  }
+
+  private static String generateId(Uri uri, @Nullable String customCacheKey) {
+    return customCacheKey != null ? customCacheKey : uri.toString();
   }
 
   private static StreamKey readKey(String type, int version, DataInputStream input)
