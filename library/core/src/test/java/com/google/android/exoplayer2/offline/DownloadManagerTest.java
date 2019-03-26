@@ -702,7 +702,6 @@ public class DownloadManagerTest {
     public void download() throws InterruptedException, IOException {
       // It's ok to update this directly as no other thread will update it.
       startCount++;
-      assertThat(action.isRemoveAction).isFalse();
       started.countDown();
       block();
       if (enableDownloadIOException) {
@@ -721,7 +720,6 @@ public class DownloadManagerTest {
     public void remove() throws InterruptedException {
       // It's ok to update this directly as no other thread will update it.
       startCount++;
-      assertThat(action.isRemoveAction).isTrue();
       started.countDown();
       block();
     }
