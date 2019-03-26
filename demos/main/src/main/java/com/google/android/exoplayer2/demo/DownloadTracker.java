@@ -18,8 +18,6 @@ package com.google.android.exoplayer2.demo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.HandlerThread;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import android.widget.Toast;
@@ -66,9 +64,8 @@ public class DownloadTracker implements DownloadManager.Listener {
   private final Context context;
   private final DataSource.Factory dataSourceFactory;
   private final CopyOnWriteArraySet<Listener> listeners;
-  private final HashMap<Uri, DownloadState> trackedDownloadStates;
+  private final HashMap<Uri, DownloadState> downloadStates;
   private final DefaultDownloadIndex downloadIndex;
-  private final Handler indexHandler;
 
   @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
 
@@ -78,11 +75,8 @@ public class DownloadTracker implements DownloadManager.Listener {
     this.dataSourceFactory = dataSourceFactory;
     this.downloadIndex = downloadIndex;
     listeners = new CopyOnWriteArraySet<>();
-    trackedDownloadStates = new HashMap<>();
-    HandlerThread indexThread = new HandlerThread("DownloadTracker");
-    indexThread.start();
-    indexHandler = new Handler(indexThread.getLooper());
-    loadTrackedActions();
+    downloadStates = new HashMap<>();
+    loadDownloads();
   }
 
   public void addListener(Listener listener) {
@@ -94,15 +88,16 @@ public class DownloadTracker implements DownloadManager.Listener {
   }
 
   public boolean isDownloaded(Uri uri) {
-    return trackedDownloadStates.containsKey(uri);
+    DownloadState downloadState = downloadStates.get(uri);
+    return downloadState != null && downloadState.state != DownloadState.STATE_FAILED;
   }
 
   @SuppressWarnings("unchecked")
   public List<StreamKey> getOfflineStreamKeys(Uri uri) {
-    if (!trackedDownloadStates.containsKey(uri)) {
-      return Collections.emptyList();
-    }
-    return Arrays.asList(trackedDownloadStates.get(uri).streamKeys);
+    DownloadState downloadState = downloadStates.get(uri);
+    return downloadState != null && downloadState.state != DownloadState.STATE_FAILED
+        ? Arrays.asList(downloadState.streamKeys)
+        : Collections.emptyList();
   }
 
   public void toggleDownload(
@@ -129,57 +124,32 @@ public class DownloadTracker implements DownloadManager.Listener {
 
   @Override
   public void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState) {
-    if (downloadState.state == DownloadState.STATE_REMOVED
-        || downloadState.state == DownloadState.STATE_FAILED) {
-      // A download has been removed, or has failed. Stop tracking it.
-      if (trackedDownloadStates.remove(downloadState.uri) != null) {
-        handleTrackedDownloadStateChanged(downloadState);
+    boolean downloaded = isDownloaded(downloadState.uri);
+    if (downloadState.state == DownloadState.STATE_REMOVED) {
+      downloadStates.remove(downloadState.uri);
+    } else {
+      downloadStates.put(downloadState.uri, downloadState);
+    }
+    if (downloaded != isDownloaded(downloadState.uri)) {
+      for (Listener listener : listeners) {
+        listener.onDownloadsChanged();
       }
     }
   }
 
   // Internal methods
 
-  private void loadTrackedActions() {
+  private void loadDownloads() {
     try {
-      DownloadStateCursor downloadStates = downloadIndex.getDownloadStates();
-      while (downloadStates.moveToNext()) {
-        DownloadState downloadState = downloadStates.getDownloadState();
-        trackedDownloadStates.put(downloadState.uri, downloadState);
+      DownloadStateCursor loadedDownloadStates = downloadIndex.getDownloadStates();
+      while (loadedDownloadStates.moveToNext()) {
+        DownloadState downloadState = loadedDownloadStates.getDownloadState();
+        downloadStates.put(downloadState.uri, downloadState);
       }
-      downloadStates.close();
+      loadedDownloadStates.close();
     } catch (IOException e) {
       Log.w(TAG, "Failed to query download states", e);
     }
-  }
-
-  private void handleTrackedDownloadStateChanged(DownloadState downloadState) {
-    for (Listener listener : listeners) {
-      listener.onDownloadsChanged();
-    }
-    indexHandler.post(
-        () -> {
-          try {
-            if (downloadState.state == DownloadState.STATE_REMOVED) {
-              downloadIndex.removeDownloadState(downloadState.id);
-            } else {
-              downloadIndex.putDownloadState(downloadState);
-            }
-          } catch (IOException e) {
-            // TODO: This whole method is going away in cr/232854678.
-          }
-        });
-  }
-
-  private void startDownload(DownloadAction action) {
-    if (trackedDownloadStates.containsKey(action.uri)) {
-      // This content is already being downloaded. Do nothing.
-      return;
-    }
-    DownloadState downloadState = new DownloadState(action);
-    trackedDownloadStates.put(downloadState.uri, downloadState);
-    handleTrackedDownloadStateChanged(downloadState);
-    startServiceWithAction(action);
   }
 
   private void startServiceWithAction(DownloadAction action) {
@@ -238,7 +208,7 @@ public class DownloadTracker implements DownloadManager.Listener {
       if (helper.getPeriodCount() == 0) {
         Log.d(TAG, "No periods found. Downloading entire stream.");
         DownloadAction downloadAction = downloadHelper.getDownloadAction(Util.getUtf8Bytes(name));
-        startDownload(downloadAction);
+        startServiceWithAction(downloadAction);
         downloadHelper.release();
         return;
       }
@@ -280,7 +250,7 @@ public class DownloadTracker implements DownloadManager.Listener {
         }
       }
       DownloadAction downloadAction = downloadHelper.getDownloadAction(Util.getUtf8Bytes(name));
-      startDownload(downloadAction);
+      startServiceWithAction(downloadAction);
     }
 
     // DialogInterface.OnDismissListener implementation.

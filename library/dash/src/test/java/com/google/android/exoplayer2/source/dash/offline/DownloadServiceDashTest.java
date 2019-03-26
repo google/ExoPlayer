@@ -26,6 +26,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
@@ -107,19 +108,14 @@ public class DownloadServiceDashTest {
     fakeStreamKey1 = new StreamKey(0, 0, 0);
     fakeStreamKey2 = new StreamKey(0, 1, 0);
 
-    dummyMainThread.runOnMainThread(
+    dummyMainThread.runTestOnMainThread(
         () -> {
-          File actionFile;
-          try {
-            actionFile = Util.createTempFile(context, "ExoPlayerTest");
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-          actionFile.delete();
+          DefaultDownloadIndex downloadIndex =
+              new DefaultDownloadIndex(TestUtil.getTestDatabaseProvider());
           final DownloadManager dashDownloadManager =
               new DownloadManager(
                   ApplicationProvider.getApplicationContext(),
-                  actionFile,
+                  downloadIndex,
                   new DefaultDownloaderFactory(
                       new DownloaderConstructorHelper(cache, fakeDataSourceFactory)),
                   /* maxSimultaneousDownloads= */ 1,

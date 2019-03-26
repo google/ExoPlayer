@@ -114,21 +114,14 @@ public class DemoApplication extends Application {
   private synchronized void initDownloadManager() {
     if (downloadManager == null) {
       DefaultDownloadIndex downloadIndex = new DefaultDownloadIndex(new ExoDatabaseProvider(this));
-      File actionFile = new File(getDownloadDirectory(), DOWNLOAD_TRACKER_ACTION_FILE);
-      if (actionFile.exists()) {
-        try {
-          DownloadIndexUtil.upgradeActionFile(new ActionFile(actionFile), downloadIndex, null);
-        } catch (IOException e) {
-          Log.e(TAG, "Upgrading action file failed", e);
-        }
-        actionFile.delete();
-      }
+      upgradeActionFile(DOWNLOAD_TRACKER_ACTION_FILE, downloadIndex);
+      upgradeActionFile(DOWNLOAD_ACTION_FILE, downloadIndex);
       DownloaderConstructorHelper downloaderConstructorHelper =
           new DownloaderConstructorHelper(getDownloadCache(), buildHttpDataSourceFactory());
       downloadManager =
           new DownloadManager(
               this,
-              new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE),
+              downloadIndex,
               new DefaultDownloaderFactory(downloaderConstructorHelper),
               MAX_SIMULTANEOUS_DOWNLOADS,
               DownloadManager.DEFAULT_MIN_RETRY_COUNT,
@@ -136,6 +129,18 @@ public class DemoApplication extends Application {
       downloadTracker =
           new DownloadTracker(/* context= */ this, buildDataSourceFactory(), downloadIndex);
       downloadManager.addListener(downloadTracker);
+    }
+  }
+
+  private void upgradeActionFile(String file, DefaultDownloadIndex downloadIndex) {
+    ActionFile actionFile = new ActionFile(new File(getDownloadDirectory(), file));
+    if (actionFile.exists()) {
+      try {
+        DownloadIndexUtil.upgradeActionFile(actionFile, downloadIndex, null);
+      } catch (IOException e) {
+        Log.e(TAG, "Upgrading action file failed", e);
+      }
+      actionFile.delete();
     }
   }
 

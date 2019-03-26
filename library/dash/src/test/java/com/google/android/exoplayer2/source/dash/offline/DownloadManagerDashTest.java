@@ -27,6 +27,7 @@ import android.os.ConditionVariable;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
@@ -69,7 +70,7 @@ public class DownloadManagerDashTest {
   private StreamKey fakeStreamKey1;
   private StreamKey fakeStreamKey2;
   private TestDownloadManagerListener downloadManagerListener;
-  private File actionFile;
+  private DefaultDownloadIndex downloadIndex;
   private DummyMainThread dummyMainThread;
 
   @Before
@@ -95,7 +96,7 @@ public class DownloadManagerDashTest {
 
     fakeStreamKey1 = new StreamKey(0, 0, 0);
     fakeStreamKey2 = new StreamKey(0, 1, 0);
-    actionFile = new File(tempFolder, "actionFile");
+    downloadIndex = new DefaultDownloadIndex(TestUtil.getTestDatabaseProvider());
     createDownloadManager();
   }
 
@@ -136,8 +137,6 @@ public class DownloadManagerDashTest {
           downloadManager.release();
         });
 
-    assertThat(actionFile.exists()).isTrue();
-    assertThat(actionFile.length()).isGreaterThan(0L);
     assertCacheEmpty(cache);
 
     // Revert fakeDataSet to normal.
@@ -239,13 +238,13 @@ public class DownloadManagerDashTest {
   }
 
   private void createDownloadManager() {
-    dummyMainThread.runOnMainThread(
+    dummyMainThread.runTestOnMainThread(
         () -> {
           Factory fakeDataSourceFactory = new FakeDataSource.Factory().setFakeDataSet(fakeDataSet);
           downloadManager =
               new DownloadManager(
                   ApplicationProvider.getApplicationContext(),
-                  actionFile,
+                  downloadIndex,
                   new DefaultDownloaderFactory(
                       new DownloaderConstructorHelper(cache, fakeDataSourceFactory)),
                   /* maxSimultaneousDownloads= */ 1,
