@@ -784,6 +784,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         mediaFormat.setFloat(MediaFormat.KEY_OPERATING_RATE, codecOperatingRate);
       }
     }
+    if (Util.SDK_INT <= 28 && MimeTypes.AUDIO_AC4.equals(format.sampleMimeType)) {
+      // On some older builds, the AC-4 decoder expects to receive samples formatted as raw frames
+      // not sync frames. Set a format key to override this.
+      mediaFormat.setInteger("ac4-is-sync", 1);
+    }
     return mediaFormat;
   }
 

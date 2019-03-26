@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.Ac3Util;
+import com.google.android.exoplayer2.audio.Ac4Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -756,6 +757,7 @@ import java.util.List;
           || childAtomType == Atom.TYPE_enca
           || childAtomType == Atom.TYPE_ac_3
           || childAtomType == Atom.TYPE_ec_3
+          || childAtomType == Atom.TYPE_ac_4
           || childAtomType == Atom.TYPE_dtsc
           || childAtomType == Atom.TYPE_dtse
           || childAtomType == Atom.TYPE_dtsh
@@ -1071,6 +1073,8 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_AC3;
     } else if (atomType == Atom.TYPE_ec_3) {
       mimeType = MimeTypes.AUDIO_E_AC3;
+    } else if (atomType == Atom.TYPE_ac_4) {
+      mimeType = MimeTypes.AUDIO_AC4;
     } else if (atomType == Atom.TYPE_dtsc) {
       mimeType = MimeTypes.AUDIO_DTS;
     } else if (atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl) {
@@ -1128,6 +1132,10 @@ import java.util.List;
         parent.setPosition(Atom.HEADER_SIZE + childPosition);
         out.format = Ac3Util.parseEAc3AnnexFFormat(parent, Integer.toString(trackId), language,
             drmInitData);
+      } else if (childAtomType == Atom.TYPE_dac4) {
+        parent.setPosition(Atom.HEADER_SIZE + childPosition);
+        out.format =
+            Ac4Util.parseAc4AnnexEFormat(parent, Integer.toString(trackId), language, drmInitData);
       } else if (childAtomType == Atom.TYPE_ddts) {
         out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
             Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, drmInitData, 0,

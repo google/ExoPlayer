@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.android.exoplayer2.audio.Ac4Util.AC40_SYNCWORD;
+import static com.google.android.exoplayer2.audio.Ac4Util.AC41_SYNCWORD;
 import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.audio.Ac3Util;
+import com.google.android.exoplayer2.audio.Ac4Util;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -30,37 +32,45 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
-/**
- * Extracts data from (E-)AC-3 bitstreams.
- */
-public final class Ac3Extractor implements Extractor {
+/** Extracts data from AC-4 bitstreams. */
+public final class Ac4Extractor implements Extractor {
 
-  /** Factory for {@link Ac3Extractor} instances. */
-  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new Ac3Extractor()};
+  /** Factory for {@link Ac4Extractor} instances. */
+  public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new Ac4Extractor()};
 
   /**
    * The maximum number of bytes to search when sniffing, excluding ID3 information, before giving
    * up.
    */
   private static final int MAX_SNIFF_BYTES = 8 * 1024;
-  private static final int AC3_SYNC_WORD = 0x0B77;
-  private static final int MAX_SYNC_FRAME_SIZE = 2786;
+
+  /**
+   * The size of the reading buffer, in bytes. This value is determined based on the maximum frame
+   * size used in broadcast applications.
+   */
+  private static final int READ_BUFFER_SIZE = 16384;
+
+  /** The size of the frame header, in bytes. */
+  private static final int FRAME_HEADER_SIZE = 7;
+
   private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
 
   private final long firstSampleTimestampUs;
-  private final Ac3Reader reader;
+  private final Ac4Reader reader;
   private final ParsableByteArray sampleData;
 
   private boolean startedPacket;
 
-  public Ac3Extractor() {
-    this(0);
+  /** Creates a new extractor for AC-4 bitstreams. */
+  public Ac4Extractor() {
+    this(/* firstSampleTimestampUs= */ 0);
   }
 
-  public Ac3Extractor(long firstSampleTimestampUs) {
+  /** Creates a new extractor for AC-4 bitstreams, using the specified first sample timestamp. */
+  public Ac4Extractor(long firstSampleTimestampUs) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
-    reader = new Ac3Reader();
-    sampleData = new ParsableByteArray(MAX_SYNC_FRAME_SIZE);
+    reader = new Ac4Reader();
+    sampleData = new ParsableByteArray(READ_BUFFER_SIZE);
   }
 
   // Extractor implementation.
@@ -71,7 +81,7 @@ public final class Ac3Extractor implements Extractor {
     ParsableByteArray scratch = new ParsableByteArray(10);
     int startPosition = 0;
     while (true) {
-      input.peekFully(scratch.data, 0, 10);
+      input.peekFully(scratch.data, /* offset= */ 0, /* length= */ 10);
       scratch.setPosition(0);
       if (scratch.readUnsignedInt24() != ID3_TAG) {
         break;
@@ -87,10 +97,10 @@ public final class Ac3Extractor implements Extractor {
     int headerPosition = startPosition;
     int validFramesCount = 0;
     while (true) {
-      input.peekFully(scratch.data, 0, 6);
+      input.peekFully(scratch.data, /* offset= */ 0, /* length= */ FRAME_HEADER_SIZE);
       scratch.setPosition(0);
       int syncBytes = scratch.readUnsignedShort();
-      if (syncBytes != AC3_SYNC_WORD) {
+      if (syncBytes != AC40_SYNCWORD && syncBytes != AC41_SYNCWORD) {
         validFramesCount = 0;
         input.resetPeekPosition();
         if (++headerPosition - startPosition >= MAX_SNIFF_BYTES) {
@@ -101,20 +111,21 @@ public final class Ac3Extractor implements Extractor {
         if (++validFramesCount >= 4) {
           return true;
         }
-        int frameSize = Ac3Util.parseAc3SyncframeSize(scratch.data);
+        int frameSize = Ac4Util.parseAc4SyncframeSize(scratch.data, syncBytes);
         if (frameSize == C.LENGTH_UNSET) {
           return false;
         }
-        input.advancePeekPosition(frameSize - 6);
+        input.advancePeekPosition(frameSize - FRAME_HEADER_SIZE);
       }
     }
   }
 
   @Override
   public void init(ExtractorOutput output) {
-    reader.createTracks(output, new TrackIdGenerator(0, 1));
+    reader.createTracks(
+        output, new TrackIdGenerator(/* firstTrackId= */ 0, /* trackIdIncrement= */ 1));
     output.endTracks();
-    output.seekMap(new SeekMap.Unseekable(C.TIME_UNSET));
+    output.seekMap(new SeekMap.Unseekable(/* durationUs= */ C.TIME_UNSET));
   }
 
   @Override
@@ -129,9 +140,9 @@ public final class Ac3Extractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException,
-      InterruptedException {
-    int bytesRead = input.read(sampleData.data, 0, MAX_SYNC_FRAME_SIZE);
+  public int read(ExtractorInput input, PositionHolder seekPosition)
+      throws IOException, InterruptedException {
+    int bytesRead = input.read(sampleData.data, /* offset= */ 0, /* length= */ READ_BUFFER_SIZE);
     if (bytesRead == C.RESULT_END_OF_INPUT) {
       return RESULT_END_OF_INPUT;
     }
@@ -150,5 +161,4 @@ public final class Ac3Extractor implements Extractor {
     reader.consume(sampleData);
     return RESULT_CONTINUE;
   }
-
 }

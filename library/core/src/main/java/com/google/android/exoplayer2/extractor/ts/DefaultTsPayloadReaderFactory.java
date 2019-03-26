@@ -149,6 +149,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
       case TsExtractor.TS_STREAM_TYPE_AC3:
       case TsExtractor.TS_STREAM_TYPE_E_AC3:
         return new PesReader(new Ac3Reader(esInfo.language));
+      case TsExtractor.TS_STREAM_TYPE_AC4:
+        return new PesReader(new Ac4Reader(esInfo.language));
       case TsExtractor.TS_STREAM_TYPE_HDMV_DTS:
         if (isSet(FLAG_IGNORE_HDMV_DTS_STREAM)) {
           return null;
