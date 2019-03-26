@@ -49,6 +49,8 @@
   * Fix an issue that caused audio to be truncated at the end of a period
     when switching to a new period where gapless playback information was newly
     present or newly absent.
+  * Add support for reading AC-4 streams
+    ([#5303](https://github.com/google/ExoPlayer/pull/5303)).
 * Add support for SHOUTcast ICY metadata
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
 * CEA-608: Improved conformance to the specification

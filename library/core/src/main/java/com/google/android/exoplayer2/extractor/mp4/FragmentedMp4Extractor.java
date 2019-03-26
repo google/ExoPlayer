@@ -22,6 +22,7 @@ import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.Ac4Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
@@ -133,13 +134,14 @@ public class FragmentedMp4Extractor implements Extractor {
   private final ParsableByteArray nalStartCode;
   private final ParsableByteArray nalPrefix;
   private final ParsableByteArray nalBuffer;
+  private final byte[] scratchBytes;
+  private final ParsableByteArray scratch;
 
   // Adjusts sample timestamps.
   private final @Nullable TimestampAdjuster timestampAdjuster;
 
   // Parser state.
   private final ParsableByteArray atomHeader;
-  private final byte[] extendedTypeScratch;
   private final ArrayDeque<ContainerAtom> containerAtoms;
   private final ArrayDeque<MetadataSampleInfo> pendingMetadataSampleInfos;
   private final @Nullable TrackOutput additionalEmsgTrackOutput;
@@ -160,6 +162,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
   private boolean processSeiNalUnitPayload;
+  private boolean isAc4HeaderRequired;
 
   // Extractor output.
   private ExtractorOutput extractorOutput;
@@ -254,7 +257,8 @@ public class FragmentedMp4Extractor implements Extractor {
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalPrefix = new ParsableByteArray(5);
     nalBuffer = new ParsableByteArray();
-    extendedTypeScratch = new byte[16];
+    scratchBytes = new byte[16];
+    scratch = new ParsableByteArray(scratchBytes);
     containerAtoms = new ArrayDeque<>();
     pendingMetadataSampleInfos = new ArrayDeque<>();
     trackBundles = new SparseArray<>();
@@ -291,6 +295,7 @@ public class FragmentedMp4Extractor implements Extractor {
     pendingMetadataSampleBytes = 0;
     pendingSeekTimeUs = timeUs;
     containerAtoms.clear();
+    isAc4HeaderRequired = false;
     enterReadingAtomHeaderState();
   }
 
@@ -538,7 +543,7 @@ public class FragmentedMp4Extractor implements Extractor {
   }
 
   private void onMoofContainerAtomRead(ContainerAtom moof) throws ParserException {
-    parseMoof(moof, trackBundles, flags, extendedTypeScratch);
+    parseMoof(moof, trackBundles, flags, scratchBytes);
     // If drm init data is sideloaded, we ignore pssh boxes.
     DrmInitData drmInitData = sideloadedDrmInitData != null ? null
         : getDrmInitDataFromAtoms(moof.leafChildren);
@@ -1224,6 +1229,8 @@ public class FragmentedMp4Extractor implements Extractor {
       sampleSize += sampleBytesWritten;
       parserState = STATE_READING_SAMPLE_CONTINUE;
       sampleCurrentNalBytesRemaining = 0;
+      isAc4HeaderRequired =
+          MimeTypes.AUDIO_AC4.equals(currentTrackBundle.track.format.sampleMimeType);
     }
 
     TrackFragment fragment = currentTrackBundle.fragment;
@@ -1288,6 +1295,14 @@ public class FragmentedMp4Extractor implements Extractor {
         }
       }
     } else {
+      if (isAc4HeaderRequired) {
+        Ac4Util.getAc4SampleHeader(sampleSize, scratch);
+        int length = scratch.limit();
+        output.sampleData(scratch, length);
+        sampleSize += length;
+        sampleBytesWritten += length;
+        isAc4HeaderRequired = false;
+      }
       while (sampleBytesWritten < sampleSize) {
         int writtenBytes = output.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;

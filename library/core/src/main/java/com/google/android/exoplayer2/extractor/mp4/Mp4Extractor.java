@@ -19,6 +19,7 @@ import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.Ac4Util;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -31,6 +32,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -95,6 +97,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
   private final ParsableByteArray nalLength;
+  private final ParsableByteArray scratch;
 
   private final ParsableByteArray atomHeader;
   private final ArrayDeque<ContainerAtom> containerAtoms;
@@ -108,6 +111,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private int sampleTrackIndex;
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
+  private boolean isAc4HeaderRequired;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
@@ -136,6 +140,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     containerAtoms = new ArrayDeque<>();
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
+    scratch = new ParsableByteArray();
     sampleTrackIndex = C.INDEX_UNSET;
   }
 
@@ -156,6 +161,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     sampleTrackIndex = C.INDEX_UNSET;
     sampleBytesWritten = 0;
     sampleCurrentNalBytesRemaining = 0;
+    isAc4HeaderRequired = false;
     if (position == 0) {
       enterReadingAtomHeaderState();
     } else if (tracks != null) {
@@ -493,6 +499,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       if (sampleTrackIndex == C.INDEX_UNSET) {
         return RESULT_END_OF_INPUT;
       }
+      isAc4HeaderRequired =
+          MimeTypes.AUDIO_AC4.equals(tracks[sampleTrackIndex].track.format.sampleMimeType);
     }
     Mp4Track track = tracks[sampleTrackIndex];
     TrackOutput trackOutput = track.trackOutput;
@@ -546,6 +554,14 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         }
       }
     } else {
+      if (isAc4HeaderRequired) {
+        Ac4Util.getAc4SampleHeader(sampleSize, scratch);
+        int length = scratch.limit();
+        trackOutput.sampleData(scratch, length);
+        sampleSize += length;
+        sampleBytesWritten += length;
+        isAc4HeaderRequired = false;
+      }
       while (sampleBytesWritten < sampleSize) {
         int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;

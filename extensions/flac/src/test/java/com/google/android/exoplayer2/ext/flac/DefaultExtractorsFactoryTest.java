@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.extractor.ogg.OggExtractor;
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
+import com.google.android.exoplayer2.extractor.ts.Ac4Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.PsExtractor;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
@@ -59,6 +60,7 @@ public final class DefaultExtractorsFactoryTest {
           Mp3Extractor.class,
           AdtsExtractor.class,
           Ac3Extractor.class,
+          Ac4Extractor.class,
           TsExtractor.class,
           FlvExtractor.class,
           OggExtractor.class,

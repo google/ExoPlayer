@@ -1126,6 +1126,8 @@ public final class DefaultAudioSink implements AudioSink {
         return 640 * 1000 / 8;
       case C.ENCODING_E_AC3:
         return 6144 * 1000 / 8;
+      case C.ENCODING_AC4:
+        return 2688 * 1000 / 8;
       case C.ENCODING_DTS:
         // DTS allows an 'open' bitrate, but we assume the maximum listed value: 1536 kbit/s.
         return 1536 * 1000 / 8;
@@ -1154,6 +1156,8 @@ public final class DefaultAudioSink implements AudioSink {
       return Ac3Util.getAc3SyncframeAudioSampleCount();
     } else if (encoding == C.ENCODING_E_AC3) {
       return Ac3Util.parseEAc3SyncframeAudioSampleCount(buffer);
+    } else if (encoding == C.ENCODING_AC4) {
+      return Ac4Util.parseAc4SyncframeAudioSampleCount(buffer);
     } else if (encoding == C.ENCODING_DOLBY_TRUEHD) {
       int syncframeOffset = Ac3Util.findTrueHdSyncframeOffset(buffer);
       return syncframeOffset == C.INDEX_UNSET
