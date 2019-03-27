@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTest
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import androidx.annotation.Nullable;
@@ -31,6 +32,7 @@ import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
+import com.google.android.exoplayer2.offline.DownloadState;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Requirements;
@@ -136,6 +138,11 @@ public class DownloadServiceDashTest {
                 @Override
                 protected Scheduler getScheduler() {
                   return null;
+                }
+
+                @Override
+                protected Notification getForegroundNotification(DownloadState[] downloadStates) {
+                  throw new UnsupportedOperationException();
                 }
               };
           dashDownloadService.onCreate();
