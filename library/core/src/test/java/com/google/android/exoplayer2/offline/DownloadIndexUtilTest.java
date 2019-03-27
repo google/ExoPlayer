@@ -127,16 +127,11 @@ public class DownloadIndexUtilTest {
             /* customCacheKey= */ "key234",
             new byte[] {5, 4, 3, 2, 1});
     actionFile.store(action1, action2);
-    DownloadAction action3 =
-        DownloadAction.createRemoveAction(
-            TYPE_DASH, Uri.parse("https://www.test.com/download3"), /* customCacheKey= */ "key345");
-    actionFile.store(action1, action2, action3);
 
     DownloadIndexUtil.upgradeActionFile(actionFile, downloadIndex, /* downloadIdProvider= */ null);
 
     assertDownloadIndexContainsAction(action1, DownloadState.STATE_QUEUED);
     assertDownloadIndexContainsAction(action2, DownloadState.STATE_QUEUED);
-    assertDownloadIndexContainsAction(action3, DownloadState.STATE_REMOVING);
   }
 
   private void assertDownloadIndexContainsAction(DownloadAction action, int state)

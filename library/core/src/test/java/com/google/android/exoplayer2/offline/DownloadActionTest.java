@@ -20,10 +20,13 @@ import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_HLS;
 import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_PROGRESSIVE;
 import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_SS;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.offline.DownloadAction.UnsupportedActionException;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -54,91 +57,72 @@ public class DownloadActionTest {
   }
 
   @Test
-  public void testDownloadActionIsNotRemoveAction() {
-    DownloadAction action = createDownloadAction(uri1);
-    assertThat(action.isRemoveAction).isFalse();
-  }
-
-  @Test
-  public void testRemoveActionIsRemoveAction() {
-    DownloadAction action2 = createRemoveAction(uri1);
-    assertThat(action2.isRemoveAction).isTrue();
-  }
-
-  @Test
   public void testSameUri_hasSameId() {
-    DownloadAction action1 = createDownloadAction(uri1);
-    DownloadAction action2 = createDownloadAction(uri1);
+    DownloadAction action1 = createAction(uri1);
+    DownloadAction action2 = createAction(uri1);
     assertThat(action1.id.equals(action2.id)).isTrue();
   }
 
   @Test
   public void testSameUriDifferentAction_hasSameId() {
-    DownloadAction action1 = createDownloadAction(uri1);
-    DownloadAction action2 = createRemoveAction(uri1);
+    DownloadAction action1 = createAction(uri1);
+    DownloadAction action2 = createAction(uri1);
     assertThat(action1.id.equals(action2.id)).isTrue();
   }
 
   @Test
   public void testDifferentUri_IsNotSameMedia() {
-    DownloadAction action1 = createDownloadAction(uri1);
-    DownloadAction action2 = createDownloadAction(uri2);
+    DownloadAction action1 = createAction(uri1);
+    DownloadAction action2 = createAction(uri2);
     assertThat(action1.id.equals(action2.id)).isFalse();
   }
 
   @Test
   public void testSameCacheKeyDifferentUri_hasSameId() {
-    DownloadAction action1 = DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123");
-    DownloadAction action2 = DownloadAction.createRemoveAction(TYPE_DASH, uri2, "key123");
+    DownloadAction action1 = createAction(uri1, "key123");
+    DownloadAction action2 = createAction(uri2, "key123");
     assertThat(action1.id.equals(action2.id)).isTrue();
   }
 
   @Test
   public void testDifferentCacheKeyDifferentUri_hasDifferentId() {
-    DownloadAction action1 = DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123");
-    DownloadAction action2 = DownloadAction.createRemoveAction(TYPE_DASH, uri2, "key456");
+    DownloadAction action1 = createAction(uri1, "key123");
+    DownloadAction action2 = createAction(uri2, "key456");
     assertThat(action1.id.equals(action2.id)).isFalse();
   }
 
   @SuppressWarnings("EqualsWithItself")
   @Test
   public void testEquals() {
-    DownloadAction action1 = createRemoveAction(uri1);
+    DownloadAction action1 = createAction(uri1);
     assertThat(action1.equals(action1)).isTrue();
 
-    DownloadAction action2 = createRemoveAction(uri1);
-    DownloadAction action3 = createRemoveAction(uri1);
+    DownloadAction action2 = createAction(uri1);
+    DownloadAction action3 = createAction(uri1);
     assertEqual(action2, action3);
 
-    DownloadAction action4 = createRemoveAction(uri1);
-    DownloadAction action5 = createDownloadAction(uri1);
-    assertNotEqual(action4, action5);
-
-    DownloadAction action6 = createDownloadAction(uri1);
-    DownloadAction action7 = createDownloadAction(uri1, new StreamKey(0, 0, 0));
+    DownloadAction action6 = createAction(uri1);
+    DownloadAction action7 = createAction(uri1, new StreamKey(0, 0, 0));
     assertNotEqual(action6, action7);
 
-    DownloadAction action8 = createDownloadAction(uri1, new StreamKey(0, 1, 1));
-    DownloadAction action9 = createDownloadAction(uri1, new StreamKey(0, 0, 0));
+    DownloadAction action8 = createAction(uri1, new StreamKey(0, 1, 1));
+    DownloadAction action9 = createAction(uri1, new StreamKey(0, 0, 0));
     assertNotEqual(action8, action9);
 
-    DownloadAction action10 = createRemoveAction(uri1);
-    DownloadAction action11 = createRemoveAction(uri2);
+    DownloadAction action10 = createAction(uri1);
+    DownloadAction action11 = createAction(uri2);
     assertNotEqual(action10, action11);
 
-    DownloadAction action12 =
-        createDownloadAction(uri1, new StreamKey(0, 0, 0), new StreamKey(0, 1, 1));
-    DownloadAction action13 =
-        createDownloadAction(uri1, new StreamKey(0, 1, 1), new StreamKey(0, 0, 0));
+    DownloadAction action12 = createAction(uri1, new StreamKey(0, 0, 0), new StreamKey(0, 1, 1));
+    DownloadAction action13 = createAction(uri1, new StreamKey(0, 1, 1), new StreamKey(0, 0, 0));
     assertEqual(action12, action13);
 
-    DownloadAction action14 = createDownloadAction(uri1, new StreamKey(0, 0, 0));
-    DownloadAction action15 =
-        createDownloadAction(uri1, new StreamKey(0, 1, 1), new StreamKey(0, 0, 0));
+    DownloadAction action14 = createAction(uri1, new StreamKey(0, 0, 0));
+    DownloadAction action15 = createAction(uri1, new StreamKey(0, 1, 1), new StreamKey(0, 0, 0));
     assertNotEqual(action14, action15);
 
-    DownloadAction action16 = createDownloadAction(uri1);
-    DownloadAction action17 = createDownloadAction(uri1);
+    DownloadAction action16 = createAction(uri1);
+    DownloadAction action17 = createAction(uri1);
     assertEqual(action16, action17);
   }
 
@@ -151,8 +135,7 @@ public class DownloadActionTest {
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
             "key123",
             data));
-    assertStreamSerializationRoundTrip(
-        DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123"));
+    assertStreamSerializationRoundTrip(createAction(uri1, "key123"));
   }
 
   @Test
@@ -164,7 +147,7 @@ public class DownloadActionTest {
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
             "key123",
             data));
-    assertArraySerializationRoundTrip(DownloadAction.createRemoveAction(TYPE_DASH, uri1, "key123"));
+    assertArraySerializationRoundTrip(createAction(uri1, "key123"));
   }
 
   @Test
@@ -173,9 +156,7 @@ public class DownloadActionTest {
         "progressive-download-v0",
         DownloadAction.createDownloadAction(
             TYPE_PROGRESSIVE, uri1, Collections.emptyList(), "key123", data));
-    assertDeserialization(
-        "progressive-remove-v0",
-        DownloadAction.createRemoveAction(TYPE_PROGRESSIVE, uri1, "key123"));
+    assertUnsupportedAction("progressive-remove-v0");
   }
 
   @Test
@@ -188,9 +169,7 @@ public class DownloadActionTest {
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
             /* customCacheKey= */ null,
             data));
-    assertDeserialization(
-        "dash-remove-v0",
-        DownloadAction.createRemoveAction(TYPE_DASH, uri1, /* customCacheKey= */ null));
+    assertUnsupportedAction("dash-remove-v0");
   }
 
   @Test
@@ -203,9 +182,7 @@ public class DownloadActionTest {
             toList(new StreamKey(0, 1), new StreamKey(2, 3)),
             /* customCacheKey= */ null,
             data));
-    assertDeserialization(
-        "hls-remove-v0",
-        DownloadAction.createRemoveAction(TYPE_HLS, uri1, /* customCacheKey= */ null));
+    assertUnsupportedAction("hls-remove-v0");
   }
 
   @Test
@@ -218,9 +195,7 @@ public class DownloadActionTest {
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
             /* customCacheKey= */ null,
             data));
-    assertDeserialization(
-        "hls-remove-v1",
-        DownloadAction.createRemoveAction(TYPE_HLS, uri1, /* customCacheKey= */ null));
+    assertUnsupportedAction("hls-remove-v1");
   }
 
   @Test
@@ -233,9 +208,7 @@ public class DownloadActionTest {
             toList(new StreamKey(0, 1), new StreamKey(2, 3)),
             /* customCacheKey= */ null,
             data));
-    assertDeserialization(
-        "ss-remove-v0",
-        DownloadAction.createRemoveAction(TYPE_SS, uri1, /* customCacheKey= */ null));
+    assertUnsupportedAction("ss-remove-v0");
   }
 
   @Test
@@ -248,18 +221,17 @@ public class DownloadActionTest {
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
             /* customCacheKey= */ null,
             data));
-    assertDeserialization(
-        "ss-remove-v1",
-        DownloadAction.createRemoveAction(TYPE_SS, uri1, /* customCacheKey= */ null));
+    assertUnsupportedAction("ss-remove-v1");
   }
 
-  private DownloadAction createDownloadAction(Uri uri, StreamKey... keys) {
+  private DownloadAction createAction(Uri uri, StreamKey... keys) {
     return DownloadAction.createDownloadAction(
         TYPE_DASH, uri, toList(keys), /* customCacheKey= */ null, data);
   }
 
-  private DownloadAction createRemoveAction(Uri uri) {
-    return DownloadAction.createRemoveAction(TYPE_DASH, uri, /* customCacheKey= */ null);
+  private DownloadAction createAction(Uri uri, @Nullable String customCacheKey) {
+    return DownloadAction.createDownloadAction(
+        DownloadAction.TYPE_DASH, uri, Collections.emptyList(), customCacheKey, /* data= */ null);
   }
 
   private static void assertNotEqual(DownloadAction action1, DownloadAction action2) {
@@ -296,6 +268,18 @@ public class DownloadActionTest {
     DownloadAction deserializedAction = DownloadAction.deserializeFromStream(input);
 
     assertEqual(deserializedAction, expectedAction);
+  }
+
+  private static void assertUnsupportedAction(String fileName) throws IOException {
+    InputStream input =
+        TestUtil.getInputStream(
+            ApplicationProvider.getApplicationContext(), "download-actions/" + fileName);
+    try {
+      DownloadAction.deserializeFromStream(input);
+      fail();
+    } catch (UnsupportedActionException e) {
+      // Expected exception.
+    }
   }
 
   private static List<StreamKey> toList(StreamKey... keys) {

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import com.google.android.exoplayer2.offline.DownloadAction.UnsupportedActionException;
 import com.google.android.exoplayer2.util.AtomicFile;
 import com.google.android.exoplayer2.util.Util;
 import java.io.DataInputStream;
@@ -22,12 +23,14 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 /**
  * Stores and loads {@link DownloadAction}s to/from a file.
  */
 public final class ActionFile {
 
+  private static final String TAG = "ActionFile";
   /* package */ static final int VERSION = 0;
 
   private final AtomicFile atomicFile;
@@ -58,11 +61,15 @@ public final class ActionFile {
         throw new IOException("Unsupported action file version: " + version);
       }
       int actionCount = dataInputStream.readInt();
-      DownloadAction[] actions = new DownloadAction[actionCount];
+      ArrayList<DownloadAction> actions = new ArrayList<>();
       for (int i = 0; i < actionCount; i++) {
-        actions[i] = DownloadAction.deserializeFromStream(dataInputStream);
+        try {
+          actions.add(DownloadAction.deserializeFromStream(dataInputStream));
+        } catch (UnsupportedActionException e) {
+          // remove DownloadAction is not supported. Ignore the exception and continue loading rest.
+        }
       }
-      return actions;
+      return actions.toArray(new DownloadAction[0]);
     } finally {
       Util.closeQuietly(inputStream);
     }

@@ -342,11 +342,11 @@ public final class DownloadManager {
   }
 
   /**
-   * Handles the given action.
+   * Adds a download defined by the given action.
    *
-   * @param action The action to be executed.
+   * @param action The download action.
    */
-  public void handleAction(DownloadAction action) {
+  public void addDownload(DownloadAction action) {
     Assertions.checkState(!released);
     dowloadUpdateQueue.add(
         new DownloadUpdater(action.id) {
@@ -392,6 +392,8 @@ public final class DownloadManager {
           DownloadState onLoad(@Nullable DownloadState downloadState) {
             if (downloadState != null) {
               downloadState = downloadState.setRemoveState();
+            } else {
+              logd("Can't remove download. No download with id: " + id);
             }
             return downloadState;
           }
@@ -541,15 +543,14 @@ public final class DownloadManager {
   }
 
   private void processDownloadUpdateQueue() {
-    if (loadingDownload || dowloadUpdateQueue.isEmpty()) {
-      return;
-    }
-    DownloadUpdater downloadUpdater = dowloadUpdateQueue.remove();
-    Download download = getDownload(downloadUpdater.id);
-    if (download != null) {
-      downloadUpdater.onExisting(download);
-    } else {
-      loadDownload(downloadUpdater);
+    while (!loadingDownload && !dowloadUpdateQueue.isEmpty()) {
+      DownloadUpdater downloadUpdater = dowloadUpdateQueue.remove();
+      Download download = getDownload(downloadUpdater.id);
+      if (download != null) {
+        downloadUpdater.onExisting(download);
+      } else {
+        loadDownload(downloadUpdater);
+      }
     }
   }
 

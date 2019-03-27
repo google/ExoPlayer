@@ -397,7 +397,6 @@ public class DownloadHelperTest {
     assertThat(downloadAction.type).isEqualTo(TEST_DOWNLOAD_TYPE);
     assertThat(downloadAction.uri).isEqualTo(testUri);
     assertThat(downloadAction.customCacheKey).isEqualTo(TEST_CACHE_KEY);
-    assertThat(downloadAction.isRemoveAction).isFalse();
     assertThat(downloadAction.data).isEqualTo(data);
     assertThat(downloadAction.keys)
         .containsExactly(

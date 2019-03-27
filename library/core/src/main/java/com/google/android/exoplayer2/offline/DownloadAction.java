@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,8 +30,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/** Contains the necessary parameters for a download or remove action. */
+/** Contains the necessary parameters for a download action. */
 public final class DownloadAction {
+
+  /** Thrown when the encoded action data belongs to an unsupported DownloadAction type. */
+  public static class UnsupportedActionException extends IOException {}
 
   /** Type for progressive downloads. */
   public static final String TYPE_PROGRESSIVE = "progressive";
@@ -51,6 +53,8 @@ public final class DownloadAction {
    * @param data The action data to deserialize.
    * @return The deserialized action.
    * @throws IOException If the data could not be deserialized.
+   * @throws UnsupportedActionException If the data belongs to an unsupported {@link DownloadAction}
+   *     type. Input read position is set to the end of the data.
    */
   public static DownloadAction fromByteArray(byte[] data) throws IOException {
     ByteArrayInputStream input = new ByteArrayInputStream(data);
@@ -67,6 +71,8 @@ public final class DownloadAction {
    * @return The deserialized action.
    * @throws IOException If there is an IO error reading from {@code input}, or if the data could
    *     not be deserialized.
+   * @throws UnsupportedActionException If the data belongs to an unsupported {@link DownloadAction}
+   *     type. Input read position is set to the end of the data.
    */
   public static DownloadAction deserializeFromStream(InputStream input) throws IOException {
     return readFromStream(new DataInputStream(input));
@@ -108,41 +114,16 @@ public final class DownloadAction {
       List<StreamKey> keys,
       @Nullable String customCacheKey,
       @Nullable byte[] data) {
-    return new DownloadAction(
-        id, type, uri, /* isRemoveAction= */ false, keys, customCacheKey, data);
-  }
-
-  /**
-   * Creates a DASH remove action.
-   *
-   * @param type The type of the action.
-   * @param uri The URI of the media to be removed.
-   * @param customCacheKey A custom key for cache indexing, or null.
-   */
-  public static DownloadAction createRemoveAction(
-      String type, Uri uri, @Nullable String customCacheKey) {
-    return new DownloadAction(
-        generateId(uri, customCacheKey),
-        type,
-        uri,
-        /* isRemoveAction= */ true,
-        Collections.emptyList(),
-        customCacheKey,
-        /* data= */ null);
+    return new DownloadAction(id, type, uri, keys, customCacheKey, data);
   }
 
   /** The unique content id. */
   public final String id;
   /** The type of the action. */
   public final String type;
-  /** The uri being downloaded or removed. */
+  /** The uri being downloaded. */
   public final Uri uri;
-  /** Whether this is a remove action. If false, this is a download action. */
-  public final boolean isRemoveAction;
-  /**
-   * Keys of streams to be downloaded. If empty, all streams will be downloaded. Empty if this
-   * action is a remove action.
-   */
+  /** Keys of streams to be downloaded. If empty, all streams will be downloaded. */
   public final List<StreamKey> keys;
   /** A custom key for cache indexing, or null. */
   @Nullable public final String customCacheKey;
@@ -152,37 +133,26 @@ public final class DownloadAction {
   /**
    * @param id The content id.
    * @param type The type of the action.
-   * @param uri The uri being downloaded or removed.
-   * @param isRemoveAction Whether this is a remove action. If false, this is a download action.
-   * @param keys Keys of streams to be downloaded. If empty, all streams will be downloaded. Empty
-   *     if this action is a remove action.
+   * @param uri The uri being downloaded.
+   * @param keys Keys of streams to be downloaded. If empty, all streams will be downloaded.
    * @param customCacheKey A custom key for cache indexing, or null.
-   * @param data Custom data for this action. Null if this action is a remove action.
+   * @param data Custom data for this action.
    */
   private DownloadAction(
       String id,
       String type,
       Uri uri,
-      boolean isRemoveAction,
       List<StreamKey> keys,
       @Nullable String customCacheKey,
       @Nullable byte[] data) {
     this.id = id;
     this.type = type;
     this.uri = uri;
-    this.isRemoveAction = isRemoveAction;
     this.customCacheKey = customCacheKey;
-    if (isRemoveAction) {
-      Assertions.checkArgument(keys.isEmpty());
-      Assertions.checkArgument(data == null);
-      this.keys = Collections.emptyList();
-      this.data = Util.EMPTY_BYTE_ARRAY;
-    } else {
-      ArrayList<StreamKey> mutableKeys = new ArrayList<>(keys);
-      Collections.sort(mutableKeys);
-      this.keys = Collections.unmodifiableList(mutableKeys);
-      this.data = data != null ? Arrays.copyOf(data, data.length) : Util.EMPTY_BYTE_ARRAY;
-    }
+    ArrayList<StreamKey> mutableKeys = new ArrayList<>(keys);
+    Collections.sort(mutableKeys);
+    this.keys = Collections.unmodifiableList(mutableKeys);
+    this.data = data != null ? Arrays.copyOf(data, data.length) : Util.EMPTY_BYTE_ARRAY;
   }
 
   /** Serializes itself into a byte array. */
@@ -211,7 +181,6 @@ public final class DownloadAction {
     return id.equals(that.id)
         && type.equals(that.type)
         && uri.equals(that.uri)
-        && isRemoveAction == that.isRemoveAction
         && keys.equals(that.keys)
         && Util.areEqual(customCacheKey, that.customCacheKey)
         && Arrays.equals(data, that.data);
@@ -222,7 +191,6 @@ public final class DownloadAction {
     int result = type.hashCode();
     result = 31 * result + id.hashCode();
     result = 31 * result + uri.hashCode();
-    result = 31 * result + (isRemoveAction ? 1 : 0);
     result = 31 * result + keys.hashCode();
     result = 31 * result + (customCacheKey != null ? customCacheKey.hashCode() : 0);
     result = 31 * result + Arrays.hashCode(data);
@@ -242,7 +210,7 @@ public final class DownloadAction {
     dataOutputStream.writeUTF(type);
     dataOutputStream.writeInt(VERSION);
     dataOutputStream.writeUTF(uri.toString());
-    dataOutputStream.writeBoolean(isRemoveAction);
+    dataOutputStream.writeBoolean(false);
     dataOutputStream.writeInt(data.length);
     dataOutputStream.write(data);
     dataOutputStream.writeInt(keys.size());
@@ -271,10 +239,6 @@ public final class DownloadAction {
     if (dataLength != 0) {
       data = new byte[dataLength];
       input.readFully(data);
-      if (isRemoveAction) {
-        // Remove actions are no longer permitted to have data.
-        data = null;
-      }
     } else {
       data = null;
     }
@@ -297,8 +261,12 @@ public final class DownloadAction {
       customCacheKey = input.readBoolean() ? input.readUTF() : null;
     }
 
+    if (isRemoveAction) {
+      // Remove actions are not supported anymore.
+      throw new UnsupportedActionException();
+    }
     return new DownloadAction(
-        generateId(uri, customCacheKey), type, uri, isRemoveAction, keys, customCacheKey, data);
+        generateId(uri, customCacheKey), type, uri, keys, customCacheKey, data);
   }
 
   private static String generateId(Uri uri, @Nullable String customCacheKey) {

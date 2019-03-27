@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash.offline;
 
+import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTestData.TEST_ID;
 import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTestData.TEST_MPD;
 import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTestData.TEST_MPD_URI;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
@@ -22,7 +23,6 @@ import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedDa
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -187,37 +187,29 @@ public class DownloadServiceDashTest {
     assertCacheEmpty(cache);
   }
 
-  private void removeAll() throws Throwable {
-    callDownloadServiceOnStart(newAction(TEST_MPD_URI, true, null));
-  }
-
-  private void downloadKeys(StreamKey... keys) {
-    callDownloadServiceOnStart(newAction(TEST_MPD_URI, false, null, keys));
-  }
-
-  private void callDownloadServiceOnStart(final DownloadAction action) {
+  private void removeAll() {
     dummyMainThread.runOnMainThread(
         () -> {
           Intent startIntent =
-              DownloadService.buildAddActionIntent(context, DownloadService.class, action, false);
+              DownloadService.buildRemoveDownloadIntent(
+                  context, DownloadService.class, TEST_ID, /* foreground= */ false);
           dashDownloadService.onStartCommand(startIntent, 0, 0);
         });
   }
 
-  private static DownloadAction newAction(
-      Uri uri, boolean isRemoveAction, @Nullable byte[] data, StreamKey... keys) {
+  private void downloadKeys(StreamKey... keys) {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    DownloadAction result;
-    if (isRemoveAction) {
-      result =
-          DownloadAction.createRemoveAction(
-              DownloadAction.TYPE_DASH, uri, /* customCacheKey= */ null);
-    } else {
-      result =
-          DownloadAction.createDownloadAction(
-              DownloadAction.TYPE_DASH, uri, keysList, /* customCacheKey= */ null, data);
-    }
-    return result;
+    DownloadAction action =
+        DownloadAction.createDownloadAction(
+            DownloadAction.TYPE_DASH, TEST_MPD_URI, keysList, /* customCacheKey= */ null, null);
+    dummyMainThread.runOnMainThread(
+        () -> {
+          Intent startIntent =
+              DownloadService.buildAddActionIntent(
+                  context, DownloadService.class, action, /* foreground= */ false);
+          dashDownloadService.onStartCommand(startIntent, 0, 0);
+        });
   }
+
 }
