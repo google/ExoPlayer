@@ -136,9 +136,9 @@ public abstract class DownloadService extends Service {
   private static final HashMap<Class<? extends DownloadService>, DownloadManagerHelper>
       downloadManagerListeners = new HashMap<>();
 
-  private final @Nullable ForegroundNotificationUpdater foregroundNotificationUpdater;
-  private final @Nullable String channelId;
-  private final @StringRes int channelName;
+  @Nullable private final ForegroundNotificationUpdater foregroundNotificationUpdater;
+  @Nullable private final String channelId;
+  @StringRes private final int channelNameResourceId;
 
   private DownloadManager downloadManager;
   private int lastStartId;
@@ -148,30 +148,29 @@ public abstract class DownloadService extends Service {
   /**
    * Creates a DownloadService.
    *
-   * <p>If {@code foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE} (value
-   * {@value #FOREGROUND_NOTIFICATION_ID_NONE}) then the service runs in the background. No
-   * foreground notification is displayed and {@link #getScheduler()} isn't called.
+   * <p>If {@code foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE} then the
+   * service will only ever run in the background. No foreground notification will be displayed and
+   * {@link #getScheduler()} will not be called.
    *
-   * <p>If {@code foregroundNotificationId} isn't {@link #FOREGROUND_NOTIFICATION_ID_NONE} (value
-   * {@value #FOREGROUND_NOTIFICATION_ID_NONE}) the service runs in the foreground with {@link
-   * #DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL}. In that case {@link
-   * #getForegroundNotification(DownloadState[])} should be overridden in the subclass.
+   * <p>If {@code foregroundNotificationId} is not {@link #FOREGROUND_NOTIFICATION_ID_NONE} then the
+   * service will run in the foreground. The foreground notification will be updated at least as
+   * often as the interval specified by {@link #DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL}.
    *
    * @param foregroundNotificationId The notification id for the foreground notification, or {@link
-   *     #FOREGROUND_NOTIFICATION_ID_NONE} (value {@value #FOREGROUND_NOTIFICATION_ID_NONE})
+   *     #FOREGROUND_NOTIFICATION_ID_NONE} if the service should only ever run in the background.
    */
   protected DownloadService(int foregroundNotificationId) {
     this(foregroundNotificationId, DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL);
   }
 
   /**
-   * Creates a DownloadService that will run in the foreground. {@link
-   * #getForegroundNotification(DownloadState[])} should be overridden in the subclass.
+   * Creates a DownloadService.
    *
-   * @param foregroundNotificationId The notification id for the foreground notification, must not
-   *     be 0.
-   * @param foregroundNotificationUpdateInterval The maximum interval to update foreground
-   *     notification, in milliseconds.
+   * @param foregroundNotificationId The notification id for the foreground notification, or {@link
+   *     #FOREGROUND_NOTIFICATION_ID_NONE} if the service should only ever run in the background.
+   * @param foregroundNotificationUpdateInterval The maximum interval between updates to the
+   *     foreground notification, in milliseconds. Ignored if {@code foregroundNotificationId} is
+   *     {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
    */
   protected DownloadService(
       int foregroundNotificationId, long foregroundNotificationUpdateInterval) {
@@ -179,36 +178,42 @@ public abstract class DownloadService extends Service {
         foregroundNotificationId,
         foregroundNotificationUpdateInterval,
         /* channelId= */ null,
-        /* channelName= */ 0);
+        /* channelNameResourceId= */ 0);
   }
 
   /**
-   * Creates a DownloadService that will run in the foreground. {@link
-   * #getForegroundNotification(DownloadState[])} should be overridden in the subclass.
+   * Creates a DownloadService.
    *
-   * @param foregroundNotificationId The notification id for the foreground notification. Must not
-   *     be 0.
+   * @param foregroundNotificationId The notification id for the foreground notification, or {@link
+   *     #FOREGROUND_NOTIFICATION_ID_NONE} if the service should only ever run in the background.
    * @param foregroundNotificationUpdateInterval The maximum interval between updates to the
-   *     foreground notification, in milliseconds.
+   *     foreground notification, in milliseconds. Ignored if {@code foregroundNotificationId} is
+   *     {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
    * @param channelId An id for a low priority notification channel to create, or {@code null} if
    *     the app will take care of creating a notification channel if needed. If specified, must be
-   *     unique per package and the value may be truncated if it is too long.
-   * @param channelName A string resource identifier for the user visible name of the channel, if
-   *     {@code channelId} is specified. The recommended maximum length is 40 characters; the value
-   *     may be truncated if it is too long.
+   *     unique per package. The value may be truncated if it's too long. Ignored if {@code
+   *     foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
+   * @param channelNameResourceId A string resource identifier for the user visible name of the
+   *     channel, if {@code channelId} is specified. The recommended maximum length is 40
+   *     characters. The value may be truncated if it is too long. Ignored if {@code
+   *     foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
    */
   protected DownloadService(
       int foregroundNotificationId,
       long foregroundNotificationUpdateInterval,
       @Nullable String channelId,
-      @StringRes int channelName) {
-    foregroundNotificationUpdater =
-        foregroundNotificationId == 0
-            ? null
-            : new ForegroundNotificationUpdater(
-                foregroundNotificationId, foregroundNotificationUpdateInterval);
-    this.channelId = channelId;
-    this.channelName = channelName;
+      @StringRes int channelNameResourceId) {
+    if (foregroundNotificationId == FOREGROUND_NOTIFICATION_ID_NONE) {
+      this.foregroundNotificationUpdater = null;
+      this.channelId = null;
+      this.channelNameResourceId = 0;
+    } else {
+      this.foregroundNotificationUpdater =
+          new ForegroundNotificationUpdater(
+              foregroundNotificationId, foregroundNotificationUpdateInterval);
+      this.channelId = channelId;
+      this.channelNameResourceId = channelNameResourceId;
+    }
   }
 
   /**
@@ -350,7 +355,7 @@ public abstract class DownloadService extends Service {
     logd("onCreate");
     if (channelId != null) {
       NotificationUtil.createNotificationChannel(
-          this, channelId, channelName, NotificationUtil.IMPORTANCE_LOW);
+          this, channelId, channelNameResourceId, NotificationUtil.IMPORTANCE_LOW);
     }
     Class<? extends DownloadService> clazz = getClass();
     DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(clazz);
@@ -477,26 +482,23 @@ public abstract class DownloadService extends Service {
   protected abstract @Nullable Scheduler getScheduler();
 
   /**
-   * Should be overridden in the subclass if the service will be run in the foreground.
-   *
-   * <p>Returns a notification to be displayed when this service running in the foreground.
-   *
-   * <p>This method is called when there is a download state change and periodically while there are
-   * active downloads. The periodic update interval can be set using {@link #DownloadService(int,
-   * long)}.
+   * Returns a notification to be displayed when this service running in the foreground. This method
+   * is called when there is a download state change and periodically while there are active
+   * downloads. The periodic update interval can be set using {@link #DownloadService(int, long)}.
    *
    * <p>On API level 26 and above, this method may also be called just before the service stops,
    * with an empty {@code downloadStates} array. The returned notification is used to satisfy system
    * requirements for foreground services.
    *
+   * <p>Download services that do not wish to run in the foreground should be created by setting the
+   * {@code foregroundNotificationId} constructor argument to {@link
+   * #FOREGROUND_NOTIFICATION_ID_NONE}. This method will not be called in this case, meaning it can
+   * be implemented to throw {@link UnsupportedOperationException}.
+   *
    * @param downloadStates The states of all current downloads.
    * @return The foreground notification to display.
    */
-  protected Notification getForegroundNotification(DownloadState[] downloadStates) {
-    throw new IllegalStateException(
-        getClass().getName()
-            + " is started in the foreground but getForegroundNotification() is not implemented.");
-  }
+  protected abstract Notification getForegroundNotification(DownloadState[] downloadStates);
 
   /**
    * Called when the state of a download changes. The default implementation is a no-op.
