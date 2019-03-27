@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash.offline;
 
+import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTestData.TEST_ID;
 import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTestData.TEST_MPD;
 import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTestData.TEST_MPD_URI;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
@@ -22,9 +23,7 @@ import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedDa
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.ConditionVariable;
-import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
@@ -230,11 +229,16 @@ public class DownloadManagerDashTest {
   }
 
   private void handleDownloadAction(StreamKey... keys) {
-    downloadManager.handleAction(newAction(TEST_MPD_URI, false, null, keys));
+    ArrayList<StreamKey> keysList = new ArrayList<>();
+    Collections.addAll(keysList, keys);
+    DownloadAction action =
+        DownloadAction.createDownloadAction(
+            DownloadAction.TYPE_DASH, TEST_MPD_URI, keysList, /* customCacheKey= */ null, null);
+    downloadManager.addDownload(action);
   }
 
   private void handleRemoveAction() {
-    downloadManager.handleAction(newAction(TEST_MPD_URI, true, null));
+    downloadManager.removeDownload(TEST_ID);
   }
 
   private void createDownloadManager() {
@@ -257,20 +261,4 @@ public class DownloadManagerDashTest {
         });
   }
 
-  private static DownloadAction newAction(
-      Uri uri, boolean isRemoveAction, @Nullable byte[] data, StreamKey... keys) {
-    ArrayList<StreamKey> keysList = new ArrayList<>();
-    Collections.addAll(keysList, keys);
-    DownloadAction result;
-    if (isRemoveAction) {
-      result =
-          DownloadAction.createRemoveAction(
-              DownloadAction.TYPE_DASH, uri, /* customCacheKey= */ null);
-    } else {
-      result =
-          DownloadAction.createDownloadAction(
-              DownloadAction.TYPE_DASH, uri, keysList, /* customCacheKey= */ null, data);
-    }
-    return result;
-  }
 }

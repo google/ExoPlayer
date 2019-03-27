@@ -16,11 +16,15 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import android.os.ConditionVariable;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadState;
+import com.google.android.exoplayer2.offline.DownloadState.State;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -113,6 +117,39 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
         actionStates.put(taskId, new ArrayBlockingQueue<>(10));
       }
       return actionStates.get(taskId);
+    }
+  }
+
+  public void assertState(String taskId, @State int expectedState, int timeoutMs) {
+    ArrayList<Integer> receivedStates = new ArrayList<>();
+    while (true) {
+      Integer state = null;
+      try {
+        state = pollStateChange(taskId, timeoutMs);
+      } catch (InterruptedException e) {
+        fail(e.getMessage());
+      }
+      if (state != null) {
+        if (expectedState == state) {
+          return;
+        }
+        receivedStates.add(state);
+      } else {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < receivedStates.size(); i++) {
+          if (i > 0) {
+            sb.append(',');
+          }
+          sb.append(DownloadState.getStateString(receivedStates.get(i)));
+        }
+        fail(
+            String.format(
+                Locale.US,
+                "for download (%s) expected:<%s> but was:<%s>",
+                taskId,
+                DownloadState.getStateString(expectedState),
+                sb));
+      }
     }
   }
 }

@@ -166,7 +166,7 @@ public final class DownloadState {
         action.type,
         action.uri,
         action.customCacheKey,
-        /* state= */ action.isRemoveAction ? STATE_REMOVING : STATE_QUEUED,
+        /* state= */ STATE_QUEUED,
         /* downloadPercentage= */ C.PERCENTAGE_UNSET,
         /* downloadedBytes= */ 0,
         /* totalBytes= */ C.LENGTH_UNSET,
@@ -231,8 +231,7 @@ public final class DownloadState {
         type,
         action.uri,
         action.customCacheKey,
-        getNextState(
-            state, manualStopReason != 0 || notMetRequirements != 0, action.isRemoveAction),
+        getNextState(state, manualStopReason != 0 || notMetRequirements != 0),
         /* downloadPercentage= */ C.PERCENTAGE_UNSET,
         downloadedBytes,
         /* totalBytes= */ C.LENGTH_UNSET,
@@ -252,7 +251,7 @@ public final class DownloadState {
         type,
         uri,
         cacheKey,
-        getNextState(state, manualStopReason != 0 || notMetRequirements != 0, true),
+        STATE_REMOVING,
         /* downloadPercentage= */ C.PERCENTAGE_UNSET,
         downloadedBytes,
         /* totalBytes= */ C.LENGTH_UNSET,
@@ -265,25 +264,19 @@ public final class DownloadState {
         customMetadata);
   }
 
-  private static int getNextState(int currentState, boolean isStopped, boolean remove) {
-    int nextState;
-    if (remove) {
-      nextState = STATE_REMOVING;
+  private static int getNextState(int currentState, boolean isStopped) {
+    if (currentState == STATE_REMOVING || currentState == STATE_RESTARTING) {
+      return STATE_RESTARTING;
+    } else if (isStopped) {
+      return STATE_STOPPED;
     } else {
-      if (currentState == STATE_REMOVING || currentState == STATE_RESTARTING) {
-        nextState = STATE_RESTARTING;
-      } else if (isStopped) {
-        nextState = STATE_STOPPED;
-      } else {
-        nextState = STATE_QUEUED;
-      }
+      return STATE_QUEUED;
     }
-    return nextState;
   }
 
   private static StreamKey[] mergeStreamKeys(DownloadState downloadState, DownloadAction action) {
     StreamKey[] streamKeys = downloadState.streamKeys;
-    if (!action.isRemoveAction && streamKeys.length > 0) {
+    if (streamKeys.length > 0) {
       if (action.keys.isEmpty()) {
         streamKeys = new StreamKey[0];
       } else {

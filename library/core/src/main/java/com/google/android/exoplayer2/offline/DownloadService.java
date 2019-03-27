@@ -270,11 +270,14 @@ public abstract class DownloadService extends Service {
    * @param context A {@link Context}.
    * @param clazz The concrete download service being targeted by the intent.
    * @param id The content id.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
    * @return Created Intent.
    */
   public static Intent buildRemoveDownloadIntent(
-      Context context, Class<? extends DownloadService> clazz, String id) {
-    return getIntent(context, clazz, ACTION_REMOVE).putExtra(KEY_CONTENT_ID, id);
+      Context context, Class<? extends DownloadService> clazz, String id, boolean foreground) {
+    return getIntent(context, clazz, ACTION_REMOVE)
+        .putExtra(KEY_CONTENT_ID, id)
+        .putExtra(KEY_FOREGROUND, foreground);
   }
 
   /**
@@ -308,7 +311,7 @@ public abstract class DownloadService extends Service {
    */
   public static void startWithRemoveDownload(
       Context context, Class<? extends DownloadService> clazz, String id, boolean foreground) {
-    Intent intent = buildRemoveDownloadIntent(context, clazz, id);
+    Intent intent = buildRemoveDownloadIntent(context, clazz, id, foreground);
     if (foreground) {
       Util.startForegroundService(context, intent);
     } else {
@@ -393,7 +396,7 @@ public abstract class DownloadService extends Service {
             Log.e(TAG, "Ignored ADD action: Failed to deserialize download_action extra", e);
           }
           if (downloadAction != null) {
-            downloadManager.handleAction(downloadAction);
+            downloadManager.addDownload(downloadAction);
           }
         }
         break;

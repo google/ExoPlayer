@@ -119,20 +119,6 @@ public class DownloadStateTest {
   }
 
   @Test
-  public void mergeAction_queuedDownloadRemoveAction_stateBecomesRemoving() {
-    DownloadAction downloadAction = createRemoveAction();
-    DownloadStateBuilder downloadStateBuilder =
-        new DownloadStateBuilder(downloadAction).setState(DownloadState.STATE_QUEUED);
-    DownloadState downloadState = downloadStateBuilder.build();
-
-    DownloadState mergedDownloadState = downloadState.mergeAction(downloadAction);
-
-    DownloadState expectedDownloadState =
-        downloadStateBuilder.setState(DownloadState.STATE_REMOVING).build();
-    assertEqual(mergedDownloadState, expectedDownloadState);
-  }
-
-  @Test
   public void mergeAction_removingDownloadDownloadAction_stateBecomesRestarting() {
     DownloadAction downloadAction = createDownloadAction();
     DownloadStateBuilder downloadStateBuilder =
@@ -180,22 +166,6 @@ public class DownloadStateTest {
   }
 
   @Test
-  public void mergeAction_stoppedDownloadRemoveAction_stateBecomesRemoving() {
-    DownloadAction downloadAction = createRemoveAction();
-    DownloadStateBuilder downloadStateBuilder =
-        new DownloadStateBuilder(downloadAction)
-            .setState(DownloadState.STATE_STOPPED)
-            .setManualStopReason(DownloadState.MANUAL_STOP_REASON_UNDEFINED);
-    DownloadState downloadState = downloadStateBuilder.build();
-
-    DownloadState mergedDownloadState = downloadState.mergeAction(downloadAction);
-
-    DownloadState expectedDownloadState =
-        downloadStateBuilder.setState(DownloadState.STATE_REMOVING).build();
-    assertEqual(mergedDownloadState, expectedDownloadState);
-  }
-
-  @Test
   public void mergeAction_manualStopReasonSetButNotInStoppedState_stateBecomesStopped() {
     DownloadAction downloadAction = createDownloadAction();
     DownloadStateBuilder downloadStateBuilder =
@@ -224,20 +194,6 @@ public class DownloadStateTest {
 
     DownloadState expectedDownloadState =
         downloadStateBuilder.setState(DownloadState.STATE_STOPPED).build();
-    assertEqual(mergedDownloadState, expectedDownloadState);
-  }
-
-  @Test
-  public void mergeAction_restartingDownloadRemoveAction_stateBecomesRemoving() {
-    DownloadAction downloadAction = createRemoveAction();
-    DownloadStateBuilder downloadStateBuilder =
-        new DownloadStateBuilder(downloadAction).setState(DownloadState.STATE_RESTARTING);
-    DownloadState downloadState = downloadStateBuilder.build();
-
-    DownloadState mergedDownloadState = downloadState.mergeAction(downloadAction);
-
-    DownloadState expectedDownloadState =
-        downloadStateBuilder.setState(DownloadState.STATE_REMOVING).build();
     assertEqual(mergedDownloadState, expectedDownloadState);
   }
 
@@ -339,10 +295,5 @@ public class DownloadStateTest {
         Collections.emptyList(),
         /* customCacheKey= */ null,
         /* data= */ null);
-  }
-
-  private DownloadAction createRemoveAction() {
-    return DownloadAction.createRemoveAction(
-        DownloadAction.TYPE_DASH, testUri, /* customCacheKey= */ null);
   }
 }
