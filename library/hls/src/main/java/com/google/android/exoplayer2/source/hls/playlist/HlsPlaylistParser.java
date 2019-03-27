@@ -252,11 +252,13 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
       throws IOException {
     HashSet<String> variantUrls = new HashSet<>();
-    HashMap<String, String> audioGroupIdToCodecs = new HashMap<>();
     HashMap<String, String> variableDefinitions = new HashMap<>();
     ArrayList<Variant> variants = new ArrayList<>();
+    ArrayList<Variant> deduplicatedVariants = new ArrayList<>();
+    ArrayList<Rendition> videos = new ArrayList<>();
     ArrayList<Rendition> audios = new ArrayList<>();
     ArrayList<Rendition> subtitles = new ArrayList<>();
+    ArrayList<Rendition> closedCaptions = new ArrayList<>();
     ArrayList<String> mediaTags = new ArrayList<>();
     ArrayList<DrmInitData> sessionKeyDrmInitData = new ArrayList<>();
     ArrayList<String> tags = new ArrayList<>();
@@ -332,35 +334,30 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             parseOptionalStringAttr(line, REGEX_SUBTITLES, variableDefinitions);
         String closedCaptionsGroupId =
             parseOptionalStringAttr(line, REGEX_CLOSED_CAPTIONS, variableDefinitions);
-        if (audioGroupId != null && codecs != null) {
-          audioGroupIdToCodecs.put(audioGroupId, Util.getCodecsOfType(codecs, C.TRACK_TYPE_AUDIO));
-        }
         line =
             replaceVariableReferences(
                 iterator.next(), variableDefinitions); // #EXT-X-STREAM-INF's URI.
+        Format format =
+            Format.createVideoContainerFormat(
+                /* id= */ Integer.toString(variants.size()),
+                /* label= */ null,
+                /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
+                /* sampleMimeType= */ null,
+                codecs,
+                bitrate,
+                width,
+                height,
+                frameRate,
+                /* initializationData= */ null,
+                /* selectionFlags= */ 0,
+                /* roleFlags= */ 0);
+        Variant variant =
+            new Variant(
+                line, format, videoGroupId, audioGroupId, subtitlesGroupId, closedCaptionsGroupId);
+        variants.add(variant);
+        // TODO: Don't deduplicate variants by URL.
         if (variantUrls.add(line)) {
-          Format format =
-              Format.createVideoContainerFormat(
-                  /* id= */ Integer.toString(variants.size()),
-                  /* label= */ null,
-                  /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
-                  /* sampleMimeType= */ null,
-                  codecs,
-                  bitrate,
-                  width,
-                  height,
-                  frameRate,
-                  /* initializationData= */ null,
-                  /* selectionFlags= */ 0,
-                  /* roleFlags= */ 0);
-          variants.add(
-              new Variant(
-                  line,
-                  format,
-                  videoGroupId,
-                  audioGroupId,
-                  subtitlesGroupId,
-                  closedCaptionsGroupId));
+          deduplicatedVariants.add(variant);
         }
       }
     }
@@ -376,10 +373,48 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       String formatId = groupId + ":" + name;
       Format format;
       switch (parseStringAttr(line, REGEX_TYPE, variableDefinitions)) {
-        case TYPE_AUDIO:
-          String codecs = audioGroupIdToCodecs.get(groupId);
-          int channelCount = parseChannelsAttribute(line, variableDefinitions);
+        case TYPE_VIDEO:
+          Variant variant = getVariantWithVideoGroup(variants, groupId);
+          String codecs = null;
+          int width = Format.NO_VALUE;
+          int height = Format.NO_VALUE;
+          float frameRate = Format.NO_VALUE;
+          if (variant != null) {
+            Format variantFormat = variant.format;
+            codecs = Util.getCodecsOfType(variantFormat.codecs, C.TRACK_TYPE_VIDEO);
+            width = variantFormat.width;
+            height = variantFormat.height;
+            frameRate = variantFormat.frameRate;
+          }
           String sampleMimeType = codecs != null ? MimeTypes.getMediaMimeType(codecs) : null;
+          format =
+              Format.createVideoContainerFormat(
+                  /* id= */ formatId,
+                  /* label= */ name,
+                  /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
+                  sampleMimeType,
+                  codecs,
+                  /* bitrate= */ Format.NO_VALUE,
+                  width,
+                  height,
+                  frameRate,
+                  /* initializationData= */ null,
+                  selectionFlags,
+                  roleFlags);
+          if (uri == null) {
+            // TODO: Remove this case and add a Rendition with a null uri to videos.
+          } else {
+            videos.add(new Rendition(uri, format, groupId, name));
+          }
+          break;
+        case TYPE_AUDIO:
+          variant = getVariantWithAudioGroup(variants, groupId);
+          codecs =
+              variant != null
+                  ? Util.getCodecsOfType(variant.format.codecs, C.TRACK_TYPE_AUDIO)
+                  : null;
+          sampleMimeType = codecs != null ? MimeTypes.getMediaMimeType(codecs) : null;
+          int channelCount = parseChannelsAttribute(line, variableDefinitions);
           format =
               Format.createAudioContainerFormat(
                   /* id= */ formatId,
@@ -395,6 +430,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   roleFlags,
                   language);
           if (uri == null) {
+            // TODO: Remove muxedAudioFormat and add a Rendition with a null uri to audios.
             muxedAudioFormat = format;
           } else {
             audios.add(new Rendition(uri, format, groupId, name));
@@ -440,6 +476,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   roleFlags,
                   language,
                   accessibilityChannel));
+          // TODO: Remove muxedCaptionFormats and add a Rendition with a null uri to closedCaptions.
           break;
         default:
           // Do nothing.
@@ -454,14 +491,36 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return new HlsMasterPlaylist(
         baseUri,
         tags,
-        variants,
+        deduplicatedVariants,
+        videos,
         audios,
         subtitles,
+        closedCaptions,
         muxedAudioFormat,
         muxedCaptionFormats,
         hasIndependentSegmentsTag,
         variableDefinitions,
         sessionKeyDrmInitData);
+  }
+
+  private static Variant getVariantWithAudioGroup(ArrayList<Variant> variants, String groupId) {
+    for (int i = 0; i < variants.size(); i++) {
+      Variant variant = variants.get(i);
+      if (groupId.equals(variant.audioGroupId)) {
+        return variant;
+      }
+    }
+    return null;
+  }
+
+  private static Variant getVariantWithVideoGroup(ArrayList<Variant> variants, String groupId) {
+    for (int i = 0; i < variants.size(); i++) {
+      Variant variant = variants.get(i);
+      if (groupId.equals(variant.videoGroupId)) {
+        return variant;
+      }
+    }
+    return null;
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(

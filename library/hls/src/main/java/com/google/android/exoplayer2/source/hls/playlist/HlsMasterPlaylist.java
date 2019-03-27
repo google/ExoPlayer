@@ -34,14 +34,17 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
           /* baseUri= */ "",
           /* tags= */ Collections.emptyList(),
           /* variants= */ Collections.emptyList(),
+          /* videos= */ Collections.emptyList(),
           /* audios= */ Collections.emptyList(),
           /* subtitles= */ Collections.emptyList(),
+          /* closedCaptions= */ Collections.emptyList(),
           /* muxedAudioFormat= */ null,
           /* muxedCaptionFormats= */ Collections.emptyList(),
           /* hasIndependentSegments= */ false,
           /* variableDefinitions= */ Collections.emptyMap(),
           /* sessionKeyDrmInitData= */ Collections.emptyList());
 
+  // These constants must not be changed because they are persisted in offline stream keys.
   public static final int GROUP_INDEX_VARIANT = 0;
   public static final int GROUP_INDEX_AUDIO = 1;
   public static final int GROUP_INDEX_SUBTITLE = 2;
@@ -156,12 +159,16 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
 
   }
 
-  /** The list of variants declared by the playlist. */
+  /** The variants declared by the playlist. */
   public final List<Variant> variants;
-  /** The list of demuxed audios declared by the playlist. */
+  /** The video renditions declared by the playlist. */
+  public final List<Rendition> videos;
+  /** The audio renditions declared by the playlist. */
   public final List<Rendition> audios;
-  /** The list of subtitles declared by the playlist. */
+  /** The subtitle renditions declared by the playlist. */
   public final List<Rendition> subtitles;
+  /** The closed caption renditions declared by the playlist. */
+  public final List<Rendition> closedCaptions;
 
   /**
    * The format of the audio muxed in the variants. May be null if the playlist does not declare any
@@ -183,8 +190,10 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    * @param baseUri See {@link #baseUri}.
    * @param tags See {@link #tags}.
    * @param variants See {@link #variants}.
+   * @param videos See {@link #videos}.
    * @param audios See {@link #audios}.
    * @param subtitles See {@link #subtitles}.
+   * @param closedCaptions See {@link #closedCaptions}.
    * @param muxedAudioFormat See {@link #muxedAudioFormat}.
    * @param muxedCaptionFormats See {@link #muxedCaptionFormats}.
    * @param hasIndependentSegments See {@link #hasIndependentSegments}.
@@ -195,8 +204,10 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
       String baseUri,
       List<String> tags,
       List<Variant> variants,
+      List<Rendition> videos,
       List<Rendition> audios,
       List<Rendition> subtitles,
+      List<Rendition> closedCaptions,
       Format muxedAudioFormat,
       List<Format> muxedCaptionFormats,
       boolean hasIndependentSegments,
@@ -204,8 +215,10 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
       List<DrmInitData> sessionKeyDrmInitData) {
     super(baseUri, tags, hasIndependentSegments);
     this.variants = Collections.unmodifiableList(variants);
+    this.videos = Collections.unmodifiableList(videos);
     this.audios = Collections.unmodifiableList(audios);
     this.subtitles = Collections.unmodifiableList(subtitles);
+    this.closedCaptions = Collections.unmodifiableList(closedCaptions);
     this.muxedAudioFormat = muxedAudioFormat;
     this.muxedCaptionFormats = muxedCaptionFormats != null
         ? Collections.unmodifiableList(muxedCaptionFormats) : null;
@@ -218,9 +231,13 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     return new HlsMasterPlaylist(
         baseUri,
         tags,
-        copyRenditionsList(variants, GROUP_INDEX_VARIANT, streamKeys),
-        copyRenditionsList(audios, GROUP_INDEX_AUDIO, streamKeys),
-        copyRenditionsList(subtitles, GROUP_INDEX_SUBTITLE, streamKeys),
+        copyStreams(variants, GROUP_INDEX_VARIANT, streamKeys),
+        // TODO: Allow stream keys to specify video renditions to be retained.
+        /* videos= */ Collections.emptyList(),
+        copyStreams(audios, GROUP_INDEX_AUDIO, streamKeys),
+        copyStreams(subtitles, GROUP_INDEX_SUBTITLE, streamKeys),
+        // TODO: Update to retain all closed captions.
+        /* closedCaptions= */ Collections.emptyList(),
         muxedAudioFormat,
         muxedCaptionFormats,
         hasIndependentSegments,
@@ -238,11 +255,13 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     List<Variant> variant =
         Collections.singletonList(Variant.createMediaPlaylistVariantUrl(variantUrl));
     return new HlsMasterPlaylist(
-        null,
-        Collections.emptyList(),
+        /* baseUri= */ null,
+        /* tags= */ Collections.emptyList(),
         variant,
-        Collections.emptyList(),
-        Collections.emptyList(),
+        /* videos= */ Collections.emptyList(),
+        /* audios= */ Collections.emptyList(),
+        /* subtitles= */ Collections.emptyList(),
+        /* closedCaptions= */ Collections.emptyList(),
         /* muxedAudioFormat= */ null,
         /* muxedCaptionFormats= */ null,
         /* hasIndependentSegments= */ false,
@@ -250,20 +269,30 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
         /* sessionKeyDrmInitData= */ Collections.emptyList());
   }
 
-  private static <T extends HlsUrl> List<T> copyRenditionsList(
-      List<T> renditions, int groupIndex, List<StreamKey> streamKeys) {
-    List<T> copiedRenditions = new ArrayList<>(streamKeys.size());
-    for (int i = 0; i < renditions.size(); i++) {
-      T rendition = renditions.get(i);
+  private static <T extends HlsUrl> List<T> copyStreams(
+      List<T> streams, int groupIndex, List<StreamKey> streamKeys) {
+    List<T> copiedStreams = new ArrayList<>(streamKeys.size());
+    // TODO:
+    // 1. When variants with the same URL are not de-duplicated, duplicates must not increment
+    //    trackIndex so as to avoid breaking stream keys that have been persisted for offline. All
+    //    duplicates should be copied if the first variant is copied, or discarded otherwise.
+    // 2. When renditions with null URLs are permitted, they must not increment trackIndex so as to
+    //    avoid breaking stream keys that have been persisted for offline. All renitions with null
+    //    URLs should be copied. They may become unreachable if all variants that reference them are
+    //    removed, but this is OK.
+    // 3. Renditions with URLs matching copied variants should always themselves be copied, even if
+    //    the corresponding stream key is omitted. Else we're throwing away information for no gain.
+    for (int i = 0; i < streams.size(); i++) {
+      T stream = streams.get(i);
       for (int j = 0; j < streamKeys.size(); j++) {
         StreamKey streamKey = streamKeys.get(j);
         if (streamKey.groupIndex == groupIndex && streamKey.trackIndex == i) {
-          copiedRenditions.add(rendition);
+          copiedStreams.add(stream);
           break;
         }
       }
     }
-    return copiedRenditions;
+    return copiedStreams;
   }
 
 }

@@ -157,6 +157,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     return trackGroups;
   }
 
+  // TODO: When the master playlist does not de-duplicate variants by URL and allows Renditions with
+  // null URLs, this method must be updated to calculate stream keys that are compatible with those
+  // that may already be persisted for offline.
   @Override
   public List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
     // See HlsMasterPlaylist.copy for interpretation of StreamKeys.
