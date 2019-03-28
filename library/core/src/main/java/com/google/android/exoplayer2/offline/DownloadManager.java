@@ -601,15 +601,13 @@ public final class DownloadManager {
     fileIOHandler.post(
         () -> {
           DownloadState[] loadedStates;
-          DownloadStateCursor cursor = null;
-          try {
-            cursor =
-                downloadIndex.getDownloadStates(
-                    STATE_QUEUED,
-                    STATE_STOPPED,
-                    STATE_DOWNLOADING,
-                    STATE_REMOVING,
-                    STATE_RESTARTING);
+          try (DownloadStateCursor cursor =
+              downloadIndex.getDownloadStates(
+                  STATE_QUEUED,
+                  STATE_STOPPED,
+                  STATE_DOWNLOADING,
+                  STATE_REMOVING,
+                  STATE_RESTARTING)) {
             loadedStates = new DownloadState[cursor.getCount()];
             for (int i = 0, length = loadedStates.length; i < length; i++) {
               cursor.moveToNext();
@@ -619,10 +617,6 @@ public final class DownloadManager {
           } catch (Throwable e) {
             Log.e(TAG, "Download state loading failed.", e);
             loadedStates = new DownloadState[0];
-          } finally {
-            if (cursor != null) {
-              cursor.close();
-            }
           }
           final DownloadState[] states = loadedStates;
           handler.post(
