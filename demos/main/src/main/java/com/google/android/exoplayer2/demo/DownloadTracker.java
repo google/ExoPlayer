@@ -140,13 +140,11 @@ public class DownloadTracker implements DownloadManager.Listener {
   // Internal methods
 
   private void loadDownloads() {
-    try {
-      DownloadStateCursor loadedDownloadStates = downloadIndex.getDownloadStates();
+    try (DownloadStateCursor loadedDownloadStates = downloadIndex.getDownloadStates()) {
       while (loadedDownloadStates.moveToNext()) {
         DownloadState downloadState = loadedDownloadStates.getDownloadState();
         downloadStates.put(downloadState.uri, downloadState);
       }
-      loadedDownloadStates.close();
     } catch (IOException e) {
       Log.w(TAG, "Failed to query download states", e);
     }
