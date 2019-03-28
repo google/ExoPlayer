@@ -237,23 +237,40 @@ public final class DownloadManager {
     logd("Created");
   }
 
+  /** Returns whether the manager has completed initialization. */
+  public boolean isInitialized() {
+    Assertions.checkState(!released);
+    return initialized;
+  }
+
+  /** Returns whether there are no active downloads. */
+  public boolean isIdle() {
+    Assertions.checkState(!released);
+    return initialized
+        && activeDownloads.isEmpty()
+        && dowloadUpdateQueue.isEmpty()
+        && !loadingDownload;
+  }
+
   /** Returns the used {@link DownloadIndex}. */
   public DownloadIndex getDownloadIndex() {
     return downloadIndex;
   }
 
-  /**
-   * Sets the requirements needed to be met to start downloads.
-   *
-   * @param requirements Need to be met to start downloads.
-   */
-  public void setRequirements(Requirements requirements) {
+  /** Returns the number of downloads. */
+  public int getDownloadCount() {
     Assertions.checkState(!released);
-    if (requirements.equals(requirementsWatcher.getRequirements())) {
-      return;
+    return downloads.size();
+  }
+
+  /** Returns the states of all current downloads. */
+  public DownloadState[] getAllDownloadStates() {
+    Assertions.checkState(!released);
+    DownloadState[] states = new DownloadState[downloads.size()];
+    for (int i = 0; i < states.length; i++) {
+      states[i] = downloads.get(i).getUpdatedDownloadState();
     }
-    requirementsWatcher.stop();
-    onRequirementsStateChanged(watchRequirements(requirements));
+    return states;
   }
 
   /** Returns the requirements needed to be met to start downloads. */
@@ -277,6 +294,16 @@ public final class DownloadManager {
    */
   public void removeListener(Listener listener) {
     listeners.remove(listener);
+  }
+
+  /**
+   * Sets the requirements needed to be met to start downloads.
+   *
+   * @param requirements Need to be met to start downloads.
+   */
+  public void setRequirements(Requirements requirements) {
+    Assertions.checkState(!released);
+    setRequirementsInternal(requirements);
   }
 
   /**
@@ -348,30 +375,7 @@ public final class DownloadManager {
    */
   public void addDownload(DownloadAction action) {
     Assertions.checkState(!released);
-    dowloadUpdateQueue.add(
-        new DownloadUpdater(action.id) {
-          @Override
-          void onExisting(Download download) {
-            download.addAction(action);
-            logd("Action is added to existing download", download);
-          }
-
-          @Override
-          DownloadState onLoad(@Nullable DownloadState downloadState) {
-            DownloadState state;
-            if (downloadState == null) {
-              state = new DownloadState(action);
-              logd("Download state is created for " + id);
-            } else {
-              state = downloadState.mergeAction(action);
-              logd("Download state is loaded for " + id);
-            }
-            return state;
-          }
-        });
-    if (initialized) {
-      processDownloadUpdateQueue();
-    }
+    addDownloadInternal(action);
   }
 
   /**
@@ -381,57 +385,7 @@ public final class DownloadManager {
    */
   public void removeDownload(String id) {
     Assertions.checkState(!released);
-    dowloadUpdateQueue.add(
-        new DownloadUpdater(id) {
-          @Override
-          void onExisting(Download download) {
-            download.remove();
-          }
-
-          @Override
-          DownloadState onLoad(@Nullable DownloadState downloadState) {
-            if (downloadState != null) {
-              downloadState = downloadState.setRemoveState();
-            } else {
-              logd("Can't remove download. No download with id: " + id);
-            }
-            return downloadState;
-          }
-        });
-    if (initialized) {
-      processDownloadUpdateQueue();
-    }
-  }
-
-  /** Returns the number of downloads. */
-  public int getDownloadCount() {
-    Assertions.checkState(!released);
-    return downloads.size();
-  }
-
-  /** Returns the states of all current downloads. */
-  public DownloadState[] getAllDownloadStates() {
-    Assertions.checkState(!released);
-    DownloadState[] states = new DownloadState[downloads.size()];
-    for (int i = 0; i < states.length; i++) {
-      states[i] = downloads.get(i).getUpdatedDownloadState();
-    }
-    return states;
-  }
-
-  /** Returns whether the manager has completed initialization. */
-  public boolean isInitialized() {
-    Assertions.checkState(!released);
-    return initialized;
-  }
-
-  /** Returns whether there are no active downloads. */
-  public boolean isIdle() {
-    Assertions.checkState(!released);
-    return initialized
-        && activeDownloads.isEmpty()
-        && dowloadUpdateQueue.isEmpty()
-        && !loadingDownload;
+    removeDownloadInternal(id);
   }
 
   /**
@@ -443,6 +397,12 @@ public final class DownloadManager {
     if (released) {
       return;
     }
+    releaseInternal();
+  }
+
+  // Methods that run on internal thread.
+
+  private void releaseInternal() {
     released = true;
     stopAllDownloadThreads();
     if (requirementsWatcher != null) {
@@ -453,6 +413,14 @@ public final class DownloadManager {
     fileIOFinishedCondition.block();
     fileIOThread.quit();
     logd("Released");
+  }
+
+  private void setRequirementsInternal(Requirements requirements) {
+    if (requirements.equals(requirementsWatcher.getRequirements())) {
+      return;
+    }
+    requirementsWatcher.stop();
+    onRequirementsStateChanged(watchRequirements(requirements));
   }
 
   private void setManualStopReason(@Nullable String id, int manualStopReason) {
@@ -481,6 +449,56 @@ public final class DownloadManager {
             Log.e(TAG, "setManualStopReason failed", e);
           }
         });
+  }
+
+  private void addDownloadInternal(DownloadAction action) {
+    dowloadUpdateQueue.add(
+        new DownloadUpdater(action.id) {
+          @Override
+          void onExisting(Download download) {
+            download.addAction(action);
+            logd("Action is added to existing download", download);
+          }
+
+          @Override
+          DownloadState onLoad(@Nullable DownloadState downloadState) {
+            DownloadState state;
+            if (downloadState == null) {
+              state = new DownloadState(action);
+              logd("Download state is created for " + id);
+            } else {
+              state = downloadState.mergeAction(action);
+              logd("Download state is loaded for " + id);
+            }
+            return state;
+          }
+        });
+    if (initialized) {
+      processDownloadUpdateQueue();
+    }
+  }
+
+  private void removeDownloadInternal(String id) {
+    dowloadUpdateQueue.add(
+        new DownloadUpdater(id) {
+          @Override
+          void onExisting(Download download) {
+            download.remove();
+          }
+
+          @Override
+          DownloadState onLoad(@Nullable DownloadState downloadState) {
+            if (downloadState != null) {
+              downloadState = downloadState.setRemoveState();
+            } else {
+              logd("Can't remove download. No download with id: " + id);
+            }
+            return downloadState;
+          }
+        });
+    if (initialized) {
+      processDownloadUpdateQueue();
+    }
   }
 
   private void maybeNotifyListenersIdle() {
