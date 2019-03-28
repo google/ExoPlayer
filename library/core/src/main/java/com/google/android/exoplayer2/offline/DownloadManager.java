@@ -601,8 +601,9 @@ public final class DownloadManager {
     fileIOHandler.post(
         () -> {
           DownloadState[] loadedStates;
+          DownloadStateCursor cursor = null;
           try {
-            DownloadStateCursor cursor =
+            cursor =
                 downloadIndex.getDownloadStates(
                     STATE_QUEUED,
                     STATE_STOPPED,
@@ -618,6 +619,10 @@ public final class DownloadManager {
           } catch (Throwable e) {
             Log.e(TAG, "Download state loading failed.", e);
             loadedStates = new DownloadState[0];
+          } finally {
+            if (cursor != null) {
+              cursor.close();
+            }
           }
           final DownloadState[] states = loadedStates;
           handler.post(
