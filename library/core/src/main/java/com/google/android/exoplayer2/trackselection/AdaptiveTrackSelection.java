@@ -36,10 +36,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  */
 public class AdaptiveTrackSelection extends BaseTrackSelection {
 
-  /**
-   * Factory for {@link AdaptiveTrackSelection} instances.
-   */
-  public static final class Factory implements TrackSelection.Factory {
+  /** Factory for {@link AdaptiveTrackSelection} instances. */
+  public static class Factory implements TrackSelection.Factory {
 
     private final @Nullable BandwidthMeter bandwidthMeter;
     private final int minDurationForQualityIncreaseMs;
@@ -215,7 +213,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
      *
      * @param trackBitrateEstimator A {@link TrackBitrateEstimator}.
      */
-    public void experimental_setTrackBitrateEstimator(TrackBitrateEstimator trackBitrateEstimator) {
+    public final void experimental_setTrackBitrateEstimator(
+        TrackBitrateEstimator trackBitrateEstimator) {
       this.trackBitrateEstimator = trackBitrateEstimator;
     }
 
@@ -224,13 +223,16 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
      *
      * <p>This method is experimental, and will be renamed or removed in a future release.
      */
-    public void experimental_enableBlockFixedTrackSelectionBandwidth() {
+    public final void experimental_enableBlockFixedTrackSelectionBandwidth() {
       this.blockFixedTrackSelectionBandwidth = true;
     }
 
     @Override
-    public @NullableType TrackSelection[] createTrackSelections(
+    public final @NullableType TrackSelection[] createTrackSelections(
         @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+      if (this.bandwidthMeter != null) {
+        bandwidthMeter = this.bandwidthMeter;
+      }
       TrackSelection[] selections = new TrackSelection[definitions.length];
       List<AdaptiveTrackSelection> adaptiveSelections = new ArrayList<>();
       int totalFixedBandwidth = 0;
@@ -242,6 +244,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         if (definition.tracks.length > 1) {
           AdaptiveTrackSelection adaptiveSelection =
               createAdaptiveTrackSelection(definition.group, bandwidthMeter, definition.tracks);
+          adaptiveSelection.experimental_setTrackBitrateEstimator(trackBitrateEstimator);
           adaptiveSelections.add(adaptiveSelection);
           selections[i] = adaptiveSelection;
         } else {
@@ -279,24 +282,26 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       return selections;
     }
 
-    private AdaptiveTrackSelection createAdaptiveTrackSelection(
+    /**
+     * Creates a single adaptive selection for the given group, bandwidth meter and tracks.
+     *
+     * @param group The {@link TrackGroup}.
+     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
+     * @param tracks The indices of the selected tracks in the track group.
+     * @return An {@link AdaptiveTrackSelection} for the specified tracks.
+     */
+    protected AdaptiveTrackSelection createAdaptiveTrackSelection(
         TrackGroup group, BandwidthMeter bandwidthMeter, int[] tracks) {
-      if (this.bandwidthMeter != null) {
-        bandwidthMeter = this.bandwidthMeter;
-      }
-      AdaptiveTrackSelection adaptiveTrackSelection =
-          new AdaptiveTrackSelection(
-              group,
-              tracks,
-              new DefaultBandwidthProvider(bandwidthMeter, bandwidthFraction),
-              minDurationForQualityIncreaseMs,
-              maxDurationForQualityDecreaseMs,
-              minDurationToRetainAfterDiscardMs,
-              bufferedFractionToLiveEdgeForQualityIncrease,
-              minTimeBetweenBufferReevaluationMs,
-              clock);
-      adaptiveTrackSelection.experimental_setTrackBitrateEstimator(trackBitrateEstimator);
-      return adaptiveTrackSelection;
+      return new AdaptiveTrackSelection(
+          group,
+          tracks,
+          new DefaultBandwidthProvider(bandwidthMeter, bandwidthFraction),
+          minDurationForQualityIncreaseMs,
+          maxDurationForQualityDecreaseMs,
+          minDurationToRetainAfterDiscardMs,
+          bufferedFractionToLiveEdgeForQualityIncrease,
+          minTimeBetweenBufferReevaluationMs,
+          clock);
     }
   }
 
