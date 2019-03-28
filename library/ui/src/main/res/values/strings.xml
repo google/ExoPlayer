@@ -76,6 +76,14 @@
   <string name="exo_track_surround_5_point_1">5.1 surround sound</string>
   <!-- Describes a 7.1 (https://en.wikipedia.org/wiki/7.1_surround_sound) audio track. [CHAR LIMIT=40] -->
   <string name="exo_track_surround_7_point_1">7.1 surround sound</string>
+  <!-- Describes an alternate track, e.g. a video recorded from a different viewpoint. [CHAR LIMIT=40] -->
+  <string name="exo_track_role_alternate">Alternate</string>
+  <!-- Describes a supplementary track. [CHAR LIMIT=40] -->
+  <string name="exo_track_role_supplementary">Supplementary</string>
+  <!-- Describes a track containing commentary. [CHAR LIMIT=40] -->
+  <string name="exo_track_role_commentary">Commentary</string>
+  <!-- Describes a track with closed captions. [CHAR LIMIT=40] -->
+  <string name="exo_track_role_closed_captions">CC</string>
   <!-- Describes the bitrate of a media track in Megabits (https://en.wikipedia.org/wiki/Megabit) per second. [CHAR LIMIT=20] -->
   <string name="exo_track_bitrate"><xliff:g id="bitrate" example="5.2">%1$.2f</xliff:g> Mbps</string>
   <!-- Defines a way of appending an item to a list of items. For example appending "banana" to "apple, pear" to get "apple, pear, banana". Note: the command separator will appear between all consecutive list items, so do not use an equivalent of 'and'. [CHAR LIMIT=40] -->
