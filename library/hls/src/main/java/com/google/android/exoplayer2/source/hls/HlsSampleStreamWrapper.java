@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import android.net.Uri;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -37,8 +38,6 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -79,8 +78,7 @@ import java.util.Map;
      * Called to schedule a {@link #continueLoading(long)} call when the playlist referred by the
      * given url changes.
      */
-    void onPlaylistRefreshRequired(HlsMasterPlaylist.HlsUrl playlistUrl);
-
+    void onPlaylistRefreshRequired(Uri playlistUrl);
   }
 
   private static final String TAG = "HlsSampleStreamWrapper";
@@ -451,8 +449,8 @@ import java.util.Map;
     chunkSource.setIsTimestampMaster(isTimestampMaster);
   }
 
-  public boolean onPlaylistError(HlsUrl url, long blacklistDurationMs) {
-    return chunkSource.onPlaylistError(url, blacklistDurationMs);
+  public boolean onPlaylistError(Uri playlistUrl, long blacklistDurationMs) {
+    return chunkSource.onPlaylistError(playlistUrl, blacklistDurationMs);
   }
 
   // SampleStream implementation.
@@ -590,7 +588,7 @@ import java.util.Map;
     chunkSource.getNextChunk(positionUs, loadPositionUs, chunkQueue, nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     Chunk loadable = nextChunkHolder.chunk;
-    HlsMasterPlaylist.HlsUrl playlistToLoad = nextChunkHolder.playlist;
+    Uri playlistUrlToLoad = nextChunkHolder.playlistUrl;
     nextChunkHolder.clear();
 
     if (endOfStream) {
@@ -600,8 +598,8 @@ import java.util.Map;
     }
 
     if (loadable == null) {
-      if (playlistToLoad != null) {
-        callback.onPlaylistRefreshRequired(playlistToLoad);
+      if (playlistUrlToLoad != null) {
+        callback.onPlaylistRefreshRequired(playlistUrlToLoad);
       }
       return false;
     }

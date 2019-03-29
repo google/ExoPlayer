@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.DataChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
@@ -70,10 +69,8 @@ import java.util.Map;
      */
     public boolean endOfStream;
 
-    /**
-     * Indicates that the chunk source is waiting for the referred playlist to be refreshed.
-     */
-    public HlsUrl playlist;
+    /** Indicates that the chunk source is waiting for the referred playlist to be refreshed. */
+    public Uri playlistUrl;
 
     /**
      * Clears the holder.
@@ -81,7 +78,7 @@ import java.util.Map;
     public void clear() {
       chunk = null;
       endOfStream = false;
-      playlist = null;
+      playlistUrl = null;
     }
 
   }
@@ -96,7 +93,8 @@ import java.util.Map;
   private final DataSource mediaDataSource;
   private final DataSource encryptionDataSource;
   private final TimestampAdjusterProvider timestampAdjusterProvider;
-  private final HlsUrl[] hlsUrls;
+  private final Uri[] playlistUrls;
+  private final Format[] playlistFormats;
   private final HlsPlaylistTracker playlistTracker;
   private final TrackGroup trackGroup;
   private final List<Format> muxedCaptionFormats;
@@ -105,7 +103,7 @@ import java.util.Map;
   private boolean isTimestampMaster;
   private byte[] scratchSpace;
   private IOException fatalError;
-  private HlsUrl expectedPlaylistUrl;
+  private Uri expectedPlaylistUrl;
   private boolean independentSegments;
 
   // Note: The track group in the selection is typically *not* equal to trackGroup. This is due to
@@ -119,8 +117,9 @@ import java.util.Map;
    * @param extractorFactory An {@link HlsExtractorFactory} from which to obtain the extractors for
    *     media chunks.
    * @param playlistTracker The {@link HlsPlaylistTracker} from which to obtain media playlists.
-   * @param hlsUrls The {@link HlsUrl} instances corresponding to media playlists from which this
-   *     chunk source can obtain media.
+   * @param playlistUrls The {@link Uri}s of the media playlists that can be adapted between by this
+   *     chunk source.
+   * @param playlistFormats The {@link Format Formats} corresponding to the media playlists.
    * @param dataSourceFactory An {@link HlsDataSourceFactory} to create {@link DataSource}s for the
    *     chunks.
    * @param mediaTransferListener The transfer listener which should be informed of any media data
@@ -134,30 +133,30 @@ import java.util.Map;
   public HlsChunkSource(
       HlsExtractorFactory extractorFactory,
       HlsPlaylistTracker playlistTracker,
-      HlsUrl[] hlsUrls,
+      Uri[] playlistUrls,
+      Format[] playlistFormats,
       HlsDataSourceFactory dataSourceFactory,
       @Nullable TransferListener mediaTransferListener,
       TimestampAdjusterProvider timestampAdjusterProvider,
       List<Format> muxedCaptionFormats) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
-    this.hlsUrls = hlsUrls;
+    this.playlistUrls = playlistUrls;
+    this.playlistFormats = playlistFormats;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
     keyCache = new FullSegmentEncryptionKeyCache();
     liveEdgeInPeriodTimeUs = C.TIME_UNSET;
-    Format[] trackFormats = new Format[hlsUrls.length];
-    int[] initialTrackSelection = new int[hlsUrls.length];
-    for (int i = 0; i < hlsUrls.length; i++) {
-      trackFormats[i] = hlsUrls[i].format;
-      initialTrackSelection[i] = i;
-    }
     mediaDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_MEDIA);
     if (mediaTransferListener != null) {
       mediaDataSource.addTransferListener(mediaTransferListener);
     }
     encryptionDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_DRM);
-    trackGroup = new TrackGroup(trackFormats);
+    trackGroup = new TrackGroup(playlistFormats);
+    int[] initialTrackSelection = new int[playlistUrls.length];
+    for (int i = 0; i < playlistUrls.length; i++) {
+      initialTrackSelection[i] = i;
+    }
     trackSelection = new InitializationTrackSelection(trackGroup, initialTrackSelection);
   }
 
@@ -221,8 +220,8 @@ import java.util.Map;
    *
    * <p>If a chunk is available then {@link HlsChunkHolder#chunk} is set. If the end of the stream
    * has been reached then {@link HlsChunkHolder#endOfStream} is set. If a chunk is not available
-   * but the end of the stream has not been reached, {@link HlsChunkHolder#playlist} is set to
-   * contain the {@link HlsUrl} that refers to the playlist that needs refreshing.
+   * but the end of the stream has not been reached, {@link HlsChunkHolder#playlistUrl} is set to
+   * contain the {@link Uri} that refers to the playlist that needs refreshing.
    *
    * @param playbackPositionUs The current playback position relative to the period start in
    *     microseconds. If playback of the period to which this chunk source belongs has not yet
@@ -259,16 +258,16 @@ import java.util.Map;
     int selectedTrackIndex = trackSelection.getSelectedIndexInTrackGroup();
 
     boolean switchingTrack = oldTrackIndex != selectedTrackIndex;
-    HlsUrl selectedHlsUrl = hlsUrls[selectedTrackIndex];
-    if (!playlistTracker.isSnapshotValid(selectedHlsUrl)) {
-      out.playlist = selectedHlsUrl;
-      seenExpectedPlaylistError &= expectedPlaylistUrl == selectedHlsUrl;
-      expectedPlaylistUrl = selectedHlsUrl;
+    Uri selectedPlaylistUrl = playlistUrls[selectedTrackIndex];
+    if (!playlistTracker.isSnapshotValid(selectedPlaylistUrl)) {
+      out.playlistUrl = selectedPlaylistUrl;
+      seenExpectedPlaylistError &= selectedPlaylistUrl.equals(expectedPlaylistUrl);
+      expectedPlaylistUrl = selectedPlaylistUrl;
       // Retry when playlist is refreshed.
       return;
     }
     HlsMediaPlaylist mediaPlaylist =
-        playlistTracker.getPlaylistSnapshot(selectedHlsUrl, /* isForPlayback= */ true);
+        playlistTracker.getPlaylistSnapshot(selectedPlaylistUrl, /* isForPlayback= */ true);
     independentSegments = mediaPlaylist.hasIndependentSegments;
 
     updateLiveEdgeTimeUs(mediaPlaylist);
@@ -284,9 +283,9 @@ import java.util.Map;
         // We try getting the next chunk without adapting in case that's the reason for falling
         // behind the live window.
         selectedTrackIndex = oldTrackIndex;
-        selectedHlsUrl = hlsUrls[selectedTrackIndex];
+        selectedPlaylistUrl = playlistUrls[selectedTrackIndex];
         mediaPlaylist =
-            playlistTracker.getPlaylistSnapshot(selectedHlsUrl, /* isForPlayback= */ true);
+            playlistTracker.getPlaylistSnapshot(selectedPlaylistUrl, /* isForPlayback= */ true);
         startOfPlaylistInPeriodUs =
             mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
         chunkMediaSequence = previous.getNextChunkIndex();
@@ -301,9 +300,9 @@ import java.util.Map;
       if (mediaPlaylist.hasEndTag) {
         out.endOfStream = true;
       } else /* Live */ {
-        out.playlist = selectedHlsUrl;
-        seenExpectedPlaylistError &= expectedPlaylistUrl == selectedHlsUrl;
-        expectedPlaylistUrl = selectedHlsUrl;
+        out.playlistUrl = selectedPlaylistUrl;
+        seenExpectedPlaylistError &= selectedPlaylistUrl.equals(expectedPlaylistUrl);
+        expectedPlaylistUrl = selectedPlaylistUrl;
       }
       return;
     }
@@ -330,10 +329,11 @@ import java.util.Map;
         HlsMediaChunk.createInstance(
             extractorFactory,
             mediaDataSource,
+            playlistFormats[selectedTrackIndex],
             startOfPlaylistInPeriodUs,
             mediaPlaylist,
             segmentIndexInPlaylist,
-            selectedHlsUrl,
+            selectedPlaylistUrl,
             muxedCaptionFormats,
             trackSelection.getSelectionReason(),
             trackSelection.getSelectionData(),
@@ -375,13 +375,19 @@ import java.util.Map;
   /**
    * Called when a playlist load encounters an error.
    *
-   * @param hlsUrl The {@link HlsUrl} of the playlist whose load encountered an error.
+   * @param playlistUrl The {@link Uri} of the playlist whose load encountered an error.
    * @param blacklistDurationMs The duration for which the playlist should be blacklisted. Or {@link
    *     C#TIME_UNSET} if the playlist should not be blacklisted.
    * @return True if blacklisting did not encounter errors. False otherwise.
    */
-  public boolean onPlaylistError(HlsUrl hlsUrl, long blacklistDurationMs) {
-    int trackGroupIndex = trackGroup.indexOf(hlsUrl.format);
+  public boolean onPlaylistError(Uri playlistUrl, long blacklistDurationMs) {
+    int trackGroupIndex = C.INDEX_UNSET;
+    for (int i = 0; i < playlistUrls.length; i++) {
+      if (playlistUrls[i].equals(playlistUrl)) {
+        trackGroupIndex = i;
+        break;
+      }
+    }
     if (trackGroupIndex == C.INDEX_UNSET) {
       return true;
     }
@@ -389,7 +395,7 @@ import java.util.Map;
     if (trackSelectionIndex == C.INDEX_UNSET) {
       return true;
     }
-    seenExpectedPlaylistError |= expectedPlaylistUrl == hlsUrl;
+    seenExpectedPlaylistError |= playlistUrl.equals(expectedPlaylistUrl);
     return blacklistDurationMs == C.TIME_UNSET
         || trackSelection.blacklist(trackSelectionIndex, blacklistDurationMs);
   }
@@ -407,13 +413,13 @@ import java.util.Map;
     MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
     for (int i = 0; i < chunkIterators.length; i++) {
       int trackIndex = trackSelection.getIndexInTrackGroup(i);
-      HlsUrl hlsUrl = hlsUrls[trackIndex];
-      if (!playlistTracker.isSnapshotValid(hlsUrl)) {
+      Uri playlistUrl = playlistUrls[trackIndex];
+      if (!playlistTracker.isSnapshotValid(playlistUrl)) {
         chunkIterators[i] = MediaChunkIterator.EMPTY;
         continue;
       }
       HlsMediaPlaylist playlist =
-          playlistTracker.getPlaylistSnapshot(hlsUrl, /* isForPlayback= */ false);
+          playlistTracker.getPlaylistSnapshot(playlistUrl, /* isForPlayback= */ false);
       long startOfPlaylistInPeriodUs =
           playlist.startTimeUs - playlistTracker.getInitialStartTimeUs();
       boolean switchingTrack = trackIndex != oldTrackIndex;
@@ -502,7 +508,7 @@ import java.util.Map;
     return new EncryptionKeyChunk(
         encryptionDataSource,
         dataSpec,
-        hlsUrls[selectedTrackIndex].format,
+        playlistFormats[selectedTrackIndex],
         trackSelection.getSelectionReason(),
         trackSelection.getSelectionData(),
         scratchSpace);
