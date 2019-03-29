@@ -88,14 +88,14 @@ public interface HlsPlaylistTracker {
   final class PlaylistStuckException extends IOException {
 
     /** The url of the stuck playlist. */
-    public final String url;
+    public final Uri url;
 
     /**
      * Creates an instance.
      *
      * @param url See {@link #url}.
      */
-    public PlaylistStuckException(String url) {
+    public PlaylistStuckException(Uri url) {
       this.url = url;
     }
   }
@@ -104,14 +104,14 @@ public interface HlsPlaylistTracker {
   final class PlaylistResetException extends IOException {
 
     /** The url of the reset playlist. */
-    public final String url;
+    public final Uri url;
 
     /**
      * Creates an instance.
      *
      * @param url See {@link #url}.
      */
-    public PlaylistResetException(String url) {
+    public PlaylistResetException(Uri url) {
       this.url = url;
     }
   }

@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.UriUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -454,7 +453,7 @@ public final class DefaultHlsPlaylistTracker
       mediaPlaylistLoadable =
           new ParsingLoadable<>(
               dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST),
-              UriUtil.resolveToUri(masterPlaylist.baseUri, playlistUrl.url),
+              playlistUrl.url,
               C.DATA_TYPE_MANIFEST,
               mediaPlaylistParser);
     }

@@ -19,6 +19,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
@@ -120,7 +121,6 @@ public final class HlsMediaPeriodTest {
 
   private static Variant createMuxedVideoAudioVariant(int bitrate) {
     return createVariant(
-        "http://url",
         Format.createVideoContainerFormat(
             /* id= */ null,
             /* label= */ null,
@@ -138,7 +138,6 @@ public final class HlsMediaPeriodTest {
 
   private static Variant createAudioOnlyVariant(int bitrate) {
     return createVariant(
-        "http://url",
         Format.createVideoContainerFormat(
             /* id= */ null,
             /* label= */ null,
@@ -155,19 +154,19 @@ public final class HlsMediaPeriodTest {
   }
 
   private static Rendition createAudioRendition(String language) {
-    return createRendition("http://url", createAudioFormat(language), "", "");
+    return createRendition(createAudioFormat(language), "", "");
   }
 
   private static Rendition createSubtitleRendition(String language) {
-    return createRendition("http://url", createSubtitleFormat(language), "", "");
+    return createRendition(createSubtitleFormat(language), "", "");
   }
 
-  private static Variant createVariant(String url, Format format) {
-    return new Variant(url, format, null, null, null, null);
+  private static Variant createVariant(Format format) {
+    return new Variant(Uri.parse("https://variant"), format, null, null, null, null);
   }
 
-  private static Rendition createRendition(String url, Format format, String groupId, String name) {
-    return new Rendition(url, format, groupId, name);
+  private static Rendition createRendition(Format format, String groupId, String name) {
+    return new Rendition(Uri.parse("https://rendition"), format, groupId, name);
   }
 
   private static Format createAudioFormat(String language) {
