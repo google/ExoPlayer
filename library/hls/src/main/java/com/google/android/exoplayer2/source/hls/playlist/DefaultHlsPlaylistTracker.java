@@ -33,7 +33,7 @@ import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
+import java.util.HashMap;
 import java.util.List;
 
 /** Default implementation for {@link HlsPlaylistTracker}. */
@@ -52,7 +52,7 @@ public final class DefaultHlsPlaylistTracker
   private final HlsDataSourceFactory dataSourceFactory;
   private final HlsPlaylistParserFactory playlistParserFactory;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
-  private final IdentityHashMap<Uri, MediaPlaylistBundle> playlistBundles;
+  private final HashMap<Uri, MediaPlaylistBundle> playlistBundles;
   private final List<PlaylistEventListener> listeners;
   private final double playlistStuckTargetDurationCoefficient;
 
@@ -106,7 +106,7 @@ public final class DefaultHlsPlaylistTracker
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.playlistStuckTargetDurationCoefficient = playlistStuckTargetDurationCoefficient;
     listeners = new ArrayList<>();
-    playlistBundles = new IdentityHashMap<>();
+    playlistBundles = new HashMap<>();
     initialStartTimeUs = C.TIME_UNSET;
   }
 
