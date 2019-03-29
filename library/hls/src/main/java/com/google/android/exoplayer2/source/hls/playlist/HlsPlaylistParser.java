@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Varia
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -337,6 +338,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         line =
             replaceVariableReferences(
                 iterator.next(), variableDefinitions); // #EXT-X-STREAM-INF's URI.
+        Uri uri = UriUtil.resolveToUri(baseUri, line);
         Format format =
             Format.createVideoContainerFormat(
                 /* id= */ Integer.toString(variants.size()),
@@ -353,7 +355,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 /* roleFlags= */ 0);
         Variant variant =
             new Variant(
-                line, format, videoGroupId, audioGroupId, subtitlesGroupId, closedCaptionsGroupId);
+                uri, format, videoGroupId, audioGroupId, subtitlesGroupId, closedCaptionsGroupId);
         variants.add(variant);
         // TODO: Don't deduplicate variants by URL.
         if (variantUrls.add(line)) {
@@ -366,7 +368,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       line = mediaTags.get(i);
       String groupId = parseStringAttr(line, REGEX_GROUP_ID, variableDefinitions);
       String name = parseStringAttr(line, REGEX_NAME, variableDefinitions);
-      String uri = parseOptionalStringAttr(line, REGEX_URI, variableDefinitions);
+      String referenceUri = parseOptionalStringAttr(line, REGEX_URI, variableDefinitions);
+      Uri uri = referenceUri == null ? null : UriUtil.resolveToUri(baseUri, referenceUri);
       String language = parseOptionalStringAttr(line, REGEX_LANGUAGE, variableDefinitions);
       @C.SelectionFlags int selectionFlags = parseSelectionFlags(line);
       @C.RoleFlags int roleFlags = parseRoleFlags(line, variableDefinitions);

@@ -78,16 +78,15 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
   @Override
   protected List<Segment> getSegments(
       DataSource dataSource, HlsPlaylist playlist, boolean allowIncompleteList) throws IOException {
-    String baseUri = playlist.baseUri;
-
     ArrayList<DataSpec> mediaPlaylistDataSpecs = new ArrayList<>();
     if (playlist instanceof HlsMasterPlaylist) {
       HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
-      addMediaPlaylistDataSpecs(baseUri, masterPlaylist.variants, mediaPlaylistDataSpecs);
-      addMediaPlaylistDataSpecs(baseUri, masterPlaylist.audios, mediaPlaylistDataSpecs);
-      addMediaPlaylistDataSpecs(baseUri, masterPlaylist.subtitles, mediaPlaylistDataSpecs);
+      addMediaPlaylistDataSpecs(masterPlaylist.variants, mediaPlaylistDataSpecs);
+      addMediaPlaylistDataSpecs(masterPlaylist.audios, mediaPlaylistDataSpecs);
+      addMediaPlaylistDataSpecs(masterPlaylist.subtitles, mediaPlaylistDataSpecs);
     } else {
-      mediaPlaylistDataSpecs.add(SegmentDownloader.getCompressibleDataSpec(Uri.parse(baseUri)));
+      mediaPlaylistDataSpecs.add(
+          SegmentDownloader.getCompressibleDataSpec(Uri.parse(playlist.baseUri)));
     }
 
     ArrayList<Segment> segments = new ArrayList<>();
@@ -119,11 +118,9 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
     return segments;
   }
 
-  private void addMediaPlaylistDataSpecs(
-      String baseUri, List<? extends HlsUrl> urls, List<DataSpec> out) {
+  private void addMediaPlaylistDataSpecs(List<? extends HlsUrl> urls, List<DataSpec> out) {
     for (int i = 0; i < urls.size(); i++) {
-      Uri playlistUri = UriUtil.resolveToUri(baseUri, urls.get(i).url);
-      out.add(SegmentDownloader.getCompressibleDataSpec(playlistUri));
+      out.add(SegmentDownloader.getCompressibleDataSpec(urls.get(i).url));
     }
   }
 

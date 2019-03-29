@@ -158,32 +158,33 @@ public class HlsMasterPlaylistParserTest {
     assertThat(variants.get(0).format.codecs).isEqualTo("mp4a.40.2,avc1.66.30");
     assertThat(variants.get(0).format.width).isEqualTo(304);
     assertThat(variants.get(0).format.height).isEqualTo(128);
-    assertThat(variants.get(0).url).isEqualTo("http://example.com/low.m3u8");
+    assertThat(variants.get(0).url).isEqualTo(Uri.parse("http://example.com/low.m3u8"));
 
     assertThat(variants.get(1).format.bitrate).isEqualTo(1280000);
     assertThat(variants.get(1).format.codecs).isEqualTo("mp4a.40.2 , avc1.66.30 ");
-    assertThat(variants.get(1).url).isEqualTo("http://example.com/spaces_in_codecs.m3u8");
+    assertThat(variants.get(1).url)
+        .isEqualTo(Uri.parse("http://example.com/spaces_in_codecs.m3u8"));
 
     assertThat(variants.get(2).format.bitrate).isEqualTo(2560000);
     assertThat(variants.get(2).format.codecs).isNull();
     assertThat(variants.get(2).format.width).isEqualTo(384);
     assertThat(variants.get(2).format.height).isEqualTo(160);
     assertThat(variants.get(2).format.frameRate).isEqualTo(25.0f);
-    assertThat(variants.get(2).url).isEqualTo("http://example.com/mid.m3u8");
+    assertThat(variants.get(2).url).isEqualTo(Uri.parse("http://example.com/mid.m3u8"));
 
     assertThat(variants.get(3).format.bitrate).isEqualTo(7680000);
     assertThat(variants.get(3).format.codecs).isNull();
     assertThat(variants.get(3).format.width).isEqualTo(Format.NO_VALUE);
     assertThat(variants.get(3).format.height).isEqualTo(Format.NO_VALUE);
     assertThat(variants.get(3).format.frameRate).isEqualTo(29.997f);
-    assertThat(variants.get(3).url).isEqualTo("http://example.com/hi.m3u8");
+    assertThat(variants.get(3).url).isEqualTo(Uri.parse("http://example.com/hi.m3u8"));
 
     assertThat(variants.get(4).format.bitrate).isEqualTo(65000);
     assertThat(variants.get(4).format.codecs).isEqualTo("mp4a.40.5");
     assertThat(variants.get(4).format.width).isEqualTo(Format.NO_VALUE);
     assertThat(variants.get(4).format.height).isEqualTo(Format.NO_VALUE);
     assertThat(variants.get(4).format.frameRate).isEqualTo((float) Format.NO_VALUE);
-    assertThat(variants.get(4).url).isEqualTo("http://example.com/audio-only.m3u8");
+    assertThat(variants.get(4).url).isEqualTo(Uri.parse("http://example.com/audio-only.m3u8"));
   }
 
   @Test
@@ -291,7 +292,8 @@ public class HlsMasterPlaylistParserTest {
         parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_VARIABLE_SUBSTITUTION);
     HlsMasterPlaylist.HlsUrl variant = playlistWithSubstitutions.variants.get(0);
     assertThat(variant.format.codecs).isEqualTo("mp4a.40.5");
-    assertThat(variant.url).isEqualTo("http://example.com/This/{$nested}/reference/shouldnt/work");
+    assertThat(variant.url)
+        .isEqualTo(Uri.parse("http://example.com/This/{$nested}/reference/shouldnt/work"));
   }
 
   private static HlsMasterPlaylist parseMasterPlaylist(String uri, String playlistString)

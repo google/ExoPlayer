@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
+import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -52,10 +53,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   /** Represents a url in an HLS master playlist. */
   public abstract static class HlsUrl {
 
-    /**
-     * The http url from which the media playlist can be obtained.
-     */
-    public final String url;
+    /** The http url from which the media playlist can be obtained. */
+    public final Uri url;
     /**
      * Format information associated with the HLS url.
      */
@@ -65,7 +64,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      * @param url See {@link #url}.
      * @param format See {@link #format}.
      */
-    public HlsUrl(String url, Format format) {
+    public HlsUrl(Uri url, Format format) {
       this.url = url;
       this.format = format;
     }
@@ -95,7 +94,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      * @param captionGroupId See {@link #captionGroupId}.
      */
     public Variant(
-        String url,
+        Uri url,
         Format format,
         @Nullable String videoGroupId,
         @Nullable String audioGroupId,
@@ -114,7 +113,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      * @param url The media playlist url.
      * @return The variant instance.
      */
-    public static Variant createMediaPlaylistVariantUrl(String url) {
+    public static Variant createMediaPlaylistVariantUrl(Uri url) {
       Format format =
           Format.createContainerFormat(
               "0",
@@ -151,7 +150,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      * @param groupId See {@link #groupId}.
      * @param name See {@link #name}.
      */
-    public Rendition(String url, Format format, String groupId, String name) {
+    public Rendition(Uri url, Format format, String groupId, String name) {
       super(url, format);
       this.groupId = groupId;
       this.name = name;
@@ -253,7 +252,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
    */
   public static HlsMasterPlaylist createSingleVariantMasterPlaylist(String variantUrl) {
     List<Variant> variant =
-        Collections.singletonList(Variant.createMediaPlaylistVariantUrl(variantUrl));
+        Collections.singletonList(Variant.createMediaPlaylistVariantUrl(Uri.parse(variantUrl)));
     return new HlsMasterPlaylist(
         /* baseUri= */ null,
         /* tags= */ Collections.emptyList(),
