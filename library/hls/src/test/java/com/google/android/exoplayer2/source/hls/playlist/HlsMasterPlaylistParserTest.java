@@ -290,7 +290,7 @@ public class HlsMasterPlaylistParserTest {
   public void testVariableSubstitution() throws IOException {
     HlsMasterPlaylist playlistWithSubstitutions =
         parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_VARIABLE_SUBSTITUTION);
-    HlsMasterPlaylist.HlsUrl variant = playlistWithSubstitutions.variants.get(0);
+    HlsMasterPlaylist.Variant variant = playlistWithSubstitutions.variants.get(0);
     assertThat(variant.format.codecs).isEqualTo("mp4a.40.5");
     assertThat(variant.url)
         .isEqualTo(Uri.parse("http://example.com/This/{$nested}/reference/shouldnt/work"));

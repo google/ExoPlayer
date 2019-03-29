@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
@@ -81,9 +80,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
     ArrayList<DataSpec> mediaPlaylistDataSpecs = new ArrayList<>();
     if (playlist instanceof HlsMasterPlaylist) {
       HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
-      addMediaPlaylistDataSpecs(masterPlaylist.variants, mediaPlaylistDataSpecs);
-      addMediaPlaylistDataSpecs(masterPlaylist.audios, mediaPlaylistDataSpecs);
-      addMediaPlaylistDataSpecs(masterPlaylist.subtitles, mediaPlaylistDataSpecs);
+      addMediaPlaylistDataSpecs(masterPlaylist.mediaPlaylistUrls, mediaPlaylistDataSpecs);
     } else {
       mediaPlaylistDataSpecs.add(
           SegmentDownloader.getCompressibleDataSpec(Uri.parse(playlist.baseUri)));
@@ -118,9 +115,9 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
     return segments;
   }
 
-  private void addMediaPlaylistDataSpecs(List<? extends HlsUrl> urls, List<DataSpec> out) {
-    for (int i = 0; i < urls.size(); i++) {
-      out.add(SegmentDownloader.getCompressibleDataSpec(urls.get(i).url));
+  private void addMediaPlaylistDataSpecs(List<Uri> mediaPlaylistUrls, List<DataSpec> out) {
+    for (int i = 0; i < mediaPlaylistUrls.size(); i++) {
+      out.add(SegmentDownloader.getCompressibleDataSpec(mediaPlaylistUrls.get(i)));
     }
   }
 

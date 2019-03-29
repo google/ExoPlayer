@@ -50,28 +50,14 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
   public static final int GROUP_INDEX_AUDIO = 1;
   public static final int GROUP_INDEX_SUBTITLE = 2;
 
-  /** Represents a url in an HLS master playlist. */
-  public abstract static class HlsUrl {
+  /** A variant (i.e. an #EXT-X-STREAM-INF tag) in a master playlist. */
+  public static final class Variant {
 
-    /** The http url from which the media playlist can be obtained. */
+    /** The variant's url. */
     public final Uri url;
-    /**
-     * Format information associated with the HLS url.
-     */
+
+    /** Format information associated with this variant. */
     public final Format format;
-
-    /**
-     * @param url See {@link #url}.
-     * @param format See {@link #format}.
-     */
-    public HlsUrl(Uri url, Format format) {
-      this.url = url;
-      this.format = format;
-    }
-  }
-
-  /** A variant in a master playlist. */
-  public static final class Variant extends HlsUrl {
 
     /** The video rendition group referenced by this variant, or {@code null}. */
     @Nullable public final String videoGroupId;
@@ -100,7 +86,8 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
         @Nullable String audioGroupId,
         @Nullable String subtitleGroupId,
         @Nullable String captionGroupId) {
-      super(url, format);
+      this.url = url;
+      this.format = format;
       this.videoGroupId = videoGroupId;
       this.audioGroupId = audioGroupId;
       this.subtitleGroupId = subtitleGroupId;
@@ -135,8 +122,14 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
     }
   }
 
-  /** A rendition in a master playlist. */
-  public static final class Rendition extends HlsUrl {
+  /** A rendition (i.e. an #EXT-X-MEDIA tag) in a master playlist. */
+  public static final class Rendition {
+
+    /** The rendition's url, or null if the tag does not have a URI attribute. */
+    @Nullable public final Uri url;
+
+    /** Format information associated with this rendition. */
+    public final Format format;
 
     /** The group to which this rendition belongs. */
     public final String groupId;
@@ -150,14 +143,17 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      * @param groupId See {@link #groupId}.
      * @param name See {@link #name}.
      */
-    public Rendition(Uri url, Format format, String groupId, String name) {
-      super(url, format);
+    public Rendition(@Nullable Uri url, Format format, String groupId, String name) {
+      this.url = url;
+      this.format = format;
       this.groupId = groupId;
       this.name = name;
     }
 
   }
 
+  /** All of the media playlist URLs referenced by the playlist. */
+  public final List<Uri> mediaPlaylistUrls;
   /** The variants declared by the playlist. */
   public final List<Variant> variants;
   /** The video renditions declared by the playlist. */
@@ -213,6 +209,9 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
       Map<String, String> variableDefinitions,
       List<DrmInitData> sessionKeyDrmInitData) {
     super(baseUri, tags, hasIndependentSegments);
+    this.mediaPlaylistUrls =
+        Collections.unmodifiableList(
+            getMediaPlaylistUrls(variants, videos, audios, subtitles, closedCaptions));
     this.variants = Collections.unmodifiableList(variants);
     this.videos = Collections.unmodifiableList(videos);
     this.audios = Collections.unmodifiableList(audios);
@@ -268,7 +267,36 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
         /* sessionKeyDrmInitData= */ Collections.emptyList());
   }
 
-  private static <T extends HlsUrl> List<T> copyStreams(
+  private static List<Uri> getMediaPlaylistUrls(
+      List<Variant> variants,
+      List<Rendition> videos,
+      List<Rendition> audios,
+      List<Rendition> subtitles,
+      List<Rendition> closedCaptions) {
+    ArrayList<Uri> mediaPlaylistUrls = new ArrayList<>();
+    for (int i = 0; i < variants.size(); i++) {
+      Uri uri = variants.get(i).url;
+      if (!mediaPlaylistUrls.contains(uri)) {
+        mediaPlaylistUrls.add(uri);
+      }
+    }
+    addMediaPlaylistUrls(videos, mediaPlaylistUrls);
+    addMediaPlaylistUrls(audios, mediaPlaylistUrls);
+    addMediaPlaylistUrls(subtitles, mediaPlaylistUrls);
+    addMediaPlaylistUrls(closedCaptions, mediaPlaylistUrls);
+    return mediaPlaylistUrls;
+  }
+
+  private static void addMediaPlaylistUrls(List<Rendition> renditions, List<Uri> out) {
+    for (int i = 0; i < renditions.size(); i++) {
+      Uri uri = renditions.get(i).url;
+      if (uri != null && !out.contains(uri)) {
+        out.add(uri);
+      }
+    }
+  }
+
+  private static <T> List<T> copyStreams(
       List<T> streams, int groupIndex, List<StreamKey> streamKeys) {
     List<T> copiedStreams = new ArrayList<>(streamKeys.size());
     // TODO:

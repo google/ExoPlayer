@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -52,9 +51,10 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @param extractorFactory A {@link HlsExtractorFactory} from which the HLS media chunk extractor
    *     is obtained.
    * @param dataSource The source from which the data should be loaded.
+   * @param format The chunk format.
    * @param startOfPlaylistInPeriodUs The position of the playlist in the period in microseconds.
    * @param mediaPlaylist The media playlist from which this chunk was obtained.
-   * @param hlsUrl The url of the playlist from which this chunk was obtained.
+   * @param playlistUrl The url of the playlist from which this chunk was obtained.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
    *     information is available in the master playlist.
    * @param trackSelectionReason See {@link #trackSelectionReason}.
@@ -70,10 +70,11 @@ import java.util.concurrent.atomic.AtomicInteger;
   public static HlsMediaChunk createInstance(
       HlsExtractorFactory extractorFactory,
       DataSource dataSource,
+      Format format,
       long startOfPlaylistInPeriodUs,
       HlsMediaPlaylist mediaPlaylist,
       int segmentIndexInPlaylist,
-      HlsUrl hlsUrl,
+      Uri playlistUrl,
       @Nullable List<Format> muxedCaptionFormats,
       int trackSelectionReason,
       @Nullable Object trackSelectionData,
@@ -126,7 +127,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     if (previousChunk != null) {
       id3Decoder = previousChunk.id3Decoder;
       scratchId3Data = previousChunk.scratchId3Data;
-      shouldSpliceIn = previousChunk.hlsUrl != hlsUrl || !previousChunk.loadCompleted;
+      shouldSpliceIn =
+          !playlistUrl.equals(previousChunk.playlistUrl) || !previousChunk.loadCompleted;
       previousExtractor =
           previousChunk.isExtractorReusable
                   && previousChunk.discontinuitySequenceNumber == discontinuitySequenceNumber
@@ -143,11 +145,12 @@ import java.util.concurrent.atomic.AtomicInteger;
         extractorFactory,
         mediaDataSource,
         dataSpec,
+        format,
         mediaSegmentEncrypted,
         initDataSource,
         initDataSpec,
         initSegmentEncrypted,
-        hlsUrl,
+        playlistUrl,
         muxedCaptionFormats,
         trackSelectionReason,
         trackSelectionData,
@@ -180,10 +183,8 @@ import java.util.concurrent.atomic.AtomicInteger;
    */
   public final int discontinuitySequenceNumber;
 
-  /**
-   * The url of the playlist from which this chunk was obtained.
-   */
-  public final HlsUrl hlsUrl;
+  /** The url of the playlist from which this chunk was obtained. */
+  public final Uri playlistUrl;
 
   @Nullable private final DataSource initDataSource;
   @Nullable private final DataSpec initDataSpec;
@@ -214,11 +215,12 @@ import java.util.concurrent.atomic.AtomicInteger;
       HlsExtractorFactory extractorFactory,
       DataSource mediaDataSource,
       DataSpec dataSpec,
+      Format format,
       boolean mediaSegmentEncrypted,
       DataSource initDataSource,
       @Nullable DataSpec initDataSpec,
       boolean initSegmentEncrypted,
-      HlsUrl hlsUrl,
+      Uri playlistUrl,
       @Nullable List<Format> muxedCaptionFormats,
       int trackSelectionReason,
       Object trackSelectionData,
@@ -237,7 +239,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     super(
         mediaDataSource,
         dataSpec,
-        hlsUrl.format,
+        format,
         trackSelectionReason,
         trackSelectionData,
         startTimeUs,
@@ -248,7 +250,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.initDataSource = initDataSource;
     this.initDataSpec = initDataSpec;
     this.initSegmentEncrypted = initSegmentEncrypted;
-    this.hlsUrl = hlsUrl;
+    this.playlistUrl = playlistUrl;
     this.isMasterTimestampSource = isMasterTimestampSource;
     this.timestampAdjuster = timestampAdjuster;
     this.hasGapTag = hasGapTag;
