@@ -5,7 +5,10 @@
 * Update to Mockito 2
 * Add new `ExoPlaybackException` types for remote exceptions and out-of-memory
   errors.
-* DASH: Parse role and accessibility descriptors into `Format.roleFlags`.
+* DASH:
+  * Parse role and accessibility descriptors into `Format.roleFlags`.
+  * Support multiple CEA-608 channels muxed into FMP4 representations
+    ([#5656](https://github.com/google/ExoPlayer/issues/5656)).
 * HLS:
   * Work around lack of LA_URL attribute in PlayReady key request init data.
   * Prevent unnecessary reloads of initialization segments.
