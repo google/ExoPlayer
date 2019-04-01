@@ -226,16 +226,17 @@ import java.util.TreeSet;
       byte[] bitmapData = Base64.decode(encodedBitmapData, Base64.DEFAULT);
       Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, /* offset= */ 0, bitmapData.length);
       TtmlRegion region = regionMap.get(regionImagePair.first);
+      boolean fullScreen = region.width == 1f && region.height == 1f;
 
       cues.add(
           new Cue(
               bitmap,
               region.position,
-              Cue.ANCHOR_TYPE_MIDDLE,
+              Cue.TYPE_UNSET,
               region.line,
               region.lineAnchor,
               region.width,
-              /* height= */ Cue.DIMEN_UNSET));
+              fullScreen ? region.height : Cue.DIMEN_UNSET));
     }
 
     // Create text based cues.
