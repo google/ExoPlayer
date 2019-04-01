@@ -574,7 +574,9 @@ public final class CastPlayer extends BasePlayer {
     CastTimeline oldTimeline = currentTimeline;
     MediaStatus status = getMediaStatus();
     currentTimeline =
-        status != null ? timelineTracker.getCastTimeline(status) : CastTimeline.EMPTY_CAST_TIMELINE;
+        status != null
+            ? timelineTracker.getCastTimeline(remoteMediaClient)
+            : CastTimeline.EMPTY_CAST_TIMELINE;
     return !oldTimeline.equals(currentTimeline);
   }
 

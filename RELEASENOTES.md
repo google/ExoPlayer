@@ -3,6 +3,8 @@
 ### dev-v2 (not yet released) ###
 
 * Update to Mockito 2
+* Cast extension: Work around Cast framework returning a limited-size queue
+  items list ([#4964](https://github.com/google/ExoPlayer/issues/4964)).
 * Add new `ExoPlaybackException` types for remote exceptions and out-of-memory
   errors.
 * DASH:
