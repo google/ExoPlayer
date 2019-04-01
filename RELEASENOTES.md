@@ -90,7 +90,8 @@
 * Prevent seeking when ICY metadata is present to prevent playback problems
   ([#5658](https://github.com/google/ExoPlayer/issues/5658)).
 * Use full BCP 47 language tags in `Format`.
-* Select audio track based on system language if no preference is provided.
+* Take byte offset into account when unsynchronizing an id3 frame
+  ([#5673](https://github.com/google/ExoPlayer/issues/5673)).
 
 ### 2.9.6 ###
 
