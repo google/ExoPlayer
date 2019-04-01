@@ -29,6 +29,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.media.AudioFormat;
 import android.net.ConnectivityManager;
@@ -445,18 +446,18 @@ public final class Util {
    * @return The all-lowercase normalized code, or null if the input was null, or {@code
    *     language.toLowerCase()} if the language could not be normalized.
    */
-  public static @Nullable String normalizeLanguageCode(@Nullable String language) {
+  public static @PolyNull String normalizeLanguageCode(@PolyNull String language) {
     if (language == null) {
       return null;
     }
     try {
-      Locale locale = Util.SDK_INT >= 21 ? Locale.forLanguageTag(language) : new Locale(language);
+      Locale locale = getLocaleForLanguageTag(language);
       int localeLanguageLength = locale.getLanguage().length();
       String normLanguage = locale.getISO3Language();
       if (normLanguage.isEmpty()) {
         return toLowerInvariant(language);
       }
-      String normTag = Util.SDK_INT >= 21 ? locale.toLanguageTag() : locale.toString();
+      String normTag = getLocaleLanguageTag(locale);
       return toLowerInvariant(normLanguage + normTag.substring(localeLanguageLength));
     } catch (MissingResourceException e) {
       return toLowerInvariant(language);
@@ -1754,6 +1755,18 @@ public final class Util {
   }
 
   /**
+   * Returns a non-empty array of normalized IETF BCP 47 language tags for the system languages
+   * ordered by preference.
+   */
+  public static String[] getSystemLanguageCodes() {
+    String[] systemLocales = getSystemLocales();
+    for (int i = 0; i < systemLocales.length; i++) {
+      systemLocales[i] = normalizeLanguageCode(systemLocales[i]);
+    }
+    return systemLocales;
+  }
+
+  /**
    * Uncompresses the data in {@code input}.
    *
    * @param input Wraps the compressed input data.
@@ -1934,6 +1947,35 @@ public final class Util {
 
   private static void getDisplaySizeV16(Display display, Point outSize) {
     display.getSize(outSize);
+  }
+
+  private static String[] getSystemLocales() {
+    return SDK_INT >= 24
+        ? getSystemLocalesV24()
+        : new String[] {getLocaleLanguageTag(Resources.getSystem().getConfiguration().locale)};
+  }
+
+  @TargetApi(24)
+  private static String[] getSystemLocalesV24() {
+    return Util.split(Resources.getSystem().getConfiguration().getLocales().toLanguageTags(), ",");
+  }
+
+  private static Locale getLocaleForLanguageTag(String languageTag) {
+    return Util.SDK_INT >= 21 ? getLocaleForLanguageTagV21(languageTag) : new Locale(languageTag);
+  }
+
+  @TargetApi(21)
+  private static Locale getLocaleForLanguageTagV21(String languageTag) {
+    return Locale.forLanguageTag(languageTag);
+  }
+
+  private static String getLocaleLanguageTag(Locale locale) {
+    return SDK_INT >= 21 ? getLocaleLanguageTagV21(locale) : locale.toString();
+  }
+
+  @TargetApi(21)
+  private static String getLocaleLanguageTagV21(Locale locale) {
+    return locale.toLanguageTag();
   }
 
   private static @C.NetworkType int getMobileNetworkType(NetworkInfo networkInfo) {
