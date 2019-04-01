@@ -18,6 +18,10 @@
   * Support encrypted initialization segments
     ([#5441](https://github.com/google/ExoPlayer/issues/5441)).
   * Parse `EXT-X-MEDIA` `CHARACTERISTICS` attribute into `Format.roleFlags`.
+* MPEG-TS: enable HDMV DTS stream detection only if a flag is set. By default
+  (if the flag is not set), the 0x82 elementary stream type is now treated as an
+  SCTE subtitle track
+  ([#5330](https://github.com/google/ExoPlayer/issues/5330)).
 * `ExtractorMediaSource` renamed to `ProgressiveMediaSource`.
 * Support for playing spherical videos on Daydream.
 * Improve decoder re-use between playbacks. TODO: Write and link a blog post
