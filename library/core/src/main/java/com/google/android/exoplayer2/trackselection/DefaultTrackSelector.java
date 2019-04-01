@@ -2073,23 +2073,23 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           if (languageScore > 0
               || (params.selectUndeterminedTextLanguage && formatHasNoLanguage(format))) {
             if (isDefault) {
-              trackScore = 13;
+              trackScore = 17;
             } else if (!isForced) {
               // Prefer non-forced to forced if a preferred text language has been specified. Where
               // both are provided the non-forced track will usually contain the forced subtitles as
               // a subset.
-              trackScore = 10;
+              trackScore = 13;
             } else {
-              trackScore = 7;
+              trackScore = 9;
             }
             trackScore += languageScore;
           } else if (isDefault) {
-            trackScore = 6;
+            trackScore = 8;
           } else if (isForced) {
             int preferredAudioLanguageScore =
                 getFormatLanguageScore(format, params.preferredAudioLanguage);
             if (preferredAudioLanguageScore > 0) {
-              trackScore = 3 + preferredAudioLanguageScore;
+              trackScore = 4 + preferredAudioLanguageScore;
             } else {
               trackScore = 1 + getFormatLanguageScore(format, selectedAudioLanguage);
             }
@@ -2293,21 +2293,32 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   }
 
   /**
-   * Returns a score for how well a language specified in a {@link Format} fits a given language.
+   * Returns a score for how well a language specified in a {@link Format} matches a given language.
    *
    * @param format The {@link Format}.
    * @param language The language, or null.
-   * @return A score of 0 if the languages don't fit, a score of 1 if the languages fit partly and a
-   *     score of 2 if the languages fit fully.
+   * @return A score of 3 if the languages match fully, a score of 2 if the languages match partly,
+   *     a score of 1 if the languages don't match but belong to the same main language, and a score
+   *     of 0 if the languages don't match at all.
    */
   protected static int getFormatLanguageScore(Format format, @Nullable String language) {
-    if (language == null) {
+    if (format.language == null || language == null) {
       return 0;
     }
-    if (TextUtils.equals(language, format.language)) {
+    if (TextUtils.equals(format.language, language)) {
+      return 3;
+    }
+    // Partial match where one language is a subset of the other (e.g. "zho-hans" and "zho-hans-hk")
+    if (format.language.startsWith(language) || language.startsWith(format.language)) {
       return 2;
     }
-    return format.language != null && format.language.startsWith(language) ? 1 : 0;
+    // Partial match where only the main language tag is the same (e.g. "fra-fr" and "fra-ca")
+    if (format.language.length() >= 3
+        && language.length() >= 3
+        && format.language.substring(0, 3).equals(language.substring(0, 3))) {
+      return 1;
+    }
+    return 0;
   }
 
   private static List<Integer> getViewportFilteredTrackIndices(TrackGroup group, int viewportWidth,
@@ -2385,18 +2396,20 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public final boolean isWithinConstraints;
 
     private final Parameters parameters;
-    private final int withinRendererCapabilitiesScore;
-    private final int matchLanguageScore;
-    private final int defaultSelectionFlagScore;
+    private final boolean isWithinRendererCapabilities;
+    private final int preferredLanguageScore;
+    private final int localeLanguageMatchIndex;
+    private final int localeLanguageScore;
+    private final boolean isDefaultSelectionFlag;
     private final int channelCount;
     private final int sampleRate;
     private final int bitrate;
 
     public AudioTrackScore(Format format, Parameters parameters, int formatSupport) {
       this.parameters = parameters;
-      withinRendererCapabilitiesScore = isSupported(formatSupport, false) ? 1 : 0;
-      matchLanguageScore = getFormatLanguageScore(format, parameters.preferredAudioLanguage);
-      defaultSelectionFlagScore = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0 ? 1 : 0;
+      isWithinRendererCapabilities = isSupported(formatSupport, false);
+      preferredLanguageScore = getFormatLanguageScore(format, parameters.preferredAudioLanguage);
+      isDefaultSelectionFlag = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
       channelCount = format.channelCount;
       sampleRate = format.sampleRate;
       bitrate = format.bitrate;
@@ -2404,6 +2417,19 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           (format.bitrate == Format.NO_VALUE || format.bitrate <= parameters.maxAudioBitrate)
               && (format.channelCount == Format.NO_VALUE
                   || format.channelCount <= parameters.maxAudioChannelCount);
+      String[] localeLanguages = Util.getSystemLanguageCodes();
+      int bestMatchIndex = Integer.MAX_VALUE;
+      int bestMatchScore = 0;
+      for (int i = 0; i < localeLanguages.length; i++) {
+        int score = getFormatLanguageScore(format, localeLanguages[i]);
+        if (score > 0) {
+          bestMatchIndex = i;
+          bestMatchScore = score;
+          break;
+        }
+      }
+      localeLanguageMatchIndex = bestMatchIndex;
+      localeLanguageScore = bestMatchScore;
     }
 
     /**
@@ -2415,12 +2441,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     @Override
     public int compareTo(@NonNull AudioTrackScore other) {
-      if (this.withinRendererCapabilitiesScore != other.withinRendererCapabilitiesScore) {
-        return compareInts(this.withinRendererCapabilitiesScore,
-            other.withinRendererCapabilitiesScore);
+      if (this.isWithinRendererCapabilities != other.isWithinRendererCapabilities) {
+        return this.isWithinRendererCapabilities ? 1 : -1;
       }
-      if (this.matchLanguageScore != other.matchLanguageScore) {
-        return compareInts(this.matchLanguageScore, other.matchLanguageScore);
+      if (this.preferredLanguageScore != other.preferredLanguageScore) {
+        return compareInts(this.preferredLanguageScore, other.preferredLanguageScore);
       }
       if (this.isWithinConstraints != other.isWithinConstraints) {
         return this.isWithinConstraints ? 1 : -1;
@@ -2431,12 +2456,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           return bitrateComparison > 0 ? -1 : 1;
         }
       }
-      if (this.defaultSelectionFlagScore != other.defaultSelectionFlagScore) {
-        return compareInts(this.defaultSelectionFlagScore, other.defaultSelectionFlagScore);
+      if (this.isDefaultSelectionFlag != other.isDefaultSelectionFlag) {
+        return this.isDefaultSelectionFlag ? 1 : -1;
+      }
+      if (this.localeLanguageMatchIndex != other.localeLanguageMatchIndex) {
+        return -compareInts(this.localeLanguageMatchIndex, other.localeLanguageMatchIndex);
+      }
+      if (this.localeLanguageScore != other.localeLanguageScore) {
+        return compareInts(this.localeLanguageScore, other.localeLanguageScore);
       }
       // If the formats are within constraints and renderer capabilities then prefer higher values
       // of channel count, sample rate and bit rate in that order. Otherwise, prefer lower values.
-      int resultSign = isWithinConstraints && withinRendererCapabilitiesScore == 1 ? 1 : -1;
+      int resultSign = isWithinConstraints && isWithinRendererCapabilities ? 1 : -1;
       if (this.channelCount != other.channelCount) {
         return resultSign * compareInts(this.channelCount, other.channelCount);
       }
