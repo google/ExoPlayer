@@ -42,12 +42,24 @@ public final class CacheUtil {
     public volatile long newlyCachedBytes;
     /** The length of the content being cached in bytes, or {@link C#LENGTH_UNSET} if unknown. */
     public volatile long contentLength = C.LENGTH_UNSET;
+    /** The percentage of cached data, or {@link C#PERCENTAGE_UNSET} if unavailable. */
+    public volatile float percentage;
 
     /**
      * Returns the sum of {@link #alreadyCachedBytes} and {@link #newlyCachedBytes}.
      */
     public long totalCachedBytes() {
       return alreadyCachedBytes + newlyCachedBytes;
+    }
+
+    /** Updates {@link #percentage} value using other values. */
+    public void updatePercentage() {
+      // Take local snapshot of the volatile field
+      long contentLength = this.contentLength;
+      percentage =
+          contentLength == C.LENGTH_UNSET
+              ? C.PERCENTAGE_UNSET
+              : ((totalCachedBytes() * 100f) / contentLength);
     }
   }
 
@@ -105,6 +117,7 @@ public final class CacheUtil {
       start += blockLength;
       left -= left == C.LENGTH_UNSET ? 0 : blockLength;
     }
+    counters.updatePercentage();
   }
 
   /**
@@ -293,6 +306,7 @@ public final class CacheUtil {
           }
           totalRead += read;
           counters.newlyCachedBytes += read;
+          counters.updatePercentage();
         }
         return totalRead;
       } catch (PriorityTaskManager.PriorityTooLowException exception) {
