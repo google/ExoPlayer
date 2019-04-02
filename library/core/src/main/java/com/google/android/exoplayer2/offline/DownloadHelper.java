@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.offline;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Message;
 import androidx.annotation.Nullable;
 import android.util.Pair;
@@ -315,10 +314,10 @@ public final class DownloadHelper {
   private final DefaultTrackSelector trackSelector;
   private final RendererCapabilities[] rendererCapabilities;
   private final SparseIntArray scratchSet;
+  private final Handler callbackHandler;
 
   private boolean isPreparedWithMedia;
   private @MonotonicNonNull Callback callback;
-  private @MonotonicNonNull Handler callbackHandler;
   private @MonotonicNonNull MediaPreparer mediaPreparer;
   private TrackGroupArray @MonotonicNonNull [] trackGroupArrays;
   private MappedTrackInfo @MonotonicNonNull [] mappedTrackInfos;
@@ -354,20 +353,18 @@ public final class DownloadHelper {
     this.scratchSet = new SparseIntArray();
     trackSelector.setParameters(trackSelectorParameters);
     trackSelector.init(/* listener= */ () -> {}, new DummyBandwidthMeter());
+    callbackHandler = new Handler(Util.getLooper());
   }
 
   /**
    * Initializes the helper for starting a download.
    *
-   * @param callback A callback to be notified when preparation completes or fails. The callback
-   *     will be invoked on the calling thread unless that thread does not have an associated {@link
-   *     Looper}, in which case it will be called on the application's main thread.
+   * @param callback A callback to be notified when preparation completes or fails.
    * @throws IllegalStateException If the download helper has already been prepared.
    */
   public void prepare(Callback callback) {
     Assertions.checkState(this.callback == null);
     this.callback = callback;
-    callbackHandler = new Handler(Util.getLooper());
     if (mediaSource != null) {
       mediaPreparer = new MediaPreparer(mediaSource, /* downloadHelper= */ this);
     } else {
