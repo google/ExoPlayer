@@ -47,22 +47,40 @@ import java.util.List;
 public final class TrackSelectionDialog extends DialogFragment {
 
   private final SparseArray<TrackSelectionViewFragment> tabFragments;
-  private final List<CharSequence> tabTitles;
+  private final ArrayList<Integer> tabTrackTypes;
 
   private int titleId;
-  private MappedTrackInfo mappedTrackInfo;
-  private DefaultTrackSelector.Parameters initialSelection;
-  private boolean allowAdaptiveSelections;
-  private boolean allowMultipleOverrides;
   private DialogInterface.OnClickListener onClickListener;
   private DialogInterface.OnDismissListener onDismissListener;
 
   /**
-   * Creates and initializes a dialog with a {@link DefaultTrackSelector} and automatically updates
-   * the track selector's parameters when tracks are selected.
+   * Returns whether a track selection dialog will have content to display if initialized with the
+   * specified {@link DefaultTrackSelector} in its current state.
+   */
+  public static boolean willHaveContent(DefaultTrackSelector trackSelector) {
+    MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+    return mappedTrackInfo != null && willHaveContent(mappedTrackInfo);
+  }
+
+  /**
+   * Returns whether a track selection dialog will have content to display if initialized with the
+   * specified {@link MappedTrackInfo}.
+   */
+  public static boolean willHaveContent(MappedTrackInfo mappedTrackInfo) {
+    for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+      if (showTabForRenderer(mappedTrackInfo, i)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Creates a dialog for a given {@link DefaultTrackSelector}, whose parameters will be
+   * automatically updated when tracks are selected.
    *
-   * @param trackSelector A {@link DefaultTrackSelector}.
-   * @param onDismissListener {@link DialogInterface.OnDismissListener} called when the dialog is
+   * @param trackSelector The {@link DefaultTrackSelector}.
+   * @param onDismissListener A {@link DialogInterface.OnDismissListener} to call when the dialog is
    *     dismissed.
    */
   public static TrackSelectionDialog createForTrackSelector(
@@ -74,7 +92,7 @@ public final class TrackSelectionDialog extends DialogFragment {
     trackSelectionDialog.init(
         /* titleId= */ R.string.track_selection_title,
         mappedTrackInfo,
-        /* initialSelection = */ parameters,
+        /* initialParameters = */ parameters,
         /* allowAdaptiveSelections =*/ true,
         /* allowMultipleOverrides= */ false,
         /* onClickListener= */ (dialog, which) -> {
@@ -100,20 +118,12 @@ public final class TrackSelectionDialog extends DialogFragment {
     return trackSelectionDialog;
   }
 
-  /** Creates the dialog. */
-  public TrackSelectionDialog() {
-    tabFragments = new SparseArray<>();
-    tabTitles = new ArrayList<>();
-    // Retain instance across activity re-creation to prevent losing access to init data.
-    setRetainInstance(true);
-  }
-
   /**
-   * Initializes the dialog.
+   * Creates a dialog for given {@link MappedTrackInfo} and {@link DefaultTrackSelector.Parameters}.
    *
    * @param titleId The resource id of the dialog title.
    * @param mappedTrackInfo The {@link MappedTrackInfo} to display.
-   * @param initialSelection The {@link DefaultTrackSelector.Parameters} describing the initial
+   * @param initialParameters The {@link DefaultTrackSelector.Parameters} describing the initial
    *     track selection.
    * @param allowAdaptiveSelections Whether adaptive selections (consisting of more than one track)
    *     can be made.
@@ -122,21 +132,60 @@ public final class TrackSelectionDialog extends DialogFragment {
    * @param onDismissListener {@link DialogInterface.OnDismissListener} called when the dialog is
    *     dismissed.
    */
-  public void init(
+  public static TrackSelectionDialog createForMappedTrackInfoAndParameters(
       int titleId,
       MappedTrackInfo mappedTrackInfo,
-      DefaultTrackSelector.Parameters initialSelection,
+      DefaultTrackSelector.Parameters initialParameters,
+      boolean allowAdaptiveSelections,
+      boolean allowMultipleOverrides,
+      DialogInterface.OnClickListener onClickListener,
+      DialogInterface.OnDismissListener onDismissListener) {
+    TrackSelectionDialog trackSelectionDialog = new TrackSelectionDialog();
+    trackSelectionDialog.init(
+        titleId,
+        mappedTrackInfo,
+        initialParameters,
+        allowAdaptiveSelections,
+        allowMultipleOverrides,
+        onClickListener,
+        onDismissListener);
+    return trackSelectionDialog;
+  }
+
+  public TrackSelectionDialog() {
+    tabFragments = new SparseArray<>();
+    tabTrackTypes = new ArrayList<>();
+    // Retain instance across activity re-creation to prevent losing access to init data.
+    setRetainInstance(true);
+  }
+
+  private void init(
+      int titleId,
+      MappedTrackInfo mappedTrackInfo,
+      DefaultTrackSelector.Parameters initialParameters,
       boolean allowAdaptiveSelections,
       boolean allowMultipleOverrides,
       DialogInterface.OnClickListener onClickListener,
       DialogInterface.OnDismissListener onDismissListener) {
     this.titleId = titleId;
-    this.mappedTrackInfo = mappedTrackInfo;
-    this.initialSelection = initialSelection;
-    this.allowAdaptiveSelections = allowAdaptiveSelections;
-    this.allowMultipleOverrides = allowMultipleOverrides;
     this.onClickListener = onClickListener;
     this.onDismissListener = onDismissListener;
+    for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+      if (showTabForRenderer(mappedTrackInfo, i)) {
+        int trackType = mappedTrackInfo.getRendererType(/* rendererIndex= */ i);
+        TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(i);
+        TrackSelectionViewFragment tabFragment = new TrackSelectionViewFragment();
+        tabFragment.init(
+            mappedTrackInfo,
+            /* rendererIndex= */ i,
+            initialParameters.getRendererDisabled(/* rendererIndex= */ i),
+            initialParameters.getSelectionOverride(/* rendererIndex= */ i, trackGroupArray),
+            allowAdaptiveSelections,
+            allowMultipleOverrides);
+        tabFragments.put(i, tabFragment);
+        tabTrackTypes.add(trackType);
+      }
+    }
   }
 
   /**
@@ -183,27 +232,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
-      TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(i);
-      if (trackGroupArray.length == 0) {
-        continue;
-      }
-      String trackTypeString =
-          getTrackTypeString(mappedTrackInfo.getRendererType(/* rendererIndex= */ i));
-      if (trackTypeString == null) {
-        continue;
-      }
-      TrackSelectionViewFragment tabFragment = new TrackSelectionViewFragment();
-      tabFragment.init(
-          mappedTrackInfo,
-          /* rendererIndex= */ i,
-          initialSelection.getRendererDisabled(/* rendererIndex= */ i),
-          initialSelection.getSelectionOverride(/* rendererIndex= */ i, trackGroupArray),
-          allowAdaptiveSelections,
-          allowMultipleOverrides);
-      tabFragments.put(i, tabFragment);
-      tabTitles.add(trackTypeString);
-    }
+
     View dialogView = inflater.inflate(R.layout.track_selection_dialog, container, false);
     TabLayout tabLayout = dialogView.findViewById(R.id.track_selection_dialog_tab_layout);
     ViewPager viewPager = dialogView.findViewById(R.id.track_selection_dialog_view_pager);
@@ -221,9 +250,27 @@ public final class TrackSelectionDialog extends DialogFragment {
     return dialogView;
   }
 
-  @Nullable
-  private String getTrackTypeString(int trackType) {
-    Resources resources = getResources();
+  private static boolean showTabForRenderer(MappedTrackInfo mappedTrackInfo, int rendererIndex) {
+    TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(rendererIndex);
+    if (trackGroupArray.length == 0) {
+      return false;
+    }
+    int trackType = mappedTrackInfo.getRendererType(rendererIndex);
+    return isSupportedTrackType(trackType);
+  }
+
+  private static boolean isSupportedTrackType(int trackType) {
+    switch (trackType) {
+      case C.TRACK_TYPE_VIDEO:
+      case C.TRACK_TYPE_AUDIO:
+      case C.TRACK_TYPE_TEXT:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  private static String getTrackTypeString(Resources resources, int trackType) {
     switch (trackType) {
       case C.TRACK_TYPE_VIDEO:
         return resources.getString(R.string.exo_track_selection_title_video);
@@ -232,7 +279,7 @@ public final class TrackSelectionDialog extends DialogFragment {
       case C.TRACK_TYPE_TEXT:
         return resources.getString(R.string.exo_track_selection_title_text);
       default:
-        return null;
+        throw new IllegalArgumentException();
     }
   }
 
@@ -255,7 +302,7 @@ public final class TrackSelectionDialog extends DialogFragment {
     @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
-      return tabTitles.get(position);
+      return getTrackTypeString(getResources(), tabTrackTypes.get(position));
     }
   }
 
