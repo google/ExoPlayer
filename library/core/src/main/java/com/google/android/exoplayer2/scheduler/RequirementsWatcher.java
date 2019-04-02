@@ -28,7 +28,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import androidx.annotation.RequiresApi;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
@@ -59,11 +58,12 @@ public final class RequirementsWatcher {
   private final Context context;
   private final Listener listener;
   private final Requirements requirements;
+  private final Handler handler;
+
   private DeviceStatusChangeReceiver receiver;
 
   @Requirements.RequirementFlags private int notMetRequirements;
   private CapabilityValidatedCallback networkCallback;
-  private Handler handler;
 
   /**
    * @param context Any context.
@@ -71,9 +71,10 @@ public final class RequirementsWatcher {
    * @param requirements The requirements to watch.
    */
   public RequirementsWatcher(Context context, Listener listener, Requirements requirements) {
-    this.requirements = requirements;
-    this.listener = listener;
     this.context = context.getApplicationContext();
+    this.listener = listener;
+    this.requirements = requirements;
+    handler = new Handler(Util.getLooper());
     logd(this + " created");
   }
 
@@ -85,9 +86,6 @@ public final class RequirementsWatcher {
    */
   @Requirements.RequirementFlags
   public int start() {
-    Assertions.checkNotNull(Looper.myLooper());
-    handler = new Handler();
-
     notMetRequirements = requirements.getNotMetRequirements(context);
 
     IntentFilter filter = new IntentFilter();
