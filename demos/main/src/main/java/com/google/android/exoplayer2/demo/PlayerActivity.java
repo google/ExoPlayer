@@ -199,6 +199,7 @@ public class PlayerActivity extends AppCompatActivity
 
   @Override
   public void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
     releasePlayer();
     releaseAdsLoader();
     clearStartPosition();
@@ -294,13 +295,15 @@ public class PlayerActivity extends AppCompatActivity
 
   @Override
   public void onClick(View view) {
-    if (view == selectTracksButton && !isShowingTrackSelectionDialog) {
+    if (view == selectTracksButton
+        && !isShowingTrackSelectionDialog
+        && TrackSelectionDialog.willHaveContent(trackSelector)) {
       isShowingTrackSelectionDialog = true;
-      TrackSelectionDialog newDialog =
+      TrackSelectionDialog trackSelectionDialog =
           TrackSelectionDialog.createForTrackSelector(
               trackSelector,
-              /* onDismissListener= */ dialog -> isShowingTrackSelectionDialog = false);
-      newDialog.show(getSupportFragmentManager(), /* tag= */ null);
+              /* onDismissListener= */ dismissedDialog -> isShowingTrackSelectionDialog = false);
+      trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
     }
   }
 
@@ -599,7 +602,7 @@ public class PlayerActivity extends AppCompatActivity
 
   private void updateButtonVisibility() {
     selectTracksButton.setEnabled(
-        player != null && trackSelector.getCurrentMappedTrackInfo() != null);
+        player != null && TrackSelectionDialog.willHaveContent(trackSelector));
   }
 
   private void showControls() {

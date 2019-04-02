@@ -197,7 +197,6 @@ public class DownloadTracker implements DownloadManager.Listener {
       if (trackSelectionDialog != null) {
         trackSelectionDialog.dismiss();
       }
-      startDownloadDialogHelper = null;
     }
 
     // DownloadHelper.Callback implementation.
@@ -206,21 +205,26 @@ public class DownloadTracker implements DownloadManager.Listener {
     public void onPrepared(DownloadHelper helper) {
       if (helper.getPeriodCount() == 0) {
         Log.d(TAG, "No periods found. Downloading entire stream.");
-        DownloadAction downloadAction = downloadHelper.getDownloadAction(Util.getUtf8Bytes(name));
-        startServiceWithAction(downloadAction);
+        startDownload();
         downloadHelper.release();
         return;
       }
       mappedTrackInfo = downloadHelper.getMappedTrackInfo(/* periodIndex= */ 0);
-      trackSelectionDialog = new TrackSelectionDialog();
-      trackSelectionDialog.init(
-          /* titleId= */ R.string.exo_download_description,
-          mappedTrackInfo,
-          /* initialSelection= */ DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
-          /* allowAdaptiveSelections =*/ false,
-          /* allowMultipleOverrides= */ true,
-          /* onClickListener= */ this,
-          /* onDismissListener= */ this);
+      if (!TrackSelectionDialog.willHaveContent(mappedTrackInfo)) {
+        Log.d(TAG, "No dialog content. Downloading entire stream.");
+        startDownload();
+        downloadHelper.release();
+        return;
+      }
+      trackSelectionDialog =
+          TrackSelectionDialog.createForMappedTrackInfoAndParameters(
+              /* titleId= */ R.string.exo_download_description,
+              mappedTrackInfo,
+              /* initialParameters= */ DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS,
+              /* allowAdaptiveSelections =*/ false,
+              /* allowMultipleOverrides= */ true,
+              /* onClickListener= */ this,
+              /* onDismissListener= */ this);
       trackSelectionDialog.show(fragmentManager, /* tag= */ null);
     }
 
@@ -248,8 +252,7 @@ public class DownloadTracker implements DownloadManager.Listener {
           }
         }
       }
-      DownloadAction downloadAction = downloadHelper.getDownloadAction(Util.getUtf8Bytes(name));
-      startServiceWithAction(downloadAction);
+      startDownload();
     }
 
     // DialogInterface.OnDismissListener implementation.
@@ -258,6 +261,13 @@ public class DownloadTracker implements DownloadManager.Listener {
     public void onDismiss(DialogInterface dialogInterface) {
       trackSelectionDialog = null;
       downloadHelper.release();
+    }
+
+    // Internal methods.
+
+    private void startDownload() {
+      DownloadAction downloadAction = downloadHelper.getDownloadAction(Util.getUtf8Bytes(name));
+      startServiceWithAction(downloadAction);
     }
   }
 }
