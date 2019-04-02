@@ -70,11 +70,10 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private final PriorityTaskManager priorityTaskManager;
   private final ArrayList<StreamKey> streamKeys;
   private final AtomicBoolean isCanceled;
+  private final CacheUtil.CachingCounters counters;
 
   private volatile int totalSegments;
   private volatile int downloadedSegments;
-  private volatile long downloadedBytes;
-  private volatile long totalBytes;
 
   /**
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
@@ -92,8 +91,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     this.cacheKeyFactory = constructorHelper.getCacheKeyFactory();
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
     totalSegments = C.LENGTH_UNSET;
-    totalBytes = C.LENGTH_UNSET;
     isCanceled = new AtomicBoolean();
+    counters = new CachingCounters();
   }
 
   /**
@@ -130,7 +129,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
               true);
           downloadedSegments++;
         } finally {
-          downloadedBytes += cachingCounters.newlyCachedBytes;
+          counters.newlyCachedBytes += cachingCounters.newlyCachedBytes;
+          updatePercentage();
         }
       }
     } finally {
@@ -145,27 +145,17 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
 
   @Override
   public final long getDownloadedBytes() {
-    return downloadedBytes;
+    return counters.totalCachedBytes();
   }
 
   @Override
   public long getTotalBytes() {
-    return totalBytes;
+    return counters.contentLength;
   }
 
   @Override
   public final float getDownloadPercentage() {
-    // Take local snapshot of the volatile fields
-    long totalBytes = this.totalBytes;
-    if (totalBytes != C.LENGTH_UNSET) {
-      return totalBytes == 0 ? 100f : (downloadedBytes * 100f) / totalBytes;
-    }
-    int totalSegments = this.totalSegments;
-    int downloadedSegments = this.downloadedSegments;
-    if (totalSegments == C.LENGTH_UNSET || downloadedSegments == C.LENGTH_UNSET) {
-      return C.PERCENTAGE_UNSET;
-    }
-    return totalSegments == 0 ? 100f : (downloadedSegments * 100f) / totalSegments;
+    return counters.percentage;
   }
 
   @Override
@@ -225,12 +215,13 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     CachingCounters cachingCounters = new CachingCounters();
     totalSegments = segments.size();
     downloadedSegments = 0;
-    downloadedBytes = 0;
+    counters.alreadyCachedBytes = 0;
+    counters.newlyCachedBytes = 0;
     long totalBytes = 0;
     for (int i = segments.size() - 1; i >= 0; i--) {
       Segment segment = segments.get(i);
       CacheUtil.getCached(segment.dataSpec, cache, cacheKeyFactory, cachingCounters);
-      downloadedBytes += cachingCounters.alreadyCachedBytes;
+      counters.alreadyCachedBytes += cachingCounters.alreadyCachedBytes;
       if (cachingCounters.contentLength != C.LENGTH_UNSET) {
         if (cachingCounters.alreadyCachedBytes == cachingCounters.contentLength) {
           // The segment is fully downloaded.
@@ -244,8 +235,21 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
         totalBytes = C.LENGTH_UNSET;
       }
     }
-    this.totalBytes = totalBytes;
+    counters.contentLength = totalBytes;
+    updatePercentage();
     return segments;
+  }
+
+  private void updatePercentage() {
+    counters.updatePercentage();
+    if (counters.percentage == C.PERCENTAGE_UNSET) {
+      int totalSegments = this.totalSegments;
+      int downloadedSegments = this.downloadedSegments;
+      if (totalSegments != C.LENGTH_UNSET && downloadedSegments != C.LENGTH_UNSET) {
+        counters.percentage =
+            totalSegments == 0 ? 100f : (downloadedSegments * 100f) / totalSegments;
+      }
+    }
   }
 
   private void removeDataSpec(DataSpec dataSpec) {
