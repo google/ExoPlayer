@@ -62,6 +62,7 @@ public final class SimpleCache implements Cache {
   private static final HashSet<File> lockedCacheDirs = new HashSet<>();
 
   private static boolean cacheFolderLockingDisabled;
+  private static boolean cacheInitializationExceptionsDisabled;
 
   private final File cacheDir;
   private final CacheEvictor evictor;
@@ -98,6 +99,16 @@ public final class SimpleCache implements Cache {
   public static synchronized void disableCacheFolderLocking() {
     cacheFolderLockingDisabled = true;
     lockedCacheDirs.clear();
+  }
+
+  /**
+   * Disables throwing of cache initialization exceptions.
+   *
+   * @deprecated Don't use this. Provided for problematic upgrade cases only.
+   */
+  @Deprecated
+  public static void disableCacheInitializationExceptions() {
+    cacheInitializationExceptionsDisabled = true;
   }
 
   /**
@@ -272,7 +283,7 @@ public final class SimpleCache implements Cache {
    * @throws CacheException If an error occurred during initialization.
    */
   public synchronized void checkInitialization() throws CacheException {
-    if (initializationException != null) {
+    if (!cacheInitializationExceptionsDisabled && initializationException != null) {
       throw initializationException;
     }
   }
