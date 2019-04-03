@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
 import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -745,6 +746,11 @@ public class DownloadManagerTest {
     @Override
     public float getDownloadPercentage() {
       return C.PERCENTAGE_UNSET;
+    }
+
+    @Override
+    public CachingCounters getCounters() {
+      return null;
     }
 
     private void assertDoesNotStart() throws InterruptedException {

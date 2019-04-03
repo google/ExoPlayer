@@ -159,6 +159,11 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   }
 
   @Override
+  public CachingCounters getCounters() {
+    return counters;
+  }
+
+  @Override
   public final void remove() throws InterruptedException {
     try {
       M manifest = getManifest(offlineDataSource, manifestDataSpec);
