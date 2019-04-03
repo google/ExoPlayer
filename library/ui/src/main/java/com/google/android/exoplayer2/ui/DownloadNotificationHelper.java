@@ -75,11 +75,12 @@ public final class DownloadNotificationHelper {
         continue;
       }
       haveDownloadTasks = true;
-      if (downloadState.downloadPercentage != C.PERCENTAGE_UNSET) {
+      float downloadPercentage = downloadState.getDownloadPercentage();
+      if (downloadPercentage != C.PERCENTAGE_UNSET) {
         allDownloadPercentagesUnknown = false;
-        totalPercentage += downloadState.downloadPercentage;
+        totalPercentage += downloadPercentage;
       }
-      haveDownloadedBytes |= downloadState.downloadedBytes > 0;
+      haveDownloadedBytes |= downloadState.getDownloadedBytes() > 0;
       downloadTaskCount++;
     }
 

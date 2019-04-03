@@ -270,9 +270,9 @@ public class DownloadStateTest {
   static void assertEqual(
       DownloadState downloadState, DownloadState that, boolean compareTimeFields) {
     assertThat(downloadState.state).isEqualTo(that.state);
-    assertThat(downloadState.downloadPercentage).isEqualTo(that.downloadPercentage);
-    assertThat(downloadState.downloadedBytes).isEqualTo(that.downloadedBytes);
-    assertThat(downloadState.totalBytes).isEqualTo(that.totalBytes);
+    assertThat(downloadState.getDownloadPercentage()).isEqualTo(that.getDownloadPercentage());
+    assertThat(downloadState.getDownloadedBytes()).isEqualTo(that.getDownloadedBytes());
+    assertThat(downloadState.getTotalBytes()).isEqualTo(that.getTotalBytes());
     if (compareTimeFields) {
       assertThat(downloadState.startTimeMs).isEqualTo(that.startTimeMs);
       assertThat(downloadState.updateTimeMs).isEqualTo(that.updateTimeMs);

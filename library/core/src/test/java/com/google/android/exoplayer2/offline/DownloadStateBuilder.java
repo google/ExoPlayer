@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 
 /**
  * Builder for DownloadState.
@@ -27,14 +27,12 @@ import com.google.android.exoplayer2.C;
  * during test initialization.
  */
 class DownloadStateBuilder {
+  private final CachingCounters counters;
   private String id;
   private String type;
   private Uri uri;
   @Nullable private String cacheKey;
   private int state;
-  private float downloadPercentage;
-  private long downloadedBytes;
-  private long totalBytes;
   private int failureReason;
   private int notMetRequirements;
   private int manualStopReason;
@@ -69,14 +67,12 @@ class DownloadStateBuilder {
     this.uri = uri;
     this.cacheKey = cacheKey;
     this.state = DownloadState.STATE_QUEUED;
-    this.downloadPercentage = (float) C.PERCENTAGE_UNSET;
-    this.downloadedBytes = (long) 0;
-    this.totalBytes = (long) C.LENGTH_UNSET;
     this.failureReason = DownloadState.FAILURE_REASON_NONE;
     this.startTimeMs = (long) 0;
     this.updateTimeMs = (long) 0;
     this.streamKeys = streamKeys;
     this.customMetadata = customMetadata;
+    this.counters = new CachingCounters();
   }
 
   public DownloadStateBuilder setId(String id) {
@@ -110,17 +106,17 @@ class DownloadStateBuilder {
   }
 
   public DownloadStateBuilder setDownloadPercentage(float downloadPercentage) {
-    this.downloadPercentage = downloadPercentage;
+    counters.percentage = downloadPercentage;
     return this;
   }
 
   public DownloadStateBuilder setDownloadedBytes(long downloadedBytes) {
-    this.downloadedBytes = downloadedBytes;
+    counters.alreadyCachedBytes = downloadedBytes;
     return this;
   }
 
   public DownloadStateBuilder setTotalBytes(long totalBytes) {
-    this.totalBytes = totalBytes;
+    counters.contentLength = totalBytes;
     return this;
   }
 
@@ -166,15 +162,13 @@ class DownloadStateBuilder {
         uri,
         cacheKey,
         state,
-        downloadPercentage,
-        downloadedBytes,
-        totalBytes,
         failureReason,
         notMetRequirements,
         manualStopReason,
         startTimeMs,
         updateTimeMs,
         streamKeys,
-        customMetadata);
+        customMetadata,
+        counters);
   }
 }

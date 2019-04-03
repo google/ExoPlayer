@@ -26,6 +26,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
+import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
@@ -199,9 +200,9 @@ public final class DefaultDownloadIndex implements DownloadIndex {
       values.put(COLUMN_URI, downloadState.uri.toString());
       values.put(COLUMN_CACHE_KEY, downloadState.cacheKey);
       values.put(COLUMN_STATE, downloadState.state);
-      values.put(COLUMN_DOWNLOAD_PERCENTAGE, downloadState.downloadPercentage);
-      values.put(COLUMN_DOWNLOADED_BYTES, downloadState.downloadedBytes);
-      values.put(COLUMN_TOTAL_BYTES, downloadState.totalBytes);
+      values.put(COLUMN_DOWNLOAD_PERCENTAGE, downloadState.getDownloadPercentage());
+      values.put(COLUMN_DOWNLOADED_BYTES, downloadState.getDownloadedBytes());
+      values.put(COLUMN_TOTAL_BYTES, downloadState.getTotalBytes());
       values.put(COLUMN_FAILURE_REASON, downloadState.failureReason);
       values.put(COLUMN_STOP_FLAGS, /*stopFlags*/ 0);
       values.put(COLUMN_NOT_MET_REQUIREMENTS, downloadState.notMetRequirements);
@@ -341,22 +342,24 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   }
 
   private static DownloadState getDownloadStateForCurrentRow(Cursor cursor) {
+    CachingCounters cachingCounters = new CachingCounters();
+    cachingCounters.alreadyCachedBytes = cursor.getLong(COLUMN_INDEX_DOWNLOADED_BYTES);
+    cachingCounters.contentLength = cursor.getLong(COLUMN_INDEX_TOTAL_BYTES);
+    cachingCounters.percentage = cursor.getFloat(COLUMN_INDEX_DOWNLOAD_PERCENTAGE);
     return new DownloadState(
         cursor.getString(COLUMN_INDEX_ID),
         cursor.getString(COLUMN_INDEX_TYPE),
         Uri.parse(cursor.getString(COLUMN_INDEX_URI)),
         cursor.getString(COLUMN_INDEX_CACHE_KEY),
         cursor.getInt(COLUMN_INDEX_STATE),
-        cursor.getFloat(COLUMN_INDEX_DOWNLOAD_PERCENTAGE),
-        cursor.getLong(COLUMN_INDEX_DOWNLOADED_BYTES),
-        cursor.getLong(COLUMN_INDEX_TOTAL_BYTES),
         cursor.getInt(COLUMN_INDEX_FAILURE_REASON),
         cursor.getInt(COLUMN_INDEX_NOT_MET_REQUIREMENTS),
         cursor.getInt(COLUMN_INDEX_MANUAL_STOP_REASON),
         cursor.getLong(COLUMN_INDEX_START_TIME_MS),
         cursor.getLong(COLUMN_INDEX_UPDATE_TIME_MS),
         decodeStreamKeys(cursor.getString(COLUMN_INDEX_STREAM_KEYS)),
-        cursor.getBlob(COLUMN_INDEX_CUSTOM_METADATA));
+        cursor.getBlob(COLUMN_INDEX_CUSTOM_METADATA),
+        cachingCounters);
   }
 
   private static String encodeStreamKeys(StreamKey[] streamKeys) {
