@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
+import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import java.io.IOException;
@@ -699,7 +700,9 @@ public final class DownloadManager {
       }
       simultaneousDownloads++;
     }
-    activeDownloads.put(download, new DownloadThread(download));
+    DownloadThread downloadThread = new DownloadThread(download);
+    activeDownloads.put(download, downloadThread);
+    download.setCounters(downloadThread.downloader.getCounters());
     logd("Download is started", download);
     return START_THREAD_SUCCEEDED;
   }
@@ -744,15 +747,6 @@ public final class DownloadManager {
     maybeNotifyListenersIdle();
   }
 
-  @Nullable
-  private Downloader getDownloader(Download download) {
-    DownloadThread downloadThread = activeDownloads.get(download);
-    if (downloadThread != null) {
-      return downloadThread.downloader;
-    }
-    return null;
-  }
-
   private static final class Download {
     private final DownloadManager downloadManager;
 
@@ -794,15 +788,6 @@ public final class DownloadManager {
     }
 
     public DownloadState getUpdatedDownloadState() {
-      float downloadPercentage = C.PERCENTAGE_UNSET;
-      long downloadedBytes = 0;
-      long totalBytes = C.LENGTH_UNSET;
-      Downloader downloader = downloadManager.getDownloader(this);
-      if (downloader != null) {
-        downloadPercentage = downloader.getDownloadPercentage();
-        downloadedBytes = downloader.getDownloadedBytes();
-        totalBytes = downloader.getTotalBytes();
-      }
       downloadState =
           new DownloadState(
               downloadState.id,
@@ -810,16 +795,14 @@ public final class DownloadManager {
               downloadState.uri,
               downloadState.cacheKey,
               state,
-              downloadPercentage,
-              downloadedBytes,
-              totalBytes,
               state != STATE_FAILED ? FAILURE_REASON_NONE : failureReason,
               notMetRequirements,
               manualStopReason,
               downloadState.startTimeMs,
               /* updateTimeMs= */ System.currentTimeMillis(),
               downloadState.streamKeys,
-              downloadState.customMetadata);
+              downloadState.customMetadata,
+              downloadState.counters);
       return downloadState;
     }
 
@@ -866,6 +849,10 @@ public final class DownloadManager {
 
     public boolean isInRemoveState() {
       return state == STATE_REMOVING || state == STATE_RESTARTING;
+    }
+
+    public void setCounters(CachingCounters counters) {
+      downloadState.setCounters(counters);
     }
 
     private void updateStopState() {

@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloadState.State;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
@@ -631,13 +630,13 @@ public class DownloadManagerTest {
     private volatile boolean interrupted;
     private volatile boolean cancelled;
     private volatile boolean enableDownloadIOException;
-    private volatile int downloadedBytes;
     private volatile int startCount;
+    private CachingCounters counters;
 
     private FakeDownloader() {
       this.started = new CountDownLatch(1);
       this.blocker = new com.google.android.exoplayer2.util.ConditionVariable();
-      downloadedBytes = C.LENGTH_UNSET;
+      counters = new CachingCounters();
     }
 
     @SuppressWarnings({"NonAtomicOperationOnVolatileField", "NonAtomicVolatileUpdate"})
@@ -735,22 +734,22 @@ public class DownloadManagerTest {
 
     @Override
     public long getDownloadedBytes() {
-      return downloadedBytes;
+      return counters.newlyCachedBytes;
     }
 
     @Override
     public long getTotalBytes() {
-      return C.LENGTH_UNSET;
+      return counters.contentLength;
     }
 
     @Override
     public float getDownloadPercentage() {
-      return C.PERCENTAGE_UNSET;
+      return counters.percentage;
     }
 
     @Override
     public CachingCounters getCounters() {
-      return null;
+      return counters;
     }
 
     private void assertDoesNotStart() throws InterruptedException {
@@ -760,7 +759,7 @@ public class DownloadManagerTest {
 
     @SuppressWarnings({"NonAtomicOperationOnVolatileField", "NonAtomicVolatileUpdate"})
     private void increaseDownloadedByteCount() {
-      downloadedBytes++;
+      counters.newlyCachedBytes++;
     }
   }
 }

@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags;
+import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -127,12 +128,6 @@ public final class DownloadState {
   @Nullable public final String cacheKey;
   /** The state of the download. */
   @State public final int state;
-  /** The estimated download percentage, or {@link C#PERCENTAGE_UNSET} if unavailable. */
-  public final float downloadPercentage;
-  /** The total number of downloaded bytes. */
-  public final long downloadedBytes;
-  /** The total size of the media, or {@link C#LENGTH_UNSET} if unknown. */
-  public final long totalBytes;
   /** The first time when download entry is created. */
   public final long startTimeMs;
   /** The last update time. */
@@ -151,6 +146,8 @@ public final class DownloadState {
   /** The manual stop reason. */
   public final int manualStopReason;
 
+  /*package*/ CachingCounters counters;
+
   /**
    * Creates a {@link DownloadState} using a {@link DownloadAction}.
    *
@@ -167,16 +164,14 @@ public final class DownloadState {
         action.uri,
         action.customCacheKey,
         /* state= */ STATE_QUEUED,
-        /* downloadPercentage= */ C.PERCENTAGE_UNSET,
-        /* downloadedBytes= */ 0,
-        /* totalBytes= */ C.LENGTH_UNSET,
         FAILURE_REASON_NONE,
         /* notMetRequirements= */ 0,
         /* manualStopReason= */ 0,
         /* startTimeMs= */ currentTimeMs,
         /* updateTimeMs= */ currentTimeMs,
         action.keys.toArray(new StreamKey[0]),
-        action.data);
+        action.data,
+        new CachingCounters());
   }
 
   /* package */ DownloadState(
@@ -185,16 +180,15 @@ public final class DownloadState {
       Uri uri,
       @Nullable String cacheKey,
       @State int state,
-      float downloadPercentage,
-      long downloadedBytes,
-      long totalBytes,
       @FailureReason int failureReason,
       @RequirementFlags int notMetRequirements,
       int manualStopReason,
       long startTimeMs,
       long updateTimeMs,
       StreamKey[] streamKeys,
-      byte[] customMetadata) {
+      byte[] customMetadata,
+      CachingCounters counters) {
+    Assertions.checkNotNull(counters);
     Assertions.checkState((failureReason == FAILURE_REASON_NONE) == (state != STATE_FAILED));
     if (manualStopReason != 0 || notMetRequirements != 0) {
       Assertions.checkState(state != STATE_DOWNLOADING && state != STATE_QUEUED);
@@ -204,9 +198,6 @@ public final class DownloadState {
     this.uri = uri;
     this.cacheKey = cacheKey;
     this.state = state;
-    this.downloadPercentage = downloadPercentage;
-    this.downloadedBytes = downloadedBytes;
-    this.totalBytes = totalBytes;
     this.failureReason = failureReason;
     this.notMetRequirements = notMetRequirements;
     this.manualStopReason = manualStopReason;
@@ -214,6 +205,7 @@ public final class DownloadState {
     this.updateTimeMs = updateTimeMs;
     this.streamKeys = streamKeys;
     this.customMetadata = customMetadata;
+    this.counters = counters;
   }
 
   /**
@@ -232,16 +224,14 @@ public final class DownloadState {
         action.uri,
         action.customCacheKey,
         getNextState(state, manualStopReason != 0 || notMetRequirements != 0),
-        /* downloadPercentage= */ C.PERCENTAGE_UNSET,
-        downloadedBytes,
-        /* totalBytes= */ C.LENGTH_UNSET,
         FAILURE_REASON_NONE,
         notMetRequirements,
         manualStopReason,
         startTimeMs,
         /* updateTimeMs= */ System.currentTimeMillis(),
         mergeStreamKeys(this, action),
-        action.data);
+        action.data,
+        counters);
   }
 
   /** Returns a duplicate {@link DownloadState} in {@link #STATE_REMOVING}. */
@@ -252,16 +242,42 @@ public final class DownloadState {
         uri,
         cacheKey,
         STATE_REMOVING,
-        /* downloadPercentage= */ C.PERCENTAGE_UNSET,
-        downloadedBytes,
-        /* totalBytes= */ C.LENGTH_UNSET,
         FAILURE_REASON_NONE,
         notMetRequirements,
         manualStopReason,
         startTimeMs,
         /* updateTimeMs= */ System.currentTimeMillis(),
         streamKeys,
-        customMetadata);
+        customMetadata,
+        counters);
+  }
+
+  /** Returns the total number of downloaded bytes. */
+  public long getDownloadedBytes() {
+    return counters.totalCachedBytes();
+  }
+
+  /** Returns the total size of the media, or {@link C#LENGTH_UNSET} if unknown. */
+  public long getTotalBytes() {
+    return counters.contentLength;
+  }
+
+  /**
+   * Returns the estimated download percentage, or {@link C#PERCENTAGE_UNSET} if no estimate is
+   * available.
+   */
+  public float getDownloadPercentage() {
+    return counters.percentage;
+  }
+
+  /**
+   * Sets counters which are updated by a {@link Downloader}.
+   *
+   * @param counters An instance of {@link CachingCounters}.
+   */
+  protected void setCounters(CachingCounters counters) {
+    Assertions.checkNotNull(counters);
+    this.counters = counters;
   }
 
   private static int getNextState(int currentState, boolean isStopped) {
