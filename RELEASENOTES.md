@@ -96,6 +96,9 @@
 * Use full BCP 47 language tags in `Format`.
 * Take byte offset into account when unsynchronizing an id3 frame
   ([#5673](https://github.com/google/ExoPlayer/issues/5673)).
+* Handle meta atom as a full box when parsing mp4
+  ([#5698](https://github.com/google/ExoPlayer/issues/5698),
+  [#5694](https://github.com/google/ExoPlayer/issues/5694)).
 
 ### 2.9.6 ###
 
