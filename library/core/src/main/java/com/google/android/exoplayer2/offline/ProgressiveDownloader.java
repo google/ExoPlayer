@@ -107,6 +107,11 @@ public final class ProgressiveDownloader implements Downloader {
   }
 
   @Override
+  public CachingCounters getCounters() {
+    return cachingCounters;
+  }
+
+  @Override
   public void remove() {
     CacheUtil.remove(dataSpec, cache, cacheKeyFactory);
   }

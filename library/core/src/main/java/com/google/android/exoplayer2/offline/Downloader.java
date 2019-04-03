@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.offline;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import java.io.IOException;
 
 /**
@@ -46,6 +47,9 @@ public interface Downloader {
    * available.
    */
   float getDownloadPercentage();
+
+  /** Returns a {@link CachingCounters} which holds download counters. */
+  CachingCounters getCounters();
 
   /**
    * Removes the media.
