@@ -29,9 +29,7 @@ import static com.google.android.exoplayer2.offline.DownloadState.STATE_RESTARTI
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_STOPPED;
 
 import android.content.Context;
-import android.os.ConditionVariable;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -46,7 +44,6 @@ import com.google.android.exoplayer2.util.Log;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -135,11 +132,11 @@ public final class DownloadManager {
   private final DownloaderFactory downloaderFactory;
   private final ArrayList<Download> downloads;
   private final HashMap<Download, DownloadThread> activeDownloads;
-  private final Handler handler;
-  private final HandlerThread fileIOThread;
-  private final Handler fileIOHandler;
+  private final Handler mainHandler;
+  /*TODO
+  private final HandlerThread internalThread;
+  private final Handler internalHandler;*/
   private final CopyOnWriteArraySet<Listener> listeners;
-  private final ArrayDeque<DownloadUpdater> dowloadUpdateQueue;
 
   private boolean initialized;
   private boolean released;
@@ -147,7 +144,6 @@ public final class DownloadManager {
   private int manualStopReason;
   private RequirementsWatcher requirementsWatcher;
   private int simultaneousDownloads;
-  private boolean loadingDownload;
 
   /**
    * Constructs a {@link DownloadManager}.
@@ -224,14 +220,14 @@ public final class DownloadManager {
     if (looper == null) {
       looper = Looper.getMainLooper();
     }
-    handler = new Handler(looper);
+    mainHandler = new Handler(looper);
 
-    fileIOThread = new HandlerThread("DownloadManager file i/o");
-    fileIOThread.start();
-    fileIOHandler = new Handler(fileIOThread.getLooper());
+    /*TODO
+    internalThread = new HandlerThread("DownloadManager file i/o");
+    internalThread.start();
+    internalHandler = new Handler(internalThread.getLooper());*/
 
     listeners = new CopyOnWriteArraySet<>();
-    dowloadUpdateQueue = new ArrayDeque<>();
 
     setNotMetRequirements(watchRequirements(requirements));
     loadDownloads();
@@ -247,10 +243,7 @@ public final class DownloadManager {
   /** Returns whether there are no active downloads. */
   public boolean isIdle() {
     Assertions.checkState(!released);
-    return initialized
-        && activeDownloads.isEmpty()
-        && dowloadUpdateQueue.isEmpty()
-        && !loadingDownload;
+    return initialized && activeDownloads.isEmpty();
   }
 
   /** Returns the used {@link DownloadIndex}. */
@@ -398,6 +391,12 @@ public final class DownloadManager {
     if (released) {
       return;
     }
+    /*TODO call releaseInternal on internal thread.
+    final ConditionVariable fileIOFinishedCondition = new ConditionVariable();
+    internalHandler.post(fileIOFinishedCondition::open);
+    fileIOFinishedCondition.block();
+    internalThread.quit();
+    */
     releaseInternal();
   }
 
@@ -409,10 +408,6 @@ public final class DownloadManager {
     if (requirementsWatcher != null) {
       requirementsWatcher.stop();
     }
-    final ConditionVariable fileIOFinishedCondition = new ConditionVariable();
-    fileIOHandler.post(fileIOFinishedCondition::open);
-    fileIOFinishedCondition.block();
-    fileIOThread.quit();
     logd("Released");
   }
 
@@ -438,67 +433,46 @@ public final class DownloadManager {
         downloads.get(i).setManualStopReason(manualStopReason);
       }
     }
-    fileIOHandler.post(
-        () -> {
-          try {
-            if (id != null) {
-              downloadIndex.setManualStopReason(id, manualStopReason);
-            } else {
-              downloadIndex.setManualStopReason(manualStopReason);
-            }
-          } catch (DatabaseIOException e) {
-            Log.e(TAG, "setManualStopReason failed", e);
-          }
-        });
+    try {
+      if (id != null) {
+        downloadIndex.setManualStopReason(id, manualStopReason);
+      } else {
+        downloadIndex.setManualStopReason(manualStopReason);
+      }
+    } catch (DatabaseIOException e) {
+      Log.e(TAG, "setManualStopReason failed", e);
+    }
   }
 
   private void addDownloadInternal(DownloadAction action) {
-    dowloadUpdateQueue.add(
-        new DownloadUpdater(action.id) {
-          @Override
-          void onExisting(Download download) {
-            download.addAction(action);
-            logd("Action is added to existing download", download);
-          }
-
-          @Override
-          DownloadState onLoad(@Nullable DownloadState downloadState) {
-            DownloadState state;
-            if (downloadState == null) {
-              state = new DownloadState(action);
-              logd("Download state is created for " + id);
-            } else {
-              state = downloadState.mergeAction(action);
-              logd("Download state is loaded for " + id);
-            }
-            return state;
-          }
-        });
-    if (initialized) {
-      processDownloadUpdateQueue();
+    Download download = getDownload(action.id);
+    if (download != null) {
+      download.addAction(action);
+      logd("Action is added to existing download", download);
+    } else {
+      DownloadState downloadState = loadDownloadState(action.id);
+      if (downloadState == null) {
+        downloadState = new DownloadState(action);
+        logd("Download state is created for " + action.id);
+      } else {
+        downloadState = downloadState.mergeAction(action);
+        logd("Download state is loaded for " + action.id);
+      }
+      addDownloadForState(downloadState);
     }
   }
 
   private void removeDownloadInternal(String id) {
-    dowloadUpdateQueue.add(
-        new DownloadUpdater(id) {
-          @Override
-          void onExisting(Download download) {
-            download.remove();
-          }
-
-          @Override
-          DownloadState onLoad(@Nullable DownloadState downloadState) {
-            if (downloadState != null) {
-              downloadState = downloadState.setRemoveState();
-            } else {
-              logd("Can't remove download. No download with id: " + id);
-            }
-            return downloadState;
-          }
-        });
-    if (initialized) {
-      processDownloadUpdateQueue();
+    Download download = getDownload(id);
+    if (download != null) {
+      download.remove();
+    } else {
+      DownloadState downloadState = loadDownloadState(id);
+      if (downloadState != null) {
+        addDownloadForState(downloadState.setRemoveState());
+      } else {
+        logd("Can't remove download. No download with id: " + id);
+      }
     }
   }
 
@@ -561,84 +535,41 @@ public final class DownloadManager {
     return null;
   }
 
-  private void processDownloadUpdateQueue() {
-    while (!loadingDownload && !dowloadUpdateQueue.isEmpty()) {
-      DownloadUpdater downloadUpdater = dowloadUpdateQueue.remove();
-      Download download = getDownload(downloadUpdater.id);
-      if (download != null) {
-        downloadUpdater.onExisting(download);
-      } else {
-        loadDownload(downloadUpdater);
-      }
+  private DownloadState loadDownloadState(String id) {
+    try {
+      return downloadIndex.getDownloadState(id);
+    } catch (DatabaseIOException e) {
+      Log.e(TAG, "loadDownload failed", e);
     }
-  }
-
-  private void loadDownload(DownloadUpdater callback) {
-    loadingDownload = true;
-    fileIOHandler.post(
-        () -> {
-          DownloadState downloadState = null;
-          try {
-            downloadState = downloadIndex.getDownloadState(callback.id);
-          } catch (DatabaseIOException e) {
-            Log.e(TAG, "loadDownload failed", e);
-          }
-          DownloadState finalDownloadState = downloadState;
-          handler.post(
-              () -> {
-                loadingDownload = false;
-                if (!released) {
-                  DownloadState state = callback.onLoad(finalDownloadState);
-                  if (state != null) {
-                    addDownloadForState(state);
-                  }
-                  processDownloadUpdateQueue();
-                }
-              });
-        });
+    return null;
   }
 
   private void loadDownloads() {
-    fileIOHandler.post(
-        () -> {
-          DownloadState[] loadedStates;
-          try (DownloadStateCursor cursor =
-              downloadIndex.getDownloadStates(
-                  STATE_QUEUED,
-                  STATE_STOPPED,
-                  STATE_DOWNLOADING,
-                  STATE_REMOVING,
-                  STATE_RESTARTING)) {
-            loadedStates = new DownloadState[cursor.getCount()];
-            for (int i = 0, length = loadedStates.length; i < length; i++) {
-              cursor.moveToNext();
-              loadedStates[i] = cursor.getDownloadState();
-            }
-            logd("Download states are loaded.");
-          } catch (Throwable e) {
-            Log.e(TAG, "Download state loading failed.", e);
-            loadedStates = new DownloadState[0];
-          }
-          final DownloadState[] states = loadedStates;
-          handler.post(
-              () -> {
-                if (released) {
-                  return;
-                }
-                for (DownloadState downloadState : states) {
-                  addDownloadForState(downloadState);
-                }
-                logd("Downloads are created.");
-                initialized = true;
-                processDownloadUpdateQueue();
-                for (Listener listener : listeners) {
-                  listener.onInitialized(DownloadManager.this);
-                }
-                for (int i = 0; i < downloads.size(); i++) {
-                  downloads.get(i).start();
-                }
-              });
-        });
+    DownloadState[] loadedStates;
+    try (DownloadStateCursor cursor =
+        downloadIndex.getDownloadStates(
+            STATE_QUEUED, STATE_STOPPED, STATE_DOWNLOADING, STATE_REMOVING, STATE_RESTARTING)) {
+      loadedStates = new DownloadState[cursor.getCount()];
+      for (int i = 0, length = loadedStates.length; i < length; i++) {
+        cursor.moveToNext();
+        loadedStates[i] = cursor.getDownloadState();
+      }
+      logd("Download states are loaded.");
+    } catch (Throwable e) {
+      Log.e(TAG, "Download state loading failed.", e);
+      loadedStates = new DownloadState[0];
+    }
+    for (DownloadState downloadState : loadedStates) {
+      addDownloadForState(downloadState);
+    }
+    logd("Downloads are created.");
+    initialized = true;
+    for (Listener listener : listeners) {
+      listener.onInitialized(DownloadManager.this);
+    }
+    for (int i = 0; i < downloads.size(); i++) {
+      downloads.get(i).start();
+    }
   }
 
   private void addDownloadForState(DownloadState downloadState) {
@@ -648,21 +579,15 @@ public final class DownloadManager {
   }
 
   private void updateDownloadIndex(DownloadState downloadState) {
-    fileIOHandler.post(
-        () -> {
-          if (released) {
-            return;
-          }
-          try {
-            if (downloadState.state == DownloadState.STATE_REMOVED) {
-              downloadIndex.removeDownloadState(downloadState.id);
-            } else {
-              downloadIndex.putDownloadState(downloadState);
-            }
-          } catch (DatabaseIOException e) {
-            Log.e(TAG, "updateDownloadIndex failed", e);
-          }
-        });
+    try {
+      if (downloadState.state == DownloadState.STATE_REMOVED) {
+        downloadIndex.removeDownloadState(downloadState.id);
+      } else {
+        downloadIndex.putDownloadState(downloadState);
+      }
+    } catch (DatabaseIOException e) {
+      Log.e(TAG, "updateDownloadIndex failed", e);
+    }
   }
 
   private static void logd(String message) {
@@ -685,7 +610,7 @@ public final class DownloadManager {
 
   @StartThreadResults
   private int startDownloadThread(Download download) {
-    if (!initialized || released) {
+    if (released) {
       return START_THREAD_NOT_ALLOWED;
     }
     if (activeDownloads.containsKey(download)) {
@@ -990,23 +915,11 @@ public final class DownloadManager {
         error = e;
       }
       final Throwable finalError = error;
-      handler.post(() -> onDownloadThreadStopped(this, finalError));
+      mainHandler.post(() -> onDownloadThreadStopped(this, finalError));
     }
 
     private int getRetryDelayMillis(int errorCount) {
       return Math.min((errorCount - 1) * 1000, 5000);
     }
-  }
-
-  private abstract static class DownloadUpdater {
-    final String id;
-
-    private DownloadUpdater(String id) {
-      this.id = id;
-    }
-
-    abstract void onExisting(Download download);
-
-    abstract DownloadState onLoad(@Nullable DownloadState downloadState);
   }
 }
