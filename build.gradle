@@ -44,6 +44,7 @@ allprojects {
         }
         buildDir = "${externalBuildDir}/${project.name}"
     }
+    group = 'com.google.android.exoplayer'
 }
 
 apply from: 'javadoc_combined.gradle'
