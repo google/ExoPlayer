@@ -99,6 +99,7 @@
 * Handle meta atom as a full box when parsing mp4
   ([#5698](https://github.com/google/ExoPlayer/issues/5698),
   [#5694](https://github.com/google/ExoPlayer/issues/5694)).
+* Move `PriorityTaskManager` from `DefaultLoadControl` to `SimpleExoPlayer`.
 
 ### 2.9.6 ###
 
