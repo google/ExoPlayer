@@ -38,7 +38,7 @@
         android:scrollbars="vertical"
         android:fadeScrollbars="false"/>
 
-    <android.support.design.floatingactionbutton.FloatingActionButton android:id="@+id/add_sample_button"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/add_sample_button"
         android:src="@drawable/ic_plus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
