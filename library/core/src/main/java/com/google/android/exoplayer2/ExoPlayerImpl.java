@@ -401,6 +401,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
     mediaSource = null;
     internalPlayer.release();
     eventHandler.removeCallbacksAndMessages(null);
+    playbackInfo =
+        getResetPlaybackInfo(
+            /* resetPosition= */ true,
+            /* resetState= */ true,
+            /* playbackState= */ Player.STATE_IDLE);
   }
 
   @Override

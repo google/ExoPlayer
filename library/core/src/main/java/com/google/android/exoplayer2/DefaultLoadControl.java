@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -76,21 +75,18 @@ public class DefaultLoadControl implements LoadControl {
     private int bufferForPlaybackAfterRebufferMs;
     private int targetBufferBytes;
     private boolean prioritizeTimeOverSizeThresholds;
-    private PriorityTaskManager priorityTaskManager;
     private int backBufferDurationMs;
     private boolean retainBackBufferFromKeyframe;
     private boolean createDefaultLoadControlCalled;
 
     /** Constructs a new instance. */
     public Builder() {
-      allocator = null;
       minBufferMs = DEFAULT_MIN_BUFFER_MS;
       maxBufferMs = DEFAULT_MAX_BUFFER_MS;
       bufferForPlaybackMs = DEFAULT_BUFFER_FOR_PLAYBACK_MS;
       bufferForPlaybackAfterRebufferMs = DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS;
       targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES;
       prioritizeTimeOverSizeThresholds = DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS;
-      priorityTaskManager = null;
       backBufferDurationMs = DEFAULT_BACK_BUFFER_DURATION_MS;
       retainBackBufferFromKeyframe = DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME;
     }
@@ -166,19 +162,6 @@ public class DefaultLoadControl implements LoadControl {
     }
 
     /**
-     * Sets the {@link PriorityTaskManager} to use.
-     *
-     * @param priorityTaskManager The {@link PriorityTaskManager} to use.
-     * @return This builder, for convenience.
-     * @throws IllegalStateException If {@link #createDefaultLoadControl()} has already been called.
-     */
-    public Builder setPriorityTaskManager(PriorityTaskManager priorityTaskManager) {
-      Assertions.checkState(!createDefaultLoadControlCalled);
-      this.priorityTaskManager = priorityTaskManager;
-      return this;
-    }
-
-    /**
      * Sets the back buffer duration, and whether the back buffer is retained from the previous
      * keyframe.
      *
@@ -210,7 +193,6 @@ public class DefaultLoadControl implements LoadControl {
           bufferForPlaybackAfterRebufferMs,
           targetBufferBytes,
           prioritizeTimeOverSizeThresholds,
-          priorityTaskManager,
           backBufferDurationMs,
           retainBackBufferFromKeyframe);
     }
@@ -224,7 +206,6 @@ public class DefaultLoadControl implements LoadControl {
   private final long bufferForPlaybackAfterRebufferUs;
   private final int targetBufferBytesOverwrite;
   private final boolean prioritizeTimeOverSizeThresholds;
-  private final PriorityTaskManager priorityTaskManager;
   private final long backBufferDurationUs;
   private final boolean retainBackBufferFromKeyframe;
 
@@ -253,7 +234,6 @@ public class DefaultLoadControl implements LoadControl {
 
   /** @deprecated Use {@link Builder} instead. */
   @Deprecated
-  @SuppressWarnings("deprecation")
   public DefaultLoadControl(
       DefaultAllocator allocator,
       int minBufferMs,
@@ -270,29 +250,6 @@ public class DefaultLoadControl implements LoadControl {
         bufferForPlaybackAfterRebufferMs,
         targetBufferBytes,
         prioritizeTimeOverSizeThresholds,
-        /* priorityTaskManager= */ null);
-  }
-
-  /** @deprecated Use {@link Builder} instead. */
-  @Deprecated
-  public DefaultLoadControl(
-      DefaultAllocator allocator,
-      int minBufferMs,
-      int maxBufferMs,
-      int bufferForPlaybackMs,
-      int bufferForPlaybackAfterRebufferMs,
-      int targetBufferBytes,
-      boolean prioritizeTimeOverSizeThresholds,
-      PriorityTaskManager priorityTaskManager) {
-    this(
-        allocator,
-        minBufferMs,
-        maxBufferMs,
-        bufferForPlaybackMs,
-        bufferForPlaybackAfterRebufferMs,
-        targetBufferBytes,
-        prioritizeTimeOverSizeThresholds,
-        priorityTaskManager,
         DEFAULT_BACK_BUFFER_DURATION_MS,
         DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME);
   }
@@ -305,7 +262,6 @@ public class DefaultLoadControl implements LoadControl {
       int bufferForPlaybackAfterRebufferMs,
       int targetBufferBytes,
       boolean prioritizeTimeOverSizeThresholds,
-      PriorityTaskManager priorityTaskManager,
       int backBufferDurationMs,
       boolean retainBackBufferFromKeyframe) {
     assertGreaterOrEqual(bufferForPlaybackMs, 0, "bufferForPlaybackMs", "0");
@@ -327,7 +283,6 @@ public class DefaultLoadControl implements LoadControl {
     this.bufferForPlaybackAfterRebufferUs = C.msToUs(bufferForPlaybackAfterRebufferMs);
     this.targetBufferBytesOverwrite = targetBufferBytes;
     this.prioritizeTimeOverSizeThresholds = prioritizeTimeOverSizeThresholds;
-    this.priorityTaskManager = priorityTaskManager;
     this.backBufferDurationUs = C.msToUs(backBufferDurationMs);
     this.retainBackBufferFromKeyframe = retainBackBufferFromKeyframe;
   }
@@ -375,7 +330,6 @@ public class DefaultLoadControl implements LoadControl {
   @Override
   public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
     boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
-    boolean wasBuffering = isBuffering;
     long minBufferUs = this.minBufferUs;
     if (playbackSpeed > 1) {
       // The playback speed is faster than real time, so scale up the minimum required media
@@ -389,13 +343,6 @@ public class DefaultLoadControl implements LoadControl {
     } else if (bufferedDurationUs >= maxBufferUs || targetBufferSizeReached) {
       isBuffering = false;
     } // Else don't change the buffering state
-    if (priorityTaskManager != null && isBuffering != wasBuffering) {
-      if (isBuffering) {
-        priorityTaskManager.add(C.PRIORITY_PLAYBACK);
-      } else {
-        priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
-      }
-    }
     return isBuffering;
   }
 
@@ -431,9 +378,6 @@ public class DefaultLoadControl implements LoadControl {
 
   private void reset(boolean resetAllocator) {
     targetBufferSize = 0;
-    if (priorityTaskManager != null && isBuffering) {
-      priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
-    }
     isBuffering = false;
     if (resetAllocator) {
       allocator.reset();
