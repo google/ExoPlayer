@@ -448,15 +448,14 @@ DECODER_FUNC(jlong, vpxInit, jboolean disableLoopFilter,
     return 0;
   }
 #ifdef VPX_CTRL_VP9_DECODE_SET_ROW_MT
-  err = vpx_codec_control_(context->decoder, VP9D_SET_ROW_MT,
-                           enableRowMultiThreadMode);
+  err = vpx_codec_control(context->decoder, VP9D_SET_ROW_MT,
+                          enableRowMultiThreadMode);
   if (err) {
     LOGE("ERROR: Failed to enable row multi thread mode, error = %d.", err);
   }
 #endif
   if (disableLoopFilter) {
-    // TODO(b/71930387): Use vpx_codec_control(), not vpx_codec_control_().
-    err = vpx_codec_control_(context->decoder, VP9_SET_SKIP_LOOP_FILTER, true);
+    err = vpx_codec_control(context->decoder, VP9_SET_SKIP_LOOP_FILTER, true);
     if (err) {
       LOGE("ERROR: Failed to shut off libvpx loop filter, error = %d.", err);
     }

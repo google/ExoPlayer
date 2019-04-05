@@ -47,7 +47,7 @@ git clone https://chromium.googlesource.com/webm/libvpx libvpx
 
 ```
 cd "${VP9_EXT_PATH}/jni/libvpx" && \
-git checkout tags/v1.7.0 -b v1.7.0
+git checkout tags/v1.8.0 -b v1.8.0
 ```
 
 * Run a script that generates necessary configuration files for libvpx:
