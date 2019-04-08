@@ -15,9 +15,7 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import android.net.Uri;
 import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags;
@@ -26,8 +24,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Collections;
-import java.util.HashSet;
 
 /** Represents state of a download. */
 public final class DownloadState {
@@ -114,24 +110,15 @@ public final class DownloadState {
     }
   }
 
-  /** The unique content id. */
-  public final String id;
-  /** The type of the content. */
-  public final String type;
-  /** The Uri of the content. */
-  public final Uri uri;
-  /** A custom key for cache indexing. */
-  @Nullable public final String cacheKey;
+  /** The download action. */
+  public final DownloadAction action;
+
   /** The state of the download. */
   @State public final int state;
   /** The first time when download entry is created. */
   public final long startTimeMs;
   /** The last update time. */
   public final long updateTimeMs;
-  /** Keys of streams to be downloaded. If empty, all streams will be downloaded. */
-  public final StreamKey[] streamKeys;
-  /** Optional custom data. */
-  public final byte[] customMetadata;
   /**
    * If {@link #state} is {@link #STATE_FAILED} then this is the cause, otherwise {@link
    * #FAILURE_REASON_NONE}.
@@ -155,52 +142,37 @@ public final class DownloadState {
 
   private DownloadState(DownloadAction action, long currentTimeMs) {
     this(
-        action.id,
-        action.type,
-        action.uri,
-        action.customCacheKey,
+        action,
         /* state= */ STATE_QUEUED,
         FAILURE_REASON_NONE,
         /* notMetRequirements= */ 0,
         /* manualStopReason= */ 0,
         /* startTimeMs= */ currentTimeMs,
         /* updateTimeMs= */ currentTimeMs,
-        action.streamKeys.toArray(new StreamKey[0]),
-        action.data,
         new CachingCounters());
   }
 
   /* package */ DownloadState(
-      String id,
-      String type,
-      Uri uri,
-      @Nullable String cacheKey,
+      DownloadAction action,
       @State int state,
       @FailureReason int failureReason,
       @RequirementFlags int notMetRequirements,
       int manualStopReason,
       long startTimeMs,
       long updateTimeMs,
-      StreamKey[] streamKeys,
-      byte[] customMetadata,
       CachingCounters counters) {
     Assertions.checkNotNull(counters);
     Assertions.checkState((failureReason == FAILURE_REASON_NONE) == (state != STATE_FAILED));
     if (manualStopReason != 0 || notMetRequirements != 0) {
       Assertions.checkState(state != STATE_DOWNLOADING && state != STATE_QUEUED);
     }
-    this.id = id;
-    this.type = type;
-    this.uri = uri;
-    this.cacheKey = cacheKey;
+    this.action = action;
     this.state = state;
     this.failureReason = failureReason;
     this.notMetRequirements = notMetRequirements;
     this.manualStopReason = manualStopReason;
     this.startTimeMs = startTimeMs;
     this.updateTimeMs = updateTimeMs;
-    this.streamKeys = streamKeys;
-    this.customMetadata = customMetadata;
     this.counters = counters;
   }
 
@@ -208,43 +180,35 @@ public final class DownloadState {
    * Merges the given {@link DownloadAction} and creates a new {@link DownloadState}. The action
    * must have the same id and type.
    *
-   * @param action The {@link DownloadAction} to be merged.
+   * @param newAction The {@link DownloadAction} to be merged.
    * @return A new {@link DownloadState}.
    */
-  public DownloadState mergeAction(DownloadAction action) {
-    Assertions.checkArgument(action.id.equals(id));
-    Assertions.checkArgument(action.type.equals(type));
+  public DownloadState copyWithMergedAction(DownloadAction newAction) {
     return new DownloadState(
-        id,
-        type,
-        action.uri,
-        action.customCacheKey,
+        action.copyWithMergedAction(newAction),
         getNextState(state, manualStopReason != 0 || notMetRequirements != 0),
         FAILURE_REASON_NONE,
         notMetRequirements,
         manualStopReason,
         startTimeMs,
         /* updateTimeMs= */ System.currentTimeMillis(),
-        mergeStreamKeys(this, action),
-        action.data,
         counters);
   }
 
-  /** Returns a duplicate {@link DownloadState} in {@link #STATE_REMOVING}. */
-  public DownloadState setRemoveState() {
+  /**
+   * Returns a copy with the specified state, clearing {@link #failureReason}.
+   *
+   * @param state The {@link State}.
+   */
+  public DownloadState copyWithState(@State int state) {
     return new DownloadState(
-        id,
-        type,
-        uri,
-        cacheKey,
-        STATE_REMOVING,
+        action,
+        state,
         FAILURE_REASON_NONE,
         notMetRequirements,
         manualStopReason,
         startTimeMs,
         /* updateTimeMs= */ System.currentTimeMillis(),
-        streamKeys,
-        customMetadata,
         counters);
   }
 
@@ -284,19 +248,5 @@ public final class DownloadState {
     } else {
       return STATE_QUEUED;
     }
-  }
-
-  private static StreamKey[] mergeStreamKeys(DownloadState downloadState, DownloadAction action) {
-    StreamKey[] streamKeys = downloadState.streamKeys;
-    if (streamKeys.length > 0) {
-      if (action.streamKeys.isEmpty()) {
-        streamKeys = new StreamKey[0];
-      } else {
-        HashSet<StreamKey> keys = new HashSet<>(action.streamKeys);
-        Collections.addAll(keys, downloadState.streamKeys);
-        streamKeys = keys.toArray(new StreamKey[0]);
-      }
-    }
-    return streamKeys;
   }
 }

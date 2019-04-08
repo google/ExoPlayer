@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -131,6 +132,33 @@ public final class DownloadAction {
     Collections.sort(mutableKeys);
     this.streamKeys = Collections.unmodifiableList(mutableKeys);
     this.data = data != null ? Arrays.copyOf(data, data.length) : Util.EMPTY_BYTE_ARRAY;
+  }
+
+  /**
+   * Returns the result of merging {@code newAction} into this action.
+   *
+   * @param newAction The new action.
+   * @return The merged result.
+   */
+  public DownloadAction copyWithMergedAction(DownloadAction newAction) {
+    Assertions.checkState(id.equals(newAction.id));
+    Assertions.checkState(type.equals(newAction.type));
+
+    List<StreamKey> mergedKeys;
+    if (streamKeys.isEmpty() || newAction.streamKeys.isEmpty()) {
+      // If either streamKeys is empty then all streams should be downloaded.
+      mergedKeys = Collections.emptyList();
+    } else {
+      mergedKeys = new ArrayList<>(streamKeys);
+      for (int i = 0; i < newAction.streamKeys.size(); i++) {
+        StreamKey newKey = newAction.streamKeys.get(i);
+        if (!mergedKeys.contains(newKey)) {
+          mergedKeys.add(newKey);
+        }
+      }
+    }
+    return new DownloadAction(
+        id, type, newAction.uri, mergedKeys, newAction.customCacheKey, newAction.data);
   }
 
   /** Serializes itself into a byte array. */

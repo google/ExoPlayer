@@ -29,6 +29,8 @@ import com.google.android.exoplayer2.database.VersionTable;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A {@link DownloadIndex} which uses SQLite to persist {@link DownloadState}s.
@@ -38,8 +40,7 @@ import com.google.android.exoplayer2.util.Util;
  */
 public final class DefaultDownloadIndex implements DownloadIndex {
 
-  @VisibleForTesting
-  /* package */ static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "Downloads";
+  private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "Downloads";
 
   // TODO: Support multiple instances. Probably using the underlying cache UID.
   @VisibleForTesting /* package */ static final String INSTANCE_UID = "singleton";
@@ -48,7 +49,9 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   private static final String COLUMN_ID = "id";
   private static final String COLUMN_TYPE = "title";
   private static final String COLUMN_URI = "subtitle";
-  private static final String COLUMN_CACHE_KEY = "cache_key";
+  private static final String COLUMN_STREAM_KEYS = "stream_keys";
+  private static final String COLUMN_CUSTOM_CACHE_KEY = "cache_key";
+  private static final String COLUMN_DATA = "custom_metadata";
   private static final String COLUMN_STATE = "state";
   private static final String COLUMN_DOWNLOAD_PERCENTAGE = "download_percentage";
   private static final String COLUMN_DOWNLOADED_BYTES = "downloaded_bytes";
@@ -58,8 +61,6 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   private static final String COLUMN_MANUAL_STOP_REASON = "manual_stop_reason";
   private static final String COLUMN_START_TIME_MS = "start_time_ms";
   private static final String COLUMN_UPDATE_TIME_MS = "update_time_ms";
-  private static final String COLUMN_STREAM_KEYS = "stream_keys";
-  private static final String COLUMN_CUSTOM_METADATA = "custom_metadata";
 
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
@@ -68,18 +69,18 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   private static final int COLUMN_INDEX_ID = 0;
   private static final int COLUMN_INDEX_TYPE = 1;
   private static final int COLUMN_INDEX_URI = 2;
-  private static final int COLUMN_INDEX_CACHE_KEY = 3;
-  private static final int COLUMN_INDEX_STATE = 4;
-  private static final int COLUMN_INDEX_DOWNLOAD_PERCENTAGE = 5;
-  private static final int COLUMN_INDEX_DOWNLOADED_BYTES = 6;
-  private static final int COLUMN_INDEX_TOTAL_BYTES = 7;
-  private static final int COLUMN_INDEX_FAILURE_REASON = 8;
-  private static final int COLUMN_INDEX_NOT_MET_REQUIREMENTS = 9;
-  private static final int COLUMN_INDEX_MANUAL_STOP_REASON = 10;
-  private static final int COLUMN_INDEX_START_TIME_MS = 11;
-  private static final int COLUMN_INDEX_UPDATE_TIME_MS = 12;
-  private static final int COLUMN_INDEX_STREAM_KEYS = 13;
-  private static final int COLUMN_INDEX_CUSTOM_METADATA = 14;
+  private static final int COLUMN_INDEX_STREAM_KEYS = 3;
+  private static final int COLUMN_INDEX_CUSTOM_CACHE_KEY = 4;
+  private static final int COLUMN_INDEX_DATA = 5;
+  private static final int COLUMN_INDEX_STATE = 6;
+  private static final int COLUMN_INDEX_DOWNLOAD_PERCENTAGE = 7;
+  private static final int COLUMN_INDEX_DOWNLOADED_BYTES = 8;
+  private static final int COLUMN_INDEX_TOTAL_BYTES = 9;
+  private static final int COLUMN_INDEX_FAILURE_REASON = 10;
+  private static final int COLUMN_INDEX_NOT_MET_REQUIREMENTS = 11;
+  private static final int COLUMN_INDEX_MANUAL_STOP_REASON = 12;
+  private static final int COLUMN_INDEX_START_TIME_MS = 13;
+  private static final int COLUMN_INDEX_UPDATE_TIME_MS = 14;
 
   private static final String WHERE_ID_EQUALS = COLUMN_ID + " = ?";
   private static final String WHERE_STATE_TERMINAL =
@@ -90,7 +91,9 @@ public final class DefaultDownloadIndex implements DownloadIndex {
         COLUMN_ID,
         COLUMN_TYPE,
         COLUMN_URI,
-        COLUMN_CACHE_KEY,
+        COLUMN_STREAM_KEYS,
+        COLUMN_CUSTOM_CACHE_KEY,
+        COLUMN_DATA,
         COLUMN_STATE,
         COLUMN_DOWNLOAD_PERCENTAGE,
         COLUMN_DOWNLOADED_BYTES,
@@ -99,9 +102,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
         COLUMN_NOT_MET_REQUIREMENTS,
         COLUMN_MANUAL_STOP_REASON,
         COLUMN_START_TIME_MS,
-        COLUMN_UPDATE_TIME_MS,
-        COLUMN_STREAM_KEYS,
-        COLUMN_CUSTOM_METADATA
+        COLUMN_UPDATE_TIME_MS
       };
 
   private static final String SQL_DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -115,7 +116,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
           + " TEXT NOT NULL,"
           + COLUMN_URI
           + " TEXT NOT NULL,"
-          + COLUMN_CACHE_KEY
+          + COLUMN_CUSTOM_CACHE_KEY
           + " TEXT,"
           + COLUMN_STATE
           + " INTEGER NOT NULL,"
@@ -139,7 +140,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
           + " INTEGER NOT NULL,"
           + COLUMN_STREAM_KEYS
           + " TEXT NOT NULL,"
-          + COLUMN_CUSTOM_METADATA
+          + COLUMN_DATA
           + " BLOB NOT NULL)";
 
   private static final String TRUE = "1";
@@ -168,9 +169,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
         return null;
       }
       cursor.moveToNext();
-      DownloadState downloadState = getDownloadStateForCurrentRow(cursor);
-      Assertions.checkState(id.equals(downloadState.id));
-      return downloadState;
+      return getDownloadStateForCurrentRow(cursor);
     } catch (SQLiteException e) {
       throw new DatabaseIOException(e);
     }
@@ -192,24 +191,24 @@ public final class DefaultDownloadIndex implements DownloadIndex {
    */
   public void putDownloadState(DownloadState downloadState) throws DatabaseIOException {
     ensureInitialized();
+    ContentValues values = new ContentValues();
+    values.put(COLUMN_ID, downloadState.action.id);
+    values.put(COLUMN_TYPE, downloadState.action.type);
+    values.put(COLUMN_URI, downloadState.action.uri.toString());
+    values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(downloadState.action.streamKeys));
+    values.put(COLUMN_CUSTOM_CACHE_KEY, downloadState.action.customCacheKey);
+    values.put(COLUMN_DATA, downloadState.action.data);
+    values.put(COLUMN_STATE, downloadState.state);
+    values.put(COLUMN_DOWNLOAD_PERCENTAGE, downloadState.getDownloadPercentage());
+    values.put(COLUMN_DOWNLOADED_BYTES, downloadState.getDownloadedBytes());
+    values.put(COLUMN_TOTAL_BYTES, downloadState.getTotalBytes());
+    values.put(COLUMN_FAILURE_REASON, downloadState.failureReason);
+    values.put(COLUMN_STOP_FLAGS, 0);
+    values.put(COLUMN_NOT_MET_REQUIREMENTS, downloadState.notMetRequirements);
+    values.put(COLUMN_MANUAL_STOP_REASON, downloadState.manualStopReason);
+    values.put(COLUMN_START_TIME_MS, downloadState.startTimeMs);
+    values.put(COLUMN_UPDATE_TIME_MS, downloadState.updateTimeMs);
     try {
-      ContentValues values = new ContentValues();
-      values.put(COLUMN_ID, downloadState.id);
-      values.put(COLUMN_TYPE, downloadState.type);
-      values.put(COLUMN_URI, downloadState.uri.toString());
-      values.put(COLUMN_CACHE_KEY, downloadState.cacheKey);
-      values.put(COLUMN_STATE, downloadState.state);
-      values.put(COLUMN_DOWNLOAD_PERCENTAGE, downloadState.getDownloadPercentage());
-      values.put(COLUMN_DOWNLOADED_BYTES, downloadState.getDownloadedBytes());
-      values.put(COLUMN_TOTAL_BYTES, downloadState.getTotalBytes());
-      values.put(COLUMN_FAILURE_REASON, downloadState.failureReason);
-      values.put(COLUMN_STOP_FLAGS, /*stopFlags*/ 0);
-      values.put(COLUMN_NOT_MET_REQUIREMENTS, downloadState.notMetRequirements);
-      values.put(COLUMN_MANUAL_STOP_REASON, downloadState.manualStopReason);
-      values.put(COLUMN_START_TIME_MS, downloadState.startTimeMs);
-      values.put(COLUMN_UPDATE_TIME_MS, downloadState.updateTimeMs);
-      values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(downloadState.streamKeys));
-      values.put(COLUMN_CUSTOM_METADATA, downloadState.customMetadata);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.replaceOrThrow(TABLE_NAME, /* nullColumnHack= */ null, values);
     } catch (SQLiteException e) {
@@ -341,29 +340,33 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   }
 
   private static DownloadState getDownloadStateForCurrentRow(Cursor cursor) {
+    DownloadAction action =
+        DownloadAction.createDownloadAction(
+            cursor.getString(COLUMN_INDEX_ID),
+            cursor.getString(COLUMN_INDEX_TYPE),
+            Uri.parse(cursor.getString(COLUMN_INDEX_URI)),
+            decodeStreamKeys(cursor.getString(COLUMN_INDEX_STREAM_KEYS)),
+            cursor.getString(COLUMN_INDEX_CUSTOM_CACHE_KEY),
+            cursor.getBlob(COLUMN_INDEX_DATA));
     CachingCounters cachingCounters = new CachingCounters();
     cachingCounters.alreadyCachedBytes = cursor.getLong(COLUMN_INDEX_DOWNLOADED_BYTES);
     cachingCounters.contentLength = cursor.getLong(COLUMN_INDEX_TOTAL_BYTES);
     cachingCounters.percentage = cursor.getFloat(COLUMN_INDEX_DOWNLOAD_PERCENTAGE);
     return new DownloadState(
-        cursor.getString(COLUMN_INDEX_ID),
-        cursor.getString(COLUMN_INDEX_TYPE),
-        Uri.parse(cursor.getString(COLUMN_INDEX_URI)),
-        cursor.getString(COLUMN_INDEX_CACHE_KEY),
+        action,
         cursor.getInt(COLUMN_INDEX_STATE),
         cursor.getInt(COLUMN_INDEX_FAILURE_REASON),
         cursor.getInt(COLUMN_INDEX_NOT_MET_REQUIREMENTS),
         cursor.getInt(COLUMN_INDEX_MANUAL_STOP_REASON),
         cursor.getLong(COLUMN_INDEX_START_TIME_MS),
         cursor.getLong(COLUMN_INDEX_UPDATE_TIME_MS),
-        decodeStreamKeys(cursor.getString(COLUMN_INDEX_STREAM_KEYS)),
-        cursor.getBlob(COLUMN_INDEX_CUSTOM_METADATA),
         cachingCounters);
   }
 
-  private static String encodeStreamKeys(StreamKey[] streamKeys) {
+  private static String encodeStreamKeys(List<StreamKey> streamKeys) {
     StringBuilder stringBuilder = new StringBuilder();
-    for (StreamKey streamKey : streamKeys) {
+    for (int i = 0; i < streamKeys.size(); i++) {
+      StreamKey streamKey = streamKeys.get(i);
       stringBuilder
           .append(streamKey.periodIndex)
           .append('.')
@@ -378,21 +381,20 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     return stringBuilder.toString();
   }
 
-  private static StreamKey[] decodeStreamKeys(String encodedStreamKeys) {
+  private static List<StreamKey> decodeStreamKeys(String encodedStreamKeys) {
+    ArrayList<StreamKey> streamKeys = new ArrayList<>();
     if (encodedStreamKeys.isEmpty()) {
-      return new StreamKey[0];
+      return streamKeys;
     }
     String[] streamKeysStrings = Util.split(encodedStreamKeys, ",");
-    int streamKeysCount = streamKeysStrings.length;
-    StreamKey[] streamKeys = new StreamKey[streamKeysCount];
-    for (int i = 0; i < streamKeysCount; i++) {
-      String[] indices = Util.split(streamKeysStrings[i], "\\.");
+    for (String streamKeysString : streamKeysStrings) {
+      String[] indices = Util.split(streamKeysString, "\\.");
       Assertions.checkState(indices.length == 3);
-      streamKeys[i] =
+      streamKeys.add(
           new StreamKey(
               Integer.parseInt(indices[0]),
               Integer.parseInt(indices[1]),
-              Integer.parseInt(indices[2]));
+              Integer.parseInt(indices[2])));
     }
     return streamKeys;
   }

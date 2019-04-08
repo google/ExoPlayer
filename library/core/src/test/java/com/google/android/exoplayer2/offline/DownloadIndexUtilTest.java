@@ -102,11 +102,11 @@ public class DownloadIndexUtilTest {
 
     DownloadState downloadState = downloadIndex.getDownloadState(action2.id);
     assertThat(downloadState).isNotNull();
-    assertThat(downloadState.type).isEqualTo(action2.type);
-    assertThat(downloadState.cacheKey).isEqualTo(action2.customCacheKey);
-    assertThat(downloadState.customMetadata).isEqualTo(action2.data);
-    assertThat(downloadState.uri).isEqualTo(action2.uri);
-    assertThat(Arrays.asList(downloadState.streamKeys)).containsExactly(streamKey1, streamKey2);
+    assertThat(downloadState.action.type).isEqualTo(action2.type);
+    assertThat(downloadState.action.customCacheKey).isEqualTo(action2.customCacheKey);
+    assertThat(downloadState.action.data).isEqualTo(action2.data);
+    assertThat(downloadState.action.uri).isEqualTo(action2.uri);
+    assertThat(downloadState.action.streamKeys).containsExactly(streamKey1, streamKey2);
     assertThat(downloadState.state).isEqualTo(DownloadState.STATE_QUEUED);
   }
 
@@ -151,12 +151,7 @@ public class DownloadIndexUtilTest {
   private void assertDownloadIndexContainsAction(DownloadAction action, int state)
       throws IOException {
     DownloadState downloadState = downloadIndex.getDownloadState(action.id);
-    assertThat(downloadState.type).isEqualTo(action.type);
-    assertThat(downloadState.cacheKey).isEqualTo(action.customCacheKey);
-    assertThat(downloadState.customMetadata).isEqualTo(action.data);
-    assertThat(downloadState.uri).isEqualTo(action.uri);
-    assertThat(Arrays.asList(downloadState.streamKeys))
-        .containsExactlyElementsIn(action.streamKeys);
+    assertThat(downloadState.action).isEqualTo(action);
     assertThat(downloadState.state).isEqualTo(state);
   }
 

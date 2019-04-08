@@ -37,7 +37,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -96,7 +95,7 @@ public class DownloadTracker implements DownloadManager.Listener {
   public List<StreamKey> getOfflineStreamKeys(Uri uri) {
     DownloadState downloadState = downloadStates.get(uri);
     return downloadState != null && downloadState.state != DownloadState.STATE_FAILED
-        ? Arrays.asList(downloadState.streamKeys)
+        ? downloadState.action.streamKeys
         : Collections.emptyList();
   }
 
@@ -109,7 +108,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     DownloadState downloadState = downloadStates.get(uri);
     if (downloadState != null) {
       DownloadService.startWithRemoveDownload(
-          context, DemoDownloadService.class, downloadState.id, /* foreground= */ false);
+          context, DemoDownloadService.class, downloadState.action.id, /* foreground= */ false);
     } else {
       if (startDownloadDialogHelper != null) {
         startDownloadDialogHelper.release();
@@ -124,21 +123,17 @@ public class DownloadTracker implements DownloadManager.Listener {
 
   @Override
   public void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState) {
-    boolean downloadAdded = downloadStates.put(downloadState.uri, downloadState) == null;
-    if (downloadAdded) {
-      for (Listener listener : listeners) {
-        listener.onDownloadsChanged();
-      }
+    downloadStates.put(downloadState.action.uri, downloadState);
+    for (Listener listener : listeners) {
+      listener.onDownloadsChanged();
     }
   }
 
   @Override
   public void onDownloadRemoved(DownloadManager downloadManager, DownloadState downloadState) {
-    boolean downloadRemoved = downloadStates.remove(downloadState.uri) != null;
-    if (downloadRemoved) {
-      for (Listener listener : listeners) {
-        listener.onDownloadsChanged();
-      }
+    downloadStates.remove(downloadState.action.uri);
+    for (Listener listener : listeners) {
+      listener.onDownloadsChanged();
     }
   }
 
@@ -148,7 +143,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     try (DownloadStateCursor loadedDownloadStates = downloadIndex.getDownloadStates()) {
       while (loadedDownloadStates.moveToNext()) {
         DownloadState downloadState = loadedDownloadStates.getDownloadState();
-        downloadStates.put(downloadState.uri, downloadState);
+        downloadStates.put(downloadState.action.uri, downloadState);
       }
     } catch (IOException e) {
       Log.w(TAG, "Failed to query download states", e);

@@ -18,6 +18,9 @@ package com.google.android.exoplayer2.offline;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Builder for DownloadState.
@@ -38,21 +41,15 @@ class DownloadStateBuilder {
   private int manualStopReason;
   private long startTimeMs;
   private long updateTimeMs;
-  private StreamKey[] streamKeys;
+  private List<StreamKey> streamKeys;
   private byte[] customMetadata;
 
   DownloadStateBuilder(String id) {
-    this(id, "type", Uri.parse("uri"), /* cacheKey= */ null, new byte[0], new StreamKey[0]);
+    this(id, "type", Uri.parse("uri"), /* cacheKey= */ null, new byte[0], Collections.emptyList());
   }
 
   DownloadStateBuilder(DownloadAction action) {
-    this(
-        action.id,
-        action.type,
-        action.uri,
-        action.customCacheKey,
-        action.data,
-        action.streamKeys.toArray(new StreamKey[0]));
+    this(action.id, action.type, action.uri, action.customCacheKey, action.data, action.streamKeys);
   }
 
   DownloadStateBuilder(
@@ -61,7 +58,7 @@ class DownloadStateBuilder {
       Uri uri,
       String cacheKey,
       byte[] customMetadata,
-      StreamKey[] streamKeys) {
+      List<StreamKey> streamKeys) {
     this.id = id;
     this.type = type;
     this.uri = uri;
@@ -146,7 +143,7 @@ class DownloadStateBuilder {
   }
 
   public DownloadStateBuilder setStreamKeys(StreamKey... streamKeys) {
-    this.streamKeys = streamKeys;
+    this.streamKeys = Arrays.asList(streamKeys);
     return this;
   }
 
@@ -156,19 +153,16 @@ class DownloadStateBuilder {
   }
 
   public DownloadState build() {
+    DownloadAction action =
+        DownloadAction.createDownloadAction(id, type, uri, streamKeys, cacheKey, customMetadata);
     return new DownloadState(
-        id,
-        type,
-        uri,
-        cacheKey,
+        action,
         state,
         failureReason,
         notMetRequirements,
         manualStopReason,
         startTimeMs,
         updateTimeMs,
-        streamKeys,
-        customMetadata,
         counters);
   }
 }
