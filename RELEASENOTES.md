@@ -74,6 +74,8 @@
   `PlayerNotificationManager` has been fixed. Apps using
   `DownloadNotificationUtil` should switch to using
   `DownloadNotificationHelper`.
+* Provide flag to include next/prev buttons in compact mode of a notification
+  ([#5616](https://github.com/google/ExoPlayer/issues/5616)).
 * Move creation of dialogs for `TrackSelectionView`s to
   `TrackSelectionDialogBuilder` and add option to select multiple overrides.
 * MediaSessionConnector: Let apps intercept media button events
