@@ -162,7 +162,7 @@ public final class DownloadManager {
 
   // Collections that are accessed on the main thread.
   private final CopyOnWriteArraySet<Listener> listeners;
-  private final HashMap<String, DownloadState> downloadStates;
+  private final ArrayList<DownloadState> downloadStates;
 
   // Collections that are accessed on the internal thread.
   private final ArrayList<Download> downloads;
@@ -249,7 +249,7 @@ public final class DownloadManager {
 
     manualStopReason = MANUAL_STOP_REASON_UNDEFINED;
     downloads = new ArrayList<>();
-    downloadStates = new HashMap<>();
+    downloadStates = new ArrayList<>();
     activeDownloads = new HashMap<>();
     listeners = new CopyOnWriteArraySet<>();
     releaseLock = new Object();
@@ -292,7 +292,7 @@ public final class DownloadManager {
 
   /** Returns the states of all current downloads. */
   public DownloadState[] getAllDownloadStates() {
-    return downloadStates.values().toArray(new DownloadState[0]);
+    return downloadStates.toArray(new DownloadState[0]);
   }
 
   /** Returns the requirements needed to be met to start downloads. */
@@ -497,20 +497,22 @@ public final class DownloadManager {
   // allows updating idle at the same point as the downloads that can be queried changes.
   private void onInitialized(List<DownloadState> downloadStates) {
     initialized = true;
-    for (int i = 0; i < downloadStates.size(); i++) {
-      DownloadState downloadState = downloadStates.get(i);
-      this.downloadStates.put(downloadState.id, downloadState);
-    }
+    this.downloadStates.addAll(downloadStates);
     for (Listener listener : listeners) {
       listener.onInitialized(DownloadManager.this);
     }
   }
 
   private void onDownloadStateChanged(DownloadState downloadState) {
+    int downloadStateIndex = getDownloadStateIndex(downloadState.id);
     if (downloadState.state == STATE_COMPLETED || downloadState.state == STATE_FAILED) {
-      downloadStates.remove(downloadState.id);
+      if (downloadStateIndex != C.INDEX_UNSET) {
+        downloadStates.remove(downloadStateIndex);
+      }
+    } else if (downloadStateIndex != C.INDEX_UNSET) {
+      downloadStates.set(downloadStateIndex, downloadState);
     } else {
-      downloadStates.put(downloadState.id, downloadState);
+      downloadStates.add(downloadState);
     }
     for (Listener listener : listeners) {
       listener.onDownloadStateChanged(this, downloadState);
@@ -518,7 +520,7 @@ public final class DownloadManager {
   }
 
   private void onDownloadRemoved(DownloadState downloadState) {
-    downloadStates.remove(downloadState.id);
+    downloadStates.remove(getDownloadStateIndex(downloadState.id));
     for (Listener listener : listeners) {
       listener.onDownloadRemoved(this, downloadState);
     }
@@ -532,6 +534,15 @@ public final class DownloadManager {
         listener.onIdle(this);
       }
     }
+  }
+
+  private int getDownloadStateIndex(String id) {
+    for (int i = 0; i < downloadStates.size(); i++) {
+      if (downloadStates.get(i).id.equals(id)) {
+        return i;
+      }
+    }
+    return C.INDEX_UNSET;
   }
 
   // Internal thread message handling.
