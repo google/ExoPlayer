@@ -22,8 +22,10 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -110,39 +112,45 @@ public class DownloadIndexUtilTest {
 
   @Test
   public void upgradeActionFile_createsDownloadStates() throws IOException {
-    ActionFile actionFile = new ActionFile(tempFile);
-    StreamKey streamKey1 =
+    // Copy the test asset to a file.
+    byte[] actionFileBytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(),
+            "offline/action_file_for_download_index_upgrade.exi");
+    try (FileOutputStream output = new FileOutputStream(tempFile)) {
+      output.write(actionFileBytes);
+    }
+
+    StreamKey expectedStreamKey1 =
         new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5);
-    StreamKey streamKey2 =
+    StreamKey expectedStreamKey2 =
         new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
-    DownloadAction action1 =
+    DownloadAction expectedAction1 =
         DownloadAction.createDownloadAction(
-            "id1",
+            "key123",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download1"),
-            asList(streamKey1),
+            asList(expectedStreamKey1),
             /* customCacheKey= */ "key123",
             new byte[] {1, 2, 3, 4});
-    DownloadAction action2 =
+    DownloadAction expectedAction2 =
         DownloadAction.createDownloadAction(
-            "id2",
+            "key234",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download2"),
-            asList(streamKey2),
+            asList(expectedStreamKey2),
             /* customCacheKey= */ "key234",
             new byte[] {5, 4, 3, 2, 1});
-    actionFile.store(action1, action2);
 
+    ActionFile actionFile = new ActionFile(tempFile);
     DownloadIndexUtil.upgradeActionFile(actionFile, downloadIndex, /* downloadIdProvider= */ null);
-
-    assertDownloadIndexContainsAction(action1, DownloadState.STATE_QUEUED);
-    assertDownloadIndexContainsAction(action2, DownloadState.STATE_QUEUED);
+    assertDownloadIndexContainsAction(expectedAction1, DownloadState.STATE_QUEUED);
+    assertDownloadIndexContainsAction(expectedAction2, DownloadState.STATE_QUEUED);
   }
 
   private void assertDownloadIndexContainsAction(DownloadAction action, int state)
       throws IOException {
     DownloadState downloadState = downloadIndex.getDownloadState(action.id);
-    assertThat(downloadState).isNotNull();
     assertThat(downloadState.type).isEqualTo(action.type);
     assertThat(downloadState.cacheKey).isEqualTo(action.customCacheKey);
     assertThat(downloadState.customMetadata).isEqualTo(action.data);
