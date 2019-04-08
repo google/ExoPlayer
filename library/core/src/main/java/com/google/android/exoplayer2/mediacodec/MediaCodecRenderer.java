@@ -53,6 +53,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -289,6 +290,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final MediaCodecSelector mediaCodecSelector;
   @Nullable private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
+  private final boolean enableDecoderFallback;
   private final float assumedMinimumCodecOperatingRate;
   private final DecoderInputBuffer buffer;
   private final DecoderInputBuffer flagsOnlyBuffer;
@@ -354,6 +356,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
+   *     initialization fails. This may result in using a decoder that is less efficient or slower
+   *     than the primary decoder.
    * @param assumedMinimumCodecOperatingRate A codec operating rate that all codecs instantiated by
    *     this renderer are assumed to meet implicitly (i.e. without the operating rate being set
    *     explicitly using {@link MediaFormat#KEY_OPERATING_RATE}).
@@ -363,11 +368,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       MediaCodecSelector mediaCodecSelector,
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys,
+      boolean enableDecoderFallback,
       float assumedMinimumCodecOperatingRate) {
     super(trackType);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
+    this.enableDecoderFallback = enableDecoderFallback;
     this.assumedMinimumCodecOperatingRate = assumedMinimumCodecOperatingRate;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
@@ -735,8 +742,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       throws DecoderInitializationException {
     if (availableCodecInfos == null) {
       try {
-        availableCodecInfos =
-            new ArrayDeque<>(getAvailableCodecInfos(mediaCryptoRequiresSecureDecoder));
+        List<MediaCodecInfo> allAvailableCodecInfos =
+            getAvailableCodecInfos(mediaCryptoRequiresSecureDecoder);
+        if (enableDecoderFallback) {
+          availableCodecInfos = new ArrayDeque<>(allAvailableCodecInfos);
+        } else {
+          availableCodecInfos =
+              new ArrayDeque<>(Collections.singletonList(allAvailableCodecInfos.get(0)));
+        }
         preferredDecoderInitializationException = null;
       } catch (DecoderQueryException e) {
         throw new DecoderInitializationException(

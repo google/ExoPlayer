@@ -250,6 +250,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         mediaCodecSelector,
         drmSessionManager,
         playClearSamplesWithoutKeys,
+        /* enableDecoderFallback= */ false,
         /* assumedMinimumCodecOperatingRate= */ 44100);
     this.context = context.getApplicationContext();
     this.audioSink = audioSink;
