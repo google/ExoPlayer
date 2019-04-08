@@ -147,7 +147,8 @@ public class DownloadIndexUtilTest {
     assertThat(downloadState.cacheKey).isEqualTo(action.customCacheKey);
     assertThat(downloadState.customMetadata).isEqualTo(action.data);
     assertThat(downloadState.uri).isEqualTo(action.uri);
-    assertThat(Arrays.asList(downloadState.streamKeys)).containsExactlyElementsIn(action.keys);
+    assertThat(Arrays.asList(downloadState.streamKeys))
+        .containsExactlyElementsIn(action.streamKeys);
     assertThat(downloadState.state).isEqualTo(state);
   }
 

@@ -249,7 +249,7 @@ public class DownloadManagerTest {
 
     FakeDownloader downloader2 = runner.getDownloader(1);
     downloader2.assertStarted();
-    assertThat(downloader2.action.keys).containsExactly(streamKey1, streamKey2);
+    assertThat(downloader2.action.streamKeys).containsExactly(streamKey1, streamKey2);
     downloader2.unblock();
 
     runner.getTask().assertCompleted();

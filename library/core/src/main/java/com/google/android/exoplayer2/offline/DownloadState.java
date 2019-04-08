@@ -165,7 +165,7 @@ public final class DownloadState {
         /* manualStopReason= */ 0,
         /* startTimeMs= */ currentTimeMs,
         /* updateTimeMs= */ currentTimeMs,
-        action.keys.toArray(new StreamKey[0]),
+        action.streamKeys.toArray(new StreamKey[0]),
         action.data,
         new CachingCounters());
   }
@@ -289,10 +289,10 @@ public final class DownloadState {
   private static StreamKey[] mergeStreamKeys(DownloadState downloadState, DownloadAction action) {
     StreamKey[] streamKeys = downloadState.streamKeys;
     if (streamKeys.length > 0) {
-      if (action.keys.isEmpty()) {
+      if (action.streamKeys.isEmpty()) {
         streamKeys = new StreamKey[0];
       } else {
-        HashSet<StreamKey> keys = new HashSet<>(action.keys);
+        HashSet<StreamKey> keys = new HashSet<>(action.streamKeys);
         Collections.addAll(keys, downloadState.streamKeys);
         streamKeys = keys.toArray(new StreamKey[0]);
       }

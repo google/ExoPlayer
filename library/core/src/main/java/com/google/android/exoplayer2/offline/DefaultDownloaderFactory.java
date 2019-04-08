@@ -99,7 +99,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
     }
     try {
       // TODO: Support customCacheKey in DASH/HLS/SS, for completeness.
-      return constructor.newInstance(action.uri, action.getKeys(), downloaderConstructorHelper);
+      return constructor.newInstance(action.uri, action.streamKeys, downloaderConstructorHelper);
     } catch (Exception e) {
       throw new RuntimeException("Failed to instantiate downloader for: " + action.type, e);
     }
