@@ -1265,7 +1265,7 @@ public class PlayerNotificationManager {
     Intent intent = new Intent(action).setPackage(context.getPackageName());
     intent.putExtra(EXTRA_INSTANCE_ID, instanceId);
     return PendingIntent.getBroadcast(
-        context, instanceId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        context, instanceId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
   }
 
   @SuppressWarnings("nullness:argument.type.incompatible")
