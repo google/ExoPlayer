@@ -29,10 +29,10 @@ import static com.google.android.exoplayer2.offline.DownloadState.STATE_RESTARTI
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_STOPPED;
 
 import android.content.Context;
-import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.Message;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -43,12 +43,14 @@ import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -108,6 +110,20 @@ public final class DownloadManager {
   public static final Requirements DEFAULT_REQUIREMENTS =
       new Requirements(Requirements.NETWORK_TYPE_ANY, false, false);
 
+  // Messages posted to the main handler.
+  private static final int MSG_INITIALIZED = 0;
+  private static final int MSG_PROCESSED = 1;
+  private static final int MSG_DOWNLOAD_STATE_CHANGED = 2;
+
+  // Messages posted to the background handler.
+  private static final int MSG_INITIALIZE = 0;
+  private static final int MSG_ADD_DOWNLOAD = 1;
+  private static final int MSG_REMOVE_DOWNLOAD = 2;
+  private static final int MSG_SET_MANUAL_STOP_REASON = 3;
+  private static final int MSG_SET_NOT_MET_REQUIREMENTS = 4;
+  private static final int MSG_DOWNLOAD_THREAD_STOPPED = 5;
+  private static final int MSG_RELEASE = 6;
+
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     START_THREAD_SUCCEEDED,
@@ -133,6 +149,8 @@ public final class DownloadManager {
   private final Handler mainHandler;
   private final HandlerThread internalThread;
   private final Handler internalHandler;
+  private final RequirementsWatcher.Listener requirementsListener;
+  private final Object releaseLock;
 
   // Collections that are accessed on the main thread.
   private final CopyOnWriteArraySet<Listener> listeners;
@@ -143,7 +161,8 @@ public final class DownloadManager {
   private final HashMap<Download, DownloadThread> activeDownloads;
 
   // Mutable fields that are accessed on the main thread.
-  private boolean idle;
+  private int pendingMessages;
+  private int activeDownloadCount;
   private boolean initialized;
   private boolean released;
   private RequirementsWatcher requirementsWatcher;
@@ -224,61 +243,52 @@ public final class DownloadManager {
     downloads = new ArrayList<>();
     downloadStates = new HashMap<>();
     activeDownloads = new HashMap<>();
+    listeners = new CopyOnWriteArraySet<>();
+    releaseLock = new Object();
 
-    Looper looper = Looper.myLooper();
-    if (looper == null) {
-      looper = Looper.getMainLooper();
-    }
-    mainHandler = new Handler(looper);
+    requirementsListener = this::onRequirementsStateChanged;
 
+    mainHandler = new Handler(Util.getLooper(), this::handleMainMessage);
     internalThread = new HandlerThread("DownloadManager file i/o");
     internalThread.start();
-    internalHandler = new Handler(internalThread.getLooper());
+    internalHandler = new Handler(internalThread.getLooper(), this::handleInternalMessage);
 
-    listeners = new CopyOnWriteArraySet<>();
+    requirementsWatcher = new RequirementsWatcher(context, requirementsListener, requirements);
+    int notMetRequirements = requirementsWatcher.start();
 
-    int notMetRequirements = watchRequirements(requirements);
-    runOnInternalThread(
-        () -> {
-          setNotMetRequirements(notMetRequirements);
-          loadDownloads();
-        });
-    logd("Created");
+    pendingMessages = 1;
+    internalHandler
+        .obtainMessage(MSG_INITIALIZE, notMetRequirements, /* unused */ 0)
+        .sendToTarget();
   }
 
   /** Returns whether the manager has completed initialization. */
   public boolean isInitialized() {
-    Assertions.checkState(!released);
     return initialized;
   }
 
   /** Returns whether there are no active downloads. */
   public boolean isIdle() {
-    Assertions.checkState(!released);
-    return idle;
+    return activeDownloadCount == 0 && pendingMessages == 0;
   }
 
   /** Returns the used {@link DownloadIndex}. */
   public DownloadIndex getDownloadIndex() {
-    Assertions.checkState(!released);
     return downloadIndex;
   }
 
   /** Returns the number of downloads. */
   public int getDownloadCount() {
-    Assertions.checkState(!released);
     return downloadStates.size();
   }
 
   /** Returns the states of all current downloads. */
   public DownloadState[] getAllDownloadStates() {
-    Assertions.checkState(!released);
     return downloadStates.values().toArray(new DownloadState[0]);
   }
 
   /** Returns the requirements needed to be met to start downloads. */
   public Requirements getRequirements() {
-    Assertions.checkState(!released);
     return requirementsWatcher.getRequirements();
   }
 
@@ -288,7 +298,6 @@ public final class DownloadManager {
    * @param listener The listener to be added.
    */
   public void addListener(Listener listener) {
-    Assertions.checkState(!released);
     listeners.add(listener);
   }
 
@@ -298,7 +307,6 @@ public final class DownloadManager {
    * @param listener The listener to be removed.
    */
   public void removeListener(Listener listener) {
-    Assertions.checkState(!released);
     listeners.remove(listener);
   }
 
@@ -312,25 +320,25 @@ public final class DownloadManager {
       return;
     }
     requirementsWatcher.stop();
-    int notMetRequirements = watchRequirements(requirements);
-    onRequirementsStateChanged(notMetRequirements);
+    requirementsWatcher = new RequirementsWatcher(context, requirementsListener, requirements);
+    int notMetRequirements = requirementsWatcher.start();
+    onRequirementsStateChanged(requirementsWatcher, notMetRequirements);
   }
 
   /**
    * Clears manual stop reason of all downloads. Downloads are started if the requirements are met.
    */
   public void startDownloads() {
-    logd("manual stop is cancelled");
-    runOnInternalThread(() -> setManualStopReason(/* id= */ null, MANUAL_STOP_REASON_NONE));
+    postSetManualStopReason(/* id= */ null, MANUAL_STOP_REASON_NONE);
   }
 
   /** Signals all downloads to stop. Call {@link #startDownloads()} to let them to be started. */
   public void stopDownloads() {
-    stopDownloads(/* manualStopReason= */ MANUAL_STOP_REASON_UNDEFINED);
+    stopDownloads(MANUAL_STOP_REASON_UNDEFINED);
   }
 
   /**
-   * Signals all downloads to stop. Call {@link #startDownloads()} to let them to be started.
+   * Sets a manual stop reason for all downloads.
    *
    * @param manualStopReason An application defined stop reason. Value {@value
    *     DownloadState#MANUAL_STOP_REASON_NONE} is not allowed and value {@value
@@ -339,8 +347,7 @@ public final class DownloadManager {
    */
   public void stopDownloads(int manualStopReason) {
     Assertions.checkArgument(manualStopReason != MANUAL_STOP_REASON_NONE);
-    logd("downloads are stopped manually");
-    runOnInternalThread(() -> setManualStopReason(/* id= */ null, manualStopReason));
+    postSetManualStopReason(/* id= */ null, manualStopReason);
   }
 
   /**
@@ -350,7 +357,7 @@ public final class DownloadManager {
    * @param id The unique content id of the download to be started.
    */
   public void startDownload(String id) {
-    runOnInternalThread(() -> setManualStopReason(id, MANUAL_STOP_REASON_NONE));
+    postSetManualStopReason(id, MANUAL_STOP_REASON_NONE);
   }
 
   /**
@@ -360,8 +367,7 @@ public final class DownloadManager {
    * @param id The unique content id of the download to be stopped.
    */
   public void stopDownload(String id) {
-    runOnInternalThread(
-        () -> stopDownload(id, /* manualStopReason= */ MANUAL_STOP_REASON_UNDEFINED));
+    stopDownload(id, MANUAL_STOP_REASON_UNDEFINED);
   }
 
   /**
@@ -376,7 +382,7 @@ public final class DownloadManager {
    */
   public void stopDownload(String id, int manualStopReason) {
     Assertions.checkArgument(manualStopReason != MANUAL_STOP_REASON_NONE);
-    runOnInternalThread(() -> setManualStopReason(id, manualStopReason));
+    postSetManualStopReason(id, manualStopReason);
   }
 
   /**
@@ -385,7 +391,8 @@ public final class DownloadManager {
    * @param action The download action.
    */
   public void addDownload(DownloadAction action) {
-    runOnInternalThread(() -> addDownloadInternal(action));
+    pendingMessages++;
+    internalHandler.obtainMessage(MSG_ADD_DOWNLOAD, action).sendToTarget();
   }
 
   /**
@@ -394,7 +401,8 @@ public final class DownloadManager {
    * @param id The unique content id of the download to be started.
    */
   public void removeDownload(String id) {
-    runOnInternalThread(() -> removeDownloadInternal(id));
+    pendingMessages++;
+    internalHandler.obtainMessage(MSG_REMOVE_DOWNLOAD, id).sendToTarget();
   }
 
   /**
@@ -403,29 +411,90 @@ public final class DownloadManager {
    * called.
    */
   public void release() {
-    if (released) {
-      return;
+    synchronized (releaseLock) {
+      if (released) {
+        return;
+      }
+      internalHandler.sendEmptyMessage(MSG_RELEASE);
+      boolean wasInterrupted = false;
+      while (!released) {
+        try {
+          releaseLock.wait();
+        } catch (InterruptedException e) {
+          wasInterrupted = true;
+        }
+      }
+      if (wasInterrupted) {
+        // Restore the interrupted status.
+        Thread.currentThread().interrupt();
+      }
+      mainHandler.removeCallbacksAndMessages(/* token= */ null);
+      // Reset state.
+      pendingMessages = 0;
+      activeDownloadCount = 0;
+      initialized = false;
+      downloadStates.clear();
     }
-    released = true;
-    if (requirementsWatcher != null) {
-      requirementsWatcher.stop();
-    }
-    ConditionVariable fileIOFinishedCondition = new ConditionVariable();
-    internalHandler.post(
-        () -> {
-          releaseInternal();
-          fileIOFinishedCondition.open();
-        });
-    fileIOFinishedCondition.block();
-    logd("Released");
   }
 
-  private void runOnInternalThread(Runnable runnable) {
-    Assertions.checkState(!released);
-    internalHandler.post(runnable);
+  private void postSetManualStopReason(@Nullable String id, int manualStopReason) {
+    pendingMessages++;
+    internalHandler
+        .obtainMessage(MSG_SET_MANUAL_STOP_REASON, manualStopReason, /* unused */ 0, id)
+        .sendToTarget();
   }
 
-  private void notifyListenersDownloadStateChange(DownloadState downloadState) {
+  private void onRequirementsStateChanged(
+      RequirementsWatcher requirementsWatcher,
+      @Requirements.RequirementFlags int notMetRequirements) {
+    Requirements requirements = requirementsWatcher.getRequirements();
+    for (Listener listener : listeners) {
+      listener.onRequirementsStateChanged(this, requirements, notMetRequirements);
+    }
+    pendingMessages++;
+    internalHandler
+        .obtainMessage(MSG_SET_NOT_MET_REQUIREMENTS, notMetRequirements, /* unused */ 0)
+        .sendToTarget();
+  }
+
+  // Main thread message handling.
+
+  @SuppressWarnings("unchecked")
+  private boolean handleMainMessage(Message message) {
+    switch (message.what) {
+      case MSG_INITIALIZED:
+        List<DownloadState> downloadStates = (List<DownloadState>) message.obj;
+        onInitialized(downloadStates);
+        break;
+      case MSG_DOWNLOAD_STATE_CHANGED:
+        DownloadState state = (DownloadState) message.obj;
+        onDownloadStateChanged(state);
+        break;
+      case MSG_PROCESSED:
+        int processedMessageCount = message.arg1;
+        int activeDownloadCount = message.arg2;
+        onMessageProcessed(processedMessageCount, activeDownloadCount);
+        break;
+      default:
+        throw new IllegalStateException();
+    }
+    return true;
+  }
+
+  // TODO: Merge these three events into a single MSG_STATE_CHANGE that can carry all updates. This
+  // allows updating idle at the same point as the downloads that can be queried changes.
+  private void onInitialized(List<DownloadState> downloadStates) {
+    initialized = true;
+    for (int i = 0; i < downloadStates.size(); i++) {
+      DownloadState downloadState = downloadStates.get(i);
+      this.downloadStates.put(downloadState.id, downloadState);
+    }
+    for (Listener listener : listeners) {
+      listener.onInitialized(DownloadManager.this);
+    }
+  }
+
+  private void onDownloadStateChanged(DownloadState downloadState) {
     if (isFinished(downloadState.state)) {
       downloadStates.remove(downloadState.id);
     } else {
@@ -436,41 +505,60 @@ public final class DownloadManager {
     }
   }
 
-  @Requirements.RequirementFlags
-  private int watchRequirements(Requirements requirements) {
-    RequirementsWatcher.Listener listener =
-        (requirementsWatcher, notMetRequirements) -> onRequirementsStateChanged(notMetRequirements);
-    requirementsWatcher = new RequirementsWatcher(context, listener, requirements);
-    return requirementsWatcher.start();
-  }
-
-  private void onRequirementsStateChanged(@Requirements.RequirementFlags int notMetRequirements) {
-    Requirements requirements = requirementsWatcher.getRequirements();
-    for (Listener listener : listeners) {
-      listener.onRequirementsStateChanged(this, requirements, notMetRequirements);
-    }
-    internalHandler.post(() -> setNotMetRequirements(notMetRequirements));
-  }
-
-  private void onInitialized() {
-    initialized = true;
-    for (Listener listener : listeners) {
-      listener.onInitialized(DownloadManager.this);
-    }
-  }
-
-  private void onIdleStateChange(boolean idle) {
-    if (!this.idle && idle) {
+  private void onMessageProcessed(int processedMessageCount, int activeDownloadCount) {
+    this.pendingMessages -= processedMessageCount;
+    this.activeDownloadCount = activeDownloadCount;
+    if (isIdle()) {
       for (Listener listener : listeners) {
         listener.onIdle(this);
       }
     }
-    this.idle = idle;
   }
 
-  // Methods that run on internal thread.
+  // Internal thread message handling.
 
-  private void setManualStopReason(@Nullable String id, int manualStopReason) {
+  private boolean handleInternalMessage(Message message) {
+    boolean processedExternalMessage = true;
+    switch (message.what) {
+      case MSG_INITIALIZE:
+        int notMetRequirements = message.arg1;
+        initializeInternal(notMetRequirements);
+        break;
+      case MSG_ADD_DOWNLOAD:
+        DownloadAction action = (DownloadAction) message.obj;
+        addDownloadInternal(action);
+        break;
+      case MSG_REMOVE_DOWNLOAD:
+        String id = (String) message.obj;
+        removeDownloadInternal(id);
+        break;
+      case MSG_SET_MANUAL_STOP_REASON:
+        id = (String) message.obj;
+        int manualStopReason = message.arg1;
+        setManualStopReasonInternal(id, manualStopReason);
+        break;
+      case MSG_SET_NOT_MET_REQUIREMENTS:
+        notMetRequirements = message.arg1;
+        setNotMetRequirementsInternal(notMetRequirements);
+        break;
+      case MSG_DOWNLOAD_THREAD_STOPPED:
+        DownloadThread downloadThread = (DownloadThread) message.obj;
+        onDownloadThreadStoppedInternal(downloadThread);
+        processedExternalMessage = false;
+        break;
+      case MSG_RELEASE:
+        releaseInternal();
+        return true; // Don't post back to mainHandler on release.
+      default:
+        throw new IllegalStateException();
+    }
+    mainHandler
+        .obtainMessage(MSG_PROCESSED, processedExternalMessage ? 1 : 0, activeDownloads.size())
+        .sendToTarget();
+    return true;
+  }
+
+  private void setManualStopReasonInternal(@Nullable String id, int manualStopReason) {
     if (id != null) {
       Download download = getDownload(id);
       if (download != null) {
@@ -530,14 +618,17 @@ public final class DownloadManager {
   private void onDownloadStateChange(Download download, DownloadState downloadState) {
     logd("Download state is changed", download);
     updateDownloadIndex(downloadState);
-    mainHandler.post(() -> notifyListenersDownloadStateChange(downloadState));
-    int index = downloads.indexOf(download);
     if (isFinished(download.state)) {
-      downloads.remove(index);
+      downloads.remove(download);
     }
+    mainHandler.obtainMessage(MSG_DOWNLOAD_STATE_CHANGED, downloadState).sendToTarget();
   }
 
-  private void setNotMetRequirements(@Requirements.RequirementFlags int notMetRequirements) {
+  private void setNotMetRequirementsInternal(
+      @Requirements.RequirementFlags int notMetRequirements) {
+    if (this.notMetRequirements == notMetRequirements) {
+      return;
+    }
     this.notMetRequirements = notMetRequirements;
     logdFlags("Not met requirements are changed", notMetRequirements);
     for (int i = 0; i < downloads.size(); i++) {
@@ -565,35 +656,28 @@ public final class DownloadManager {
     return null;
   }
 
-  private void loadDownloads() {
-    DownloadState[] loadedStates;
+  private void initializeInternal(int notMetRequirements) {
+    this.notMetRequirements = notMetRequirements;
+    ArrayList<DownloadState> loadedStates = new ArrayList<>();
     try (DownloadStateCursor cursor =
         downloadIndex.getDownloadStates(
             STATE_QUEUED, STATE_STOPPED, STATE_DOWNLOADING, STATE_REMOVING, STATE_RESTARTING)) {
-      loadedStates = new DownloadState[cursor.getCount()];
-      for (int i = 0, length = loadedStates.length; i < length; i++) {
-        cursor.moveToNext();
-        loadedStates[i] = cursor.getDownloadState();
+      while (cursor.moveToNext()) {
+        loadedStates.add(cursor.getDownloadState());
       }
       logd("Download states are loaded.");
     } catch (Throwable e) {
       Log.e(TAG, "Download state loading failed.", e);
-      loadedStates = new DownloadState[0];
+      loadedStates.clear();
     }
     for (DownloadState downloadState : loadedStates) {
       addDownloadForState(downloadState);
     }
     logd("Downloads are created.");
-    mainHandler.post(this::onInitialized);
+    mainHandler.obtainMessage(MSG_INITIALIZED, loadedStates).sendToTarget();
     for (int i = 0; i < downloads.size(); i++) {
       downloads.get(i).start();
     }
-    checkIfIdle();
-  }
-
-  private void checkIfIdle() {
-    boolean idle = activeDownloads.isEmpty();
-    mainHandler.post(() -> onIdleStateChange(idle));
   }
 
   private void addDownloadForState(DownloadState downloadState) {
@@ -650,7 +734,6 @@ public final class DownloadManager {
     DownloadThread downloadThread = new DownloadThread(download);
     activeDownloads.put(download, downloadThread);
     download.setCounters(downloadThread.downloader.getCounters());
-    checkIfIdle();
     logd("Download is started", download);
     return START_THREAD_SUCCEEDED;
   }
@@ -670,20 +753,23 @@ public final class DownloadManager {
       stopDownloadThread(download);
     }
     internalThread.quit();
+    synchronized (releaseLock) {
+      released = true;
+      releaseLock.notifyAll();
+    }
   }
 
-  private void onDownloadThreadStopped(DownloadThread downloadThread, Throwable finalError) {
+  private void onDownloadThreadStoppedInternal(DownloadThread downloadThread) {
     Download download = downloadThread.download;
     logd("Download is stopped", download);
     activeDownloads.remove(download);
-    checkIfIdle();
     boolean tryToStartDownloads = false;
     if (!downloadThread.isRemoveThread) {
       // If maxSimultaneousDownloads was hit, there might be a download waiting for a slot.
       tryToStartDownloads = simultaneousDownloads == maxSimultaneousDownloads;
       simultaneousDownloads--;
     }
-    download.onDownloadThreadStopped(downloadThread.isCanceled, finalError);
+    download.onDownloadThreadStopped(downloadThread.isCanceled, downloadThread.finalError);
     if (tryToStartDownloads) {
       for (int i = 0;
           simultaneousDownloads < maxSimultaneousDownloads && i < downloads.size();
@@ -726,11 +812,6 @@ public final class DownloadManager {
     }
 
     public void addAction(DownloadAction newAction) {
-      Assertions.checkArgument(getId().equals(newAction.id));
-      if (!downloadState.type.equals(newAction.type)) {
-        String format = "Action type (%s) doesn't match existing download type (%s)";
-        Log.e(TAG, String.format(format, newAction.type, downloadState.type));
-      }
       downloadState = downloadState.mergeAction(newAction);
       initialize();
     }
@@ -885,7 +966,9 @@ public final class DownloadManager {
     private final Download download;
     private final Downloader downloader;
     private final boolean isRemoveThread;
+
     private volatile boolean isCanceled;
+    private Throwable finalError;
 
     private DownloadThread(Download download) {
       this.download = download;
@@ -905,7 +988,6 @@ public final class DownloadManager {
     @Override
     public void run() {
       logd("Download started", download);
-      Throwable error = null;
       try {
         if (isRemoveThread) {
           downloader.remove();
@@ -934,13 +1016,9 @@ public final class DownloadManager {
           }
         }
       } catch (Throwable e) {
-        error = e;
+        finalError = e;
       }
-      final Throwable finalError = error;
-      internalHandler.post(
-          () -> {
-            onDownloadThreadStopped(this, finalError);
-          });
+      internalHandler.obtainMessage(MSG_DOWNLOAD_THREAD_STOPPED, this).sendToTarget();
     }
 
     private int getRetryDelayMillis(int errorCount) {
