@@ -57,10 +57,6 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     return getStateQueue(taskId).poll(timeoutMs, TimeUnit.MILLISECONDS);
   }
 
-  public void clearDownloadError() {
-    this.failureReason = DownloadState.FAILURE_REASON_NONE;
-  }
-
   @Override
   public void onInitialized(DownloadManager downloadManager) {
     initializedCondition.open();
@@ -77,12 +73,12 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     if (downloadState.state == DownloadState.STATE_FAILED) {
       failureReason = downloadState.failureReason;
     }
-    getStateQueue(downloadState.id).add(downloadState.state);
+    getStateQueue(downloadState.action.id).add(downloadState.state);
   }
 
   @Override
   public void onDownloadRemoved(DownloadManager downloadManager, DownloadState downloadState) {
-    getStateQueue(downloadState.id).add(STATE_REMOVED);
+    getStateQueue(downloadState.action.id).add(STATE_REMOVED);
   }
 
   @Override

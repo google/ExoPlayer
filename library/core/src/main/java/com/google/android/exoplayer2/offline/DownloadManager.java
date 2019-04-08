@@ -47,7 +47,6 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -504,7 +503,7 @@ public final class DownloadManager {
   }
 
   private void onDownloadStateChanged(DownloadState downloadState) {
-    int downloadStateIndex = getDownloadStateIndex(downloadState.id);
+    int downloadStateIndex = getDownloadStateIndex(downloadState.action.id);
     if (downloadState.state == STATE_COMPLETED || downloadState.state == STATE_FAILED) {
       if (downloadStateIndex != C.INDEX_UNSET) {
         downloadStates.remove(downloadStateIndex);
@@ -520,7 +519,7 @@ public final class DownloadManager {
   }
 
   private void onDownloadRemoved(DownloadState downloadState) {
-    downloadStates.remove(getDownloadStateIndex(downloadState.id));
+    downloadStates.remove(getDownloadStateIndex(downloadState.action.id));
     for (Listener listener : listeners) {
       listener.onDownloadRemoved(this, downloadState);
     }
@@ -538,7 +537,7 @@ public final class DownloadManager {
 
   private int getDownloadStateIndex(String id) {
     for (int i = 0; i < downloadStates.size(); i++) {
-      if (downloadStates.get(i).id.equals(id)) {
+      if (downloadStates.get(i).action.id.equals(id)) {
         return i;
       }
     }
@@ -624,7 +623,7 @@ public final class DownloadManager {
         downloadState = new DownloadState(action);
         logd("Download state is created for " + action.id);
       } else {
-        downloadState = downloadState.mergeAction(action);
+        downloadState = downloadState.copyWithMergedAction(action);
         logd("Download state is loaded for " + action.id);
       }
       addDownloadForState(downloadState);
@@ -638,7 +637,7 @@ public final class DownloadManager {
     } else {
       DownloadState downloadState = loadDownloadState(id);
       if (downloadState != null) {
-        addDownloadForState(downloadState.setRemoveState());
+        addDownloadForState(downloadState.copyWithState(STATE_REMOVING));
       } else {
         logd("Can't remove download. No download with id: " + id);
       }
@@ -661,7 +660,7 @@ public final class DownloadManager {
   private void onDownloadRemovedInternal(Download download, DownloadState downloadState) {
     logd("Download is removed", download);
     try {
-      downloadIndex.removeDownloadState(downloadState.id);
+      downloadIndex.removeDownloadState(downloadState.action.id);
     } catch (DatabaseIOException e) {
       Log.e(TAG, "Failed to remove from index", e);
     }
@@ -837,11 +836,11 @@ public final class DownloadManager {
     }
 
     public String getId() {
-      return downloadState.id;
+      return downloadState.action.id;
     }
 
     public void addAction(DownloadAction newAction) {
-      downloadState = downloadState.mergeAction(newAction);
+      downloadState = downloadState.copyWithMergedAction(newAction);
       initialize();
     }
 
@@ -852,18 +851,13 @@ public final class DownloadManager {
     public DownloadState getUpdatedDownloadState() {
       downloadState =
           new DownloadState(
-              downloadState.id,
-              downloadState.type,
-              downloadState.uri,
-              downloadState.cacheKey,
+              downloadState.action,
               state,
               state != STATE_FAILED ? FAILURE_REASON_NONE : failureReason,
               notMetRequirements,
               manualStopReason,
               downloadState.startTimeMs,
               /* updateTimeMs= */ System.currentTimeMillis(),
-              downloadState.streamKeys,
-              downloadState.customMetadata,
               downloadState.counters);
       return downloadState;
     }
@@ -893,16 +887,6 @@ public final class DownloadManager {
     public void setManualStopReason(int manualStopReason) {
       this.manualStopReason = manualStopReason;
       updateStopState();
-    }
-
-    public DownloadAction getAction() {
-      return DownloadAction.createDownloadAction(
-          downloadState.id,
-          downloadState.type,
-          downloadState.uri,
-          Arrays.asList(downloadState.streamKeys),
-          downloadState.cacheKey,
-          downloadState.customMetadata);
     }
 
     public boolean isInRemoveState() {
@@ -980,7 +964,7 @@ public final class DownloadManager {
         initialize(STATE_QUEUED);
       } else { // STATE_DOWNLOADING
         if (error != null) {
-          Log.e(TAG, "Download failed: " + downloadState.id, error);
+          Log.e(TAG, "Download failed: " + downloadState.action.id, error);
           failureReason = FAILURE_REASON_UNKNOWN;
           setState(STATE_FAILED);
         } else {
@@ -1001,7 +985,7 @@ public final class DownloadManager {
 
     private DownloadThread(Download download) {
       this.download = download;
-      this.downloader = downloaderFactory.createDownloader(download.getAction());
+      this.downloader = downloaderFactory.createDownloader(download.downloadState.action);
       this.isRemoveThread = download.isInRemoveState();
       start();
     }

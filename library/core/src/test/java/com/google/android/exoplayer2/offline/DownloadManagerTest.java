@@ -347,7 +347,7 @@ public class DownloadManagerTest {
 
     assertThat(states).hasLength(3);
     String[] taskIds = {task1.taskId, task2.taskId, task3.taskId};
-    String[] stateTaskIds = {states[0].id, states[1].id, states[2].id};
+    String[] stateTaskIds = {states[0].action.id, states[1].action.id, states[2].action.id};
     assertThat(stateTaskIds).isEqualTo(taskIds);
   }
 
