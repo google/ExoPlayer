@@ -47,6 +47,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +74,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       <ul>
  *         <li>Corresponding setter: {@link #setUseNavigationActions(boolean)}
  *         <li>Default: {@code true}
+ *       </ul>
+ *   <li><b>{@code useNavigationActionsInCompactView}</b> - Sets whether the navigation previous and
+ *       next actions should are displayed in compact view (including the lock screen notification).
+ *       <ul>
+ *         <li>Corresponding setter: {@link #setUseNavigationActionsInCompactView(boolean)}
+ *         <li>Default: {@code false}
  *       </ul>
  *   <li><b>{@code usePlayPauseActions}</b> - Sets whether the play and pause actions are displayed.
  *       <ul>
@@ -362,6 +369,7 @@ public class PlayerNotificationManager {
   @Nullable private NotificationListener notificationListener;
   @Nullable private MediaSessionCompat.Token mediaSessionToken;
   private boolean useNavigationActions;
+  private boolean useNavigationActionsInCompactView;
   private boolean usePlayPauseActions;
   private boolean useStopAction;
   private long fastForwardMs;
@@ -683,6 +691,23 @@ public class PlayerNotificationManager {
   public final void setUseNavigationActions(boolean useNavigationActions) {
     if (this.useNavigationActions != useNavigationActions) {
       this.useNavigationActions = useNavigationActions;
+      invalidate();
+    }
+  }
+
+  /**
+   * Sets whether navigation actions should be displayed in compact view.
+   *
+   * <p>If {@link #useNavigationActions} is set to {@code false} navigation actions are displayed
+   * neither in compact nor in full view mode of the notification.
+   *
+   * @param useNavigationActionsInCompactView Whether the navigation actions should be displayed in
+   *     compact view.
+   */
+  public final void setUseNavigationActionsInCompactView(
+      boolean useNavigationActionsInCompactView) {
+    if (this.useNavigationActionsInCompactView != useNavigationActionsInCompactView) {
+      this.useNavigationActionsInCompactView = useNavigationActionsInCompactView;
       invalidate();
     }
   }
@@ -1096,9 +1121,26 @@ public class PlayerNotificationManager {
   protected int[] getActionIndicesForCompactView(List<String> actionNames, Player player) {
     int pauseActionIndex = actionNames.indexOf(ACTION_PAUSE);
     int playActionIndex = actionNames.indexOf(ACTION_PLAY);
-    return pauseActionIndex != -1
-        ? new int[] {pauseActionIndex}
-        : (playActionIndex != -1 ? new int[] {playActionIndex} : new int[0]);
+    int skipPreviousActionIndex =
+        useNavigationActionsInCompactView ? actionNames.indexOf(ACTION_PREVIOUS) : -1;
+    int skipNextActionIndex =
+        useNavigationActionsInCompactView ? actionNames.indexOf(ACTION_NEXT) : -1;
+
+    int[] actionIndices = new int[3];
+    int actionCounter = 0;
+    if (skipPreviousActionIndex != -1) {
+      actionIndices[actionCounter++] = skipPreviousActionIndex;
+    }
+    boolean playWhenReady = player.getPlayWhenReady();
+    if (pauseActionIndex != -1 && playWhenReady) {
+      actionIndices[actionCounter++] = pauseActionIndex;
+    } else if (playActionIndex != -1 && !playWhenReady) {
+      actionIndices[actionCounter++] = playActionIndex;
+    }
+    if (skipNextActionIndex != -1) {
+      actionIndices[actionCounter++] = skipNextActionIndex;
+    }
+    return Arrays.copyOf(actionIndices, actionCounter);
   }
 
   /** Returns whether the generated notification should be ongoing. */
