@@ -102,6 +102,9 @@
   ([#5698](https://github.com/google/ExoPlayer/issues/5698),
   [#5694](https://github.com/google/ExoPlayer/issues/5694)).
 * Move `PriorityTaskManager` from `DefaultLoadControl` to `SimpleExoPlayer`.
+* Remove `MediaCodecSelector.DEFAULT_WITH_FALLBACK`. Apps should instead signal
+  that fallback should be used by passing `true` as the `enableDecoderFallback`
+  parameter when instantiating the video renderer.
 
 ### 2.9.6 ###
 
