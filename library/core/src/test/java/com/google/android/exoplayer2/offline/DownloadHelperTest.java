@@ -398,7 +398,7 @@ public class DownloadHelperTest {
     assertThat(downloadAction.uri).isEqualTo(testUri);
     assertThat(downloadAction.customCacheKey).isEqualTo(TEST_CACHE_KEY);
     assertThat(downloadAction.data).isEqualTo(data);
-    assertThat(downloadAction.keys)
+    assertThat(downloadAction.streamKeys)
         .containsExactly(
             new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 0, /* trackIndex= */ 0),
             new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 0, /* trackIndex= */ 1),

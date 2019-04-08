@@ -52,7 +52,7 @@ class DownloadStateBuilder {
         action.uri,
         action.customCacheKey,
         action.data,
-        action.keys.toArray(new StreamKey[0]));
+        action.streamKeys.toArray(new StreamKey[0]));
   }
 
   DownloadStateBuilder(

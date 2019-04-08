@@ -48,7 +48,7 @@ public final class DownloadAction {
   private static final int VERSION = 3;
 
   /**
-   * Deserializes an action from the {@code data}.
+   * Deserializes a download action from the {@code data}.
    *
    * @param data The action data to deserialize.
    * @return The deserialized action.
@@ -62,10 +62,7 @@ public final class DownloadAction {
   }
 
   /**
-   * Deserializes one action that was serialized with {@link #serializeToStream(OutputStream)} from
-   * the {@code input}.
-   *
-   * <p>The caller is responsible for closing the given {@link InputStream}.
+   * Deserializes a single download action from {@code input}.
    *
    * @param input The stream from which to read.
    * @return The deserialized action.
@@ -104,35 +101,35 @@ public final class DownloadAction {
   public final String type;
   /** The uri being downloaded. */
   public final Uri uri;
-  /** Keys of streams to be downloaded. If empty, all streams will be downloaded. */
-  public final List<StreamKey> keys;
-  /** A custom key for cache indexing, or null. */
+  /** Stream keys to be downloaded. If empty, all streams will be downloaded. */
+  public final List<StreamKey> streamKeys;
+  /** Custom key for cache indexing, or null. */
   @Nullable public final String customCacheKey;
-  /** Custom data for this action. May be empty. */
+  /** Application defined data associated with the download. May be empty. */
   public final byte[] data;
 
   /**
-   * @param id The content id.
-   * @param type The type of the action.
-   * @param uri The uri being downloaded.
-   * @param keys Keys of streams to be downloaded. If empty, all streams will be downloaded.
-   * @param customCacheKey A custom key for cache indexing, or null.
-   * @param data Custom data for this action.
+   * @param id See {@link #id}.
+   * @param type See {@link #type}.
+   * @param uri See {@link #uri}.
+   * @param streamKeys See {@link #streamKeys}.
+   * @param customCacheKey See {@link #customCacheKey}.
+   * @param data See {@link #data}.
    */
   private DownloadAction(
       String id,
       String type,
       Uri uri,
-      List<StreamKey> keys,
+      List<StreamKey> streamKeys,
       @Nullable String customCacheKey,
       @Nullable byte[] data) {
     this.id = id;
     this.type = type;
     this.uri = uri;
     this.customCacheKey = customCacheKey;
-    ArrayList<StreamKey> mutableKeys = new ArrayList<>(keys);
+    ArrayList<StreamKey> mutableKeys = new ArrayList<>(streamKeys);
     Collections.sort(mutableKeys);
-    this.keys = Collections.unmodifiableList(mutableKeys);
+    this.streamKeys = Collections.unmodifiableList(mutableKeys);
     this.data = data != null ? Arrays.copyOf(data, data.length) : Util.EMPTY_BYTE_ARRAY;
   }
 
@@ -148,11 +145,6 @@ public final class DownloadAction {
     return output.toByteArray();
   }
 
-  /** Returns keys of streams to be downloaded. */
-  public List<StreamKey> getKeys() {
-    return keys;
-  }
-
   @Override
   public boolean equals(@Nullable Object o) {
     if (!(o instanceof DownloadAction)) {
@@ -162,7 +154,7 @@ public final class DownloadAction {
     return id.equals(that.id)
         && type.equals(that.type)
         && uri.equals(that.uri)
-        && keys.equals(that.keys)
+        && streamKeys.equals(that.streamKeys)
         && Util.areEqual(customCacheKey, that.customCacheKey)
         && Arrays.equals(data, that.data);
   }
@@ -172,7 +164,7 @@ public final class DownloadAction {
     int result = type.hashCode();
     result = 31 * result + id.hashCode();
     result = 31 * result + uri.hashCode();
-    result = 31 * result + keys.hashCode();
+    result = 31 * result + streamKeys.hashCode();
     result = 31 * result + (customCacheKey != null ? customCacheKey.hashCode() : 0);
     result = 31 * result + Arrays.hashCode(data);
     return result;
@@ -194,9 +186,9 @@ public final class DownloadAction {
     dataOutputStream.writeBoolean(false);
     dataOutputStream.writeInt(data.length);
     dataOutputStream.write(data);
-    dataOutputStream.writeInt(keys.size());
-    for (int i = 0; i < keys.size(); i++) {
-      StreamKey key = keys.get(i);
+    dataOutputStream.writeInt(streamKeys.size());
+    for (int i = 0; i < streamKeys.size(); i++) {
+      StreamKey key = streamKeys.get(i);
       dataOutputStream.writeInt(key.periodIndex);
       dataOutputStream.writeInt(key.groupIndex);
       dataOutputStream.writeInt(key.trackIndex);
