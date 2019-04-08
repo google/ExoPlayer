@@ -54,10 +54,15 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
   public static final String WEBVTT_FILE_EXTENSION = ".webvtt";
 
   @DefaultTsPayloadReaderFactory.Flags private final int payloadReaderFactoryFlags;
+  private final boolean exposeCea608WhenMissingDeclarations;
 
-  /** Creates a factory for HLS segment extractors. */
+  /**
+   * Equivalent to {@link #DefaultHlsExtractorFactory(int, boolean) new
+   * DefaultHlsExtractorFactory(payloadReaderFactoryFlags = 0, exposeCea608WhenMissingDeclarations =
+   * true)}
+   */
   public DefaultHlsExtractorFactory() {
-    this(/* payloadReaderFactoryFlags= */ 0);
+    this(/* payloadReaderFactoryFlags= */ 0, /* exposeCea608WhenMissingDeclarations */ true);
   }
 
   /**
@@ -66,9 +71,14 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
    * @param payloadReaderFactoryFlags Flags to add when constructing any {@link
    *     DefaultTsPayloadReaderFactory} instances. Other flags may be added on top of {@code
    *     payloadReaderFactoryFlags} when creating {@link DefaultTsPayloadReaderFactory}.
+   * @param exposeCea608WhenMissingDeclarations Whether created {@link TsExtractor} instances should
+   *     expose a CEA-608 track should the master playlist contain no Closed Captions declarations.
+   *     If the master playlist contains any Closed Captions declarations, this flag is ignored.
    */
-  public DefaultHlsExtractorFactory(int payloadReaderFactoryFlags) {
+  public DefaultHlsExtractorFactory(
+      int payloadReaderFactoryFlags, boolean exposeCea608WhenMissingDeclarations) {
     this.payloadReaderFactoryFlags = payloadReaderFactoryFlags;
+    this.exposeCea608WhenMissingDeclarations = exposeCea608WhenMissingDeclarations;
   }
 
   @Override
@@ -161,7 +171,11 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     if (!(extractorByFileExtension instanceof TsExtractor)) {
       TsExtractor tsExtractor =
           createTsExtractor(
-              payloadReaderFactoryFlags, format, muxedCaptionFormats, timestampAdjuster);
+              payloadReaderFactoryFlags,
+              exposeCea608WhenMissingDeclarations,
+              format,
+              muxedCaptionFormats,
+              timestampAdjuster);
       if (sniffQuietly(tsExtractor, extractorInput)) {
         return buildResult(tsExtractor);
       }
@@ -207,12 +221,17 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     } else {
       // For any other file extension, we assume TS format.
       return createTsExtractor(
-          payloadReaderFactoryFlags, format, muxedCaptionFormats, timestampAdjuster);
+          payloadReaderFactoryFlags,
+          exposeCea608WhenMissingDeclarations,
+          format,
+          muxedCaptionFormats,
+          timestampAdjuster);
     }
   }
 
   private static TsExtractor createTsExtractor(
       @DefaultTsPayloadReaderFactory.Flags int userProvidedPayloadReaderFactoryFlags,
+      boolean exposeCea608WhenMissingDeclarations,
       Format format,
       List<Format> muxedCaptionFormats,
       TimestampAdjuster timestampAdjuster) {
@@ -223,7 +242,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     if (muxedCaptionFormats != null) {
       // The playlist declares closed caption renditions, we should ignore descriptors.
       payloadReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_OVERRIDE_CAPTION_DESCRIPTORS;
-    } else {
+    } else if (exposeCea608WhenMissingDeclarations) {
       // The playlist does not provide any closed caption information. We preemptively declare a
       // closed caption track on channel 0.
       muxedCaptionFormats =
@@ -233,6 +252,8 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
                   MimeTypes.APPLICATION_CEA608,
                   /* selectionFlags= */ 0,
                   /* language= */ null));
+    } else {
+      muxedCaptionFormats = Collections.emptyList();
     }
     String codecs = format.codecs;
     if (!TextUtils.isEmpty(codecs)) {
