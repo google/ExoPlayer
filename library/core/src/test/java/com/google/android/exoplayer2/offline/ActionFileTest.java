@@ -171,6 +171,6 @@ public class ActionFileTest {
 
   private static DownloadAction buildAction(String type, Uri uri, byte[] data) {
     return DownloadAction.createDownloadAction(
-        type, uri, /* keys= */ Collections.emptyList(), /* customCacheKey= */ null, data);
+        "id", type, uri, /* keys= */ Collections.emptyList(), /* customCacheKey= */ null, data);
   }
 }

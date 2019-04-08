@@ -100,6 +100,7 @@ public class DownloadStateTest {
   public void mergeAction_actionHaveDifferentData_downloadStateDataIsUpdated() {
     DownloadAction downloadAction =
         DownloadAction.createDownloadAction(
+            "id",
             DownloadAction.TYPE_DASH,
             testUri,
             Collections.emptyList(),
@@ -246,6 +247,7 @@ public class DownloadStateTest {
       StreamKey[] keys1, StreamKey[] keys2, StreamKey[] expectedKeys) {
     DownloadAction downloadAction =
         DownloadAction.createDownloadAction(
+            "id",
             DownloadAction.TYPE_DASH,
             testUri,
             Arrays.asList(keys2),
@@ -290,6 +292,7 @@ public class DownloadStateTest {
 
   private DownloadAction createDownloadAction() {
     return DownloadAction.createDownloadAction(
+        "id",
         DownloadAction.TYPE_DASH,
         testUri,
         Collections.emptyList(),

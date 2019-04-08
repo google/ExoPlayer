@@ -102,6 +102,7 @@ public class HlsDownloaderTest {
     Downloader downloader =
         factory.createDownloader(
             DownloadAction.createDownloadAction(
+                "id",
                 DownloadAction.TYPE_HLS,
                 Uri.parse("https://www.test.com/download"),
                 Collections.singletonList(new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)),
