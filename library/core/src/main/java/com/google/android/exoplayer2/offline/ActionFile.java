@@ -19,7 +19,6 @@ import com.google.android.exoplayer2.offline.DownloadAction.UnsupportedActionExc
 import com.google.android.exoplayer2.util.AtomicFile;
 import com.google.android.exoplayer2.util.Util;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,8 +29,7 @@ import java.util.ArrayList;
  */
 public final class ActionFile {
 
-  private static final String TAG = "ActionFile";
-  /* package */ static final int VERSION = 0;
+  private static final int VERSION = 0;
 
   private final AtomicFile atomicFile;
 
@@ -72,29 +70,6 @@ public final class ActionFile {
       return actions.toArray(new DownloadAction[0]);
     } finally {
       Util.closeQuietly(inputStream);
-    }
-  }
-
-  /**
-   * Stores {@link DownloadAction}s to file.
-   *
-   * @param downloadActions DownloadActions to store to file.
-   * @throws IOException If there is an error during storing.
-   */
-  public void store(DownloadAction... downloadActions) throws IOException {
-    DataOutputStream output = null;
-    try {
-      output = new DataOutputStream(atomicFile.startWrite());
-      output.writeInt(VERSION);
-      output.writeInt(downloadActions.length);
-      for (DownloadAction action : downloadActions) {
-        action.serializeToStream(output);
-      }
-      atomicFile.endWrite(output);
-      // Avoid calling close twice.
-      output = null;
-    } finally {
-      Util.closeQuietly(output);
     }
   }
 
