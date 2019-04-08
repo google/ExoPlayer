@@ -565,10 +565,6 @@ public class DownloadManagerTest {
       return assertState(DownloadState.STATE_REMOVING);
     }
 
-    private TaskWrapper assertRemoved() {
-      return assertState(DownloadState.STATE_REMOVED);
-    }
-
     private TaskWrapper assertFailed() {
       return assertState(DownloadState.STATE_FAILED);
     }
@@ -583,6 +579,11 @@ public class DownloadManagerTest {
 
     private TaskWrapper assertState(@State int expectedState) {
       downloadManagerListener.assertState(taskId, expectedState, ASSERT_TRUE_TIMEOUT);
+      return this;
+    }
+
+    private TaskWrapper assertRemoved() {
+      downloadManagerListener.assertRemoved(taskId, ASSERT_TRUE_TIMEOUT);
       return this;
     }
 

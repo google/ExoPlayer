@@ -34,8 +34,8 @@ public final class DownloadState {
 
   /**
    * Download states. One of {@link #STATE_QUEUED}, {@link #STATE_STOPPED}, {@link
-   * #STATE_DOWNLOADING}, {@link #STATE_COMPLETED}, {@link #STATE_FAILED}, {@link #STATE_REMOVING},
-   * {@link #STATE_REMOVED} or {@link #STATE_RESTARTING}.
+   * #STATE_DOWNLOADING}, {@link #STATE_COMPLETED}, {@link #STATE_FAILED}, {@link #STATE_REMOVING}
+   * or {@link #STATE_RESTARTING}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -46,10 +46,10 @@ public final class DownloadState {
     STATE_COMPLETED,
     STATE_FAILED,
     STATE_REMOVING,
-    STATE_REMOVED,
     STATE_RESTARTING
   })
   public @interface State {}
+  // Important: These constants are persisted into DownloadIndex. Do not change them.
   /** The download is waiting to be started. */
   public static final int STATE_QUEUED = 0;
   /** The download is stopped. */
@@ -62,8 +62,6 @@ public final class DownloadState {
   public static final int STATE_FAILED = 4;
   /** The download is being removed. */
   public static final int STATE_REMOVING = 5;
-  /** The download is removed. */
-  public static final int STATE_REMOVED = 6;
   /** The download will restart after all downloaded data is removed. */
   public static final int STATE_RESTARTING = 7;
 
@@ -97,8 +95,6 @@ public final class DownloadState {
         return "FAILED";
       case STATE_REMOVING:
         return "REMOVING";
-      case STATE_REMOVED:
-        return "REMOVED";
       case STATE_RESTARTING:
         return "RESTARTING";
       default:

@@ -509,6 +509,15 @@ public abstract class DownloadService extends Service {
     // Do nothing.
   }
 
+  /**
+   * Called when a download is removed. The default implementation is a no-op.
+   *
+   * @param downloadState The last state of the download before it was removed.
+   */
+  protected void onDownloadRemoved(DownloadState downloadState) {
+    // Do nothing.
+  }
+
   private void notifyDownloadStateChange(DownloadState downloadState) {
     onDownloadStateChanged(downloadState);
     if (foregroundNotificationUpdater != null) {
@@ -519,6 +528,13 @@ public abstract class DownloadService extends Service {
       } else {
         foregroundNotificationUpdater.update();
       }
+    }
+  }
+
+  private void notifyDownloadRemoved(DownloadState downloadState) {
+    onDownloadRemoved(downloadState);
+    if (foregroundNotificationUpdater != null) {
+      foregroundNotificationUpdater.update();
     }
   }
 
@@ -639,6 +655,13 @@ public abstract class DownloadService extends Service {
         DownloadManager downloadManager, DownloadState downloadState) {
       if (downloadService != null) {
         downloadService.notifyDownloadStateChange(downloadState);
+      }
+    }
+
+    @Override
+    public void onDownloadRemoved(DownloadManager downloadManager, DownloadState downloadState) {
+      if (downloadService != null) {
+        downloadService.notifyDownloadRemoved(downloadState);
       }
     }
 

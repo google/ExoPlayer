@@ -34,6 +34,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
 
   private static final int TIMEOUT = 1000;
   private static final int INITIALIZATION_TIMEOUT = 10000;
+  private static final int STATE_REMOVED = -1;
 
   private final DownloadManager downloadManager;
   private final DummyMainThread dummyMainThread;
@@ -80,6 +81,11 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   }
 
   @Override
+  public void onDownloadRemoved(DownloadManager downloadManager, DownloadState downloadState) {
+    getStateQueue(downloadState.id).add(STATE_REMOVED);
+  }
+
+  @Override
   public synchronized void onIdle(DownloadManager downloadManager) {
     if (downloadFinishedCondition != null) {
       downloadFinishedCondition.countDown();
@@ -120,7 +126,15 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     }
   }
 
+  public void assertRemoved(String taskId, int timeoutMs) {
+    assertStateInternal(taskId, STATE_REMOVED, timeoutMs);
+  }
+
   public void assertState(String taskId, @State int expectedState, int timeoutMs) {
+    assertStateInternal(taskId, expectedState, timeoutMs);
+  }
+
+  private void assertStateInternal(String taskId, int expectedState, int timeoutMs) {
     ArrayList<Integer> receivedStates = new ArrayList<>();
     while (true) {
       Integer state = null;
@@ -140,7 +154,12 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
           if (i > 0) {
             sb.append(',');
           }
-          sb.append(DownloadState.getStateString(receivedStates.get(i)));
+          int receivedState = receivedStates.get(i);
+          String receivedStateString =
+              receivedState == STATE_REMOVED
+                  ? "REMOVED"
+                  : DownloadState.getStateString(receivedState);
+          sb.append(receivedStateString);
         }
         fail(
             String.format(

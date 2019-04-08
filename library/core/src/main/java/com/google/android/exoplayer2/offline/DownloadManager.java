@@ -23,7 +23,6 @@ import static com.google.android.exoplayer2.offline.DownloadState.STATE_COMPLETE
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_DOWNLOADING;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_FAILED;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_QUEUED;
-import static com.google.android.exoplayer2.offline.DownloadState.STATE_REMOVED;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_REMOVING;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_RESTARTING;
 import static com.google.android.exoplayer2.offline.DownloadState.STATE_STOPPED;
@@ -82,6 +81,14 @@ public final class DownloadManager {
         DownloadManager downloadManager, DownloadState downloadState) {}
 
     /**
+     * Called when a download is removed.
+     *
+     * @param downloadManager The reporting instance.
+     * @param downloadState The last state of the download before it was removed.
+     */
+    default void onDownloadRemoved(DownloadManager downloadManager, DownloadState downloadState) {}
+
+    /**
      * Called when there is no active download left.
      *
      * @param downloadManager The reporting instance.
@@ -114,6 +121,7 @@ public final class DownloadManager {
   private static final int MSG_INITIALIZED = 0;
   private static final int MSG_PROCESSED = 1;
   private static final int MSG_DOWNLOAD_STATE_CHANGED = 2;
+  private static final int MSG_DOWNLOAD_REMOVED = 3;
 
   // Messages posted to the background handler.
   private static final int MSG_INITIALIZE = 0;
@@ -470,6 +478,10 @@ public final class DownloadManager {
         DownloadState state = (DownloadState) message.obj;
         onDownloadStateChanged(state);
         break;
+      case MSG_DOWNLOAD_REMOVED:
+        state = (DownloadState) message.obj;
+        onDownloadRemoved(state);
+        break;
       case MSG_PROCESSED:
         int processedMessageCount = message.arg1;
         int activeDownloadCount = message.arg2;
@@ -495,13 +507,20 @@ public final class DownloadManager {
   }
 
   private void onDownloadStateChanged(DownloadState downloadState) {
-    if (isFinished(downloadState.state)) {
+    if (downloadState.state == STATE_COMPLETED || downloadState.state == STATE_FAILED) {
       downloadStates.remove(downloadState.id);
     } else {
       downloadStates.put(downloadState.id, downloadState);
     }
     for (Listener listener : listeners) {
       listener.onDownloadStateChanged(this, downloadState);
+    }
+  }
+
+  private void onDownloadRemoved(DownloadState downloadState) {
+    downloadStates.remove(downloadState.id);
+    for (Listener listener : listeners) {
+      listener.onDownloadRemoved(this, downloadState);
     }
   }
 
@@ -615,13 +634,28 @@ public final class DownloadManager {
     }
   }
 
-  private void onDownloadStateChange(Download download, DownloadState downloadState) {
+  private void onDownloadStateChangedInternal(Download download, DownloadState downloadState) {
     logd("Download state is changed", download);
-    updateDownloadIndex(downloadState);
-    if (isFinished(download.state)) {
+    try {
+      downloadIndex.putDownloadState(downloadState);
+    } catch (DatabaseIOException e) {
+      Log.e(TAG, "Failed to update index", e);
+    }
+    if (download.state == STATE_COMPLETED || download.state == STATE_FAILED) {
       downloads.remove(download);
     }
     mainHandler.obtainMessage(MSG_DOWNLOAD_STATE_CHANGED, downloadState).sendToTarget();
+  }
+
+  private void onDownloadRemovedInternal(Download download, DownloadState downloadState) {
+    logd("Download is removed", download);
+    try {
+      downloadIndex.removeDownloadState(downloadState.id);
+    } catch (DatabaseIOException e) {
+      Log.e(TAG, "Failed to remove from index", e);
+    }
+    downloads.remove(download);
+    mainHandler.obtainMessage(MSG_DOWNLOAD_REMOVED, downloadState).sendToTarget();
   }
 
   private void setNotMetRequirementsInternal(
@@ -685,18 +719,6 @@ public final class DownloadManager {
     downloads.add(download);
     logd("Download is added", download);
     download.initialize();
-  }
-
-  private void updateDownloadIndex(DownloadState downloadState) {
-    try {
-      if (downloadState.state == DownloadState.STATE_REMOVED) {
-        downloadIndex.removeDownloadState(downloadState.id);
-      } else {
-        downloadIndex.putDownloadState(downloadState);
-      }
-    } catch (DatabaseIOException e) {
-      Log.e(TAG, "updateDownloadIndex failed", e);
-    }
   }
 
   private static void logd(String message) {
@@ -777,10 +799,6 @@ public final class DownloadManager {
         downloads.get(i).start();
       }
     }
-  }
-
-  private static boolean isFinished(@DownloadState.State int state) {
-    return state == STATE_FAILED || state == STATE_COMPLETED || state == STATE_REMOVED;
   }
 
   private static final class Download {
@@ -867,7 +885,6 @@ public final class DownloadManager {
     }
 
     public DownloadAction getAction() {
-      Assertions.checkState(state != STATE_REMOVED);
       return DownloadAction.createDownloadAction(
           downloadState.type,
           downloadState.uri,
@@ -897,7 +914,7 @@ public final class DownloadManager {
         }
       }
       if (oldDownloadState == downloadState) {
-        downloadManager.onDownloadStateChange(this, getUpdatedDownloadState());
+        downloadManager.onDownloadStateChangedInternal(this, getUpdatedDownloadState());
       }
     }
 
@@ -913,7 +930,7 @@ public final class DownloadManager {
         setState(STATE_STOPPED);
       }
       if (state == initialState) {
-        downloadManager.onDownloadStateChange(this, getUpdatedDownloadState());
+        downloadManager.onDownloadStateChangedInternal(this, getUpdatedDownloadState());
       }
     }
 
@@ -935,7 +952,7 @@ public final class DownloadManager {
     private void setState(@DownloadState.State int newState) {
       if (state != newState) {
         state = newState;
-        downloadManager.onDownloadStateChange(this, getUpdatedDownloadState());
+        downloadManager.onDownloadStateChangedInternal(this, getUpdatedDownloadState());
       }
     }
 
@@ -945,10 +962,10 @@ public final class DownloadManager {
       }
       if (isCanceled) {
         downloadManager.startDownloadThread(this);
+      } else if (state == STATE_REMOVING) {
+        downloadManager.onDownloadRemovedInternal(this, getUpdatedDownloadState());
       } else if (state == STATE_RESTARTING) {
         initialize(STATE_QUEUED);
-      } else if (state == STATE_REMOVING) {
-        setState(STATE_REMOVED);
       } else { // STATE_DOWNLOADING
         if (error != null) {
           Log.e(TAG, "Download failed: " + downloadState.id, error);

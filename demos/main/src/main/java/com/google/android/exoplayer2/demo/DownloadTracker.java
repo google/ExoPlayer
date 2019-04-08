@@ -124,13 +124,18 @@ public class DownloadTracker implements DownloadManager.Listener {
 
   @Override
   public void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState) {
-    boolean downloaded = isDownloaded(downloadState.uri);
-    if (downloadState.state == DownloadState.STATE_REMOVED) {
-      downloadStates.remove(downloadState.uri);
-    } else {
-      downloadStates.put(downloadState.uri, downloadState);
+    boolean downloadAdded = downloadStates.put(downloadState.uri, downloadState) == null;
+    if (downloadAdded) {
+      for (Listener listener : listeners) {
+        listener.onDownloadsChanged();
+      }
     }
-    if (downloaded != isDownloaded(downloadState.uri)) {
+  }
+
+  @Override
+  public void onDownloadRemoved(DownloadManager downloadManager, DownloadState downloadState) {
+    boolean downloadRemoved = downloadStates.remove(downloadState.uri) != null;
+    if (downloadRemoved) {
       for (Listener listener : listeners) {
         listener.onDownloadsChanged();
       }

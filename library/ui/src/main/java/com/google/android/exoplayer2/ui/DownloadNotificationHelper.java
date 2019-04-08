@@ -65,8 +65,7 @@ public final class DownloadNotificationHelper {
     boolean haveRemoveTasks = false;
     for (DownloadState downloadState : downloadStates) {
       if (downloadState.state == DownloadState.STATE_REMOVING
-          || downloadState.state == DownloadState.STATE_RESTARTING
-          || downloadState.state == DownloadState.STATE_REMOVED) {
+          || downloadState.state == DownloadState.STATE_RESTARTING) {
         haveRemoveTasks = true;
         continue;
       }
