@@ -192,7 +192,6 @@ public final class DefaultDownloadIndex implements DownloadIndex {
    */
   public void putDownloadState(DownloadState downloadState) throws DatabaseIOException {
     ensureInitialized();
-    Assertions.checkState(downloadState.state != DownloadState.STATE_REMOVED);
     try {
       ContentValues values = new ContentValues();
       values.put(COLUMN_ID, downloadState.id);
