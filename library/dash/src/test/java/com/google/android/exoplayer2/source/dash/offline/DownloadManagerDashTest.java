@@ -233,7 +233,12 @@ public class DownloadManagerDashTest {
     Collections.addAll(keysList, keys);
     DownloadAction action =
         DownloadAction.createDownloadAction(
-            DownloadAction.TYPE_DASH, TEST_MPD_URI, keysList, /* customCacheKey= */ null, null);
+            TEST_ID,
+            DownloadAction.TYPE_DASH,
+            TEST_MPD_URI,
+            keysList,
+            /* customCacheKey= */ null,
+            null);
     downloadManager.addDownload(action);
   }
 

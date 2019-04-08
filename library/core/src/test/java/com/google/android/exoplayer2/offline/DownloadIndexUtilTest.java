@@ -58,6 +58,7 @@ public class DownloadIndexUtilTest {
     byte[] data = new byte[] {1, 2, 3, 4};
     DownloadAction action =
         DownloadAction.createDownloadAction(
+            "id",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download"),
             asList(
@@ -79,6 +80,7 @@ public class DownloadIndexUtilTest {
         new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
     DownloadAction action1 =
         DownloadAction.createDownloadAction(
+            "id",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download1"),
             asList(streamKey1),
@@ -86,6 +88,7 @@ public class DownloadIndexUtilTest {
             new byte[] {1, 2, 3, 4});
     DownloadAction action2 =
         DownloadAction.createDownloadAction(
+            "id",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download2"),
             asList(streamKey2),
@@ -114,6 +117,7 @@ public class DownloadIndexUtilTest {
         new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
     DownloadAction action1 =
         DownloadAction.createDownloadAction(
+            "id1",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download1"),
             asList(streamKey1),
@@ -121,6 +125,7 @@ public class DownloadIndexUtilTest {
             new byte[] {1, 2, 3, 4});
     DownloadAction action2 =
         DownloadAction.createDownloadAction(
+            "id2",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download2"),
             asList(streamKey2),

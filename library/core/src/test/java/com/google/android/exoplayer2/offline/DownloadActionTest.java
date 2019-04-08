@@ -84,13 +84,6 @@ public class DownloadActionTest {
     assertThat(action1.id.equals(action2.id)).isTrue();
   }
 
-  @Test
-  public void testDifferentCacheKeyDifferentUri_hasDifferentId() {
-    DownloadAction action1 = createAction(uri1, "key123");
-    DownloadAction action2 = createAction(uri2, "key456");
-    assertThat(action1.id.equals(action2.id)).isFalse();
-  }
-
   @SuppressWarnings("EqualsWithItself")
   @Test
   public void testEquals() {
@@ -130,6 +123,7 @@ public class DownloadActionTest {
   public void testSerializerWriteRead() throws Exception {
     assertStreamSerializationRoundTrip(
         DownloadAction.createDownloadAction(
+            "id",
             TYPE_DASH,
             uri1,
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
@@ -142,6 +136,7 @@ public class DownloadActionTest {
   public void testArraySerialization() throws Exception {
     assertArraySerializationRoundTrip(
         DownloadAction.createDownloadAction(
+            "id",
             TYPE_DASH,
             uri1,
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
@@ -152,10 +147,12 @@ public class DownloadActionTest {
 
   @Test
   public void testSerializerProgressiveVersion0() throws Exception {
+    String customCacheKey = "key123";
+    String expectedId = DownloadAction.generateId(uri1, customCacheKey);
     assertDeserialization(
         "progressive-download-v0",
         DownloadAction.createDownloadAction(
-            TYPE_PROGRESSIVE, uri1, Collections.emptyList(), "key123", data));
+            expectedId, TYPE_PROGRESSIVE, uri1, Collections.emptyList(), customCacheKey, data));
     assertUnsupportedAction("progressive-remove-v0");
   }
 
@@ -164,6 +161,7 @@ public class DownloadActionTest {
     assertDeserialization(
         "dash-download-v0",
         DownloadAction.createDownloadAction(
+            uri1.toString(),
             TYPE_DASH,
             uri1,
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
@@ -177,6 +175,7 @@ public class DownloadActionTest {
     assertDeserialization(
         "hls-download-v0",
         DownloadAction.createDownloadAction(
+            uri1.toString(),
             TYPE_HLS,
             uri1,
             toList(new StreamKey(0, 1), new StreamKey(2, 3)),
@@ -190,6 +189,7 @@ public class DownloadActionTest {
     assertDeserialization(
         "hls-download-v1",
         DownloadAction.createDownloadAction(
+            uri1.toString(),
             TYPE_HLS,
             uri1,
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
@@ -203,6 +203,7 @@ public class DownloadActionTest {
     assertDeserialization(
         "ss-download-v0",
         DownloadAction.createDownloadAction(
+            uri1.toString(),
             TYPE_SS,
             uri1,
             toList(new StreamKey(0, 1), new StreamKey(2, 3)),
@@ -216,6 +217,7 @@ public class DownloadActionTest {
     assertDeserialization(
         "ss-download-v1",
         DownloadAction.createDownloadAction(
+            uri1.toString(),
             TYPE_SS,
             uri1,
             toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
@@ -226,12 +228,17 @@ public class DownloadActionTest {
 
   private DownloadAction createAction(Uri uri, StreamKey... keys) {
     return DownloadAction.createDownloadAction(
-        TYPE_DASH, uri, toList(keys), /* customCacheKey= */ null, data);
+        uri.toString(), TYPE_DASH, uri, toList(keys), /* customCacheKey= */ null, data);
   }
 
   private DownloadAction createAction(Uri uri, @Nullable String customCacheKey) {
     return DownloadAction.createDownloadAction(
-        DownloadAction.TYPE_DASH, uri, Collections.emptyList(), customCacheKey, /* data= */ null);
+        "id",
+        DownloadAction.TYPE_DASH,
+        uri,
+        Collections.emptyList(),
+        customCacheKey,
+        /* data= */ null);
   }
 
   private static void assertNotEqual(DownloadAction action1, DownloadAction action2) {

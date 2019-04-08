@@ -886,6 +886,7 @@ public final class DownloadManager {
 
     public DownloadAction getAction() {
       return DownloadAction.createDownloadAction(
+          downloadState.id,
           downloadState.type,
           downloadState.uri,
           Arrays.asList(downloadState.streamKeys),

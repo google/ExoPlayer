@@ -45,7 +45,7 @@ public final class DownloadAction {
   /** Type for SmoothStreaming downloads. */
   public static final String TYPE_SS = "ss";
 
-  private static final int VERSION = 2;
+  private static final int VERSION = 3;
 
   /**
    * Deserializes an action from the {@code data}.
@@ -76,25 +76,6 @@ public final class DownloadAction {
    */
   public static DownloadAction deserializeFromStream(InputStream input) throws IOException {
     return readFromStream(new DataInputStream(input));
-  }
-
-  /**
-   * Creates a DASH download action.
-   *
-   * @param type The type of the action.
-   * @param uri The URI of the media to be downloaded.
-   * @param keys Keys of streams to be downloaded. If empty, all streams will be downloaded.
-   * @param customCacheKey A custom key for cache indexing, or null.
-   * @param data Optional custom data for this action. If {@code null} an empty array will be used.
-   */
-  public static DownloadAction createDownloadAction(
-      String type,
-      Uri uri,
-      List<StreamKey> keys,
-      @Nullable String customCacheKey,
-      @Nullable byte[] data) {
-    return createDownloadAction(
-        generateId(uri, customCacheKey), type, uri, keys, customCacheKey, data);
   }
 
   /**
@@ -224,6 +205,7 @@ public final class DownloadAction {
     if (customCacheKey != null) {
       dataOutputStream.writeUTF(customCacheKey);
     }
+    dataOutputStream.writeUTF(id);
     dataOutputStream.flush();
   }
 
@@ -261,15 +243,17 @@ public final class DownloadAction {
       customCacheKey = input.readBoolean() ? input.readUTF() : null;
     }
 
+    // Serialized version 0, 1 and 2 did not contain an id.
+    String id = version < 3 ? generateId(uri, customCacheKey) : input.readUTF();
+
     if (isRemoveAction) {
       // Remove actions are not supported anymore.
       throw new UnsupportedActionException();
     }
-    return new DownloadAction(
-        generateId(uri, customCacheKey), type, uri, keys, customCacheKey, data);
+    return new DownloadAction(id, type, uri, keys, customCacheKey, data);
   }
 
-  private static String generateId(Uri uri, @Nullable String customCacheKey) {
+  /* package */ static String generateId(Uri uri, @Nullable String customCacheKey) {
     return customCacheKey != null ? customCacheKey : uri.toString();
   }
 

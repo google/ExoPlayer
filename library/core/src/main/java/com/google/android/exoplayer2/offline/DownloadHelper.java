@@ -584,9 +584,10 @@ public final class DownloadHelper {
    * @return The built {@link DownloadAction}.
    */
   public DownloadAction getDownloadAction(@Nullable byte[] data) {
+    String downloadId = uri.toString();
     if (mediaSource == null) {
       return DownloadAction.createDownloadAction(
-          downloadType, uri, /* keys= */ Collections.emptyList(), cacheKey, data);
+          downloadId, downloadType, uri, /* keys= */ Collections.emptyList(), cacheKey, data);
     }
     assertPreparedWithMedia();
     List<StreamKey> streamKeys = new ArrayList<>();
@@ -600,7 +601,8 @@ public final class DownloadHelper {
       }
       streamKeys.addAll(mediaPreparer.mediaPeriods[periodIndex].getStreamKeys(allSelections));
     }
-    return DownloadAction.createDownloadAction(downloadType, uri, streamKeys, cacheKey, data);
+    return DownloadAction.createDownloadAction(
+        downloadId, downloadType, uri, streamKeys, cacheKey, data);
   }
 
   // Initialization of array of Lists.
