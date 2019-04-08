@@ -95,17 +95,21 @@ public final class CacheUtil {
       @Nullable CacheKeyFactory cacheKeyFactory,
       CachingCounters counters) {
     String key = buildCacheKey(dataSpec, cacheKeyFactory);
-    long start = dataSpec.absoluteStreamPosition;
-    long left =
-        dataSpec.length != C.LENGTH_UNSET
-            ? dataSpec.length
-            : ContentMetadata.getContentLength(cache.getContentMetadata(key));
-    counters.contentLength = left;
+    long position = dataSpec.absoluteStreamPosition;
+    long bytesLeft;
+    if (dataSpec.length != C.LENGTH_UNSET) {
+      bytesLeft = dataSpec.length;
+    } else {
+      long contentLength = ContentMetadata.getContentLength(cache.getContentMetadata(key));
+      bytesLeft = contentLength == C.LENGTH_UNSET ? C.LENGTH_UNSET : contentLength - position;
+    }
+    counters.contentLength = bytesLeft;
     counters.alreadyCachedBytes = 0;
     counters.newlyCachedBytes = 0;
-    while (left != 0) {
+    while (bytesLeft != 0) {
       long blockLength =
-          cache.getCachedLength(key, start, left != C.LENGTH_UNSET ? left : Long.MAX_VALUE);
+          cache.getCachedLength(
+              key, position, bytesLeft != C.LENGTH_UNSET ? bytesLeft : Long.MAX_VALUE);
       if (blockLength > 0) {
         counters.alreadyCachedBytes += blockLength;
       } else {
@@ -114,8 +118,8 @@ public final class CacheUtil {
           return;
         }
       }
-      start += blockLength;
-      left -= left == C.LENGTH_UNSET ? 0 : blockLength;
+      position += blockLength;
+      bytesLeft -= bytesLeft == C.LENGTH_UNSET ? 0 : blockLength;
     }
     counters.updatePercentage();
   }
@@ -203,15 +207,19 @@ public final class CacheUtil {
     }
 
     String key = buildCacheKey(dataSpec, cacheKeyFactory);
-    long start = dataSpec.absoluteStreamPosition;
-    long left =
-        dataSpec.length != C.LENGTH_UNSET
-            ? dataSpec.length
-            : ContentMetadata.getContentLength(cache.getContentMetadata(key));
-    while (left != 0) {
+    long position = dataSpec.absoluteStreamPosition;
+    long bytesLeft;
+    if (dataSpec.length != C.LENGTH_UNSET) {
+      bytesLeft = dataSpec.length;
+    } else {
+      long contentLength = ContentMetadata.getContentLength(cache.getContentMetadata(key));
+      bytesLeft = contentLength == C.LENGTH_UNSET ? C.LENGTH_UNSET : contentLength - position;
+    }
+    while (bytesLeft != 0) {
       throwExceptionIfInterruptedOrCancelled(isCanceled);
       long blockLength =
-          cache.getCachedLength(key, start, left != C.LENGTH_UNSET ? left : Long.MAX_VALUE);
+          cache.getCachedLength(
+              key, position, bytesLeft != C.LENGTH_UNSET ? bytesLeft : Long.MAX_VALUE);
       if (blockLength > 0) {
         // Skip already cached data.
       } else {
@@ -220,7 +228,7 @@ public final class CacheUtil {
         long read =
             readAndDiscard(
                 dataSpec,
-                start,
+                position,
                 blockLength,
                 dataSource,
                 buffer,
@@ -230,14 +238,14 @@ public final class CacheUtil {
                 isCanceled);
         if (read < blockLength) {
           // Reached to the end of the data.
-          if (enableEOFException && left != C.LENGTH_UNSET) {
+          if (enableEOFException && bytesLeft != C.LENGTH_UNSET) {
             throw new EOFException();
           }
           break;
         }
       }
-      start += blockLength;
-      left -= left == C.LENGTH_UNSET ? 0 : blockLength;
+      position += blockLength;
+      bytesLeft -= bytesLeft == C.LENGTH_UNSET ? 0 : blockLength;
     }
   }
 
@@ -269,6 +277,7 @@ public final class CacheUtil {
       CachingCounters counters,
       AtomicBoolean isCanceled)
       throws IOException, InterruptedException {
+    long positionOffset = absoluteStreamPosition - dataSpec.absoluteStreamPosition;
     while (true) {
       if (priorityTaskManager != null) {
         // Wait for any other thread with higher priority to finish its job.
@@ -284,31 +293,35 @@ public final class CacheUtil {
                 dataSpec.httpMethod,
                 dataSpec.httpBody,
                 absoluteStreamPosition,
-                dataSpec.position + absoluteStreamPosition - dataSpec.absoluteStreamPosition,
+                /* position= */ dataSpec.position + positionOffset,
                 C.LENGTH_UNSET,
                 dataSpec.key,
                 dataSpec.flags);
         long resolvedLength = dataSource.open(dataSpec);
         if (counters.contentLength == C.LENGTH_UNSET && resolvedLength != C.LENGTH_UNSET) {
-          counters.contentLength = dataSpec.absoluteStreamPosition + resolvedLength;
+          counters.contentLength = positionOffset + resolvedLength;
         }
-        long totalRead = 0;
-        while (totalRead != length) {
+        long totalBytesRead = 0;
+        while (totalBytesRead != length) {
           throwExceptionIfInterruptedOrCancelled(isCanceled);
-          int read = dataSource.read(buffer, 0,
-              length != C.LENGTH_UNSET ? (int) Math.min(buffer.length, length - totalRead)
-                  : buffer.length);
-          if (read == C.RESULT_END_OF_INPUT) {
+          int bytesRead =
+              dataSource.read(
+                  buffer,
+                  0,
+                  length != C.LENGTH_UNSET
+                      ? (int) Math.min(buffer.length, length - totalBytesRead)
+                      : buffer.length);
+          if (bytesRead == C.RESULT_END_OF_INPUT) {
             if (counters.contentLength == C.LENGTH_UNSET) {
-              counters.contentLength = dataSpec.absoluteStreamPosition + totalRead;
+              counters.contentLength = positionOffset + totalBytesRead;
             }
             break;
           }
-          totalRead += read;
-          counters.newlyCachedBytes += read;
+          totalBytesRead += bytesRead;
+          counters.newlyCachedBytes += bytesRead;
           counters.updatePercentage();
         }
-        return totalRead;
+        return totalBytesRead;
       } catch (PriorityTaskManager.PriorityTooLowException exception) {
         // catch and try again
       } finally {

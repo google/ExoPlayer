@@ -177,6 +177,24 @@ public final class CacheUtilTest {
   }
 
   @Test
+  public void testGetCachedFromNonZeroPosition() throws Exception {
+    mockCache.contentLength = 1000;
+    mockCache.spansAndGaps = new int[] {100, 100, 200};
+    CachingCounters counters = new CachingCounters();
+    CacheUtil.getCached(
+        new DataSpec(
+            Uri.parse("test"),
+            /* absoluteStreamPosition= */ 100,
+            /* length= */ C.LENGTH_UNSET,
+            /* key= */ null),
+        mockCache,
+        /* cacheKeyFactory= */ null,
+        counters);
+
+    assertCounters(counters, 200, 0, 900);
+  }
+
+  @Test
   public void testCache() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
