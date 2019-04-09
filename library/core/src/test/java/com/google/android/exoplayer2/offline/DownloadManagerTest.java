@@ -507,7 +507,7 @@ public class DownloadManagerTest {
 
     private DownloadRunner postDownloadAction(StreamKey... keys) {
       DownloadAction downloadAction =
-          DownloadAction.createDownloadAction(
+          new DownloadAction(
               id,
               DownloadAction.TYPE_PROGRESSIVE,
               uri,

@@ -101,7 +101,7 @@ public class HlsDownloaderTest {
 
     Downloader downloader =
         factory.createDownloader(
-            DownloadAction.createDownloadAction(
+            new DownloadAction(
                 "id",
                 DownloadAction.TYPE_HLS,
                 Uri.parse("https://www.test.com/download"),

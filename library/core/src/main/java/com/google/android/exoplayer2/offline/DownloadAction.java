@@ -15,24 +15,22 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 /** Contains the necessary parameters for a download action. */
-public final class DownloadAction {
+public final class DownloadAction implements Parcelable {
 
   /** Thrown when the encoded action data belongs to an unsupported DownloadAction type. */
   public static class UnsupportedActionException extends IOException {}
@@ -45,56 +43,6 @@ public final class DownloadAction {
   public static final String TYPE_HLS = "hls";
   /** Type for SmoothStreaming downloads. */
   public static final String TYPE_SS = "ss";
-
-  private static final int VERSION = 3;
-
-  /**
-   * Deserializes a download action from the {@code data}.
-   *
-   * @param data The action data to deserialize.
-   * @return The deserialized action.
-   * @throws IOException If the data could not be deserialized.
-   * @throws UnsupportedActionException If the data belongs to an unsupported {@link DownloadAction}
-   *     type. Input read position is set to the end of the data.
-   */
-  public static DownloadAction fromByteArray(byte[] data) throws IOException {
-    ByteArrayInputStream input = new ByteArrayInputStream(data);
-    return deserializeFromStream(input);
-  }
-
-  /**
-   * Deserializes a single download action from {@code input}.
-   *
-   * @param input The stream from which to read.
-   * @return The deserialized action.
-   * @throws IOException If there is an IO error reading from {@code input}, or if the data could
-   *     not be deserialized.
-   * @throws UnsupportedActionException If the data belongs to an unsupported {@link DownloadAction}
-   *     type. Input read position is set to the end of the data.
-   */
-  public static DownloadAction deserializeFromStream(InputStream input) throws IOException {
-    return readFromStream(new DataInputStream(input));
-  }
-
-  /**
-   * Creates a DASH download action.
-   *
-   * @param id The content id.
-   * @param type The type of the action.
-   * @param uri The URI of the media to be downloaded.
-   * @param keys Keys of streams to be downloaded. If empty, all streams will be downloaded.
-   * @param customCacheKey A custom key for cache indexing, or null.
-   * @param data Optional custom data for this action. If {@code null} an empty array will be used.
-   */
-  public static DownloadAction createDownloadAction(
-      String id,
-      String type,
-      Uri uri,
-      List<StreamKey> keys,
-      @Nullable String customCacheKey,
-      @Nullable byte[] data) {
-    return new DownloadAction(id, type, uri, keys, customCacheKey, data);
-  }
 
   /** The unique content id. */
   public final String id;
@@ -117,7 +65,7 @@ public final class DownloadAction {
    * @param customCacheKey See {@link #customCacheKey}.
    * @param data See {@link #data}.
    */
-  private DownloadAction(
+  public DownloadAction(
       String id,
       String type,
       Uri uri,
@@ -127,11 +75,36 @@ public final class DownloadAction {
     this.id = id;
     this.type = type;
     this.uri = uri;
-    this.customCacheKey = customCacheKey;
     ArrayList<StreamKey> mutableKeys = new ArrayList<>(streamKeys);
     Collections.sort(mutableKeys);
     this.streamKeys = Collections.unmodifiableList(mutableKeys);
+    this.customCacheKey = customCacheKey;
     this.data = data != null ? Arrays.copyOf(data, data.length) : Util.EMPTY_BYTE_ARRAY;
+  }
+
+  /* package */ DownloadAction(Parcel in) {
+    id = castNonNull(in.readString());
+    type = castNonNull(in.readString());
+    uri = Uri.parse(castNonNull(in.readString()));
+    int streamKeyCount = in.readInt();
+    ArrayList<StreamKey> mutableStreamKeys = new ArrayList<>(streamKeyCount);
+    for (int i = 0; i < streamKeyCount; i++) {
+      mutableStreamKeys.add(in.readParcelable(StreamKey.class.getClassLoader()));
+    }
+    streamKeys = Collections.unmodifiableList(mutableStreamKeys);
+    customCacheKey = in.readString();
+    data = new byte[in.readInt()];
+    in.readByteArray(data);
+  }
+
+  /**
+   * Returns a copy with the specified ID.
+   *
+   * @param id The ID of the copy.
+   * @return The copy with the specified ID.
+   */
+  public DownloadAction copyWithId(String id) {
+    return new DownloadAction(id, type, uri, streamKeys, customCacheKey, data);
   }
 
   /**
@@ -143,7 +116,6 @@ public final class DownloadAction {
   public DownloadAction copyWithMergedAction(DownloadAction newAction) {
     Assertions.checkState(id.equals(newAction.id));
     Assertions.checkState(type.equals(newAction.type));
-
     List<StreamKey> mergedKeys;
     if (streamKeys.isEmpty() || newAction.streamKeys.isEmpty()) {
       // If either streamKeys is empty then all streams should be downloaded.
@@ -159,18 +131,6 @@ public final class DownloadAction {
     }
     return new DownloadAction(
         id, type, newAction.uri, mergedKeys, newAction.customCacheKey, newAction.data);
-  }
-
-  /** Serializes itself into a byte array. */
-  public byte[] toByteArray() {
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    try {
-      serializeToStream(output);
-    } catch (IOException e) {
-      // ByteArrayOutputStream shouldn't throw IOException.
-      throw new IllegalStateException();
-    }
-    return output.toByteArray();
   }
 
   @Override
@@ -191,6 +151,7 @@ public final class DownloadAction {
   public final int hashCode() {
     int result = type.hashCode();
     result = 31 * result + id.hashCode();
+    result = 31 * result + type.hashCode();
     result = 31 * result + uri.hashCode();
     result = 31 * result + streamKeys.hashCode();
     result = 31 * result + (customCacheKey != null ? customCacheKey.hashCode() : 0);
@@ -198,101 +159,38 @@ public final class DownloadAction {
     return result;
   }
 
-  // Serialization.
+  // Parcelable implementation.
 
-  /**
-   * Serializes this action into an {@link OutputStream}.
-   *
-   * @param output The stream to write to.
-   */
-  public final void serializeToStream(OutputStream output) throws IOException {
-    // Don't close the stream as it closes the underlying stream too.
-    DataOutputStream dataOutputStream = new DataOutputStream(output);
-    dataOutputStream.writeUTF(type);
-    dataOutputStream.writeInt(VERSION);
-    dataOutputStream.writeUTF(uri.toString());
-    dataOutputStream.writeBoolean(false);
-    dataOutputStream.writeInt(data.length);
-    dataOutputStream.write(data);
-    dataOutputStream.writeInt(streamKeys.size());
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(id);
+    dest.writeString(type);
+    dest.writeString(uri.toString());
+    dest.writeInt(streamKeys.size());
     for (int i = 0; i < streamKeys.size(); i++) {
-      StreamKey key = streamKeys.get(i);
-      dataOutputStream.writeInt(key.periodIndex);
-      dataOutputStream.writeInt(key.groupIndex);
-      dataOutputStream.writeInt(key.trackIndex);
+      dest.writeParcelable(streamKeys.get(i), /* parcelableFlags= */ 0);
     }
-    dataOutputStream.writeBoolean(customCacheKey != null);
-    if (customCacheKey != null) {
-      dataOutputStream.writeUTF(customCacheKey);
-    }
-    dataOutputStream.writeUTF(id);
-    dataOutputStream.flush();
+    dest.writeString(customCacheKey);
+    dest.writeInt(data.length);
+    dest.writeByteArray(data);
   }
 
-  private static DownloadAction readFromStream(DataInputStream input) throws IOException {
-    String type = input.readUTF();
-    int version = input.readInt();
+  public static final Parcelable.Creator<DownloadAction> CREATOR =
+      new Parcelable.Creator<DownloadAction>() {
 
-    Uri uri = Uri.parse(input.readUTF());
-    boolean isRemoveAction = input.readBoolean();
+        @Override
+        public DownloadAction createFromParcel(Parcel in) {
+          return new DownloadAction(in);
+        }
 
-    int dataLength = input.readInt();
-    byte[] data;
-    if (dataLength != 0) {
-      data = new byte[dataLength];
-      input.readFully(data);
-    } else {
-      data = null;
-    }
-
-    // Serialized version 0 progressive actions did not contain keys.
-    boolean isLegacyProgressive = version == 0 && TYPE_PROGRESSIVE.equals(type);
-    List<StreamKey> keys = new ArrayList<>();
-    if (!isLegacyProgressive) {
-      int keyCount = input.readInt();
-      for (int i = 0; i < keyCount; i++) {
-        keys.add(readKey(type, version, input));
-      }
-    }
-
-    // Serialized version 0 and 1 DASH/HLS/SS actions did not contain a custom cache key.
-    boolean isLegacySegmented =
-        version < 2 && (TYPE_DASH.equals(type) || TYPE_HLS.equals(type) || TYPE_SS.equals(type));
-    String customCacheKey = null;
-    if (!isLegacySegmented) {
-      customCacheKey = input.readBoolean() ? input.readUTF() : null;
-    }
-
-    // Serialized version 0, 1 and 2 did not contain an id.
-    String id = version < 3 ? generateId(uri, customCacheKey) : input.readUTF();
-
-    if (isRemoveAction) {
-      // Remove actions are not supported anymore.
-      throw new UnsupportedActionException();
-    }
-    return new DownloadAction(id, type, uri, keys, customCacheKey, data);
-  }
-
-  /* package */ static String generateId(Uri uri, @Nullable String customCacheKey) {
-    return customCacheKey != null ? customCacheKey : uri.toString();
-  }
-
-  private static StreamKey readKey(String type, int version, DataInputStream input)
-      throws IOException {
-    int periodIndex;
-    int groupIndex;
-    int trackIndex;
-
-    // Serialized version 0 HLS/SS actions did not contain a period index.
-    if ((TYPE_HLS.equals(type) || TYPE_SS.equals(type)) && version == 0) {
-      periodIndex = 0;
-      groupIndex = input.readInt();
-      trackIndex = input.readInt();
-    } else {
-      periodIndex = input.readInt();
-      groupIndex = input.readInt();
-      trackIndex = input.readInt();
-    }
-    return new StreamKey(periodIndex, groupIndex, trackIndex);
-  }
+        @Override
+        public DownloadAction[] newArray(int size) {
+          return new DownloadAction[size];
+        }
+      };
 }
