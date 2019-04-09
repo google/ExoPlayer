@@ -104,18 +104,10 @@ public final class JobDispatcherScheduler implements Scheduler {
             .setService(JobDispatcherSchedulerService.class) // the JobService that will be called
             .setTag(tag);
 
-    switch (requirements.getRequiredNetworkType()) {
-      case Requirements.NETWORK_TYPE_NONE:
-        // do nothing.
-        break;
-      case Requirements.NETWORK_TYPE_ANY:
-        builder.addConstraint(Constraint.ON_ANY_NETWORK);
-        break;
-      case Requirements.NETWORK_TYPE_UNMETERED:
-        builder.addConstraint(Constraint.ON_UNMETERED_NETWORK);
-        break;
-      default:
-        throw new UnsupportedOperationException();
+    if (requirements.isUnmeteredNetworkRequired()) {
+      builder.addConstraint(Constraint.ON_UNMETERED_NETWORK);
+    } else if (requirements.isNetworkRequired()) {
+      builder.addConstraint(Constraint.ON_ANY_NETWORK);
     }
 
     if (requirements.isIdleRequired()) {

@@ -17,8 +17,6 @@ package com.google.android.exoplayer2.offline;
 
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.scheduler.Requirements;
-import com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
@@ -124,8 +122,6 @@ public final class DownloadState {
    * #FAILURE_REASON_NONE}.
    */
   @FailureReason public final int failureReason;
-  /** Not met requirements to download. */
-  @Requirements.RequirementFlags public final int notMetRequirements;
   /** The manual stop reason. */
   public final int manualStopReason;
 
@@ -145,7 +141,6 @@ public final class DownloadState {
         action,
         /* state= */ STATE_QUEUED,
         FAILURE_REASON_NONE,
-        /* notMetRequirements= */ 0,
         /* manualStopReason= */ 0,
         /* startTimeMs= */ currentTimeMs,
         /* updateTimeMs= */ currentTimeMs,
@@ -156,20 +151,18 @@ public final class DownloadState {
       DownloadAction action,
       @State int state,
       @FailureReason int failureReason,
-      @RequirementFlags int notMetRequirements,
       int manualStopReason,
       long startTimeMs,
       long updateTimeMs,
       CachingCounters counters) {
     Assertions.checkNotNull(counters);
     Assertions.checkState((failureReason == FAILURE_REASON_NONE) == (state != STATE_FAILED));
-    if (manualStopReason != 0 || notMetRequirements != 0) {
+    if (manualStopReason != 0) {
       Assertions.checkState(state != STATE_DOWNLOADING && state != STATE_QUEUED);
     }
     this.action = action;
     this.state = state;
     this.failureReason = failureReason;
-    this.notMetRequirements = notMetRequirements;
     this.manualStopReason = manualStopReason;
     this.startTimeMs = startTimeMs;
     this.updateTimeMs = updateTimeMs;
@@ -181,14 +174,14 @@ public final class DownloadState {
    * must have the same id and type.
    *
    * @param newAction The {@link DownloadAction} to be merged.
+   * @param canStart Whether the download is eligible to be started.
    * @return A new {@link DownloadState}.
    */
-  public DownloadState copyWithMergedAction(DownloadAction newAction) {
+  public DownloadState copyWithMergedAction(DownloadAction newAction, boolean canStart) {
     return new DownloadState(
         action.copyWithMergedAction(newAction),
-        getNextState(state, manualStopReason != 0 || notMetRequirements != 0),
+        getNextState(state, canStart && manualStopReason == 0),
         FAILURE_REASON_NONE,
-        notMetRequirements,
         manualStopReason,
         startTimeMs,
         /* updateTimeMs= */ System.currentTimeMillis(),
@@ -205,7 +198,6 @@ public final class DownloadState {
         action,
         state,
         FAILURE_REASON_NONE,
-        notMetRequirements,
         manualStopReason,
         startTimeMs,
         /* updateTimeMs= */ System.currentTimeMillis(),
@@ -240,13 +232,13 @@ public final class DownloadState {
     this.counters = counters;
   }
 
-  private static int getNextState(int currentState, boolean isStopped) {
+  private static int getNextState(int currentState, boolean canStart) {
     if (currentState == STATE_REMOVING || currentState == STATE_RESTARTING) {
       return STATE_RESTARTING;
-    } else if (isStopped) {
-      return STATE_STOPPED;
-    } else {
+    } else if (canStart) {
       return STATE_QUEUED;
+    } else {
+      return STATE_STOPPED;
     }
   }
 }

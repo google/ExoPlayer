@@ -113,8 +113,7 @@ public final class DownloadManager {
   /** The default minimum number of times a download must be retried before failing. */
   public static final int DEFAULT_MIN_RETRY_COUNT = 5;
   /** The default requirement is that the device has network connectivity. */
-  public static final Requirements DEFAULT_REQUIREMENTS =
-      new Requirements(Requirements.NETWORK_TYPE_ANY, false, false);
+  public static final Requirements DEFAULT_REQUIREMENTS = new Requirements(Requirements.NETWORK);
 
   // Messages posted to the main handler.
   private static final int MSG_INITIALIZED = 0;
@@ -623,7 +622,8 @@ public final class DownloadManager {
         downloadState = new DownloadState(action);
         logd("Download state is created for " + action.id);
       } else {
-        downloadState = downloadState.copyWithMergedAction(action);
+        downloadState =
+            downloadState.copyWithMergedAction(action, /* canStart= */ notMetRequirements == 0);
         logd("Download state is loaded for " + action.id);
       }
       addDownloadForState(downloadState);
@@ -840,7 +840,8 @@ public final class DownloadManager {
     }
 
     public void addAction(DownloadAction newAction) {
-      downloadState = downloadState.copyWithMergedAction(newAction);
+      downloadState =
+          downloadState.copyWithMergedAction(newAction, /* canStart= */ notMetRequirements == 0);
       initialize();
     }
 
@@ -854,7 +855,6 @@ public final class DownloadManager {
               downloadState.action,
               state,
               state != STATE_FAILED ? FAILURE_REASON_NONE : failureReason,
-              notMetRequirements,
               manualStopReason,
               downloadState.startTimeMs,
               /* updateTimeMs= */ System.currentTimeMillis(),

@@ -37,7 +37,6 @@ class DownloadStateBuilder {
   @Nullable private String cacheKey;
   private int state;
   private int failureReason;
-  private int notMetRequirements;
   private int manualStopReason;
   private long startTimeMs;
   private long updateTimeMs;
@@ -122,11 +121,6 @@ class DownloadStateBuilder {
     return this;
   }
 
-  public DownloadStateBuilder setNotMetRequirements(int notMetRequirements) {
-    this.notMetRequirements = notMetRequirements;
-    return this;
-  }
-
   public DownloadStateBuilder setManualStopReason(int manualStopReason) {
     this.manualStopReason = manualStopReason;
     return this;
@@ -158,7 +152,6 @@ class DownloadStateBuilder {
         action,
         state,
         failureReason,
-        notMetRequirements,
         manualStopReason,
         startTimeMs,
         updateTimeMs,

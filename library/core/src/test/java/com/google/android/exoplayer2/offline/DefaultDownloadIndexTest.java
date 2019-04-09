@@ -81,7 +81,6 @@ public class DefaultDownloadIndexTest {
             .setDownloadedBytes(200)
             .setTotalBytes(400)
             .setFailureReason(DownloadState.FAILURE_REASON_UNKNOWN)
-            .setNotMetRequirements(0x87654321)
             .setManualStopReason(0x12345678)
             .setStartTimeMs(10)
             .setUpdateTimeMs(20)
