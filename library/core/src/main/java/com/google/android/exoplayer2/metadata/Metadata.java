@@ -122,16 +122,16 @@ public final class Metadata implements Parcelable {
     }
   }
 
-  public static final Parcelable.Creator<Metadata> CREATOR = new Parcelable.Creator<Metadata>() {
-    @Override
-    public Metadata createFromParcel(Parcel in) {
-      return new Metadata(in);
-    }
+  public static final Parcelable.Creator<Metadata> CREATOR =
+      new Parcelable.Creator<Metadata>() {
+        @Override
+        public Metadata createFromParcel(Parcel in) {
+          return new Metadata(in);
+        }
 
-    @Override
-    public Metadata[] newArray(int size) {
-      return new Metadata[0];
-    }
-  };
-
+        @Override
+        public Metadata[] newArray(int size) {
+          return new Metadata[size];
+        }
+      };
 }
