@@ -232,7 +232,7 @@ public class DownloadManagerDashTest {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
     DownloadAction action =
-        DownloadAction.createDownloadAction(
+        new DownloadAction(
             TEST_ID,
             DownloadAction.TYPE_DASH,
             TEST_MPD_URI,

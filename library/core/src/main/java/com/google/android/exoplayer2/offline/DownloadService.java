@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
-import java.io.IOException;
 import java.util.HashMap;
 
 /** A {@link Service} for downloading media. */
@@ -54,9 +53,8 @@ public abstract class DownloadService extends Service {
    * Adds a new download. Extras:
    *
    * <ul>
-   *   <li>{@link #KEY_DOWNLOAD_ACTION} - The {@code byte[]} representation of the {@link
-   *       DownloadAction} that defines the download to be added. The required representation can be
-   *       obtained by calling {@link DownloadAction#toByteArray()}.
+   *   <li>{@link #KEY_DOWNLOAD_ACTION} - A {@link DownloadAction} defining the download to be
+   *       added.
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
@@ -231,7 +229,7 @@ public abstract class DownloadService extends Service {
       DownloadAction downloadAction,
       boolean foreground) {
     return getIntent(context, clazz, ACTION_ADD)
-        .putExtra(KEY_DOWNLOAD_ACTION, downloadAction.toByteArray())
+        .putExtra(KEY_DOWNLOAD_ACTION, downloadAction)
         .putExtra(KEY_FOREGROUND, foreground);
   }
 
@@ -390,19 +388,11 @@ public abstract class DownloadService extends Service {
         // Do nothing.
         break;
       case ACTION_ADD:
-        byte[] actionData = intent.getByteArrayExtra(KEY_DOWNLOAD_ACTION);
-        if (actionData == null) {
+        DownloadAction downloadAction = intent.getParcelableExtra(KEY_DOWNLOAD_ACTION);
+        if (downloadAction == null) {
           Log.e(TAG, "Ignored ADD action: Missing download_action extra");
         } else {
-          DownloadAction downloadAction = null;
-          try {
-            downloadAction = DownloadAction.fromByteArray(actionData);
-          } catch (IOException e) {
-            Log.e(TAG, "Ignored ADD action: Failed to deserialize download_action extra", e);
-          }
-          if (downloadAction != null) {
-            downloadManager.addDownload(downloadAction);
-          }
+          downloadManager.addDownload(downloadAction);
         }
         break;
       case ACTION_START:

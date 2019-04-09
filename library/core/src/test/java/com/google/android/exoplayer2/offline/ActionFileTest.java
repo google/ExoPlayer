@@ -124,11 +124,11 @@ public class ActionFileTest {
   }
 
   private static DownloadAction buildExpectedAction(Uri uri, byte[] data) {
-    return DownloadAction.createDownloadAction(
+    return new DownloadAction(
         /* id= */ uri.toString(),
         DownloadAction.TYPE_PROGRESSIVE,
         uri,
-        /* keys= */ Collections.emptyList(),
+        /* streamKeys= */ Collections.emptyList(),
         /* customCacheKey= */ null,
         data);
   }

@@ -38,11 +38,11 @@ public final class DefaultDownloaderFactoryTest {
 
     Downloader downloader =
         factory.createDownloader(
-            DownloadAction.createDownloadAction(
+            new DownloadAction(
                 "id",
                 DownloadAction.TYPE_PROGRESSIVE,
                 Uri.parse("https://www.test.com/download"),
-                /* keys= */ Collections.emptyList(),
+                /* streamKeys= */ Collections.emptyList(),
                 /* customCacheKey= */ null,
                 /* data= */ null));
     assertThat(downloader).isInstanceOf(ProgressiveDownloader.class);

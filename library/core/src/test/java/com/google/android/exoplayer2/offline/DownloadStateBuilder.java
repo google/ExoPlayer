@@ -153,8 +153,7 @@ class DownloadStateBuilder {
   }
 
   public DownloadState build() {
-    DownloadAction action =
-        DownloadAction.createDownloadAction(id, type, uri, streamKeys, cacheKey, customMetadata);
+    DownloadAction action = new DownloadAction(id, type, uri, streamKeys, cacheKey, customMetadata);
     return new DownloadState(
         action,
         state,

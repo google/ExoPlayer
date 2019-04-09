@@ -44,7 +44,7 @@ public final class SsDownloaderTest {
 
     Downloader downloader =
         factory.createDownloader(
-            DownloadAction.createDownloadAction(
+            new DownloadAction(
                 "id",
                 DownloadAction.TYPE_SS,
                 Uri.parse("https://www.test.com/download"),

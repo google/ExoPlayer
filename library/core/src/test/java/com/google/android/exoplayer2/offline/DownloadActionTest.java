@@ -16,24 +16,11 @@
 package com.google.android.exoplayer2.offline;
 
 import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_DASH;
-import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_HLS;
-import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_PROGRESSIVE;
-import static com.google.android.exoplayer2.offline.DownloadAction.TYPE_SS;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
-import androidx.test.core.app.ApplicationProvider;
+import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.offline.DownloadAction.UnsupportedActionException;
-import com.google.android.exoplayer2.testutil.TestUtil;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,41 +34,34 @@ public class DownloadActionTest {
 
   private Uri uri1;
   private Uri uri2;
-  private byte[] data;
 
   @Before
   public void setUp() {
     uri1 = Uri.parse("http://test/1.uri");
     uri2 = Uri.parse("http://test/2.uri");
-    data = TestUtil.buildTestData(32);
   }
 
   @Test
-  public void testSameUri_hasSameId() {
-    DownloadAction action1 = createAction(uri1);
-    DownloadAction action2 = createAction(uri1);
-    assertThat(action1.id.equals(action2.id)).isTrue();
-  }
+  public void testParcelable() {
+    ArrayList<StreamKey> streamKeys = new ArrayList<>();
+    streamKeys.add(new StreamKey(1, 2, 3));
+    streamKeys.add(new StreamKey(4, 5, 6));
+    DownloadAction actionToParcel =
+        new DownloadAction(
+            "id",
+            "type",
+            Uri.parse("https://abc.def/ghi"),
+            streamKeys,
+            "key",
+            new byte[] {1, 2, 3, 4, 5});
+    Parcel parcel = Parcel.obtain();
+    actionToParcel.writeToParcel(parcel, 0);
+    parcel.setDataPosition(0);
 
-  @Test
-  public void testSameUriDifferentAction_hasSameId() {
-    DownloadAction action1 = createAction(uri1);
-    DownloadAction action2 = createAction(uri1);
-    assertThat(action1.id.equals(action2.id)).isTrue();
-  }
+    DownloadAction actionFromParcel = DownloadAction.CREATOR.createFromParcel(parcel);
+    assertThat(actionFromParcel).isEqualTo(actionToParcel);
 
-  @Test
-  public void testDifferentUri_IsNotSameMedia() {
-    DownloadAction action1 = createAction(uri1);
-    DownloadAction action2 = createAction(uri2);
-    assertThat(action1.id.equals(action2.id)).isFalse();
-  }
-
-  @Test
-  public void testSameCacheKeyDifferentUri_hasSameId() {
-    DownloadAction action1 = createAction(uri1, "key123");
-    DownloadAction action2 = createAction(uri2, "key123");
-    assertThat(action1.id.equals(action2.id)).isTrue();
+    parcel.recycle();
   }
 
   @SuppressWarnings("EqualsWithItself")
@@ -119,128 +99,6 @@ public class DownloadActionTest {
     assertEqual(action16, action17);
   }
 
-  @Test
-  public void testSerializerWriteRead() throws Exception {
-    assertStreamSerializationRoundTrip(
-        DownloadAction.createDownloadAction(
-            "id",
-            TYPE_DASH,
-            uri1,
-            toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
-            "key123",
-            data));
-    assertStreamSerializationRoundTrip(createAction(uri1, "key123"));
-  }
-
-  @Test
-  public void testArraySerialization() throws Exception {
-    assertArraySerializationRoundTrip(
-        DownloadAction.createDownloadAction(
-            "id",
-            TYPE_DASH,
-            uri1,
-            toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
-            "key123",
-            data));
-    assertArraySerializationRoundTrip(createAction(uri1, "key123"));
-  }
-
-  @Test
-  public void testSerializerProgressiveVersion0() throws Exception {
-    String customCacheKey = "key123";
-    String expectedId = DownloadAction.generateId(uri1, customCacheKey);
-    assertDeserialization(
-        "progressive-download-v0",
-        DownloadAction.createDownloadAction(
-            expectedId, TYPE_PROGRESSIVE, uri1, Collections.emptyList(), customCacheKey, data));
-    assertUnsupportedAction("progressive-remove-v0");
-  }
-
-  @Test
-  public void testSerializerDashVersion0() throws Exception {
-    assertDeserialization(
-        "dash-download-v0",
-        DownloadAction.createDownloadAction(
-            uri1.toString(),
-            TYPE_DASH,
-            uri1,
-            toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
-            /* customCacheKey= */ null,
-            data));
-    assertUnsupportedAction("dash-remove-v0");
-  }
-
-  @Test
-  public void testSerializerHlsVersion0() throws Exception {
-    assertDeserialization(
-        "hls-download-v0",
-        DownloadAction.createDownloadAction(
-            uri1.toString(),
-            TYPE_HLS,
-            uri1,
-            toList(new StreamKey(0, 1), new StreamKey(2, 3)),
-            /* customCacheKey= */ null,
-            data));
-    assertUnsupportedAction("hls-remove-v0");
-  }
-
-  @Test
-  public void testSerializerHlsVersion1() throws Exception {
-    assertDeserialization(
-        "hls-download-v1",
-        DownloadAction.createDownloadAction(
-            uri1.toString(),
-            TYPE_HLS,
-            uri1,
-            toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
-            /* customCacheKey= */ null,
-            data));
-    assertUnsupportedAction("hls-remove-v1");
-  }
-
-  @Test
-  public void testSerializerSsVersion0() throws Exception {
-    assertDeserialization(
-        "ss-download-v0",
-        DownloadAction.createDownloadAction(
-            uri1.toString(),
-            TYPE_SS,
-            uri1,
-            toList(new StreamKey(0, 1), new StreamKey(2, 3)),
-            /* customCacheKey= */ null,
-            data));
-    assertUnsupportedAction("ss-remove-v0");
-  }
-
-  @Test
-  public void testSerializerSsVersion1() throws Exception {
-    assertDeserialization(
-        "ss-download-v1",
-        DownloadAction.createDownloadAction(
-            uri1.toString(),
-            TYPE_SS,
-            uri1,
-            toList(new StreamKey(0, 1, 2), new StreamKey(3, 4, 5)),
-            /* customCacheKey= */ null,
-            data));
-    assertUnsupportedAction("ss-remove-v1");
-  }
-
-  private DownloadAction createAction(Uri uri, StreamKey... keys) {
-    return DownloadAction.createDownloadAction(
-        uri.toString(), TYPE_DASH, uri, toList(keys), /* customCacheKey= */ null, data);
-  }
-
-  private DownloadAction createAction(Uri uri, @Nullable String customCacheKey) {
-    return DownloadAction.createDownloadAction(
-        "id",
-        DownloadAction.TYPE_DASH,
-        uri,
-        Collections.emptyList(),
-        customCacheKey,
-        /* data= */ null);
-  }
-
   private static void assertNotEqual(DownloadAction action1, DownloadAction action2) {
     assertThat(action1).isNotEqualTo(action2);
     assertThat(action2).isNotEqualTo(action1);
@@ -251,42 +109,9 @@ public class DownloadActionTest {
     assertThat(action2).isEqualTo(action1);
   }
 
-  private static void assertStreamSerializationRoundTrip(DownloadAction action) throws IOException {
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    DataOutputStream output = new DataOutputStream(out);
-    action.serializeToStream(output);
-
-    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-    DataInputStream input = new DataInputStream(in);
-    DownloadAction deserializedAction = DownloadAction.deserializeFromStream(input);
-
-    assertEqual(action, deserializedAction);
-  }
-
-  private static void assertArraySerializationRoundTrip(DownloadAction action) throws IOException {
-    assertEqual(action, DownloadAction.fromByteArray(action.toByteArray()));
-  }
-
-  private static void assertDeserialization(String fileName, DownloadAction expectedAction)
-      throws IOException {
-    InputStream input =
-        TestUtil.getInputStream(
-            ApplicationProvider.getApplicationContext(), "download-actions/" + fileName);
-    DownloadAction deserializedAction = DownloadAction.deserializeFromStream(input);
-
-    assertEqual(deserializedAction, expectedAction);
-  }
-
-  private static void assertUnsupportedAction(String fileName) throws IOException {
-    InputStream input =
-        TestUtil.getInputStream(
-            ApplicationProvider.getApplicationContext(), "download-actions/" + fileName);
-    try {
-      DownloadAction.deserializeFromStream(input);
-      fail();
-    } catch (UnsupportedActionException e) {
-      // Expected exception.
-    }
+  private static DownloadAction createAction(Uri uri, StreamKey... keys) {
+    return new DownloadAction(
+        uri.toString(), TYPE_DASH, uri, toList(keys), /* customCacheKey= */ null, /* data= */ null);
   }
 
   private static List<StreamKey> toList(StreamKey... keys) {

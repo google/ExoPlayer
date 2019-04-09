@@ -59,7 +59,7 @@ public class DownloadIndexUtilTest {
   public void addAction_nonExistingDownloadState_createsNewDownloadState() throws IOException {
     byte[] data = new byte[] {1, 2, 3, 4};
     DownloadAction action =
-        DownloadAction.createDownloadAction(
+        new DownloadAction(
             "id",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download"),
@@ -69,7 +69,7 @@ public class DownloadIndexUtilTest {
             /* customCacheKey= */ "key123",
             data);
 
-    DownloadIndexUtil.addAction(downloadIndex, action.id, action);
+    DownloadIndexUtil.mergeAction(action, downloadIndex);
 
     assertDownloadIndexContainsAction(action, DownloadState.STATE_QUEUED);
   }
@@ -81,7 +81,7 @@ public class DownloadIndexUtilTest {
     StreamKey streamKey2 =
         new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
     DownloadAction action1 =
-        DownloadAction.createDownloadAction(
+        new DownloadAction(
             "id",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download1"),
@@ -89,16 +89,16 @@ public class DownloadIndexUtilTest {
             /* customCacheKey= */ "key123",
             new byte[] {1, 2, 3, 4});
     DownloadAction action2 =
-        DownloadAction.createDownloadAction(
+        new DownloadAction(
             "id",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download2"),
             asList(streamKey2),
             /* customCacheKey= */ "key123",
             new byte[] {5, 4, 3, 2, 1});
-    DownloadIndexUtil.addAction(downloadIndex, action1.id, action1);
+    DownloadIndexUtil.mergeAction(action1, downloadIndex);
 
-    DownloadIndexUtil.addAction(downloadIndex, action2.id, action2);
+    DownloadIndexUtil.mergeAction(action2, downloadIndex);
 
     DownloadState downloadState = downloadIndex.getDownloadState(action2.id);
     assertThat(downloadState).isNotNull();
@@ -126,7 +126,7 @@ public class DownloadIndexUtilTest {
     StreamKey expectedStreamKey2 =
         new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
     DownloadAction expectedAction1 =
-        DownloadAction.createDownloadAction(
+        new DownloadAction(
             "key123",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download1"),
@@ -134,7 +134,7 @@ public class DownloadIndexUtilTest {
             /* customCacheKey= */ "key123",
             new byte[] {1, 2, 3, 4});
     DownloadAction expectedAction2 =
-        DownloadAction.createDownloadAction(
+        new DownloadAction(
             "key234",
             TYPE_DASH,
             Uri.parse("https://www.test.com/download2"),
@@ -143,7 +143,7 @@ public class DownloadIndexUtilTest {
             new byte[] {5, 4, 3, 2, 1});
 
     ActionFile actionFile = new ActionFile(tempFile);
-    DownloadIndexUtil.upgradeActionFile(actionFile, downloadIndex, /* downloadIdProvider= */ null);
+    DownloadIndexUtil.mergeActionFile(actionFile, /* downloadIdProvider= */ null, downloadIndex);
     assertDownloadIndexContainsAction(expectedAction1, DownloadState.STATE_QUEUED);
     assertDownloadIndexContainsAction(expectedAction2, DownloadState.STATE_QUEUED);
   }

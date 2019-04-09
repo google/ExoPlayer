@@ -36,45 +36,40 @@ public final class DownloadIndexUtil {
   private DownloadIndexUtil() {}
 
   /**
-   * Upgrades an {@link ActionFile} to {@link DownloadIndex}.
+   * Merges {@link DownloadAction DownloadActions} contained in an {@link ActionFile} into a {@link
+   * DownloadIndex}.
    *
-   * <p>This method shouldn't be called while {@link DownloadIndex} is used by {@link
+   * <p>This method must not be called while the {@link DownloadIndex} is being used by a {@link
    * DownloadManager}.
    *
-   * @param actionFile The action file to upgrade.
-   * @param downloadIndex Actions are converted to {@link DownloadState}s and stored in this index.
-   * @param downloadIdProvider A nullable custom download id provider.
-   * @throws IOException If there is an error during loading actions.
+   * @param actionFile The action file.
+   * @param downloadIdProvider A custom download id provider, or {@code null}.
+   * @param downloadIndex The index into which the action will be merged.
+   * @throws IOException If an error occurs loading or merging the actions.
    */
-  public static void upgradeActionFile(
+  public static void mergeActionFile(
       ActionFile actionFile,
-      DefaultDownloadIndex downloadIndex,
-      @Nullable DownloadIdProvider downloadIdProvider)
+      @Nullable DownloadIdProvider downloadIdProvider,
+      DefaultDownloadIndex downloadIndex)
       throws IOException {
-    if (downloadIdProvider == null) {
-      downloadIdProvider = downloadAction -> downloadAction.id;
-    }
     for (DownloadAction action : actionFile.load()) {
-      addAction(downloadIndex, downloadIdProvider.getId(action), action);
+      if (downloadIdProvider != null) {
+        action = action.copyWithId(downloadIdProvider.getId(action));
+      }
+      mergeAction(action, downloadIndex);
     }
   }
 
   /**
-   * Converts a {@link DownloadAction} to {@link DownloadState} and stored in the given {@link
-   * DownloadIndex}.
+   * Merges a {@link DownloadAction} into a {@link DownloadIndexUtil}.
    *
-   * <p>This method shouldn't be called while {@link DownloadIndex} is used by {@link
-   * DownloadManager}.
-   *
-   * @param downloadIndex The action is converted to {@link DownloadState} and stored in this index.
-   * @param id A nullable custom download id which overwrites {@link DownloadAction#id}.
-   * @param action The action to be stored in {@link DownloadIndex}.
-   * @throws IOException If an error occurs storing the state in the {@link DownloadIndex}.
+   * @param action The action to be merged.
+   * @param downloadIndex The index into which the action will be merged.
+   * @throws IOException If an error occurs merging the action.
    */
-  public static void addAction(
-      DefaultDownloadIndex downloadIndex, @Nullable String id, DownloadAction action)
+  /* package */ static void mergeAction(DownloadAction action, DefaultDownloadIndex downloadIndex)
       throws IOException {
-    DownloadState downloadState = downloadIndex.getDownloadState(id != null ? id : action.id);
+    DownloadState downloadState = downloadIndex.getDownloadState(action.id);
     if (downloadState != null) {
       downloadState = downloadState.copyWithMergedAction(action);
     } else {

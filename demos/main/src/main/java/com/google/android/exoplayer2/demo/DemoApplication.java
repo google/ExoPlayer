@@ -136,7 +136,8 @@ public class DemoApplication extends Application {
     ActionFile actionFile = new ActionFile(new File(getDownloadDirectory(), file));
     if (actionFile.exists()) {
       try {
-        DownloadIndexUtil.upgradeActionFile(actionFile, downloadIndex, null);
+        DownloadIndexUtil.mergeActionFile(
+            actionFile, /* downloadIdProvider= */ null, downloadIndex);
       } catch (IOException e) {
         Log.e(TAG, "Upgrading action file failed", e);
       }

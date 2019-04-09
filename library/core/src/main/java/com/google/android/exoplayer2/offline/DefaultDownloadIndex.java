@@ -341,7 +341,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
 
   private static DownloadState getDownloadStateForCurrentRow(Cursor cursor) {
     DownloadAction action =
-        DownloadAction.createDownloadAction(
+        new DownloadAction(
             cursor.getString(COLUMN_INDEX_ID),
             cursor.getString(COLUMN_INDEX_TYPE),
             Uri.parse(cursor.getString(COLUMN_INDEX_URI)),

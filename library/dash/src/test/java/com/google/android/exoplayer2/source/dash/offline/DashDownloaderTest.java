@@ -84,7 +84,7 @@ public class DashDownloaderTest {
 
     Downloader downloader =
         factory.createDownloader(
-            DownloadAction.createDownloadAction(
+            new DownloadAction(
                 "id",
                 DownloadAction.TYPE_DASH,
                 Uri.parse("https://www.test.com/download"),
