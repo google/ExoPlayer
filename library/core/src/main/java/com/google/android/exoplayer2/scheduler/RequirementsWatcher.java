@@ -89,7 +89,7 @@ public final class RequirementsWatcher {
     notMetRequirements = requirements.getNotMetRequirements(context);
 
     IntentFilter filter = new IntentFilter();
-    if (requirements.getRequiredNetworkType() != Requirements.NETWORK_TYPE_NONE) {
+    if (requirements.isNetworkRequired()) {
       if (Util.SDK_INT >= 23) {
         registerNetworkCallbackV23();
       } else {

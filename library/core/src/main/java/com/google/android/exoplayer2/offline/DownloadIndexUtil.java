@@ -71,7 +71,7 @@ public final class DownloadIndexUtil {
       throws IOException {
     DownloadState downloadState = downloadIndex.getDownloadState(action.id);
     if (downloadState != null) {
-      downloadState = downloadState.copyWithMergedAction(action);
+      downloadState = downloadState.copyWithMergedAction(action, /* canStart= */ true);
     } else {
       downloadState = new DownloadState(action);
     }
