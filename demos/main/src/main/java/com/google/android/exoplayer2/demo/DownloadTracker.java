@@ -25,12 +25,12 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.ActionFile;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
+import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadAction;
+import com.google.android.exoplayer2.offline.DownloadCursor;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
-import com.google.android.exoplayer2.offline.DownloadState;
-import com.google.android.exoplayer2.offline.DownloadStateCursor;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -63,7 +63,7 @@ public class DownloadTracker implements DownloadManager.Listener {
   private final Context context;
   private final DataSource.Factory dataSourceFactory;
   private final CopyOnWriteArraySet<Listener> listeners;
-  private final HashMap<Uri, DownloadState> downloadStates;
+  private final HashMap<Uri, Download> downloads;
   private final DefaultDownloadIndex downloadIndex;
 
   @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
@@ -74,7 +74,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     this.dataSourceFactory = dataSourceFactory;
     this.downloadIndex = downloadIndex;
     listeners = new CopyOnWriteArraySet<>();
-    downloadStates = new HashMap<>();
+    downloads = new HashMap<>();
     loadDownloads();
   }
 
@@ -87,15 +87,15 @@ public class DownloadTracker implements DownloadManager.Listener {
   }
 
   public boolean isDownloaded(Uri uri) {
-    DownloadState downloadState = downloadStates.get(uri);
-    return downloadState != null && downloadState.state != DownloadState.STATE_FAILED;
+    Download download = downloads.get(uri);
+    return download != null && download.state != Download.STATE_FAILED;
   }
 
   @SuppressWarnings("unchecked")
   public List<StreamKey> getOfflineStreamKeys(Uri uri) {
-    DownloadState downloadState = downloadStates.get(uri);
-    return downloadState != null && downloadState.state != DownloadState.STATE_FAILED
-        ? downloadState.action.streamKeys
+    Download download = downloads.get(uri);
+    return download != null && download.state != Download.STATE_FAILED
+        ? download.action.streamKeys
         : Collections.emptyList();
   }
 
@@ -105,10 +105,10 @@ public class DownloadTracker implements DownloadManager.Listener {
       Uri uri,
       String extension,
       RenderersFactory renderersFactory) {
-    DownloadState downloadState = downloadStates.get(uri);
-    if (downloadState != null) {
+    Download download = downloads.get(uri);
+    if (download != null) {
       DownloadService.startWithRemoveDownload(
-          context, DemoDownloadService.class, downloadState.action.id, /* foreground= */ false);
+          context, DemoDownloadService.class, download.action.id, /* foreground= */ false);
     } else {
       if (startDownloadDialogHelper != null) {
         startDownloadDialogHelper.release();
@@ -122,16 +122,16 @@ public class DownloadTracker implements DownloadManager.Listener {
   // DownloadManager.Listener
 
   @Override
-  public void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState) {
-    downloadStates.put(downloadState.action.uri, downloadState);
+  public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+    downloads.put(download.action.uri, download);
     for (Listener listener : listeners) {
       listener.onDownloadsChanged();
     }
   }
 
   @Override
-  public void onDownloadRemoved(DownloadManager downloadManager, DownloadState downloadState) {
-    downloadStates.remove(downloadState.action.uri);
+  public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
+    downloads.remove(download.action.uri);
     for (Listener listener : listeners) {
       listener.onDownloadsChanged();
     }
@@ -140,10 +140,10 @@ public class DownloadTracker implements DownloadManager.Listener {
   // Internal methods
 
   private void loadDownloads() {
-    try (DownloadStateCursor loadedDownloadStates = downloadIndex.getDownloadStates()) {
-      while (loadedDownloadStates.moveToNext()) {
-        DownloadState downloadState = loadedDownloadStates.getDownloadState();
-        downloadStates.put(downloadState.action.uri, downloadState);
+    try (DownloadCursor loadedDownloads = downloadIndex.getDownloads()) {
+      while (loadedDownloads.moveToNext()) {
+        Download download = loadedDownloads.getDownload();
+        downloads.put(download.action.uri, download);
       }
     } catch (IOException e) {
       Log.w(TAG, "Failed to query download states", e);

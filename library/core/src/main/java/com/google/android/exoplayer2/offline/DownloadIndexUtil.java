@@ -69,12 +69,12 @@ public final class DownloadIndexUtil {
    */
   /* package */ static void mergeAction(DownloadAction action, DefaultDownloadIndex downloadIndex)
       throws IOException {
-    DownloadState downloadState = downloadIndex.getDownloadState(action.id);
-    if (downloadState != null) {
-      downloadState = downloadState.copyWithMergedAction(action, /* canStart= */ true);
+    Download download = downloadIndex.getDownload(action.id);
+    if (download != null) {
+      download = download.copyWithMergedAction(action, /* canStart= */ true);
     } else {
-      downloadState = new DownloadState(action);
+      download = new Download(action);
     }
-    downloadIndex.putDownloadState(downloadState);
+    downloadIndex.putDownload(download);
   }
 }

@@ -29,10 +29,10 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
+import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
-import com.google.android.exoplayer2.offline.DownloadState;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Requirements;
@@ -141,7 +141,7 @@ public class DownloadServiceDashTest {
                 }
 
                 @Override
-                protected Notification getForegroundNotification(DownloadState[] downloadStates) {
+                protected Notification getForegroundNotification(Download[] downloads) {
                   throw new UnsupportedOperationException();
                 }
               };

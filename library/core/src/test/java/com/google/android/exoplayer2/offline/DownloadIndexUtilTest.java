@@ -56,7 +56,7 @@ public class DownloadIndexUtilTest {
   }
 
   @Test
-  public void addAction_nonExistingDownloadState_createsNewDownloadState() throws IOException {
+  public void addAction_nonExistingDownload_createsNewDownload() throws IOException {
     byte[] data = new byte[] {1, 2, 3, 4};
     DownloadAction action =
         new DownloadAction(
@@ -71,11 +71,11 @@ public class DownloadIndexUtilTest {
 
     DownloadIndexUtil.mergeAction(action, downloadIndex);
 
-    assertDownloadIndexContainsAction(action, DownloadState.STATE_QUEUED);
+    assertDownloadIndexContainsAction(action, Download.STATE_QUEUED);
   }
 
   @Test
-  public void addAction_existingDownloadState_createsMergedDownloadState() throws IOException {
+  public void addAction_existingDownload_createsMergedDownload() throws IOException {
     StreamKey streamKey1 =
         new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5);
     StreamKey streamKey2 =
@@ -100,18 +100,18 @@ public class DownloadIndexUtilTest {
 
     DownloadIndexUtil.mergeAction(action2, downloadIndex);
 
-    DownloadState downloadState = downloadIndex.getDownloadState(action2.id);
-    assertThat(downloadState).isNotNull();
-    assertThat(downloadState.action.type).isEqualTo(action2.type);
-    assertThat(downloadState.action.customCacheKey).isEqualTo(action2.customCacheKey);
-    assertThat(downloadState.action.data).isEqualTo(action2.data);
-    assertThat(downloadState.action.uri).isEqualTo(action2.uri);
-    assertThat(downloadState.action.streamKeys).containsExactly(streamKey1, streamKey2);
-    assertThat(downloadState.state).isEqualTo(DownloadState.STATE_QUEUED);
+    Download download = downloadIndex.getDownload(action2.id);
+    assertThat(download).isNotNull();
+    assertThat(download.action.type).isEqualTo(action2.type);
+    assertThat(download.action.customCacheKey).isEqualTo(action2.customCacheKey);
+    assertThat(download.action.data).isEqualTo(action2.data);
+    assertThat(download.action.uri).isEqualTo(action2.uri);
+    assertThat(download.action.streamKeys).containsExactly(streamKey1, streamKey2);
+    assertThat(download.state).isEqualTo(Download.STATE_QUEUED);
   }
 
   @Test
-  public void upgradeActionFile_createsDownloadStates() throws IOException {
+  public void upgradeActionFile_createsDownloads() throws IOException {
     // Copy the test asset to a file.
     byte[] actionFileBytes =
         TestUtil.getByteArray(
@@ -144,15 +144,15 @@ public class DownloadIndexUtilTest {
 
     ActionFile actionFile = new ActionFile(tempFile);
     DownloadIndexUtil.mergeActionFile(actionFile, /* downloadIdProvider= */ null, downloadIndex);
-    assertDownloadIndexContainsAction(expectedAction1, DownloadState.STATE_QUEUED);
-    assertDownloadIndexContainsAction(expectedAction2, DownloadState.STATE_QUEUED);
+    assertDownloadIndexContainsAction(expectedAction1, Download.STATE_QUEUED);
+    assertDownloadIndexContainsAction(expectedAction2, Download.STATE_QUEUED);
   }
 
   private void assertDownloadIndexContainsAction(DownloadAction action, int state)
       throws IOException {
-    DownloadState downloadState = downloadIndex.getDownloadState(action.id);
-    assertThat(downloadState.action).isEqualTo(action);
-    assertThat(downloadState.state).isEqualTo(state);
+    Download download = downloadIndex.getDownload(action.id);
+    assertThat(download.action).isEqualTo(action);
+    assertThat(download.state).isEqualTo(state);
   }
 
   @SuppressWarnings("unchecked")

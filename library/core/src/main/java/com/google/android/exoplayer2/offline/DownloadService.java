@@ -79,8 +79,8 @@ public abstract class DownloadService extends Service {
    *   <li>{@link #KEY_CONTENT_ID} - The content id of a single download to stop. If omitted, all of
    *       the current downloads will be stopped.
    *   <li>{@link #KEY_STOP_REASON} - An application provided reason for stopping the download or
-   *       downloads. Must not be {@link DownloadState#MANUAL_STOP_REASON_NONE}. If omitted, the
-   *       stop reason will be {@link DownloadState#MANUAL_STOP_REASON_UNDEFINED}.
+   *       downloads. Must not be {@link Download#MANUAL_STOP_REASON_NONE}. If omitted, the stop
+   *       reason will be {@link Download#MANUAL_STOP_REASON_UNDEFINED}.
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
@@ -405,8 +405,7 @@ public abstract class DownloadService extends Service {
         break;
       case ACTION_STOP:
         contentId = intent.getStringExtra(KEY_CONTENT_ID);
-        int stopReason =
-            intent.getIntExtra(KEY_STOP_REASON, DownloadState.MANUAL_STOP_REASON_UNDEFINED);
+        int stopReason = intent.getIntExtra(KEY_STOP_REASON, Download.MANUAL_STOP_REASON_UNDEFINED);
         if (contentId == null) {
           downloadManager.stopDownloads(stopReason);
         } else {
@@ -477,7 +476,7 @@ public abstract class DownloadService extends Service {
    * downloads. The periodic update interval can be set using {@link #DownloadService(int, long)}.
    *
    * <p>On API level 26 and above, this method may also be called just before the service stops,
-   * with an empty {@code downloadStates} array. The returned notification is used to satisfy system
+   * with an empty {@code downloads} array. The returned notification is used to satisfy system
    * requirements for foreground services.
    *
    * <p>Download services that do not wish to run in the foreground should be created by setting the
@@ -485,35 +484,35 @@ public abstract class DownloadService extends Service {
    * #FOREGROUND_NOTIFICATION_ID_NONE}. This method will not be called in this case, meaning it can
    * be implemented to throw {@link UnsupportedOperationException}.
    *
-   * @param downloadStates The states of all current downloads.
+   * @param downloads The states of all current downloads.
    * @return The foreground notification to display.
    */
-  protected abstract Notification getForegroundNotification(DownloadState[] downloadStates);
+  protected abstract Notification getForegroundNotification(Download[] downloads);
 
   /**
    * Called when the state of a download changes. The default implementation is a no-op.
    *
-   * @param downloadState The new state of the download.
+   * @param download The new state of the download.
    */
-  protected void onDownloadStateChanged(DownloadState downloadState) {
+  protected void onDownloadChanged(Download download) {
     // Do nothing.
   }
 
   /**
    * Called when a download is removed. The default implementation is a no-op.
    *
-   * @param downloadState The last state of the download before it was removed.
+   * @param download The last state of the download before it was removed.
    */
-  protected void onDownloadRemoved(DownloadState downloadState) {
+  protected void onDownloadRemoved(Download download) {
     // Do nothing.
   }
 
-  private void notifyDownloadStateChange(DownloadState downloadState) {
-    onDownloadStateChanged(downloadState);
+  private void notifyDownloadChange(Download download) {
+    onDownloadChanged(download);
     if (foregroundNotificationUpdater != null) {
-      if (downloadState.state == DownloadState.STATE_DOWNLOADING
-          || downloadState.state == DownloadState.STATE_REMOVING
-          || downloadState.state == DownloadState.STATE_RESTARTING) {
+      if (download.state == Download.STATE_DOWNLOADING
+          || download.state == Download.STATE_REMOVING
+          || download.state == Download.STATE_RESTARTING) {
         foregroundNotificationUpdater.startPeriodicUpdates();
       } else {
         foregroundNotificationUpdater.update();
@@ -521,8 +520,8 @@ public abstract class DownloadService extends Service {
     }
   }
 
-  private void notifyDownloadRemoved(DownloadState downloadState) {
-    onDownloadRemoved(downloadState);
+  private void notifyDownloadRemoved(Download download) {
+    onDownloadRemoved(download);
     if (foregroundNotificationUpdater != null) {
       foregroundNotificationUpdater.update();
     }
@@ -582,8 +581,8 @@ public abstract class DownloadService extends Service {
     }
 
     public void update() {
-      DownloadState[] downloadStates = downloadManager.getAllDownloadStates();
-      startForeground(notificationId, getForegroundNotification(downloadStates));
+      Download[] downloads = downloadManager.getAllDownloads();
+      startForeground(notificationId, getForegroundNotification(downloads));
       notificationDisplayed = true;
       if (periodicUpdatesStarted) {
         handler.removeCallbacks(this);
@@ -641,17 +640,16 @@ public abstract class DownloadService extends Service {
     }
 
     @Override
-    public void onDownloadStateChanged(
-        DownloadManager downloadManager, DownloadState downloadState) {
+    public void onDownloadChanged(DownloadManager downloadManager, Download download) {
       if (downloadService != null) {
-        downloadService.notifyDownloadStateChange(downloadState);
+        downloadService.notifyDownloadChange(download);
       }
     }
 
     @Override
-    public void onDownloadRemoved(DownloadManager downloadManager, DownloadState downloadState) {
+    public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
       if (downloadService != null) {
-        downloadService.notifyDownloadRemoved(downloadState);
+        downloadService.notifyDownloadRemoved(download);
       }
     }
 

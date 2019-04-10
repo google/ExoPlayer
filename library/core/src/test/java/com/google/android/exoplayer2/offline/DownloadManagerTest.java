@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.offline.DownloadState.State;
+import com.google.android.exoplayer2.offline.Download.State;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
@@ -343,7 +343,7 @@ public class DownloadManagerTest {
     TaskWrapper task3 = new DownloadRunner(uri3).postDownloadAction().postRemoveAction().getTask();
 
     task3.assertRemoving();
-    DownloadState[] states = downloadManager.getAllDownloadStates();
+    Download[] states = downloadManager.getAllDownloads();
 
     assertThat(states).hasLength(3);
     String[] taskIds = {task1.taskId, task2.taskId, task3.taskId};
@@ -554,27 +554,27 @@ public class DownloadManagerTest {
     }
 
     private TaskWrapper assertDownloading() {
-      return assertState(DownloadState.STATE_DOWNLOADING);
+      return assertState(Download.STATE_DOWNLOADING);
     }
 
     private TaskWrapper assertCompleted() {
-      return assertState(DownloadState.STATE_COMPLETED);
+      return assertState(Download.STATE_COMPLETED);
     }
 
     private TaskWrapper assertRemoving() {
-      return assertState(DownloadState.STATE_REMOVING);
+      return assertState(Download.STATE_REMOVING);
     }
 
     private TaskWrapper assertFailed() {
-      return assertState(DownloadState.STATE_FAILED);
+      return assertState(Download.STATE_FAILED);
     }
 
     private TaskWrapper assertQueued() {
-      return assertState(DownloadState.STATE_QUEUED);
+      return assertState(Download.STATE_QUEUED);
     }
 
     private TaskWrapper assertStopped() {
-      return assertState(DownloadState.STATE_STOPPED);
+      return assertState(Download.STATE_STOPPED);
     }
 
     private TaskWrapper assertState(@State int expectedState) {

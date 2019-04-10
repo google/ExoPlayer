@@ -20,7 +20,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.offline.DownloadState;
+import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -40,7 +40,7 @@ public final class DownloadNotificationUtil {
    * @param channelId The id of the notification channel to use.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
-   * @param downloadStates The download states.
+   * @param downloads The download states.
    * @return The notification.
    */
   public static Notification buildProgressNotification(
@@ -49,9 +49,9 @@ public final class DownloadNotificationUtil {
       String channelId,
       @Nullable PendingIntent contentIntent,
       @Nullable String message,
-      DownloadState[] downloadStates) {
+      Download[] downloads) {
     return new DownloadNotificationHelper(context, channelId)
-        .buildProgressNotification(smallIcon, contentIntent, message, downloadStates);
+        .buildProgressNotification(smallIcon, contentIntent, message, downloads);
   }
 
   /**

@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloadState;
+import com.google.android.exoplayer2.offline.Download;
 
 /** Helper for creating download notifications. */
 public final class DownloadNotificationHelper {
@@ -49,37 +49,37 @@ public final class DownloadNotificationHelper {
    * @param smallIcon A small icon for the notification.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
-   * @param downloadStates The download states.
+   * @param downloads The download states.
    * @return The notification.
    */
   public Notification buildProgressNotification(
       @DrawableRes int smallIcon,
       @Nullable PendingIntent contentIntent,
       @Nullable String message,
-      DownloadState[] downloadStates) {
+      Download[] downloads) {
     float totalPercentage = 0;
     int downloadTaskCount = 0;
     boolean allDownloadPercentagesUnknown = true;
     boolean haveDownloadedBytes = false;
     boolean haveDownloadTasks = false;
     boolean haveRemoveTasks = false;
-    for (DownloadState downloadState : downloadStates) {
-      if (downloadState.state == DownloadState.STATE_REMOVING
-          || downloadState.state == DownloadState.STATE_RESTARTING) {
+    for (Download download : downloads) {
+      if (download.state == Download.STATE_REMOVING
+          || download.state == Download.STATE_RESTARTING) {
         haveRemoveTasks = true;
         continue;
       }
-      if (downloadState.state != DownloadState.STATE_DOWNLOADING
-          && downloadState.state != DownloadState.STATE_COMPLETED) {
+      if (download.state != Download.STATE_DOWNLOADING
+          && download.state != Download.STATE_COMPLETED) {
         continue;
       }
       haveDownloadTasks = true;
-      float downloadPercentage = downloadState.getDownloadPercentage();
+      float downloadPercentage = download.getDownloadPercentage();
       if (downloadPercentage != C.PERCENTAGE_UNSET) {
         allDownloadPercentagesUnknown = false;
         totalPercentage += downloadPercentage;
       }
-      haveDownloadedBytes |= downloadState.getDownloadedBytes() > 0;
+      haveDownloadedBytes |= download.getDownloadedBytes() > 0;
       downloadTaskCount++;
     }
 
