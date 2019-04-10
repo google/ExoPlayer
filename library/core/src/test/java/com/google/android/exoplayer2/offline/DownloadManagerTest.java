@@ -47,14 +47,16 @@ import org.robolectric.shadows.ShadowLog;
 @Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
 public class DownloadManagerTest {
 
-  /* Used to check if condition becomes true in this time interval. */
+  /** Used to check if condition becomes true in this time interval. */
   private static final int ASSERT_TRUE_TIMEOUT = 10000;
-  /* Used to check if condition stays false for this time interval. */
+  /** Used to check if condition stays false for this time interval. */
   private static final int ASSERT_FALSE_TIME = 1000;
-  /* Maximum retry delay in DownloadManager. */
+  /** Maximum retry delay in DownloadManager. */
   private static final int MAX_RETRY_DELAY = 5000;
-  /* Maximum number of times a downloader can be restarted before doing a released check. */
+  /** Maximum number of times a downloader can be restarted before doing a released check. */
   private static final int MAX_STARTS_BEFORE_RELEASED = 1;
+  /** A manual stop reason. */
+  private static final int APP_STOP_REASON = 1;
   /** The minimum number of times a task must be retried before failing. */
   private static final int MIN_RETRY_COUNT = 3;
 
@@ -388,17 +390,18 @@ public class DownloadManagerTest {
   }
 
   @Test
-  public void stopAndResumeSingleDownload() throws Throwable {
+  public void manuallyStopAndResumeSingleDownload() throws Throwable {
     DownloadRunner runner = new DownloadRunner(uri1).postDownloadAction();
     TaskWrapper task = runner.getTask();
 
     task.assertDownloading();
 
-    runOnMainThread(() -> downloadManager.stopDownload(task.taskId));
+    runOnMainThread(() -> downloadManager.setManualStopReason(task.taskId, APP_STOP_REASON));
 
     task.assertStopped();
 
-    runOnMainThread(() -> downloadManager.startDownload(task.taskId));
+    runOnMainThread(
+        () -> downloadManager.setManualStopReason(task.taskId, Download.MANUAL_STOP_REASON_NONE));
 
     runner.getDownloader(1).assertStarted().unblock();
 
@@ -406,13 +409,13 @@ public class DownloadManagerTest {
   }
 
   @Test
-  public void stoppedDownloadCanBeCancelled() throws Throwable {
+  public void manuallyStoppedDownloadCanBeCancelled() throws Throwable {
     DownloadRunner runner = new DownloadRunner(uri1).postDownloadAction();
     TaskWrapper task = runner.getTask();
 
     task.assertDownloading();
 
-    runOnMainThread(() -> downloadManager.stopDownload(task.taskId));
+    runOnMainThread(() -> downloadManager.setManualStopReason(task.taskId, APP_STOP_REASON));
 
     task.assertStopped();
 
@@ -424,7 +427,7 @@ public class DownloadManagerTest {
   }
 
   @Test
-  public void stoppedSingleDownload_doesNotAffectOthers() throws Throwable {
+  public void manuallyStoppedSingleDownload_doesNotAffectOthers() throws Throwable {
     DownloadRunner runner1 = new DownloadRunner(uri1);
     DownloadRunner runner2 = new DownloadRunner(uri2);
     DownloadRunner runner3 = new DownloadRunner(uri3);
@@ -432,7 +435,8 @@ public class DownloadManagerTest {
     runner1.postDownloadAction().getTask().assertDownloading();
     runner2.postDownloadAction().postRemoveAction().getTask().assertRemoving();
 
-    runOnMainThread(() -> downloadManager.stopDownload(runner1.getTask().taskId));
+    runOnMainThread(
+        () -> downloadManager.setManualStopReason(runner1.getTask().taskId, APP_STOP_REASON));
 
     runner1.getTask().assertStopped();
 
@@ -460,9 +464,9 @@ public class DownloadManagerTest {
                     maxActiveDownloadTasks,
                     MIN_RETRY_COUNT,
                     new Requirements(0));
+            downloadManager.startDownloads();
             downloadManagerListener =
                 new TestDownloadManagerListener(downloadManager, dummyMainThread);
-            downloadManager.startDownloads();
           });
       downloadManagerListener.waitUntilInitialized();
     } catch (Throwable throwable) {

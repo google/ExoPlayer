@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import static com.google.android.exoplayer2.offline.Download.MANUAL_STOP_REASON_NONE;
+
 import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
@@ -55,17 +57,18 @@ public abstract class DownloadService extends Service {
    * <ul>
    *   <li>{@link #KEY_DOWNLOAD_ACTION} - A {@link DownloadAction} defining the download to be
    *       added.
+   *   <li>{@link #KEY_MANUAL_STOP_REASON} - An initial manual stop reason for the download. If
+   *       omitted {@link Download#MANUAL_STOP_REASON_NONE} is used.
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
   public static final String ACTION_ADD = "com.google.android.exoplayer.downloadService.action.ADD";
 
   /**
-   * Starts one or all of the current downloads. Extras:
+   * Starts all downloads except those that are manually stopped (i.e. have a non-zero {@link
+   * Download#manualStopReason}). Extras:
    *
    * <ul>
-   *   <li>{@link #KEY_CONTENT_ID} - The content id of a single download to start. If omitted, all
-   *       of the current downloads will be started.
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
@@ -73,19 +76,30 @@ public abstract class DownloadService extends Service {
       "com.google.android.exoplayer.downloadService.action.START";
 
   /**
-   * Stops one or all of the current downloads. Extras:
+   * Stops all downloads. Extras:
    *
    * <ul>
-   *   <li>{@link #KEY_CONTENT_ID} - The content id of a single download to stop. If omitted, all of
-   *       the current downloads will be stopped.
-   *   <li>{@link #KEY_STOP_REASON} - An application provided reason for stopping the download or
-   *       downloads. Must not be {@link Download#MANUAL_STOP_REASON_NONE}. If omitted, the stop
-   *       reason will be {@link Download#MANUAL_STOP_REASON_UNDEFINED}.
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
   public static final String ACTION_STOP =
       "com.google.android.exoplayer.downloadService.action.STOP";
+
+  /**
+   * Sets the manual stop reason for one or all downloads. To clear the manual stop reason, pass
+   * {@link Download#MANUAL_STOP_REASON_NONE}. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_CONTENT_ID} - The content id of a single download to update with the manual
+   *       stop reason. If omitted, all downloads will be updated.
+   *   <li>{@link #KEY_MANUAL_STOP_REASON} - An application provided reason for stopping the
+   *       download or downloads, or {@link Download#MANUAL_STOP_REASON_NONE} to clear the manual
+   *       stop reason.
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_SET_MANUAL_STOP_REASON =
+      "com.google.android.exoplayer.downloadService.action.SET_MANUAL_STOP_REASON";
 
   /**
    * Removes an existing download. Extras:
@@ -110,8 +124,11 @@ public abstract class DownloadService extends Service {
    */
   public static final String KEY_CONTENT_ID = "content_id";
 
-  /** Key for the stop reason in {@link #ACTION_STOP} intents. */
-  public static final String KEY_STOP_REASON = "stop_reason";
+  /**
+   * Key for the manual stop reason in {@link #ACTION_SET_MANUAL_STOP_REASON} and {@link
+   * #ACTION_ADD} intents.
+   */
+  public static final String KEY_MANUAL_STOP_REASON = "manual_stop_reason";
 
   /**
    * Key for a boolean extra that can be set on any intent to indicate whether the service was
@@ -228,43 +245,31 @@ public abstract class DownloadService extends Service {
       Class<? extends DownloadService> clazz,
       DownloadAction downloadAction,
       boolean foreground) {
-    return getIntent(context, clazz, ACTION_ADD)
-        .putExtra(KEY_DOWNLOAD_ACTION, downloadAction)
-        .putExtra(KEY_FOREGROUND, foreground);
+    return buildAddActionIntent(
+        context, clazz, downloadAction, MANUAL_STOP_REASON_NONE, foreground);
   }
 
   /**
-   * Builds an {@link Intent} for stopping the download with the {@code id}. If {@code id} is null,
-   * stops all downloads.
+   * Builds an {@link Intent} for adding an action to be executed by the service.
    *
    * @param context A {@link Context}.
    * @param clazz The concrete download service being targeted by the intent.
-   * @param id The content id, or null if all downloads should be stopped.
-   * @param manualStopReason An application defined stop reason.
+   * @param downloadAction The action to be executed.
+   * @param manualStopReason An initial manual stop reason for the download, or {@link
+   *     Download#MANUAL_STOP_REASON_NONE} if the download should be started.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
    * @return Created Intent.
    */
-  public static Intent buildStopDownloadIntent(
+  public static Intent buildAddActionIntent(
       Context context,
       Class<? extends DownloadService> clazz,
-      @Nullable String id,
-      int manualStopReason) {
-    return getIntent(context, clazz, ACTION_STOP)
-        .putExtra(KEY_CONTENT_ID, id)
-        .putExtra(KEY_STOP_REASON, manualStopReason);
-  }
-
-  /**
-   * Builds an {@link Intent} for starting the download with the {@code id}. If {@code id} is null,
-   * starts all downloads.
-   *
-   * @param context A {@link Context}.
-   * @param clazz The concrete download service being targeted by the intent.
-   * @param id The content id, or null if all downloads should be started.
-   * @return Created Intent.
-   */
-  public static Intent buildStartDownloadIntent(
-      Context context, Class<? extends DownloadService> clazz, @Nullable String id) {
-    return getIntent(context, clazz, ACTION_START).putExtra(KEY_CONTENT_ID, id);
+      DownloadAction downloadAction,
+      int manualStopReason,
+      boolean foreground) {
+    return getIntent(context, clazz, ACTION_ADD)
+        .putExtra(KEY_DOWNLOAD_ACTION, downloadAction)
+        .putExtra(KEY_MANUAL_STOP_REASON, manualStopReason)
+        .putExtra(KEY_FOREGROUND, foreground);
   }
 
   /**
@@ -281,6 +286,26 @@ public abstract class DownloadService extends Service {
     return getIntent(context, clazz, ACTION_REMOVE)
         .putExtra(KEY_CONTENT_ID, id)
         .putExtra(KEY_FOREGROUND, foreground);
+  }
+
+  /**
+   * Builds an {@link Intent} for setting the manual stop reason for one or all downloads. To clear
+   * the manual stop reason, pass {@link Download#MANUAL_STOP_REASON_NONE}.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param id The content id, or {@code null} to set the manual stop reason for all downloads.
+   * @param manualStopReason An application defined stop reason.
+   * @return Created Intent.
+   */
+  public static Intent buildSetManualStopReasonIntent(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      @Nullable String id,
+      int manualStopReason) {
+    return getIntent(context, clazz, ACTION_STOP)
+        .putExtra(KEY_CONTENT_ID, id)
+        .putExtra(KEY_MANUAL_STOP_REASON, manualStopReason);
   }
 
   /**
@@ -358,9 +383,11 @@ public abstract class DownloadService extends Service {
     Class<? extends DownloadService> clazz = getClass();
     DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(clazz);
     if (downloadManagerHelper == null) {
+      DownloadManager downloadManager = getDownloadManager();
+      downloadManager.startDownloads();
       downloadManagerHelper =
           new DownloadManagerHelper(
-              getApplicationContext(), getDownloadManager(), getScheduler(), clazz);
+              getApplicationContext(), downloadManager, getScheduler(), clazz);
       downloadManagerListeners.put(clazz, downloadManagerHelper);
     }
     downloadManager = downloadManagerHelper.downloadManager;
@@ -390,32 +417,33 @@ public abstract class DownloadService extends Service {
       case ACTION_ADD:
         DownloadAction downloadAction = intent.getParcelableExtra(KEY_DOWNLOAD_ACTION);
         if (downloadAction == null) {
-          Log.e(TAG, "Ignored ADD action: Missing download_action extra");
+          Log.e(TAG, "Ignored ADD: Missing download_action extra");
         } else {
-          downloadManager.addDownload(downloadAction);
+          int manualStopReason =
+              intent.getIntExtra(KEY_MANUAL_STOP_REASON, Download.MANUAL_STOP_REASON_NONE);
+          downloadManager.addDownload(downloadAction, manualStopReason);
         }
         break;
       case ACTION_START:
-        String contentId = intent.getStringExtra(KEY_CONTENT_ID);
-        if (contentId == null) {
-          downloadManager.startDownloads();
-        } else {
-          downloadManager.startDownload(contentId);
-        }
+        downloadManager.startDownloads();
         break;
       case ACTION_STOP:
-        contentId = intent.getStringExtra(KEY_CONTENT_ID);
-        int stopReason = intent.getIntExtra(KEY_STOP_REASON, Download.MANUAL_STOP_REASON_UNDEFINED);
-        if (contentId == null) {
-          downloadManager.stopDownloads(stopReason);
+        downloadManager.stopDownloads();
+        break;
+      case ACTION_SET_MANUAL_STOP_REASON:
+        if (!intent.hasExtra(KEY_MANUAL_STOP_REASON)) {
+          Log.e(TAG, "Ignored SET_MANUAL_STOP_REASON: Missing manual_stop_reason extra");
         } else {
-          downloadManager.stopDownload(contentId, stopReason);
+          String contentId = intent.getStringExtra(KEY_CONTENT_ID);
+          int manualStopReason =
+              intent.getIntExtra(KEY_MANUAL_STOP_REASON, Download.MANUAL_STOP_REASON_NONE);
+          downloadManager.setManualStopReason(contentId, manualStopReason);
         }
         break;
       case ACTION_REMOVE:
-        contentId = intent.getStringExtra(KEY_CONTENT_ID);
+        String contentId = intent.getStringExtra(KEY_CONTENT_ID);
         if (contentId == null) {
-          Log.e(TAG, "Ignored REMOVE action: Missing content_id extra");
+          Log.e(TAG, "Ignored REMOVE: Missing content_id extra");
         } else {
           downloadManager.removeDownload(contentId);
         }
