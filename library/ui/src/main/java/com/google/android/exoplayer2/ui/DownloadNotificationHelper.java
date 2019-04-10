@@ -64,13 +64,12 @@ public final class DownloadNotificationHelper {
     boolean haveDownloadTasks = false;
     boolean haveRemoveTasks = false;
     for (Download download : downloads) {
-      if (download.state == Download.STATE_REMOVING
-          || download.state == Download.STATE_RESTARTING) {
+      if (download.state == Download.STATE_REMOVING) {
         haveRemoveTasks = true;
         continue;
       }
-      if (download.state != Download.STATE_DOWNLOADING
-          && download.state != Download.STATE_COMPLETED) {
+      if (download.state != Download.STATE_RESTARTING
+          && download.state != Download.STATE_DOWNLOADING) {
         continue;
       }
       haveDownloadTasks = true;
