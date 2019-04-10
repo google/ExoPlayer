@@ -31,6 +31,10 @@
   <string name="exo_track_surround">Erdvinis garsas</string>
   <string name="exo_track_surround_5_point_1">5.1 erdvinis garsas</string>
   <string name="exo_track_surround_7_point_1">7.1 erdvinis garsas</string>
+  <string name="exo_track_role_alternate">Alternatyvus</string>
+  <string name="exo_track_role_supplementary">Papildomas</string>
+  <string name="exo_track_role_commentary">Komentaras</string>
+  <string name="exo_track_role_closed_captions">Subtitrai</string>
   <string name="exo_track_bitrate">%1$.2f Mb/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

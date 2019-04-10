@@ -31,6 +31,10 @@
   <string name="exo_track_surround">Surround ses</string>
   <string name="exo_track_surround_5_point_1">5.1 surround ses</string>
   <string name="exo_track_surround_7_point_1">7.1 surround ses</string>
+  <string name="exo_track_role_alternate">Alternatif</string>
+  <string name="exo_track_role_supplementary">Ek kanal</string>
+  <string name="exo_track_role_commentary">Anlatım</string>
+  <string name="exo_track_role_closed_captions">Altyazı</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

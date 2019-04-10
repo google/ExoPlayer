@@ -31,6 +31,10 @@
   <string name="exo_track_surround">Surround-lyd</string>
   <string name="exo_track_surround_5_point_1">5.1 surround-lyd</string>
   <string name="exo_track_surround_7_point_1">7.1 surround-lyd</string>
+  <string name="exo_track_role_alternate">Alternativt spor</string>
+  <string name="exo_track_role_supplementary">Tilleggsspor</string>
+  <string name="exo_track_role_commentary">Kommentarer</string>
+  <string name="exo_track_role_closed_captions">Teksting</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

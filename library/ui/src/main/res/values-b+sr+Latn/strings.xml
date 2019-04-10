@@ -31,6 +31,10 @@
   <string name="exo_track_surround">Zvučni sistem</string>
   <string name="exo_track_surround_5_point_1">Zvučni sistem 5.1</string>
   <string name="exo_track_surround_7_point_1">Zvučni sistem 7.1</string>
+  <string name="exo_track_role_alternate">Alternativno</string>
+  <string name="exo_track_role_supplementary">Dodatno</string>
+  <string name="exo_track_role_commentary">Komentar</string>
+  <string name="exo_track_role_closed_captions">Titl</string>
   <string name="exo_track_bitrate">%1$.2f Mb/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

@@ -31,6 +31,10 @@
   <string name="exo_track_surround">Surround-ääni</string>
   <string name="exo_track_surround_5_point_1">5.1-surround-ääni</string>
   <string name="exo_track_surround_7_point_1">7.1-surround-ääni</string>
+  <string name="exo_track_role_alternate">Vaihtoehtoinen</string>
+  <string name="exo_track_role_supplementary">Lisämateriaali</string>
+  <string name="exo_track_role_commentary">Kommenttiraita</string>
+  <string name="exo_track_role_closed_captions">Tekstitykset</string>
   <string name="exo_track_bitrate">%1$.2f Mt/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

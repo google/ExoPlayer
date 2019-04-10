@@ -31,6 +31,10 @@
   <string name="exo_track_surround">Sistema surround</string>
   <string name="exo_track_surround_5_point_1">Sistema surround 5.1</string>
   <string name="exo_track_surround_7_point_1">Sistema surround 7.1</string>
+  <string name="exo_track_role_alternate">Alternativa</string>
+  <string name="exo_track_role_supplementary">Complementar</string>
+  <string name="exo_track_role_commentary">Comentários</string>
+  <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

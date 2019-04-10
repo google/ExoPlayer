@@ -31,6 +31,10 @@
   <string name="exo_track_surround">Víðóma hljóð</string>
   <string name="exo_track_surround_5_point_1">5.1 víðóma hljóð</string>
   <string name="exo_track_surround_7_point_1">7.1 víðóma hljóð</string>
+  <string name="exo_track_role_alternate">Annað</string>
+  <string name="exo_track_role_supplementary">Auka</string>
+  <string name="exo_track_role_commentary">Lýsingar</string>
+  <string name="exo_track_role_closed_captions">Skjátextar</string>
   <string name="exo_track_bitrate">%1$.2f Mb/sek.</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>
