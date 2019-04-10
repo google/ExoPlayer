@@ -31,6 +31,10 @@
   <string name="exo_track_surround">صدای فراگیر</string>
   <string name="exo_track_surround_5_point_1">صدای فراگیر ۵.۱</string>
   <string name="exo_track_surround_7_point_1">صدای فراگیر ۷٫۱</string>
+  <string name="exo_track_role_alternate">بدیل</string>
+  <string name="exo_track_role_supplementary">تکمیلی</string>
+  <string name="exo_track_role_commentary">شرح و نقد</string>
+  <string name="exo_track_role_closed_captions">زیرنویس ناشنوایان</string>
   <string name="exo_track_bitrate">%1$.2f مگابیت در ثانیه</string>
   <string name="exo_item_list">%1$s،‏ %2$s</string>
 </resources>

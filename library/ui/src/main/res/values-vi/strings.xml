@@ -31,6 +31,10 @@
   <string name="exo_track_surround">Âm thanh vòm</string>
   <string name="exo_track_surround_5_point_1">Âm thanh vòm 5.1</string>
   <string name="exo_track_surround_7_point_1">Âm thanh vòm 7.1</string>
+  <string name="exo_track_role_alternate">Thay thế</string>
+  <string name="exo_track_role_supplementary">Bổ sung</string>
+  <string name="exo_track_role_commentary">Bình luận</string>
+  <string name="exo_track_role_closed_captions">Phụ đề</string>
   <string name="exo_track_bitrate">%1$.2f Mb/giây</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

@@ -31,6 +31,10 @@
   <string name="exo_track_surround">環繞音效</string>
   <string name="exo_track_surround_5_point_1">5.1 環繞音效</string>
   <string name="exo_track_surround_7_point_1">7.1 環繞音效</string>
+  <string name="exo_track_role_alternate">替用軌</string>
+  <string name="exo_track_role_supplementary">補充軌</string>
+  <string name="exo_track_role_commentary">旁白</string>
+  <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s、%2$s</string>
 </resources>

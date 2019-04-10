@@ -10,7 +10,7 @@
   <string name="exo_controls_repeat_off_description">எதையும் மீண்டும் இயக்காதே</string>
   <string name="exo_controls_repeat_one_description">இதை மட்டும் மீண்டும் இயக்கு</string>
   <string name="exo_controls_repeat_all_description">அனைத்தையும் மீண்டும் இயக்கு</string>
-  <string name="exo_controls_shuffle_description">கலைத்துப் போடு</string>
+  <string name="exo_controls_shuffle_description">வரிசை மாற்றி இயக்கு</string>
   <string name="exo_controls_fullscreen_description">முழுத்திரைப் பயன்முறை</string>
   <string name="exo_controls_vr_description">VR பயன்முறை</string>
   <string name="exo_download_description">பதிவிறக்கும் பட்டன்</string>
@@ -31,6 +31,10 @@
   <string name="exo_track_surround">சரவுண்ட் சவுண்ட்</string>
   <string name="exo_track_surround_5_point_1">5.1 சரவுண்ட் சவுண்ட்</string>
   <string name="exo_track_surround_7_point_1">7.1 சரவுண்ட் சவுண்ட்</string>
+  <string name="exo_track_role_alternate">மாற்று டிராக்</string>
+  <string name="exo_track_role_supplementary">துணை டிராக்</string>
+  <string name="exo_track_role_commentary">வர்ணனை</string>
+  <string name="exo_track_role_closed_captions">வசனம்</string>
   <string name="exo_track_bitrate">%1$.2f மெ.பை./வி</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

@@ -31,6 +31,10 @@
   <string name="exo_track_surround">Опкружувачки звук</string>
   <string name="exo_track_surround_5_point_1">5.1 опкружувачки звук</string>
   <string name="exo_track_surround_7_point_1">7.1 опкружувачки звук</string>
+  <string name="exo_track_role_alternate">Алтернативна</string>
+  <string name="exo_track_role_supplementary">Дополнителна</string>
+  <string name="exo_track_role_commentary">Коментар</string>
+  <string name="exo_track_role_closed_captions">Титлови</string>
   <string name="exo_track_bitrate">%1$.2f Mб/с</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

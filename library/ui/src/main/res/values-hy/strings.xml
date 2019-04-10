@@ -31,6 +31,10 @@
   <string name="exo_track_surround">Ծավալային ձայն</string>
   <string name="exo_track_surround_5_point_1">5․1 ծավալային ձայն</string>
   <string name="exo_track_surround_7_point_1">7․1 ծավալային ձայն</string>
+  <string name="exo_track_role_alternate">Այլընտրանքային</string>
+  <string name="exo_track_role_supplementary">Լրացուցիչ</string>
+  <string name="exo_track_role_commentary">Մեկնաբանություններ</string>
+  <string name="exo_track_role_closed_captions">Ենթագրեր</string>
   <string name="exo_track_bitrate">%1$.2f մբ/վ</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

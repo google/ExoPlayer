@@ -31,6 +31,10 @@
   <string name="exo_track_surround">Okružujući zvuk</string>
   <string name="exo_track_surround_5_point_1">5.1-kanalni okružujući zvuk</string>
   <string name="exo_track_surround_7_point_1">7.1-kanalni okružujući zvuk</string>
+  <string name="exo_track_role_alternate">Alternativna verzija</string>
+  <string name="exo_track_role_supplementary">Dopunska verzija</string>
+  <string name="exo_track_role_commentary">Verzija s komentarima</string>
+  <string name="exo_track_role_closed_captions">Verzija s titlovima</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

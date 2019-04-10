@@ -31,6 +31,10 @@
   <string name="exo_track_surround">સરાઉન્ડ સાઉન્ડ</string>
   <string name="exo_track_surround_5_point_1">5.1 સરાઉન્ડ સાઉન્ડ</string>
   <string name="exo_track_surround_7_point_1">7.1 સરાઉન્ડ સાઉન્ડ</string>
+  <string name="exo_track_role_alternate">વૈકલ્પિક</string>
+  <string name="exo_track_role_supplementary">પૂરક</string>
+  <string name="exo_track_role_commentary">કોમેન્ટ્રી</string>
+  <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
 </resources>
