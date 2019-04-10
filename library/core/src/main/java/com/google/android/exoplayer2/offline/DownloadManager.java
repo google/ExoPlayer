@@ -573,6 +573,52 @@ public final class DownloadManager {
     return true;
   }
 
+  private void initializeInternal(int notMetRequirements) {
+    this.notMetRequirements = notMetRequirements;
+    ArrayList<Download> loadedStates = new ArrayList<>();
+    try (DownloadCursor cursor =
+        downloadIndex.getDownloads(
+            STATE_QUEUED, STATE_STOPPED, STATE_DOWNLOADING, STATE_REMOVING, STATE_RESTARTING)) {
+      while (cursor.moveToNext()) {
+        loadedStates.add(cursor.getDownload());
+      }
+      logd("Download states are loaded.");
+    } catch (Throwable e) {
+      Log.e(TAG, "Download state loading failed.", e);
+      loadedStates.clear();
+    }
+    for (Download download : loadedStates) {
+      addDownloadForState(download);
+    }
+    logd("Downloads are created.");
+    mainHandler.obtainMessage(MSG_INITIALIZED, loadedStates).sendToTarget();
+    for (int i = 0; i < downloadInternals.size(); i++) {
+      downloadInternals.get(i).start();
+    }
+  }
+
+  private void setDownloadsStartedInternal(boolean downloadsStarted) {
+    if (this.downloadsStarted == downloadsStarted) {
+      return;
+    }
+    this.downloadsStarted = downloadsStarted;
+    for (int i = 0; i < downloadInternals.size(); i++) {
+      downloadInternals.get(i).updateStopState();
+    }
+  }
+
+  private void setNotMetRequirementsInternal(
+      @Requirements.RequirementFlags int notMetRequirements) {
+    if (this.notMetRequirements == notMetRequirements) {
+      return;
+    }
+    this.notMetRequirements = notMetRequirements;
+    logdFlags("Not met requirements are changed", notMetRequirements);
+    for (int i = 0; i < downloadInternals.size(); i++) {
+      downloadInternals.get(i).updateStopState();
+    }
+  }
+
   private void setManualStopReasonInternal(@Nullable String id, int manualStopReason) {
     if (id != null) {
       DownloadInternal downloadInternal = getDownload(id);
@@ -630,6 +676,37 @@ public final class DownloadManager {
     }
   }
 
+  private void onDownloadThreadStoppedInternal(DownloadThread downloadThread) {
+    DownloadInternal downloadInternal = downloadThread.downloadInternal;
+    logd("Download is stopped", downloadInternal);
+    activeDownloads.remove(downloadInternal);
+    boolean tryToStartDownloads = false;
+    if (!downloadThread.isRemoveThread) {
+      // If maxSimultaneousDownloads was hit, there might be a download waiting for a slot.
+      tryToStartDownloads = simultaneousDownloads == maxSimultaneousDownloads;
+      simultaneousDownloads--;
+    }
+    downloadInternal.onDownloadThreadStopped(downloadThread.isCanceled, downloadThread.finalError);
+    if (tryToStartDownloads) {
+      for (int i = 0;
+          simultaneousDownloads < maxSimultaneousDownloads && i < downloadInternals.size();
+          i++) {
+        downloadInternals.get(i).start();
+      }
+    }
+  }
+
+  private void releaseInternal() {
+    for (DownloadInternal downloadInternal : activeDownloads.keySet()) {
+      stopDownloadThread(downloadInternal);
+    }
+    internalThread.quit();
+    synchronized (releaseLock) {
+      released = true;
+      releaseLock.notifyAll();
+    }
+  }
+
   private void onDownloadChangedInternal(DownloadInternal downloadInternal, Download download) {
     logd("Download state is changed", downloadInternal);
     try {
@@ -652,101 +729,6 @@ public final class DownloadManager {
     }
     downloadInternals.remove(downloadInternal);
     mainHandler.obtainMessage(MSG_DOWNLOAD_REMOVED, download).sendToTarget();
-  }
-
-  private void setDownloadsStartedInternal(boolean downloadsStarted) {
-    if (this.downloadsStarted == downloadsStarted) {
-      return;
-    }
-    this.downloadsStarted = downloadsStarted;
-    for (int i = 0; i < downloadInternals.size(); i++) {
-      downloadInternals.get(i).updateStopState();
-    }
-  }
-
-  private void setNotMetRequirementsInternal(
-      @Requirements.RequirementFlags int notMetRequirements) {
-    if (this.notMetRequirements == notMetRequirements) {
-      return;
-    }
-    this.notMetRequirements = notMetRequirements;
-    logdFlags("Not met requirements are changed", notMetRequirements);
-    for (int i = 0; i < downloadInternals.size(); i++) {
-      downloadInternals.get(i).updateStopState();
-    }
-  }
-
-  @Nullable
-  private DownloadInternal getDownload(String id) {
-    for (int i = 0; i < downloadInternals.size(); i++) {
-      DownloadInternal downloadInternal = downloadInternals.get(i);
-      if (downloadInternal.download.action.id.equals(id)) {
-        return downloadInternal;
-      }
-    }
-    return null;
-  }
-
-  private Download loadDownload(String id) {
-    try {
-      return downloadIndex.getDownload(id);
-    } catch (DatabaseIOException e) {
-      Log.e(TAG, "loadDownload failed", e);
-    }
-    return null;
-  }
-
-  private void initializeInternal(int notMetRequirements) {
-    this.notMetRequirements = notMetRequirements;
-    ArrayList<Download> loadedStates = new ArrayList<>();
-    try (DownloadCursor cursor =
-        downloadIndex.getDownloads(
-            STATE_QUEUED, STATE_STOPPED, STATE_DOWNLOADING, STATE_REMOVING, STATE_RESTARTING)) {
-      while (cursor.moveToNext()) {
-        loadedStates.add(cursor.getDownload());
-      }
-      logd("Download states are loaded.");
-    } catch (Throwable e) {
-      Log.e(TAG, "Download state loading failed.", e);
-      loadedStates.clear();
-    }
-    for (Download download : loadedStates) {
-      addDownloadForState(download);
-    }
-    logd("Downloads are created.");
-    mainHandler.obtainMessage(MSG_INITIALIZED, loadedStates).sendToTarget();
-    for (int i = 0; i < downloadInternals.size(); i++) {
-      downloadInternals.get(i).start();
-    }
-  }
-
-  private void addDownloadForState(Download download) {
-    DownloadInternal downloadInternal = new DownloadInternal(this, download);
-    downloadInternals.add(downloadInternal);
-    logd("Download is added", downloadInternal);
-    downloadInternal.initialize();
-  }
-
-  private boolean canStartDownloads() {
-    return downloadsStarted && notMetRequirements == 0;
-  }
-
-  private static void logd(String message) {
-    if (DEBUG) {
-      Log.d(TAG, message);
-    }
-  }
-
-  private static void logd(String message, DownloadInternal downloadInternal) {
-    if (DEBUG) {
-      logd(message + ": " + downloadInternal);
-    }
-  }
-
-  private static void logdFlags(String message, int flags) {
-    if (DEBUG) {
-      logd(message + ": " + Integer.toBinaryString(flags));
-    }
   }
 
   @StartThreadResults
@@ -780,34 +762,52 @@ public final class DownloadManager {
     return false;
   }
 
-  private void releaseInternal() {
-    for (DownloadInternal downloadInternal : activeDownloads.keySet()) {
-      stopDownloadThread(downloadInternal);
+  @Nullable
+  private DownloadInternal getDownload(String id) {
+    for (int i = 0; i < downloadInternals.size(); i++) {
+      DownloadInternal downloadInternal = downloadInternals.get(i);
+      if (downloadInternal.download.action.id.equals(id)) {
+        return downloadInternal;
+      }
     }
-    internalThread.quit();
-    synchronized (releaseLock) {
-      released = true;
-      releaseLock.notifyAll();
+    return null;
+  }
+
+  private Download loadDownload(String id) {
+    try {
+      return downloadIndex.getDownload(id);
+    } catch (DatabaseIOException e) {
+      Log.e(TAG, "loadDownload failed", e);
+    }
+    return null;
+  }
+
+  private void addDownloadForState(Download download) {
+    DownloadInternal downloadInternal = new DownloadInternal(this, download);
+    downloadInternals.add(downloadInternal);
+    logd("Download is added", downloadInternal);
+    downloadInternal.initialize();
+  }
+
+  private boolean canStartDownloads() {
+    return downloadsStarted && notMetRequirements == 0;
+  }
+
+  private static void logd(String message) {
+    if (DEBUG) {
+      Log.d(TAG, message);
     }
   }
 
-  private void onDownloadThreadStoppedInternal(DownloadThread downloadThread) {
-    DownloadInternal downloadInternal = downloadThread.downloadInternal;
-    logd("Download is stopped", downloadInternal);
-    activeDownloads.remove(downloadInternal);
-    boolean tryToStartDownloads = false;
-    if (!downloadThread.isRemoveThread) {
-      // If maxSimultaneousDownloads was hit, there might be a download waiting for a slot.
-      tryToStartDownloads = simultaneousDownloads == maxSimultaneousDownloads;
-      simultaneousDownloads--;
+  private static void logd(String message, DownloadInternal downloadInternal) {
+    if (DEBUG) {
+      logd(message + ": " + downloadInternal);
     }
-    downloadInternal.onDownloadThreadStopped(downloadThread.isCanceled, downloadThread.finalError);
-    if (tryToStartDownloads) {
-      for (int i = 0;
-          simultaneousDownloads < maxSimultaneousDownloads && i < downloadInternals.size();
-          i++) {
-        downloadInternals.get(i).start();
-      }
+  }
+
+  private static void logdFlags(String message, int flags) {
+    if (DEBUG) {
+      logd(message + ": " + Integer.toBinaryString(flags));
     }
   }
 
