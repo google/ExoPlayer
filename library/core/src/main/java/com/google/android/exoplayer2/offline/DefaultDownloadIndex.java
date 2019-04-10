@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A {@link DownloadIndex} which uses SQLite to persist {@link DownloadState}s.
+ * A {@link DownloadIndex} which uses SQLite to persist {@link Download}s.
  *
  * <p class="caution">Database access may take a long time, do not call methods of this class from
  * the application main thread.
@@ -88,7 +88,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
 
   private static final String WHERE_ID_EQUALS = COLUMN_ID + " = ?";
   private static final String WHERE_STATE_TERMINAL =
-      getStateQuery(DownloadState.STATE_COMPLETED, DownloadState.STATE_FAILED);
+      getStateQuery(Download.STATE_COMPLETED, Download.STATE_FAILED);
 
   private static final String[] COLUMNS =
       new String[] {
@@ -153,8 +153,8 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   private boolean initialized;
 
   /**
-   * Creates a DefaultDownloadIndex which stores the {@link DownloadState}s on a SQLite database
-   * provided by {@code databaseProvider}.
+   * Creates a DefaultDownloadIndex which stores the {@link Download}s on a SQLite database provided
+   * by {@code databaseProvider}.
    *
    * @param databaseProvider A DatabaseProvider which provides the database which will be used to
    *     store DownloadStatus table.
@@ -165,52 +165,51 @@ public final class DefaultDownloadIndex implements DownloadIndex {
 
   @Override
   @Nullable
-  public DownloadState getDownloadState(String id) throws DatabaseIOException {
+  public Download getDownload(String id) throws DatabaseIOException {
     ensureInitialized();
     try (Cursor cursor = getCursor(WHERE_ID_EQUALS, new String[] {id})) {
       if (cursor.getCount() == 0) {
         return null;
       }
       cursor.moveToNext();
-      return getDownloadStateForCurrentRow(cursor);
+      return getDownloadForCurrentRow(cursor);
     } catch (SQLiteException e) {
       throw new DatabaseIOException(e);
     }
   }
 
   @Override
-  public DownloadStateCursor getDownloadStates(@DownloadState.State int... states)
-      throws DatabaseIOException {
+  public DownloadCursor getDownloads(@Download.State int... states) throws DatabaseIOException {
     ensureInitialized();
     Cursor cursor = getCursor(getStateQuery(states), /* selectionArgs= */ null);
-    return new DownloadStateCursorImpl(cursor);
+    return new DownloadCursorImpl(cursor);
   }
 
   /**
-   * Adds or replaces a {@link DownloadState}.
+   * Adds or replaces a {@link Download}.
    *
-   * @param downloadState The {@link DownloadState} to be added.
+   * @param download The {@link Download} to be added.
    * @throws DatabaseIOException If an error occurs setting the state.
    */
-  public void putDownloadState(DownloadState downloadState) throws DatabaseIOException {
+  public void putDownload(Download download) throws DatabaseIOException {
     ensureInitialized();
     ContentValues values = new ContentValues();
-    values.put(COLUMN_ID, downloadState.action.id);
-    values.put(COLUMN_TYPE, downloadState.action.type);
-    values.put(COLUMN_URI, downloadState.action.uri.toString());
-    values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(downloadState.action.streamKeys));
-    values.put(COLUMN_CUSTOM_CACHE_KEY, downloadState.action.customCacheKey);
-    values.put(COLUMN_DATA, downloadState.action.data);
-    values.put(COLUMN_STATE, downloadState.state);
-    values.put(COLUMN_DOWNLOAD_PERCENTAGE, downloadState.getDownloadPercentage());
-    values.put(COLUMN_DOWNLOADED_BYTES, downloadState.getDownloadedBytes());
-    values.put(COLUMN_TOTAL_BYTES, downloadState.getTotalBytes());
-    values.put(COLUMN_FAILURE_REASON, downloadState.failureReason);
+    values.put(COLUMN_ID, download.action.id);
+    values.put(COLUMN_TYPE, download.action.type);
+    values.put(COLUMN_URI, download.action.uri.toString());
+    values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(download.action.streamKeys));
+    values.put(COLUMN_CUSTOM_CACHE_KEY, download.action.customCacheKey);
+    values.put(COLUMN_DATA, download.action.data);
+    values.put(COLUMN_STATE, download.state);
+    values.put(COLUMN_DOWNLOAD_PERCENTAGE, download.getDownloadPercentage());
+    values.put(COLUMN_DOWNLOADED_BYTES, download.getDownloadedBytes());
+    values.put(COLUMN_TOTAL_BYTES, download.getTotalBytes());
+    values.put(COLUMN_FAILURE_REASON, download.failureReason);
     values.put(COLUMN_STOP_FLAGS, 0);
     values.put(COLUMN_NOT_MET_REQUIREMENTS, 0);
-    values.put(COLUMN_MANUAL_STOP_REASON, downloadState.manualStopReason);
-    values.put(COLUMN_START_TIME_MS, downloadState.startTimeMs);
-    values.put(COLUMN_UPDATE_TIME_MS, downloadState.updateTimeMs);
+    values.put(COLUMN_MANUAL_STOP_REASON, download.manualStopReason);
+    values.put(COLUMN_START_TIME_MS, download.startTimeMs);
+    values.put(COLUMN_UPDATE_TIME_MS, download.updateTimeMs);
     try {
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.replaceOrThrow(TABLE_NAME, /* nullColumnHack= */ null, values);
@@ -220,12 +219,12 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   }
 
   /**
-   * Removes the {@link DownloadState} with the given {@code id}.
+   * Removes the {@link Download} with the given {@code id}.
    *
-   * @param id ID of a {@link DownloadState}.
+   * @param id ID of a {@link Download}.
    * @throws DatabaseIOException If an error occurs removing the state.
    */
-  public void removeDownloadState(String id) throws DatabaseIOException {
+  public void removeDownload(String id) throws DatabaseIOException {
     ensureInitialized();
     try {
       databaseProvider.getWritableDatabase().delete(TABLE_NAME, WHERE_ID_EQUALS, new String[] {id});
@@ -236,7 +235,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
 
   /**
    * Sets the manual stop reason of the downloads in a terminal state ({@link
-   * DownloadState#STATE_COMPLETED}, {@link DownloadState#STATE_FAILED}).
+   * Download#STATE_COMPLETED}, {@link Download#STATE_FAILED}).
    *
    * @param manualStopReason The manual stop reason.
    * @throws DatabaseIOException If an error occurs updating the state.
@@ -255,12 +254,12 @@ public final class DefaultDownloadIndex implements DownloadIndex {
 
   /**
    * Sets the manual stop reason of the download with the given {@code id} in a terminal state
-   * ({@link DownloadState#STATE_COMPLETED}, {@link DownloadState#STATE_FAILED}).
+   * ({@link Download#STATE_COMPLETED}, {@link Download#STATE_FAILED}).
    *
-   * <p>If there's no {@link DownloadState} with the given {@code id} or it isn't in a terminal
-   * state, then nothing happens.
+   * <p>If there's no {@link Download} with the given {@code id} or it isn't in a terminal state,
+   * then nothing happens.
    *
-   * @param id ID of a {@link DownloadState}.
+   * @param id ID of a {@link Download}.
    * @param manualStopReason The manual stop reason.
    * @throws DatabaseIOException If an error occurs updating the state.
    */
@@ -326,7 +325,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     }
   }
 
-  private static String getStateQuery(@DownloadState.State int... states) {
+  private static String getStateQuery(@Download.State int... states) {
     if (states.length == 0) {
       return TRUE;
     }
@@ -342,7 +341,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     return selectionBuilder.toString();
   }
 
-  private static DownloadState getDownloadStateForCurrentRow(Cursor cursor) {
+  private static Download getDownloadForCurrentRow(Cursor cursor) {
     DownloadAction action =
         new DownloadAction(
             cursor.getString(COLUMN_INDEX_ID),
@@ -355,7 +354,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     cachingCounters.alreadyCachedBytes = cursor.getLong(COLUMN_INDEX_DOWNLOADED_BYTES);
     cachingCounters.contentLength = cursor.getLong(COLUMN_INDEX_TOTAL_BYTES);
     cachingCounters.percentage = cursor.getFloat(COLUMN_INDEX_DOWNLOAD_PERCENTAGE);
-    return new DownloadState(
+    return new Download(
         action,
         cursor.getInt(COLUMN_INDEX_STATE),
         cursor.getInt(COLUMN_INDEX_FAILURE_REASON),
@@ -401,17 +400,17 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     return streamKeys;
   }
 
-  private static final class DownloadStateCursorImpl implements DownloadStateCursor {
+  private static final class DownloadCursorImpl implements DownloadCursor {
 
     private final Cursor cursor;
 
-    private DownloadStateCursorImpl(Cursor cursor) {
+    private DownloadCursorImpl(Cursor cursor) {
       this.cursor = cursor;
     }
 
     @Override
-    public DownloadState getDownloadState() {
-      return getDownloadStateForCurrentRow(cursor);
+    public Download getDownload() {
+      return getDownloadForCurrentRow(cursor);
     }
 
     @Override

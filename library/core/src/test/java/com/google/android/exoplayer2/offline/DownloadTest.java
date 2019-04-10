@@ -26,9 +26,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link DownloadState}. */
+/** Unit tests for {@link Download}. */
 @RunWith(AndroidJUnit4.class)
-public class DownloadStateTest {
+public class DownloadTest {
 
   private Uri testUri;
 
@@ -40,14 +40,14 @@ public class DownloadStateTest {
   @Test
   public void mergeAction_actionHaveDifferentType_throwsException() {
     DownloadAction downloadAction = createDownloadAction();
-    DownloadState downloadState =
-        new DownloadStateBuilder(downloadAction)
+    Download download =
+        new DownloadBuilder(downloadAction)
             .setType(downloadAction.type + "_different")
-            .setState(DownloadState.STATE_QUEUED)
+            .setState(Download.STATE_QUEUED)
             .build();
 
     try {
-      downloadState.copyWithMergedAction(downloadAction, /* canStart= */ true);
+      download.copyWithMergedAction(downloadAction, /* canStart= */ true);
       fail();
     } catch (Exception e) {
       // Expected.
@@ -57,14 +57,14 @@ public class DownloadStateTest {
   @Test
   public void mergeAction_actionHaveDifferentId_throwsException() {
     DownloadAction downloadAction = createDownloadAction();
-    DownloadState downloadState =
-        new DownloadStateBuilder(downloadAction)
+    Download download =
+        new DownloadBuilder(downloadAction)
             .setId(downloadAction.id + "_different")
-            .setState(DownloadState.STATE_QUEUED)
+            .setState(Download.STATE_QUEUED)
             .build();
 
     try {
-      downloadState.copyWithMergedAction(downloadAction, /* canStart= */ true);
+      download.copyWithMergedAction(downloadAction, /* canStart= */ true);
       fail();
     } catch (Exception e) {
       // Expected.
@@ -74,31 +74,30 @@ public class DownloadStateTest {
   @Test
   public void mergeAction_actionsWithSameIdAndType_doesNotFail() {
     DownloadAction downloadAction = createDownloadAction();
-    DownloadStateBuilder downloadStateBuilder =
-        new DownloadStateBuilder(downloadAction).setState(DownloadState.STATE_QUEUED);
-    DownloadState downloadState = downloadStateBuilder.build();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction).setState(Download.STATE_QUEUED);
+    Download download = downloadBuilder.build();
 
-    downloadState.copyWithMergedAction(downloadAction, /* canStart= */ true);
+    download.copyWithMergedAction(downloadAction, /* canStart= */ true);
   }
 
   @Test
-  public void mergeAction_actionHaveDifferentUri_downloadStateUriIsUpdated() {
+  public void mergeAction_actionHaveDifferentUri_downloadUriIsUpdated() {
     DownloadAction downloadAction = createDownloadAction();
-    DownloadStateBuilder downloadStateBuilder =
-        new DownloadStateBuilder(downloadAction)
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction)
             .setUri(downloadAction.uri + "_different")
-            .setState(DownloadState.STATE_QUEUED);
-    DownloadState downloadState = downloadStateBuilder.build();
+            .setState(Download.STATE_QUEUED);
+    Download download = downloadBuilder.build();
 
-    DownloadState mergedDownloadState =
-        downloadState.copyWithMergedAction(downloadAction, /* canStart= */ true);
+    Download mergedDownload = download.copyWithMergedAction(downloadAction, /* canStart= */ true);
 
-    DownloadState expectedDownloadState = downloadStateBuilder.setUri(downloadAction.uri).build();
-    assertEqual(mergedDownloadState, expectedDownloadState);
+    Download expectedDownload = downloadBuilder.setUri(downloadAction.uri).build();
+    assertEqual(mergedDownload, expectedDownload);
   }
 
   @Test
-  public void mergeAction_actionHaveDifferentData_downloadStateDataIsUpdated() {
+  public void mergeAction_actionHaveDifferentData_downloadDataIsUpdated() {
     DownloadAction downloadAction =
         new DownloadAction(
             "id",
@@ -107,85 +106,77 @@ public class DownloadStateTest {
             Collections.emptyList(),
             /* customCacheKey= */ null,
             /* data= */ new byte[] {1, 2, 3, 4});
-    DownloadStateBuilder downloadStateBuilder =
-        new DownloadStateBuilder(downloadAction)
-            .setState(DownloadState.STATE_QUEUED)
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction)
+            .setState(Download.STATE_QUEUED)
             .setCustomMetadata(new byte[0]);
-    DownloadState downloadState = downloadStateBuilder.build();
+    Download download = downloadBuilder.build();
 
-    DownloadState mergedDownloadState =
-        downloadState.copyWithMergedAction(downloadAction, /* canStart= */ true);
+    Download mergedDownload = download.copyWithMergedAction(downloadAction, /* canStart= */ true);
 
-    DownloadState expectedDownloadState =
-        downloadStateBuilder.setCustomMetadata(downloadAction.data).build();
-    assertEqual(mergedDownloadState, expectedDownloadState);
+    Download expectedDownload = downloadBuilder.setCustomMetadata(downloadAction.data).build();
+    assertEqual(mergedDownload, expectedDownload);
   }
 
   @Test
   public void mergeAction_removingDownloadDownloadAction_stateBecomesRestarting() {
     DownloadAction downloadAction = createDownloadAction();
-    DownloadStateBuilder downloadStateBuilder =
-        new DownloadStateBuilder(downloadAction).setState(DownloadState.STATE_REMOVING);
-    DownloadState downloadState = downloadStateBuilder.build();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction).setState(Download.STATE_REMOVING);
+    Download download = downloadBuilder.build();
 
-    DownloadState mergedDownloadState =
-        downloadState.copyWithMergedAction(downloadAction, /* canStart= */ true);
+    Download mergedDownload = download.copyWithMergedAction(downloadAction, /* canStart= */ true);
 
-    DownloadState expectedDownloadState =
-        downloadStateBuilder.setState(DownloadState.STATE_RESTARTING).build();
-    assertEqual(mergedDownloadState, expectedDownloadState);
+    Download expectedDownload = downloadBuilder.setState(Download.STATE_RESTARTING).build();
+    assertEqual(mergedDownload, expectedDownload);
   }
 
   @Test
   public void mergeAction_failedDownloadDownloadAction_stateBecomesQueued() {
     DownloadAction downloadAction = createDownloadAction();
-    DownloadStateBuilder downloadStateBuilder =
-        new DownloadStateBuilder(downloadAction)
-            .setState(DownloadState.STATE_FAILED)
-            .setFailureReason(DownloadState.FAILURE_REASON_UNKNOWN);
-    DownloadState downloadState = downloadStateBuilder.build();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction)
+            .setState(Download.STATE_FAILED)
+            .setFailureReason(Download.FAILURE_REASON_UNKNOWN);
+    Download download = downloadBuilder.build();
 
-    DownloadState mergedDownloadState =
-        downloadState.copyWithMergedAction(downloadAction, /* canStart= */ true);
+    Download mergedDownload = download.copyWithMergedAction(downloadAction, /* canStart= */ true);
 
-    DownloadState expectedDownloadState =
-        downloadStateBuilder
-            .setState(DownloadState.STATE_QUEUED)
-            .setFailureReason(DownloadState.FAILURE_REASON_NONE)
+    Download expectedDownload =
+        downloadBuilder
+            .setState(Download.STATE_QUEUED)
+            .setFailureReason(Download.FAILURE_REASON_NONE)
             .build();
-    assertEqual(mergedDownloadState, expectedDownloadState);
+    assertEqual(mergedDownload, expectedDownload);
   }
 
   @Test
   public void mergeAction_stoppedDownloadDownloadAction_stateStaysStopped() {
     DownloadAction downloadAction = createDownloadAction();
-    DownloadStateBuilder downloadStateBuilder =
-        new DownloadStateBuilder(downloadAction)
-            .setState(DownloadState.STATE_STOPPED)
-            .setManualStopReason(DownloadState.MANUAL_STOP_REASON_UNDEFINED);
-    DownloadState downloadState = downloadStateBuilder.build();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction)
+            .setState(Download.STATE_STOPPED)
+            .setManualStopReason(Download.MANUAL_STOP_REASON_UNDEFINED);
+    Download download = downloadBuilder.build();
 
-    DownloadState mergedDownloadState =
-        downloadState.copyWithMergedAction(downloadAction, /* canStart= */ true);
+    Download mergedDownload = download.copyWithMergedAction(downloadAction, /* canStart= */ true);
 
-    assertEqual(mergedDownloadState, downloadState);
+    assertEqual(mergedDownload, download);
   }
 
   @Test
   public void mergeAction_manualStopReasonSetButNotInStoppedState_stateBecomesStopped() {
     DownloadAction downloadAction = createDownloadAction();
-    DownloadStateBuilder downloadStateBuilder =
-        new DownloadStateBuilder(downloadAction)
-            .setState(DownloadState.STATE_COMPLETED)
-            .setManualStopReason(DownloadState.MANUAL_STOP_REASON_UNDEFINED);
-    DownloadState downloadState = downloadStateBuilder.build();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction)
+            .setState(Download.STATE_COMPLETED)
+            .setManualStopReason(Download.MANUAL_STOP_REASON_UNDEFINED);
+    Download download = downloadBuilder.build();
 
-    DownloadState mergedDownloadState =
-        downloadState.copyWithMergedAction(downloadAction, /* canStart= */ true);
+    Download mergedDownload = download.copyWithMergedAction(downloadAction, /* canStart= */ true);
 
-    DownloadState expectedDownloadState =
-        downloadStateBuilder.setState(DownloadState.STATE_STOPPED).build();
-    assertEqual(mergedDownloadState, expectedDownloadState);
+    Download expectedDownload = downloadBuilder.setState(Download.STATE_STOPPED).build();
+    assertEqual(mergedDownload, expectedDownload);
   }
 
   @Test
@@ -243,36 +234,32 @@ public class DownloadStateTest {
             Arrays.asList(keys2),
             /* customCacheKey= */ null,
             /* data= */ null);
-    DownloadStateBuilder downloadStateBuilder =
-        new DownloadStateBuilder(downloadAction)
-            .setState(DownloadState.STATE_QUEUED)
-            .setStreamKeys(keys1);
-    DownloadState downloadState = downloadStateBuilder.build();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction).setState(Download.STATE_QUEUED).setStreamKeys(keys1);
+    Download download = downloadBuilder.build();
 
-    DownloadState mergedDownloadState =
-        downloadState.copyWithMergedAction(downloadAction, /* canStart= */ true);
+    Download mergedDownload = download.copyWithMergedAction(downloadAction, /* canStart= */ true);
 
-    DownloadState expectedDownloadState = downloadStateBuilder.setStreamKeys(expectedKeys).build();
-    assertEqual(mergedDownloadState, expectedDownloadState);
+    Download expectedDownload = downloadBuilder.setStreamKeys(expectedKeys).build();
+    assertEqual(mergedDownload, expectedDownload);
   }
 
-  static void assertEqual(DownloadState downloadState, DownloadState expected) {
-    assertEqual(downloadState, expected, false);
+  static void assertEqual(Download download, Download expected) {
+    assertEqual(download, expected, false);
   }
 
-  static void assertEqual(
-      DownloadState downloadState, DownloadState that, boolean compareTimeFields) {
-    assertThat(downloadState.action).isEqualTo(that.action);
-    assertThat(downloadState.state).isEqualTo(that.state);
-    assertThat(downloadState.getDownloadPercentage()).isEqualTo(that.getDownloadPercentage());
-    assertThat(downloadState.getDownloadedBytes()).isEqualTo(that.getDownloadedBytes());
-    assertThat(downloadState.getTotalBytes()).isEqualTo(that.getTotalBytes());
+  static void assertEqual(Download download, Download that, boolean compareTimeFields) {
+    assertThat(download.action).isEqualTo(that.action);
+    assertThat(download.state).isEqualTo(that.state);
+    assertThat(download.getDownloadPercentage()).isEqualTo(that.getDownloadPercentage());
+    assertThat(download.getDownloadedBytes()).isEqualTo(that.getDownloadedBytes());
+    assertThat(download.getTotalBytes()).isEqualTo(that.getTotalBytes());
     if (compareTimeFields) {
-      assertThat(downloadState.startTimeMs).isEqualTo(that.startTimeMs);
-      assertThat(downloadState.updateTimeMs).isEqualTo(that.updateTimeMs);
+      assertThat(download.startTimeMs).isEqualTo(that.startTimeMs);
+      assertThat(download.updateTimeMs).isEqualTo(that.updateTimeMs);
     }
-    assertThat(downloadState.failureReason).isEqualTo(that.failureReason);
-    assertThat(downloadState.manualStopReason).isEqualTo(that.manualStopReason);
+    assertThat(download.failureReason).isEqualTo(that.failureReason);
+    assertThat(download.manualStopReason).isEqualTo(that.manualStopReason);
   }
 
   private DownloadAction createDownloadAction() {

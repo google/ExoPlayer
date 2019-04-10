@@ -18,19 +18,19 @@ package com.google.android.exoplayer2.offline;
 import java.io.Closeable;
 
 /** Provides random read-write access to the result set returned by a database query. */
-public interface DownloadStateCursor extends Closeable {
+public interface DownloadCursor extends Closeable {
 
-  /** Returns the DownloadState at the current position. */
-  DownloadState getDownloadState();
+  /** Returns the download at the current position. */
+  Download getDownload();
 
-  /** Returns the numbers of DownloadStates in the cursor. */
+  /** Returns the numbers of downloads in the cursor. */
   int getCount();
 
   /**
-   * Returns the current position of the cursor in the DownloadState set. The value is zero-based.
-   * When the DownloadState set is first returned the cursor will be at positon -1, which is before
-   * the first DownloadState. After the last DownloadState is returned another call to next() will
-   * leave the cursor past the last entry, at a position of count().
+   * Returns the current position of the cursor in the download set. The value is zero-based. When
+   * the download set is first returned the cursor will be at positon -1, which is before the first
+   * download. After the last download is returned another call to next() will leave the cursor past
+   * the last entry, at a position of count().
    *
    * @return the current cursor position.
    */
@@ -49,7 +49,7 @@ public interface DownloadStateCursor extends Closeable {
   boolean moveToPosition(int position);
 
   /**
-   * Move the cursor to the first DownloadState.
+   * Move the cursor to the first download.
    *
    * <p>This method will return false if the cursor is empty.
    *
@@ -60,7 +60,7 @@ public interface DownloadStateCursor extends Closeable {
   }
 
   /**
-   * Move the cursor to the last DownloadState.
+   * Move the cursor to the last download.
    *
    * <p>This method will return false if the cursor is empty.
    *
@@ -71,7 +71,7 @@ public interface DownloadStateCursor extends Closeable {
   }
 
   /**
-   * Move the cursor to the next DownloadState.
+   * Move the cursor to the next download.
    *
    * <p>This method will return false if the cursor is already past the last entry in the result
    * set.
@@ -83,7 +83,7 @@ public interface DownloadStateCursor extends Closeable {
   }
 
   /**
-   * Move the cursor to the previous DownloadState.
+   * Move the cursor to the previous download.
    *
    * <p>This method will return false if the cursor is already before the first entry in the result
    * set.
@@ -94,18 +94,18 @@ public interface DownloadStateCursor extends Closeable {
     return moveToPosition(getPosition() - 1);
   }
 
-  /** Returns whether the cursor is pointing to the first DownloadState. */
+  /** Returns whether the cursor is pointing to the first download. */
   default boolean isFirst() {
     return getPosition() == 0 && getCount() != 0;
   }
 
-  /** Returns whether the cursor is pointing to the last DownloadState. */
+  /** Returns whether the cursor is pointing to the last download. */
   default boolean isLast() {
     int count = getCount();
     return getPosition() == (count - 1) && count != 0;
   }
 
-  /** Returns whether the cursor is pointing to the position before the first DownloadState. */
+  /** Returns whether the cursor is pointing to the position before the first download. */
   default boolean isBeforeFirst() {
     if (getCount() == 0) {
       return true;
@@ -113,7 +113,7 @@ public interface DownloadStateCursor extends Closeable {
     return getPosition() == -1;
   }
 
-  /** Returns whether the cursor is pointing to the position after the last DownloadState. */
+  /** Returns whether the cursor is pointing to the position after the last download. */
   default boolean isAfterLast() {
     if (getCount() == 0) {
       return true;

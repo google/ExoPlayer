@@ -19,9 +19,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.os.ConditionVariable;
+import com.google.android.exoplayer2.offline.Download;
+import com.google.android.exoplayer2.offline.Download.State;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import com.google.android.exoplayer2.offline.DownloadState;
-import com.google.android.exoplayer2.offline.DownloadState.State;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -42,7 +42,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   private final ConditionVariable initializedCondition;
 
   private CountDownLatch downloadFinishedCondition;
-  @DownloadState.FailureReason private int failureReason;
+  @Download.FailureReason private int failureReason;
 
   public TestDownloadManagerListener(
       DownloadManager downloadManager, DummyMainThread dummyMainThread) {
@@ -69,16 +69,16 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   }
 
   @Override
-  public void onDownloadStateChanged(DownloadManager downloadManager, DownloadState downloadState) {
-    if (downloadState.state == DownloadState.STATE_FAILED) {
-      failureReason = downloadState.failureReason;
+  public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+    if (download.state == Download.STATE_FAILED) {
+      failureReason = download.failureReason;
     }
-    getStateQueue(downloadState.action.id).add(downloadState.state);
+    getStateQueue(download.action.id).add(download.state);
   }
 
   @Override
-  public void onDownloadRemoved(DownloadManager downloadManager, DownloadState downloadState) {
-    getStateQueue(downloadState.action.id).add(STATE_REMOVED);
+  public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
+    getStateQueue(download.action.id).add(STATE_REMOVED);
   }
 
   @Override
@@ -94,8 +94,8 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
    */
   public void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
     blockUntilTasksComplete();
-    if (failureReason != DownloadState.FAILURE_REASON_NONE) {
-      throw new Exception("Failure reason: " + DownloadState.getFailureString(failureReason));
+    if (failureReason != Download.FAILURE_REASON_NONE) {
+      throw new Exception("Failure reason: " + Download.getFailureString(failureReason));
     }
   }
 
@@ -152,9 +152,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
           }
           int receivedState = receivedStates.get(i);
           String receivedStateString =
-              receivedState == STATE_REMOVED
-                  ? "REMOVED"
-                  : DownloadState.getStateString(receivedState);
+              receivedState == STATE_REMOVED ? "REMOVED" : Download.getStateString(receivedState);
           sb.append(receivedStateString);
         }
         fail(
@@ -162,7 +160,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
                 Locale.US,
                 "for download (%s) expected:<%s> but was:<%s>",
                 taskId,
-                DownloadState.getStateString(expectedState),
+                Download.getStateString(expectedState),
                 sb));
       }
     }

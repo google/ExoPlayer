@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** Represents state of a download. */
-public final class DownloadState {
+public final class Download {
 
   /**
    * Download states. One of {@link #STATE_QUEUED}, {@link #STATE_STOPPED}, {@link
@@ -128,15 +128,15 @@ public final class DownloadState {
   /*package*/ CachingCounters counters;
 
   /**
-   * Creates a {@link DownloadState} using a {@link DownloadAction}.
+   * Creates a {@link Download} using a {@link DownloadAction}.
    *
    * @param action The {@link DownloadAction}.
    */
-  public DownloadState(DownloadAction action) {
+  public Download(DownloadAction action) {
     this(action, System.currentTimeMillis());
   }
 
-  private DownloadState(DownloadAction action, long currentTimeMs) {
+  private Download(DownloadAction action, long currentTimeMs) {
     this(
         action,
         /* state= */ STATE_QUEUED,
@@ -147,7 +147,7 @@ public final class DownloadState {
         new CachingCounters());
   }
 
-  /* package */ DownloadState(
+  /* package */ Download(
       DownloadAction action,
       @State int state,
       @FailureReason int failureReason,
@@ -170,15 +170,15 @@ public final class DownloadState {
   }
 
   /**
-   * Merges the given {@link DownloadAction} and creates a new {@link DownloadState}. The action
-   * must have the same id and type.
+   * Merges the given {@link DownloadAction} and creates a new {@link Download}. The action must
+   * have the same id and type.
    *
    * @param newAction The {@link DownloadAction} to be merged.
    * @param canStart Whether the download is eligible to be started.
-   * @return A new {@link DownloadState}.
+   * @return A new {@link Download}.
    */
-  public DownloadState copyWithMergedAction(DownloadAction newAction, boolean canStart) {
-    return new DownloadState(
+  public Download copyWithMergedAction(DownloadAction newAction, boolean canStart) {
+    return new Download(
         action.copyWithMergedAction(newAction),
         getNextState(state, canStart && manualStopReason == 0),
         FAILURE_REASON_NONE,
@@ -193,8 +193,8 @@ public final class DownloadState {
    *
    * @param state The {@link State}.
    */
-  public DownloadState copyWithState(@State int state) {
-    return new DownloadState(
+  public Download copyWithState(@State int state) {
+    return new Download(
         action,
         state,
         FAILURE_REASON_NONE,

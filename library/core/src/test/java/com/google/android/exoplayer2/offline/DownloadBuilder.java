@@ -23,13 +23,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Builder for DownloadState.
+ * Builder for {@link Download}.
  *
- * <p>Defines default values for each field (except {@code id}) to facilitate DownloadState creation
- * for tests. Tests must avoid depending on the default values but explicitly set tested parameters
- * during test initialization.
+ * <p>Defines default values for each field (except {@code id}) to facilitate {@link Download}
+ * creation for tests. Tests must avoid depending on the default values but explicitly set tested
+ * parameters during test initialization.
  */
-class DownloadStateBuilder {
+class DownloadBuilder {
   private final CachingCounters counters;
   private String id;
   private String type;
@@ -43,15 +43,15 @@ class DownloadStateBuilder {
   private List<StreamKey> streamKeys;
   private byte[] customMetadata;
 
-  DownloadStateBuilder(String id) {
+  DownloadBuilder(String id) {
     this(id, "type", Uri.parse("uri"), /* cacheKey= */ null, new byte[0], Collections.emptyList());
   }
 
-  DownloadStateBuilder(DownloadAction action) {
+  DownloadBuilder(DownloadAction action) {
     this(action.id, action.type, action.uri, action.customCacheKey, action.data, action.streamKeys);
   }
 
-  DownloadStateBuilder(
+  DownloadBuilder(
       String id,
       String type,
       Uri uri,
@@ -62,8 +62,8 @@ class DownloadStateBuilder {
     this.type = type;
     this.uri = uri;
     this.cacheKey = cacheKey;
-    this.state = DownloadState.STATE_QUEUED;
-    this.failureReason = DownloadState.FAILURE_REASON_NONE;
+    this.state = Download.STATE_QUEUED;
+    this.failureReason = Download.FAILURE_REASON_NONE;
     this.startTimeMs = (long) 0;
     this.updateTimeMs = (long) 0;
     this.streamKeys = streamKeys;
@@ -71,90 +71,84 @@ class DownloadStateBuilder {
     this.counters = new CachingCounters();
   }
 
-  public DownloadStateBuilder setId(String id) {
+  public DownloadBuilder setId(String id) {
     this.id = id;
     return this;
   }
 
-  public DownloadStateBuilder setType(String type) {
+  public DownloadBuilder setType(String type) {
     this.type = type;
     return this;
   }
 
-  public DownloadStateBuilder setUri(String uri) {
+  public DownloadBuilder setUri(String uri) {
     this.uri = Uri.parse(uri);
     return this;
   }
 
-  public DownloadStateBuilder setUri(Uri uri) {
+  public DownloadBuilder setUri(Uri uri) {
     this.uri = uri;
     return this;
   }
 
-  public DownloadStateBuilder setCacheKey(@Nullable String cacheKey) {
+  public DownloadBuilder setCacheKey(@Nullable String cacheKey) {
     this.cacheKey = cacheKey;
     return this;
   }
 
-  public DownloadStateBuilder setState(int state) {
+  public DownloadBuilder setState(int state) {
     this.state = state;
     return this;
   }
 
-  public DownloadStateBuilder setDownloadPercentage(float downloadPercentage) {
+  public DownloadBuilder setDownloadPercentage(float downloadPercentage) {
     counters.percentage = downloadPercentage;
     return this;
   }
 
-  public DownloadStateBuilder setDownloadedBytes(long downloadedBytes) {
+  public DownloadBuilder setDownloadedBytes(long downloadedBytes) {
     counters.alreadyCachedBytes = downloadedBytes;
     return this;
   }
 
-  public DownloadStateBuilder setTotalBytes(long totalBytes) {
+  public DownloadBuilder setTotalBytes(long totalBytes) {
     counters.contentLength = totalBytes;
     return this;
   }
 
-  public DownloadStateBuilder setFailureReason(int failureReason) {
+  public DownloadBuilder setFailureReason(int failureReason) {
     this.failureReason = failureReason;
     return this;
   }
 
-  public DownloadStateBuilder setManualStopReason(int manualStopReason) {
+  public DownloadBuilder setManualStopReason(int manualStopReason) {
     this.manualStopReason = manualStopReason;
     return this;
   }
 
-  public DownloadStateBuilder setStartTimeMs(long startTimeMs) {
+  public DownloadBuilder setStartTimeMs(long startTimeMs) {
     this.startTimeMs = startTimeMs;
     return this;
   }
 
-  public DownloadStateBuilder setUpdateTimeMs(long updateTimeMs) {
+  public DownloadBuilder setUpdateTimeMs(long updateTimeMs) {
     this.updateTimeMs = updateTimeMs;
     return this;
   }
 
-  public DownloadStateBuilder setStreamKeys(StreamKey... streamKeys) {
+  public DownloadBuilder setStreamKeys(StreamKey... streamKeys) {
     this.streamKeys = Arrays.asList(streamKeys);
     return this;
   }
 
-  public DownloadStateBuilder setCustomMetadata(byte[] customMetadata) {
+  public DownloadBuilder setCustomMetadata(byte[] customMetadata) {
     this.customMetadata = customMetadata;
     return this;
   }
 
-  public DownloadState build() {
+  public Download build() {
     DownloadAction action = new DownloadAction(id, type, uri, streamKeys, cacheKey, customMetadata);
-    return new DownloadState(
-        action,
-        state,
-        failureReason,
-        manualStopReason,
-        startTimeMs,
-        updateTimeMs,
-        counters);
+    return new Download(
+        action, state, failureReason, manualStopReason, startTimeMs, updateTimeMs, counters);
   }
 }
