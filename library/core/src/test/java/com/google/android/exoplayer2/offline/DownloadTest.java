@@ -156,7 +156,7 @@ public class DownloadTest {
     DownloadBuilder downloadBuilder =
         new DownloadBuilder(downloadAction)
             .setState(Download.STATE_STOPPED)
-            .setManualStopReason(Download.MANUAL_STOP_REASON_UNDEFINED);
+            .setManualStopReason(/* manualStopReason= */ 1);
     Download download = downloadBuilder.build();
 
     Download mergedDownload = download.copyWithMergedAction(downloadAction, /* canStart= */ true);
@@ -170,7 +170,7 @@ public class DownloadTest {
     DownloadBuilder downloadBuilder =
         new DownloadBuilder(downloadAction)
             .setState(Download.STATE_COMPLETED)
-            .setManualStopReason(Download.MANUAL_STOP_REASON_UNDEFINED);
+            .setManualStopReason(/* manualStopReason= */ 1);
     Download download = downloadBuilder.build();
 
     Download mergedDownload = download.copyWithMergedAction(downloadAction, /* canStart= */ true);

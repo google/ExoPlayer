@@ -46,7 +46,7 @@ public final class Download {
   // Important: These constants are persisted into DownloadIndex. Do not change them.
   /** The download is waiting to be started. */
   public static final int STATE_QUEUED = 0;
-  /** The download is stopped. */
+  /** The download is manually stopped for the reason specified by {@link #manualStopReason}. */
   public static final int STATE_STOPPED = 1;
   /** The download is currently started. */
   public static final int STATE_DOWNLOADING = 2;
@@ -71,8 +71,6 @@ public final class Download {
 
   /** The download isn't manually stopped. */
   public static final int MANUAL_STOP_REASON_NONE = 0;
-  /** The download is manually stopped but a reason isn't specified. */
-  public static final int MANUAL_STOP_REASON_UNDEFINED = Integer.MAX_VALUE;
 
   /** Returns the state string for the given state value. */
   public static String getStateString(@State int state) {
@@ -122,7 +120,7 @@ public final class Download {
    * #FAILURE_REASON_NONE}.
    */
   @FailureReason public final int failureReason;
-  /** The manual stop reason. */
+  /** The reason the download is manually stopped, or {@link #MANUAL_STOP_REASON_NONE}. */
   public final int manualStopReason;
 
   /*package*/ CachingCounters counters;
@@ -232,7 +230,7 @@ public final class Download {
     this.counters = counters;
   }
 
-  private static int getNextState(int currentState, boolean canStart) {
+  private static int getNextState(@State int currentState, boolean canStart) {
     if (currentState == STATE_REMOVING || currentState == STATE_RESTARTING) {
       return STATE_RESTARTING;
     } else if (canStart) {

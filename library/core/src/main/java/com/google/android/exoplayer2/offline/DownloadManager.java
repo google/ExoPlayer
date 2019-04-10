@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.offline;
 import static com.google.android.exoplayer2.offline.Download.FAILURE_REASON_NONE;
 import static com.google.android.exoplayer2.offline.Download.FAILURE_REASON_UNKNOWN;
 import static com.google.android.exoplayer2.offline.Download.MANUAL_STOP_REASON_NONE;
-import static com.google.android.exoplayer2.offline.Download.MANUAL_STOP_REASON_UNDEFINED;
 import static com.google.android.exoplayer2.offline.Download.STATE_COMPLETED;
 import static com.google.android.exoplayer2.offline.Download.STATE_DOWNLOADING;
 import static com.google.android.exoplayer2.offline.Download.STATE_FAILED;
@@ -53,7 +52,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Manages multiple stream download and remove requests.
+ * Manages downloads.
+ *
+ * <p>Normally a download manager should be accessed via a {@link DownloadService}. When a download
+ * manager is used directly instead, downloads will be initially stopped and so must be started by
+ * calling {@link #startDownloads()}.
  *
  * <p>A download manager instance must be accessed only from the thread that created it, unless that
  * thread does not have a {@link Looper}. In that case, it must be accessed only from the
@@ -122,12 +125,13 @@ public final class DownloadManager {
 
   // Messages posted to the background handler.
   private static final int MSG_INITIALIZE = 0;
-  private static final int MSG_ADD_DOWNLOAD = 1;
-  private static final int MSG_REMOVE_DOWNLOAD = 2;
+  private static final int MSG_SET_DOWNLOADS_STARTED = 1;
+  private static final int MSG_SET_NOT_MET_REQUIREMENTS = 2;
   private static final int MSG_SET_MANUAL_STOP_REASON = 3;
-  private static final int MSG_SET_NOT_MET_REQUIREMENTS = 4;
-  private static final int MSG_DOWNLOAD_THREAD_STOPPED = 5;
-  private static final int MSG_RELEASE = 6;
+  private static final int MSG_ADD_DOWNLOAD = 4;
+  private static final int MSG_REMOVE_DOWNLOAD = 5;
+  private static final int MSG_DOWNLOAD_THREAD_STOPPED = 6;
+  private static final int MSG_RELEASE = 7;
 
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
@@ -174,7 +178,7 @@ public final class DownloadManager {
 
   // Mutable fields that are accessed on the internal thread.
   @Requirements.RequirementFlags private int notMetRequirements;
-  private int manualStopReason;
+  private boolean downloadsStarted;
   private int simultaneousDownloads;
 
   /**
@@ -244,7 +248,6 @@ public final class DownloadManager {
     this.maxSimultaneousDownloads = maxSimultaneousDownloads;
     this.minRetryCount = minRetryCount;
 
-    manualStopReason = MANUAL_STOP_REASON_UNDEFINED;
     downloadInternals = new ArrayList<>();
     downloads = new ArrayList<>();
     activeDownloads = new HashMap<>();
@@ -331,63 +334,37 @@ public final class DownloadManager {
   }
 
   /**
-   * Clears manual stop reason of all downloads. Downloads are started if the requirements are met.
+   * Starts all downloads except those that are manually stopped (i.e. have a non-zero {@link
+   * Download#manualStopReason}).
    */
   public void startDownloads() {
-    postSetManualStopReason(/* id= */ null, MANUAL_STOP_REASON_NONE);
+    pendingMessages++;
+    internalHandler
+        .obtainMessage(MSG_SET_DOWNLOADS_STARTED, /* downloadsStarted */ 1, /* unused */ 0)
+        .sendToTarget();
   }
 
-  /** Signals all downloads to stop. Call {@link #startDownloads()} to let them to be started. */
+  /** Stops all downloads. */
   public void stopDownloads() {
-    stopDownloads(MANUAL_STOP_REASON_UNDEFINED);
+    pendingMessages++;
+    internalHandler
+        .obtainMessage(MSG_SET_DOWNLOADS_STARTED, /* downloadsStarted */ 0, /* unused */ 0)
+        .sendToTarget();
   }
 
   /**
-   * Sets a manual stop reason for all downloads.
+   * Sets the manual stop reason for one or all downloads. To clear the manual stop reason, pass
+   * {@link Download#MANUAL_STOP_REASON_NONE}.
    *
-   * @param manualStopReason An application defined stop reason. Value {@value
-   *     Download#MANUAL_STOP_REASON_NONE} is not allowed and value {@value
-   *     Download#MANUAL_STOP_REASON_UNDEFINED} is reserved for {@link
-   *     Download#MANUAL_STOP_REASON_UNDEFINED}.
+   * @param id The content id of the download to update, or {@code null} to set the manual stop
+   *     reason for all downloads.
+   * @param manualStopReason The manual stop reason, or {@link Download#MANUAL_STOP_REASON_NONE}.
    */
-  public void stopDownloads(int manualStopReason) {
-    Assertions.checkArgument(manualStopReason != MANUAL_STOP_REASON_NONE);
-    postSetManualStopReason(/* id= */ null, manualStopReason);
-  }
-
-  /**
-   * Clears manual stop reason of the download with the {@code id}. Download is started if the
-   * requirements are met.
-   *
-   * @param id The unique content id of the download to be started.
-   */
-  public void startDownload(String id) {
-    postSetManualStopReason(id, MANUAL_STOP_REASON_NONE);
-  }
-
-  /**
-   * Signals the download with the {@code id} to stop. Call {@link #startDownload(String)} to let it
-   * to be started.
-   *
-   * @param id The unique content id of the download to be stopped.
-   */
-  public void stopDownload(String id) {
-    stopDownload(id, MANUAL_STOP_REASON_UNDEFINED);
-  }
-
-  /**
-   * Signals the download with the {@code id} to stop. Call {@link #startDownload(String)} to let it
-   * to be started.
-   *
-   * @param id The unique content id of the download to be stopped.
-   * @param manualStopReason An application defined stop reason. Value {@value
-   *     Download#MANUAL_STOP_REASON_NONE} is not allowed and value {@value
-   *     Download#MANUAL_STOP_REASON_UNDEFINED} is reserved for {@link
-   *     Download#MANUAL_STOP_REASON_UNDEFINED}.
-   */
-  public void stopDownload(String id, int manualStopReason) {
-    Assertions.checkArgument(manualStopReason != MANUAL_STOP_REASON_NONE);
-    postSetManualStopReason(id, manualStopReason);
+  public void setManualStopReason(@Nullable String id, int manualStopReason) {
+    pendingMessages++;
+    internalHandler
+        .obtainMessage(MSG_SET_MANUAL_STOP_REASON, manualStopReason, /* unused */ 0, id)
+        .sendToTarget();
   }
 
   /**
@@ -396,8 +373,21 @@ public final class DownloadManager {
    * @param action The download action.
    */
   public void addDownload(DownloadAction action) {
+    addDownload(action, Download.MANUAL_STOP_REASON_NONE);
+  }
+
+  /**
+   * Adds a download defined by the given action and with the specified manual stop reason.
+   *
+   * @param action The download action.
+   * @param manualStopReason An initial manual stop reason for the download, or {@link
+   *     Download#MANUAL_STOP_REASON_NONE} if the download should be started.
+   */
+  public void addDownload(DownloadAction action, int manualStopReason) {
     pendingMessages++;
-    internalHandler.obtainMessage(MSG_ADD_DOWNLOAD, action).sendToTarget();
+    internalHandler
+        .obtainMessage(MSG_ADD_DOWNLOAD, manualStopReason, /* unused */ 0, action)
+        .sendToTarget();
   }
 
   /**
@@ -440,13 +430,6 @@ public final class DownloadManager {
       initialized = false;
       downloads.clear();
     }
-  }
-
-  private void postSetManualStopReason(@Nullable String id, int manualStopReason) {
-    pendingMessages++;
-    internalHandler
-        .obtainMessage(MSG_SET_MANUAL_STOP_REASON, manualStopReason, /* unused */ 0, id)
-        .sendToTarget();
   }
 
   private void onRequirementsStateChanged(
@@ -551,27 +534,32 @@ public final class DownloadManager {
         int notMetRequirements = message.arg1;
         initializeInternal(notMetRequirements);
         break;
-      case MSG_ADD_DOWNLOAD:
-        DownloadAction action = (DownloadAction) message.obj;
-        addDownloadInternal(action);
-        break;
-      case MSG_REMOVE_DOWNLOAD:
-        String id = (String) message.obj;
-        removeDownloadInternal(id);
-        break;
-      case MSG_SET_MANUAL_STOP_REASON:
-        id = (String) message.obj;
-        int manualStopReason = message.arg1;
-        setManualStopReasonInternal(id, manualStopReason);
+      case MSG_SET_DOWNLOADS_STARTED:
+        boolean downloadsStarted = message.arg1 != 0;
+        setDownloadsStartedInternal(downloadsStarted);
         break;
       case MSG_SET_NOT_MET_REQUIREMENTS:
         notMetRequirements = message.arg1;
         setNotMetRequirementsInternal(notMetRequirements);
         break;
+      case MSG_SET_MANUAL_STOP_REASON:
+        String id = (String) message.obj;
+        int manualStopReason = message.arg1;
+        setManualStopReasonInternal(id, manualStopReason);
+        break;
+      case MSG_ADD_DOWNLOAD:
+        DownloadAction action = (DownloadAction) message.obj;
+        manualStopReason = message.arg1;
+        addDownloadInternal(action, manualStopReason);
+        break;
+      case MSG_REMOVE_DOWNLOAD:
+        id = (String) message.obj;
+        removeDownloadInternal(id);
+        break;
       case MSG_DOWNLOAD_THREAD_STOPPED:
         DownloadThread downloadThread = (DownloadThread) message.obj;
         onDownloadThreadStoppedInternal(downloadThread);
-        processedExternalMessage = false;
+        processedExternalMessage = false; // This message is posted internally.
         break;
       case MSG_RELEASE:
         releaseInternal();
@@ -594,7 +582,6 @@ public final class DownloadManager {
         return;
       }
     } else {
-      this.manualStopReason = manualStopReason;
       for (int i = 0; i < downloadInternals.size(); i++) {
         downloadInternals.get(i).setManualStopReason(manualStopReason);
       }
@@ -610,7 +597,8 @@ public final class DownloadManager {
     }
   }
 
-  private void addDownloadInternal(DownloadAction action) {
+  // TODO: Use manualStopReason.
+  private void addDownloadInternal(DownloadAction action, int manualStopReason) {
     DownloadInternal downloadInternal = getDownload(action.id);
     if (downloadInternal != null) {
       downloadInternal.addAction(action);
@@ -621,7 +609,7 @@ public final class DownloadManager {
         download = new Download(action);
         logd("Download state is created for " + action.id);
       } else {
-        download = download.copyWithMergedAction(action, /* canStart= */ notMetRequirements == 0);
+        download = download.copyWithMergedAction(action, /* canStart= */ canStartDownloads());
         logd("Download state is loaded for " + action.id);
       }
       addDownloadForState(download);
@@ -666,6 +654,16 @@ public final class DownloadManager {
     mainHandler.obtainMessage(MSG_DOWNLOAD_REMOVED, download).sendToTarget();
   }
 
+  private void setDownloadsStartedInternal(boolean downloadsStarted) {
+    if (this.downloadsStarted == downloadsStarted) {
+      return;
+    }
+    this.downloadsStarted = downloadsStarted;
+    for (int i = 0; i < downloadInternals.size(); i++) {
+      downloadInternals.get(i).updateStopState();
+    }
+  }
+
   private void setNotMetRequirementsInternal(
       @Requirements.RequirementFlags int notMetRequirements) {
     if (this.notMetRequirements == notMetRequirements) {
@@ -674,7 +672,7 @@ public final class DownloadManager {
     this.notMetRequirements = notMetRequirements;
     logdFlags("Not met requirements are changed", notMetRequirements);
     for (int i = 0; i < downloadInternals.size(); i++) {
-      downloadInternals.get(i).setNotMetRequirements(notMetRequirements);
+      downloadInternals.get(i).updateStopState();
     }
   }
 
@@ -682,7 +680,7 @@ public final class DownloadManager {
   private DownloadInternal getDownload(String id) {
     for (int i = 0; i < downloadInternals.size(); i++) {
       DownloadInternal downloadInternal = downloadInternals.get(i);
-      if (downloadInternal.getId().equals(id)) {
+      if (downloadInternal.download.action.id.equals(id)) {
         return downloadInternal;
       }
     }
@@ -723,11 +721,14 @@ public final class DownloadManager {
   }
 
   private void addDownloadForState(Download download) {
-    DownloadInternal downloadInternal =
-        new DownloadInternal(this, download, notMetRequirements, manualStopReason);
+    DownloadInternal downloadInternal = new DownloadInternal(this, download);
     downloadInternals.add(downloadInternal);
     logd("Download is added", downloadInternal);
     downloadInternal.initialize();
+  }
+
+  private boolean canStartDownloads() {
+    return downloadsStarted && notMetRequirements == 0;
   }
 
   private static void logd(String message) {
@@ -814,32 +815,24 @@ public final class DownloadManager {
     private final DownloadManager downloadManager;
 
     private Download download;
-    @Download.State private int state;
     @MonotonicNonNull @Download.FailureReason private int failureReason;
-    @Requirements.RequirementFlags private int notMetRequirements;
+
+    // TODO: Get rid of these and use download directly.
+    @Download.State private int state;
     private int manualStopReason;
 
-    private DownloadInternal(
-        DownloadManager downloadManager,
-        Download download,
-        @Requirements.RequirementFlags int notMetRequirements,
-        int manualStopReason) {
+    private DownloadInternal(DownloadManager downloadManager, Download download) {
       this.downloadManager = downloadManager;
       this.download = download;
-      this.notMetRequirements = notMetRequirements;
-      this.manualStopReason = manualStopReason;
+      manualStopReason = download.manualStopReason;
     }
 
     private void initialize() {
       initialize(download.state);
     }
 
-    public String getId() {
-      return download.action.id;
-    }
-
     public void addAction(DownloadAction newAction) {
-      download = download.copyWithMergedAction(newAction, /* canStart= */ notMetRequirements == 0);
+      download = download.copyWithMergedAction(newAction, downloadManager.canStartDownloads());
       initialize();
     }
 
@@ -866,7 +859,7 @@ public final class DownloadManager {
 
     @Override
     public String toString() {
-      return getId() + ' ' + Download.getStateString(state);
+      return download.action.id + ' ' + Download.getStateString(state);
     }
 
     public void start() {
@@ -875,11 +868,6 @@ public final class DownloadManager {
       } else if (isInRemoveState()) {
         downloadManager.startDownloadThread(this);
       }
-    }
-
-    public void setNotMetRequirements(@Requirements.RequirementFlags int notMetRequirements) {
-      this.notMetRequirements = notMetRequirements;
-      updateStopState();
     }
 
     public void setManualStopReason(int manualStopReason) {
@@ -913,8 +901,8 @@ public final class DownloadManager {
     }
 
     private void initialize(int initialState) {
-      // Don't notify listeners with initial state until we make sure we don't switch to
-      // another state immediately.
+      // Don't notify listeners with initial state until we make sure we don't switch to another
+      // state immediately.
       state = initialState;
       if (isInRemoveState()) {
         downloadManager.startDownloadThread(this);
@@ -929,7 +917,7 @@ public final class DownloadManager {
     }
 
     private boolean canStart() {
-      return manualStopReason == MANUAL_STOP_REASON_NONE && notMetRequirements == 0;
+      return downloadManager.canStartDownloads() && manualStopReason == MANUAL_STOP_REASON_NONE;
     }
 
     private void startOrQueue() {
