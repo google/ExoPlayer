@@ -639,7 +639,12 @@ public final class SsMediaSource extends BaseMediaSource
         loadable.bytesLoaded(),
         error,
         isFatal);
-    return isFatal ? Loader.DONT_RETRY_FATAL : Loader.RETRY;
+    return isFatal
+        ? Loader.DONT_RETRY_FATAL
+        : Loader.createRetryAction(
+            /* resetErrorCount= */ false,
+            loadErrorHandlingPolicy.getRetryDelayMsFor(
+                C.DATA_TYPE_MANIFEST, loadDurationMs, error, errorCount));
   }
 
   // Internal methods
