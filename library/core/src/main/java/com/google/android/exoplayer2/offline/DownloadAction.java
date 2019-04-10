@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/** Contains the necessary parameters for a download action. */
+/** Defines content to be downloaded. */
 public final class DownloadAction implements Parcelable {
 
   /** Thrown when the encoded action data belongs to an unsupported DownloadAction type. */
@@ -108,14 +108,20 @@ public final class DownloadAction implements Parcelable {
   }
 
   /**
-   * Returns the result of merging {@code newAction} into this action.
+   * Returns the result of merging {@code newAction} into this action. The actions must have the
+   * same {@link #id} and {@link #type}.
    *
-   * @param newAction The new action.
+   * <p>If the actions have different {@link #uri}, {@link #customCacheKey} and {@link #data}
+   * values, then those from the action being merged are included in the result.
+   *
+   * @param newAction The action being merged.
    * @return The merged result.
+   * @throws IllegalArgumentException If the actions do not have the same {@link #id} and {@link
+   *     #type}.
    */
   public DownloadAction copyWithMergedAction(DownloadAction newAction) {
-    Assertions.checkState(id.equals(newAction.id));
-    Assertions.checkState(type.equals(newAction.type));
+    Assertions.checkArgument(id.equals(newAction.id));
+    Assertions.checkArgument(type.equals(newAction.type));
     List<StreamKey> mergedKeys;
     if (streamKeys.isEmpty() || newAction.streamKeys.isEmpty()) {
       // If either streamKeys is empty then all streams should be downloaded.
