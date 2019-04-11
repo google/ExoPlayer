@@ -19,10 +19,9 @@ import android.app.Application;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
-import com.google.android.exoplayer2.offline.ActionFile;
+import com.google.android.exoplayer2.offline.ActionFileUpgradeUtil;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
-import com.google.android.exoplayer2.offline.DownloadIndexUtil;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -132,16 +131,15 @@ public class DemoApplication extends Application {
     }
   }
 
-  private void upgradeActionFile(String file, DefaultDownloadIndex downloadIndex) {
-    ActionFile actionFile = new ActionFile(new File(getDownloadDirectory(), file));
-    if (actionFile.exists()) {
-      try {
-        DownloadIndexUtil.mergeActionFile(
-            actionFile, /* downloadIdProvider= */ null, downloadIndex);
-      } catch (IOException e) {
-        Log.e(TAG, "Upgrading action file failed", e);
-      }
-      actionFile.delete();
+  private void upgradeActionFile(String fileName, DefaultDownloadIndex downloadIndex) {
+    try {
+      ActionFileUpgradeUtil.upgradeAndDelete(
+          new File(getDownloadDirectory(), fileName),
+          /* downloadIdProvider= */ null,
+          downloadIndex,
+          /* deleteOnFailure= */ true);
+    } catch (IOException e) {
+      Log.e(TAG, "Failed to upgrade action file: " + fileName, e);
     }
   }
 

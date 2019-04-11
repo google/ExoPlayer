@@ -27,8 +27,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Loads {@link DownloadAction DownloadActions} from legacy action files. */
-public final class ActionFile {
+/**
+ * Loads {@link DownloadAction DownloadActions} from legacy action files.
+ *
+ * @deprecated Legacy action files should be merged into download indices using {@link
+ *     ActionFileUpgradeUtil}.
+ */
+@Deprecated
+/* package */ final class ActionFile {
 
   private static final int VERSION = 0;
 
