@@ -23,7 +23,6 @@ import androidx.fragment.app.FragmentManager;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.offline.ActionFile;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadAction;
@@ -44,10 +43,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Tracks media that has been downloaded.
- *
- * <p>Tracked downloads are persisted using an {@link ActionFile}, however in a real application
- * it's expected that state will be stored directly in the application's media database, so that it
- * can be queried efficiently together with other information about the media.
  */
 public class DownloadTracker implements DownloadManager.Listener {
 

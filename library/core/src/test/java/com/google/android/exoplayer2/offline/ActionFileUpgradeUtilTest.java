@@ -34,9 +34,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link DownloadIndexUtil}. */
+/** Unit tests for {@link ActionFileUpgradeUtil}. */
 @RunWith(AndroidJUnit4.class)
-public class DownloadIndexUtilTest {
+public class ActionFileUpgradeUtilTest {
 
   private File tempFile;
   private ExoDatabaseProvider databaseProvider;
@@ -69,7 +69,7 @@ public class DownloadIndexUtilTest {
             /* customCacheKey= */ "key123",
             data);
 
-    DownloadIndexUtil.mergeAction(action, downloadIndex);
+    ActionFileUpgradeUtil.mergeAction(action, downloadIndex);
 
     assertDownloadIndexContainsAction(action, Download.STATE_QUEUED);
   }
@@ -96,9 +96,9 @@ public class DownloadIndexUtilTest {
             asList(streamKey2),
             /* customCacheKey= */ "key123",
             new byte[] {5, 4, 3, 2, 1});
-    DownloadIndexUtil.mergeAction(action1, downloadIndex);
+    ActionFileUpgradeUtil.mergeAction(action1, downloadIndex);
 
-    DownloadIndexUtil.mergeAction(action2, downloadIndex);
+    ActionFileUpgradeUtil.mergeAction(action2, downloadIndex);
 
     Download download = downloadIndex.getDownload(action2.id);
     assertThat(download).isNotNull();
@@ -142,8 +142,8 @@ public class DownloadIndexUtilTest {
             /* customCacheKey= */ "key234",
             new byte[] {5, 4, 3, 2, 1});
 
-    ActionFile actionFile = new ActionFile(tempFile);
-    DownloadIndexUtil.mergeActionFile(actionFile, /* downloadIdProvider= */ null, downloadIndex);
+    ActionFileUpgradeUtil.upgradeAndDelete(
+        tempFile, /* downloadIdProvider= */ null, downloadIndex, /* deleteOnFailure= */ true);
     assertDownloadIndexContainsAction(expectedAction1, Download.STATE_QUEUED);
     assertDownloadIndexContainsAction(expectedAction2, Download.STATE_QUEUED);
   }
