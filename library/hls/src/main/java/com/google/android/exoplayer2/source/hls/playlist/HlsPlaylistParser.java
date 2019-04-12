@@ -25,11 +25,15 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.UnrecognizedInputFormatException;
+import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
+import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry.VariantInfo;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Rendition;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -252,10 +256,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
       throws IOException {
-    HashSet<String> variantUrls = new HashSet<>();
+    HashMap<Uri, ArrayList<VariantInfo>> urlToVariantInfos = new HashMap<>();
     HashMap<String, String> variableDefinitions = new HashMap<>();
     ArrayList<Variant> variants = new ArrayList<>();
-    ArrayList<Variant> deduplicatedVariants = new ArrayList<>();
     ArrayList<Rendition> videos = new ArrayList<>();
     ArrayList<Rendition> audios = new ArrayList<>();
     ArrayList<Rendition> subtitles = new ArrayList<>();
@@ -357,10 +360,30 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             new Variant(
                 uri, format, videoGroupId, audioGroupId, subtitlesGroupId, closedCaptionsGroupId);
         variants.add(variant);
-        // TODO: Don't deduplicate variants by URL.
-        if (variantUrls.add(line)) {
-          deduplicatedVariants.add(variant);
+        ArrayList<VariantInfo> variantInfosForUrl = urlToVariantInfos.get(uri);
+        if (variantInfosForUrl == null) {
+          variantInfosForUrl = new ArrayList<>();
+          urlToVariantInfos.put(uri, variantInfosForUrl);
         }
+        variantInfosForUrl.add(
+            new VariantInfo(
+                bitrate, videoGroupId, audioGroupId, subtitlesGroupId, closedCaptionsGroupId));
+      }
+    }
+
+    // TODO: Don't deduplicate variants by URL.
+    ArrayList<Variant> deduplicatedVariants = new ArrayList<>();
+    HashSet<Uri> urlsInDeduplicatedVariants = new HashSet<>();
+    for (int i = 0; i < variants.size(); i++) {
+      Variant variant = variants.get(i);
+      if (urlsInDeduplicatedVariants.add(variant.url)) {
+        Assertions.checkState(variant.format.metadata == null);
+        HlsTrackMetadataEntry hlsMetadataEntry =
+            new HlsTrackMetadataEntry(
+                /* groupId= */ null, /* name= */ null, urlToVariantInfos.get(variant.url));
+        deduplicatedVariants.add(
+            variant.copyWithFormat(
+                variant.format.copyWithMetadata(new Metadata(hlsMetadataEntry))));
       }
     }
 
@@ -375,6 +398,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       @C.RoleFlags int roleFlags = parseRoleFlags(line, variableDefinitions);
       String formatId = groupId + ":" + name;
       Format format;
+      Metadata metadata =
+          new Metadata(new HlsTrackMetadataEntry(groupId, name, Collections.emptyList()));
       switch (parseStringAttr(line, REGEX_TYPE, variableDefinitions)) {
         case TYPE_VIDEO:
           Variant variant = getVariantWithVideoGroup(variants, groupId);
@@ -392,18 +417,19 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           String sampleMimeType = codecs != null ? MimeTypes.getMediaMimeType(codecs) : null;
           format =
               Format.createVideoContainerFormat(
-                  /* id= */ formatId,
-                  /* label= */ name,
-                  /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
-                  sampleMimeType,
-                  codecs,
-                  /* bitrate= */ Format.NO_VALUE,
-                  width,
-                  height,
-                  frameRate,
-                  /* initializationData= */ null,
-                  selectionFlags,
-                  roleFlags);
+                      /* id= */ formatId,
+                      /* label= */ name,
+                      /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
+                      sampleMimeType,
+                      codecs,
+                      /* bitrate= */ Format.NO_VALUE,
+                      width,
+                      height,
+                      frameRate,
+                      /* initializationData= */ null,
+                      selectionFlags,
+                      roleFlags)
+                  .copyWithMetadata(metadata);
           if (uri == null) {
             // TODO: Remove this case and add a Rendition with a null uri to videos.
           } else {
@@ -436,21 +462,22 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             // TODO: Remove muxedAudioFormat and add a Rendition with a null uri to audios.
             muxedAudioFormat = format;
           } else {
-            audios.add(new Rendition(uri, format, groupId, name));
+            audios.add(new Rendition(uri, format.copyWithMetadata(metadata), groupId, name));
           }
           break;
         case TYPE_SUBTITLES:
           format =
               Format.createTextContainerFormat(
-                  /* id= */ formatId,
-                  /* label= */ name,
-                  /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
-                  /* sampleMimeType= */ MimeTypes.TEXT_VTT,
-                  /* codecs= */ null,
-                  /* bitrate= */ Format.NO_VALUE,
-                  selectionFlags,
-                  roleFlags,
-                  language);
+                      /* id= */ formatId,
+                      /* label= */ name,
+                      /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
+                      /* sampleMimeType= */ MimeTypes.TEXT_VTT,
+                      /* codecs= */ null,
+                      /* bitrate= */ Format.NO_VALUE,
+                      selectionFlags,
+                      roleFlags,
+                      language)
+                  .copyWithMetadata(metadata);
           subtitles.add(new Rendition(uri, format, groupId, name));
           break;
         case TYPE_CLOSED_CAPTIONS:

@@ -120,6 +120,11 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
           /* subtitleGroupId= */ null,
           /* captionGroupId= */ null);
     }
+
+    /** Returns a copy of this instance with the given {@link Format}. */
+    public Variant copyWithFormat(Format format) {
+      return new Variant(url, format, videoGroupId, audioGroupId, subtitleGroupId, captionGroupId);
+    }
   }
 
   /** A rendition (i.e. an #EXT-X-MEDIA tag) in a master playlist. */
