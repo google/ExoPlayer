@@ -139,7 +139,7 @@ public final class UrlTemplate {
           String formatTag = DEFAULT_FORMAT_TAG;
           if (formatTagIndex != -1) {
             formatTag = identifier.substring(formatTagIndex);
-            if (!formatTag.endsWith("d")) {
+            if (!formatTag.endsWith("d") && !formatTag.endsWith("x")) {
               formatTag += "d";
             }
             identifier = identifier.substring(0, formatTagIndex);
