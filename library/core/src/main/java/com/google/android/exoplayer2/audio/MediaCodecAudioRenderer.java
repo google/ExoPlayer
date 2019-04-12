@@ -289,11 +289,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
     }
     List<MediaCodecInfo> decoderInfos =
-        mediaCodecSelector.getDecoderInfos(format.sampleMimeType, requiresSecureDecryption);
+        mediaCodecSelector.getDecoderInfos(
+            format.sampleMimeType, requiresSecureDecryption, /* requiresTunnelingDecoder= */ false);
     if (decoderInfos.isEmpty()) {
       return requiresSecureDecryption
               && !mediaCodecSelector
-                  .getDecoderInfos(format.sampleMimeType, /* requiresSecureDecoder= */ false)
+                  .getDecoderInfos(
+                      format.sampleMimeType,
+                      /* requiresSecureDecoder= */ false,
+                      /* requiresTunnelingDecoder= */ false)
                   .isEmpty()
           ? FORMAT_UNSUPPORTED_DRM
           : FORMAT_UNSUPPORTED_SUBTYPE;
@@ -322,7 +326,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         return Collections.singletonList(passthroughDecoderInfo);
       }
     }
-    return super.getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder);
+    return mediaCodecSelector.getDecoderInfos(
+        format.sampleMimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
   }
 
   /**

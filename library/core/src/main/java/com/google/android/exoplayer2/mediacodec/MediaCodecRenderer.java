@@ -441,11 +441,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @return A list of {@link MediaCodecInfo}s corresponding to decoders. May be empty.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  protected List<MediaCodecInfo> getDecoderInfos(
+  protected abstract List<MediaCodecInfo> getDecoderInfos(
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
-      throws DecoderQueryException {
-    return mediaCodecSelector.getDecoderInfos(format.sampleMimeType, requiresSecureDecoder);
-  }
+      throws DecoderQueryException;
 
   /**
    * Configures a newly created {@link MediaCodec}.

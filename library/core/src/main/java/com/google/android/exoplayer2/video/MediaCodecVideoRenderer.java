@@ -52,6 +52,7 @@ import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -304,11 +305,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
     }
     List<MediaCodecInfo> decoderInfos =
-        mediaCodecSelector.getDecoderInfos(format.sampleMimeType, requiresSecureDecryption);
+        getDecoderInfos(mediaCodecSelector, format, requiresSecureDecryption);
     if (decoderInfos.isEmpty()) {
       return requiresSecureDecryption
               && !mediaCodecSelector
-                  .getDecoderInfos(format.sampleMimeType, /* requiresSecureDecoder= */ false)
+                  .getDecoderInfos(
+                      format.sampleMimeType,
+                      /* requiresSecureDecoder= */ false,
+                      /* requiresTunnelingDecoder= */ false)
                   .isEmpty()
           ? FORMAT_UNSUPPORTED_DRM
           : FORMAT_UNSUPPORTED_SUBTYPE;
@@ -323,9 +327,32 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         decoderInfo.isSeamlessAdaptationSupported(format)
             ? ADAPTIVE_SEAMLESS
             : ADAPTIVE_NOT_SEAMLESS;
-    int tunnelingSupport = decoderInfo.tunneling ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
+    int tunnelingSupport = TUNNELING_NOT_SUPPORTED;
+    if (isFormatSupported) {
+      List<MediaCodecInfo> tunnelingDecoderInfos =
+          mediaCodecSelector.getDecoderInfos(
+              format.sampleMimeType,
+              requiresSecureDecryption,
+              /* requiresTunnelingDecoder= */ true);
+      if (!tunnelingDecoderInfos.isEmpty()) {
+        MediaCodecInfo tunnelingDecoderInfo = tunnelingDecoderInfos.get(0);
+        if (tunnelingDecoderInfo.isFormatSupported(format)
+            && tunnelingDecoderInfo.isSeamlessAdaptationSupported(format)) {
+          tunnelingSupport = TUNNELING_SUPPORTED;
+        }
+      }
+    }
     int formatSupport = isFormatSupported ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
     return adaptiveSupport | tunnelingSupport | formatSupport;
+  }
+
+  @Override
+  protected List<MediaCodecInfo> getDecoderInfos(
+      MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
+      throws DecoderQueryException {
+    List<MediaCodecInfo> decoderInfos =
+        mediaCodecSelector.getDecoderInfos(format.sampleMimeType, requiresSecureDecoder, tunneling);
+    return Collections.unmodifiableList(decoderInfos);
   }
 
   @Override

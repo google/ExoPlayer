@@ -61,6 +61,14 @@
     present or newly absent.
   * Add support for reading AC-4 streams
     ([#5303](https://github.com/google/ExoPlayer/pull/5303)).
+* Video:
+  * Remove `MediaCodecSelector.DEFAULT_WITH_FALLBACK`. Apps should instead
+    signal that fallback should be used by passing `true` as the
+    `enableDecoderFallback` parameter when instantiating the video renderer.
+  * Support video tunneling when the decoder is not listed first for the MIME
+    type ([#3100](https://github.com/google/ExoPlayer/issues/3100)).
+  * Query `MediaCodecList.ALL_CODECS` when selecting a tunneling decoder
+    ([#5547](https://github.com/google/ExoPlayer/issues/5547)).
 * Add support for SHOUTcast ICY metadata
   ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
 * CEA-608: Improved conformance to the specification
@@ -102,9 +110,6 @@
   ([#5698](https://github.com/google/ExoPlayer/issues/5698),
   [#5694](https://github.com/google/ExoPlayer/issues/5694)).
 * Move `PriorityTaskManager` from `DefaultLoadControl` to `SimpleExoPlayer`.
-* Remove `MediaCodecSelector.DEFAULT_WITH_FALLBACK`. Apps should instead signal
-  that fallback should be used by passing `true` as the `enableDecoderFallback`
-  parameter when instantiating the video renderer.
 
 ### 2.9.6 ###
 
