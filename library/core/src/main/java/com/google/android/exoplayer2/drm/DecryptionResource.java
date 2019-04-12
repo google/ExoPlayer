@@ -20,22 +20,23 @@ package com.google.android.exoplayer2.drm;
  *
  * @param <T> The reference type with which to make {@link Owner#onLastReferenceReleased} calls.
  */
-public abstract class CryptoResource<T extends CryptoResource<T>> {
+public abstract class DecryptionResource<T extends DecryptionResource<T>> {
 
   /**
-   * Implemented by the class in charge of managing a {@link CryptoResource resource's} lifecycle.
+   * Implemented by the class in charge of managing a {@link DecryptionResource resource's}
+   * lifecycle.
    */
-  public interface Owner<T extends CryptoResource<T>> {
+  public interface Owner<T extends DecryptionResource<T>> {
 
     /**
-     * Called when the last reference to a {@link CryptoResource} is {@link #releaseReference()
+     * Called when the last reference to a {@link DecryptionResource} is {@link #releaseReference()
      * released}.
      */
-    void onLastReferenceReleased(CryptoResource<T> resource);
+    void onLastReferenceReleased(DecryptionResource<T> resource);
   }
 
   // TODO: Consider adding a handler on which the owner should be called.
-  private final CryptoResource.Owner<T> owner;
+  private final DecryptionResource.Owner<T> owner;
   private int referenceCount;
 
   /**
@@ -43,7 +44,7 @@ public abstract class CryptoResource<T extends CryptoResource<T>> {
    *
    * @param owner The owner of this instance.
    */
-  public CryptoResource(Owner<T> owner) {
+  public DecryptionResource(Owner<T> owner) {
     this.owner = owner;
     referenceCount = 0;
   }
