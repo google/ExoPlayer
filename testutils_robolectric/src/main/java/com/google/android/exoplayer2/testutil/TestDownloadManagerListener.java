@@ -95,7 +95,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   public void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
     blockUntilTasksComplete();
     if (failureReason != Download.FAILURE_REASON_NONE) {
-      throw new Exception("Failure reason: " + Download.getFailureString(failureReason));
+      throw new Exception("Failure reason: " + failureReason);
     }
   }
 

@@ -46,7 +46,7 @@ public final class Download {
   // Important: These constants are persisted into DownloadIndex. Do not change them.
   /** The download is waiting to be started. */
   public static final int STATE_QUEUED = 0;
-  /** The download is manually stopped for the reason specified by {@link #manualStopReason}. */
+  /** The download is stopped for a specified {@link #manualStopReason}. */
   public static final int STATE_STOPPED = 1;
   /** The download is currently started. */
   public static final int STATE_DOWNLOADING = 2;
@@ -89,18 +89,6 @@ public final class Download {
         return "REMOVING";
       case STATE_RESTARTING:
         return "RESTARTING";
-      default:
-        throw new IllegalStateException();
-    }
-  }
-
-  /** Returns the failure string for the given failure reason value. */
-  public static String getFailureString(@FailureReason int failureReason) {
-    switch (failureReason) {
-      case FAILURE_REASON_NONE:
-        return "NO_REASON";
-      case FAILURE_REASON_UNKNOWN:
-        return "UNKNOWN_REASON";
       default:
         throw new IllegalStateException();
     }

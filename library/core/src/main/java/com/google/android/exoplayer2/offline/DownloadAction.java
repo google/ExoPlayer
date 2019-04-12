@@ -140,6 +140,11 @@ public final class DownloadAction implements Parcelable {
   }
 
   @Override
+  public String toString() {
+    return type + ":" + id;
+  }
+
+  @Override
   public boolean equals(@Nullable Object o) {
     if (!(o instanceof DownloadAction)) {
       return false;
