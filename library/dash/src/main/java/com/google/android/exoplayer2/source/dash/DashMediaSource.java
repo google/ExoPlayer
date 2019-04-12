@@ -814,7 +814,13 @@ public final class DashMediaSource extends BaseMediaSource {
       long loadDurationMs,
       IOException error,
       int errorCount) {
-    boolean isFatal = error instanceof ParserException;
+    long retryDelayMs =
+        loadErrorHandlingPolicy.getRetryDelayMsFor(
+            C.DATA_TYPE_MANIFEST, loadDurationMs, error, errorCount);
+    LoadErrorAction loadErrorAction =
+        retryDelayMs == C.TIME_UNSET
+            ? Loader.DONT_RETRY_FATAL
+            : Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs);
     manifestEventDispatcher.loadError(
         loadable.dataSpec,
         loadable.getUri(),
@@ -824,13 +830,8 @@ public final class DashMediaSource extends BaseMediaSource {
         loadDurationMs,
         loadable.bytesLoaded(),
         error,
-        isFatal);
-    return isFatal
-        ? Loader.DONT_RETRY_FATAL
-        : Loader.createRetryAction(
-            /* resetErrorCount= */ false,
-            loadErrorHandlingPolicy.getRetryDelayMsFor(
-                C.DATA_TYPE_MANIFEST, loadDurationMs, error, errorCount));
+        !loadErrorAction.isRetry());
+    return loadErrorAction;
   }
 
   /* package */ void onUtcTimestampLoadCompleted(ParsingLoadable<Long> loadable,
