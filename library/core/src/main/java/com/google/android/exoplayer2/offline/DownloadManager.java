@@ -66,6 +66,7 @@ public final class DownloadManager {
 
   /** Listener for {@link DownloadManager} events. */
   public interface Listener {
+
     /**
      * Called when all actions have been restored.
      *
@@ -485,7 +486,7 @@ public final class DownloadManager {
 
   private void onDownloadChanged(Download download) {
     int downloadIndex = getDownloadIndex(download.action.id);
-    if (download.state == STATE_COMPLETED || download.state == STATE_FAILED) {
+    if (download.isTerminalState()) {
       if (downloadIndex != C.INDEX_UNSET) {
         downloads.remove(downloadIndex);
       }
@@ -643,19 +644,26 @@ public final class DownloadManager {
     }
   }
 
-  // TODO: Use manualStopReason.
   private void addDownloadInternal(DownloadAction action, int manualStopReason) {
     DownloadInternal downloadInternal = getDownload(action.id);
     if (downloadInternal != null) {
-      downloadInternal.addAction(action);
+      downloadInternal.addAction(action, manualStopReason);
       logd("Action is added to existing download", downloadInternal);
     } else {
       Download download = loadDownload(action.id);
       if (download == null) {
-        download = new Download(action);
+        long nowMs = System.currentTimeMillis();
+        download =
+            new Download(
+                action,
+                manualStopReason != Download.MANUAL_STOP_REASON_NONE ? STATE_STOPPED : STATE_QUEUED,
+                Download.FAILURE_REASON_NONE,
+                manualStopReason,
+                /* startTimeMs= */ nowMs,
+                /* updateTimeMs= */ nowMs);
         logd("Download state is created for " + action.id);
       } else {
-        download = download.copyWithMergedAction(action, /* canStart= */ canStartDownloads());
+        download = mergeAction(download, action, manualStopReason);
         logd("Download state is loaded for " + action.id);
       }
       addDownloadForState(download);
@@ -669,7 +677,7 @@ public final class DownloadManager {
     } else {
       Download download = loadDownload(id);
       if (download != null) {
-        addDownloadForState(download.copyWithState(STATE_REMOVING));
+        addDownloadForState(copyWithState(download, STATE_REMOVING));
       } else {
         logd("Can't remove download. No download with id: " + id);
       }
@@ -798,6 +806,39 @@ public final class DownloadManager {
     return downloadsStarted && notMetRequirements == 0;
   }
 
+  /* package */ static Download mergeAction(
+      Download download, DownloadAction action, int manualStopReason) {
+    @Download.State int state = download.state;
+    if (state == STATE_REMOVING || state == STATE_RESTARTING) {
+      state = STATE_RESTARTING;
+    } else if (manualStopReason != MANUAL_STOP_REASON_NONE) {
+      state = STATE_STOPPED;
+    } else {
+      state = STATE_QUEUED;
+    }
+    long nowMs = System.currentTimeMillis();
+    long startTimeMs = download.isTerminalState() ? nowMs : download.startTimeMs;
+    return new Download(
+        download.action.copyWithMergedAction(action),
+        state,
+        FAILURE_REASON_NONE,
+        manualStopReason,
+        startTimeMs,
+        /* updateTimeMs= */ nowMs,
+        download.counters);
+  }
+
+  private static Download copyWithState(Download download, @Download.State int state) {
+    return new Download(
+        download.action,
+        state,
+        FAILURE_REASON_NONE,
+        download.manualStopReason,
+        download.startTimeMs,
+        /* updateTimeMs= */ System.currentTimeMillis(),
+        download.counters);
+  }
+
   private static void logd(String message) {
     if (DEBUG) {
       Log.d(TAG, message);
@@ -841,8 +882,8 @@ public final class DownloadManager {
       initialize(download.state);
     }
 
-    public void addAction(DownloadAction newAction) {
-      download = download.copyWithMergedAction(newAction, downloadManager.canStartDownloads());
+    public void addAction(DownloadAction newAction, int manualStopReason) {
+      download = mergeAction(download, newAction, manualStopReason);
       initialize();
     }
 

@@ -56,62 +56,7 @@ public class ActionFileUpgradeUtilTest {
   }
 
   @Test
-  public void addAction_nonExistingDownload_createsNewDownload() throws IOException {
-    byte[] data = new byte[] {1, 2, 3, 4};
-    DownloadAction action =
-        new DownloadAction(
-            "id",
-            TYPE_DASH,
-            Uri.parse("https://www.test.com/download"),
-            asList(
-                new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2),
-                new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5)),
-            /* customCacheKey= */ "key123",
-            data);
-
-    ActionFileUpgradeUtil.mergeAction(action, downloadIndex);
-
-    assertDownloadIndexContainsAction(action, Download.STATE_QUEUED);
-  }
-
-  @Test
-  public void addAction_existingDownload_createsMergedDownload() throws IOException {
-    StreamKey streamKey1 =
-        new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5);
-    StreamKey streamKey2 =
-        new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
-    DownloadAction action1 =
-        new DownloadAction(
-            "id",
-            TYPE_DASH,
-            Uri.parse("https://www.test.com/download1"),
-            asList(streamKey1),
-            /* customCacheKey= */ "key123",
-            new byte[] {1, 2, 3, 4});
-    DownloadAction action2 =
-        new DownloadAction(
-            "id",
-            TYPE_DASH,
-            Uri.parse("https://www.test.com/download2"),
-            asList(streamKey2),
-            /* customCacheKey= */ "key123",
-            new byte[] {5, 4, 3, 2, 1});
-    ActionFileUpgradeUtil.mergeAction(action1, downloadIndex);
-
-    ActionFileUpgradeUtil.mergeAction(action2, downloadIndex);
-
-    Download download = downloadIndex.getDownload(action2.id);
-    assertThat(download).isNotNull();
-    assertThat(download.action.type).isEqualTo(action2.type);
-    assertThat(download.action.customCacheKey).isEqualTo(action2.customCacheKey);
-    assertThat(download.action.data).isEqualTo(action2.data);
-    assertThat(download.action.uri).isEqualTo(action2.uri);
-    assertThat(download.action.streamKeys).containsExactly(streamKey1, streamKey2);
-    assertThat(download.state).isEqualTo(Download.STATE_QUEUED);
-  }
-
-  @Test
-  public void upgradeActionFile_createsDownloads() throws IOException {
+  public void upgradeAndDelete_createsDownloads() throws IOException {
     // Copy the test asset to a file.
     byte[] actionFileBytes =
         TestUtil.getByteArray(
@@ -144,8 +89,63 @@ public class ActionFileUpgradeUtilTest {
 
     ActionFileUpgradeUtil.upgradeAndDelete(
         tempFile, /* downloadIdProvider= */ null, downloadIndex, /* deleteOnFailure= */ true);
+
     assertDownloadIndexContainsAction(expectedAction1, Download.STATE_QUEUED);
     assertDownloadIndexContainsAction(expectedAction2, Download.STATE_QUEUED);
+  }
+
+  @Test
+  public void mergeAction_nonExistingDownload_createsNewDownload() throws IOException {
+    byte[] data = new byte[] {1, 2, 3, 4};
+    DownloadAction action =
+        new DownloadAction(
+            "id",
+            TYPE_DASH,
+            Uri.parse("https://www.test.com/download"),
+            asList(
+                new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2),
+                new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5)),
+            /* customCacheKey= */ "key123",
+            data);
+
+    ActionFileUpgradeUtil.mergeAction(action, downloadIndex);
+
+    assertDownloadIndexContainsAction(action, Download.STATE_QUEUED);
+  }
+
+  @Test
+  public void mergeAction_existingDownload_createsMergedDownload() throws IOException {
+    StreamKey streamKey1 =
+        new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5);
+    StreamKey streamKey2 =
+        new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
+    DownloadAction action1 =
+        new DownloadAction(
+            "id",
+            TYPE_DASH,
+            Uri.parse("https://www.test.com/download1"),
+            asList(streamKey1),
+            /* customCacheKey= */ "key123",
+            new byte[] {1, 2, 3, 4});
+    DownloadAction action2 =
+        new DownloadAction(
+            "id",
+            TYPE_DASH,
+            Uri.parse("https://www.test.com/download2"),
+            asList(streamKey2),
+            /* customCacheKey= */ "key123",
+            new byte[] {5, 4, 3, 2, 1});
+    ActionFileUpgradeUtil.mergeAction(action1, downloadIndex);
+    ActionFileUpgradeUtil.mergeAction(action2, downloadIndex);
+
+    Download download = downloadIndex.getDownload(action2.id);
+    assertThat(download).isNotNull();
+    assertThat(download.action.type).isEqualTo(action2.type);
+    assertThat(download.action.customCacheKey).isEqualTo(action2.customCacheKey);
+    assertThat(download.action.data).isEqualTo(action2.data);
+    assertThat(download.action.uri).isEqualTo(action2.uri);
+    assertThat(download.action.streamKeys).containsExactly(streamKey1, streamKey2);
+    assertThat(download.state).isEqualTo(Download.STATE_QUEUED);
   }
 
   private void assertDownloadIndexContainsAction(DownloadAction action, int state)

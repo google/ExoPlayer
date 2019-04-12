@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -449,6 +450,71 @@ public class DownloadManagerTest {
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
+  @Test
+  public void mergeAction_removingDownload_becomesRestarting() {
+    DownloadAction downloadAction = createDownloadAction();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction).setState(Download.STATE_REMOVING);
+    Download download = downloadBuilder.build();
+
+    Download mergedDownload =
+        DownloadManager.mergeAction(download, downloadAction, download.manualStopReason);
+
+    Download expectedDownload = downloadBuilder.setState(Download.STATE_RESTARTING).build();
+    assertEqualIgnoringTimeFields(mergedDownload, expectedDownload);
+  }
+
+  @Test
+  public void mergeAction_failedDownload_becomesQueued() {
+    DownloadAction downloadAction = createDownloadAction();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction)
+            .setState(Download.STATE_FAILED)
+            .setFailureReason(Download.FAILURE_REASON_UNKNOWN);
+    Download download = downloadBuilder.build();
+
+    Download mergedDownload =
+        DownloadManager.mergeAction(download, downloadAction, download.manualStopReason);
+
+    Download expectedDownload =
+        downloadBuilder
+            .setState(Download.STATE_QUEUED)
+            .setFailureReason(Download.FAILURE_REASON_NONE)
+            .build();
+    assertEqualIgnoringTimeFields(mergedDownload, expectedDownload);
+  }
+
+  @Test
+  public void mergeAction_stoppedDownload_staysStopped() {
+    DownloadAction downloadAction = createDownloadAction();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction)
+            .setState(Download.STATE_STOPPED)
+            .setManualStopReason(/* manualStopReason= */ 1);
+    Download download = downloadBuilder.build();
+
+    Download mergedDownload =
+        DownloadManager.mergeAction(download, downloadAction, download.manualStopReason);
+
+    assertEqualIgnoringTimeFields(mergedDownload, download);
+  }
+
+  @Test
+  public void mergeAction_manualStopReasonSetButNotStopped_becomesStopped() {
+    DownloadAction downloadAction = createDownloadAction();
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadAction)
+            .setState(Download.STATE_COMPLETED)
+            .setManualStopReason(/* manualStopReason= */ 1);
+    Download download = downloadBuilder.build();
+
+    Download mergedDownload =
+        DownloadManager.mergeAction(download, downloadAction, download.manualStopReason);
+
+    Download expectedDownload = downloadBuilder.setState(Download.STATE_STOPPED).build();
+    assertEqualIgnoringTimeFields(mergedDownload, expectedDownload);
+  }
+
   private void setUpDownloadManager(final int maxActiveDownloadTasks) throws Exception {
     if (downloadManager != null) {
       releaseDownloadManager();
@@ -484,6 +550,26 @@ public class DownloadManagerTest {
 
   private void runOnMainThread(final TestRunnable r) {
     dummyMainThread.runTestOnMainThread(r);
+  }
+
+  private static void assertEqualIgnoringTimeFields(Download download, Download that) {
+    assertThat(download.action).isEqualTo(that.action);
+    assertThat(download.state).isEqualTo(that.state);
+    assertThat(download.failureReason).isEqualTo(that.failureReason);
+    assertThat(download.manualStopReason).isEqualTo(that.manualStopReason);
+    assertThat(download.getDownloadPercentage()).isEqualTo(that.getDownloadPercentage());
+    assertThat(download.getDownloadedBytes()).isEqualTo(that.getDownloadedBytes());
+    assertThat(download.getTotalBytes()).isEqualTo(that.getTotalBytes());
+  }
+
+  private static DownloadAction createDownloadAction() {
+    return new DownloadAction(
+        "id",
+        DownloadAction.TYPE_DASH,
+        Uri.parse("https://www.test.com/download"),
+        Collections.emptyList(),
+        /* customCacheKey= */ null,
+        /* data= */ null);
   }
 
   private final class DownloadRunner {

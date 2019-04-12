@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import static com.google.android.exoplayer2.offline.Download.STATE_QUEUED;
+
 import androidx.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
@@ -88,9 +90,17 @@ public final class ActionFileUpgradeUtil {
       throws IOException {
     Download download = downloadIndex.getDownload(action.id);
     if (download != null) {
-      download = download.copyWithMergedAction(action, /* canStart= */ true);
+      download = DownloadManager.mergeAction(download, action, download.manualStopReason);
     } else {
-      download = new Download(action);
+      long nowMs = System.currentTimeMillis();
+      download =
+          new Download(
+              action,
+              STATE_QUEUED,
+              Download.FAILURE_REASON_NONE,
+              Download.MANUAL_STOP_REASON_NONE,
+              /* startTimeMs= */ nowMs,
+              /* updateTimeMs= */ nowMs);
     }
     downloadIndex.putDownload(download);
   }

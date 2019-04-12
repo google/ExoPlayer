@@ -111,25 +111,22 @@ public final class Download {
   /** The reason the download is manually stopped, or {@link #MANUAL_STOP_REASON_NONE}. */
   public final int manualStopReason;
 
-  /*package*/ CachingCounters counters;
+  /* package */ CachingCounters counters;
 
-  /**
-   * Creates a {@link Download} using a {@link DownloadAction}.
-   *
-   * @param action The {@link DownloadAction}.
-   */
-  public Download(DownloadAction action) {
-    this(action, System.currentTimeMillis());
-  }
-
-  private Download(DownloadAction action, long currentTimeMs) {
+  /* package */ Download(
+      DownloadAction action,
+      @State int state,
+      @FailureReason int failureReason,
+      int manualStopReason,
+      long startTimeMs,
+      long updateTimeMs) {
     this(
         action,
-        /* state= */ STATE_QUEUED,
-        FAILURE_REASON_NONE,
-        /* manualStopReason= */ 0,
-        /* startTimeMs= */ currentTimeMs,
-        /* updateTimeMs= */ currentTimeMs,
+        state,
+        failureReason,
+        manualStopReason,
+        startTimeMs,
+        updateTimeMs,
         new CachingCounters());
   }
 
@@ -155,39 +152,9 @@ public final class Download {
     this.counters = counters;
   }
 
-  /**
-   * Merges the given {@link DownloadAction} and creates a new {@link Download}. The action must
-   * have the same id and type.
-   *
-   * @param newAction The {@link DownloadAction} to be merged.
-   * @param canStart Whether the download is eligible to be started.
-   * @return A new {@link Download}.
-   */
-  public Download copyWithMergedAction(DownloadAction newAction, boolean canStart) {
-    return new Download(
-        action.copyWithMergedAction(newAction),
-        getNextState(state, canStart && manualStopReason == 0),
-        FAILURE_REASON_NONE,
-        manualStopReason,
-        startTimeMs,
-        /* updateTimeMs= */ System.currentTimeMillis(),
-        counters);
-  }
-
-  /**
-   * Returns a copy with the specified state, clearing {@link #failureReason}.
-   *
-   * @param state The {@link State}.
-   */
-  public Download copyWithState(@State int state) {
-    return new Download(
-        action,
-        state,
-        FAILURE_REASON_NONE,
-        manualStopReason,
-        startTimeMs,
-        /* updateTimeMs= */ System.currentTimeMillis(),
-        counters);
+  /** Returns whether the download is completed or failed. These are terminal states. */
+  public boolean isTerminalState() {
+    return state == STATE_COMPLETED || state == STATE_FAILED;
   }
 
   /** Returns the total number of downloaded bytes. */
@@ -216,15 +183,5 @@ public final class Download {
   protected void setCounters(CachingCounters counters) {
     Assertions.checkNotNull(counters);
     this.counters = counters;
-  }
-
-  private static int getNextState(@State int currentState, boolean canStart) {
-    if (currentState == STATE_REMOVING || currentState == STATE_RESTARTING) {
-      return STATE_RESTARTING;
-    } else if (canStart) {
-      return STATE_QUEUED;
-    } else {
-      return STATE_STOPPED;
-    }
   }
 }

@@ -60,7 +60,7 @@ public class DefaultDownloadIndexTest {
     downloadIndex.putDownload(download);
     Download readDownload = downloadIndex.getDownload(id);
 
-    DownloadTest.assertEqual(readDownload, download);
+    assertEqual(readDownload, download);
   }
 
   @Test
@@ -91,7 +91,7 @@ public class DefaultDownloadIndexTest {
     Download readDownload = downloadIndex.getDownload(id);
 
     assertThat(readDownload).isNotNull();
-    DownloadTest.assertEqual(readDownload, download);
+    assertEqual(readDownload, download);
   }
 
   @Test
@@ -103,7 +103,7 @@ public class DefaultDownloadIndexTest {
     downloadIndex = new DefaultDownloadIndex(databaseProvider);
     Download readDownload = downloadIndex.getDownload(id);
     assertThat(readDownload).isNotNull();
-    DownloadTest.assertEqual(readDownload, download);
+    assertEqual(readDownload, download);
   }
 
   @Test
@@ -138,9 +138,9 @@ public class DefaultDownloadIndexTest {
     try (DownloadCursor cursor = downloadIndex.getDownloads()) {
       assertThat(cursor.getCount()).isEqualTo(2);
       cursor.moveToNext();
-      DownloadTest.assertEqual(cursor.getDownload(), download2);
+      assertEqual(cursor.getDownload(), download2);
       cursor.moveToNext();
-      DownloadTest.assertEqual(cursor.getDownload(), download1);
+      assertEqual(cursor.getDownload(), download1);
     }
   }
 
@@ -161,9 +161,9 @@ public class DefaultDownloadIndexTest {
         downloadIndex.getDownloads(Download.STATE_REMOVING, Download.STATE_COMPLETED)) {
       assertThat(cursor.getCount()).isEqualTo(2);
       cursor.moveToNext();
-      DownloadTest.assertEqual(cursor.getDownload(), download1);
+      assertEqual(cursor.getDownload(), download1);
       cursor.moveToNext();
-      DownloadTest.assertEqual(cursor.getDownload(), download3);
+      assertEqual(cursor.getDownload(), download3);
     }
   }
 
@@ -216,7 +216,7 @@ public class DefaultDownloadIndexTest {
     Download readDownload = downloadIndex.getDownload(id);
     Download expectedDownload =
         downloadBuilder.setManualStopReason(Download.MANUAL_STOP_REASON_NONE).build();
-    DownloadTest.assertEqual(readDownload, expectedDownload);
+    assertEqual(readDownload, expectedDownload);
   }
 
   @Test
@@ -234,7 +234,7 @@ public class DefaultDownloadIndexTest {
 
     Download readDownload = downloadIndex.getDownload(id);
     Download expectedDownload = downloadBuilder.setManualStopReason(manualStopReason).build();
-    DownloadTest.assertEqual(readDownload, expectedDownload);
+    assertEqual(readDownload, expectedDownload);
   }
 
   @Test
@@ -248,7 +248,7 @@ public class DefaultDownloadIndexTest {
     downloadIndex.setManualStopReason(notMetRequirements);
 
     Download readDownload = downloadIndex.getDownload(id);
-    DownloadTest.assertEqual(readDownload, download);
+    assertEqual(readDownload, download);
   }
 
   @Test
@@ -264,7 +264,7 @@ public class DefaultDownloadIndexTest {
     Download readDownload = downloadIndex.getDownload(id);
     Download expectedDownload =
         downloadBuilder.setManualStopReason(Download.MANUAL_STOP_REASON_NONE).build();
-    DownloadTest.assertEqual(readDownload, expectedDownload);
+    assertEqual(readDownload, expectedDownload);
   }
 
   @Test
@@ -282,7 +282,7 @@ public class DefaultDownloadIndexTest {
 
     Download readDownload = downloadIndex.getDownload(id);
     Download expectedDownload = downloadBuilder.setManualStopReason(manualStopReason).build();
-    DownloadTest.assertEqual(readDownload, expectedDownload);
+    assertEqual(readDownload, expectedDownload);
   }
 
   @Test
@@ -297,6 +297,18 @@ public class DefaultDownloadIndexTest {
     downloadIndex.setManualStopReason(id, notMetRequirements);
 
     Download readDownload = downloadIndex.getDownload(id);
-    DownloadTest.assertEqual(readDownload, download);
+    assertEqual(readDownload, download);
+  }
+
+  private static void assertEqual(Download download, Download that) {
+    assertThat(download.action).isEqualTo(that.action);
+    assertThat(download.state).isEqualTo(that.state);
+    assertThat(download.startTimeMs).isEqualTo(that.startTimeMs);
+    assertThat(download.updateTimeMs).isEqualTo(that.updateTimeMs);
+    assertThat(download.failureReason).isEqualTo(that.failureReason);
+    assertThat(download.manualStopReason).isEqualTo(that.manualStopReason);
+    assertThat(download.getDownloadPercentage()).isEqualTo(that.getDownloadPercentage());
+    assertThat(download.getDownloadedBytes()).isEqualTo(that.getDownloadedBytes());
+    assertThat(download.getTotalBytes()).isEqualTo(that.getTotalBytes());
   }
 }
