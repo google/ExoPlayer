@@ -106,7 +106,8 @@ public final class DashTestRunner {
     if (Util.SDK_INT >= 18) {
       try {
         // Force L3 if secure decoder is not available.
-        if (MediaCodecUtil.getDecoderInfo(mimeType, true) == null) {
+        if (MediaCodecUtil.getDecoderInfo(mimeType, /* secure= */ true, /* tunneling= */ false)
+            == null) {
           return false;
         }
         MediaDrm mediaDrm = MediaDrmBuilder.build();

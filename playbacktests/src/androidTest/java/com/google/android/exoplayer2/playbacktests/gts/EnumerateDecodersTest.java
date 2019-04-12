@@ -82,12 +82,16 @@ public class EnumerateDecodersTest {
   }
 
   private void enumerateDecoders(String mimeType) throws DecoderQueryException {
-    logDecoderInfos(mimeType, /* secure= */ false);
-    logDecoderInfos(mimeType, /* secure= */ true);
+    logDecoderInfos(mimeType, /* secure= */ false, /* tunneling= */ false);
+    logDecoderInfos(mimeType, /* secure= */ true, /* tunneling= */ false);
+    logDecoderInfos(mimeType, /* secure= */ false, /* tunneling= */ true);
+    logDecoderInfos(mimeType, /* secure= */ true, /* tunneling= */ true);
   }
 
-  private void logDecoderInfos(String mimeType, boolean secure) throws DecoderQueryException {
-    List<MediaCodecInfo> mediaCodecInfos = MediaCodecUtil.getDecoderInfos(mimeType, secure);
+  private void logDecoderInfos(String mimeType, boolean secure, boolean tunneling)
+      throws DecoderQueryException {
+    List<MediaCodecInfo> mediaCodecInfos =
+        MediaCodecUtil.getDecoderInfos(mimeType, secure, tunneling);
     for (MediaCodecInfo mediaCodecInfo : mediaCodecInfos) {
       CodecCapabilities capabilities = Assertions.checkNotNull(mediaCodecInfo.capabilities);
       metricsLogger.logMetric(

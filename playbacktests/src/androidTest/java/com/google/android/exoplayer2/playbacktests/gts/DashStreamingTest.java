@@ -628,7 +628,9 @@ public final class DashStreamingTest {
 
   @Test
   public void testDecoderInfoH264() throws DecoderQueryException {
-    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_H264, false);
+    MediaCodecInfo decoderInfo =
+        MediaCodecUtil.getDecoderInfo(
+            MimeTypes.VIDEO_H264, /* secure= */ false, /* tunneling= */ false);
     assertThat(decoderInfo).isNotNull();
     assertThat(Util.SDK_INT < 21 || decoderInfo.adaptive).isTrue();
   }
@@ -639,7 +641,11 @@ public final class DashStreamingTest {
       // Pass.
       return;
     }
-    assertThat(MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_H265, false).adaptive).isTrue();
+    assertThat(
+            MediaCodecUtil.getDecoderInfo(
+                    MimeTypes.VIDEO_H265, /* secure= */ false, /* tunneling= */ false)
+                .adaptive)
+        .isTrue();
   }
 
   @Test
@@ -648,13 +654,18 @@ public final class DashStreamingTest {
       // Pass.
       return;
     }
-    assertThat(MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, false).adaptive).isTrue();
+    assertThat(
+            MediaCodecUtil.getDecoderInfo(
+                    MimeTypes.VIDEO_VP9, /* secure= */ false, /* tunneling= */ false)
+                .adaptive)
+        .isTrue();
   }
 
   // Internal.
 
   private static boolean shouldSkipAdaptiveTest(String mimeType) throws DecoderQueryException {
-    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false);
+    MediaCodecInfo decoderInfo =
+        MediaCodecUtil.getDecoderInfo(mimeType, /* secure= */ false, /* tunneling= */ false);
     return decoderInfo == null || !decoderInfo.adaptive;
   }
 
