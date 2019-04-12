@@ -18,6 +18,7 @@
   * Support encrypted initialization segments
     ([#5441](https://github.com/google/ExoPlayer/issues/5441)).
   * Parse `EXT-X-MEDIA` `CHARACTERISTICS` attribute into `Format.roleFlags`.
+  * Add metadata entry for HLS tracks to expose master playlist information.
 * MPEG-TS: enable HDMV DTS stream detection only if a flag is set. By default
   (if the flag is not set), the 0x82 elementary stream type is now treated as an
   SCTE subtitle track
