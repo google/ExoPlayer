@@ -167,7 +167,7 @@ public final class DownloadManager {
 
   // Collections that are accessed on the internal thread.
   private final ArrayList<DownloadInternal> downloadInternals;
-  private final HashMap<DownloadInternal, DownloadThread> activeDownloads;
+  private final HashMap<String, DownloadThread> downloadThreads;
 
   // Mutable fields that are accessed on the main thread.
   private int pendingMessages;
@@ -250,7 +250,7 @@ public final class DownloadManager {
 
     downloadInternals = new ArrayList<>();
     downloads = new ArrayList<>();
-    activeDownloads = new HashMap<>();
+    downloadThreads = new HashMap<>();
     listeners = new CopyOnWriteArraySet<>();
     releaseLock = new Object();
 
@@ -568,7 +568,7 @@ public final class DownloadManager {
         throw new IllegalStateException();
     }
     mainHandler
-        .obtainMessage(MSG_PROCESSED, processedExternalMessage ? 1 : 0, activeDownloads.size())
+        .obtainMessage(MSG_PROCESSED, processedExternalMessage ? 1 : 0, downloadThreads.size())
         .sendToTarget();
     return true;
   }
@@ -677,16 +677,17 @@ public final class DownloadManager {
   }
 
   private void onDownloadThreadStoppedInternal(DownloadThread downloadThread) {
-    DownloadInternal downloadInternal = downloadThread.downloadInternal;
-    logd("Download is stopped", downloadInternal);
-    activeDownloads.remove(downloadInternal);
+    logd("Download is stopped", downloadThread.action);
+    String downloadId = downloadThread.action.id;
+    downloadThreads.remove(downloadId);
     boolean tryToStartDownloads = false;
-    if (!downloadThread.isRemoveThread) {
+    if (!downloadThread.isRemove) {
       // If maxSimultaneousDownloads was hit, there might be a download waiting for a slot.
       tryToStartDownloads = simultaneousDownloads == maxSimultaneousDownloads;
       simultaneousDownloads--;
     }
-    downloadInternal.onDownloadThreadStopped(downloadThread.isCanceled, downloadThread.finalError);
+    getDownload(downloadId)
+        .onDownloadThreadStopped(downloadThread.isCanceled, downloadThread.finalError);
     if (tryToStartDownloads) {
       for (int i = 0;
           simultaneousDownloads < maxSimultaneousDownloads && i < downloadInternals.size();
@@ -697,8 +698,8 @@ public final class DownloadManager {
   }
 
   private void releaseInternal() {
-    for (DownloadInternal downloadInternal : activeDownloads.keySet()) {
-      stopDownloadThread(downloadInternal);
+    for (String downloadId : downloadThreads.keySet()) {
+      stopDownloadThreadInternal(downloadId);
     }
     internalThread.quit();
     synchronized (releaseLock) {
@@ -733,30 +734,34 @@ public final class DownloadManager {
 
   @StartThreadResults
   private int startDownloadThread(DownloadInternal downloadInternal) {
-    if (activeDownloads.containsKey(downloadInternal)) {
-      if (stopDownloadThread(downloadInternal)) {
+    DownloadAction action = downloadInternal.download.action;
+    String downloadId = action.id;
+    if (downloadThreads.containsKey(downloadId)) {
+      if (stopDownloadThreadInternal(downloadId)) {
         return START_THREAD_WAIT_DOWNLOAD_CANCELLATION;
       }
       return START_THREAD_WAIT_REMOVAL_TO_FINISH;
     }
-    if (!downloadInternal.isInRemoveState()) {
+    boolean isRemove = downloadInternal.isInRemoveState();
+    if (!isRemove) {
       if (simultaneousDownloads == maxSimultaneousDownloads) {
         return START_THREAD_TOO_MANY_DOWNLOADS;
       }
       simultaneousDownloads++;
     }
-    DownloadThread downloadThread = new DownloadThread(downloadInternal);
-    activeDownloads.put(downloadInternal, downloadThread);
+    DownloadThread downloadThread = new DownloadThread(action, isRemove);
+    downloadThreads.put(downloadId, downloadThread);
     downloadInternal.setCounters(downloadThread.downloader.getCounters());
+    downloadThread.start();
     logd("Download is started", downloadInternal);
     return START_THREAD_SUCCEEDED;
   }
 
-  private boolean stopDownloadThread(DownloadInternal downloadInternal) {
-    DownloadThread downloadThread = activeDownloads.get(downloadInternal);
-    if (downloadThread != null && !downloadThread.isRemoveThread) {
+  private boolean stopDownloadThreadInternal(String downloadId) {
+    DownloadThread downloadThread = downloadThreads.get(downloadId);
+    if (downloadThread != null && !downloadThread.isRemove) {
       downloadThread.cancel();
-      logd("Download is cancelled", downloadInternal);
+      logd("Download is cancelled", downloadThread.action);
       return true;
     }
     return false;
@@ -800,8 +805,12 @@ public final class DownloadManager {
   }
 
   private static void logd(String message, DownloadInternal downloadInternal) {
+    logd(message, downloadInternal.download.action);
+  }
+
+  private static void logd(String message, DownloadAction action) {
     if (DEBUG) {
-      logd(message + ": " + downloadInternal);
+      logd(message + ": " + action);
     }
   }
 
@@ -812,14 +821,15 @@ public final class DownloadManager {
   }
 
   private static final class DownloadInternal {
+
     private final DownloadManager downloadManager;
 
     private Download download;
-    @MonotonicNonNull @Download.FailureReason private int failureReason;
 
     // TODO: Get rid of these and use download directly.
     @Download.State private int state;
     private int manualStopReason;
+    @MonotonicNonNull @Download.FailureReason private int failureReason;
 
     private DownloadInternal(DownloadManager downloadManager, Download download) {
       this.downloadManager = downloadManager;
@@ -891,7 +901,7 @@ public final class DownloadManager {
         }
       } else {
         if (state == STATE_DOWNLOADING || state == STATE_QUEUED) {
-          downloadManager.stopDownloadThread(this);
+          downloadManager.stopDownloadThreadInternal(download.action.id);
           setState(STATE_STOPPED);
         }
       }
@@ -962,18 +972,17 @@ public final class DownloadManager {
 
   private class DownloadThread extends Thread {
 
-    private final DownloadInternal downloadInternal;
+    private final DownloadAction action;
+    private final boolean isRemove;
     private final Downloader downloader;
-    private final boolean isRemoveThread;
 
     private volatile boolean isCanceled;
     private Throwable finalError;
 
-    private DownloadThread(DownloadInternal downloadInternal) {
-      this.downloadInternal = downloadInternal;
-      this.downloader = downloaderFactory.createDownloader(downloadInternal.download.action);
-      this.isRemoveThread = downloadInternal.isInRemoveState();
-      start();
+    private DownloadThread(DownloadAction action, boolean isRemove) {
+      this.action = action;
+      this.isRemove = isRemove;
+      downloader = downloaderFactory.createDownloader(action);
     }
 
     public void cancel() {
@@ -986,9 +995,9 @@ public final class DownloadManager {
 
     @Override
     public void run() {
-      logd("Download started", downloadInternal);
+      logd("Download started", action);
       try {
-        if (isRemoveThread) {
+        if (isRemove) {
           downloader.remove();
         } else {
           int errorCount = 0;
@@ -1001,14 +1010,14 @@ public final class DownloadManager {
               if (!isCanceled) {
                 long downloadedBytes = downloader.getDownloadedBytes();
                 if (downloadedBytes != errorPosition) {
-                  logd("Reset error count. downloadedBytes = " + downloadedBytes, downloadInternal);
+                  logd("Reset error count. downloadedBytes = " + downloadedBytes, action);
                   errorPosition = downloadedBytes;
                   errorCount = 0;
                 }
                 if (++errorCount > minRetryCount) {
                   throw e;
                 }
-                logd("Download error. Retry " + errorCount, downloadInternal);
+                logd("Download error. Retry " + errorCount, action);
                 Thread.sleep(getRetryDelayMillis(errorCount));
               }
             }
