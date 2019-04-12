@@ -276,29 +276,22 @@ public final class DownloadManager {
     return initialized;
   }
 
-  /** Returns whether there are no active downloads. */
+  /**
+   * Returns whether the manager is currently idle. The manager is idle if all downloads are in a
+   * terminal state (i.e. completed or failed), or if no progress can be made (e.g. because the
+   * download requirements are not met).
+   */
   public boolean isIdle() {
     return activeDownloadCount == 0 && pendingMessages == 0;
   }
 
-  /** Returns the used {@link DownloadIndex}. */
-  public DownloadIndex getDownloadIndex() {
-    return downloadIndex;
-  }
-
-  /** Returns the number of downloads. */
-  public int getDownloadCount() {
-    return downloads.size();
-  }
-
-  /** Returns the states of all current downloads. */
-  public Download[] getAllDownloads() {
-    return downloads.toArray(new Download[0]);
-  }
-
-  /** Returns the requirements needed to be met to start downloads. */
-  public Requirements getRequirements() {
-    return requirementsWatcher.getRequirements();
+  /**
+   * Returns whether this manager has one or more downloads that are not progressing for the sole
+   * reason that the {@link #getRequirements() Requirements} are not met.
+   */
+  public boolean isWaitingForRequirements() {
+    // TODO: Fix this to return the right thing.
+    return !downloads.isEmpty();
   }
 
   /**
@@ -319,6 +312,11 @@ public final class DownloadManager {
     listeners.remove(listener);
   }
 
+  /** Returns the requirements needed to be met to start downloads. */
+  public Requirements getRequirements() {
+    return requirementsWatcher.getRequirements();
+  }
+
   /**
    * Sets the requirements needed to be met to start downloads.
    *
@@ -332,6 +330,20 @@ public final class DownloadManager {
     requirementsWatcher = new RequirementsWatcher(context, requirementsListener, requirements);
     int notMetRequirements = requirementsWatcher.start();
     onRequirementsStateChanged(requirementsWatcher, notMetRequirements);
+  }
+
+  /** Returns the used {@link DownloadIndex}. */
+  public DownloadIndex getDownloadIndex() {
+    return downloadIndex;
+  }
+
+  /**
+   * Returns current downloads. Downloads that are in terminal states (i.e. completed or failed) are
+   * not included. To query all downloads including those in terminal states, use {@link
+   * #getDownloadIndex()} instead.
+   */
+  public Download[] getCurrentDownloads() {
+    return downloads.toArray(new Download[0]);
   }
 
   /**
@@ -537,7 +549,7 @@ public final class DownloadManager {
         break;
       case MSG_SET_DOWNLOADS_STARTED:
         boolean downloadsStarted = message.arg1 != 0;
-        setDownloadsStartedInternal(downloadsStarted);
+        setDownloadsStarted(downloadsStarted);
         break;
       case MSG_SET_NOT_MET_REQUIREMENTS:
         notMetRequirements = message.arg1;
@@ -598,7 +610,7 @@ public final class DownloadManager {
     }
   }
 
-  private void setDownloadsStartedInternal(boolean downloadsStarted) {
+  private void setDownloadsStarted(boolean downloadsStarted) {
     if (this.downloadsStarted == downloadsStarted) {
       return;
     }

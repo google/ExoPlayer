@@ -346,12 +346,12 @@ public class DownloadManagerTest {
     TaskWrapper task3 = new DownloadRunner(uri3).postDownloadAction().postRemoveAction().getTask();
 
     task3.assertRemoving();
-    Download[] states = downloadManager.getAllDownloads();
+    Download[] downloads = downloadManager.getCurrentDownloads();
 
-    assertThat(states).hasLength(3);
+    assertThat(downloads).hasLength(3);
     String[] taskIds = {task1.taskId, task2.taskId, task3.taskId};
-    String[] stateTaskIds = {states[0].action.id, states[1].action.id, states[2].action.id};
-    assertThat(stateTaskIds).isEqualTo(taskIds);
+    String[] downloadIds = {downloads[0].action.id, downloads[1].action.id, downloads[2].action.id};
+    assertThat(downloadIds).isEqualTo(taskIds);
   }
 
   @Test

@@ -469,7 +469,7 @@ public abstract class DownloadService extends Service {
   public void onDestroy() {
     logd("onDestroy");
     DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(getClass());
-    boolean unschedule = downloadManager.getDownloadCount() <= 0;
+    boolean unschedule = !downloadManager.isWaitingForRequirements();
     downloadManagerHelper.detachService(this, unschedule);
     if (foregroundNotificationUpdater != null) {
       foregroundNotificationUpdater.stopPeriodicUpdates();
@@ -609,7 +609,7 @@ public abstract class DownloadService extends Service {
     }
 
     public void update() {
-      Download[] downloads = downloadManager.getAllDownloads();
+      Download[] downloads = downloadManager.getCurrentDownloads();
       startForeground(notificationId, getForegroundNotification(downloads));
       notificationDisplayed = true;
       if (periodicUpdatesStarted) {
