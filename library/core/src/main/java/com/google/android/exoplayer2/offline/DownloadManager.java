@@ -718,9 +718,11 @@ public final class DownloadManager {
   }
 
   private void releaseInternal() {
-    for (String downloadId : downloadThreads.keySet()) {
-      stopDownloadThreadInternal(downloadId);
+    for (DownloadThread downloadThread : downloadThreads.values()) {
+      downloadThread.cancel(/* released= */ true);
     }
+    downloadThreads.clear();
+    downloadInternals.clear();
     internalThread.quit();
     synchronized (releaseLock) {
       released = true;
@@ -769,7 +771,9 @@ public final class DownloadManager {
       }
       simultaneousDownloads++;
     }
-    DownloadThread downloadThread = new DownloadThread(action, isRemove);
+    Downloader downloader = downloaderFactory.createDownloader(action);
+    DownloadThread downloadThread =
+        new DownloadThread(action, downloader, isRemove, minRetryCount, internalHandler);
     downloadThreads.put(downloadId, downloadThread);
     downloadInternal.setCounters(downloadThread.downloader.getCounters());
     downloadThread.start();
@@ -780,7 +784,7 @@ public final class DownloadManager {
   private boolean stopDownloadThreadInternal(String downloadId) {
     DownloadThread downloadThread = downloadThreads.get(downloadId);
     if (downloadThread != null && !downloadThread.isRemove) {
-      downloadThread.cancel();
+      downloadThread.cancel(/* released= */ false);
       logd("Download is cancelled", downloadThread.action);
       return true;
     }
@@ -1023,22 +1027,38 @@ public final class DownloadManager {
     }
   }
 
-  private class DownloadThread extends Thread {
+  private static class DownloadThread extends Thread {
 
     private final DownloadAction action;
-    private final boolean isRemove;
     private final Downloader downloader;
+    private final boolean isRemove;
+    private final int minRetryCount;
 
+    private volatile Handler onStoppedHandler;
     private volatile boolean isCanceled;
     private Throwable finalError;
 
-    private DownloadThread(DownloadAction action, boolean isRemove) {
+    private DownloadThread(
+        DownloadAction action,
+        Downloader downloader,
+        boolean isRemove,
+        int minRetryCount,
+        Handler onStoppedHandler) {
       this.action = action;
       this.isRemove = isRemove;
-      downloader = downloaderFactory.createDownloader(action);
+      this.downloader = downloader;
+      this.minRetryCount = minRetryCount;
+      this.onStoppedHandler = onStoppedHandler;
     }
 
-    public void cancel() {
+    public void cancel(boolean released) {
+      if (released) {
+        // Download threads are GC roots for as long as they're running. The time taken for
+        // cancellation to complete depends on the implementation of the downloader being used. We
+        // null the handler reference here so that it doesn't prevent garbage collection of the
+        // download manager whilst cancellation is ongoing.
+        onStoppedHandler = null;
+      }
       isCanceled = true;
       downloader.cancel();
       interrupt();
@@ -1079,7 +1099,10 @@ public final class DownloadManager {
       } catch (Throwable e) {
         finalError = e;
       }
-      internalHandler.obtainMessage(MSG_DOWNLOAD_THREAD_STOPPED, this).sendToTarget();
+      Handler onStoppedHandler = this.onStoppedHandler;
+      if (onStoppedHandler != null) {
+        onStoppedHandler.obtainMessage(MSG_DOWNLOAD_THREAD_STOPPED, this).sendToTarget();
+      }
     }
 
     private int getRetryDelayMillis(int errorCount) {
