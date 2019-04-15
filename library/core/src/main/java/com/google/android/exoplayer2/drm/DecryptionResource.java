@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.drm;
  * A reference-counted resource used in the decryption of media samples.
  *
  * @param <T> The reference type with which to make {@link Owner#onLastReferenceReleased} calls.
+ *     Subclasses are expected to pass themselves.
  */
 public abstract class DecryptionResource<T extends DecryptionResource<T>> {
 
@@ -32,7 +33,7 @@ public abstract class DecryptionResource<T extends DecryptionResource<T>> {
      * Called when the last reference to a {@link DecryptionResource} is {@link #releaseReference()
      * released}.
      */
-    void onLastReferenceReleased(DecryptionResource<T> resource);
+    void onLastReferenceReleased(T resource);
   }
 
   // TODO: Consider adding a handler on which the owner should be called.
@@ -40,7 +41,7 @@ public abstract class DecryptionResource<T extends DecryptionResource<T>> {
   private int referenceCount;
 
   /**
-   * Creates a new instance with no incoming references.
+   * Creates a new instance with reference count zero.
    *
    * @param owner The owner of this instance.
    */
@@ -49,21 +50,21 @@ public abstract class DecryptionResource<T extends DecryptionResource<T>> {
     referenceCount = 0;
   }
 
-  /** Increases by one the incoming reference count for this resource. */
+  /** Increases by one the reference count for this resource. */
   public void acquireReference() {
     referenceCount++;
   }
 
   /**
-   * Decreases by one the incoming reference count for this resource, and notifies the owner if said
-   * count reached zero as a result of this operation.
+   * Decreases by one the reference count for this resource, and notifies the owner if said count
+   * reached zero as a result of this operation.
    *
    * <p>Must only be called as releasing counter-part of {@link #acquireReference()}.
    */
   @SuppressWarnings("unchecked")
-  public synchronized void releaseReference() {
+  public void releaseReference() {
     if (--referenceCount == 0) {
-      owner.onLastReferenceReleased(this);
+      owner.onLastReferenceReleased((T) this);
     } else if (referenceCount < 0) {
       throw new IllegalStateException("Illegal release of resource.");
     }
