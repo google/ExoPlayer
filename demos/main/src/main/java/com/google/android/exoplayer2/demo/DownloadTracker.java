@@ -23,11 +23,11 @@ import androidx.fragment.app.FragmentManager;
 import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadCursor;
 import com.google.android.exoplayer2.offline.DownloadHelper;
+import com.google.android.exoplayer2.offline.DownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -41,10 +41,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-/**
- * Tracks media that has been downloaded.
- */
-public class DownloadTracker implements DownloadManager.Listener {
+/** Tracks media that has been downloaded. */
+public class DownloadTracker {
 
   /** Listens for changes in the tracked downloads. */
   public interface Listener {
@@ -59,17 +57,18 @@ public class DownloadTracker implements DownloadManager.Listener {
   private final DataSource.Factory dataSourceFactory;
   private final CopyOnWriteArraySet<Listener> listeners;
   private final HashMap<Uri, Download> downloads;
-  private final DefaultDownloadIndex downloadIndex;
+  private final DownloadIndex downloadIndex;
 
   @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
 
   public DownloadTracker(
-      Context context, DataSource.Factory dataSourceFactory, DefaultDownloadIndex downloadIndex) {
+      Context context, DataSource.Factory dataSourceFactory, DownloadManager downloadManager) {
     this.context = context.getApplicationContext();
     this.dataSourceFactory = dataSourceFactory;
-    this.downloadIndex = downloadIndex;
     listeners = new CopyOnWriteArraySet<>();
     downloads = new HashMap<>();
+    downloadIndex = downloadManager.getDownloadIndex();
+    downloadManager.addListener(new DownloadManagerListener());
     loadDownloads();
   }
 
@@ -114,26 +113,6 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
   }
 
-  // DownloadManager.Listener
-
-  @Override
-  public void onDownloadChanged(DownloadManager downloadManager, Download download) {
-    downloads.put(download.action.uri, download);
-    for (Listener listener : listeners) {
-      listener.onDownloadsChanged();
-    }
-  }
-
-  @Override
-  public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
-    downloads.remove(download.action.uri);
-    for (Listener listener : listeners) {
-      listener.onDownloadsChanged();
-    }
-  }
-
-  // Internal methods
-
   private void loadDownloads() {
     try (DownloadCursor loadedDownloads = downloadIndex.getDownloads()) {
       while (loadedDownloads.moveToNext()) {
@@ -164,6 +143,25 @@ public class DownloadTracker implements DownloadManager.Listener {
         return DownloadHelper.forProgressive(uri);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
+    }
+  }
+
+  private class DownloadManagerListener implements DownloadManager.Listener {
+
+    @Override
+    public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+      downloads.put(download.action.uri, download);
+      for (Listener listener : listeners) {
+        listener.onDownloadsChanged();
+      }
+    }
+
+    @Override
+    public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
+      downloads.remove(download.action.uri);
+      for (Listener listener : listeners) {
+        listener.onDownloadsChanged();
+      }
     }
   }
 
