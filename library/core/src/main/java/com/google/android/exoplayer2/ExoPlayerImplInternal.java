@@ -561,7 +561,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     TraceUtil.beginSection("doSomeWork");
 
     updatePlaybackPositions();
-    long rendererPositionElapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
+    long rendererPositionElapsedRealtimeUs = (SystemClock.elapsedRealtime() * 1000) + mediaClock.getPlaybackParameters().videoOffsetUs;
 
     playingPeriodHolder.mediaPeriod.discardBuffer(playbackInfo.positionUs - backBufferDurationUs,
         retainBackBufferFromKeyframe);

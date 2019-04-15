@@ -66,6 +66,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   private int sampleRateHz;
   private float speed;
   private float pitch;
+  private long videoOffsetUs;
   private int outputSampleRateHz;
   private int pendingOutputSampleRateHz;
 
@@ -125,6 +126,21 @@ public final class SonicAudioProcessor implements AudioProcessor {
     }
     flush();
     return pitch;
+  }
+
+  /**
+   * Sets the playback video offset for AV sync. Calling this method will discard any data buffered within the
+   * processor, and may update the value returned by {@link #isActive()}.
+   * @param videoOffsetUs
+   * @return the actual new video offset in nanosecond
+   */
+  public long setVideoOffsetUs(long videoOffsetUs) {
+    if (this.videoOffsetUs != videoOffsetUs) {
+      this.videoOffsetUs = videoOffsetUs;
+      pendingSonicRecreation = true;
+    }
+    flush();
+    return videoOffsetUs;
   }
 
   /**

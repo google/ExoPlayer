@@ -235,6 +235,11 @@ public class SimpleExoPlayer extends BasePlayer
     // Build the player and associated objects.
     player =
         new ExoPlayerImpl(renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
+
+    // Sample av sync usage
+    PlaybackParameters playbackParameters = new PlaybackParameters(1f, 1f, 1500000, false);
+    player.setPlaybackParameters(playbackParameters);
+
     analyticsCollector = analyticsCollectorFactory.createAnalyticsCollector(player, clock);
     addListener(analyticsCollector);
     addListener(componentListener);

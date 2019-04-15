@@ -140,6 +140,7 @@ public final class DefaultAudioSink implements AudioSink {
       return new PlaybackParameters(
           sonicAudioProcessor.setSpeed(playbackParameters.speed),
           sonicAudioProcessor.setPitch(playbackParameters.pitch),
+          sonicAudioProcessor.setVideoOffsetUs(playbackParameters.videoOffsetUs),
           playbackParameters.skipSilence);
     }
 

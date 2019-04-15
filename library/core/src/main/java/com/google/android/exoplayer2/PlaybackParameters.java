@@ -38,6 +38,8 @@ public final class PlaybackParameters {
   /** Whether to skip silence in the input. */
   public final boolean skipSilence;
 
+  public final long videoOffsetUs;
+
   private final int scaledUsPerMs;
 
   /**
@@ -68,11 +70,25 @@ public final class PlaybackParameters {
    * @param skipSilence Whether to skip silences in the audio stream.
    */
   public PlaybackParameters(float speed, float pitch, boolean skipSilence) {
+    this(speed, pitch, 0, skipSilence);
+  }
+
+  /**
+   * Creates new playback parameters that set the playback speed, audio pitch scaling factor and
+   * whether to skip silence in the audio stream.
+   *
+   * @param speed The factor by which playback will be sped up. Must be greater than zero.
+   * @param pitch The factor by which the audio pitch will be scaled. Must be greater than zero.
+   * @param videoOffsetUs The factor by which the video offset will be added for av sync.
+   * @param skipSilence Whether to skip silences in the audio stream.
+   */
+  public PlaybackParameters(float speed, float pitch, long videoOffsetUs, boolean skipSilence) {
     Assertions.checkArgument(speed > 0);
     Assertions.checkArgument(pitch > 0);
     this.speed = speed;
     this.pitch = pitch;
     this.skipSilence = skipSilence;
+    this.videoOffsetUs = videoOffsetUs;
     scaledUsPerMs = Math.round(speed * 1000f);
   }
 
@@ -98,6 +114,7 @@ public final class PlaybackParameters {
     PlaybackParameters other = (PlaybackParameters) obj;
     return this.speed == other.speed
         && this.pitch == other.pitch
+        && this.videoOffsetUs == other.videoOffsetUs
         && this.skipSilence == other.skipSilence;
   }
 
@@ -106,6 +123,7 @@ public final class PlaybackParameters {
     int result = 17;
     result = 31 * result + Float.floatToRawIntBits(speed);
     result = 31 * result + Float.floatToRawIntBits(pitch);
+    result = 31 * result + (int) videoOffsetUs;
     result = 31 * result + (skipSilence ? 1 : 0);
     return result;
   }
