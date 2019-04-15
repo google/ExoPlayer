@@ -5,7 +5,7 @@ The IMA extension is an [AdsLoader][] implementation wrapping the
 alongside content.
 
 [IMA]: https://developers.google.com/interactive-media-ads/docs/sdks/android/
-[AdsLoader]: https://google.github.io/ExoPlayer/doc/reference/index.html?com/google/android/exoplayer2/source/ads/AdsLoader.html
+[AdsLoader]: https://exoplayer.dev/doc/reference/index.html?com/google/android/exoplayer2/source/ads/AdsLoader.html
 
 ## Getting the extension ##
 
@@ -61,4 +61,4 @@ playback.
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ima.*`
   belong to this module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

@@ -147,11 +147,11 @@ then implement your own logic to use the renderer for a given track.
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
 [#2781]: https://github.com/google/ExoPlayer/issues/2781
-[Supported formats]: https://google.github.io/ExoPlayer/supported-formats.html#ffmpeg-extension
+[Supported formats]: https://exoplayer.dev/supported-formats.html#ffmpeg-extension
 
 ## Links ##
 
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ffmpeg.*`
   belong to this module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

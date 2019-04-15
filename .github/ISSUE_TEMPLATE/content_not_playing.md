@@ -10,10 +10,10 @@ Before filing a content issue:
 ------------------------------
 - Search existing issues, including issues that are closed.
 - Consult our supported formats page, which can be found at
-  https://google.github.io/ExoPlayer/supported-formats.html.
+  https://exoplayer.dev/supported-formats.html.
 - Try playing your content in the ExoPlayer demo app. Information about the
   ExoPlayer demo app can be found here:
-  http://google.github.io/ExoPlayer/demo-application.html.
+  http://exoplayer.dev/demo-application.html.
 
 When reporting a content issue:
 -----------------------------

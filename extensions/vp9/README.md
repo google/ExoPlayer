@@ -119,4 +119,4 @@ type `LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER` with the
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.vp9.*`
   belong to this module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html

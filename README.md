@@ -15,8 +15,8 @@ and extend, and can be updated through Play Store application updates.
 * Follow our [developer blog][] to keep up to date with the latest ExoPlayer
   developments!
 
-[developer guide]: https://google.github.io/ExoPlayer/guide.html
-[class reference]: https://google.github.io/ExoPlayer/doc/reference
+[developer guide]: https://exoplayer.dev/guide.html
+[class reference]: https://exoplayer.dev/doc/reference
 [release notes]: https://github.com/google/ExoPlayer/blob/release-v2/RELEASENOTES.md
 [developer blog]: https://medium.com/google-exoplayer
 
