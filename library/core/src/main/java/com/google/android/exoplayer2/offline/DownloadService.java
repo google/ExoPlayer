@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.util.HashMap;
+import java.util.List;
 
 /** A {@link Service} for downloading media. */
 public abstract class DownloadService extends Service {
@@ -514,14 +515,14 @@ public abstract class DownloadService extends Service {
    * #FOREGROUND_NOTIFICATION_ID_NONE}. This method will not be called in this case, meaning it can
    * be implemented to throw {@link UnsupportedOperationException}.
    *
-   * @param downloads The states of all current downloads.
+   * @param downloads The current downloads.
    * @return The foreground notification to display.
    */
-  protected abstract Notification getForegroundNotification(Download[] downloads);
+  protected abstract Notification getForegroundNotification(List<Download> downloads);
 
   /**
    * Invalidates the current foreground notification and causes {@link
-   * #getForegroundNotification(Download[])} to be invoked again if the service isn't stopped.
+   * #getForegroundNotification(List)} to be invoked again if the service isn't stopped.
    */
   protected final void invalidateForegroundNotification() {
     if (foregroundNotificationUpdater != null && !isDestroyed) {
@@ -600,7 +601,7 @@ public abstract class DownloadService extends Service {
     private final int notificationId;
     private final long updateInterval;
     private final Handler handler;
-    private final Runnable callback;
+    private final Runnable updateRunnable;
 
     private boolean periodicUpdatesStarted;
     private boolean notificationDisplayed;
@@ -609,7 +610,7 @@ public abstract class DownloadService extends Service {
       this.notificationId = notificationId;
       this.updateInterval = updateInterval;
       this.handler = new Handler(Looper.getMainLooper());
-      this.callback = this::update;
+      this.updateRunnable = this::update;
     }
 
     public void startPeriodicUpdates() {
@@ -619,7 +620,7 @@ public abstract class DownloadService extends Service {
 
     public void stopPeriodicUpdates() {
       periodicUpdatesStarted = false;
-      handler.removeCallbacks(callback);
+      handler.removeCallbacks(updateRunnable);
     }
 
     public void showNotificationIfNotAlready() {
@@ -635,12 +636,12 @@ public abstract class DownloadService extends Service {
     }
 
     private void update() {
-      Download[] downloads = downloadManager.getCurrentDownloads();
+      List<Download> downloads = downloadManager.getCurrentDownloads();
       startForeground(notificationId, getForegroundNotification(downloads));
       notificationDisplayed = true;
       if (periodicUpdatesStarted) {
-        handler.removeCallbacks(callback);
-        handler.postDelayed(callback, updateInterval);
+        handler.removeCallbacks(updateRunnable);
+        handler.postDelayed(updateRunnable, updateInterval);
       }
     }
   }

@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -121,7 +122,7 @@ public final class DownloadManager {
   // Messages posted to the main handler.
   private static final int MSG_INITIALIZED = 0;
   private static final int MSG_PROCESSED = 1;
-  private static final int MSG_DOWNLOAD_STATE_CHANGED = 2;
+  private static final int MSG_DOWNLOAD_CHANGED = 2;
   private static final int MSG_DOWNLOAD_REMOVED = 3;
 
   // Messages posted to the background handler.
@@ -186,7 +187,7 @@ public final class DownloadManager {
    * Constructs a {@link DownloadManager}.
    *
    * @param context Any context.
-   * @param databaseProvider Used to create a {@link DownloadIndex} which holds download states.
+   * @param databaseProvider Provides the {@link DownloadIndex} that holds the downloads.
    * @param downloaderFactory A factory for creating {@link Downloader}s.
    */
   public DownloadManager(
@@ -204,7 +205,7 @@ public final class DownloadManager {
    * Constructs a {@link DownloadManager}.
    *
    * @param context Any context.
-   * @param databaseProvider Used to create a {@link DownloadIndex} which holds download states.
+   * @param databaseProvider Provides the {@link DownloadIndex} that holds the downloads.
    * @param downloaderFactory A factory for creating {@link Downloader}s.
    * @param maxSimultaneousDownloads The maximum number of simultaneous downloads.
    * @param minRetryCount The minimum number of times a download must be retried before failing.
@@ -230,7 +231,7 @@ public final class DownloadManager {
    * Constructs a {@link DownloadManager}.
    *
    * @param context Any context.
-   * @param downloadIndex The {@link DefaultDownloadIndex} which holds download states.
+   * @param downloadIndex The {@link DefaultDownloadIndex} that holds the downloads.
    * @param downloaderFactory A factory for creating {@link Downloader}s.
    * @param maxSimultaneousDownloads The maximum number of simultaneous downloads.
    * @param minRetryCount The minimum number of times a download must be retried before failing.
@@ -342,8 +343,8 @@ public final class DownloadManager {
    * not included. To query all downloads including those in terminal states, use {@link
    * #getDownloadIndex()} instead.
    */
-  public Download[] getCurrentDownloads() {
-    return downloads.toArray(new Download[0]);
+  public List<Download> getCurrentDownloads() {
+    return Collections.unmodifiableList(new ArrayList<>(downloads));
   }
 
   /**
@@ -467,7 +468,7 @@ public final class DownloadManager {
         List<Download> downloads = (List<Download>) message.obj;
         onInitialized(downloads);
         break;
-      case MSG_DOWNLOAD_STATE_CHANGED:
+      case MSG_DOWNLOAD_CHANGED:
         Download state = (Download) message.obj;
         onDownloadChanged(state);
         break;
@@ -595,7 +596,7 @@ public final class DownloadManager {
       while (cursor.moveToNext()) {
         loadedStates.add(cursor.getDownload());
       }
-      logd("Download states are loaded.");
+      logd("Downloads are loaded.");
     } catch (Throwable e) {
       Log.e(TAG, "Download state loading failed.", e);
       loadedStates.clear();
@@ -740,7 +741,7 @@ public final class DownloadManager {
     if (downloadInternal.state == STATE_COMPLETED || downloadInternal.state == STATE_FAILED) {
       downloadInternals.remove(downloadInternal);
     }
-    mainHandler.obtainMessage(MSG_DOWNLOAD_STATE_CHANGED, download).sendToTarget();
+    mainHandler.obtainMessage(MSG_DOWNLOAD_CHANGED, download).sendToTarget();
   }
 
   private void onDownloadRemovedInternal(DownloadInternal downloadInternal, Download download) {

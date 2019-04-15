@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.scheduler.PlatformScheduler;
 import com.google.android.exoplayer2.ui.DownloadNotificationHelper;
 import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
+import java.util.List;
 
 /** A service for downloading media. */
 public class DemoDownloadService extends DownloadService {
@@ -61,7 +62,7 @@ public class DemoDownloadService extends DownloadService {
   }
 
   @Override
-  protected Notification getForegroundNotification(Download[] downloads) {
+  protected Notification getForegroundNotification(List<Download> downloads) {
     return notificationHelper.buildProgressNotification(
         R.drawable.ic_download, /* contentIntent= */ null, /* message= */ null, downloads);
   }

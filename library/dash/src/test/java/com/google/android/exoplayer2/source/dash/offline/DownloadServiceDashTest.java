@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -141,7 +142,7 @@ public class DownloadServiceDashTest {
                 }
 
                 @Override
-                protected Notification getForegroundNotification(Download[] downloads) {
+                protected Notification getForegroundNotification(List<Download> downloads) {
                   throw new UnsupportedOperationException();
                 }
               };

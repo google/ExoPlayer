@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
@@ -346,11 +347,13 @@ public class DownloadManagerTest {
     TaskWrapper task3 = new DownloadRunner(uri3).postDownloadAction().postRemoveAction().getTask();
 
     task3.assertRemoving();
-    Download[] downloads = downloadManager.getCurrentDownloads();
+    List<Download> downloads = downloadManager.getCurrentDownloads();
 
-    assertThat(downloads).hasLength(3);
+    assertThat(downloads).hasSize(3);
     String[] taskIds = {task1.taskId, task2.taskId, task3.taskId};
-    String[] downloadIds = {downloads[0].action.id, downloads[1].action.id, downloads[2].action.id};
+    String[] downloadIds = {
+      downloads.get(0).action.id, downloads.get(1).action.id, downloads.get(2).action.id
+    };
     assertThat(downloadIds).isEqualTo(taskIds);
   }
 
