@@ -129,8 +129,7 @@ public class DemoApplication extends Application {
               DownloadManager.DEFAULT_MIN_RETRY_COUNT,
               DownloadManager.DEFAULT_REQUIREMENTS);
       downloadTracker =
-          new DownloadTracker(/* context= */ this, buildDataSourceFactory(), downloadIndex);
-      downloadManager.addListener(downloadTracker);
+          new DownloadTracker(/* context= */ this, buildDataSourceFactory(), downloadManager);
     }
   }
 
