@@ -159,6 +159,7 @@ public abstract class DownloadService extends Service {
   private int lastStartId;
   private boolean startedInForeground;
   private boolean taskRemoved;
+  private boolean isDestroyed;
 
   /**
    * Creates a DownloadService.
@@ -468,6 +469,7 @@ public abstract class DownloadService extends Service {
   @Override
   public void onDestroy() {
     logd("onDestroy");
+    isDestroyed = true;
     DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(getClass());
     boolean unschedule = !downloadManager.isWaitingForRequirements();
     downloadManagerHelper.detachService(this, unschedule);
@@ -518,6 +520,16 @@ public abstract class DownloadService extends Service {
   protected abstract Notification getForegroundNotification(Download[] downloads);
 
   /**
+   * Invalidates the current foreground notification and causes {@link
+   * #getForegroundNotification(Download[])} to be invoked again if the service isn't stopped.
+   */
+  protected final void invalidateForegroundNotification() {
+    if (foregroundNotificationUpdater != null && !isDestroyed) {
+      foregroundNotificationUpdater.invalidate();
+    }
+  }
+
+  /**
    * Called when the state of a download changes. The default implementation is a no-op.
    *
    * @param download The new state of the download.
@@ -543,7 +555,7 @@ public abstract class DownloadService extends Service {
           || download.state == Download.STATE_RESTARTING) {
         foregroundNotificationUpdater.startPeriodicUpdates();
       } else {
-        foregroundNotificationUpdater.update();
+        foregroundNotificationUpdater.invalidate();
       }
     }
   }
@@ -551,7 +563,7 @@ public abstract class DownloadService extends Service {
   private void notifyDownloadRemoved(Download download) {
     onDownloadRemoved(download);
     if (foregroundNotificationUpdater != null) {
-      foregroundNotificationUpdater.update();
+      foregroundNotificationUpdater.invalidate();
     }
   }
 
@@ -583,11 +595,12 @@ public abstract class DownloadService extends Service {
     return new Intent(context, clazz).setAction(action);
   }
 
-  private final class ForegroundNotificationUpdater implements Runnable {
+  private final class ForegroundNotificationUpdater {
 
     private final int notificationId;
     private final long updateInterval;
     private final Handler handler;
+    private final Runnable callback;
 
     private boolean periodicUpdatesStarted;
     private boolean notificationDisplayed;
@@ -596,6 +609,7 @@ public abstract class DownloadService extends Service {
       this.notificationId = notificationId;
       this.updateInterval = updateInterval;
       this.handler = new Handler(Looper.getMainLooper());
+      this.callback = this::update;
     }
 
     public void startPeriodicUpdates() {
@@ -605,17 +619,7 @@ public abstract class DownloadService extends Service {
 
     public void stopPeriodicUpdates() {
       periodicUpdatesStarted = false;
-      handler.removeCallbacks(this);
-    }
-
-    public void update() {
-      Download[] downloads = downloadManager.getCurrentDownloads();
-      startForeground(notificationId, getForegroundNotification(downloads));
-      notificationDisplayed = true;
-      if (periodicUpdatesStarted) {
-        handler.removeCallbacks(this);
-        handler.postDelayed(this, updateInterval);
-      }
+      handler.removeCallbacks(callback);
     }
 
     public void showNotificationIfNotAlready() {
@@ -624,9 +628,20 @@ public abstract class DownloadService extends Service {
       }
     }
 
-    @Override
-    public void run() {
-      update();
+    public void invalidate() {
+      if (notificationDisplayed) {
+        update();
+      }
+    }
+
+    private void update() {
+      Download[] downloads = downloadManager.getCurrentDownloads();
+      startForeground(notificationId, getForegroundNotification(downloads));
+      notificationDisplayed = true;
+      if (periodicUpdatesStarted) {
+        handler.removeCallbacks(callback);
+        handler.postDelayed(callback, updateInterval);
+      }
     }
   }
 
