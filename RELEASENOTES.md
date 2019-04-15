@@ -79,8 +79,10 @@
     type ([#3100](https://github.com/google/ExoPlayer/issues/3100)).
   * Query `MediaCodecList.ALL_CODECS` when selecting a tunneling decoder
     ([#5547](https://github.com/google/ExoPlayer/issues/5547)).
-* DRM: Fix black flicker when keys rotate in DRM protected content
+* DRM:
+  * Fix black flicker when keys rotate in DRM protected content
   ([#3561](https://github.com/google/ExoPlayer/issues/3561)).
+  * Work around lack of LA_URL attribute in PlayReady key request init data.
 * CEA-608: Improved conformance to the specification
   ([#3860](https://github.com/google/ExoPlayer/issues/3860)).
 * DASH:
@@ -88,7 +90,6 @@
   * Support multiple CEA-608 channels muxed into FMP4 representations
     ([#5656](https://github.com/google/ExoPlayer/issues/5656)).
 * HLS:
-  * Work around lack of LA_URL attribute in PlayReady key request init data.
   * Prevent unnecessary reloads of initialization segments.
   * Form an adaptive track group out of audio renditions with matching name.
   * Support encrypted initialization segments
