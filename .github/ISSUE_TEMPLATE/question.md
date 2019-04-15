@@ -13,7 +13,7 @@ Before filing a question:
 - Search existing issues, including issues that are closed. It’s often the
   quickest way to get an answer!
 - Consult our FAQs, developer guide and the class reference of ExoPlayer. These
-  can be found at https://google.github.io/ExoPlayer/.
+  can be found at https://exoplayer.dev/.
 
 When filing a question:
 -----------------------

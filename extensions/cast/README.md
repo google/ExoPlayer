@@ -5,7 +5,7 @@
 The cast extension is a [Player][] implementation that controls playback on a
 Cast receiver app.
 
-[Player]: https://google.github.io/ExoPlayer/doc/reference/index.html?com/google/android/exoplayer2/Player.html
+[Player]: https://exoplayer.dev/doc/reference/index.html?com/google/android/exoplayer2/Player.html
 
 ## Getting the extension ##
 

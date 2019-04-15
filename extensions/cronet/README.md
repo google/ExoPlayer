@@ -2,7 +2,7 @@
 
 The Cronet extension is an [HttpDataSource][] implementation using [Cronet][].
 
-[HttpDataSource]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
+[HttpDataSource]: https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/HttpDataSource.html
 [Cronet]: https://chromium.googlesource.com/chromium/src/+/master/components/cronet?autodive=0%2F%2F
 
 ## Getting the extension ##
@@ -52,4 +52,4 @@ respectively.
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.cronet.*`
   belong to this module.
 
-[Javadoc]: https://google.github.io/ExoPlayer/doc/reference/index.html
+[Javadoc]: https://exoplayer.dev/doc/reference/index.html
