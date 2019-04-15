@@ -133,7 +133,7 @@ public final class SimpleCache implements Cache {
       // Make a best effort to read the cache UID and delete associated index data before deleting
       // cache directory itself.
       long uid = loadUid(files);
-      if (uid != -1) {
+      if (uid != UID_UNSET) {
         try {
           CacheFileMetadataIndex.delete(databaseProvider, uid);
         } catch (DatabaseIOException e) {
@@ -155,8 +155,11 @@ public final class SimpleCache implements Cache {
    * the directory cannot be used to store other files.
    *
    * @param cacheDir A dedicated cache directory.
-   * @param evictor The evictor to be used.
+   * @param evictor The evictor to be used. For download use cases where cache eviction should not
+   *     occur, use {@link NoOpCacheEvictor}.
+   * @deprecated Use a constructor that takes a {@link DatabaseProvider} for improved performance.
    */
+  @Deprecated
   public SimpleCache(File cacheDir, CacheEvictor evictor) {
     this(cacheDir, evictor, null, false);
   }
@@ -166,10 +169,13 @@ public final class SimpleCache implements Cache {
    * the directory cannot be used to store other files.
    *
    * @param cacheDir A dedicated cache directory.
-   * @param evictor The evictor to be used.
+   * @param evictor The evictor to be used. For download use cases where cache eviction should not
+   *     occur, use {@link NoOpCacheEvictor}.
    * @param secretKey If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
    *     The key must be 16 bytes long.
+   * @deprecated Use a constructor that takes a {@link DatabaseProvider} for improved performance.
    */
+  @Deprecated
   public SimpleCache(File cacheDir, CacheEvictor evictor, @Nullable byte[] secretKey) {
     this(cacheDir, evictor, secretKey, secretKey != null);
   }
@@ -179,12 +185,15 @@ public final class SimpleCache implements Cache {
    * the directory cannot be used to store other files.
    *
    * @param cacheDir A dedicated cache directory.
-   * @param evictor The evictor to be used.
+   * @param evictor The evictor to be used. For download use cases where cache eviction should not
+   *     occur, use {@link NoOpCacheEvictor}.
    * @param secretKey If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
    *     The key must be 16 bytes long.
    * @param encrypt Whether the index will be encrypted when written. Must be false if {@code
    *     secretKey} is null.
+   * @deprecated Use a constructor that takes a {@link DatabaseProvider} for improved performance.
    */
+  @Deprecated
   public SimpleCache(
       File cacheDir, CacheEvictor evictor, @Nullable byte[] secretKey, boolean encrypt) {
     this(
@@ -196,26 +205,45 @@ public final class SimpleCache implements Cache {
         /* preferLegacyIndex= */ true);
   }
 
-  // TODO: Make public and consider a constructor that takes DatabaseProvider but not legacy args.
+  /**
+   * Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
+   * the directory cannot be used to store other files.
+   *
+   * @param cacheDir A dedicated cache directory.
+   * @param evictor The evictor to be used. For download use cases where cache eviction should not
+   *     occur, use {@link NoOpCacheEvictor}.
+   * @param databaseProvider Provides the database in which the cache index is stored.
+   */
+  public SimpleCache(File cacheDir, CacheEvictor evictor, DatabaseProvider databaseProvider) {
+    this(
+        cacheDir,
+        evictor,
+        databaseProvider,
+        /* legacyIndexSecretKey= */ null,
+        /* legacyIndexEncrypt= */ false,
+        /* preferLegacyIndex= */ false);
+  }
+
   /**
    * Constructs the cache. The cache will delete any unrecognized files from the cache directory.
    * Hence the directory cannot be used to store other files.
    *
    * @param cacheDir A dedicated cache directory.
-   * @param evictor The evictor to be used.
+   * @param evictor The evictor to be used. For download use cases where cache eviction should not
+   *     occur, use {@link NoOpCacheEvictor}.
    * @param databaseProvider Provides the database in which the cache index is stored, or {@code
-   *     null} to use a legacy index. Using the database index is highly recommended for performance
+   *     null} to use a legacy index. Using a database index is highly recommended for performance
    *     reasons.
    * @param legacyIndexSecretKey A 16 byte AES key for reading, and optionally writing, the legacy
    *     index. Not used by the database index, however should still be provided when using the
    *     database index in cases where upgrading from the legacy index may be necessary.
-   * @param legacyIndexEncrypt Whether to encrypt when writing to the legacy index. Must be false if
-   *     {@code legacyIndexSecretKey} is null. Not used by the database index.
+   * @param legacyIndexEncrypt Whether to encrypt when writing to the legacy index. Must be {@code
+   *     false} if {@code legacyIndexSecretKey} is {@code null}. Not used by the database index.
    * @param preferLegacyIndex Whether to use the legacy index even if a {@code databaseProvider} is
-   *     provided. Should be {@code false} in most cases. Setting this to {@code true} is only
+   *     provided. Should be {@code false} in nearly all cases. Setting this to {@code true} is only
    *     useful for downgrading from the database index back to the legacy index.
    */
-  /* package */ SimpleCache(
+  public SimpleCache(
       File cacheDir,
       CacheEvictor evictor,
       @Nullable DatabaseProvider databaseProvider,
@@ -236,15 +264,6 @@ public final class SimpleCache implements Cache {
             : null);
   }
 
-  /**
-   * Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
-   * the directory cannot be used to store other files.
-   *
-   * @param cacheDir A dedicated cache directory.
-   * @param evictor The evictor to be used.
-   * @param contentIndex The content index to be used.
-   * @param fileIndex The file index to be used.
-   */
   /* package */ SimpleCache(
       File cacheDir,
       CacheEvictor evictor,
@@ -260,7 +279,7 @@ public final class SimpleCache implements Cache {
     this.fileIndex = fileIndex;
     listeners = new HashMap<>();
     random = new Random();
-    uid = -1;
+    uid = UID_UNSET;
 
     // Start cache initialization.
     final ConditionVariable conditionVariable = new ConditionVariable();
@@ -286,6 +305,11 @@ public final class SimpleCache implements Cache {
     if (!cacheInitializationExceptionsDisabled && initializationException != null) {
       throw initializationException;
     }
+  }
+
+  @Override
+  public synchronized long getUid() {
+    return uid;
   }
 
   @Override
@@ -529,11 +553,6 @@ public final class SimpleCache implements Cache {
     return contentIndex.getContentMetadata(key);
   }
 
-  /** Returns the non-negative cache UID, or -1 if cache initialization failed. */
-  /* package */ synchronized long getUid() {
-    return uid;
-  }
-
   /**
    * Returns the cache {@link SimpleCacheSpan} corresponding to the provided lookup {@link
    * SimpleCacheSpan}.
@@ -584,15 +603,14 @@ public final class SimpleCache implements Cache {
     }
 
     uid = loadUid(files);
-    if (uid == -1) {
+    if (uid == UID_UNSET) {
       try {
         uid = createUid(cacheDir);
       } catch (IOException e) {
         String message = "Failed to create cache UID: " + cacheDir;
         Log.e(TAG, message, e);
-        // TODO: Reinstate this only when a database index is used [Internal ref: b/128933265].
-        // initializationException = new CacheException(message, e);
-        // return;
+        initializationException = new CacheException(message, e);
+        return;
       }
     }
 
@@ -756,7 +774,7 @@ public final class SimpleCache implements Cache {
    * Loads the cache UID from the files belonging to the root directory.
    *
    * @param files The files belonging to the root directory.
-   * @return The loaded UID, or -1 if a UID has not yet been created.
+   * @return The loaded UID, or {@link #UID_UNSET} if a UID has not yet been created.
    * @throws IOException If there is an error loading or generating the UID.
    */
   private static long loadUid(File[] files) {
@@ -772,7 +790,7 @@ public final class SimpleCache implements Cache {
         }
       }
     }
-    return -1;
+    return UID_UNSET;
   }
 
   @SuppressWarnings("TrulyRandom")
