@@ -24,6 +24,7 @@ import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.Download;
+import java.util.List;
 
 /** Helper for creating download notifications. */
 public final class DownloadNotificationHelper {
@@ -44,26 +45,27 @@ public final class DownloadNotificationHelper {
   }
 
   /**
-   * Returns a progress notification for the given download states.
+   * Returns a progress notification for the given downloads.
    *
    * @param smallIcon A small icon for the notification.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
-   * @param downloads The download states.
+   * @param downloads The downloads.
    * @return The notification.
    */
   public Notification buildProgressNotification(
       @DrawableRes int smallIcon,
       @Nullable PendingIntent contentIntent,
       @Nullable String message,
-      Download[] downloads) {
+      List<Download> downloads) {
     float totalPercentage = 0;
     int downloadTaskCount = 0;
     boolean allDownloadPercentagesUnknown = true;
     boolean haveDownloadedBytes = false;
     boolean haveDownloadTasks = false;
     boolean haveRemoveTasks = false;
-    for (Download download : downloads) {
+    for (int i = 0; i < downloads.size(); i++) {
+      Download download = downloads.get(i);
       if (download.state == Download.STATE_REMOVING) {
         haveRemoveTasks = true;
         continue;

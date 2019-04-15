@@ -141,7 +141,7 @@ public class DownloadTracker implements DownloadManager.Listener {
         downloads.put(download.action.uri, download);
       }
     } catch (IOException e) {
-      Log.w(TAG, "Failed to query download states", e);
+      Log.w(TAG, "Failed to query downloads", e);
     }
   }
 
