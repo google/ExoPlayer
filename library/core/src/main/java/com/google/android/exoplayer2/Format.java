@@ -1059,12 +1059,18 @@ public final class Format implements Parcelable {
       @Nullable String label,
       @Nullable String sampleMimeType,
       @Nullable String codecs,
+      @Nullable Metadata metadata,
       int bitrate,
       int width,
       int height,
       int channelCount,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language) {
+
+    if (this.metadata != null) {
+      metadata = this.metadata.copyWithAppendedEntriesFrom(metadata);
+    }
+
     return new Format(
         id,
         label,
@@ -1127,6 +1133,12 @@ public final class Format implements Parcelable {
         codecs = codecsOfType;
       }
     }
+
+    Metadata metadata =
+        this.metadata == null
+            ? manifestFormat.metadata
+            : this.metadata.copyWithAppendedEntriesFrom(manifestFormat.metadata);
+
     float frameRate = this.frameRate;
     if (frameRate == NO_VALUE && trackType == C.TRACK_TYPE_VIDEO) {
       frameRate = manifestFormat.frameRate;

@@ -1126,6 +1126,7 @@ import java.util.Map;
         playlistFormat.label,
         mimeType,
         codecs,
+        playlistFormat.metadata,
         bitrate,
         playlistFormat.width,
         playlistFormat.height,

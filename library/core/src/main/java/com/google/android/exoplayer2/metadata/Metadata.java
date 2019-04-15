@@ -79,6 +79,21 @@ public final class Metadata implements Parcelable {
   }
 
   /**
+   * Returns a copy of this metadata with the entries of the specified metadata appended. Returns
+   * this instance if {@code other} is null.
+   *
+   * @param other The metadata that holds the entries to append. If null, this methods returns this
+   *     instance.
+   * @return The metadata instance with the appended entries.
+   */
+  public Metadata copyWithAppendedEntriesFrom(@Nullable Metadata other) {
+    if (other == null) {
+      return this;
+    }
+    return copyWithAppendedEntries(other.entries);
+  }
+
+  /**
    * Returns a copy of this metadata with the specified entries appended.
    *
    * @param entriesToAppend The entries to append.
