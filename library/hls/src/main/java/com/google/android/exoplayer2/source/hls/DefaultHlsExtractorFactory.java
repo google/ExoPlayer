@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -157,12 +158,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
 
     if (!(extractorByFileExtension instanceof FragmentedMp4Extractor)) {
       FragmentedMp4Extractor fragmentedMp4Extractor =
-          new FragmentedMp4Extractor(
-              /* flags= */ 0,
-              timestampAdjuster,
-              /* sideloadedTrack= */ null,
-              drmInitData,
-              muxedCaptionFormats != null ? muxedCaptionFormats : Collections.emptyList());
+          createFragmentedMp4Extractor(timestampAdjuster, drmInitData, muxedCaptionFormats);
       if (sniffQuietly(fragmentedMp4Extractor, extractorInput)) {
         return buildResult(fragmentedMp4Extractor);
       }
@@ -212,12 +208,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         || lastPathSegment.startsWith(M4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)
         || lastPathSegment.startsWith(MP4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)
         || lastPathSegment.startsWith(CMF_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)) {
-      return new FragmentedMp4Extractor(
-          /* flags= */ 0,
-          timestampAdjuster,
-          /* sideloadedTrack= */ null,
-          drmInitData,
-          muxedCaptionFormats != null ? muxedCaptionFormats : Collections.emptyList());
+      return createFragmentedMp4Extractor(timestampAdjuster, drmInitData, muxedCaptionFormats);
     } else {
       // For any other file extension, we assume TS format.
       return createTsExtractor(
@@ -272,6 +263,18 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         TsExtractor.MODE_HLS,
         timestampAdjuster,
         new DefaultTsPayloadReaderFactory(payloadReaderFactoryFlags, muxedCaptionFormats));
+  }
+
+  private static FragmentedMp4Extractor createFragmentedMp4Extractor(
+      TimestampAdjuster timestampAdjuster,
+      DrmInitData drmInitData,
+      @Nullable List<Format> muxedCaptionFormats) {
+    return new FragmentedMp4Extractor(
+        /* flags= */ 0,
+        timestampAdjuster,
+        /* sideloadedTrack= */ null,
+        drmInitData,
+        muxedCaptionFormats != null ? muxedCaptionFormats : Collections.emptyList());
   }
 
   private static Result buildResultForSameExtractorType(
