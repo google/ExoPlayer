@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.demo;
 import android.app.Application;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.offline.ActionFileUpgradeUtil;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
@@ -52,6 +53,7 @@ public class DemoApplication extends Application {
 
   protected String userAgent;
 
+  private DatabaseProvider databaseProvider;
   private File downloadDirectory;
   private Cache downloadCache;
   private DownloadManager downloadManager;
@@ -105,14 +107,15 @@ public class DemoApplication extends Application {
   protected synchronized Cache getDownloadCache() {
     if (downloadCache == null) {
       File downloadContentDirectory = new File(getDownloadDirectory(), DOWNLOAD_CONTENT_DIRECTORY);
-      downloadCache = new SimpleCache(downloadContentDirectory, new NoOpCacheEvictor());
+      downloadCache =
+          new SimpleCache(downloadContentDirectory, new NoOpCacheEvictor(), getDatabaseProvider());
     }
     return downloadCache;
   }
 
   private synchronized void initDownloadManager() {
     if (downloadManager == null) {
-      DefaultDownloadIndex downloadIndex = new DefaultDownloadIndex(new ExoDatabaseProvider(this));
+      DefaultDownloadIndex downloadIndex = new DefaultDownloadIndex(getDatabaseProvider());
       upgradeActionFile(DOWNLOAD_TRACKER_ACTION_FILE, downloadIndex);
       upgradeActionFile(DOWNLOAD_ACTION_FILE, downloadIndex);
       DownloaderConstructorHelper downloaderConstructorHelper =
@@ -141,6 +144,13 @@ public class DemoApplication extends Application {
     } catch (IOException e) {
       Log.e(TAG, "Failed to upgrade action file: " + fileName, e);
     }
+  }
+
+  private DatabaseProvider getDatabaseProvider() {
+    if (databaseProvider == null) {
+      databaseProvider = new ExoDatabaseProvider(this);
+    }
+    return databaseProvider;
   }
 
   private File getDownloadDirectory() {

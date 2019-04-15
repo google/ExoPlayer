@@ -83,6 +83,22 @@ public interface Cache {
   }
 
   /**
+   * Returned by {@link #getUid()} if initialization failed before the unique identifier was read or
+   * generated.
+   */
+  long UID_UNSET = -1;
+
+  /**
+   * Returns a non-negative unique identifier for the cache, or {@link #UID_UNSET} if initialization
+   * failed before the unique identifier was determined.
+   *
+   * <p>Implementations are expected to generate and store the unique identifier alongside the
+   * cached content. If the location of the cache is deleted or swapped, it is expected that a new
+   * unique identifier will be generated when the cache is recreated.
+   */
+  long getUid();
+
+  /**
    * Releases the cache. This method must be called when the cache is no longer required. The cache
    * must not be used after calling this method.
    */
