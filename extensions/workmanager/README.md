@@ -1,8 +1,8 @@
 # ExoPlayer WorkManager extension #
 
-This extension provides a Scheduler implementation which uses [Android Arch WorkManager][].
+This extension provides a Scheduler implementation which uses [WorkManager][].
 
-[Android Arch WorkManager]: https://developer.android.com/topic/libraries/architecture/workmanager.html
+[WorkManager]: https://developer.android.com/topic/libraries/architecture/workmanager.html
 
 ## Getting the extension ##
 

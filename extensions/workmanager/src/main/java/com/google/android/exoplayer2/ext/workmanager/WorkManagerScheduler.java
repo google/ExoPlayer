@@ -35,7 +35,7 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-/***
+/**
  * A {@link Scheduler} that uses {@link WorkManager}.
  */
 public final class WorkManagerScheduler implements Scheduler {
