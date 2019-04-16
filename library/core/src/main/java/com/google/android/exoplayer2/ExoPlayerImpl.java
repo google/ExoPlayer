@@ -631,8 +631,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
             playbackInfo.resetToNewPosition(
                 playbackInfo.periodId, /* startPositionUs= */ 0, playbackInfo.contentPositionUs);
       }
-      if ((!this.playbackInfo.timeline.isEmpty() || hasPendingPrepare)
-          && playbackInfo.timeline.isEmpty()) {
+      if (!this.playbackInfo.timeline.isEmpty() && playbackInfo.timeline.isEmpty()) {
         // Update the masking variables, which are used when the timeline becomes empty.
         maskingPeriodIndex = 0;
         maskingWindowIndex = 0;
