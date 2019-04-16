@@ -364,6 +364,7 @@ public final class MediaSessionConnector {
   private final Looper looper;
   private final ComponentListener componentListener;
   private final ArrayList<CommandReceiver> commandReceivers;
+  private final ArrayList<CommandReceiver> customCommandReceivers;
 
   private ControlDispatcher controlDispatcher;
   private CustomActionProvider[] customActionProviders;
@@ -392,6 +393,7 @@ public final class MediaSessionConnector {
     looper = Util.getLooper();
     componentListener = new ComponentListener();
     commandReceivers = new ArrayList<>();
+    customCommandReceivers = new ArrayList<>();
     controlDispatcher = new DefaultControlDispatcher();
     customActionProviders = new CustomActionProvider[0];
     customActionMap = Collections.emptyMap();
@@ -695,6 +697,29 @@ public final class MediaSessionConnector {
     if (queueNavigator != null && player != null) {
       queueNavigator.onTimelineChanged(player);
     }
+  }
+
+  /**
+   * Registers a custom command receiver for responding to commands delivered via {@link
+   * MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)}.
+   *
+   * <p>Commands are only dispatched to this receiver when a player is connected.
+   *
+   * @param commandReceiver The command receiver to register.
+   */
+  public void registerCustomCommandReceiver(CommandReceiver commandReceiver) {
+    if (!customCommandReceivers.contains(commandReceiver)) {
+      customCommandReceivers.add(commandReceiver);
+    }
+  }
+
+  /**
+   * Unregisters a previously registered custom command receiver.
+   *
+   * @param commandReceiver The command receiver to unregister.
+   */
+  public void unregisterCustomCommandReceiver(CommandReceiver commandReceiver) {
+    customCommandReceivers.remove(commandReceiver);
   }
 
   private void registerCommandReceiver(CommandReceiver commandReceiver) {
@@ -1110,6 +1135,13 @@ public final class MediaSessionConnector {
       if (player != null) {
         for (int i = 0; i < commandReceivers.size(); i++) {
           if (commandReceivers.get(i).onCommand(player, controlDispatcher, command, extras, cb)) {
+            return;
+          }
+        }
+        for (int i = 0; i < customCommandReceivers.size(); i++) {
+          if (customCommandReceivers
+              .get(i)
+              .onCommand(player, controlDispatcher, command, extras, cb)) {
             return;
           }
         }
