@@ -2,10 +2,6 @@
 
 ### dev-v2 (not yet released) ###
 
-* MediaSession extension:
-  * Allow handling of custom commands via `registerCustomCommandReceiver`.
-  * Add ability to include an extras `Bundle` when reporting a custom error.
-
 ### 2.10.0 ###
 
 * Core library:
@@ -58,15 +54,17 @@
   * Update `DefaultTimeBar` based on duration of media and add parameter to set
     the minimum update interval to control the smoothness of the updates
     ([#5040](https://github.com/google/ExoPlayer/issues/5040)).
+  * Move creation of dialogs for `TrackSelectionView`s to
+    `TrackSelectionDialogBuilder` and add option to select multiple overrides.
+  * Change signature of `PlayerNotificationManager.NotificationListener` to
+    better fit service requirements.
+  * Add option to include navigation actions in the compact mode of
+    notifications created using `PlayerNotificationManager`.
   * Fix issues with flickering notifications on KitKat when using
     `PlayerNotificationManager` and `DownloadNotificationUtil`. For the latter,
     applications should switch to using `DownloadNotificationHelper`.
-  * Add option to include navigation actions in the compact mode of
-    notifications created using `PlayerNotificationManager`.
-  * Change signature of `PlayerNotificationManager.NotificationListener` to
-    better fit service requirements.
-  * Move creation of dialogs for `TrackSelectionView`s to
-    `TrackSelectionDialogBuilder` and add option to select multiple overrides.
+  * Fix accuracy of D-pad seeking in `DefaultTimeBar`
+    ([#5767](https://github.com/google/ExoPlayer/issues/5767)).
 * Audio:
   * Allow `AudioProcessor`s to be drained of pending output after they are
     reconfigured.
@@ -111,6 +109,8 @@
     ([#5179](https://github.com/google/ExoPlayer/issues/5179)).
   * Fix issue with `TimelineQueueNavigator` not publishing the queue in shuffled
     order when in shuffle mode.
+  * Allow handling of custom commands via `registerCustomCommandReceiver`.
+  * Add ability to include an extras `Bundle` when reporting a custom error.
 
 ### 2.9.6 ###
 
