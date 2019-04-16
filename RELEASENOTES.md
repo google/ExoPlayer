@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released) ###
 
+* MediaSession extension:
+  * Allow handling of custom commands via `registerCustomCommandReceiver`.
+
 ### 2.10.0 ###
 
 * Core library:
