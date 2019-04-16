@@ -301,7 +301,7 @@ public class DefaultDownloadIndexTest {
   }
 
   private static void assertEqual(Download download, Download that) {
-    assertThat(download.action).isEqualTo(that.action);
+    assertThat(download.request).isEqualTo(that.request);
     assertThat(download.state).isEqualTo(that.state);
     assertThat(download.startTimeMs).isEqualTo(that.startTimeMs);
     assertThat(download.updateTimeMs).isEqualTo(that.updateTimeMs);

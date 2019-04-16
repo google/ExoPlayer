@@ -29,8 +29,8 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
-import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadException;
+import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.Downloader;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.DownloaderFactory;
@@ -84,9 +84,9 @@ public class DashDownloaderTest {
 
     Downloader downloader =
         factory.createDownloader(
-            new DownloadAction(
+            new DownloadRequest(
                 "id",
-                DownloadAction.TYPE_DASH,
+                DownloadRequest.TYPE_DASH,
                 Uri.parse("https://www.test.com/download"),
                 Collections.singletonList(new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)),
                 /* customCacheKey= */ null,

@@ -33,20 +33,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Unit tests for {@link ActionFile}. */
+@SuppressWarnings("deprecation")
 @RunWith(AndroidJUnit4.class)
 public class ActionFileTest {
 
   private File tempFile;
-  private DownloadAction expectedAction1;
-  private DownloadAction expectedAction2;
+  private DownloadRequest expectedAction1;
+  private DownloadRequest expectedAction2;
 
   @Before
   public void setUp() throws Exception {
     tempFile = Util.createTempFile(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     expectedAction1 =
-        buildExpectedAction(Uri.parse("http://test1.uri"), TestUtil.buildTestData(16));
+        buildExpectedRequest(Uri.parse("http://test1.uri"), TestUtil.buildTestData(16));
     expectedAction2 =
-        buildExpectedAction(Uri.parse("http://test2.uri"), TestUtil.buildTestData(32));
+        buildExpectedRequest(Uri.parse("http://test2.uri"), TestUtil.buildTestData(32));
   }
 
   @After
@@ -79,7 +80,7 @@ public class ActionFileTest {
   @Test
   public void testLoadZeroActions() throws Exception {
     ActionFile actionFile = getActionFile("offline/action_file_zero_actions.exi");
-    DownloadAction[] actions = actionFile.load();
+    DownloadRequest[] actions = actionFile.load();
     assertThat(actions).isNotNull();
     assertThat(actions).hasLength(0);
   }
@@ -87,7 +88,7 @@ public class ActionFileTest {
   @Test
   public void testLoadOneAction() throws Exception {
     ActionFile actionFile = getActionFile("offline/action_file_one_action.exi");
-    DownloadAction[] actions = actionFile.load();
+    DownloadRequest[] actions = actionFile.load();
     assertThat(actions).hasLength(1);
     assertThat(actions[0]).isEqualTo(expectedAction1);
   }
@@ -95,7 +96,7 @@ public class ActionFileTest {
   @Test
   public void testLoadTwoActions() throws Exception {
     ActionFile actionFile = getActionFile("offline/action_file_two_actions.exi");
-    DownloadAction[] actions = actionFile.load();
+    DownloadRequest[] actions = actionFile.load();
     assertThat(actions).hasLength(2);
     assertThat(actions[0]).isEqualTo(expectedAction1);
     assertThat(actions[1]).isEqualTo(expectedAction2);
@@ -123,10 +124,10 @@ public class ActionFileTest {
     return new ActionFile(tempFile);
   }
 
-  private static DownloadAction buildExpectedAction(Uri uri, byte[] data) {
-    return new DownloadAction(
+  private static DownloadRequest buildExpectedRequest(Uri uri, byte[] data) {
+    return new DownloadRequest(
         /* id= */ uri.toString(),
-        DownloadAction.TYPE_PROGRESSIVE,
+        DownloadRequest.TYPE_PROGRESSIVE,
         uri,
         /* streamKeys= */ Collections.emptyList(),
         /* customCacheKey= */ null,

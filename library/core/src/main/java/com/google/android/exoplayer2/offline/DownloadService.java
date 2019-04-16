@@ -39,7 +39,7 @@ import java.util.List;
 public abstract class DownloadService extends Service {
 
   /**
-   * Starts a download service without adding a new {@link DownloadAction}. Extras:
+   * Starts a download service to resume any ongoing downloads. Extras:
    *
    * <ul>
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
@@ -56,7 +56,7 @@ public abstract class DownloadService extends Service {
    * Adds a new download. Extras:
    *
    * <ul>
-   *   <li>{@link #KEY_DOWNLOAD_ACTION} - A {@link DownloadAction} defining the download to be
+   *   <li>{@link #KEY_DOWNLOAD_REQUEST} - A {@link DownloadRequest} defining the download to be
    *       added.
    *   <li>{@link #KEY_MANUAL_STOP_REASON} - An initial manual stop reason for the download. If
    *       omitted {@link Download#MANUAL_STOP_REASON_NONE} is used.
@@ -103,7 +103,7 @@ public abstract class DownloadService extends Service {
       "com.google.android.exoplayer.downloadService.action.SET_MANUAL_STOP_REASON";
 
   /**
-   * Removes an existing download. Extras:
+   * Removes a download. Extras:
    *
    * <ul>
    *   <li>{@link #KEY_CONTENT_ID} - The content id of a download to remove.
@@ -113,11 +113,8 @@ public abstract class DownloadService extends Service {
   public static final String ACTION_REMOVE =
       "com.google.android.exoplayer.downloadService.action.REMOVE";
 
-  /**
-   * Key for the {@code byte[]} representation of the {@link DownloadAction} in {@link #ACTION_ADD}
-   * intents.
-   */
-  public static final String KEY_DOWNLOAD_ACTION = "download_action";
+  /** Key for the {@link DownloadRequest} in {@link #ACTION_ADD} intents. */
+  public static final String KEY_DOWNLOAD_REQUEST = "download_request";
 
   /**
    * Key for the content id in {@link #ACTION_START}, {@link #ACTION_STOP} and {@link
@@ -234,42 +231,42 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * Builds an {@link Intent} for adding an action to be executed by the service.
+   * Builds an {@link Intent} for adding a new download.
    *
    * @param context A {@link Context}.
    * @param clazz The concrete download service being targeted by the intent.
-   * @param downloadAction The action to be executed.
+   * @param downloadRequest The request to be executed.
    * @param foreground Whether this intent will be used to start the service in the foreground.
    * @return Created Intent.
    */
-  public static Intent buildAddActionIntent(
+  public static Intent buildAddRequestIntent(
       Context context,
       Class<? extends DownloadService> clazz,
-      DownloadAction downloadAction,
+      DownloadRequest downloadRequest,
       boolean foreground) {
-    return buildAddActionIntent(
-        context, clazz, downloadAction, MANUAL_STOP_REASON_NONE, foreground);
+    return buildAddRequestIntent(
+        context, clazz, downloadRequest, MANUAL_STOP_REASON_NONE, foreground);
   }
 
   /**
-   * Builds an {@link Intent} for adding an action to be executed by the service.
+   * Builds an {@link Intent} for adding a new download.
    *
    * @param context A {@link Context}.
    * @param clazz The concrete download service being targeted by the intent.
-   * @param downloadAction The action to be executed.
+   * @param downloadRequest The request to be executed.
    * @param manualStopReason An initial manual stop reason for the download, or {@link
    *     Download#MANUAL_STOP_REASON_NONE} if the download should be started.
    * @param foreground Whether this intent will be used to start the service in the foreground.
    * @return Created Intent.
    */
-  public static Intent buildAddActionIntent(
+  public static Intent buildAddRequestIntent(
       Context context,
       Class<? extends DownloadService> clazz,
-      DownloadAction downloadAction,
+      DownloadRequest downloadRequest,
       int manualStopReason,
       boolean foreground) {
     return getIntent(context, clazz, ACTION_ADD)
-        .putExtra(KEY_DOWNLOAD_ACTION, downloadAction)
+        .putExtra(KEY_DOWNLOAD_REQUEST, downloadRequest)
         .putExtra(KEY_MANUAL_STOP_REASON, manualStopReason)
         .putExtra(KEY_FOREGROUND, foreground);
   }
@@ -311,19 +308,19 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * Starts the service, adding an action to be executed.
+   * Starts the service, adding a new download.
    *
    * @param context A {@link Context}.
    * @param clazz The concrete download service to be started.
-   * @param downloadAction The action to be executed.
+   * @param downloadRequest The request to be executed.
    * @param foreground Whether the service is started in the foreground.
    */
-  public static void startWithAction(
+  public static void startWithNewDownload(
       Context context,
       Class<? extends DownloadService> clazz,
-      DownloadAction downloadAction,
+      DownloadRequest downloadRequest,
       boolean foreground) {
-    Intent intent = buildAddActionIntent(context, clazz, downloadAction, foreground);
+    Intent intent = buildAddRequestIntent(context, clazz, downloadRequest, foreground);
     if (foreground) {
       Util.startForegroundService(context, intent);
     } else {
@@ -350,8 +347,7 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * Starts the service without adding a new action. If there are any not finished actions and the
-   * requirements are met, the service resumes executing actions. Otherwise it stops immediately.
+   * Starts a download service to resume any ongoing downloads.
    *
    * @param context A {@link Context}.
    * @param clazz The concrete download service to be started.
@@ -362,9 +358,9 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * Starts the service in the foreground without adding a new action. If there are any not finished
-   * actions and the requirements are met, the service resumes executing actions. Otherwise it stops
-   * immediately.
+   * Starts the service in the foreground without adding a new download request. If there are any
+   * not finished downloads and the requirements are met, the service resumes downloading. Otherwise
+   * it stops immediately.
    *
    * @param context A {@link Context}.
    * @param clazz The concrete download service to be started.
@@ -417,13 +413,13 @@ public abstract class DownloadService extends Service {
         // Do nothing.
         break;
       case ACTION_ADD:
-        DownloadAction downloadAction = intent.getParcelableExtra(KEY_DOWNLOAD_ACTION);
-        if (downloadAction == null) {
-          Log.e(TAG, "Ignored ADD: Missing download_action extra");
+        DownloadRequest downloadRequest = intent.getParcelableExtra(KEY_DOWNLOAD_REQUEST);
+        if (downloadRequest == null) {
+          Log.e(TAG, "Ignored ADD: Missing " + KEY_DOWNLOAD_REQUEST + " extra");
         } else {
           int manualStopReason =
               intent.getIntExtra(KEY_MANUAL_STOP_REASON, Download.MANUAL_STOP_REASON_NONE);
-          downloadManager.addDownload(downloadAction, manualStopReason);
+          downloadManager.addDownload(downloadRequest, manualStopReason);
         }
         break;
       case ACTION_START:
@@ -434,7 +430,8 @@ public abstract class DownloadService extends Service {
         break;
       case ACTION_SET_MANUAL_STOP_REASON:
         if (!intent.hasExtra(KEY_MANUAL_STOP_REASON)) {
-          Log.e(TAG, "Ignored SET_MANUAL_STOP_REASON: Missing manual_stop_reason extra");
+          Log.e(
+              TAG, "Ignored SET_MANUAL_STOP_REASON: Missing " + KEY_MANUAL_STOP_REASON + " extra");
         } else {
           String contentId = intent.getStringExtra(KEY_CONTENT_ID);
           int manualStopReason =
@@ -445,7 +442,7 @@ public abstract class DownloadService extends Service {
       case ACTION_REMOVE:
         String contentId = intent.getStringExtra(KEY_CONTENT_ID);
         if (contentId == null) {
-          Log.e(TAG, "Ignored REMOVE: Missing content_id extra");
+          Log.e(TAG, "Ignored REMOVE: Missing " + KEY_CONTENT_ID + " extra");
         } else {
           downloadManager.removeDownload(contentId);
         }

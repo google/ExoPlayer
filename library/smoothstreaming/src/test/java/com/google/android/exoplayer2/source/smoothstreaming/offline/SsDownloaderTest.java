@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
-import com.google.android.exoplayer2.offline.DownloadAction;
+import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.Downloader;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.DownloaderFactory;
@@ -44,9 +44,9 @@ public final class SsDownloaderTest {
 
     Downloader downloader =
         factory.createDownloader(
-            new DownloadAction(
+            new DownloadRequest(
                 "id",
-                DownloadAction.TYPE_SS,
+                DownloadRequest.TYPE_SS,
                 Uri.parse("https://www.test.com/download"),
                 Collections.singletonList(new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)),
                 /* customCacheKey= */ null,

@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.offline.DownloadAction.UnsupportedActionException;
+import com.google.android.exoplayer2.offline.DownloadRequest.UnsupportedRequestException;
 import com.google.android.exoplayer2.util.AtomicFile;
 import com.google.android.exoplayer2.util.Util;
 import java.io.DataInputStream;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Loads {@link DownloadAction DownloadActions} from legacy action files.
+ * Loads {@link DownloadRequest DownloadRequests} from legacy action files.
  *
  * @deprecated Legacy action files should be merged into download indices using {@link
  *     ActionFileUpgradeUtil}.
@@ -41,7 +41,7 @@ import java.util.List;
   private final AtomicFile atomicFile;
 
   /**
-   * @param actionFile The file from which {@link DownloadAction DownloadActions} will be loaded.
+   * @param actionFile The file from which {@link DownloadRequest DownloadRequests} will be loaded.
    */
   public ActionFile(File actionFile) {
     atomicFile = new AtomicFile(actionFile);
@@ -58,15 +58,15 @@ import java.util.List;
   }
 
   /**
-   * Loads {@link DownloadAction DownloadActions} from the file.
+   * Loads {@link DownloadRequest DownloadRequests} from the file.
    *
-   * @return The loaded {@link DownloadAction DownloadActions}, or an empty array if the file does
+   * @return The loaded {@link DownloadRequest DownloadRequests}, or an empty array if the file does
    *     not exist.
    * @throws IOException If there is an error reading the file.
    */
-  public DownloadAction[] load() throws IOException {
+  public DownloadRequest[] load() throws IOException {
     if (!exists()) {
-      return new DownloadAction[0];
+      return new DownloadRequest[0];
     }
     InputStream inputStream = null;
     try {
@@ -77,21 +77,21 @@ import java.util.List;
         throw new IOException("Unsupported action file version: " + version);
       }
       int actionCount = dataInputStream.readInt();
-      ArrayList<DownloadAction> actions = new ArrayList<>();
+      ArrayList<DownloadRequest> actions = new ArrayList<>();
       for (int i = 0; i < actionCount; i++) {
         try {
-          actions.add(readDownloadAction(dataInputStream));
-        } catch (UnsupportedActionException e) {
-          // remove DownloadAction is not supported. Ignore the exception and continue loading rest.
+          actions.add(readDownloadRequest(dataInputStream));
+        } catch (UnsupportedRequestException e) {
+          // remove DownloadRequest is not supported. Ignore and continue loading rest.
         }
       }
-      return actions.toArray(new DownloadAction[0]);
+      return actions.toArray(new DownloadRequest[0]);
     } finally {
       Util.closeQuietly(inputStream);
     }
   }
 
-  private static DownloadAction readDownloadAction(DataInputStream input) throws IOException {
+  private static DownloadRequest readDownloadRequest(DataInputStream input) throws IOException {
     String type = input.readUTF();
     int version = input.readInt();
 
@@ -108,7 +108,7 @@ import java.util.List;
     }
 
     // Serialized version 0 progressive actions did not contain keys.
-    boolean isLegacyProgressive = version == 0 && DownloadAction.TYPE_PROGRESSIVE.equals(type);
+    boolean isLegacyProgressive = version == 0 && DownloadRequest.TYPE_PROGRESSIVE.equals(type);
     List<StreamKey> keys = new ArrayList<>();
     if (!isLegacyProgressive) {
       int keyCount = input.readInt();
@@ -120,22 +120,22 @@ import java.util.List;
     // Serialized version 0 and 1 DASH/HLS/SS actions did not contain a custom cache key.
     boolean isLegacySegmented =
         version < 2
-            && (DownloadAction.TYPE_DASH.equals(type)
-                || DownloadAction.TYPE_HLS.equals(type)
-                || DownloadAction.TYPE_SS.equals(type));
+            && (DownloadRequest.TYPE_DASH.equals(type)
+                || DownloadRequest.TYPE_HLS.equals(type)
+                || DownloadRequest.TYPE_SS.equals(type));
     String customCacheKey = null;
     if (!isLegacySegmented) {
       customCacheKey = input.readBoolean() ? input.readUTF() : null;
     }
 
     // Serialized version 0, 1 and 2 did not contain an id. We need to generate one.
-    String id = version < 3 ? generateDownloadActionId(uri, customCacheKey) : input.readUTF();
+    String id = version < 3 ? generateDownloadId(uri, customCacheKey) : input.readUTF();
 
     if (isRemoveAction) {
       // Remove actions are not supported anymore.
-      throw new UnsupportedActionException();
+      throw new UnsupportedRequestException();
     }
-    return new DownloadAction(id, type, uri, keys, customCacheKey, data);
+    return new DownloadRequest(id, type, uri, keys, customCacheKey, data);
   }
 
   private static StreamKey readKey(String type, int version, DataInputStream input)
@@ -145,7 +145,7 @@ import java.util.List;
     int trackIndex;
 
     // Serialized version 0 HLS/SS actions did not contain a period index.
-    if ((DownloadAction.TYPE_HLS.equals(type) || DownloadAction.TYPE_SS.equals(type))
+    if ((DownloadRequest.TYPE_HLS.equals(type) || DownloadRequest.TYPE_SS.equals(type))
         && version == 0) {
       periodIndex = 0;
       groupIndex = input.readInt();
@@ -158,7 +158,7 @@ import java.util.List;
     return new StreamKey(periodIndex, groupIndex, trackIndex);
   }
 
-  private static String generateDownloadActionId(Uri uri, @Nullable String customCacheKey) {
+  private static String generateDownloadId(Uri uri, @Nullable String customCacheKey) {
     return customCacheKey != null ? customCacheKey : uri.toString();
   }
 }

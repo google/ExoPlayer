@@ -75,13 +75,13 @@ public class DemoDownloadService extends DownloadService {
           notificationHelper.buildDownloadCompletedNotification(
               R.drawable.ic_download_done,
               /* contentIntent= */ null,
-              Util.fromUtf8Bytes(download.action.data));
+              Util.fromUtf8Bytes(download.request.data));
     } else if (download.state == Download.STATE_FAILED) {
       notification =
           notificationHelper.buildDownloadFailedNotification(
               R.drawable.ic_download_done,
               /* contentIntent= */ null,
-              Util.fromUtf8Bytes(download.action.data));
+              Util.fromUtf8Bytes(download.request.data));
     } else {
       return;
     }

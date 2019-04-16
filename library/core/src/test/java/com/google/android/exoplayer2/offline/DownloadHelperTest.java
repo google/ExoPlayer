@@ -379,7 +379,7 @@ public class DownloadHelperTest {
   }
 
   @Test
-  public void getDownloadAction_createsDownloadAction_withAllSelectedTracks() throws Exception {
+  public void getDownloadRequest_createsDownloadRequest_withAllSelectedTracks() throws Exception {
     prepareDownloadHelper(downloadHelper);
     // Ensure we have track groups with multiple indices, renderers with multiple track groups and
     // also renderers without any track groups.
@@ -392,13 +392,13 @@ public class DownloadHelperTest {
     byte[] data = new byte[10];
     Arrays.fill(data, (byte) 123);
 
-    DownloadAction downloadAction = downloadHelper.getDownloadAction(data);
+    DownloadRequest downloadRequest = downloadHelper.getDownloadRequest(data);
 
-    assertThat(downloadAction.type).isEqualTo(TEST_DOWNLOAD_TYPE);
-    assertThat(downloadAction.uri).isEqualTo(testUri);
-    assertThat(downloadAction.customCacheKey).isEqualTo(TEST_CACHE_KEY);
-    assertThat(downloadAction.data).isEqualTo(data);
-    assertThat(downloadAction.streamKeys)
+    assertThat(downloadRequest.type).isEqualTo(TEST_DOWNLOAD_TYPE);
+    assertThat(downloadRequest.uri).isEqualTo(testUri);
+    assertThat(downloadRequest.customCacheKey).isEqualTo(TEST_CACHE_KEY);
+    assertThat(downloadRequest.data).isEqualTo(data);
+    assertThat(downloadRequest.streamKeys)
         .containsExactly(
             new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 0, /* trackIndex= */ 0),
             new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 0, /* trackIndex= */ 1),

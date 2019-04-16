@@ -28,18 +28,18 @@ public final class ActionFileUpgradeUtil {
   public interface DownloadIdProvider {
 
     /**
-     * Returns a download id for given action.
+     * Returns a download id for given request.
      *
-     * @param downloadAction The action for which an ID is required.
+     * @param downloadRequest The request for which an ID is required.
      * @return A corresponding download ID.
      */
-    String getId(DownloadAction downloadAction);
+    String getId(DownloadRequest downloadRequest);
   }
 
   private ActionFileUpgradeUtil() {}
 
   /**
-   * Merges {@link DownloadAction DownloadActions} contained in a legacy action file into a {@link
+   * Merges {@link DownloadRequest DownloadRequests} contained in a legacy action file into a {@link
    * DefaultDownloadIndex}, deleting the action file if the merge is successful or if {@code
    * deleteOnFailure} is {@code true}.
    *
@@ -49,9 +49,9 @@ public final class ActionFileUpgradeUtil {
    * @param actionFilePath The action file path.
    * @param downloadIdProvider A download ID provider, or {@code null}. If {@code null} then ID of
    *     each download will be its custom cache key if one is specified, or else its URL.
-   * @param downloadIndex The index into which the action will be merged.
+   * @param downloadIndex The index into which the requests will be merged.
    * @param deleteOnFailure Whether to delete the action file if the merge fails.
-   * @throws IOException If an error occurs loading or merging the actions.
+   * @throws IOException If an error occurs loading or merging the requests.
    */
   @SuppressWarnings("deprecation")
   public static void upgradeAndDelete(
@@ -64,11 +64,11 @@ public final class ActionFileUpgradeUtil {
     if (actionFile.exists()) {
       boolean success = false;
       try {
-        for (DownloadAction action : actionFile.load()) {
+        for (DownloadRequest request : actionFile.load()) {
           if (downloadIdProvider != null) {
-            action = action.copyWithId(downloadIdProvider.getId(action));
+            request = request.copyWithId(downloadIdProvider.getId(request));
           }
-          mergeAction(action, downloadIndex);
+          mergeRequest(request, downloadIndex);
         }
         success = true;
       } finally {
@@ -80,22 +80,22 @@ public final class ActionFileUpgradeUtil {
   }
 
   /**
-   * Merges a {@link DownloadAction} into a {@link DefaultDownloadIndex}.
+   * Merges a {@link DownloadRequest} into a {@link DefaultDownloadIndex}.
    *
-   * @param action The action to be merged.
-   * @param downloadIndex The index into which the action will be merged.
-   * @throws IOException If an error occurs merging the action.
+   * @param request The request to be merged.
+   * @param downloadIndex The index into which the request will be merged.
+   * @throws IOException If an error occurs merging the request.
    */
-  /* package */ static void mergeAction(DownloadAction action, DefaultDownloadIndex downloadIndex)
-      throws IOException {
-    Download download = downloadIndex.getDownload(action.id);
+  /* package */ static void mergeRequest(
+      DownloadRequest request, DefaultDownloadIndex downloadIndex) throws IOException {
+    Download download = downloadIndex.getDownload(request.id);
     if (download != null) {
-      download = DownloadManager.mergeAction(download, action, download.manualStopReason);
+      download = DownloadManager.mergeRequest(download, request, download.manualStopReason);
     } else {
       long nowMs = System.currentTimeMillis();
       download =
           new Download(
-              action,
+              request,
               STATE_QUEUED,
               Download.FAILURE_REASON_NONE,
               Download.MANUAL_STOP_REASON_NONE,

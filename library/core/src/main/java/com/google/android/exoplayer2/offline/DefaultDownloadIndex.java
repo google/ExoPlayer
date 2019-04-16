@@ -194,12 +194,12 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   public void putDownload(Download download) throws DatabaseIOException {
     ensureInitialized();
     ContentValues values = new ContentValues();
-    values.put(COLUMN_ID, download.action.id);
-    values.put(COLUMN_TYPE, download.action.type);
-    values.put(COLUMN_URI, download.action.uri.toString());
-    values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(download.action.streamKeys));
-    values.put(COLUMN_CUSTOM_CACHE_KEY, download.action.customCacheKey);
-    values.put(COLUMN_DATA, download.action.data);
+    values.put(COLUMN_ID, download.request.id);
+    values.put(COLUMN_TYPE, download.request.type);
+    values.put(COLUMN_URI, download.request.uri.toString());
+    values.put(COLUMN_STREAM_KEYS, encodeStreamKeys(download.request.streamKeys));
+    values.put(COLUMN_CUSTOM_CACHE_KEY, download.request.customCacheKey);
+    values.put(COLUMN_DATA, download.request.data);
     values.put(COLUMN_STATE, download.state);
     values.put(COLUMN_DOWNLOAD_PERCENTAGE, download.getDownloadPercentage());
     values.put(COLUMN_DOWNLOADED_BYTES, download.getDownloadedBytes());
@@ -342,8 +342,8 @@ public final class DefaultDownloadIndex implements DownloadIndex {
   }
 
   private static Download getDownloadForCurrentRow(Cursor cursor) {
-    DownloadAction action =
-        new DownloadAction(
+    DownloadRequest request =
+        new DownloadRequest(
             cursor.getString(COLUMN_INDEX_ID),
             cursor.getString(COLUMN_INDEX_TYPE),
             Uri.parse(cursor.getString(COLUMN_INDEX_URI)),
@@ -355,7 +355,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     cachingCounters.contentLength = cursor.getLong(COLUMN_INDEX_TOTAL_BYTES);
     cachingCounters.percentage = cursor.getFloat(COLUMN_INDEX_DOWNLOAD_PERCENTAGE);
     return new Download(
-        action,
+        request,
         cursor.getInt(COLUMN_INDEX_STATE),
         cursor.getInt(COLUMN_INDEX_FAILURE_REASON),
         cursor.getInt(COLUMN_INDEX_MANUAL_STOP_REASON),
