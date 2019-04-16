@@ -1109,6 +1109,9 @@ public class PlayerControlView extends FrameLayout {
     @Override
     public void onScrubStart(TimeBar timeBar, long position) {
       scrubbing = true;
+      if (positionView != null) {
+        positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+      }
     }
 
     @Override
