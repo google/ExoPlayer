@@ -311,7 +311,7 @@ public class PlayerActivity extends AppCompatActivity
 
   @Override
   public void preparePlayback() {
-    initializePlayer();
+    player.retry();
   }
 
   // PlaybackControlView.VisibilityListener implementation
@@ -642,21 +642,11 @@ public class PlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-      if (player.getPlaybackError() != null) {
-        // The user has performed a seek whilst in the error state. Update the resume position so
-        // that if the user then retries, playback resumes from the position to which they seeked.
-        updateStartPosition();
-      }
-    }
-
-    @Override
     public void onPlayerError(ExoPlaybackException e) {
       if (isBehindLiveWindow(e)) {
         clearStartPosition();
         initializePlayer();
       } else {
-        updateStartPosition();
         updateButtonVisibility();
         showControls();
       }
