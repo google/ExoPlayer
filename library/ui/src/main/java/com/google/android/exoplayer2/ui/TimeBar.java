@@ -114,7 +114,7 @@ public interface TimeBar {
      * Called when the user starts moving the scrubber.
      *
      * @param timeBar The time bar.
-     * @param position The position of the scrubber, in milliseconds.
+     * @param position The scrub position in milliseconds.
      */
     void onScrubStart(TimeBar timeBar, long position);
 
@@ -122,7 +122,7 @@ public interface TimeBar {
      * Called when the user moves the scrubber.
      *
      * @param timeBar The time bar.
-     * @param position The position of the scrubber, in milliseconds.
+     * @param position The scrub position in milliseconds.
      */
     void onScrubMove(TimeBar timeBar, long position);
 
@@ -130,11 +130,10 @@ public interface TimeBar {
      * Called when the user stops moving the scrubber.
      *
      * @param timeBar The time bar.
-     * @param position The position of the scrubber, in milliseconds.
+     * @param position The scrub position in milliseconds.
      * @param canceled Whether scrubbing was canceled.
      */
     void onScrubStop(TimeBar timeBar, long position, boolean canceled);
-
   }
 
 }
