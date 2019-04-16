@@ -373,6 +373,7 @@ public final class MediaSessionConnector {
   @Nullable private Player player;
   @Nullable private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   @Nullable private Pair<Integer, CharSequence> customError;
+  @Nullable private Bundle customErrorExtras;
   @Nullable private PlaybackPreparer playbackPreparer;
   @Nullable private QueueNavigator queueNavigator;
   @Nullable private QueueEditor queueEditor;
@@ -581,7 +582,20 @@ public final class MediaSessionConnector {
    * @param code The error code to report. Ignored when {@code message} is {@code null}.
    */
   public void setCustomErrorMessage(@Nullable CharSequence message, int code) {
+    setCustomErrorMessage(message, code, /* extras= */ null);
+  }
+
+  /**
+   * Sets a custom error on the session.
+   *
+   * @param message The error string to report or {@code null} to clear the error.
+   * @param code The error code to report. Ignored when {@code message} is {@code null}.
+   * @param extras Extras to include in reported {@link PlaybackStateCompat}.
+   */
+  public void setCustomErrorMessage(
+      @Nullable CharSequence message, int code, @Nullable Bundle extras) {
     customError = (message == null) ? null : new Pair<>(code, message);
+    customErrorExtras = (message == null) ? null : extras;
     invalidateMediaSessionPlaybackState();
   }
 
@@ -654,6 +668,7 @@ public final class MediaSessionConnector {
     customActionMap = Collections.unmodifiableMap(currentActions);
 
     int playbackState = player.getPlaybackState();
+    Bundle extras = new Bundle();
     ExoPlaybackException playbackError =
         playbackState == Player.STATE_IDLE ? player.getPlaybackError() : null;
     boolean reportError = playbackError != null || customError != null;
@@ -663,6 +678,9 @@ public final class MediaSessionConnector {
             : mapPlaybackState(player.getPlaybackState(), player.getPlayWhenReady());
     if (customError != null) {
       builder.setErrorMessage(customError.first, customError.second);
+      if (customErrorExtras != null) {
+        extras.putAll(customErrorExtras);
+      }
     } else if (playbackError != null && errorMessageProvider != null) {
       Pair<Integer, String> message = errorMessageProvider.getErrorMessage(playbackError);
       builder.setErrorMessage(message.first, message.second);
@@ -671,7 +689,6 @@ public final class MediaSessionConnector {
         queueNavigator != null
             ? queueNavigator.getActiveQueueItemId(player)
             : MediaSessionCompat.QueueItem.UNKNOWN_ID;
-    Bundle extras = new Bundle();
     extras.putFloat(EXTRAS_PITCH, player.getPlaybackParameters().pitch);
     builder
         .setActions(buildPrepareActions() | buildPlaybackActions(player))

@@ -4,6 +4,7 @@
 
 * MediaSession extension:
   * Allow handling of custom commands via `registerCustomCommandReceiver`.
+  * Add ability to include an extras `Bundle` when reporting a custom error.
 
 ### 2.10.0 ###
 
