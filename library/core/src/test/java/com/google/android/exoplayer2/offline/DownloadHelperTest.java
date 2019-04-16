@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.robolectric.shadows.ShadowBaseLooper.shadowMainLooper;
 
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -34,7 +35,6 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
-import com.google.android.exoplayer2.testutil.RobolectricUtil;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
@@ -51,12 +51,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.annotation.LooperMode;
 
 /** Unit tests for {@link DownloadHelper}. */
 @RunWith(AndroidJUnit4.class)
-@Config(shadows = {RobolectricUtil.CustomLooper.class, RobolectricUtil.CustomMessageQueue.class})
+@LooperMode(LooperMode.Mode.PAUSED)
 public class DownloadHelperTest {
 
   private static final String TEST_DOWNLOAD_TYPE = "downloadType";
@@ -426,7 +425,7 @@ public class DownloadHelperTest {
           }
         });
     while (!preparedCondition.block(0)) {
-      ShadowLooper.runMainLooperToNextTask();
+      shadowMainLooper().idleFor(shadowMainLooper().getNextScheduledTaskTime());
     }
     if (prepareException.get() != null) {
       throw prepareException.get();
