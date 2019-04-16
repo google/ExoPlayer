@@ -63,7 +63,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * A helper for initializing and removing downloads.
  *
  * <p>The helper extracts track information from the media, selects tracks for downloading, and
- * creates {@link DownloadAction download actions} based on the selected tracks.
+ * creates {@link DownloadRequest download requests} based on the selected tracks.
  *
  * <p>A typical usage of DownloadHelper follows these steps:
  *
@@ -74,7 +74,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       #getTrackSelections(int, int)}, and make adjustments using {@link
  *       #clearTrackSelections(int)}, {@link #replaceTrackSelections(int, Parameters)} and {@link
  *       #addTrackSelection(int, Parameters)}.
- *   <li>Create a download action for the selected track using {@link #getDownloadAction(byte[])}.
+ *   <li>Create a download request for the selected track using {@link #getDownloadRequest(byte[])}.
  *   <li>Release the helper using {@link #release()}.
  * </ol>
  */
@@ -150,7 +150,7 @@ public final class DownloadHelper {
    */
   public static DownloadHelper forProgressive(Uri uri, @Nullable String cacheKey) {
     return new DownloadHelper(
-        DownloadAction.TYPE_PROGRESSIVE,
+        DownloadRequest.TYPE_PROGRESSIVE,
         uri,
         cacheKey,
         /* mediaSource= */ null,
@@ -199,7 +199,7 @@ public final class DownloadHelper {
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       DefaultTrackSelector.Parameters trackSelectorParameters) {
     return new DownloadHelper(
-        DownloadAction.TYPE_DASH,
+        DownloadRequest.TYPE_DASH,
         uri,
         /* cacheKey= */ null,
         createMediaSource(
@@ -249,7 +249,7 @@ public final class DownloadHelper {
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       DefaultTrackSelector.Parameters trackSelectorParameters) {
     return new DownloadHelper(
-        DownloadAction.TYPE_HLS,
+        DownloadRequest.TYPE_HLS,
         uri,
         /* cacheKey= */ null,
         createMediaSource(
@@ -299,7 +299,7 @@ public final class DownloadHelper {
       @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       DefaultTrackSelector.Parameters trackSelectorParameters) {
     return new DownloadHelper(
-        DownloadAction.TYPE_SS,
+        DownloadRequest.TYPE_SS,
         uri,
         /* cacheKey= */ null,
         createMediaSource(uri, dataSourceFactory, SS_FACTORY_CONSTRUCTOR, SS_FACTORY_CREATE_METHOD),
@@ -327,7 +327,7 @@ public final class DownloadHelper {
   /**
    * Creates download helper.
    *
-   * @param downloadType A download type. This value will be used as {@link DownloadAction#type}.
+   * @param downloadType A download type. This value will be used as {@link DownloadRequest#type}.
    * @param uri A {@link Uri}.
    * @param cacheKey An optional cache key.
    * @param mediaSource A {@link MediaSource} for which tracks are selected, or null if no track
@@ -577,16 +577,16 @@ public final class DownloadHelper {
   }
 
   /**
-   * Builds a {@link DownloadAction} for downloading the selected tracks. Must not be called until
+   * Builds a {@link DownloadRequest} for downloading the selected tracks. Must not be called until
    * after preparation completes.
    *
-   * @param data Application provided data to store in {@link DownloadAction#data}.
-   * @return The built {@link DownloadAction}.
+   * @param data Application provided data to store in {@link DownloadRequest#data}.
+   * @return The built {@link DownloadRequest}.
    */
-  public DownloadAction getDownloadAction(@Nullable byte[] data) {
+  public DownloadRequest getDownloadRequest(@Nullable byte[] data) {
     String downloadId = uri.toString();
     if (mediaSource == null) {
-      return new DownloadAction(
+      return new DownloadRequest(
           downloadId, downloadType, uri, /* streamKeys= */ Collections.emptyList(), cacheKey, data);
     }
     assertPreparedWithMedia();
@@ -601,7 +601,7 @@ public final class DownloadHelper {
       }
       streamKeys.addAll(mediaPreparer.mediaPeriods[periodIndex].getStreamKeys(allSelections));
     }
-    return new DownloadAction(downloadId, downloadType, uri, streamKeys, cacheKey, data);
+    return new DownloadRequest(downloadId, downloadType, uri, streamKeys, cacheKey, data);
   }
 
   // Initialization of array of Lists.

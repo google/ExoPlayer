@@ -38,9 +38,9 @@ public final class DefaultDownloaderFactoryTest {
 
     Downloader downloader =
         factory.createDownloader(
-            new DownloadAction(
+            new DownloadRequest(
                 "id",
-                DownloadAction.TYPE_PROGRESSIVE,
+                DownloadRequest.TYPE_PROGRESSIVE,
                 Uri.parse("https://www.test.com/download"),
                 /* streamKeys= */ Collections.emptyList(),
                 /* customCacheKey= */ null,

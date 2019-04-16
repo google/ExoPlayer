@@ -69,7 +69,7 @@ public final class DownloadManager {
   public interface Listener {
 
     /**
-     * Called when all actions have been restored.
+     * Called when all downloads have been restored.
      *
      * @param downloadManager The reporting instance.
      */
@@ -382,25 +382,25 @@ public final class DownloadManager {
   }
 
   /**
-   * Adds a download defined by the given action.
+   * Adds a download defined by the given request.
    *
-   * @param action The download action.
+   * @param request The download request.
    */
-  public void addDownload(DownloadAction action) {
-    addDownload(action, Download.MANUAL_STOP_REASON_NONE);
+  public void addDownload(DownloadRequest request) {
+    addDownload(request, Download.MANUAL_STOP_REASON_NONE);
   }
 
   /**
-   * Adds a download defined by the given action and with the specified manual stop reason.
+   * Adds a download defined by the given request and with the specified manual stop reason.
    *
-   * @param action The download action.
+   * @param request The download request.
    * @param manualStopReason An initial manual stop reason for the download, or {@link
    *     Download#MANUAL_STOP_REASON_NONE} if the download should be started.
    */
-  public void addDownload(DownloadAction action, int manualStopReason) {
+  public void addDownload(DownloadRequest request, int manualStopReason) {
     pendingMessages++;
     internalHandler
-        .obtainMessage(MSG_ADD_DOWNLOAD, manualStopReason, /* unused */ 0, action)
+        .obtainMessage(MSG_ADD_DOWNLOAD, manualStopReason, /* unused */ 0, request)
         .sendToTarget();
   }
 
@@ -415,9 +415,8 @@ public final class DownloadManager {
   }
 
   /**
-   * Stops all of the downloads and releases resources. If the action file isn't up to date, waits
-   * for the changes to be written. The manager must not be accessed after this method has been
-   * called.
+   * Stops the downloads and releases resources. Waits until the downloads are persisted to the
+   * download index. The manager must not be accessed after this method has been called.
    */
   public void release() {
     synchronized (releaseLock) {
@@ -498,7 +497,7 @@ public final class DownloadManager {
   }
 
   private void onDownloadChanged(Download download) {
-    int downloadIndex = getDownloadIndex(download.action.id);
+    int downloadIndex = getDownloadIndex(download.request.id);
     if (download.isTerminalState()) {
       if (downloadIndex != C.INDEX_UNSET) {
         downloads.remove(downloadIndex);
@@ -514,7 +513,7 @@ public final class DownloadManager {
   }
 
   private void onDownloadRemoved(Download download) {
-    downloads.remove(getDownloadIndex(download.action.id));
+    downloads.remove(getDownloadIndex(download.request.id));
     for (Listener listener : listeners) {
       listener.onDownloadRemoved(this, download);
     }
@@ -532,7 +531,7 @@ public final class DownloadManager {
 
   private int getDownloadIndex(String id) {
     for (int i = 0; i < downloads.size(); i++) {
-      if (downloads.get(i).action.id.equals(id)) {
+      if (downloads.get(i).request.id.equals(id)) {
         return i;
       }
     }
@@ -562,9 +561,9 @@ public final class DownloadManager {
         setManualStopReasonInternal(id, manualStopReason);
         break;
       case MSG_ADD_DOWNLOAD:
-        DownloadAction action = (DownloadAction) message.obj;
+        DownloadRequest request = (DownloadRequest) message.obj;
         manualStopReason = message.arg1;
-        addDownloadInternal(action, manualStopReason);
+        addDownloadInternal(request, manualStopReason);
         break;
       case MSG_REMOVE_DOWNLOAD:
         id = (String) message.obj;
@@ -657,27 +656,27 @@ public final class DownloadManager {
     }
   }
 
-  private void addDownloadInternal(DownloadAction action, int manualStopReason) {
-    DownloadInternal downloadInternal = getDownload(action.id);
+  private void addDownloadInternal(DownloadRequest request, int manualStopReason) {
+    DownloadInternal downloadInternal = getDownload(request.id);
     if (downloadInternal != null) {
-      downloadInternal.addAction(action, manualStopReason);
-      logd("Action is added to existing download", downloadInternal);
+      downloadInternal.addRequest(request, manualStopReason);
+      logd("Request is added to existing download", downloadInternal);
     } else {
-      Download download = loadDownload(action.id);
+      Download download = loadDownload(request.id);
       if (download == null) {
         long nowMs = System.currentTimeMillis();
         download =
             new Download(
-                action,
+                request,
                 manualStopReason != Download.MANUAL_STOP_REASON_NONE ? STATE_STOPPED : STATE_QUEUED,
                 Download.FAILURE_REASON_NONE,
                 manualStopReason,
                 /* startTimeMs= */ nowMs,
                 /* updateTimeMs= */ nowMs);
-        logd("Download state is created for " + action.id);
+        logd("Download state is created for " + request.id);
       } else {
-        download = mergeAction(download, action, manualStopReason);
-        logd("Download state is loaded for " + action.id);
+        download = mergeRequest(download, request, manualStopReason);
+        logd("Download state is loaded for " + request.id);
       }
       addDownloadForState(download);
     }
@@ -698,8 +697,8 @@ public final class DownloadManager {
   }
 
   private void onDownloadThreadStoppedInternal(DownloadThread downloadThread) {
-    logd("Download is stopped", downloadThread.action);
-    String downloadId = downloadThread.action.id;
+    logd("Download is stopped", downloadThread.request);
+    String downloadId = downloadThread.request.id;
     downloadThreads.remove(downloadId);
     boolean tryToStartDownloads = false;
     if (!downloadThread.isRemove) {
@@ -747,7 +746,7 @@ public final class DownloadManager {
   private void onDownloadRemovedInternal(DownloadInternal downloadInternal, Download download) {
     logd("Download is removed", downloadInternal);
     try {
-      downloadIndex.removeDownload(download.action.id);
+      downloadIndex.removeDownload(download.request.id);
     } catch (DatabaseIOException e) {
       Log.e(TAG, "Failed to remove from index", e);
     }
@@ -757,8 +756,8 @@ public final class DownloadManager {
 
   @StartThreadResults
   private int startDownloadThread(DownloadInternal downloadInternal) {
-    DownloadAction action = downloadInternal.download.action;
-    String downloadId = action.id;
+    DownloadRequest request = downloadInternal.download.request;
+    String downloadId = request.id;
     if (downloadThreads.containsKey(downloadId)) {
       if (stopDownloadThreadInternal(downloadId)) {
         return START_THREAD_WAIT_DOWNLOAD_CANCELLATION;
@@ -772,9 +771,9 @@ public final class DownloadManager {
       }
       simultaneousDownloads++;
     }
-    Downloader downloader = downloaderFactory.createDownloader(action);
+    Downloader downloader = downloaderFactory.createDownloader(request);
     DownloadThread downloadThread =
-        new DownloadThread(action, downloader, isRemove, minRetryCount, internalHandler);
+        new DownloadThread(request, downloader, isRemove, minRetryCount, internalHandler);
     downloadThreads.put(downloadId, downloadThread);
     downloadInternal.setCounters(downloadThread.downloader.getCounters());
     downloadThread.start();
@@ -786,7 +785,7 @@ public final class DownloadManager {
     DownloadThread downloadThread = downloadThreads.get(downloadId);
     if (downloadThread != null && !downloadThread.isRemove) {
       downloadThread.cancel(/* released= */ false);
-      logd("Download is cancelled", downloadThread.action);
+      logd("Download is cancelled", downloadThread.request);
       return true;
     }
     return false;
@@ -796,7 +795,7 @@ public final class DownloadManager {
   private DownloadInternal getDownload(String id) {
     for (int i = 0; i < downloadInternals.size(); i++) {
       DownloadInternal downloadInternal = downloadInternals.get(i);
-      if (downloadInternal.download.action.id.equals(id)) {
+      if (downloadInternal.download.request.id.equals(id)) {
         return downloadInternal;
       }
     }
@@ -823,8 +822,8 @@ public final class DownloadManager {
     return downloadsStarted && notMetRequirements == 0;
   }
 
-  /* package */ static Download mergeAction(
-      Download download, DownloadAction action, int manualStopReason) {
+  /* package */ static Download mergeRequest(
+      Download download, DownloadRequest request, int manualStopReason) {
     @Download.State int state = download.state;
     if (state == STATE_REMOVING || state == STATE_RESTARTING) {
       state = STATE_RESTARTING;
@@ -836,7 +835,7 @@ public final class DownloadManager {
     long nowMs = System.currentTimeMillis();
     long startTimeMs = download.isTerminalState() ? nowMs : download.startTimeMs;
     return new Download(
-        download.action.copyWithMergedAction(action),
+        download.request.copyWithMergedRequest(request),
         state,
         FAILURE_REASON_NONE,
         manualStopReason,
@@ -847,7 +846,7 @@ public final class DownloadManager {
 
   private static Download copyWithState(Download download, @Download.State int state) {
     return new Download(
-        download.action,
+        download.request,
         state,
         FAILURE_REASON_NONE,
         download.manualStopReason,
@@ -863,12 +862,12 @@ public final class DownloadManager {
   }
 
   private static void logd(String message, DownloadInternal downloadInternal) {
-    logd(message, downloadInternal.download.action);
+    logd(message, downloadInternal.download.request);
   }
 
-  private static void logd(String message, DownloadAction action) {
+  private static void logd(String message, DownloadRequest request) {
     if (DEBUG) {
-      logd(message + ": " + action);
+      logd(message + ": " + request);
     }
   }
 
@@ -899,8 +898,8 @@ public final class DownloadManager {
       initialize(download.state);
     }
 
-    public void addAction(DownloadAction newAction, int manualStopReason) {
-      download = mergeAction(download, newAction, manualStopReason);
+    public void addRequest(DownloadRequest newRequest, int manualStopReason) {
+      download = mergeRequest(download, newRequest, manualStopReason);
       initialize();
     }
 
@@ -911,7 +910,7 @@ public final class DownloadManager {
     public Download getUpdatedDownload() {
       download =
           new Download(
-              download.action,
+              download.request,
               state,
               state != STATE_FAILED ? FAILURE_REASON_NONE : failureReason,
               manualStopReason,
@@ -927,7 +926,7 @@ public final class DownloadManager {
 
     @Override
     public String toString() {
-      return download.action.id + ' ' + Download.getStateString(state);
+      return download.request.id + ' ' + Download.getStateString(state);
     }
 
     public void start() {
@@ -959,7 +958,7 @@ public final class DownloadManager {
         }
       } else {
         if (state == STATE_DOWNLOADING || state == STATE_QUEUED) {
-          downloadManager.stopDownloadThreadInternal(download.action.id);
+          downloadManager.stopDownloadThreadInternal(download.request.id);
           setState(STATE_STOPPED);
         }
       }
@@ -1018,7 +1017,7 @@ public final class DownloadManager {
         initialize(STATE_QUEUED);
       } else { // STATE_DOWNLOADING
         if (error != null) {
-          Log.e(TAG, "Download failed: " + download.action.id, error);
+          Log.e(TAG, "Download failed: " + download.request.id, error);
           failureReason = FAILURE_REASON_UNKNOWN;
           setState(STATE_FAILED);
         } else {
@@ -1030,7 +1029,7 @@ public final class DownloadManager {
 
   private static class DownloadThread extends Thread {
 
-    private final DownloadAction action;
+    private final DownloadRequest request;
     private final Downloader downloader;
     private final boolean isRemove;
     private final int minRetryCount;
@@ -1040,12 +1039,12 @@ public final class DownloadManager {
     private Throwable finalError;
 
     private DownloadThread(
-        DownloadAction action,
+        DownloadRequest request,
         Downloader downloader,
         boolean isRemove,
         int minRetryCount,
         Handler onStoppedHandler) {
-      this.action = action;
+      this.request = request;
       this.isRemove = isRemove;
       this.downloader = downloader;
       this.minRetryCount = minRetryCount;
@@ -1069,7 +1068,7 @@ public final class DownloadManager {
 
     @Override
     public void run() {
-      logd("Download started", action);
+      logd("Download started", request);
       try {
         if (isRemove) {
           downloader.remove();
@@ -1084,14 +1083,14 @@ public final class DownloadManager {
               if (!isCanceled) {
                 long downloadedBytes = downloader.getDownloadedBytes();
                 if (downloadedBytes != errorPosition) {
-                  logd("Reset error count. downloadedBytes = " + downloadedBytes, action);
+                  logd("Reset error count. downloadedBytes = " + downloadedBytes, request);
                   errorPosition = downloadedBytes;
                   errorCount = 0;
                 }
                 if (++errorCount > minRetryCount) {
                   throw e;
                 }
-                logd("Download error. Retry " + errorCount, action);
+                logd("Download error. Retry " + errorCount, request);
                 Thread.sleep(getRetryDelayMillis(errorCount));
               }
             }

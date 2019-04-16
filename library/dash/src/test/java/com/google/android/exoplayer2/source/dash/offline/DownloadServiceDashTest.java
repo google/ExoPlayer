@@ -30,8 +30,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.Download;
-import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -159,7 +159,7 @@ public class DownloadServiceDashTest {
 
   @Ignore // b/78877092
   @Test
-  public void testMultipleDownloadAction() throws Throwable {
+  public void testMultipleDownloadRequest() throws Throwable {
     downloadKeys(fakeStreamKey1);
     downloadKeys(fakeStreamKey2);
 
@@ -208,10 +208,10 @@ public class DownloadServiceDashTest {
   private void downloadKeys(StreamKey... keys) {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    DownloadAction action =
-        new DownloadAction(
+    DownloadRequest action =
+        new DownloadRequest(
             TEST_ID,
-            DownloadAction.TYPE_DASH,
+            DownloadRequest.TYPE_DASH,
             TEST_MPD_URI,
             keysList,
             /* customCacheKey= */ null,
@@ -219,7 +219,7 @@ public class DownloadServiceDashTest {
     dummyMainThread.runOnMainThread(
         () -> {
           Intent startIntent =
-              DownloadService.buildAddActionIntent(
+              DownloadService.buildAddRequestIntent(
                   context, DownloadService.class, action, /* foreground= */ false);
           dashDownloadService.onStartCommand(startIntent, 0, 0);
         });

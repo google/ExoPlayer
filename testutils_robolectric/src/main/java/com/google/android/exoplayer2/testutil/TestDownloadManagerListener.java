@@ -38,7 +38,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
 
   private final DownloadManager downloadManager;
   private final DummyMainThread dummyMainThread;
-  private final HashMap<String, ArrayBlockingQueue<Integer>> actionStates;
+  private final HashMap<String, ArrayBlockingQueue<Integer>> downloadStates;
   private final ConditionVariable initializedCondition;
 
   private CountDownLatch downloadFinishedCondition;
@@ -48,7 +48,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
       DownloadManager downloadManager, DummyMainThread dummyMainThread) {
     this.downloadManager = downloadManager;
     this.dummyMainThread = dummyMainThread;
-    actionStates = new HashMap<>();
+    downloadStates = new HashMap<>();
     initializedCondition = new ConditionVariable();
     downloadManager.addListener(this);
   }
@@ -73,12 +73,12 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     if (download.state == Download.STATE_FAILED) {
       failureReason = download.failureReason;
     }
-    getStateQueue(download.action.id).add(download.state);
+    getStateQueue(download.request.id).add(download.state);
   }
 
   @Override
   public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
-    getStateQueue(download.action.id).add(STATE_REMOVED);
+    getStateQueue(download.request.id).add(STATE_REMOVED);
   }
 
   @Override
@@ -114,11 +114,11 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   }
 
   private ArrayBlockingQueue<Integer> getStateQueue(String taskId) {
-    synchronized (actionStates) {
-      if (!actionStates.containsKey(taskId)) {
-        actionStates.put(taskId, new ArrayBlockingQueue<>(10));
+    synchronized (downloadStates) {
+      if (!downloadStates.containsKey(taskId)) {
+        downloadStates.put(taskId, new ArrayBlockingQueue<>(10));
       }
-      return actionStates.get(taskId);
+      return downloadStates.get(taskId);
     }
   }
 

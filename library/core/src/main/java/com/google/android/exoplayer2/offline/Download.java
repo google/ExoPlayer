@@ -94,8 +94,8 @@ public final class Download {
     }
   }
 
-  /** The download action. */
-  public final DownloadAction action;
+  /** The download request. */
+  public final DownloadRequest request;
 
   /** The state of the download. */
   @State public final int state;
@@ -114,14 +114,14 @@ public final class Download {
   /* package */ CachingCounters counters;
 
   /* package */ Download(
-      DownloadAction action,
+      DownloadRequest request,
       @State int state,
       @FailureReason int failureReason,
       int manualStopReason,
       long startTimeMs,
       long updateTimeMs) {
     this(
-        action,
+        request,
         state,
         failureReason,
         manualStopReason,
@@ -131,7 +131,7 @@ public final class Download {
   }
 
   /* package */ Download(
-      DownloadAction action,
+      DownloadRequest request,
       @State int state,
       @FailureReason int failureReason,
       int manualStopReason,
@@ -143,7 +143,7 @@ public final class Download {
     if (manualStopReason != 0) {
       Assertions.checkState(state != STATE_DOWNLOADING && state != STATE_QUEUED);
     }
-    this.action = action;
+    this.request = request;
     this.state = state;
     this.failureReason = failureReason;
     this.manualStopReason = manualStopReason;

@@ -47,8 +47,14 @@ class DownloadBuilder {
     this(id, "type", Uri.parse("uri"), /* cacheKey= */ null, new byte[0], Collections.emptyList());
   }
 
-  DownloadBuilder(DownloadAction action) {
-    this(action.id, action.type, action.uri, action.customCacheKey, action.data, action.streamKeys);
+  DownloadBuilder(DownloadRequest request) {
+    this(
+        request.id,
+        request.type,
+        request.uri,
+        request.customCacheKey,
+        request.data,
+        request.streamKeys);
   }
 
   DownloadBuilder(
@@ -147,8 +153,9 @@ class DownloadBuilder {
   }
 
   public Download build() {
-    DownloadAction action = new DownloadAction(id, type, uri, streamKeys, cacheKey, customMetadata);
+    DownloadRequest request =
+        new DownloadRequest(id, type, uri, streamKeys, cacheKey, customMetadata);
     return new Download(
-        action, state, failureReason, manualStopReason, startTimeMs, updateTimeMs, counters);
+        request, state, failureReason, manualStopReason, startTimeMs, updateTimeMs, counters);
   }
 }

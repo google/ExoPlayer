@@ -24,11 +24,11 @@ import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.Download;
-import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadCursor;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
@@ -89,7 +89,7 @@ public class DownloadTracker {
   public List<StreamKey> getOfflineStreamKeys(Uri uri) {
     Download download = downloads.get(uri);
     return download != null && download.state != Download.STATE_FAILED
-        ? download.action.streamKeys
+        ? download.request.streamKeys
         : Collections.emptyList();
   }
 
@@ -102,7 +102,7 @@ public class DownloadTracker {
     Download download = downloads.get(uri);
     if (download != null) {
       DownloadService.startWithRemoveDownload(
-          context, DemoDownloadService.class, download.action.id, /* foreground= */ false);
+          context, DemoDownloadService.class, download.request.id, /* foreground= */ false);
     } else {
       if (startDownloadDialogHelper != null) {
         startDownloadDialogHelper.release();
@@ -117,16 +117,11 @@ public class DownloadTracker {
     try (DownloadCursor loadedDownloads = downloadIndex.getDownloads()) {
       while (loadedDownloads.moveToNext()) {
         Download download = loadedDownloads.getDownload();
-        downloads.put(download.action.uri, download);
+        downloads.put(download.request.uri, download);
       }
     } catch (IOException e) {
       Log.w(TAG, "Failed to query downloads", e);
     }
-  }
-
-  private void startServiceWithAction(DownloadAction action) {
-    DownloadService.startWithAction(
-        context, DemoDownloadService.class, action, /* foreground= */ false);
   }
 
   private DownloadHelper getDownloadHelper(
@@ -150,7 +145,7 @@ public class DownloadTracker {
 
     @Override
     public void onDownloadChanged(DownloadManager downloadManager, Download download) {
-      downloads.put(download.action.uri, download);
+      downloads.put(download.request.uri, download);
       for (Listener listener : listeners) {
         listener.onDownloadsChanged();
       }
@@ -158,7 +153,7 @@ public class DownloadTracker {
 
     @Override
     public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
-      downloads.remove(download.action.uri);
+      downloads.remove(download.request.uri);
       for (Listener listener : listeners) {
         listener.onDownloadsChanged();
       }
@@ -259,8 +254,9 @@ public class DownloadTracker {
     // Internal methods.
 
     private void startDownload() {
-      DownloadAction downloadAction = downloadHelper.getDownloadAction(Util.getUtf8Bytes(name));
-      startServiceWithAction(downloadAction);
+      DownloadRequest downloadRequest = downloadHelper.getDownloadRequest(Util.getUtf8Bytes(name));
+      DownloadService.startWithNewDownload(
+          context, DemoDownloadService.class, downloadRequest, /* foreground= */ false);
     }
   }
 }

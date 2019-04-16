@@ -30,10 +30,10 @@ import java.util.Collections;
 import java.util.List;
 
 /** Defines content to be downloaded. */
-public final class DownloadAction implements Parcelable {
+public final class DownloadRequest implements Parcelable {
 
-  /** Thrown when the encoded action data belongs to an unsupported DownloadAction type. */
-  public static class UnsupportedActionException extends IOException {}
+  /** Thrown when the encoded request data belongs to an unsupported request type. */
+  public static class UnsupportedRequestException extends IOException {}
 
   /** Type for progressive downloads. */
   public static final String TYPE_PROGRESSIVE = "progressive";
@@ -46,7 +46,7 @@ public final class DownloadAction implements Parcelable {
 
   /** The unique content id. */
   public final String id;
-  /** The type of the action. */
+  /** The type of the request. */
   public final String type;
   /** The uri being downloaded. */
   public final Uri uri;
@@ -65,7 +65,7 @@ public final class DownloadAction implements Parcelable {
    * @param customCacheKey See {@link #customCacheKey}.
    * @param data See {@link #data}.
    */
-  public DownloadAction(
+  public DownloadRequest(
       String id,
       String type,
       Uri uri,
@@ -82,7 +82,7 @@ public final class DownloadAction implements Parcelable {
     this.data = data != null ? Arrays.copyOf(data, data.length) : Util.EMPTY_BYTE_ARRAY;
   }
 
-  /* package */ DownloadAction(Parcel in) {
+  /* package */ DownloadRequest(Parcel in) {
     id = castNonNull(in.readString());
     type = castNonNull(in.readString());
     uri = Uri.parse(castNonNull(in.readString()));
@@ -103,40 +103,40 @@ public final class DownloadAction implements Parcelable {
    * @param id The ID of the copy.
    * @return The copy with the specified ID.
    */
-  public DownloadAction copyWithId(String id) {
-    return new DownloadAction(id, type, uri, streamKeys, customCacheKey, data);
+  public DownloadRequest copyWithId(String id) {
+    return new DownloadRequest(id, type, uri, streamKeys, customCacheKey, data);
   }
 
   /**
-   * Returns the result of merging {@code newAction} into this action. The actions must have the
+   * Returns the result of merging {@code newRequest} into this request. The requests must have the
    * same {@link #id} and {@link #type}.
    *
-   * <p>If the actions have different {@link #uri}, {@link #customCacheKey} and {@link #data}
-   * values, then those from the action being merged are included in the result.
+   * <p>If the requests have different {@link #uri}, {@link #customCacheKey} and {@link #data}
+   * values, then those from the request being merged are included in the result.
    *
-   * @param newAction The action being merged.
+   * @param newRequest The request being merged.
    * @return The merged result.
-   * @throws IllegalArgumentException If the actions do not have the same {@link #id} and {@link
+   * @throws IllegalArgumentException If the requests do not have the same {@link #id} and {@link
    *     #type}.
    */
-  public DownloadAction copyWithMergedAction(DownloadAction newAction) {
-    Assertions.checkArgument(id.equals(newAction.id));
-    Assertions.checkArgument(type.equals(newAction.type));
+  public DownloadRequest copyWithMergedRequest(DownloadRequest newRequest) {
+    Assertions.checkArgument(id.equals(newRequest.id));
+    Assertions.checkArgument(type.equals(newRequest.type));
     List<StreamKey> mergedKeys;
-    if (streamKeys.isEmpty() || newAction.streamKeys.isEmpty()) {
+    if (streamKeys.isEmpty() || newRequest.streamKeys.isEmpty()) {
       // If either streamKeys is empty then all streams should be downloaded.
       mergedKeys = Collections.emptyList();
     } else {
       mergedKeys = new ArrayList<>(streamKeys);
-      for (int i = 0; i < newAction.streamKeys.size(); i++) {
-        StreamKey newKey = newAction.streamKeys.get(i);
+      for (int i = 0; i < newRequest.streamKeys.size(); i++) {
+        StreamKey newKey = newRequest.streamKeys.get(i);
         if (!mergedKeys.contains(newKey)) {
           mergedKeys.add(newKey);
         }
       }
     }
-    return new DownloadAction(
-        id, type, newAction.uri, mergedKeys, newAction.customCacheKey, newAction.data);
+    return new DownloadRequest(
+        id, type, newRequest.uri, mergedKeys, newRequest.customCacheKey, newRequest.data);
   }
 
   @Override
@@ -146,10 +146,10 @@ public final class DownloadAction implements Parcelable {
 
   @Override
   public boolean equals(@Nullable Object o) {
-    if (!(o instanceof DownloadAction)) {
+    if (!(o instanceof DownloadRequest)) {
       return false;
     }
-    DownloadAction that = (DownloadAction) o;
+    DownloadRequest that = (DownloadRequest) o;
     return id.equals(that.id)
         && type.equals(that.type)
         && uri.equals(that.uri)
@@ -191,17 +191,17 @@ public final class DownloadAction implements Parcelable {
     dest.writeByteArray(data);
   }
 
-  public static final Parcelable.Creator<DownloadAction> CREATOR =
-      new Parcelable.Creator<DownloadAction>() {
+  public static final Parcelable.Creator<DownloadRequest> CREATOR =
+      new Parcelable.Creator<DownloadRequest>() {
 
         @Override
-        public DownloadAction createFromParcel(Parcel in) {
-          return new DownloadAction(in);
+        public DownloadRequest createFromParcel(Parcel in) {
+          return new DownloadRequest(in);
         }
 
         @Override
-        public DownloadAction[] newArray(int size) {
-          return new DownloadAction[size];
+        public DownloadRequest[] newArray(int size) {
+          return new DownloadRequest[size];
         }
       };
 }

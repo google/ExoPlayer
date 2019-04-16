@@ -28,8 +28,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
-import com.google.android.exoplayer2.offline.DownloadAction;
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Requirements;
@@ -132,7 +132,7 @@ public class DownloadManagerDashTest {
     dummyMainThread.runOnMainThread(
         () -> {
           // Setup an Action and immediately release the DM.
-          handleDownloadAction(fakeStreamKey1, fakeStreamKey2);
+          handleDownloadRequest(fakeStreamKey1, fakeStreamKey2);
           downloadManager.release();
         });
 
@@ -149,29 +149,29 @@ public class DownloadManagerDashTest {
   }
 
   @Test
-  public void testHandleDownloadAction() throws Throwable {
-    handleDownloadAction(fakeStreamKey1, fakeStreamKey2);
+  public void testHandleDownloadRequest() throws Throwable {
+    handleDownloadRequest(fakeStreamKey1, fakeStreamKey2);
     blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertCachedData(cache, fakeDataSet);
   }
 
   @Test
-  public void testHandleMultipleDownloadAction() throws Throwable {
-    handleDownloadAction(fakeStreamKey1);
-    handleDownloadAction(fakeStreamKey2);
+  public void testHandleMultipleDownloadRequest() throws Throwable {
+    handleDownloadRequest(fakeStreamKey1);
+    handleDownloadRequest(fakeStreamKey2);
     blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertCachedData(cache, fakeDataSet);
   }
 
   @Test
-  public void testHandleInterferingDownloadAction() throws Throwable {
+  public void testHandleInterferingDownloadRequest() throws Throwable {
     fakeDataSet
         .newData("audio_segment_2")
-        .appendReadAction(() -> handleDownloadAction(fakeStreamKey2))
+        .appendReadAction(() -> handleDownloadRequest(fakeStreamKey2))
         .appendReadData(TestUtil.buildTestData(5))
         .endData();
 
-    handleDownloadAction(fakeStreamKey1);
+    handleDownloadRequest(fakeStreamKey1);
 
     blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertCachedData(cache, fakeDataSet);
@@ -179,7 +179,7 @@ public class DownloadManagerDashTest {
 
   @Test
   public void testHandleRemoveAction() throws Throwable {
-    handleDownloadAction(fakeStreamKey1);
+    handleDownloadRequest(fakeStreamKey1);
 
     blockUntilTasksCompleteAndThrowAnyDownloadError();
 
@@ -194,7 +194,7 @@ public class DownloadManagerDashTest {
   @Ignore
   @Test
   public void testHandleRemoveActionBeforeDownloadFinish() throws Throwable {
-    handleDownloadAction(fakeStreamKey1);
+    handleDownloadRequest(fakeStreamKey1);
     handleRemoveAction();
 
     blockUntilTasksCompleteAndThrowAnyDownloadError();
@@ -213,7 +213,7 @@ public class DownloadManagerDashTest {
         .appendReadData(TestUtil.buildTestData(5))
         .endData();
 
-    handleDownloadAction(fakeStreamKey1);
+    handleDownloadRequest(fakeStreamKey1);
 
     assertThat(downloadInProgressCondition.block(ASSERT_TRUE_TIMEOUT)).isTrue();
 
@@ -228,13 +228,13 @@ public class DownloadManagerDashTest {
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
-  private void handleDownloadAction(StreamKey... keys) {
+  private void handleDownloadRequest(StreamKey... keys) {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    DownloadAction action =
-        new DownloadAction(
+    DownloadRequest action =
+        new DownloadRequest(
             TEST_ID,
-            DownloadAction.TYPE_DASH,
+            DownloadRequest.TYPE_DASH,
             TEST_MPD_URI,
             keysList,
             /* customCacheKey= */ null,
