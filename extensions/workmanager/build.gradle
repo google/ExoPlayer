@@ -34,16 +34,16 @@ android {
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
-    implementation 'android.arch.work:work-runtime:1.0.0'
+    implementation 'android.arch.work:work-runtime:1.0.1'
 }
 
 ext {
-    javadocTitle = 'Android Arch WorkManager extension'
+    javadocTitle = 'WorkManager extension'
 }
 apply from: '../../javadoc_library.gradle'
 
 ext {
     releaseArtifact = 'extension-workmanager'
-    releaseDescription = 'Android Arch WorkManager extension for ExoPlayer.'
+    releaseDescription = 'WorkManager extension for ExoPlayer.'
 }
 apply from: '../../publish.gradle'
