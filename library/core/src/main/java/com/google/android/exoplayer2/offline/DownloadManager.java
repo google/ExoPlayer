@@ -186,7 +186,7 @@ public final class DownloadManager {
    * Constructs a {@link DownloadManager}.
    *
    * @param context Any context.
-   * @param databaseProvider Provides the {@link DownloadIndex} that holds the downloads.
+   * @param databaseProvider Provides the database that holds the downloads.
    * @param downloaderFactory A factory for creating {@link Downloader}s.
    */
   public DownloadManager(
@@ -204,7 +204,7 @@ public final class DownloadManager {
    * Constructs a {@link DownloadManager}.
    *
    * @param context Any context.
-   * @param databaseProvider Provides the {@link DownloadIndex} that holds the downloads.
+   * @param databaseProvider Provides the database that holds the downloads.
    * @param downloaderFactory A factory for creating {@link Downloader}s.
    * @param maxSimultaneousDownloads The maximum number of simultaneous downloads.
    * @param minRetryCount The minimum number of times a download must be retried before failing.
