@@ -34,7 +34,6 @@ import android.os.Message;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
@@ -155,7 +154,7 @@ public final class DownloadManager {
   private final int maxSimultaneousDownloads;
   private final int minRetryCount;
   private final Context context;
-  private final DefaultDownloadIndex downloadIndex;
+  private final WritableDownloadIndex downloadIndex;
   private final DownloaderFactory downloaderFactory;
   private final Handler mainHandler;
   private final HandlerThread internalThread;
@@ -231,7 +230,7 @@ public final class DownloadManager {
    * Constructs a {@link DownloadManager}.
    *
    * @param context Any context.
-   * @param downloadIndex The {@link DefaultDownloadIndex} that holds the downloads.
+   * @param downloadIndex The download index used to hold the download information.
    * @param downloaderFactory A factory for creating {@link Downloader}s.
    * @param maxSimultaneousDownloads The maximum number of simultaneous downloads.
    * @param minRetryCount The minimum number of times a download must be retried before failing.
@@ -239,7 +238,7 @@ public final class DownloadManager {
    */
   public DownloadManager(
       Context context,
-      DefaultDownloadIndex downloadIndex,
+      WritableDownloadIndex downloadIndex,
       DownloaderFactory downloaderFactory,
       int maxSimultaneousDownloads,
       int minRetryCount,
@@ -651,7 +650,7 @@ public final class DownloadManager {
       } else {
         downloadIndex.setManualStopReason(manualStopReason);
       }
-    } catch (DatabaseIOException e) {
+    } catch (IOException e) {
       Log.e(TAG, "setManualStopReason failed", e);
     }
   }
@@ -734,7 +733,7 @@ public final class DownloadManager {
     logd("Download state is changed", downloadInternal);
     try {
       downloadIndex.putDownload(download);
-    } catch (DatabaseIOException e) {
+    } catch (IOException e) {
       Log.e(TAG, "Failed to update index", e);
     }
     if (downloadInternal.state == STATE_COMPLETED || downloadInternal.state == STATE_FAILED) {
@@ -747,7 +746,7 @@ public final class DownloadManager {
     logd("Download is removed", downloadInternal);
     try {
       downloadIndex.removeDownload(download.request.id);
-    } catch (DatabaseIOException e) {
+    } catch (IOException e) {
       Log.e(TAG, "Failed to remove from index", e);
     }
     downloadInternals.remove(downloadInternal);
@@ -805,7 +804,7 @@ public final class DownloadManager {
   private Download loadDownload(String id) {
     try {
       return downloadIndex.getDownload(id);
-    } catch (DatabaseIOException e) {
+    } catch (IOException e) {
       Log.e(TAG, "loadDownload failed", e);
     }
     return null;
