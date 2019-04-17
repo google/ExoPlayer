@@ -240,7 +240,12 @@ public class DownloadTracker {
           }
         }
       }
-      startDownload();
+      DownloadRequest downloadRequest = buildDownloadRequest();
+      if (downloadRequest.streamKeys.isEmpty()) {
+        // All tracks were deselected in the dialog. Don't start the download.
+        return;
+      }
+      startDownload(downloadRequest);
     }
 
     // DialogInterface.OnDismissListener implementation.
@@ -254,9 +259,16 @@ public class DownloadTracker {
     // Internal methods.
 
     private void startDownload() {
-      DownloadRequest downloadRequest = downloadHelper.getDownloadRequest(Util.getUtf8Bytes(name));
+      startDownload(buildDownloadRequest());
+    }
+
+    private void startDownload(DownloadRequest downloadRequest) {
       DownloadService.startWithNewDownload(
           context, DemoDownloadService.class, downloadRequest, /* foreground= */ false);
+    }
+
+    private DownloadRequest buildDownloadRequest() {
+      return downloadHelper.getDownloadRequest(Util.getUtf8Bytes(name));
     }
   }
 }
