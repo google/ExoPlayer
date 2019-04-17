@@ -94,7 +94,7 @@ public final class WorkManagerScheduler implements Scheduler {
             builder.setRequiresCharging(true);
         }
 
-        if (requirements.isIdleRequired() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (requirements.isIdleRequired() && Util.SDK_INT >= 23) {
             builder.setRequiresDeviceIdle(true);
         }
 
