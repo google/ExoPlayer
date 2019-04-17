@@ -726,7 +726,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     flagsOnlyBuffer.clear();
     int result = readSource(formatHolder, flagsOnlyBuffer, requireFormat);
     if (result == C.RESULT_FORMAT_READ) {
-      onInputFormatChanged(formatHolder.format);
+      onInputFormatChanged(formatHolder);
       return true;
     } else if (result == C.RESULT_BUFFER_READ && flagsOnlyBuffer.isEndOfStream()) {
       inputStreamEnded = true;
@@ -1029,7 +1029,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         buffer.clear();
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
-      onInputFormatChanged(formatHolder.format);
+      onInputFormatChanged(formatHolder);
       return true;
     }
 
@@ -1141,11 +1141,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /**
    * Called when a new format is read from the upstream {@link MediaPeriod}.
    *
-   * @param newFormat The new format.
+   * @param formatHolder A {@link FormatHolder} that holds the new {@link Format}.
    * @throws ExoPlaybackException If an error occurs re-initializing the {@link MediaCodec}.
    */
-  protected void onInputFormatChanged(Format newFormat) throws ExoPlaybackException {
+  protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     Format oldFormat = inputFormat;
+    Format newFormat = formatHolder.format;
     inputFormat = newFormat;
     waitingForFirstSampleInFormat = true;
 
