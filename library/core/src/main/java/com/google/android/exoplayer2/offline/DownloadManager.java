@@ -485,8 +485,6 @@ public final class DownloadManager {
     return true;
   }
 
-  // TODO: Merge these three events into a single MSG_STATE_CHANGE that can carry all updates. This
-  // allows updating idle at the same point as the downloads that can be queried changes.
   private void onInitialized(List<Download> downloads) {
     initialized = true;
     this.downloads.addAll(downloads);

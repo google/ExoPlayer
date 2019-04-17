@@ -98,7 +98,6 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
       throw new IllegalStateException("Module missing for: " + request.type);
     }
     try {
-      // TODO: Support customCacheKey in DASH/HLS/SS, for completeness.
       return constructor.newInstance(request.uri, request.streamKeys, downloaderConstructorHelper);
     } catch (Exception e) {
       throw new RuntimeException("Failed to instantiate downloader for: " + request.type, e);
