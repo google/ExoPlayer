@@ -34,7 +34,7 @@ android {
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
-    implementation 'android.arch.work:work-runtime:1.0.1'
+    implementation 'androidw.work:work-runtime:2.0.1'
 }
 
 ext {
