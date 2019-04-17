@@ -70,6 +70,7 @@ public final class SimpleCache implements Cache {
   @Nullable private final CacheFileMetadataIndex fileIndex;
   private final HashMap<String, ArrayList<Listener>> listeners;
   private final Random random;
+  private final boolean touchCacheSpans;
 
   private long uid;
   private long totalSpace;
@@ -279,6 +280,7 @@ public final class SimpleCache implements Cache {
     this.fileIndex = fileIndex;
     listeners = new HashMap<>();
     random = new Random();
+    touchCacheSpans = evictor.requiresCacheSpanTouches();
     uid = UID_UNSET;
 
     // Start cache initialization.
@@ -408,23 +410,26 @@ public final class SimpleCache implements Cache {
 
     // Read case.
     if (span.isCached) {
+      if (!touchCacheSpans) {
+        return span;
+      }
       String fileName = Assertions.checkNotNull(span.file).getName();
       long length = span.length;
-      long lastAccessTimestamp = System.currentTimeMillis();
+      long lastTouchTimestamp = System.currentTimeMillis();
       boolean updateFile = false;
       if (fileIndex != null) {
         try {
-          fileIndex.set(fileName, length, lastAccessTimestamp);
+          fileIndex.set(fileName, length, lastTouchTimestamp);
         } catch (IOException e) {
-          throw new CacheException(e);
+          Log.w(TAG, "Failed to update index with new touch timestamp.");
         }
       } else {
-        // Updating the file itself to incorporate the new last access timestamp is much slower than
+        // Updating the file itself to incorporate the new last touch timestamp is much slower than
         // updating the file index. Hence we only update the file if we don't have a file index.
         updateFile = true;
       }
       SimpleCacheSpan newSpan =
-          contentIndex.get(key).setLastAccessTimestamp(span, lastAccessTimestamp, updateFile);
+          contentIndex.get(key).setLastTouchTimestamp(span, lastTouchTimestamp, updateFile);
       notifySpanTouched(span, newSpan);
       return newSpan;
     }
@@ -459,8 +464,8 @@ public final class SimpleCache implements Cache {
     if (!fileDir.exists()) {
       fileDir.mkdir();
     }
-    long lastAccessTimestamp = System.currentTimeMillis();
-    return SimpleCacheSpan.getCacheFile(fileDir, cachedContent.id, position, lastAccessTimestamp);
+    long lastTouchTimestamp = System.currentTimeMillis();
+    return SimpleCacheSpan.getCacheFile(fileDir, cachedContent.id, position, lastTouchTimestamp);
   }
 
   @Override
@@ -488,7 +493,7 @@ public final class SimpleCache implements Cache {
     if (fileIndex != null) {
       String fileName = file.getName();
       try {
-        fileIndex.set(fileName, span.length, span.lastAccessTimestamp);
+        fileIndex.set(fileName, span.length, span.lastTouchTimestamp);
       } catch (IOException e) {
         throw new CacheException(e);
       }
@@ -674,14 +679,14 @@ public final class SimpleCache implements Cache {
           continue;
         }
         long length = C.LENGTH_UNSET;
-        long lastAccessTimestamp = C.TIME_UNSET;
+        long lastTouchTimestamp = C.TIME_UNSET;
         CacheFileMetadata metadata = fileMetadata != null ? fileMetadata.remove(fileName) : null;
         if (metadata != null) {
           length = metadata.length;
-          lastAccessTimestamp = metadata.lastAccessTimestamp;
+          lastTouchTimestamp = metadata.lastTouchTimestamp;
         }
         SimpleCacheSpan span =
-            SimpleCacheSpan.createCacheEntry(file, length, lastAccessTimestamp, contentIndex);
+            SimpleCacheSpan.createCacheEntry(file, length, lastTouchTimestamp, contentIndex);
         if (span != null) {
           addSpan(span);
         } else {

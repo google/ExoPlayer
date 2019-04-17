@@ -141,30 +141,30 @@ import java.util.TreeSet;
   }
 
   /**
-   * Sets the given span's last access timestamp. The passed span becomes invalid after this call.
+   * Sets the given span's last touch timestamp. The passed span becomes invalid after this call.
    *
    * @param cacheSpan Span to be copied and updated.
-   * @param lastAccessTimestamp The new last access timestamp.
+   * @param lastTouchTimestamp The new last touch timestamp.
    * @param updateFile Whether the span file should be renamed to have its timestamp match the new
-   *     last access time.
-   * @return A span with the updated last access timestamp.
+   *     last touch time.
+   * @return A span with the updated last touch timestamp.
    */
-  public SimpleCacheSpan setLastAccessTimestamp(
-      SimpleCacheSpan cacheSpan, long lastAccessTimestamp, boolean updateFile) {
+  public SimpleCacheSpan setLastTouchTimestamp(
+      SimpleCacheSpan cacheSpan, long lastTouchTimestamp, boolean updateFile) {
     Assertions.checkState(cachedSpans.remove(cacheSpan));
     File file = cacheSpan.file;
     if (updateFile) {
       File directory = file.getParentFile();
       long position = cacheSpan.position;
-      File newFile = SimpleCacheSpan.getCacheFile(directory, id, position, lastAccessTimestamp);
+      File newFile = SimpleCacheSpan.getCacheFile(directory, id, position, lastTouchTimestamp);
       if (file.renameTo(newFile)) {
         file = newFile;
       } else {
-        Log.w(TAG, "Failed to rename " + file + " to " + newFile + ".");
+        Log.w(TAG, "Failed to rename " + file + " to " + newFile);
       }
     }
     SimpleCacheSpan newCacheSpan =
-        cacheSpan.copyWithFileAndLastAccessTimestamp(file, lastAccessTimestamp);
+        cacheSpan.copyWithFileAndLastTouchTimestamp(file, lastTouchTimestamp);
     cachedSpans.add(newCacheSpan);
     return newCacheSpan;
   }

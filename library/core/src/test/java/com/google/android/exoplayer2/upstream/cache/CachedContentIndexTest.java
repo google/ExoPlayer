@@ -108,7 +108,7 @@ public class CachedContentIndexTest {
             cachedContent1.id,
             /* offset= */ 10,
             cacheFileLength,
-            /* lastAccessTimestamp= */ 30);
+            /* lastTouchTimestamp= */ 30);
     SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheSpanFile, cacheFileLength, index);
     assertThat(span).isNotNull();
     cachedContent1.addSpan(span);
@@ -293,7 +293,7 @@ public class CachedContentIndexTest {
             cachedContent.id,
             /* offset= */ 10,
             cacheFileLength,
-            /* lastAccessTimestamp= */ 30);
+            /* lastTouchTimestamp= */ 30);
     SimpleCacheSpan span = SimpleCacheSpan.createCacheEntry(cacheFile, cacheFileLength, index);
     cachedContent.addSpan(span);
 
