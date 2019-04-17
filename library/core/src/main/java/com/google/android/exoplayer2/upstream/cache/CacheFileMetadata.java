@@ -19,10 +19,10 @@ package com.google.android.exoplayer2.upstream.cache;
 /* package */ final class CacheFileMetadata {
 
   public final long length;
-  public final long lastAccessTimestamp;
+  public final long lastTouchTimestamp;
 
-  public CacheFileMetadata(long length, long lastAccessTimestamp) {
+  public CacheFileMetadata(long length, long lastTouchTimestamp) {
     this.length = length;
-    this.lastAccessTimestamp = lastAccessTimestamp;
+    this.lastTouchTimestamp = lastTouchTimestamp;
   }
 }

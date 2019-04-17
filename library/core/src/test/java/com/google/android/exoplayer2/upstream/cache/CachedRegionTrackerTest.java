@@ -134,8 +134,8 @@ public final class CachedRegionTrackerTest {
   }
 
   public static File createCacheSpanFile(
-      File cacheDir, int id, long offset, int length, long lastAccessTimestamp) throws IOException {
-    File cacheFile = SimpleCacheSpan.getCacheFile(cacheDir, id, offset, lastAccessTimestamp);
+      File cacheDir, int id, long offset, int length, long lastTouchTimestamp) throws IOException {
+    File cacheFile = SimpleCacheSpan.getCacheFile(cacheDir, id, offset, lastTouchTimestamp);
     createTestFile(cacheFile, length);
     return cacheFile;
   }
