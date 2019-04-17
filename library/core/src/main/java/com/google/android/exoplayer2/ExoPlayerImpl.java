@@ -403,8 +403,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
     eventHandler.removeCallbacksAndMessages(null);
     playbackInfo =
         getResetPlaybackInfo(
-            /* resetPosition= */ true,
-            /* resetState= */ true,
+            /* resetPosition= */ false,
+            /* resetState= */ false,
             /* playbackState= */ Player.STATE_IDLE);
   }
 
