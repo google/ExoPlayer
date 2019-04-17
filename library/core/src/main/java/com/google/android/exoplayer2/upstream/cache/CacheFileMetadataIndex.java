@@ -36,17 +36,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private static final String COLUMN_NAME = "name";
   private static final String COLUMN_LENGTH = "length";
-  private static final String COLUMN_LAST_ACCESS_TIMESTAMP = "last_access_timestamp";
+  private static final String COLUMN_LAST_TOUCH_TIMESTAMP = "last_touch_timestamp";
 
   private static final int COLUMN_INDEX_NAME = 0;
   private static final int COLUMN_INDEX_LENGTH = 1;
-  private static final int COLUMN_INDEX_LAST_ACCESS_TIMESTAMP = 2;
+  private static final int COLUMN_INDEX_LAST_TOUCH_TIMESTAMP = 2;
 
   private static final String WHERE_NAME_EQUALS = COLUMN_INDEX_NAME + " = ?";
 
   private static final String[] COLUMNS =
       new String[] {
-        COLUMN_NAME, COLUMN_LENGTH, COLUMN_LAST_ACCESS_TIMESTAMP,
+        COLUMN_NAME, COLUMN_LENGTH, COLUMN_LAST_TOUCH_TIMESTAMP,
       };
   private static final String TABLE_SCHEMA =
       "("
@@ -54,7 +54,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           + " TEXT PRIMARY KEY NOT NULL,"
           + COLUMN_LENGTH
           + " INTEGER NOT NULL,"
-          + COLUMN_LAST_ACCESS_TIMESTAMP
+          + COLUMN_LAST_TOUCH_TIMESTAMP
           + " INTEGER NOT NULL)";
 
   private final DatabaseProvider databaseProvider;
@@ -141,8 +141,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       while (cursor.moveToNext()) {
         String name = cursor.getString(COLUMN_INDEX_NAME);
         long length = cursor.getLong(COLUMN_INDEX_LENGTH);
-        long lastAccessTimestamp = cursor.getLong(COLUMN_INDEX_LAST_ACCESS_TIMESTAMP);
-        fileMetadata.put(name, new CacheFileMetadata(length, lastAccessTimestamp));
+        long lastTouchTimestamp = cursor.getLong(COLUMN_INDEX_LAST_TOUCH_TIMESTAMP);
+        fileMetadata.put(name, new CacheFileMetadata(length, lastTouchTimestamp));
       }
       return fileMetadata;
     } catch (SQLException e) {
@@ -155,17 +155,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @param name The name of the file.
    * @param length The file length.
-   * @param lastAccessTimestamp The file last access timestamp.
+   * @param lastTouchTimestamp The file last touch timestamp.
    * @throws DatabaseIOException If an error occurs setting the metadata.
    */
-  public void set(String name, long length, long lastAccessTimestamp) throws DatabaseIOException {
+  public void set(String name, long length, long lastTouchTimestamp) throws DatabaseIOException {
     Assertions.checkNotNull(tableName);
     try {
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       ContentValues values = new ContentValues();
       values.put(COLUMN_NAME, name);
       values.put(COLUMN_LENGTH, length);
-      values.put(COLUMN_LAST_ACCESS_TIMESTAMP, lastAccessTimestamp);
+      values.put(COLUMN_LAST_TOUCH_TIMESTAMP, lastTouchTimestamp);
       writableDatabase.replaceOrThrow(tableName, /* nullColumnHack= */ null, values);
     } catch (SQLException e) {
       throw new DatabaseIOException(e);

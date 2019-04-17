@@ -49,19 +49,18 @@ public interface Cache {
     void onSpanRemoved(Cache cache, CacheSpan span);
 
     /**
-     * Called when an existing {@link CacheSpan} is accessed, causing it to be replaced. The new
+     * Called when an existing {@link CacheSpan} is touched, causing it to be replaced. The new
      * {@link CacheSpan} is guaranteed to represent the same data as the one it replaces, however
-     * {@link CacheSpan#file} and {@link CacheSpan#lastAccessTimestamp} may have changed.
-     * <p>
-     * Note that for span replacement, {@link #onSpanAdded(Cache, CacheSpan)} and
-     * {@link #onSpanRemoved(Cache, CacheSpan)} are not called in addition to this method.
+     * {@link CacheSpan#file} and {@link CacheSpan#lastTouchTimestamp} may have changed.
+     *
+     * <p>Note that for span replacement, {@link #onSpanAdded(Cache, CacheSpan)} and {@link
+     * #onSpanRemoved(Cache, CacheSpan)} are not called in addition to this method.
      *
      * @param cache The source of the event.
      * @param oldSpan The old {@link CacheSpan}, which has been removed from the cache.
      * @param newSpan The new {@link CacheSpan}, which has been added to the cache.
      */
     void onSpanTouched(Cache cache, CacheSpan oldSpan, CacheSpan newSpan);
-
   }
 
   /**
