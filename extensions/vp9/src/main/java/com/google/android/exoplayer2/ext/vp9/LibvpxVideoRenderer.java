@@ -221,8 +221,8 @@ public class LibvpxVideoRenderer extends BaseRenderer {
         disableLoopFilter,
         /* enableRowMultiThreadMode= */ false,
         getRuntime().availableProcessors(),
-        /* numInputBuffers= */ 8,
-        /* numOutputBuffers= */ 8);
+        /* numInputBuffers= */ 4,
+        /* numOutputBuffers= */ 4);
   }
 
   /**
