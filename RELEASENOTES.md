@@ -32,14 +32,16 @@
     replaced with an opt out flag
     (`DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN`).
 * Extractors:
-  * MP3: Add support for SHOUTcast ICY metadata
-    ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
   * MP4/FMP4: Add support for Dolby Vision.
   * MP4: Fix issue handling meta atoms in some streams
     ([#5698](https://github.com/google/ExoPlayer/issues/5698),
     [#5694](https://github.com/google/ExoPlayer/issues/5694)).
+  * MP3: Add support for SHOUTcast ICY metadata
+    ([#3735](https://github.com/google/ExoPlayer/issues/3735)).
   * MP3: Fix ID3 frame unsychronization
     ([#5673](https://github.com/google/ExoPlayer/issues/5673)).
+  * MP3: Fix playback of badly clipped files
+    ([#5772](https://github.com/google/ExoPlayer/issues/5772)).  
   * MPEG-TS: Enable HDMV DTS stream detection only if a flag is set. By default
     (i.e. if the flag is not set), the 0x82 elementary stream type is now
     treated as an SCTE subtitle track

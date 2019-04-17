@@ -341,9 +341,19 @@ public final class Mp3Extractor implements Extractor {
    */
   private boolean peekEndOfStreamOrHeader(ExtractorInput extractorInput)
       throws IOException, InterruptedException {
-    return (seeker != null && extractorInput.getPeekPosition() == seeker.getDataEndPosition())
-        || !extractorInput.peekFully(
-            scratch.data, /* offset= */ 0, /* length= */ 4, /* allowEndOfInput= */ true);
+    if (seeker != null) {
+      long dataEndPosition = seeker.getDataEndPosition();
+      if (dataEndPosition != C.POSITION_UNSET
+          && extractorInput.getPeekPosition() > dataEndPosition - 4) {
+        return true;
+      }
+    }
+    try {
+      return !extractorInput.peekFully(
+          scratch.data, /* offset= */ 0, /* length= */ 4, /* allowEndOfInput= */ true);
+    } catch (EOFException e) {
+      return true;
+    }
   }
 
   /**
