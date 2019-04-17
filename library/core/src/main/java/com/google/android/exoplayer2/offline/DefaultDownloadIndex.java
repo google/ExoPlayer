@@ -38,7 +38,7 @@ import java.util.List;
  * <p class="caution">Database access may take a long time, do not call methods of this class from
  * the application main thread.
  */
-public final class DefaultDownloadIndex implements DownloadIndex {
+public final class DefaultDownloadIndex implements WritableDownloadIndex {
 
   private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "Downloads";
 
@@ -185,12 +185,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     return new DownloadCursorImpl(cursor);
   }
 
-  /**
-   * Adds or replaces a {@link Download}.
-   *
-   * @param download The {@link Download} to be added.
-   * @throws DatabaseIOException If an error occurs setting the state.
-   */
+  @Override
   public void putDownload(Download download) throws DatabaseIOException {
     ensureInitialized();
     ContentValues values = new ContentValues();
@@ -218,12 +213,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     }
   }
 
-  /**
-   * Removes the {@link Download} with the given {@code id}.
-   *
-   * @param id ID of a {@link Download}.
-   * @throws DatabaseIOException If an error occurs removing the state.
-   */
+  @Override
   public void removeDownload(String id) throws DatabaseIOException {
     ensureInitialized();
     try {
@@ -233,13 +223,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     }
   }
 
-  /**
-   * Sets the manual stop reason of the downloads in a terminal state ({@link
-   * Download#STATE_COMPLETED}, {@link Download#STATE_FAILED}).
-   *
-   * @param manualStopReason The manual stop reason.
-   * @throws DatabaseIOException If an error occurs updating the state.
-   */
+  @Override
   public void setManualStopReason(int manualStopReason) throws DatabaseIOException {
     ensureInitialized();
     try {
@@ -252,17 +236,7 @@ public final class DefaultDownloadIndex implements DownloadIndex {
     }
   }
 
-  /**
-   * Sets the manual stop reason of the download with the given {@code id} in a terminal state
-   * ({@link Download#STATE_COMPLETED}, {@link Download#STATE_FAILED}).
-   *
-   * <p>If there's no {@link Download} with the given {@code id} or it isn't in a terminal state,
-   * then nothing happens.
-   *
-   * @param id ID of a {@link Download}.
-   * @param manualStopReason The manual stop reason.
-   * @throws DatabaseIOException If an error occurs updating the state.
-   */
+  @Override
   public void setManualStopReason(String id, int manualStopReason) throws DatabaseIOException {
     ensureInitialized();
     try {

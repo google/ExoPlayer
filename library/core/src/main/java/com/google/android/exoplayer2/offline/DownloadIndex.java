@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.offline;
 import androidx.annotation.Nullable;
 import java.io.IOException;
 
-/** Persists {@link Download}s. */
+/** An index of {@link Download Downloads}. */
 public interface DownloadIndex {
 
   /**
