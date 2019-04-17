@@ -52,7 +52,10 @@ public final class DownloadRequest implements Parcelable {
   public final Uri uri;
   /** Stream keys to be downloaded. If empty, all streams will be downloaded. */
   public final List<StreamKey> streamKeys;
-  /** Custom key for cache indexing, or null. */
+  /**
+   * Custom key for cache indexing, or null. Must be null for DASH, HLS and SmoothStreaming
+   * downloads.
+   */
   @Nullable public final String customCacheKey;
   /** Application defined data associated with the download. May be empty. */
   public final byte[] data;
@@ -72,6 +75,10 @@ public final class DownloadRequest implements Parcelable {
       List<StreamKey> streamKeys,
       @Nullable String customCacheKey,
       @Nullable byte[] data) {
+    if (TYPE_DASH.equals(type) || TYPE_HLS.equals(type) || TYPE_SS.equals(type)) {
+      Assertions.checkArgument(
+          customCacheKey == null, "customCacheKey must be null for type: " + type);
+    }
     this.id = id;
     this.type = type;
     this.uri = uri;

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import static com.google.android.exoplayer2.offline.DownloadRequest.TYPE_DASH;
+import static com.google.android.exoplayer2.offline.DownloadRequest.TYPE_PROGRESSIVE;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -73,7 +73,7 @@ public class ActionFileUpgradeUtilTest {
     DownloadRequest expectedRequest1 =
         new DownloadRequest(
             "key123",
-            TYPE_DASH,
+            /* type= */ "test",
             Uri.parse("https://www.test.com/download1"),
             asList(expectedStreamKey1),
             /* customCacheKey= */ "key123",
@@ -81,7 +81,7 @@ public class ActionFileUpgradeUtilTest {
     DownloadRequest expectedRequest2 =
         new DownloadRequest(
             "key234",
-            TYPE_DASH,
+            /* type= */ "test",
             Uri.parse("https://www.test.com/download2"),
             asList(expectedStreamKey2),
             /* customCacheKey= */ "key234",
@@ -100,7 +100,7 @@ public class ActionFileUpgradeUtilTest {
     DownloadRequest request =
         new DownloadRequest(
             "id",
-            TYPE_DASH,
+            TYPE_PROGRESSIVE,
             Uri.parse("https://www.test.com/download"),
             asList(
                 new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2),
@@ -122,7 +122,7 @@ public class ActionFileUpgradeUtilTest {
     DownloadRequest request1 =
         new DownloadRequest(
             "id",
-            TYPE_DASH,
+            TYPE_PROGRESSIVE,
             Uri.parse("https://www.test.com/download1"),
             asList(streamKey1),
             /* customCacheKey= */ "key123",
@@ -130,7 +130,7 @@ public class ActionFileUpgradeUtilTest {
     DownloadRequest request2 =
         new DownloadRequest(
             "id",
-            TYPE_DASH,
+            TYPE_PROGRESSIVE,
             Uri.parse("https://www.test.com/download2"),
             asList(streamKey2),
             /* customCacheKey= */ "key123",

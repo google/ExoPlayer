@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.offline;
 
 import static com.google.android.exoplayer2.offline.DownloadRequest.TYPE_DASH;
 import static com.google.android.exoplayer2.offline.DownloadRequest.TYPE_HLS;
+import static com.google.android.exoplayer2.offline.DownloadRequest.TYPE_PROGRESSIVE;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
@@ -139,7 +140,7 @@ public class DownloadRequestTest {
     DownloadRequest request1 =
         new DownloadRequest(
             "id1",
-            TYPE_DASH,
+            TYPE_PROGRESSIVE,
             uri1,
             /* streamKeys= */ Collections.emptyList(),
             "key1",
@@ -147,7 +148,7 @@ public class DownloadRequestTest {
     DownloadRequest request2 =
         new DownloadRequest(
             "id1",
-            TYPE_DASH,
+            TYPE_PROGRESSIVE,
             uri2,
             /* streamKeys= */ Collections.emptyList(),
             "key2",
