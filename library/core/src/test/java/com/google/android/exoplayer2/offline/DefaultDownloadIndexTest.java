@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import static com.google.android.exoplayer2.offline.DefaultDownloadIndex.INSTANCE_UID;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -32,6 +31,8 @@ import org.junit.runner.RunWith;
 /** Unit tests for {@link DefaultDownloadIndex}. */
 @RunWith(AndroidJUnit4.class)
 public class DefaultDownloadIndexTest {
+
+  private static final String EMPTY_NAME = "singleton";
 
   private ExoDatabaseProvider databaseProvider;
   private DefaultDownloadIndex downloadIndex;
@@ -170,14 +171,12 @@ public class DefaultDownloadIndexTest {
   @Test
   public void putDownload_setsVersion() throws DatabaseIOException {
     SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
-    assertThat(
-            VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID))
+    assertThat(VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, EMPTY_NAME))
         .isEqualTo(VersionTable.VERSION_UNSET);
 
     downloadIndex.putDownload(new DownloadBuilder("id1").build());
 
-    assertThat(
-            VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID))
+    assertThat(VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, EMPTY_NAME))
         .isEqualTo(DefaultDownloadIndex.TABLE_VERSION);
   }
 
@@ -191,15 +190,14 @@ public class DefaultDownloadIndexTest {
 
     SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
     VersionTable.setVersion(
-        writableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID, Integer.MAX_VALUE);
+        writableDatabase, VersionTable.FEATURE_OFFLINE, EMPTY_NAME, Integer.MAX_VALUE);
 
     downloadIndex = new DefaultDownloadIndex(databaseProvider);
 
     cursor = downloadIndex.getDownloads();
     assertThat(cursor.getCount()).isEqualTo(0);
     cursor.close();
-    assertThat(
-            VersionTable.getVersion(writableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID))
+    assertThat(VersionTable.getVersion(writableDatabase, VersionTable.FEATURE_OFFLINE, EMPTY_NAME))
         .isEqualTo(DefaultDownloadIndex.TABLE_VERSION);
   }
 
