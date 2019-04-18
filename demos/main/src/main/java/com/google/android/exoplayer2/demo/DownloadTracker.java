@@ -101,7 +101,7 @@ public class DownloadTracker {
       RenderersFactory renderersFactory) {
     Download download = downloads.get(uri);
     if (download != null) {
-      DownloadService.startWithRemoveDownload(
+      DownloadService.sendRemoveDownload(
           context, DemoDownloadService.class, download.request.id, /* foreground= */ false);
     } else {
       if (startDownloadDialogHelper != null) {
@@ -263,7 +263,7 @@ public class DownloadTracker {
     }
 
     private void startDownload(DownloadRequest downloadRequest) {
-      DownloadService.startWithNewDownload(
+      DownloadService.sendNewDownload(
           context, DemoDownloadService.class, downloadRequest, /* foreground= */ false);
     }
 
