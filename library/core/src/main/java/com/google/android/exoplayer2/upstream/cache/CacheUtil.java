@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -31,36 +32,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Caching related utility methods.
  */
-@SuppressWarnings({"NonAtomicVolatileUpdate", "NonAtomicOperationOnVolatileField"})
 public final class CacheUtil {
 
-  /** Counters used during caching. */
-  public static class CachingCounters {
-    /** The number of bytes already in the cache. */
-    public volatile long alreadyCachedBytes;
-    /** The number of newly cached bytes. */
-    public volatile long newlyCachedBytes;
-    /** The length of the content being cached in bytes, or {@link C#LENGTH_UNSET} if unknown. */
-    public volatile long contentLength = C.LENGTH_UNSET;
-    /** The percentage of cached data, or {@link C#PERCENTAGE_UNSET} if unavailable. */
-    public volatile float percentage;
+  /** Receives progress updates during cache operations. */
+  public interface ProgressListener {
 
     /**
-     * Returns the sum of {@link #alreadyCachedBytes} and {@link #newlyCachedBytes}.
+     * Called when progress is made during a cache operation.
+     *
+     * @param requestLength The length of the content being cached in bytes, or {@link
+     *     C#LENGTH_UNSET} if unknown.
+     * @param bytesCached The number of bytes that are cached.
+     * @param newBytesCached The number of bytes that have been newly cached since the last progress
+     *     update.
      */
-    public long totalCachedBytes() {
-      return alreadyCachedBytes + newlyCachedBytes;
-    }
-
-    /** Updates {@link #percentage} value using other values. */
-    public void updatePercentage() {
-      // Take local snapshot of the volatile field
-      long contentLength = this.contentLength;
-      percentage =
-          contentLength == C.LENGTH_UNSET
-              ? C.PERCENTAGE_UNSET
-              : ((totalCachedBytes() * 100f) / contentLength);
-    }
+    void onProgress(long requestLength, long bytesCached, long newBytesCached);
   }
 
   /** Default buffer size to be used while caching. */
@@ -80,48 +66,43 @@ public final class CacheUtil {
   }
 
   /**
-   * Sets a {@link CachingCounters} to contain the number of bytes already downloaded and the length
-   * for the content defined by a {@code dataSpec}. {@link CachingCounters#newlyCachedBytes} is
-   * reset to 0.
+   * Queries the cache to obtain the request length and the number of bytes already cached for a
+   * given {@link DataSpec}.
    *
    * @param dataSpec Defines the data to be checked.
    * @param cache A {@link Cache} which has the data.
    * @param cacheKeyFactory An optional factory for cache keys.
-   * @param counters The {@link CachingCounters} to update.
+   * @return A pair containing the request length and the number of bytes that are already cached.
    */
-  public static void getCached(
-      DataSpec dataSpec,
-      Cache cache,
-      @Nullable CacheKeyFactory cacheKeyFactory,
-      CachingCounters counters) {
+  public static Pair<Long, Long> getCached(
+      DataSpec dataSpec, Cache cache, @Nullable CacheKeyFactory cacheKeyFactory) {
     String key = buildCacheKey(dataSpec, cacheKeyFactory);
     long position = dataSpec.absoluteStreamPosition;
-    long bytesLeft;
+    long requestLength;
     if (dataSpec.length != C.LENGTH_UNSET) {
-      bytesLeft = dataSpec.length;
+      requestLength = dataSpec.length;
     } else {
       long contentLength = ContentMetadata.getContentLength(cache.getContentMetadata(key));
-      bytesLeft = contentLength == C.LENGTH_UNSET ? C.LENGTH_UNSET : contentLength - position;
+      requestLength = contentLength == C.LENGTH_UNSET ? C.LENGTH_UNSET : contentLength - position;
     }
-    counters.contentLength = bytesLeft;
-    counters.alreadyCachedBytes = 0;
-    counters.newlyCachedBytes = 0;
+    long bytesAlreadyCached = 0;
+    long bytesLeft = requestLength;
     while (bytesLeft != 0) {
       long blockLength =
           cache.getCachedLength(
               key, position, bytesLeft != C.LENGTH_UNSET ? bytesLeft : Long.MAX_VALUE);
       if (blockLength > 0) {
-        counters.alreadyCachedBytes += blockLength;
+        bytesAlreadyCached += blockLength;
       } else {
         blockLength = -blockLength;
         if (blockLength == Long.MAX_VALUE) {
-          return;
+          break;
         }
       }
       position += blockLength;
       bytesLeft -= bytesLeft == C.LENGTH_UNSET ? 0 : blockLength;
     }
-    counters.updatePercentage();
+    return Pair.create(requestLength, bytesAlreadyCached);
   }
 
   /**
@@ -132,7 +113,7 @@ public final class CacheUtil {
    * @param cache A {@link Cache} to store the data.
    * @param cacheKeyFactory An optional factory for cache keys.
    * @param upstream A {@link DataSource} for reading data not in the cache.
-   * @param counters If not null, updated during caching.
+   * @param progressListener A listener to receive progress updates, or {@code null}.
    * @param isCanceled An optional flag that will interrupt caching if set to true.
    * @throws IOException If an error occurs reading from the source.
    * @throws InterruptedException If the thread was interrupted directly or via {@code isCanceled}.
@@ -142,7 +123,7 @@ public final class CacheUtil {
       Cache cache,
       @Nullable CacheKeyFactory cacheKeyFactory,
       DataSource upstream,
-      @Nullable CachingCounters counters,
+      @Nullable ProgressListener progressListener,
       @Nullable AtomicBoolean isCanceled)
       throws IOException, InterruptedException {
     cache(
@@ -153,7 +134,7 @@ public final class CacheUtil {
         new byte[DEFAULT_BUFFER_SIZE_BYTES],
         /* priorityTaskManager= */ null,
         /* priority= */ 0,
-        counters,
+        progressListener,
         isCanceled,
         /* enableEOFException= */ false);
   }
@@ -176,7 +157,7 @@ public final class CacheUtil {
    * @param priorityTaskManager If not null it's used to check whether it is allowed to proceed with
    *     caching.
    * @param priority The priority of this task. Used with {@code priorityTaskManager}.
-   * @param counters If not null, updated during caching.
+   * @param progressListener A listener to receive progress updates, or {@code null}.
    * @param isCanceled An optional flag that will interrupt caching if set to true.
    * @param enableEOFException Whether to throw an {@link EOFException} if end of input has been
    *     reached unexpectedly.
@@ -191,19 +172,18 @@ public final class CacheUtil {
       byte[] buffer,
       PriorityTaskManager priorityTaskManager,
       int priority,
-      @Nullable CachingCounters counters,
+      @Nullable ProgressListener progressListener,
       @Nullable AtomicBoolean isCanceled,
       boolean enableEOFException)
       throws IOException, InterruptedException {
     Assertions.checkNotNull(dataSource);
     Assertions.checkNotNull(buffer);
 
-    if (counters != null) {
-      // Initialize the CachingCounter values.
-      getCached(dataSpec, cache, cacheKeyFactory, counters);
-    } else {
-      // Dummy CachingCounters. No need to initialize as they will not be visible to the caller.
-      counters = new CachingCounters();
+    ProgressNotifier progressNotifier = null;
+    if (progressListener != null) {
+      progressNotifier = new ProgressNotifier(progressListener);
+      Pair<Long, Long> lengthAndBytesAlreadyCached = getCached(dataSpec, cache, cacheKeyFactory);
+      progressNotifier.init(lengthAndBytesAlreadyCached.first, lengthAndBytesAlreadyCached.second);
     }
 
     String key = buildCacheKey(dataSpec, cacheKeyFactory);
@@ -234,7 +214,7 @@ public final class CacheUtil {
                 buffer,
                 priorityTaskManager,
                 priority,
-                counters,
+                progressNotifier,
                 isCanceled);
         if (read < blockLength) {
           // Reached to the end of the data.
@@ -261,7 +241,7 @@ public final class CacheUtil {
    * @param priorityTaskManager If not null it's used to check whether it is allowed to proceed with
    *     caching.
    * @param priority The priority of this task.
-   * @param counters Counters to be set during reading.
+   * @param progressNotifier A notifier through which to report progress updates, or {@code null}.
    * @param isCanceled An optional flag that will interrupt caching if set to true.
    * @return Number of read bytes, or 0 if no data is available because the end of the opened range
    *     has been reached.
@@ -274,7 +254,7 @@ public final class CacheUtil {
       byte[] buffer,
       PriorityTaskManager priorityTaskManager,
       int priority,
-      CachingCounters counters,
+      @Nullable ProgressNotifier progressNotifier,
       AtomicBoolean isCanceled)
       throws IOException, InterruptedException {
     long positionOffset = absoluteStreamPosition - dataSpec.absoluteStreamPosition;
@@ -298,8 +278,8 @@ public final class CacheUtil {
                 dataSpec.key,
                 dataSpec.flags);
         long resolvedLength = dataSource.open(dataSpec);
-        if (counters.contentLength == C.LENGTH_UNSET && resolvedLength != C.LENGTH_UNSET) {
-          counters.contentLength = positionOffset + resolvedLength;
+        if (progressNotifier != null && resolvedLength != C.LENGTH_UNSET) {
+          progressNotifier.onRequestLengthResolved(positionOffset + resolvedLength);
         }
         long totalBytesRead = 0;
         while (totalBytesRead != length) {
@@ -312,14 +292,15 @@ public final class CacheUtil {
                       ? (int) Math.min(buffer.length, length - totalBytesRead)
                       : buffer.length);
           if (bytesRead == C.RESULT_END_OF_INPUT) {
-            if (counters.contentLength == C.LENGTH_UNSET) {
-              counters.contentLength = positionOffset + totalBytesRead;
+            if (progressNotifier != null) {
+              progressNotifier.onRequestLengthResolved(positionOffset + totalBytesRead);
             }
             break;
           }
           totalBytesRead += bytesRead;
-          counters.newlyCachedBytes += bytesRead;
-          counters.updatePercentage();
+          if (progressNotifier != null) {
+            progressNotifier.onBytesCached(bytesRead);
+          }
         }
         return totalBytesRead;
       } catch (PriorityTaskManager.PriorityTooLowException exception) {
@@ -374,4 +355,34 @@ public final class CacheUtil {
 
   private CacheUtil() {}
 
+  private static final class ProgressNotifier {
+    /** The listener to notify when progress is made. */
+    private final ProgressListener listener;
+    /** The length of the content being cached in bytes, or {@link C#LENGTH_UNSET} if unknown. */
+    private long requestLength;
+    /** The number of bytes that are cached. */
+    private long bytesCached;
+
+    public ProgressNotifier(ProgressListener listener) {
+      this.listener = listener;
+    }
+
+    public void init(long requestLength, long bytesCached) {
+      this.requestLength = requestLength;
+      this.bytesCached = bytesCached;
+      listener.onProgress(requestLength, bytesCached, /* newBytesCached= */ 0);
+    }
+
+    public void onRequestLengthResolved(long requestLength) {
+      if (this.requestLength == C.LENGTH_UNSET && requestLength != C.LENGTH_UNSET) {
+        this.requestLength = requestLength;
+        listener.onProgress(requestLength, bytesCached, /* newBytesCached= */ 0);
+      }
+    }
+
+    public void onBytesCached(long newBytesCached) {
+      bytesCached += newBytesCached;
+      listener.onProgress(requestLength, bytesCached, newBytesCached);
+    }
+  }
 }
