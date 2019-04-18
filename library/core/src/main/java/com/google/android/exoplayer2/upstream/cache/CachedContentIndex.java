@@ -63,11 +63,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /* package */ static final String FILE_NAME_ATOMIC = "cached_content_index.exi";
 
-  private static final int VERSION = 2;
-  private static final int VERSION_METADATA_INTRODUCED = 2;
   private static final int INCREMENTAL_METADATA_READ_LENGTH = 10 * 1024 * 1024;
-
-  private static final int FLAG_ENCRYPTED_INDEX = 1;
 
   private final HashMap<String, CachedContent> keyToContent;
   /**
@@ -464,6 +460,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /** {@link Storage} implementation that uses an {@link AtomicFile}. */
   private static class LegacyStorage implements Storage {
 
+    private static final int VERSION = 2;
+    private static final int VERSION_METADATA_INTRODUCED = 2;
+    private static final int FLAG_ENCRYPTED_INDEX = 1;
+
     private final boolean encrypt;
     @Nullable private final Cipher cipher;
     @Nullable private final SecretKeySpec secretKeySpec;
@@ -770,7 +770,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 databaseProvider.getReadableDatabase(),
                 VersionTable.FEATURE_CACHE_CONTENT_METADATA,
                 hexUid);
-        if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
+        if (version != TABLE_VERSION) {
           SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
           writableDatabase.beginTransaction();
           try {
@@ -779,9 +779,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           } finally {
             writableDatabase.endTransaction();
           }
-        } else if (version < TABLE_VERSION) {
-          // There is no previous version currently.
-          throw new IllegalStateException();
         }
 
         try (Cursor cursor = getCursor()) {
