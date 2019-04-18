@@ -49,7 +49,6 @@ public class DemoApplication extends Application {
   private static final String DOWNLOAD_ACTION_FILE = "actions";
   private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
-  private static final int MAX_SIMULTANEOUS_DOWNLOADS = 2;
 
   protected String userAgent;
 
@@ -122,12 +121,7 @@ public class DemoApplication extends Application {
           new DownloaderConstructorHelper(getDownloadCache(), buildHttpDataSourceFactory());
       downloadManager =
           new DownloadManager(
-              this,
-              downloadIndex,
-              new DefaultDownloaderFactory(downloaderConstructorHelper),
-              MAX_SIMULTANEOUS_DOWNLOADS,
-              DownloadManager.DEFAULT_MIN_RETRY_COUNT,
-              DownloadManager.DEFAULT_REQUIREMENTS);
+              this, downloadIndex, new DefaultDownloaderFactory(downloaderConstructorHelper));
       downloadTracker =
           new DownloadTracker(/* context= */ this, buildDataSourceFactory(), downloadManager);
     }

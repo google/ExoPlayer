@@ -34,7 +34,6 @@ import android.os.Message;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
@@ -111,8 +110,8 @@ public final class DownloadManager {
         @Requirements.RequirementFlags int notMetRequirements) {}
   }
 
-  /** The default maximum number of simultaneous downloads. */
-  public static final int DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS = 1;
+  /** The default maximum number of parallel downloads. */
+  public static final int DEFAULT_MAX_PARALLEL_DOWNLOADS = 3;
   /** The default minimum number of times a download must be retried before failing. */
   public static final int DEFAULT_MIN_RETRY_COUNT = 5;
   /** The default requirement is that the device has network connectivity. */
@@ -151,8 +150,6 @@ public final class DownloadManager {
   private static final String TAG = "DownloadManager";
   private static final boolean DEBUG = false;
 
-  private final int maxSimultaneousDownloads;
-  private final int minRetryCount;
   private final Context context;
   private final WritableDownloadIndex downloadIndex;
   private final DownloaderFactory downloaderFactory;
@@ -180,51 +177,11 @@ public final class DownloadManager {
   // Mutable fields that are accessed on the internal thread.
   @Requirements.RequirementFlags private int notMetRequirements;
   private boolean downloadsResumed;
-  private int simultaneousDownloads;
+  private int parallelDownloads;
 
-  /**
-   * Constructs a {@link DownloadManager}.
-   *
-   * @param context Any context.
-   * @param databaseProvider Provides the database that holds the downloads.
-   * @param downloaderFactory A factory for creating {@link Downloader}s.
-   */
-  public DownloadManager(
-      Context context, DatabaseProvider databaseProvider, DownloaderFactory downloaderFactory) {
-    this(
-        context,
-        databaseProvider,
-        downloaderFactory,
-        DEFAULT_MAX_SIMULTANEOUS_DOWNLOADS,
-        DEFAULT_MIN_RETRY_COUNT,
-        DEFAULT_REQUIREMENTS);
-  }
-
-  /**
-   * Constructs a {@link DownloadManager}.
-   *
-   * @param context Any context.
-   * @param databaseProvider Provides the database that holds the downloads.
-   * @param downloaderFactory A factory for creating {@link Downloader}s.
-   * @param maxSimultaneousDownloads The maximum number of simultaneous downloads.
-   * @param minRetryCount The minimum number of times a download must be retried before failing.
-   * @param requirements The requirements needed to be met to start downloads.
-   */
-  public DownloadManager(
-      Context context,
-      DatabaseProvider databaseProvider,
-      DownloaderFactory downloaderFactory,
-      int maxSimultaneousDownloads,
-      int minRetryCount,
-      Requirements requirements) {
-    this(
-        context,
-        new DefaultDownloadIndex(databaseProvider),
-        downloaderFactory,
-        maxSimultaneousDownloads,
-        minRetryCount,
-        requirements);
-  }
+  // TODO: Fix these to properly support changes at runtime.
+  private volatile int maxParallelDownloads;
+  private volatile int minRetryCount;
 
   /**
    * Constructs a {@link DownloadManager}.
@@ -232,22 +189,14 @@ public final class DownloadManager {
    * @param context Any context.
    * @param downloadIndex The download index used to hold the download information.
    * @param downloaderFactory A factory for creating {@link Downloader}s.
-   * @param maxSimultaneousDownloads The maximum number of simultaneous downloads.
-   * @param minRetryCount The minimum number of times a download must be retried before failing.
-   * @param requirements The requirements needed to be met to start downloads.
    */
   public DownloadManager(
-      Context context,
-      WritableDownloadIndex downloadIndex,
-      DownloaderFactory downloaderFactory,
-      int maxSimultaneousDownloads,
-      int minRetryCount,
-      Requirements requirements) {
+      Context context, WritableDownloadIndex downloadIndex, DownloaderFactory downloaderFactory) {
     this.context = context.getApplicationContext();
     this.downloadIndex = downloadIndex;
     this.downloaderFactory = downloaderFactory;
-    this.maxSimultaneousDownloads = maxSimultaneousDownloads;
-    this.minRetryCount = minRetryCount;
+    maxParallelDownloads = DEFAULT_MAX_PARALLEL_DOWNLOADS;
+    minRetryCount = DEFAULT_MIN_RETRY_COUNT;
 
     downloadInternals = new ArrayList<>();
     downloads = new ArrayList<>();
@@ -262,7 +211,8 @@ public final class DownloadManager {
     internalThread.start();
     internalHandler = new Handler(internalThread.getLooper(), this::handleInternalMessage);
 
-    requirementsWatcher = new RequirementsWatcher(context, requirementsListener, requirements);
+    requirementsWatcher =
+        new RequirementsWatcher(context, requirementsListener, DEFAULT_REQUIREMENTS);
     int notMetRequirements = requirementsWatcher.start();
 
     pendingMessages = 1;
@@ -330,6 +280,27 @@ public final class DownloadManager {
     requirementsWatcher = new RequirementsWatcher(context, requirementsListener, requirements);
     int notMetRequirements = requirementsWatcher.start();
     onRequirementsStateChanged(requirementsWatcher, notMetRequirements);
+  }
+
+  /**
+   * Sets the maximum number of parallel downloads.
+   *
+   * @param maxParallelDownloads The maximum number of parallel downloads.
+   */
+  // TODO: Fix to properly support changes at runtime.
+  public void setMaxParallelDownloads(int maxParallelDownloads) {
+    this.maxParallelDownloads = maxParallelDownloads;
+  }
+
+  /**
+   * Sets the minimum number of times that a download will be retried. A download will fail if the
+   * specified number of retries is exceeded without any progress being made.
+   *
+   * @param minRetryCount The minimum number of times that a download will be retried.
+   */
+  // TODO: Fix to properly support changes at runtime.
+  public void setMinRetryCount(int minRetryCount) {
+    this.minRetryCount = minRetryCount;
   }
 
   /** Returns the used {@link DownloadIndex}. */
@@ -696,15 +667,15 @@ public final class DownloadManager {
     downloadThreads.remove(downloadId);
     boolean tryToStartDownloads = false;
     if (!downloadThread.isRemove) {
-      // If maxSimultaneousDownloads was hit, there might be a download waiting for a slot.
-      tryToStartDownloads = simultaneousDownloads == maxSimultaneousDownloads;
-      simultaneousDownloads--;
+      // If maxParallelDownloads was hit, there might be a download waiting for a slot.
+      tryToStartDownloads = parallelDownloads == maxParallelDownloads;
+      parallelDownloads--;
     }
     getDownload(downloadId)
         .onDownloadThreadStopped(downloadThread.isCanceled, downloadThread.finalError);
     if (tryToStartDownloads) {
       for (int i = 0;
-          simultaneousDownloads < maxSimultaneousDownloads && i < downloadInternals.size();
+          parallelDownloads < maxParallelDownloads && i < downloadInternals.size();
           i++) {
         downloadInternals.get(i).start();
       }
@@ -760,10 +731,10 @@ public final class DownloadManager {
     }
     boolean isRemove = downloadInternal.isInRemoveState();
     if (!isRemove) {
-      if (simultaneousDownloads == maxSimultaneousDownloads) {
+      if (parallelDownloads == maxParallelDownloads) {
         return START_THREAD_TOO_MANY_DOWNLOADS;
       }
-      simultaneousDownloads++;
+      parallelDownloads++;
     }
     Downloader downloader = downloaderFactory.createDownloader(request);
     DownloadThread downloadThread =

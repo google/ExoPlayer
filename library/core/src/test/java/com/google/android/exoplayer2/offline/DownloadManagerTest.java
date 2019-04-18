@@ -517,7 +517,7 @@ public class DownloadManagerTest {
     assertEqualIgnoringTimeFields(mergedDownload, expectedDownload);
   }
 
-  private void setUpDownloadManager(final int maxActiveDownloadTasks) throws Exception {
+  private void setUpDownloadManager(final int maxParallelDownloads) throws Exception {
     if (downloadManager != null) {
       releaseDownloadManager();
     }
@@ -526,12 +526,10 @@ public class DownloadManagerTest {
           () -> {
             downloadManager =
                 new DownloadManager(
-                    ApplicationProvider.getApplicationContext(),
-                    downloadIndex,
-                    downloaderFactory,
-                    maxActiveDownloadTasks,
-                    MIN_RETRY_COUNT,
-                    new Requirements(0));
+                    ApplicationProvider.getApplicationContext(), downloadIndex, downloaderFactory);
+            downloadManager.setMaxParallelDownloads(maxParallelDownloads);
+            downloadManager.setMinRetryCount(MIN_RETRY_COUNT);
+            downloadManager.setRequirements(new Requirements(0));
             downloadManager.resumeDownloads();
             downloadManagerListener =
                 new TestDownloadManagerListener(downloadManager, dummyMainThread);
