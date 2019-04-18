@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
 import com.google.android.exoplayer2.util.Log;
@@ -290,8 +291,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
     }
     List<MediaCodecInfo> decoderInfos =
-        mediaCodecSelector.getDecoderInfos(
-            format.sampleMimeType, requiresSecureDecryption, /* requiresTunnelingDecoder= */ false);
+        getDecoderInfos(mediaCodecSelector, format, requiresSecureDecryption);
     if (decoderInfos.isEmpty()) {
       return requiresSecureDecryption
               && !mediaCodecSelector
@@ -327,8 +327,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         return Collections.singletonList(passthroughDecoderInfo);
       }
     }
-    return mediaCodecSelector.getDecoderInfos(
-        format.sampleMimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
+    List<MediaCodecInfo> decoderInfos =
+        mediaCodecSelector.getDecoderInfos(
+            format.sampleMimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
+    decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
+    return Collections.unmodifiableList(decoderInfos);
   }
 
   /**
