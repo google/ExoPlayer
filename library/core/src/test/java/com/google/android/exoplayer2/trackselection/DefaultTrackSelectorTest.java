@@ -910,13 +910,8 @@ public final class DefaultTrackSelectorTest {
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections.get(0), trackGroups, defaultOnly);
 
-    // With no language preference and no text track flagged as default, the first forced should be
+    // Default flags are disabled and no language preference is provided, so no text track is
     // selected.
-    trackGroups = wrapFormats(forcedOnly, noFlag);
-    result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
-    assertFixedSelection(result.selections.get(0), trackGroups, forcedOnly);
-
-    // Default flags are disabled, so the first track flagged as forced should be selected.
     trackGroups = wrapFormats(defaultOnly, noFlag, forcedOnly, forcedDefault);
     trackSelector.setParameters(
         Parameters.DEFAULT
@@ -924,15 +919,7 @@ public final class DefaultTrackSelectorTest {
             .setDisabledTextTrackSelectionFlags(C.SELECTION_FLAG_DEFAULT)
             .build());
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
-    assertFixedSelection(result.selections.get(0), trackGroups, forcedOnly);
-
-    // Default flags are disabled, but there is a text track flagged as forced whose language
-    // matches the preferred audio language.
-    trackGroups = wrapFormats(forcedDefault, forcedOnly, defaultOnly, noFlag, forcedOnlySpanish);
-    trackSelector.setParameters(
-        trackSelector.getParameters().buildUpon().setPreferredTextLanguage("spa").build());
-    result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
-    assertFixedSelection(result.selections.get(0), trackGroups, forcedOnlySpanish);
+    assertNoSelection(result.selections.get(0));
 
     // All selection flags are disabled and there is no language preference, so nothing should be
     // selected.
@@ -977,6 +964,11 @@ public final class DefaultTrackSelectorTest {
         buildTextFormat(/* id= */ "forcedEnglish", /* language= */ "eng", C.SELECTION_FLAG_FORCED);
     Format forcedGerman =
         buildTextFormat(/* id= */ "forcedGerman", /* language= */ "deu", C.SELECTION_FLAG_FORCED);
+    Format forcedNoLanguage =
+        buildTextFormat(
+            /* id= */ "forcedNoLanguage",
+            /* language= */ C.LANGUAGE_UNDETERMINED,
+            C.SELECTION_FLAG_FORCED);
     Format audio = buildAudioFormat(/* id= */ "audio");
     Format germanAudio =
         buildAudioFormat(
@@ -994,16 +986,18 @@ public final class DefaultTrackSelectorTest {
           ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES
         };
 
-    // The audio declares no language. The first forced text track should be selected.
-    TrackGroupArray trackGroups = wrapFormats(audio, forcedEnglish, forcedGerman);
+    // Neither the audio nor the forced text track define a language. We select them both under the
+    // assumption that they have matching language.
+    TrackGroupArray trackGroups = wrapFormats(audio, forcedNoLanguage);
     TrackSelectorResult result =
         trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
-    assertFixedSelection(result.selections.get(1), trackGroups, forcedEnglish);
+    assertFixedSelection(result.selections.get(1), trackGroups, forcedNoLanguage);
 
-    // Ditto.
-    trackGroups = wrapFormats(audio, forcedGerman, forcedEnglish);
+    // No forced text track should be selected because none of the forced text tracks' languages
+    // matches the selected audio language.
+    trackGroups = wrapFormats(audio, forcedEnglish, forcedGerman);
     result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
-    assertFixedSelection(result.selections.get(1), trackGroups, forcedGerman);
+    assertNoSelection(result.selections.get(1));
 
     // The audio declares german. The german forced track should be selected.
     trackGroups = wrapFormats(germanAudio, forcedGerman, forcedEnglish);
