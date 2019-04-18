@@ -1,7 +1,5 @@
 # Release notes #
 
-### dev-v2 (not yet released) ###
-
 ### 2.10.0 ###
 
 * Core library:
