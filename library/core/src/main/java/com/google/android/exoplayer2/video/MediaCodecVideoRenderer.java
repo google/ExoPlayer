@@ -306,12 +306,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
     }
     List<MediaCodecInfo> decoderInfos =
-        getDecoderInfos(mediaCodecSelector, format, requiresSecureDecryption);
+        getDecoderInfos(
+            mediaCodecSelector,
+            format,
+            requiresSecureDecryption,
+            /* requiresTunnelingDecoder= */ false);
     if (decoderInfos.isEmpty()) {
       return requiresSecureDecryption
-              && !mediaCodecSelector
-                  .getDecoderInfos(
-                      format.sampleMimeType,
+              && !getDecoderInfos(
+                      mediaCodecSelector,
+                      format,
                       /* requiresSecureDecoder= */ false,
                       /* requiresTunnelingDecoder= */ false)
                   .isEmpty()
@@ -331,8 +335,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     int tunnelingSupport = TUNNELING_NOT_SUPPORTED;
     if (isFormatSupported) {
       List<MediaCodecInfo> tunnelingDecoderInfos =
-          mediaCodecSelector.getDecoderInfos(
-              format.sampleMimeType,
+          getDecoderInfos(
+              mediaCodecSelector,
+              format,
               requiresSecureDecryption,
               /* requiresTunnelingDecoder= */ true);
       if (!tunnelingDecoderInfos.isEmpty()) {
@@ -351,8 +356,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected List<MediaCodecInfo> getDecoderInfos(
       MediaCodecSelector mediaCodecSelector, Format format, boolean requiresSecureDecoder)
       throws DecoderQueryException {
+    return getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder, tunneling);
+  }
+
+  private static List<MediaCodecInfo> getDecoderInfos(
+      MediaCodecSelector mediaCodecSelector,
+      Format format,
+      boolean requiresSecureDecoder,
+      boolean requiresTunnelingDecoder)
+      throws DecoderQueryException {
     List<MediaCodecInfo> decoderInfos =
-        mediaCodecSelector.getDecoderInfos(format.sampleMimeType, requiresSecureDecoder, tunneling);
+        mediaCodecSelector.getDecoderInfos(
+            format.sampleMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
+    decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
     return Collections.unmodifiableList(decoderInfos);
   }
 

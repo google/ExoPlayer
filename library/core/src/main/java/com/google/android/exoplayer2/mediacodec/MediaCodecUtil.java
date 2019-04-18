@@ -20,16 +20,17 @@ import android.annotation.TargetApi;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecList;
+import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseIntArray;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -183,6 +184,26 @@ public final class MediaCodecUtil {
     List<MediaCodecInfo> unmodifiableDecoderInfos = Collections.unmodifiableList(decoderInfos);
     decoderInfosCache.put(key, unmodifiableDecoderInfos);
     return unmodifiableDecoderInfos;
+  }
+
+  /**
+   * Returns a copy of the provided decoder list sorted such that decoders with format support are
+   * listed first. The returned list is modifiable for convenience.
+   */
+  @CheckResult
+  public static List<MediaCodecInfo> getDecoderInfosSortedByFormatSupport(
+      List<MediaCodecInfo> decoderInfos, Format format) {
+    decoderInfos = new ArrayList<>(decoderInfos);
+    sortByScore(
+        decoderInfos,
+        decoderInfo -> {
+          try {
+            return decoderInfo.isFormatSupported(format) ? 1 : 0;
+          } catch (DecoderQueryException e) {
+            return -1;
+          }
+        });
+    return decoderInfos;
   }
 
   /**
@@ -484,7 +505,22 @@ public final class MediaCodecUtil {
    */
   private static void applyWorkarounds(String mimeType, List<MediaCodecInfo> decoderInfos) {
     if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
-      Collections.sort(decoderInfos, new RawAudioCodecComparator());
+      // Work around inconsistent raw audio decoding behavior across different devices.
+      sortByScore(
+          decoderInfos,
+          decoderInfo -> {
+            String name = decoderInfo.name;
+            if (name.startsWith("OMX.google") || name.startsWith("c2.android")) {
+              // Prefer generic decoders over ones provided by the device.
+              return 1;
+            }
+            if (Util.SDK_INT < 26 && name.equals("OMX.MTK.AUDIO.DECODER.RAW")) {
+              // This decoder may modify the audio, so any other compatible decoders take
+              // precedence. See [Internal: b/62337687].
+              return -1;
+            }
+            return 0;
+          });
     } else if (Util.SDK_INT < 21 && decoderInfos.size() > 1) {
       String firstCodecName = decoderInfos.get(0).name;
       if ("OMX.SEC.mp3.dec".equals(firstCodecName)
@@ -494,7 +530,7 @@ public final class MediaCodecUtil {
         // OMX.brcm.audio.mp3.decoder on older devices. See:
         // https://github.com/google/ExoPlayer/issues/398 and
         // https://github.com/google/ExoPlayer/issues/4519.
-        Collections.sort(decoderInfos, new PreferOmxGoogleCodecComparator());
+        sortByScore(decoderInfos, decoderInfo -> decoderInfo.name.startsWith("OMX.google") ? 1 : 0);
       }
     }
   }
@@ -676,6 +712,17 @@ public final class MediaCodecUtil {
     return null;
   }
 
+  /** Stably sorts the provided {@code list} in-place, in order of decreasing score. */
+  private static <T> void sortByScore(List<T> list, ScoreProvider<T> scoreProvider) {
+    Collections.sort(list, (a, b) -> scoreProvider.getScore(b) - scoreProvider.getScore(a));
+  }
+
+  /** Interface for providers of item scores. */
+  private interface ScoreProvider<T> {
+    /** Returns the score of the provided item. */
+    int getScore(T t);
+  }
+
   private interface MediaCodecListCompat {
 
     /**
@@ -824,44 +871,6 @@ public final class MediaCodecUtil {
           && tunneling == other.tunneling;
     }
 
-  }
-
-  /**
-   * Comparator for ordering media codecs that handle {@link MimeTypes#AUDIO_RAW} to work around
-   * possible inconsistent behavior across different devices. A list sorted with this comparator has
-   * more preferred codecs first.
-   */
-  private static final class RawAudioCodecComparator implements Comparator<MediaCodecInfo> {
-    @Override
-    public int compare(MediaCodecInfo a, MediaCodecInfo b) {
-      return scoreMediaCodecInfo(a) - scoreMediaCodecInfo(b);
-    }
-
-    private static int scoreMediaCodecInfo(MediaCodecInfo mediaCodecInfo) {
-      String name = mediaCodecInfo.name;
-      if (name.startsWith("OMX.google") || name.startsWith("c2.android")) {
-        // Prefer generic decoders over ones provided by the device.
-        return -1;
-      }
-      if (Util.SDK_INT < 26 && name.equals("OMX.MTK.AUDIO.DECODER.RAW")) {
-        // This decoder may modify the audio, so any other compatible decoders take precedence. See
-        // [Internal: b/62337687].
-        return 1;
-      }
-      return 0;
-    }
-  }
-
-  /** Comparator for preferring OMX.google media codecs. */
-  private static final class PreferOmxGoogleCodecComparator implements Comparator<MediaCodecInfo> {
-    @Override
-    public int compare(MediaCodecInfo a, MediaCodecInfo b) {
-      return scoreMediaCodecInfo(a) - scoreMediaCodecInfo(b);
-    }
-
-    private static int scoreMediaCodecInfo(MediaCodecInfo mediaCodecInfo) {
-      return mediaCodecInfo.name.startsWith("OMX.google") ? -1 : 0;
-    }
   }
 
   static {
