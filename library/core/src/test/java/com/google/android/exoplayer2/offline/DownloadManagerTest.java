@@ -20,13 +20,13 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.Download.State;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -184,7 +184,7 @@ public class DownloadManagerTest {
 
     int tooManyRetries = MIN_RETRY_COUNT + 10;
     for (int i = 0; i < tooManyRetries; i++) {
-      downloader.increaseDownloadedByteCount();
+      downloader.incrementBytesDownloaded();
       downloader.assertStarted(MAX_RETRY_DELAY).fail();
     }
     downloader.assertStarted(MAX_RETRY_DELAY).unblock();
@@ -555,11 +555,11 @@ public class DownloadManagerTest {
   private static void assertEqualIgnoringTimeFields(Download download, Download that) {
     assertThat(download.request).isEqualTo(that.request);
     assertThat(download.state).isEqualTo(that.state);
+    assertThat(download.contentLength).isEqualTo(that.contentLength);
     assertThat(download.failureReason).isEqualTo(that.failureReason);
     assertThat(download.stopReason).isEqualTo(that.stopReason);
-    assertThat(download.getDownloadPercentage()).isEqualTo(that.getDownloadPercentage());
-    assertThat(download.getDownloadedBytes()).isEqualTo(that.getDownloadedBytes());
-    assertThat(download.getTotalBytes()).isEqualTo(that.getTotalBytes());
+    assertThat(download.getPercentDownloaded()).isEqualTo(that.getPercentDownloaded());
+    assertThat(download.getBytesDownloaded()).isEqualTo(that.getBytesDownloaded());
   }
 
   private static DownloadRequest createDownloadRequest() {
@@ -722,21 +722,23 @@ public class DownloadManagerTest {
     private volatile boolean cancelled;
     private volatile boolean enableDownloadIOException;
     private volatile int startCount;
-    private CachingCounters counters;
+    private volatile int bytesDownloaded;
 
     private FakeDownloader() {
       this.started = new CountDownLatch(1);
       this.blocker = new com.google.android.exoplayer2.util.ConditionVariable();
-      counters = new CachingCounters();
     }
 
     @SuppressWarnings({"NonAtomicOperationOnVolatileField", "NonAtomicVolatileUpdate"})
     @Override
-    public void download() throws InterruptedException, IOException {
+    public void download(ProgressListener listener) throws InterruptedException, IOException {
       // It's ok to update this directly as no other thread will update it.
       startCount++;
       started.countDown();
       block();
+      if (bytesDownloaded > 0) {
+        listener.onProgress(C.LENGTH_UNSET, bytesDownloaded, C.PERCENTAGE_UNSET);
+      }
       if (enableDownloadIOException) {
         enableDownloadIOException = false;
         throw new IOException();
@@ -783,7 +785,7 @@ public class DownloadManagerTest {
       return this;
     }
 
-    private FakeDownloader assertStartCount(int count) throws InterruptedException {
+    private FakeDownloader assertStartCount(int count) {
       assertThat(startCount).isEqualTo(count);
       return this;
     }
@@ -823,34 +825,14 @@ public class DownloadManagerTest {
       return unblock();
     }
 
-    @Override
-    public long getDownloadedBytes() {
-      return counters.newlyCachedBytes;
-    }
-
-    @Override
-    public long getTotalBytes() {
-      return counters.contentLength;
-    }
-
-    @Override
-    public float getDownloadPercentage() {
-      return counters.percentage;
-    }
-
-    @Override
-    public CachingCounters getCounters() {
-      return counters;
-    }
-
     private void assertDoesNotStart() throws InterruptedException {
       Thread.sleep(ASSERT_FALSE_TIME);
       assertThat(started.getCount()).isEqualTo(1);
     }
 
     @SuppressWarnings({"NonAtomicOperationOnVolatileField", "NonAtomicVolatileUpdate"})
-    private void increaseDownloadedByteCount() {
-      counters.newlyCachedBytes++;
+    private void incrementBytesDownloaded() {
+      bytesDownloaded++;
     }
   }
 }

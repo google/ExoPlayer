@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.offline;
 
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.Assertions;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -96,60 +95,65 @@ public final class Download {
 
   /** The download request. */
   public final DownloadRequest request;
-
   /** The state of the download. */
   @State public final int state;
   /** The first time when download entry is created. */
   public final long startTimeMs;
   /** The last update time. */
   public final long updateTimeMs;
+  /** The total size of the content in bytes, or {@link C#LENGTH_UNSET} if unknown. */
+  public final long contentLength;
+  /** The reason the download is stopped, or {@link #STOP_REASON_NONE}. */
+  public final int stopReason;
   /**
    * If {@link #state} is {@link #STATE_FAILED} then this is the cause, otherwise {@link
    * #FAILURE_REASON_NONE}.
    */
   @FailureReason public final int failureReason;
-  /** The reason the download is stopped, or {@link #STOP_REASON_NONE}. */
-  public final int stopReason;
 
-  /* package */ CachingCounters counters;
+  /* package */ final DownloadProgress progress;
 
-  /* package */ Download(
+  public Download(
       DownloadRequest request,
       @State int state,
-      @FailureReason int failureReason,
-      int stopReason,
       long startTimeMs,
-      long updateTimeMs) {
+      long updateTimeMs,
+      long contentLength,
+      int stopReason,
+      @FailureReason int failureReason) {
     this(
         request,
         state,
-        failureReason,
-        stopReason,
         startTimeMs,
         updateTimeMs,
-        new CachingCounters());
+        contentLength,
+        stopReason,
+        failureReason,
+        new DownloadProgress());
   }
 
-  /* package */ Download(
+  public Download(
       DownloadRequest request,
       @State int state,
-      @FailureReason int failureReason,
-      int stopReason,
       long startTimeMs,
       long updateTimeMs,
-      CachingCounters counters) {
-    Assertions.checkNotNull(counters);
+      long contentLength,
+      int stopReason,
+      @FailureReason int failureReason,
+      DownloadProgress progress) {
+    Assertions.checkNotNull(progress);
     Assertions.checkState((failureReason == FAILURE_REASON_NONE) == (state != STATE_FAILED));
     if (stopReason != 0) {
       Assertions.checkState(state != STATE_DOWNLOADING && state != STATE_QUEUED);
     }
     this.request = request;
     this.state = state;
-    this.failureReason = failureReason;
-    this.stopReason = stopReason;
     this.startTimeMs = startTimeMs;
     this.updateTimeMs = updateTimeMs;
-    this.counters = counters;
+    this.contentLength = contentLength;
+    this.stopReason = stopReason;
+    this.failureReason = failureReason;
+    this.progress = progress;
   }
 
   /** Returns whether the download is completed or failed. These are terminal states. */
@@ -158,30 +162,15 @@ public final class Download {
   }
 
   /** Returns the total number of downloaded bytes. */
-  public long getDownloadedBytes() {
-    return counters.totalCachedBytes();
-  }
-
-  /** Returns the total size of the media, or {@link C#LENGTH_UNSET} if unknown. */
-  public long getTotalBytes() {
-    return counters.contentLength;
+  public long getBytesDownloaded() {
+    return progress.bytesDownloaded;
   }
 
   /**
    * Returns the estimated download percentage, or {@link C#PERCENTAGE_UNSET} if no estimate is
    * available.
    */
-  public float getDownloadPercentage() {
-    return counters.percentage;
-  }
-
-  /**
-   * Sets counters which are updated by a {@link Downloader}.
-   *
-   * @param counters An instance of {@link CachingCounters}.
-   */
-  protected void setCounters(CachingCounters counters) {
-    Assertions.checkNotNull(counters);
-    this.counters = counters;
+  public float getPercentDownloaded() {
+    return progress.percentDownloaded;
   }
 }

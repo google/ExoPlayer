@@ -67,6 +67,7 @@ public class HlsDownloaderTest {
 
   private SimpleCache cache;
   private File tempFolder;
+  private ProgressListener progressListener;
   private FakeDataSet fakeDataSet;
 
   @Before
@@ -74,7 +75,7 @@ public class HlsDownloaderTest {
     tempFolder =
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
-
+    progressListener = new ProgressListener();
     fakeDataSet =
         new FakeDataSet()
             .setData(MASTER_PLAYLIST_URI, MASTER_PLAYLIST_DATA)
@@ -94,7 +95,7 @@ public class HlsDownloaderTest {
   }
 
   @Test
-  public void testCreateWithDefaultDownloaderFactory() throws Exception {
+  public void testCreateWithDefaultDownloaderFactory() {
     DownloaderConstructorHelper constructorHelper =
         new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
     DownloaderFactory factory = new DefaultDownloaderFactory(constructorHelper);
@@ -115,17 +116,16 @@ public class HlsDownloaderTest {
   public void testCounterMethods() throws Exception {
     HlsDownloader downloader =
         getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
-    downloader.download();
+    downloader.download(progressListener);
 
-    assertThat(downloader.getDownloadedBytes())
-        .isEqualTo(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
+    progressListener.assertBytesDownloaded(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
   }
 
   @Test
   public void testDownloadRepresentation() throws Exception {
     HlsDownloader downloader =
         getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
-    downloader.download();
+    downloader.download(progressListener);
 
     assertCachedData(
         cache,
@@ -143,7 +143,7 @@ public class HlsDownloaderTest {
         getHlsDownloader(
             MASTER_PLAYLIST_URI,
             getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX, MASTER_MEDIA_PLAYLIST_2_INDEX));
-    downloader.download();
+    downloader.download(progressListener);
 
     assertCachedData(cache, fakeDataSet);
   }
@@ -162,7 +162,7 @@ public class HlsDownloaderTest {
         .setRandomData(MEDIA_PLAYLIST_3_DIR + "fileSequence2.ts", 15);
 
     HlsDownloader downloader = getHlsDownloader(MASTER_PLAYLIST_URI, getKeys());
-    downloader.download();
+    downloader.download(progressListener);
 
     assertCachedData(cache, fakeDataSet);
   }
@@ -173,7 +173,7 @@ public class HlsDownloaderTest {
         getHlsDownloader(
             MASTER_PLAYLIST_URI,
             getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX, MASTER_MEDIA_PLAYLIST_2_INDEX));
-    downloader.download();
+    downloader.download(progressListener);
     downloader.remove();
 
     assertCacheEmpty(cache);
@@ -182,7 +182,7 @@ public class HlsDownloaderTest {
   @Test
   public void testDownloadMediaPlaylist() throws Exception {
     HlsDownloader downloader = getHlsDownloader(MEDIA_PLAYLIST_1_URI, getKeys());
-    downloader.download();
+    downloader.download(progressListener);
 
     assertCachedData(
         cache,
@@ -205,7 +205,7 @@ public class HlsDownloaderTest {
             .setRandomData("fileSequence2.ts", 12);
 
     HlsDownloader downloader = getHlsDownloader(ENC_MEDIA_PLAYLIST_URI, getKeys());
-    downloader.download();
+    downloader.download(progressListener);
     assertCachedData(cache, fakeDataSet);
   }
 
@@ -221,5 +221,19 @@ public class HlsDownloaderTest {
       streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, variantIndex));
     }
     return streamKeys;
+  }
+
+  private static final class ProgressListener implements Downloader.ProgressListener {
+
+    private long bytesDownloaded;
+
+    @Override
+    public void onProgress(long contentLength, long bytesDownloaded, float percentDownloaded) {
+      this.bytesDownloaded = bytesDownloaded;
+    }
+
+    public void assertBytesDownloaded(long bytesDownloaded) {
+      assertThat(this.bytesDownloaded).isEqualTo(bytesDownloaded);
+    }
   }
 }
