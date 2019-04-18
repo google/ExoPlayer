@@ -117,8 +117,8 @@ public abstract class DownloadService extends Service {
   public static final String KEY_DOWNLOAD_REQUEST = "download_request";
 
   /**
-   * Key for the content id in {@link #ACTION_START}, {@link #ACTION_STOP} and {@link
-   * #ACTION_REMOVE} intents.
+   * Key for the content id in {@link #ACTION_SET_MANUAL_STOP_REASON} and {@link #ACTION_REMOVE}
+   * intents.
    */
   public static final String KEY_CONTENT_ID = "content_id";
 
@@ -265,10 +265,9 @@ public abstract class DownloadService extends Service {
       DownloadRequest downloadRequest,
       int manualStopReason,
       boolean foreground) {
-    return getIntent(context, clazz, ACTION_ADD)
+    return getIntent(context, clazz, ACTION_ADD, foreground)
         .putExtra(KEY_DOWNLOAD_REQUEST, downloadRequest)
-        .putExtra(KEY_MANUAL_STOP_REASON, manualStopReason)
-        .putExtra(KEY_FOREGROUND, foreground);
+        .putExtra(KEY_MANUAL_STOP_REASON, manualStopReason);
   }
 
   /**
@@ -282,9 +281,7 @@ public abstract class DownloadService extends Service {
    */
   public static Intent buildRemoveDownloadIntent(
       Context context, Class<? extends DownloadService> clazz, String id, boolean foreground) {
-    return getIntent(context, clazz, ACTION_REMOVE)
-        .putExtra(KEY_CONTENT_ID, id)
-        .putExtra(KEY_FOREGROUND, foreground);
+    return getIntent(context, clazz, ACTION_REMOVE, foreground).putExtra(KEY_CONTENT_ID, id);
   }
 
   /**
@@ -295,55 +292,122 @@ public abstract class DownloadService extends Service {
    * @param clazz The concrete download service being targeted by the intent.
    * @param id The content id, or {@code null} to set the manual stop reason for all downloads.
    * @param manualStopReason An application defined stop reason.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
    * @return Created Intent.
    */
   public static Intent buildSetManualStopReasonIntent(
       Context context,
       Class<? extends DownloadService> clazz,
       @Nullable String id,
-      int manualStopReason) {
-    return getIntent(context, clazz, ACTION_STOP)
+      int manualStopReason,
+      boolean foreground) {
+    return getIntent(context, clazz, ACTION_SET_MANUAL_STOP_REASON, foreground)
         .putExtra(KEY_CONTENT_ID, id)
         .putExtra(KEY_MANUAL_STOP_REASON, manualStopReason);
   }
 
   /**
-   * Starts the service, adding a new download.
+   * Builds an {@link Intent} for starting all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return Created Intent.
+   */
+  public static Intent buildStartDownloadsIntent(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    return getIntent(context, clazz, ACTION_START, foreground);
+  }
+
+  /**
+   * Builds an {@link Intent} for stopping all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return Created Intent.
+   */
+  public static Intent buildStopDownloadsIntent(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    return getIntent(context, clazz, ACTION_STOP, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and adds a new download.
    *
    * @param context A {@link Context}.
    * @param clazz The concrete download service to be started.
    * @param downloadRequest The request to be executed.
    * @param foreground Whether the service is started in the foreground.
    */
-  public static void startWithNewDownload(
+  public static void sendNewDownload(
       Context context,
       Class<? extends DownloadService> clazz,
       DownloadRequest downloadRequest,
       boolean foreground) {
     Intent intent = buildAddRequestIntent(context, clazz, downloadRequest, foreground);
-    if (foreground) {
-      Util.startForegroundService(context, intent);
-    } else {
-      context.startService(intent);
-    }
+    startService(context, intent, foreground);
   }
 
   /**
-   * Starts the service to remove a download.
+   * Starts the service if not started already and removes a download.
    *
    * @param context A {@link Context}.
    * @param clazz The concrete download service to be started.
    * @param id The content id.
    * @param foreground Whether the service is started in the foreground.
    */
-  public static void startWithRemoveDownload(
+  public static void sendRemoveDownload(
       Context context, Class<? extends DownloadService> clazz, String id, boolean foreground) {
     Intent intent = buildRemoveDownloadIntent(context, clazz, id, foreground);
-    if (foreground) {
-      Util.startForegroundService(context, intent);
-    } else {
-      context.startService(intent);
-    }
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and sets the manual stop reason for one or all
+   * downloads. To clear manual stop reason, pass {@link Download#MANUAL_STOP_REASON_NONE}.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param id The content id, or {@code null} to set the manual stop reason for all downloads.
+   * @param manualStopReason An application defined stop reason.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendManualStopReason(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      @Nullable String id,
+      int manualStopReason,
+      boolean foreground) {
+    Intent intent =
+        buildSetManualStopReasonIntent(context, clazz, id, manualStopReason, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and starts all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendStartDownloads(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    Intent intent = buildStartDownloadsIntent(context, clazz, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and stops all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendStopDownloads(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    Intent intent = buildStopDownloadsIntent(context, clazz, foreground);
+    startService(context, intent, foreground);
   }
 
   /**
@@ -367,7 +431,7 @@ public abstract class DownloadService extends Service {
    * @see #start(Context, Class)
    */
   public static void startForeground(Context context, Class<? extends DownloadService> clazz) {
-    Intent intent = getIntent(context, clazz, ACTION_INIT).putExtra(KEY_FOREGROUND, true);
+    Intent intent = getIntent(context, clazz, ACTION_INIT, true);
     Util.startForegroundService(context, intent);
   }
 
@@ -589,8 +653,21 @@ public abstract class DownloadService extends Service {
   }
 
   private static Intent getIntent(
+      Context context, Class<? extends DownloadService> clazz, String action, boolean foreground) {
+    return getIntent(context, clazz, action).putExtra(KEY_FOREGROUND, foreground);
+  }
+
+  private static Intent getIntent(
       Context context, Class<? extends DownloadService> clazz, String action) {
     return new Intent(context, clazz).setAction(action);
+  }
+
+  private static void startService(Context context, Intent intent, boolean foreground) {
+    if (foreground) {
+      Util.startForegroundService(context, intent);
+    } else {
+      context.startService(intent);
+    }
   }
 
   private final class ForegroundNotificationUpdater {
