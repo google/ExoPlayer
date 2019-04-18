@@ -126,7 +126,7 @@ public class DownloadServiceDashTest {
                   new Requirements(0));
           downloadManagerListener =
               new TestDownloadManagerListener(dashDownloadManager, dummyMainThread);
-          dashDownloadManager.startDownloads();
+          dashDownloadManager.resumeDownloads();
 
           dashDownloadService =
               new DownloadService(DownloadService.FOREGROUND_NOTIFICATION_ID_NONE) {

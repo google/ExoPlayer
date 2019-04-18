@@ -66,24 +66,24 @@ public abstract class DownloadService extends Service {
   public static final String ACTION_ADD = "com.google.android.exoplayer.downloadService.action.ADD";
 
   /**
-   * Starts all downloads except those that have a non-zero {@link Download#stopReason}. Extras:
+   * Resumes all downloads except those that have a non-zero {@link Download#stopReason}. Extras:
    *
    * <ul>
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
-  public static final String ACTION_START =
-      "com.google.android.exoplayer.downloadService.action.START";
+  public static final String ACTION_RESUME =
+      "com.google.android.exoplayer.downloadService.action.RESUME";
 
   /**
-   * Stops all downloads. Extras:
+   * Pauses all downloads. Extras:
    *
    * <ul>
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
-  public static final String ACTION_STOP =
-      "com.google.android.exoplayer.downloadService.action.STOP";
+  public static final String ACTION_PAUSE =
+      "com.google.android.exoplayer.downloadService.action.PAUSE";
 
   /**
    * Sets the stop reason for one or all downloads. To clear the stop reason, pass {@link
@@ -278,6 +278,32 @@ public abstract class DownloadService extends Service {
   }
 
   /**
+   * Builds an {@link Intent} for resuming all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return Created Intent.
+   */
+  public static Intent buildResumeDownloadsIntent(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    return getIntent(context, clazz, ACTION_RESUME, foreground);
+  }
+
+  /**
+   * Builds an {@link Intent} to pause all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return Created Intent.
+   */
+  public static Intent buildPauseDownloadsIntent(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    return getIntent(context, clazz, ACTION_PAUSE, foreground);
+  }
+
+  /**
    * Builds an {@link Intent} for setting the stop reason for one or all downloads. To clear the
    * stop reason, pass {@link Download#STOP_REASON_NONE}.
    *
@@ -300,32 +326,6 @@ public abstract class DownloadService extends Service {
   }
 
   /**
-   * Builds an {@link Intent} for starting all downloads.
-   *
-   * @param context A {@link Context}.
-   * @param clazz The concrete download service being targeted by the intent.
-   * @param foreground Whether this intent will be used to start the service in the foreground.
-   * @return Created Intent.
-   */
-  public static Intent buildStartDownloadsIntent(
-      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
-    return getIntent(context, clazz, ACTION_START, foreground);
-  }
-
-  /**
-   * Builds an {@link Intent} for stopping all downloads.
-   *
-   * @param context A {@link Context}.
-   * @param clazz The concrete download service being targeted by the intent.
-   * @param foreground Whether this intent will be used to start the service in the foreground.
-   * @return Created Intent.
-   */
-  public static Intent buildStopDownloadsIntent(
-      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
-    return getIntent(context, clazz, ACTION_STOP, foreground);
-  }
-
-  /**
    * Starts the service if not started already and adds a new download.
    *
    * @param context A {@link Context}.
@@ -343,6 +343,26 @@ public abstract class DownloadService extends Service {
   }
 
   /**
+   * Starts the service if not started already and adds a new download.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param downloadRequest The request to be executed.
+   * @param stopReason An initial stop reason for the download, or {@link Download#STOP_REASON_NONE}
+   *     if the download should be started.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendNewDownload(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      DownloadRequest downloadRequest,
+      int stopReason,
+      boolean foreground) {
+    Intent intent = buildAddRequestIntent(context, clazz, downloadRequest, stopReason, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
    * Starts the service if not started already and removes a download.
    *
    * @param context A {@link Context}.
@@ -353,6 +373,32 @@ public abstract class DownloadService extends Service {
   public static void sendRemoveDownload(
       Context context, Class<? extends DownloadService> clazz, String id, boolean foreground) {
     Intent intent = buildRemoveDownloadIntent(context, clazz, id, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and resumes all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendResumeDownloads(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    Intent intent = buildResumeDownloadsIntent(context, clazz, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and pauses all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendPauseDownloads(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    Intent intent = buildPauseDownloadsIntent(context, clazz, foreground);
     startService(context, intent, foreground);
   }
 
@@ -373,32 +419,6 @@ public abstract class DownloadService extends Service {
       int stopReason,
       boolean foreground) {
     Intent intent = buildSetStopReasonIntent(context, clazz, id, stopReason, foreground);
-    startService(context, intent, foreground);
-  }
-
-  /**
-   * Starts the service if not started already and starts all downloads.
-   *
-   * @param context A {@link Context}.
-   * @param clazz The concrete download service to be started.
-   * @param foreground Whether the service is started in the foreground.
-   */
-  public static void sendStartDownloads(
-      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
-    Intent intent = buildStartDownloadsIntent(context, clazz, foreground);
-    startService(context, intent, foreground);
-  }
-
-  /**
-   * Starts the service if not started already and stops all downloads.
-   *
-   * @param context A {@link Context}.
-   * @param clazz The concrete download service to be started.
-   * @param foreground Whether the service is started in the foreground.
-   */
-  public static void sendStopDownloads(
-      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
-    Intent intent = buildStopDownloadsIntent(context, clazz, foreground);
     startService(context, intent, foreground);
   }
 
@@ -438,7 +458,7 @@ public abstract class DownloadService extends Service {
     DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(clazz);
     if (downloadManagerHelper == null) {
       DownloadManager downloadManager = getDownloadManager();
-      downloadManager.startDownloads();
+      downloadManager.resumeDownloads();
       downloadManagerHelper =
           new DownloadManagerHelper(
               getApplicationContext(), downloadManager, getScheduler(), clazz);
@@ -477,11 +497,11 @@ public abstract class DownloadService extends Service {
           downloadManager.addDownload(downloadRequest, stopReason);
         }
         break;
-      case ACTION_START:
-        downloadManager.startDownloads();
+      case ACTION_RESUME:
+        downloadManager.resumeDownloads();
         break;
-      case ACTION_STOP:
-        downloadManager.stopDownloads();
+      case ACTION_PAUSE:
+        downloadManager.pauseDownloads();
         break;
       case ACTION_SET_STOP_REASON:
         if (!intent.hasExtra(KEY_STOP_REASON)) {
