@@ -23,10 +23,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -145,6 +149,50 @@ public class HlsMasterPlaylistParserTest {
           + "#EXT-X-DEFINE:NAME=\"nested\",VALUE=\"This should not be inserted\"\n"
           + "#EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=\"{$codecs}\"\n"
           + "http://example.com/{$tricky}\n";
+
+  private static final String PLAYLIST_WITH_MATCHING_STREAM_INF_URLS =
+      "#EXTM3U\n"
+          + "#EXT-X-VERSION:6\n"
+          + "\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=2227464,"
+          + "CLOSED-CAPTIONS=\"cc1\",AUDIO=\"aud1\",SUBTITLES=\"sub1\"\n"
+          + "v5/prog_index.m3u8\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=6453202,"
+          + "CLOSED-CAPTIONS=\"cc1\",AUDIO=\"aud1\",SUBTITLES=\"sub1\"\n"
+          + "v8/prog_index.m3u8\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=5054232,"
+          + "CLOSED-CAPTIONS=\"cc1\",AUDIO=\"aud1\",SUBTITLES=\"sub1\"\n"
+          + "v7/prog_index.m3u8\n"
+          + "\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=2448841,"
+          + "CLOSED-CAPTIONS=\"cc1\",AUDIO=\"aud2\",SUBTITLES=\"sub1\"\n"
+          + "v5/prog_index.m3u8\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=8399417,"
+          + "CLOSED-CAPTIONS=\"cc1\",AUDIO=\"aud2\",SUBTITLES=\"sub1\"\n"
+          + "v9/prog_index.m3u8\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=5275609,"
+          + "CLOSED-CAPTIONS=\"cc1\",AUDIO=\"aud2\",SUBTITLES=\"sub1\"\n"
+          + "v7/prog_index.m3u8\n"
+          + "\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=2256841,"
+          + "CLOSED-CAPTIONS=\"cc1\",AUDIO=\"aud3\",SUBTITLES=\"sub1\"\n"
+          + "v5/prog_index.m3u8\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=8207417,"
+          + "CLOSED-CAPTIONS=\"cc1\",AUDIO=\"aud3\",SUBTITLES=\"sub1\"\n"
+          + "v9/prog_index.m3u8\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=6482579,"
+          + "CLOSED-CAPTIONS=\"cc1\",AUDIO=\"aud3\",SUBTITLES=\"sub1\"\n"
+          + "v8/prog_index.m3u8\n"
+          + "\n"
+          + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"aud1\",NAME=\"English\",URI=\"a1/index.m3u8\"\n"
+          + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"aud2\",NAME=\"English\",URI=\"a2/index.m3u8\"\n"
+          + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"aud3\",NAME=\"English\",URI=\"a3/index.m3u8\"\n"
+          + "\n"
+          + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,"
+          + "GROUP-ID=\"cc1\",NAME=\"English\",INSTREAM-ID=\"CC1\"\n"
+          + "\n"
+          + "#EXT-X-MEDIA:TYPE=SUBTITLES,"
+          + "GROUP-ID=\"sub1\",NAME=\"English\",URI=\"s1/en/prog_index.m3u8\"\n";
 
   @Test
   public void testParseMasterPlaylist() throws IOException {
@@ -294,6 +342,61 @@ public class HlsMasterPlaylistParserTest {
     assertThat(variant.format.codecs).isEqualTo("mp4a.40.5");
     assertThat(variant.url)
         .isEqualTo(Uri.parse("http://example.com/This/{$nested}/reference/shouldnt/work"));
+  }
+
+  @Test
+  public void testHlsMetadata() throws IOException {
+    HlsMasterPlaylist playlist =
+        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_MATCHING_STREAM_INF_URLS);
+    assertThat(playlist.variants).hasSize(4);
+    assertThat(playlist.variants.get(0).format.metadata)
+        .isEqualTo(
+            createExtXStreamInfMetadata(
+                createVariantInfo(/* bitrate= */ 2227464, /* audioGroupId= */ "aud1"),
+                createVariantInfo(/* bitrate= */ 2448841, /* audioGroupId= */ "aud2"),
+                createVariantInfo(/* bitrate= */ 2256841, /* audioGroupId= */ "aud3")));
+    assertThat(playlist.variants.get(1).format.metadata)
+        .isEqualTo(
+            createExtXStreamInfMetadata(
+                createVariantInfo(/* bitrate= */ 6453202, /* audioGroupId= */ "aud1"),
+                createVariantInfo(/* bitrate= */ 6482579, /* audioGroupId= */ "aud3")));
+    assertThat(playlist.variants.get(2).format.metadata)
+        .isEqualTo(
+            createExtXStreamInfMetadata(
+                createVariantInfo(/* bitrate= */ 5054232, /* audioGroupId= */ "aud1"),
+                createVariantInfo(/* bitrate= */ 5275609, /* audioGroupId= */ "aud2")));
+    assertThat(playlist.variants.get(3).format.metadata)
+        .isEqualTo(
+            createExtXStreamInfMetadata(
+                createVariantInfo(/* bitrate= */ 8399417, /* audioGroupId= */ "aud2"),
+                createVariantInfo(/* bitrate= */ 8207417, /* audioGroupId= */ "aud3")));
+
+    assertThat(playlist.audios).hasSize(3);
+    assertThat(playlist.audios.get(0).format.metadata)
+        .isEqualTo(createExtXMediaMetadata(/* groupId= */ "aud1", /* name= */ "English"));
+    assertThat(playlist.audios.get(1).format.metadata)
+        .isEqualTo(createExtXMediaMetadata(/* groupId= */ "aud2", /* name= */ "English"));
+    assertThat(playlist.audios.get(2).format.metadata)
+        .isEqualTo(createExtXMediaMetadata(/* groupId= */ "aud3", /* name= */ "English"));
+  }
+
+  private static Metadata createExtXStreamInfMetadata(HlsTrackMetadataEntry.VariantInfo... infos) {
+    return new Metadata(
+        new HlsTrackMetadataEntry(/* groupId= */ null, /* name= */ null, Arrays.asList(infos)));
+  }
+
+  private static Metadata createExtXMediaMetadata(String groupId, String name) {
+    return new Metadata(new HlsTrackMetadataEntry(groupId, name, Collections.emptyList()));
+  }
+
+  private static HlsTrackMetadataEntry.VariantInfo createVariantInfo(
+      long bitrate, String audioGroupId) {
+    return new HlsTrackMetadataEntry.VariantInfo(
+        bitrate,
+        /* videoGroupId= */ null,
+        audioGroupId,
+        /* subtitleGroupId= */ "sub1",
+        /* captionGroupId= */ "cc1");
   }
 
   private static HlsMasterPlaylist parseMasterPlaylist(String uri, String playlistString)
