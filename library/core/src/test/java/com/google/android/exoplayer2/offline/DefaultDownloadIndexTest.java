@@ -79,7 +79,7 @@ public class DefaultDownloadIndexTest {
             .setDownloadedBytes(200)
             .setTotalBytes(400)
             .setFailureReason(Download.FAILURE_REASON_UNKNOWN)
-            .setManualStopReason(0x12345678)
+            .setStopReason(0x12345678)
             .setStartTimeMs(10)
             .setUpdateTimeMs(20)
             .setStreamKeys(
@@ -204,23 +204,22 @@ public class DefaultDownloadIndexTest {
   }
 
   @Test
-  public void setManualStopReason_setReasonToNone() throws Exception {
+  public void setStopReason_setReasonToNone() throws Exception {
     String id = "id";
     DownloadBuilder downloadBuilder =
-        new DownloadBuilder(id).setState(Download.STATE_COMPLETED).setManualStopReason(0x12345678);
+        new DownloadBuilder(id).setState(Download.STATE_COMPLETED).setStopReason(0x12345678);
     Download download = downloadBuilder.build();
     downloadIndex.putDownload(download);
 
-    downloadIndex.setManualStopReason(Download.MANUAL_STOP_REASON_NONE);
+    downloadIndex.setStopReason(Download.STOP_REASON_NONE);
 
     Download readDownload = downloadIndex.getDownload(id);
-    Download expectedDownload =
-        downloadBuilder.setManualStopReason(Download.MANUAL_STOP_REASON_NONE).build();
+    Download expectedDownload = downloadBuilder.setStopReason(Download.STOP_REASON_NONE).build();
     assertEqual(readDownload, expectedDownload);
   }
 
   @Test
-  public void setManualStopReason_setReason() throws Exception {
+  public void setStopReason_setReason() throws Exception {
     String id = "id";
     DownloadBuilder downloadBuilder =
         new DownloadBuilder(id)
@@ -228,47 +227,46 @@ public class DefaultDownloadIndexTest {
             .setFailureReason(Download.FAILURE_REASON_UNKNOWN);
     Download download = downloadBuilder.build();
     downloadIndex.putDownload(download);
-    int manualStopReason = 0x12345678;
+    int stopReason = 0x12345678;
 
-    downloadIndex.setManualStopReason(manualStopReason);
+    downloadIndex.setStopReason(stopReason);
 
     Download readDownload = downloadIndex.getDownload(id);
-    Download expectedDownload = downloadBuilder.setManualStopReason(manualStopReason).build();
+    Download expectedDownload = downloadBuilder.setStopReason(stopReason).build();
     assertEqual(readDownload, expectedDownload);
   }
 
   @Test
-  public void setManualStopReason_notTerminalState_doesNotSetManualStopReason() throws Exception {
+  public void setStopReason_notTerminalState_doesNotSetStopReason() throws Exception {
     String id = "id";
     DownloadBuilder downloadBuilder = new DownloadBuilder(id).setState(Download.STATE_DOWNLOADING);
     Download download = downloadBuilder.build();
     downloadIndex.putDownload(download);
     int notMetRequirements = 0x12345678;
 
-    downloadIndex.setManualStopReason(notMetRequirements);
+    downloadIndex.setStopReason(notMetRequirements);
 
     Download readDownload = downloadIndex.getDownload(id);
     assertEqual(readDownload, download);
   }
 
   @Test
-  public void setSingleDownloadManualStopReason_setReasonToNone() throws Exception {
+  public void setSingleDownloadStopReason_setReasonToNone() throws Exception {
     String id = "id";
     DownloadBuilder downloadBuilder =
-        new DownloadBuilder(id).setState(Download.STATE_COMPLETED).setManualStopReason(0x12345678);
+        new DownloadBuilder(id).setState(Download.STATE_COMPLETED).setStopReason(0x12345678);
     Download download = downloadBuilder.build();
     downloadIndex.putDownload(download);
 
-    downloadIndex.setManualStopReason(id, Download.MANUAL_STOP_REASON_NONE);
+    downloadIndex.setStopReason(id, Download.STOP_REASON_NONE);
 
     Download readDownload = downloadIndex.getDownload(id);
-    Download expectedDownload =
-        downloadBuilder.setManualStopReason(Download.MANUAL_STOP_REASON_NONE).build();
+    Download expectedDownload = downloadBuilder.setStopReason(Download.STOP_REASON_NONE).build();
     assertEqual(readDownload, expectedDownload);
   }
 
   @Test
-  public void setSingleDownloadManualStopReason_setReason() throws Exception {
+  public void setSingleDownloadStopReason_setReason() throws Exception {
     String id = "id";
     DownloadBuilder downloadBuilder =
         new DownloadBuilder(id)
@@ -276,25 +274,24 @@ public class DefaultDownloadIndexTest {
             .setFailureReason(Download.FAILURE_REASON_UNKNOWN);
     Download download = downloadBuilder.build();
     downloadIndex.putDownload(download);
-    int manualStopReason = 0x12345678;
+    int stopReason = 0x12345678;
 
-    downloadIndex.setManualStopReason(id, manualStopReason);
+    downloadIndex.setStopReason(id, stopReason);
 
     Download readDownload = downloadIndex.getDownload(id);
-    Download expectedDownload = downloadBuilder.setManualStopReason(manualStopReason).build();
+    Download expectedDownload = downloadBuilder.setStopReason(stopReason).build();
     assertEqual(readDownload, expectedDownload);
   }
 
   @Test
-  public void setSingleDownloadManualStopReason_notTerminalState_doesNotSetManualStopReason()
-      throws Exception {
+  public void setSingleDownloadStopReason_notTerminalState_doesNotSetStopReason() throws Exception {
     String id = "id";
     DownloadBuilder downloadBuilder = new DownloadBuilder(id).setState(Download.STATE_DOWNLOADING);
     Download download = downloadBuilder.build();
     downloadIndex.putDownload(download);
     int notMetRequirements = 0x12345678;
 
-    downloadIndex.setManualStopReason(id, notMetRequirements);
+    downloadIndex.setStopReason(id, notMetRequirements);
 
     Download readDownload = downloadIndex.getDownload(id);
     assertEqual(readDownload, download);
@@ -306,7 +303,7 @@ public class DefaultDownloadIndexTest {
     assertThat(download.startTimeMs).isEqualTo(that.startTimeMs);
     assertThat(download.updateTimeMs).isEqualTo(that.updateTimeMs);
     assertThat(download.failureReason).isEqualTo(that.failureReason);
-    assertThat(download.manualStopReason).isEqualTo(that.manualStopReason);
+    assertThat(download.stopReason).isEqualTo(that.stopReason);
     assertThat(download.getDownloadPercentage()).isEqualTo(that.getDownloadPercentage());
     assertThat(download.getDownloadedBytes()).isEqualTo(that.getDownloadedBytes());
     assertThat(download.getTotalBytes()).isEqualTo(that.getTotalBytes());

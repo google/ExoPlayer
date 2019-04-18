@@ -37,7 +37,7 @@ class DownloadBuilder {
   @Nullable private String cacheKey;
   private int state;
   private int failureReason;
-  private int manualStopReason;
+  private int stopReason;
   private long startTimeMs;
   private long updateTimeMs;
   private List<StreamKey> streamKeys;
@@ -127,8 +127,8 @@ class DownloadBuilder {
     return this;
   }
 
-  public DownloadBuilder setManualStopReason(int manualStopReason) {
-    this.manualStopReason = manualStopReason;
+  public DownloadBuilder setStopReason(int stopReason) {
+    this.stopReason = stopReason;
     return this;
   }
 
@@ -156,6 +156,6 @@ class DownloadBuilder {
     DownloadRequest request =
         new DownloadRequest(id, type, uri, streamKeys, cacheKey, customMetadata);
     return new Download(
-        request, state, failureReason, manualStopReason, startTimeMs, updateTimeMs, counters);
+        request, state, failureReason, stopReason, startTimeMs, updateTimeMs, counters);
   }
 }

@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.offline;
 
 import static com.google.android.exoplayer2.offline.Download.FAILURE_REASON_NONE;
 import static com.google.android.exoplayer2.offline.Download.FAILURE_REASON_UNKNOWN;
-import static com.google.android.exoplayer2.offline.Download.MANUAL_STOP_REASON_NONE;
 import static com.google.android.exoplayer2.offline.Download.STATE_COMPLETED;
 import static com.google.android.exoplayer2.offline.Download.STATE_DOWNLOADING;
 import static com.google.android.exoplayer2.offline.Download.STATE_FAILED;
@@ -25,6 +24,7 @@ import static com.google.android.exoplayer2.offline.Download.STATE_QUEUED;
 import static com.google.android.exoplayer2.offline.Download.STATE_REMOVING;
 import static com.google.android.exoplayer2.offline.Download.STATE_RESTARTING;
 import static com.google.android.exoplayer2.offline.Download.STATE_STOPPED;
+import static com.google.android.exoplayer2.offline.Download.STOP_REASON_NONE;
 
 import android.content.Context;
 import android.os.Handler;
@@ -128,7 +128,7 @@ public final class DownloadManager {
   private static final int MSG_INITIALIZE = 0;
   private static final int MSG_SET_DOWNLOADS_STARTED = 1;
   private static final int MSG_SET_NOT_MET_REQUIREMENTS = 2;
-  private static final int MSG_SET_MANUAL_STOP_REASON = 3;
+  private static final int MSG_SET_STOP_REASON = 3;
   private static final int MSG_ADD_DOWNLOAD = 4;
   private static final int MSG_REMOVE_DOWNLOAD = 5;
   private static final int MSG_DOWNLOAD_THREAD_STOPPED = 6;
@@ -346,10 +346,7 @@ public final class DownloadManager {
     return Collections.unmodifiableList(new ArrayList<>(downloads));
   }
 
-  /**
-   * Starts all downloads except those that are manually stopped (i.e. have a non-zero {@link
-   * Download#manualStopReason}).
-   */
+  /** Starts all downloads except those that have a non-zero {@link Download#stopReason}. */
   public void startDownloads() {
     pendingMessages++;
     internalHandler
@@ -366,17 +363,17 @@ public final class DownloadManager {
   }
 
   /**
-   * Sets the manual stop reason for one or all downloads. To clear the manual stop reason, pass
-   * {@link Download#MANUAL_STOP_REASON_NONE}.
+   * Sets the stop reason for one or all downloads. To clear the stop reason, pass {@link
+   * Download#STOP_REASON_NONE}.
    *
-   * @param id The content id of the download to update, or {@code null} to set the manual stop
-   *     reason for all downloads.
-   * @param manualStopReason The manual stop reason, or {@link Download#MANUAL_STOP_REASON_NONE}.
+   * @param id The content id of the download to update, or {@code null} to set the stop reason for
+   *     all downloads.
+   * @param stopReason The stop reason, or {@link Download#STOP_REASON_NONE}.
    */
-  public void setManualStopReason(@Nullable String id, int manualStopReason) {
+  public void setStopReason(@Nullable String id, int stopReason) {
     pendingMessages++;
     internalHandler
-        .obtainMessage(MSG_SET_MANUAL_STOP_REASON, manualStopReason, /* unused */ 0, id)
+        .obtainMessage(MSG_SET_STOP_REASON, stopReason, /* unused */ 0, id)
         .sendToTarget();
   }
 
@@ -386,20 +383,20 @@ public final class DownloadManager {
    * @param request The download request.
    */
   public void addDownload(DownloadRequest request) {
-    addDownload(request, Download.MANUAL_STOP_REASON_NONE);
+    addDownload(request, Download.STOP_REASON_NONE);
   }
 
   /**
-   * Adds a download defined by the given request and with the specified manual stop reason.
+   * Adds a download defined by the given request and with the specified stop reason.
    *
    * @param request The download request.
-   * @param manualStopReason An initial manual stop reason for the download, or {@link
-   *     Download#MANUAL_STOP_REASON_NONE} if the download should be started.
+   * @param stopReason An initial stop reason for the download, or {@link Download#STOP_REASON_NONE}
+   *     if the download should be started.
    */
-  public void addDownload(DownloadRequest request, int manualStopReason) {
+  public void addDownload(DownloadRequest request, int stopReason) {
     pendingMessages++;
     internalHandler
-        .obtainMessage(MSG_ADD_DOWNLOAD, manualStopReason, /* unused */ 0, request)
+        .obtainMessage(MSG_ADD_DOWNLOAD, stopReason, /* unused */ 0, request)
         .sendToTarget();
   }
 
@@ -552,15 +549,15 @@ public final class DownloadManager {
         notMetRequirements = message.arg1;
         setNotMetRequirementsInternal(notMetRequirements);
         break;
-      case MSG_SET_MANUAL_STOP_REASON:
+      case MSG_SET_STOP_REASON:
         String id = (String) message.obj;
-        int manualStopReason = message.arg1;
-        setManualStopReasonInternal(id, manualStopReason);
+        int stopReason = message.arg1;
+        setStopReasonInternal(id, stopReason);
         break;
       case MSG_ADD_DOWNLOAD:
         DownloadRequest request = (DownloadRequest) message.obj;
-        manualStopReason = message.arg1;
-        addDownloadInternal(request, manualStopReason);
+        stopReason = message.arg1;
+        addDownloadInternal(request, stopReason);
         break;
       case MSG_REMOVE_DOWNLOAD:
         id = (String) message.obj;
@@ -629,34 +626,34 @@ public final class DownloadManager {
     }
   }
 
-  private void setManualStopReasonInternal(@Nullable String id, int manualStopReason) {
+  private void setStopReasonInternal(@Nullable String id, int stopReason) {
     if (id != null) {
       DownloadInternal downloadInternal = getDownload(id);
       if (downloadInternal != null) {
-        logd("download manual stop reason is set to : " + manualStopReason, downloadInternal);
-        downloadInternal.setManualStopReason(manualStopReason);
+        logd("download stop reason is set to : " + stopReason, downloadInternal);
+        downloadInternal.setStopReason(stopReason);
         return;
       }
     } else {
       for (int i = 0; i < downloadInternals.size(); i++) {
-        downloadInternals.get(i).setManualStopReason(manualStopReason);
+        downloadInternals.get(i).setStopReason(stopReason);
       }
     }
     try {
       if (id != null) {
-        downloadIndex.setManualStopReason(id, manualStopReason);
+        downloadIndex.setStopReason(id, stopReason);
       } else {
-        downloadIndex.setManualStopReason(manualStopReason);
+        downloadIndex.setStopReason(stopReason);
       }
     } catch (IOException e) {
-      Log.e(TAG, "setManualStopReason failed", e);
+      Log.e(TAG, "setStopReason failed", e);
     }
   }
 
-  private void addDownloadInternal(DownloadRequest request, int manualStopReason) {
+  private void addDownloadInternal(DownloadRequest request, int stopReason) {
     DownloadInternal downloadInternal = getDownload(request.id);
     if (downloadInternal != null) {
-      downloadInternal.addRequest(request, manualStopReason);
+      downloadInternal.addRequest(request, stopReason);
       logd("Request is added to existing download", downloadInternal);
     } else {
       Download download = loadDownload(request.id);
@@ -665,14 +662,14 @@ public final class DownloadManager {
         download =
             new Download(
                 request,
-                manualStopReason != Download.MANUAL_STOP_REASON_NONE ? STATE_STOPPED : STATE_QUEUED,
+                stopReason != Download.STOP_REASON_NONE ? STATE_STOPPED : STATE_QUEUED,
                 Download.FAILURE_REASON_NONE,
-                manualStopReason,
+                stopReason,
                 /* startTimeMs= */ nowMs,
                 /* updateTimeMs= */ nowMs);
         logd("Download state is created for " + request.id);
       } else {
-        download = mergeRequest(download, request, manualStopReason);
+        download = mergeRequest(download, request, stopReason);
         logd("Download state is loaded for " + request.id);
       }
       addDownloadForState(download);
@@ -820,11 +817,11 @@ public final class DownloadManager {
   }
 
   /* package */ static Download mergeRequest(
-      Download download, DownloadRequest request, int manualStopReason) {
+      Download download, DownloadRequest request, int stopReason) {
     @Download.State int state = download.state;
     if (state == STATE_REMOVING || state == STATE_RESTARTING) {
       state = STATE_RESTARTING;
-    } else if (manualStopReason != MANUAL_STOP_REASON_NONE) {
+    } else if (stopReason != STOP_REASON_NONE) {
       state = STATE_STOPPED;
     } else {
       state = STATE_QUEUED;
@@ -835,7 +832,7 @@ public final class DownloadManager {
         download.request.copyWithMergedRequest(request),
         state,
         FAILURE_REASON_NONE,
-        manualStopReason,
+        stopReason,
         startTimeMs,
         /* updateTimeMs= */ nowMs,
         download.counters);
@@ -846,7 +843,7 @@ public final class DownloadManager {
         download.request,
         state,
         FAILURE_REASON_NONE,
-        download.manualStopReason,
+        download.stopReason,
         download.startTimeMs,
         /* updateTimeMs= */ System.currentTimeMillis(),
         download.counters);
@@ -882,21 +879,21 @@ public final class DownloadManager {
 
     // TODO: Get rid of these and use download directly.
     @Download.State private int state;
-    private int manualStopReason;
+    private int stopReason;
     @MonotonicNonNull @Download.FailureReason private int failureReason;
 
     private DownloadInternal(DownloadManager downloadManager, Download download) {
       this.downloadManager = downloadManager;
       this.download = download;
-      manualStopReason = download.manualStopReason;
+      stopReason = download.stopReason;
     }
 
     private void initialize() {
       initialize(download.state);
     }
 
-    public void addRequest(DownloadRequest newRequest, int manualStopReason) {
-      download = mergeRequest(download, newRequest, manualStopReason);
+    public void addRequest(DownloadRequest newRequest, int stopReason) {
+      download = mergeRequest(download, newRequest, stopReason);
       initialize();
     }
 
@@ -910,7 +907,7 @@ public final class DownloadManager {
               download.request,
               state,
               state != STATE_FAILED ? FAILURE_REASON_NONE : failureReason,
-              manualStopReason,
+              stopReason,
               download.startTimeMs,
               /* updateTimeMs= */ System.currentTimeMillis(),
               download.counters);
@@ -934,8 +931,8 @@ public final class DownloadManager {
       }
     }
 
-    public void setManualStopReason(int manualStopReason) {
-      this.manualStopReason = manualStopReason;
+    public void setStopReason(int stopReason) {
+      this.stopReason = stopReason;
       updateStopState();
     }
 
@@ -981,7 +978,7 @@ public final class DownloadManager {
     }
 
     private boolean canStart() {
-      return downloadManager.canStartDownloads() && manualStopReason == MANUAL_STOP_REASON_NONE;
+      return downloadManager.canStartDownloads() && stopReason == STOP_REASON_NONE;
     }
 
     private void startOrQueue() {

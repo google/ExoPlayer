@@ -36,24 +36,24 @@ public interface WritableDownloadIndex extends DownloadIndex {
    */
   void removeDownload(String id) throws IOException;
   /**
-   * Sets the manual stop reason of the downloads in a terminal state ({@link
-   * Download#STATE_COMPLETED}, {@link Download#STATE_FAILED}).
+   * Sets the stop reason of the downloads in a terminal state ({@link Download#STATE_COMPLETED},
+   * {@link Download#STATE_FAILED}).
    *
-   * @param manualStopReason The manual stop reason.
+   * @param stopReason The stop reason.
    * @throws throws IOException If an error occurs updating the state.
    */
-  void setManualStopReason(int manualStopReason) throws IOException;
+  void setStopReason(int stopReason) throws IOException;
 
   /**
-   * Sets the manual stop reason of the download with the given {@code id} in a terminal state
-   * ({@link Download#STATE_COMPLETED}, {@link Download#STATE_FAILED}).
+   * Sets the stop reason of the download with the given {@code id} in a terminal state ({@link
+   * Download#STATE_COMPLETED}, {@link Download#STATE_FAILED}).
    *
    * <p>If there's no {@link Download} with the given {@code id} or it isn't in a terminal state,
    * then nothing happens.
    *
    * @param id ID of a {@link Download}.
-   * @param manualStopReason The manual stop reason.
+   * @param stopReason The stop reason.
    * @throws throws IOException If an error occurs updating the state.
    */
-  void setManualStopReason(String id, int manualStopReason) throws IOException;
+  void setStopReason(String id, int stopReason) throws IOException;
 }
