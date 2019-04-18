@@ -2070,29 +2070,25 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           boolean isForced = (maskedSelectionFlags & C.SELECTION_FLAG_FORCED) != 0;
           int trackScore;
           int languageScore = getFormatLanguageScore(format, params.preferredTextLanguage);
-          if (languageScore > 0
-              || (params.selectUndeterminedTextLanguage && formatHasNoLanguage(format))) {
+          boolean trackHasNoLanguage = formatHasNoLanguage(format);
+          if (languageScore > 0 || (params.selectUndeterminedTextLanguage && trackHasNoLanguage)) {
             if (isDefault) {
-              trackScore = 17;
+              trackScore = 11;
             } else if (!isForced) {
               // Prefer non-forced to forced if a preferred text language has been specified. Where
               // both are provided the non-forced track will usually contain the forced subtitles as
               // a subset.
-              trackScore = 13;
+              trackScore = 7;
             } else {
-              trackScore = 9;
+              trackScore = 3;
             }
             trackScore += languageScore;
           } else if (isDefault) {
-            trackScore = 8;
-          } else if (isForced) {
-            int preferredAudioLanguageScore =
-                getFormatLanguageScore(format, params.preferredAudioLanguage);
-            if (preferredAudioLanguageScore > 0) {
-              trackScore = 4 + preferredAudioLanguageScore;
-            } else {
-              trackScore = 1 + getFormatLanguageScore(format, selectedAudioLanguage);
-            }
+            trackScore = 2;
+          } else if (isForced
+              && (getFormatLanguageScore(format, selectedAudioLanguage) > 0
+                  || (trackHasNoLanguage && stringDefinesNoLanguage(selectedAudioLanguage)))) {
+            trackScore = 1;
           } else {
             // Track should not be selected.
             continue;
@@ -2281,15 +2277,19 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         && maskedSupport == RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES);
   }
 
-  /**
-   * Returns whether a {@link Format} does not define a language.
-   *
-   * @param format The {@link Format}.
-   * @return Whether the {@link Format} does not define a language.
-   */
+  /** Equivalent to {@link #stringDefinesNoLanguage stringDefinesNoLanguage(format.language)}. */
   protected static boolean formatHasNoLanguage(Format format) {
-    return TextUtils.isEmpty(format.language)
-        || TextUtils.equals(format.language, C.LANGUAGE_UNDETERMINED);
+    return stringDefinesNoLanguage(format.language);
+  }
+
+  /**
+   * Returns whether the given string does not define a language.
+   *
+   * @param language The string.
+   * @return Whether the given string does not define a language.
+   */
+  protected static boolean stringDefinesNoLanguage(@Nullable String language) {
+    return TextUtils.isEmpty(language) || TextUtils.equals(language, C.LANGUAGE_UNDETERMINED);
   }
 
   /**
