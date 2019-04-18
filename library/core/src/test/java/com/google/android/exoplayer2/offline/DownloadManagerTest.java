@@ -552,7 +552,7 @@ public class DownloadManagerTest {
     }
   }
 
-  private void runOnMainThread(final TestRunnable r) {
+  private void runOnMainThread(TestRunnable r) {
     dummyMainThread.runTestOnMainThread(r);
   }
 

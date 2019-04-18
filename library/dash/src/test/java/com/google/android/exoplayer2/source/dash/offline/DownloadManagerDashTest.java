@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
+import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
@@ -99,8 +100,8 @@ public class DownloadManagerDashTest {
   }
 
   @After
-  public void tearDown() throws Exception {
-    downloadManager.release();
+  public void tearDown() {
+    runOnMainThread(() -> downloadManager.release());
     Util.recursiveDelete(tempFolder);
     dummyMainThread.release();
   }
@@ -128,10 +129,11 @@ public class DownloadManagerDashTest {
 
     // Run DM accessing code on UI/main thread as it should be. Also not to block handling of loaded
     // actions.
-    dummyMainThread.runOnMainThread(
+    runOnMainThread(
         () -> {
           // Setup an Action and immediately release the DM.
-          handleDownloadRequest(fakeStreamKey1, fakeStreamKey2);
+          DownloadRequest request = getDownloadRequest(fakeStreamKey1, fakeStreamKey2);
+          downloadManager.addDownload(request);
           downloadManager.release();
         });
 
@@ -228,25 +230,28 @@ public class DownloadManagerDashTest {
   }
 
   private void handleDownloadRequest(StreamKey... keys) {
+    DownloadRequest request = getDownloadRequest(keys);
+    runOnMainThread(() -> downloadManager.addDownload(request));
+  }
+
+  private DownloadRequest getDownloadRequest(StreamKey... keys) {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    DownloadRequest action =
-        new DownloadRequest(
-            TEST_ID,
-            DownloadRequest.TYPE_DASH,
-            TEST_MPD_URI,
-            keysList,
-            /* customCacheKey= */ null,
-            null);
-    downloadManager.addDownload(action);
+    return new DownloadRequest(
+        TEST_ID,
+        DownloadRequest.TYPE_DASH,
+        TEST_MPD_URI,
+        keysList,
+        /* customCacheKey= */ null,
+        null);
   }
 
   private void handleRemoveAction() {
-    downloadManager.removeDownload(TEST_ID);
+    runOnMainThread(() -> downloadManager.removeDownload(TEST_ID));
   }
 
   private void createDownloadManager() {
-    dummyMainThread.runTestOnMainThread(
+    runOnMainThread(
         () -> {
           Factory fakeDataSourceFactory = new FakeDataSource.Factory().setFakeDataSet(fakeDataSet);
           downloadManager =
@@ -260,9 +265,13 @@ public class DownloadManagerDashTest {
                   new Requirements(0));
 
           downloadManagerListener =
-              new TestDownloadManagerListener(downloadManager, dummyMainThread);
+              new TestDownloadManagerListener(
+                  downloadManager, dummyMainThread, /* timeout= */ 3000);
           downloadManager.startDownloads();
         });
   }
 
+  private void runOnMainThread(TestRunnable r) {
+    dummyMainThread.runTestOnMainThread(r);
+  }
 }

@@ -40,14 +40,21 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   private final DummyMainThread dummyMainThread;
   private final HashMap<String, ArrayBlockingQueue<Integer>> downloadStates;
   private final ConditionVariable initializedCondition;
+  private final int timeout;
 
   private CountDownLatch downloadFinishedCondition;
   @Download.FailureReason private int failureReason;
 
   public TestDownloadManagerListener(
       DownloadManager downloadManager, DummyMainThread dummyMainThread) {
+    this(downloadManager, dummyMainThread, TIMEOUT);
+  }
+
+  public TestDownloadManagerListener(
+      DownloadManager downloadManager, DummyMainThread dummyMainThread, int timeout) {
     this.downloadManager = downloadManager;
     this.dummyMainThread = dummyMainThread;
+    this.timeout = timeout;
     downloadStates = new HashMap<>();
     initializedCondition = new ConditionVariable();
     downloadManager.addListener(this);
@@ -110,7 +117,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
             downloadFinishedCondition.countDown();
           }
         });
-    assertThat(downloadFinishedCondition.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue();
+    assertThat(downloadFinishedCondition.await(timeout, TimeUnit.MILLISECONDS)).isTrue();
   }
 
   private ArrayBlockingQueue<Integer> getStateQueue(String taskId) {
