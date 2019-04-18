@@ -41,7 +41,7 @@
   * MP3: Fix ID3 frame unsychronization
     ([#5673](https://github.com/google/ExoPlayer/issues/5673)).
   * MP3: Fix playback of badly clipped files
-    ([#5772](https://github.com/google/ExoPlayer/issues/5772)).  
+    ([#5772](https://github.com/google/ExoPlayer/issues/5772)).
   * MPEG-TS: Enable HDMV DTS stream detection only if a flag is set. By default
     (i.e. if the flag is not set), the 0x82 elementary stream type is now
     treated as an SCTE subtitle track
@@ -52,6 +52,8 @@
   * Update `TrackSelection.Factory` interface to support creating all track
     selections together.
   * Allow to specify a selection reason for a `SelectionOverride`.
+  * When no text language preference matches, only select forced text tracks
+    whose language matches the selected audio language.
 * UI:
   * Update `DefaultTimeBar` based on duration of media and add parameter to set
     the minimum update interval to control the smoothness of the updates
