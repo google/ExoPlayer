@@ -57,7 +57,7 @@ public class DownloadManagerTest {
   private static final int MAX_RETRY_DELAY = 5000;
   /** Maximum number of times a downloader can be restarted before doing a released check. */
   private static final int MAX_STARTS_BEFORE_RELEASED = 1;
-  /** A manual stop reason. */
+  /** A stop reason. */
   private static final int APP_STOP_REASON = 1;
   /** The minimum number of times a task must be retried before failing. */
   private static final int MIN_RETRY_COUNT = 3;
@@ -401,12 +401,11 @@ public class DownloadManagerTest {
 
     task.assertDownloading();
 
-    runOnMainThread(() -> downloadManager.setManualStopReason(task.taskId, APP_STOP_REASON));
+    runOnMainThread(() -> downloadManager.setStopReason(task.taskId, APP_STOP_REASON));
 
     task.assertStopped();
 
-    runOnMainThread(
-        () -> downloadManager.setManualStopReason(task.taskId, Download.MANUAL_STOP_REASON_NONE));
+    runOnMainThread(() -> downloadManager.setStopReason(task.taskId, Download.STOP_REASON_NONE));
 
     runner.getDownloader(1).assertStarted().unblock();
 
@@ -420,7 +419,7 @@ public class DownloadManagerTest {
 
     task.assertDownloading();
 
-    runOnMainThread(() -> downloadManager.setManualStopReason(task.taskId, APP_STOP_REASON));
+    runOnMainThread(() -> downloadManager.setStopReason(task.taskId, APP_STOP_REASON));
 
     task.assertStopped();
 
@@ -440,8 +439,7 @@ public class DownloadManagerTest {
     runner1.postDownloadRequest().getTask().assertDownloading();
     runner2.postDownloadRequest().postRemoveRequest().getTask().assertRemoving();
 
-    runOnMainThread(
-        () -> downloadManager.setManualStopReason(runner1.getTask().taskId, APP_STOP_REASON));
+    runOnMainThread(() -> downloadManager.setStopReason(runner1.getTask().taskId, APP_STOP_REASON));
 
     runner1.getTask().assertStopped();
 
@@ -462,7 +460,7 @@ public class DownloadManagerTest {
     Download download = downloadBuilder.build();
 
     Download mergedDownload =
-        DownloadManager.mergeRequest(download, downloadRequest, download.manualStopReason);
+        DownloadManager.mergeRequest(download, downloadRequest, download.stopReason);
 
     Download expectedDownload = downloadBuilder.setState(Download.STATE_RESTARTING).build();
     assertEqualIgnoringTimeFields(mergedDownload, expectedDownload);
@@ -478,7 +476,7 @@ public class DownloadManagerTest {
     Download download = downloadBuilder.build();
 
     Download mergedDownload =
-        DownloadManager.mergeRequest(download, downloadRequest, download.manualStopReason);
+        DownloadManager.mergeRequest(download, downloadRequest, download.stopReason);
 
     Download expectedDownload =
         downloadBuilder
@@ -494,26 +492,26 @@ public class DownloadManagerTest {
     DownloadBuilder downloadBuilder =
         new DownloadBuilder(downloadRequest)
             .setState(Download.STATE_STOPPED)
-            .setManualStopReason(/* manualStopReason= */ 1);
+            .setStopReason(/* stopReason= */ 1);
     Download download = downloadBuilder.build();
 
     Download mergedDownload =
-        DownloadManager.mergeRequest(download, downloadRequest, download.manualStopReason);
+        DownloadManager.mergeRequest(download, downloadRequest, download.stopReason);
 
     assertEqualIgnoringTimeFields(mergedDownload, download);
   }
 
   @Test
-  public void mergeRequest_manualStopReasonSetButNotStopped_becomesStopped() {
+  public void mergeRequest_stopReasonSetButNotStopped_becomesStopped() {
     DownloadRequest downloadRequest = createDownloadRequest();
     DownloadBuilder downloadBuilder =
         new DownloadBuilder(downloadRequest)
             .setState(Download.STATE_COMPLETED)
-            .setManualStopReason(/* manualStopReason= */ 1);
+            .setStopReason(/* stopReason= */ 1);
     Download download = downloadBuilder.build();
 
     Download mergedDownload =
-        DownloadManager.mergeRequest(download, downloadRequest, download.manualStopReason);
+        DownloadManager.mergeRequest(download, downloadRequest, download.stopReason);
 
     Download expectedDownload = downloadBuilder.setState(Download.STATE_STOPPED).build();
     assertEqualIgnoringTimeFields(mergedDownload, expectedDownload);
@@ -560,7 +558,7 @@ public class DownloadManagerTest {
     assertThat(download.request).isEqualTo(that.request);
     assertThat(download.state).isEqualTo(that.state);
     assertThat(download.failureReason).isEqualTo(that.failureReason);
-    assertThat(download.manualStopReason).isEqualTo(that.manualStopReason);
+    assertThat(download.stopReason).isEqualTo(that.stopReason);
     assertThat(download.getDownloadPercentage()).isEqualTo(that.getDownloadPercentage());
     assertThat(download.getDownloadedBytes()).isEqualTo(that.getDownloadedBytes());
     assertThat(download.getTotalBytes()).isEqualTo(that.getTotalBytes());

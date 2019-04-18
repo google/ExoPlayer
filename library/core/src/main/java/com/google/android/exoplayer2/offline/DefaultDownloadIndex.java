@@ -57,7 +57,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   private static final String COLUMN_DOWNLOADED_BYTES = "downloaded_bytes";
   private static final String COLUMN_TOTAL_BYTES = "total_bytes";
   private static final String COLUMN_FAILURE_REASON = "failure_reason";
-  private static final String COLUMN_MANUAL_STOP_REASON = "manual_stop_reason";
+  private static final String COLUMN_STOP_REASON = "manual_stop_reason";
   private static final String COLUMN_START_TIME_MS = "start_time_ms";
   private static final String COLUMN_UPDATE_TIME_MS = "update_time_ms";
 
@@ -82,7 +82,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   private static final int COLUMN_INDEX_DOWNLOADED_BYTES = 8;
   private static final int COLUMN_INDEX_TOTAL_BYTES = 9;
   private static final int COLUMN_INDEX_FAILURE_REASON = 10;
-  private static final int COLUMN_INDEX_MANUAL_STOP_REASON = 11;
+  private static final int COLUMN_INDEX_STOP_REASON = 11;
   private static final int COLUMN_INDEX_START_TIME_MS = 12;
   private static final int COLUMN_INDEX_UPDATE_TIME_MS = 13;
 
@@ -103,7 +103,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
         COLUMN_DOWNLOADED_BYTES,
         COLUMN_TOTAL_BYTES,
         COLUMN_FAILURE_REASON,
-        COLUMN_MANUAL_STOP_REASON,
+        COLUMN_STOP_REASON,
         COLUMN_START_TIME_MS,
         COLUMN_UPDATE_TIME_MS
       };
@@ -135,7 +135,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
           + " INTEGER NOT NULL,"
           + COLUMN_NOT_MET_REQUIREMENTS
           + " INTEGER NOT NULL,"
-          + COLUMN_MANUAL_STOP_REASON
+          + COLUMN_STOP_REASON
           + " INTEGER NOT NULL,"
           + COLUMN_START_TIME_MS
           + " INTEGER NOT NULL,"
@@ -202,7 +202,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
     values.put(COLUMN_FAILURE_REASON, download.failureReason);
     values.put(COLUMN_STOP_FLAGS, 0);
     values.put(COLUMN_NOT_MET_REQUIREMENTS, 0);
-    values.put(COLUMN_MANUAL_STOP_REASON, download.manualStopReason);
+    values.put(COLUMN_STOP_REASON, download.stopReason);
     values.put(COLUMN_START_TIME_MS, download.startTimeMs);
     values.put(COLUMN_UPDATE_TIME_MS, download.updateTimeMs);
     try {
@@ -224,11 +224,11 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   }
 
   @Override
-  public void setManualStopReason(int manualStopReason) throws DatabaseIOException {
+  public void setStopReason(int stopReason) throws DatabaseIOException {
     ensureInitialized();
     try {
       ContentValues values = new ContentValues();
-      values.put(COLUMN_MANUAL_STOP_REASON, manualStopReason);
+      values.put(COLUMN_STOP_REASON, stopReason);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.update(TABLE_NAME, values, WHERE_STATE_TERMINAL, /* whereArgs= */ null);
     } catch (SQLException e) {
@@ -237,11 +237,11 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   }
 
   @Override
-  public void setManualStopReason(String id, int manualStopReason) throws DatabaseIOException {
+  public void setStopReason(String id, int stopReason) throws DatabaseIOException {
     ensureInitialized();
     try {
       ContentValues values = new ContentValues();
-      values.put(COLUMN_MANUAL_STOP_REASON, manualStopReason);
+      values.put(COLUMN_STOP_REASON, stopReason);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.update(
           TABLE_NAME, values, WHERE_STATE_TERMINAL + " AND " + WHERE_ID_EQUALS, new String[] {id});
@@ -332,7 +332,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
         request,
         cursor.getInt(COLUMN_INDEX_STATE),
         cursor.getInt(COLUMN_INDEX_FAILURE_REASON),
-        cursor.getInt(COLUMN_INDEX_MANUAL_STOP_REASON),
+        cursor.getInt(COLUMN_INDEX_STOP_REASON),
         cursor.getLong(COLUMN_INDEX_START_TIME_MS),
         cursor.getLong(COLUMN_INDEX_UPDATE_TIME_MS),
         cachingCounters);
