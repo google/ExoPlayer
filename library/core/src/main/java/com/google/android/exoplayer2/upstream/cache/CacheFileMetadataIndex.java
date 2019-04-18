@@ -107,7 +107,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       int version =
           VersionTable.getVersion(
               readableDatabase, VersionTable.FEATURE_CACHE_FILE_METADATA, hexUid);
-      if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
+      if (version != TABLE_VERSION) {
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
         writableDatabase.beginTransaction();
         try {
@@ -119,9 +119,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         } finally {
           writableDatabase.endTransaction();
         }
-      } else if (version < TABLE_VERSION) {
-        // There is no previous version currently.
-        throw new IllegalStateException();
       }
     } catch (SQLException e) {
       throw new DatabaseIOException(e);

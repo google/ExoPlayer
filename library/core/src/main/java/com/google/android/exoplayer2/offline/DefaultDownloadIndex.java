@@ -23,7 +23,6 @@ import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import android.text.TextUtils;
 import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
@@ -37,32 +36,22 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
 
   private static final String TABLE_PREFIX = DatabaseProvider.TABLE_PREFIX + "Downloads";
 
-  @VisibleForTesting /* package */ static final int TABLE_VERSION = 1;
+  @VisibleForTesting /* package */ static final int TABLE_VERSION = 2;
 
   private static final String COLUMN_ID = "id";
   private static final String COLUMN_TYPE = "title";
-  private static final String COLUMN_URI = "subtitle";
+  private static final String COLUMN_URI = "uri";
   private static final String COLUMN_STREAM_KEYS = "stream_keys";
-  private static final String COLUMN_CUSTOM_CACHE_KEY = "cache_key";
-  private static final String COLUMN_DATA = "custom_metadata";
+  private static final String COLUMN_CUSTOM_CACHE_KEY = "custom_cache_key";
+  private static final String COLUMN_DATA = "data";
   private static final String COLUMN_STATE = "state";
-  private static final String COLUMN_DOWNLOAD_PERCENTAGE = "download_percentage";
-  private static final String COLUMN_DOWNLOADED_BYTES = "downloaded_bytes";
-  private static final String COLUMN_TOTAL_BYTES = "total_bytes";
-  private static final String COLUMN_FAILURE_REASON = "failure_reason";
-  private static final String COLUMN_STOP_REASON = "manual_stop_reason";
   private static final String COLUMN_START_TIME_MS = "start_time_ms";
   private static final String COLUMN_UPDATE_TIME_MS = "update_time_ms";
-
-  /** @deprecated No longer used. */
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated
-  private static final String COLUMN_STOP_FLAGS = "stop_flags";
-
-  /** @deprecated No longer used. */
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated
-  private static final String COLUMN_NOT_MET_REQUIREMENTS = "not_met_requirements";
+  private static final String COLUMN_CONTENT_LENGTH = "content_length";
+  private static final String COLUMN_STOP_REASON = "stop_reason";
+  private static final String COLUMN_FAILURE_REASON = "failure_reason";
+  private static final String COLUMN_PERCENT_DOWNLOADED = "percent_downloaded";
+  private static final String COLUMN_BYTES_DOWNLOADED = "bytes_downloaded";
 
   private static final int COLUMN_INDEX_ID = 0;
   private static final int COLUMN_INDEX_TYPE = 1;
@@ -71,13 +60,13 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   private static final int COLUMN_INDEX_CUSTOM_CACHE_KEY = 4;
   private static final int COLUMN_INDEX_DATA = 5;
   private static final int COLUMN_INDEX_STATE = 6;
-  private static final int COLUMN_INDEX_DOWNLOAD_PERCENTAGE = 7;
-  private static final int COLUMN_INDEX_DOWNLOADED_BYTES = 8;
-  private static final int COLUMN_INDEX_TOTAL_BYTES = 9;
-  private static final int COLUMN_INDEX_FAILURE_REASON = 10;
-  private static final int COLUMN_INDEX_STOP_REASON = 11;
-  private static final int COLUMN_INDEX_START_TIME_MS = 12;
-  private static final int COLUMN_INDEX_UPDATE_TIME_MS = 13;
+  private static final int COLUMN_INDEX_START_TIME_MS = 7;
+  private static final int COLUMN_INDEX_UPDATE_TIME_MS = 8;
+  private static final int COLUMN_INDEX_CONTENT_LENGTH = 9;
+  private static final int COLUMN_INDEX_STOP_REASON = 10;
+  private static final int COLUMN_INDEX_FAILURE_REASON = 11;
+  private static final int COLUMN_INDEX_PERCENT_DOWNLOADED = 12;
+  private static final int COLUMN_INDEX_BYTES_DOWNLOADED = 13;
 
   private static final String WHERE_ID_EQUALS = COLUMN_ID + " = ?";
   private static final String WHERE_STATE_TERMINAL =
@@ -92,13 +81,13 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
         COLUMN_CUSTOM_CACHE_KEY,
         COLUMN_DATA,
         COLUMN_STATE,
-        COLUMN_DOWNLOAD_PERCENTAGE,
-        COLUMN_DOWNLOADED_BYTES,
-        COLUMN_TOTAL_BYTES,
-        COLUMN_FAILURE_REASON,
-        COLUMN_STOP_REASON,
         COLUMN_START_TIME_MS,
-        COLUMN_UPDATE_TIME_MS
+        COLUMN_UPDATE_TIME_MS,
+        COLUMN_CONTENT_LENGTH,
+        COLUMN_STOP_REASON,
+        COLUMN_FAILURE_REASON,
+        COLUMN_PERCENT_DOWNLOADED,
+        COLUMN_BYTES_DOWNLOADED,
       };
 
   private static final String TABLE_SCHEMA =
@@ -109,32 +98,28 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
           + " TEXT NOT NULL,"
           + COLUMN_URI
           + " TEXT NOT NULL,"
+          + COLUMN_STREAM_KEYS
+          + " TEXT NOT NULL,"
           + COLUMN_CUSTOM_CACHE_KEY
           + " TEXT,"
+          + COLUMN_DATA
+          + " BLOB NOT NULL,"
           + COLUMN_STATE
-          + " INTEGER NOT NULL,"
-          + COLUMN_DOWNLOAD_PERCENTAGE
-          + " REAL NOT NULL,"
-          + COLUMN_DOWNLOADED_BYTES
-          + " INTEGER NOT NULL,"
-          + COLUMN_TOTAL_BYTES
-          + " INTEGER NOT NULL,"
-          + COLUMN_FAILURE_REASON
-          + " INTEGER NOT NULL,"
-          + COLUMN_STOP_FLAGS
-          + " INTEGER NOT NULL,"
-          + COLUMN_NOT_MET_REQUIREMENTS
-          + " INTEGER NOT NULL,"
-          + COLUMN_STOP_REASON
           + " INTEGER NOT NULL,"
           + COLUMN_START_TIME_MS
           + " INTEGER NOT NULL,"
           + COLUMN_UPDATE_TIME_MS
           + " INTEGER NOT NULL,"
-          + COLUMN_STREAM_KEYS
-          + " TEXT NOT NULL,"
-          + COLUMN_DATA
-          + " BLOB NOT NULL)";
+          + COLUMN_CONTENT_LENGTH
+          + " INTEGER NOT NULL,"
+          + COLUMN_STOP_REASON
+          + " INTEGER NOT NULL,"
+          + COLUMN_FAILURE_REASON
+          + " INTEGER NOT NULL,"
+          + COLUMN_PERCENT_DOWNLOADED
+          + " REAL NOT NULL,"
+          + COLUMN_BYTES_DOWNLOADED
+          + " INTEGER NOT NULL)";
 
   private static final String TRUE = "1";
 
@@ -170,8 +155,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
    *     tables in which downloads are persisted.
    */
   public DefaultDownloadIndex(DatabaseProvider databaseProvider, String name) {
-    // TODO: Remove this backward compatibility hack for launch.
-    this.name = TextUtils.isEmpty(name) ? "singleton" : name;
+    this.name = name;
     this.databaseProvider = databaseProvider;
     tableName = TABLE_PREFIX + name;
   }
@@ -211,13 +195,11 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
     values.put(COLUMN_STATE, download.state);
     values.put(COLUMN_START_TIME_MS, download.startTimeMs);
     values.put(COLUMN_UPDATE_TIME_MS, download.updateTimeMs);
-    values.put(COLUMN_TOTAL_BYTES, download.contentLength);
+    values.put(COLUMN_CONTENT_LENGTH, download.contentLength);
     values.put(COLUMN_STOP_REASON, download.stopReason);
     values.put(COLUMN_FAILURE_REASON, download.failureReason);
-    values.put(COLUMN_DOWNLOAD_PERCENTAGE, download.getPercentDownloaded());
-    values.put(COLUMN_DOWNLOADED_BYTES, download.getBytesDownloaded());
-    values.put(COLUMN_STOP_FLAGS, 0);
-    values.put(COLUMN_NOT_MET_REQUIREMENTS, 0);
+    values.put(COLUMN_PERCENT_DOWNLOADED, download.getPercentDownloaded());
+    values.put(COLUMN_BYTES_DOWNLOADED, download.getBytesDownloaded());
     try {
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.replaceOrThrow(tableName, /* nullColumnHack= */ null, values);
@@ -270,7 +252,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
     try {
       SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
       int version = VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, name);
-      if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
+      if (version != TABLE_VERSION) {
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
         writableDatabase.beginTransaction();
         try {
@@ -282,9 +264,6 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
         } finally {
           writableDatabase.endTransaction();
         }
-      } else if (version < TABLE_VERSION) {
-        // There is no previous version currently.
-        throw new IllegalStateException();
       }
       initialized = true;
     } catch (SQLException e) {
@@ -330,23 +309,23 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   private static Download getDownloadForCurrentRow(Cursor cursor) {
     DownloadRequest request =
         new DownloadRequest(
-            cursor.getString(COLUMN_INDEX_ID),
-            cursor.getString(COLUMN_INDEX_TYPE),
-            Uri.parse(cursor.getString(COLUMN_INDEX_URI)),
-            decodeStreamKeys(cursor.getString(COLUMN_INDEX_STREAM_KEYS)),
-            cursor.getString(COLUMN_INDEX_CUSTOM_CACHE_KEY),
-            cursor.getBlob(COLUMN_INDEX_DATA));
+            /* id= */ cursor.getString(COLUMN_INDEX_ID),
+            /* type= */ cursor.getString(COLUMN_INDEX_TYPE),
+            /* uri= */ Uri.parse(cursor.getString(COLUMN_INDEX_URI)),
+            /* streamKeys= */ decodeStreamKeys(cursor.getString(COLUMN_INDEX_STREAM_KEYS)),
+            /* customCacheKey= */ cursor.getString(COLUMN_INDEX_CUSTOM_CACHE_KEY),
+            /* data= */ cursor.getBlob(COLUMN_INDEX_DATA));
     DownloadProgress downloadProgress = new DownloadProgress();
-    downloadProgress.bytesDownloaded = cursor.getLong(COLUMN_INDEX_DOWNLOADED_BYTES);
-    downloadProgress.percentDownloaded = cursor.getFloat(COLUMN_INDEX_DOWNLOAD_PERCENTAGE);
+    downloadProgress.bytesDownloaded = cursor.getLong(COLUMN_INDEX_BYTES_DOWNLOADED);
+    downloadProgress.percentDownloaded = cursor.getFloat(COLUMN_INDEX_PERCENT_DOWNLOADED);
     return new Download(
         request,
-        cursor.getInt(COLUMN_INDEX_STATE),
-        cursor.getLong(COLUMN_INDEX_START_TIME_MS),
-        cursor.getLong(COLUMN_INDEX_UPDATE_TIME_MS),
-        cursor.getLong(COLUMN_INDEX_TOTAL_BYTES),
-        cursor.getInt(COLUMN_INDEX_STOP_REASON),
-        cursor.getInt(COLUMN_INDEX_FAILURE_REASON),
+        /* state= */ cursor.getInt(COLUMN_INDEX_STATE),
+        /* startTimeMs= */ cursor.getLong(COLUMN_INDEX_START_TIME_MS),
+        /* updateTimeMs= */ cursor.getLong(COLUMN_INDEX_UPDATE_TIME_MS),
+        /* contentLength= */ cursor.getLong(COLUMN_INDEX_CONTENT_LENGTH),
+        /* stopReason= */ cursor.getInt(COLUMN_INDEX_STOP_REASON),
+        /* failureReason= */ cursor.getInt(COLUMN_INDEX_FAILURE_REASON),
         downloadProgress);
   }
 
