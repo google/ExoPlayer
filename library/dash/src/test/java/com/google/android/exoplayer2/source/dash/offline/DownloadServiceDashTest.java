@@ -214,7 +214,7 @@ public class DownloadServiceDashTest {
     dummyMainThread.runOnMainThread(
         () -> {
           Intent startIntent =
-              DownloadService.buildAddRequestIntent(
+              DownloadService.buildAddDownloadIntent(
                   context, DownloadService.class, action, /* foreground= */ false);
           dashDownloadService.onStartCommand(startIntent, 0, 0);
         });
