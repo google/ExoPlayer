@@ -368,7 +368,7 @@ public class DownloadManagerTest {
     runner2.postDownloadRequest().postRemoveRequest().getTask().assertRemoving();
     runner2.postDownloadRequest();
 
-    runOnMainThread(() -> downloadManager.stopDownloads());
+    runOnMainThread(() -> downloadManager.pauseDownloads());
 
     runner1.getTask().assertStopped();
 
@@ -386,7 +386,7 @@ public class DownloadManagerTest {
     // New download requests can be added but they don't start.
     runner3.postDownloadRequest().getDownloader(0).assertDoesNotStart();
 
-    runOnMainThread(() -> downloadManager.startDownloads());
+    runOnMainThread(() -> downloadManager.resumeDownloads());
 
     runner2.getDownloader(2).assertStarted().unblock();
     runner3.getDownloader(0).assertStarted().unblock();
@@ -532,7 +532,7 @@ public class DownloadManagerTest {
                     maxActiveDownloadTasks,
                     MIN_RETRY_COUNT,
                     new Requirements(0));
-            downloadManager.startDownloads();
+            downloadManager.resumeDownloads();
             downloadManagerListener =
                 new TestDownloadManagerListener(downloadManager, dummyMainThread);
           });
