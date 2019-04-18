@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import android.text.TextUtils;
 import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
@@ -32,18 +33,11 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A {@link DownloadIndex} which uses SQLite to persist {@link Download}s.
- *
- * <p class="caution">Database access may take a long time, do not call methods of this class from
- * the application main thread.
- */
+/** A {@link DownloadIndex} that uses SQLite to persist {@link Download Downloads}. */
 public final class DefaultDownloadIndex implements WritableDownloadIndex {
 
-  private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "Downloads";
+  private static final String TABLE_PREFIX = DatabaseProvider.TABLE_PREFIX + "Downloads";
 
-  // TODO: Support multiple instances. Probably using the underlying cache UID.
-  @VisibleForTesting /* package */ static final String INSTANCE_UID = "singleton";
   @VisibleForTesting /* package */ static final int TABLE_VERSION = 1;
 
   private static final String COLUMN_ID = "id";
@@ -108,11 +102,8 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
         COLUMN_UPDATE_TIME_MS
       };
 
-  private static final String SQL_DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS " + TABLE_NAME;
-  private static final String SQL_CREATE_TABLE =
-      "CREATE TABLE "
-          + TABLE_NAME
-          + " ("
+  private static final String TABLE_SCHEMA =
+      "("
           + COLUMN_ID
           + " TEXT PRIMARY KEY NOT NULL,"
           + COLUMN_TYPE
@@ -148,19 +139,42 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
 
   private static final String TRUE = "1";
 
+  private final String name;
+  private final String tableName;
   private final DatabaseProvider databaseProvider;
 
   private boolean initialized;
 
   /**
-   * Creates a DefaultDownloadIndex which stores the {@link Download}s on a SQLite database provided
-   * by {@code databaseProvider}.
+   * Creates an instance that stores the {@link Download Downloads} in an SQLite database provided
+   * by a {@link DatabaseProvider}.
    *
-   * @param databaseProvider A DatabaseProvider which provides the database which will be used to
-   *     store DownloadStatus table.
+   * <p>Equivalent to calling {@link #DefaultDownloadIndex(DatabaseProvider, String)} with {@code
+   * name=""}.
+   *
+   * <p>Applications that only have one download index may use this constructor. Applications that
+   * have multiple download indices should call {@link #DefaultDownloadIndex(DatabaseProvider,
+   * String)} to specify a unique name for each index.
+   *
+   * @param databaseProvider Provides the SQLite database in which downloads are persisted.
    */
   public DefaultDownloadIndex(DatabaseProvider databaseProvider) {
+    this(databaseProvider, "");
+  }
+
+  /**
+   * Creates an instance that stores the {@link Download Downloads} in an SQLite database provided
+   * by a {@link DatabaseProvider}.
+   *
+   * @param databaseProvider Provides the SQLite database in which downloads are persisted.
+   * @param name The name of the index. This name is incorporated into the names of the SQLite
+   *     tables in which downloads are persisted.
+   */
+  public DefaultDownloadIndex(DatabaseProvider databaseProvider, String name) {
+    // TODO: Remove this backward compatibility hack for launch.
+    this.name = TextUtils.isEmpty(name) ? "singleton" : name;
     this.databaseProvider = databaseProvider;
+    tableName = TABLE_PREFIX + name;
   }
 
   @Override
@@ -207,7 +221,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
     values.put(COLUMN_UPDATE_TIME_MS, download.updateTimeMs);
     try {
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.replaceOrThrow(TABLE_NAME, /* nullColumnHack= */ null, values);
+      writableDatabase.replaceOrThrow(tableName, /* nullColumnHack= */ null, values);
     } catch (SQLiteException e) {
       throw new DatabaseIOException(e);
     }
@@ -217,7 +231,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   public void removeDownload(String id) throws DatabaseIOException {
     ensureInitialized();
     try {
-      databaseProvider.getWritableDatabase().delete(TABLE_NAME, WHERE_ID_EQUALS, new String[] {id});
+      databaseProvider.getWritableDatabase().delete(tableName, WHERE_ID_EQUALS, new String[] {id});
     } catch (SQLiteException e) {
       throw new DatabaseIOException(e);
     }
@@ -230,7 +244,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
       ContentValues values = new ContentValues();
       values.put(COLUMN_STOP_REASON, stopReason);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.update(TABLE_NAME, values, WHERE_STATE_TERMINAL, /* whereArgs= */ null);
+      writableDatabase.update(tableName, values, WHERE_STATE_TERMINAL, /* whereArgs= */ null);
     } catch (SQLException e) {
       throw new DatabaseIOException(e);
     }
@@ -244,7 +258,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
       values.put(COLUMN_STOP_REASON, stopReason);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.update(
-          TABLE_NAME, values, WHERE_STATE_TERMINAL + " AND " + WHERE_ID_EQUALS, new String[] {id});
+          tableName, values, WHERE_STATE_TERMINAL + " AND " + WHERE_ID_EQUALS, new String[] {id});
     } catch (SQLException e) {
       throw new DatabaseIOException(e);
     }
@@ -256,16 +270,15 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
     }
     try {
       SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
-      int version =
-          VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID);
+      int version = VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, name);
       if (version == VersionTable.VERSION_UNSET || version > TABLE_VERSION) {
         SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
         writableDatabase.beginTransaction();
         try {
           VersionTable.setVersion(
-              writableDatabase, VersionTable.FEATURE_OFFLINE, INSTANCE_UID, TABLE_VERSION);
-          writableDatabase.execSQL(SQL_DROP_TABLE_IF_EXISTS);
-          writableDatabase.execSQL(SQL_CREATE_TABLE);
+              writableDatabase, VersionTable.FEATURE_OFFLINE, name, TABLE_VERSION);
+          writableDatabase.execSQL("DROP TABLE IF EXISTS " + tableName);
+          writableDatabase.execSQL("CREATE TABLE " + tableName + " " + TABLE_SCHEMA);
           writableDatabase.setTransactionSuccessful();
         } finally {
           writableDatabase.endTransaction();
@@ -287,7 +300,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
       return databaseProvider
           .getReadableDatabase()
           .query(
-              TABLE_NAME,
+              tableName,
               COLUMNS,
               selection,
               selectionArgs,
