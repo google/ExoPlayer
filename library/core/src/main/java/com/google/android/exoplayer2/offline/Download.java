@@ -46,7 +46,7 @@ public final class Download {
   // Important: These constants are persisted into DownloadIndex. Do not change them.
   /** The download is waiting to be started. */
   public static final int STATE_QUEUED = 0;
-  /** The download is stopped for a specified {@link #manualStopReason}. */
+  /** The download is stopped for a specified {@link #stopReason}. */
   public static final int STATE_STOPPED = 1;
   /** The download is currently started. */
   public static final int STATE_DOWNLOADING = 2;
@@ -69,8 +69,8 @@ public final class Download {
   /** The download is failed because of unknown reason. */
   public static final int FAILURE_REASON_UNKNOWN = 1;
 
-  /** The download isn't manually stopped. */
-  public static final int MANUAL_STOP_REASON_NONE = 0;
+  /** The download isn't stopped. */
+  public static final int STOP_REASON_NONE = 0;
 
   /** Returns the state string for the given state value. */
   public static String getStateString(@State int state) {
@@ -108,8 +108,8 @@ public final class Download {
    * #FAILURE_REASON_NONE}.
    */
   @FailureReason public final int failureReason;
-  /** The reason the download is manually stopped, or {@link #MANUAL_STOP_REASON_NONE}. */
-  public final int manualStopReason;
+  /** The reason the download is stopped, or {@link #STOP_REASON_NONE}. */
+  public final int stopReason;
 
   /* package */ CachingCounters counters;
 
@@ -117,14 +117,14 @@ public final class Download {
       DownloadRequest request,
       @State int state,
       @FailureReason int failureReason,
-      int manualStopReason,
+      int stopReason,
       long startTimeMs,
       long updateTimeMs) {
     this(
         request,
         state,
         failureReason,
-        manualStopReason,
+        stopReason,
         startTimeMs,
         updateTimeMs,
         new CachingCounters());
@@ -134,19 +134,19 @@ public final class Download {
       DownloadRequest request,
       @State int state,
       @FailureReason int failureReason,
-      int manualStopReason,
+      int stopReason,
       long startTimeMs,
       long updateTimeMs,
       CachingCounters counters) {
     Assertions.checkNotNull(counters);
     Assertions.checkState((failureReason == FAILURE_REASON_NONE) == (state != STATE_FAILED));
-    if (manualStopReason != 0) {
+    if (stopReason != 0) {
       Assertions.checkState(state != STATE_DOWNLOADING && state != STATE_QUEUED);
     }
     this.request = request;
     this.state = state;
     this.failureReason = failureReason;
-    this.manualStopReason = manualStopReason;
+    this.stopReason = stopReason;
     this.startTimeMs = startTimeMs;
     this.updateTimeMs = updateTimeMs;
     this.counters = counters;
