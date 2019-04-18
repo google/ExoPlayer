@@ -331,6 +331,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         mediaCodecSelector.getDecoderInfos(
             format.sampleMimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
     decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
+    if (MimeTypes.AUDIO_E_AC3_JOC.equals(format.sampleMimeType)) {
+      // E-AC3 decoders can decode JOC streams, but in 2-D rather than 3-D.
+      List<MediaCodecInfo> eac3DecoderInfos =
+          mediaCodecSelector.getDecoderInfos(
+              MimeTypes.AUDIO_E_AC3, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
+      decoderInfos.addAll(eac3DecoderInfos);
+    }
     return Collections.unmodifiableList(decoderInfos);
   }
 
