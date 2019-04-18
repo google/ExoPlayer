@@ -1089,17 +1089,26 @@ public final class MediaSessionConnector {
     }
 
     @Override
-    public void onSetShuffleMode(int shuffleMode) {
+    public void onSetShuffleMode(@PlaybackStateCompat.ShuffleMode int shuffleMode) {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)) {
-        boolean shuffleModeEnabled =
-            shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
-                || shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_GROUP;
+        boolean shuffleModeEnabled;
+        switch (shuffleMode) {
+          case PlaybackStateCompat.SHUFFLE_MODE_ALL:
+          case PlaybackStateCompat.SHUFFLE_MODE_GROUP:
+            shuffleModeEnabled = true;
+            break;
+          case PlaybackStateCompat.SHUFFLE_MODE_NONE:
+          case PlaybackStateCompat.SHUFFLE_MODE_INVALID:
+          default:
+            shuffleModeEnabled = false;
+            break;
+        }
         controlDispatcher.dispatchSetShuffleModeEnabled(player, shuffleModeEnabled);
       }
     }
 
     @Override
-    public void onSetRepeatMode(int mediaSessionRepeatMode) {
+    public void onSetRepeatMode(@PlaybackStateCompat.RepeatMode int mediaSessionRepeatMode) {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_REPEAT_MODE)) {
         @RepeatModeUtil.RepeatToggleModes int repeatMode;
         switch (mediaSessionRepeatMode) {
@@ -1110,6 +1119,8 @@ public final class MediaSessionConnector {
           case PlaybackStateCompat.REPEAT_MODE_ONE:
             repeatMode = Player.REPEAT_MODE_ONE;
             break;
+          case PlaybackStateCompat.REPEAT_MODE_NONE:
+          case PlaybackStateCompat.REPEAT_MODE_INVALID:
           default:
             repeatMode = Player.REPEAT_MODE_OFF;
             break;
