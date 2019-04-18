@@ -89,7 +89,7 @@ public final class DashDownloadTest {
   @Test
   public void testDownload() throws Exception {
     DashDownloader dashDownloader = downloadContent();
-    dashDownloader.download();
+    dashDownloader.download(/* progressListener= */ null);
 
     testRunner
         .setStreamName("test_h264_fixed_download")
