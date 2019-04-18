@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class DefaultDownloadIndexTest {
 
-  private static final String EMPTY_NAME = "singleton";
+  private static final String EMPTY_NAME = "";
 
   private ExoDatabaseProvider databaseProvider;
   private DefaultDownloadIndex downloadIndex;
