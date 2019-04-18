@@ -343,7 +343,7 @@ public final class CacheDataSourceTest {
         cache,
         /* cacheKeyFactory= */ null,
         upstream2,
-        /* counters= */ null,
+        /* progressListener= */ null,
         /* isCanceled= */ null);
 
     // Read the rest of the data.
@@ -392,7 +392,7 @@ public final class CacheDataSourceTest {
         cache,
         /* cacheKeyFactory= */ null,
         upstream2,
-        /* counters= */ null,
+        /* progressListener= */ null,
         /* isCanceled= */ null);
 
     // Read the rest of the data.
@@ -416,7 +416,7 @@ public final class CacheDataSourceTest {
         cache,
         /* cacheKeyFactory= */ null,
         upstream,
-        /* counters= */ null,
+        /* progressListener= */ null,
         /* isCanceled= */ null);
 
     // Create cache read-only CacheDataSource.
@@ -452,7 +452,7 @@ public final class CacheDataSourceTest {
         cache,
         /* cacheKeyFactory= */ null,
         upstream,
-        /* counters= */ null,
+        /* progressListener= */ null,
         /* isCanceled= */ null);
 
     // Create blocking CacheDataSource.

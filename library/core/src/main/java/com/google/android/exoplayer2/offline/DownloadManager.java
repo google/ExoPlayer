@@ -36,7 +36,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
-import com.google.android.exoplayer2.upstream.cache.CacheUtil.CachingCounters;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -131,7 +130,8 @@ public final class DownloadManager {
   private static final int MSG_ADD_DOWNLOAD = 4;
   private static final int MSG_REMOVE_DOWNLOAD = 5;
   private static final int MSG_DOWNLOAD_THREAD_STOPPED = 6;
-  private static final int MSG_RELEASE = 7;
+  private static final int MSG_CONTENT_LENGTH_CHANGED = 7;
+  private static final int MSG_RELEASE = 8;
 
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
@@ -539,6 +539,11 @@ public final class DownloadManager {
         onDownloadThreadStoppedInternal(downloadThread);
         processedExternalMessage = false; // This message is posted internally.
         break;
+      case MSG_CONTENT_LENGTH_CHANGED:
+        downloadThread = (DownloadThread) message.obj;
+        onDownloadThreadContentLengthChangedInternal(downloadThread);
+        processedExternalMessage = false; // This message is posted internally.
+        break;
       case MSG_RELEASE:
         releaseInternal();
         return true; // Don't post back to mainHandler on release.
@@ -634,10 +639,11 @@ public final class DownloadManager {
             new Download(
                 request,
                 stopReason != Download.STOP_REASON_NONE ? STATE_STOPPED : STATE_QUEUED,
-                Download.FAILURE_REASON_NONE,
-                stopReason,
                 /* startTimeMs= */ nowMs,
-                /* updateTimeMs= */ nowMs);
+                /* updateTimeMs= */ nowMs,
+                /* contentLength= */ C.LENGTH_UNSET,
+                stopReason,
+                Download.FAILURE_REASON_NONE);
         logd("Download state is created for " + request.id);
       } else {
         download = mergeRequest(download, request, stopReason);
@@ -680,6 +686,11 @@ public final class DownloadManager {
         downloadInternals.get(i).start();
       }
     }
+  }
+
+  private void onDownloadThreadContentLengthChangedInternal(DownloadThread downloadThread) {
+    String downloadId = downloadThread.request.id;
+    getDownload(downloadId).setContentLength(downloadThread.contentLength);
   }
 
   private void releaseInternal() {
@@ -737,10 +748,11 @@ public final class DownloadManager {
       parallelDownloads++;
     }
     Downloader downloader = downloaderFactory.createDownloader(request);
+    DownloadProgress downloadProgress = downloadInternal.download.progress;
     DownloadThread downloadThread =
-        new DownloadThread(request, downloader, isRemove, minRetryCount, internalHandler);
+        new DownloadThread(
+            request, downloader, downloadProgress, isRemove, minRetryCount, internalHandler);
     downloadThreads.put(downloadId, downloadThread);
-    downloadInternal.setCounters(downloadThread.downloader.getCounters());
     downloadThread.start();
     logd("Download is started", downloadInternal);
     return START_THREAD_SUCCEEDED;
@@ -802,22 +814,23 @@ public final class DownloadManager {
     return new Download(
         download.request.copyWithMergedRequest(request),
         state,
-        FAILURE_REASON_NONE,
-        stopReason,
         startTimeMs,
         /* updateTimeMs= */ nowMs,
-        download.counters);
+        /* contentLength= */ C.LENGTH_UNSET,
+        stopReason,
+        FAILURE_REASON_NONE);
   }
 
   private static Download copyWithState(Download download, @Download.State int state) {
     return new Download(
         download.request,
         state,
-        FAILURE_REASON_NONE,
-        download.stopReason,
         download.startTimeMs,
         /* updateTimeMs= */ System.currentTimeMillis(),
-        download.counters);
+        download.contentLength,
+        download.stopReason,
+        FAILURE_REASON_NONE,
+        download.progress);
   }
 
   private static void logd(String message) {
@@ -850,13 +863,17 @@ public final class DownloadManager {
 
     // TODO: Get rid of these and use download directly.
     @Download.State private int state;
+    private long contentLength;
     private int stopReason;
     @MonotonicNonNull @Download.FailureReason private int failureReason;
 
     private DownloadInternal(DownloadManager downloadManager, Download download) {
       this.downloadManager = downloadManager;
       this.download = download;
+      state = download.state;
+      contentLength = download.contentLength;
       stopReason = download.stopReason;
+      failureReason = download.failureReason;
     }
 
     private void initialize() {
@@ -877,11 +894,12 @@ public final class DownloadManager {
           new Download(
               download.request,
               state,
-              state != STATE_FAILED ? FAILURE_REASON_NONE : failureReason,
-              stopReason,
               download.startTimeMs,
               /* updateTimeMs= */ System.currentTimeMillis(),
-              download.counters);
+              contentLength,
+              stopReason,
+              state != STATE_FAILED ? FAILURE_REASON_NONE : failureReason,
+              download.progress);
       return download;
     }
 
@@ -911,8 +929,12 @@ public final class DownloadManager {
       return state == STATE_REMOVING || state == STATE_RESTARTING;
     }
 
-    public void setCounters(CachingCounters counters) {
-      download.setCounters(counters);
+    public void setContentLength(long contentLength) {
+      if (this.contentLength == contentLength) {
+        return;
+      }
+      this.contentLength = contentLength;
+      downloadManager.onDownloadChangedInternal(this, getUpdatedDownload());
     }
 
     private void updateStopState() {
@@ -992,28 +1014,34 @@ public final class DownloadManager {
     }
   }
 
-  private static class DownloadThread extends Thread {
+  private static class DownloadThread extends Thread implements Downloader.ProgressListener {
 
     private final DownloadRequest request;
     private final Downloader downloader;
+    private final DownloadProgress downloadProgress;
     private final boolean isRemove;
     private final int minRetryCount;
 
-    private volatile Handler onStoppedHandler;
+    private volatile Handler updateHandler;
     private volatile boolean isCanceled;
     private Throwable finalError;
+
+    private long contentLength;
 
     private DownloadThread(
         DownloadRequest request,
         Downloader downloader,
+        DownloadProgress downloadProgress,
         boolean isRemove,
         int minRetryCount,
-        Handler onStoppedHandler) {
+        Handler updateHandler) {
       this.request = request;
-      this.isRemove = isRemove;
       this.downloader = downloader;
+      this.downloadProgress = downloadProgress;
+      this.isRemove = isRemove;
       this.minRetryCount = minRetryCount;
-      this.onStoppedHandler = onStoppedHandler;
+      this.updateHandler = updateHandler;
+      contentLength = C.LENGTH_UNSET;
     }
 
     public void cancel(boolean released) {
@@ -1022,7 +1050,7 @@ public final class DownloadManager {
         // cancellation to complete depends on the implementation of the downloader being used. We
         // null the handler reference here so that it doesn't prevent garbage collection of the
         // download manager whilst cancellation is ongoing.
-        onStoppedHandler = null;
+        updateHandler = null;
       }
       isCanceled = true;
       downloader.cancel();
@@ -1042,14 +1070,14 @@ public final class DownloadManager {
           long errorPosition = C.LENGTH_UNSET;
           while (!isCanceled) {
             try {
-              downloader.download();
+              downloader.download(/* progressListener= */ this);
               break;
             } catch (IOException e) {
               if (!isCanceled) {
-                long downloadedBytes = downloader.getDownloadedBytes();
-                if (downloadedBytes != errorPosition) {
-                  logd("Reset error count. downloadedBytes = " + downloadedBytes, request);
-                  errorPosition = downloadedBytes;
+                long bytesDownloaded = downloadProgress.bytesDownloaded;
+                if (bytesDownloaded != errorPosition) {
+                  logd("Reset error count. bytesDownloaded = " + bytesDownloaded, request);
+                  errorPosition = bytesDownloaded;
                   errorCount = 0;
                 }
                 if (++errorCount > minRetryCount) {
@@ -1064,13 +1092,26 @@ public final class DownloadManager {
       } catch (Throwable e) {
         finalError = e;
       }
-      Handler onStoppedHandler = this.onStoppedHandler;
-      if (onStoppedHandler != null) {
-        onStoppedHandler.obtainMessage(MSG_DOWNLOAD_THREAD_STOPPED, this).sendToTarget();
+      Handler updateHandler = this.updateHandler;
+      if (updateHandler != null) {
+        updateHandler.obtainMessage(MSG_DOWNLOAD_THREAD_STOPPED, this).sendToTarget();
       }
     }
 
-    private int getRetryDelayMillis(int errorCount) {
+    @Override
+    public void onProgress(long contentLength, long bytesDownloaded, float percentDownloaded) {
+      downloadProgress.bytesDownloaded = bytesDownloaded;
+      downloadProgress.percentDownloaded = percentDownloaded;
+      if (contentLength != this.contentLength) {
+        this.contentLength = contentLength;
+        Handler updateHandler = this.updateHandler;
+        if (updateHandler != null) {
+          updateHandler.obtainMessage(MSG_CONTENT_LENGTH_CHANGED, this).sendToTarget();
+        }
+      }
+    }
+
+    private static int getRetryDelayMillis(int errorCount) {
       return Math.min((errorCount - 1) * 1000, 5000);
     }
   }

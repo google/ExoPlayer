@@ -76,9 +76,9 @@ public class DefaultDownloadIndexTest {
             .setUri("different uri")
             .setCacheKey("different cacheKey")
             .setState(Download.STATE_FAILED)
-            .setDownloadPercentage(50)
-            .setDownloadedBytes(200)
-            .setTotalBytes(400)
+            .setPercentDownloaded(50)
+            .setBytesDownloaded(200)
+            .setContentLength(400)
             .setFailureReason(Download.FAILURE_REASON_UNKNOWN)
             .setStopReason(0x12345678)
             .setStartTimeMs(10)
@@ -300,10 +300,10 @@ public class DefaultDownloadIndexTest {
     assertThat(download.state).isEqualTo(that.state);
     assertThat(download.startTimeMs).isEqualTo(that.startTimeMs);
     assertThat(download.updateTimeMs).isEqualTo(that.updateTimeMs);
-    assertThat(download.failureReason).isEqualTo(that.failureReason);
+    assertThat(download.contentLength).isEqualTo(that.contentLength);
     assertThat(download.stopReason).isEqualTo(that.stopReason);
-    assertThat(download.getDownloadPercentage()).isEqualTo(that.getDownloadPercentage());
-    assertThat(download.getDownloadedBytes()).isEqualTo(that.getDownloadedBytes());
-    assertThat(download.getTotalBytes()).isEqualTo(that.getTotalBytes());
+    assertThat(download.failureReason).isEqualTo(that.failureReason);
+    assertThat(download.getPercentDownloaded()).isEqualTo(that.getPercentDownloaded());
+    assertThat(download.getBytesDownloaded()).isEqualTo(that.getBytesDownloaded());
   }
 }
