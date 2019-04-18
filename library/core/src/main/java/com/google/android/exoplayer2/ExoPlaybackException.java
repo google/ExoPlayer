@@ -17,7 +17,6 @@ package com.google.android.exoplayer2;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -103,7 +102,6 @@ public final class ExoPlaybackException extends Exception {
    * @param cause The cause of the failure.
    * @return The created instance.
    */
-  @VisibleForTesting
   public static ExoPlaybackException createForUnexpected(RuntimeException cause) {
     return new ExoPlaybackException(TYPE_UNEXPECTED, cause, /* rendererIndex= */ C.INDEX_UNSET);
   }
@@ -124,7 +122,6 @@ public final class ExoPlaybackException extends Exception {
    * @param cause The cause of the failure.
    * @return The created instance.
    */
-  @VisibleForTesting
   public static ExoPlaybackException createForOutOfMemoryError(OutOfMemoryError cause) {
     return new ExoPlaybackException(TYPE_OUT_OF_MEMORY, cause, /* rendererIndex= */ C.INDEX_UNSET);
   }
