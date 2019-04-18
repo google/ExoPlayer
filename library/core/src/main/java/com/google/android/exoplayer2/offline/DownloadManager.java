@@ -55,8 +55,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Manages downloads.
  *
  * <p>Normally a download manager should be accessed via a {@link DownloadService}. When a download
- * manager is used directly instead, downloads will be initially stopped and so must be started by
- * calling {@link #startDownloads()}.
+ * manager is used directly instead, downloads will be initially paused and so must be resumed by
+ * calling {@link #resumeDownloads()}.
  *
  * <p>A download manager instance must be accessed only from the thread that created it, unless that
  * thread does not have a {@link Looper}. In that case, it must be accessed only from the
@@ -126,7 +126,7 @@ public final class DownloadManager {
 
   // Messages posted to the background handler.
   private static final int MSG_INITIALIZE = 0;
-  private static final int MSG_SET_DOWNLOADS_STARTED = 1;
+  private static final int MSG_SET_DOWNLOADS_RESUMED = 1;
   private static final int MSG_SET_NOT_MET_REQUIREMENTS = 2;
   private static final int MSG_SET_STOP_REASON = 3;
   private static final int MSG_ADD_DOWNLOAD = 4;
@@ -179,7 +179,7 @@ public final class DownloadManager {
 
   // Mutable fields that are accessed on the internal thread.
   @Requirements.RequirementFlags private int notMetRequirements;
-  private boolean downloadsStarted;
+  private boolean downloadsResumed;
   private int simultaneousDownloads;
 
   /**
@@ -346,19 +346,19 @@ public final class DownloadManager {
     return Collections.unmodifiableList(new ArrayList<>(downloads));
   }
 
-  /** Starts all downloads except those that have a non-zero {@link Download#stopReason}. */
-  public void startDownloads() {
+  /** Resumes all downloads except those that have a non-zero {@link Download#stopReason}. */
+  public void resumeDownloads() {
     pendingMessages++;
     internalHandler
-        .obtainMessage(MSG_SET_DOWNLOADS_STARTED, /* downloadsStarted */ 1, /* unused */ 0)
+        .obtainMessage(MSG_SET_DOWNLOADS_RESUMED, /* downloadsResumed */ 1, /* unused */ 0)
         .sendToTarget();
   }
 
-  /** Stops all downloads. */
-  public void stopDownloads() {
+  /** Pauses all downloads. */
+  public void pauseDownloads() {
     pendingMessages++;
     internalHandler
-        .obtainMessage(MSG_SET_DOWNLOADS_STARTED, /* downloadsStarted */ 0, /* unused */ 0)
+        .obtainMessage(MSG_SET_DOWNLOADS_RESUMED, /* downloadsResumed */ 0, /* unused */ 0)
         .sendToTarget();
   }
 
@@ -541,9 +541,9 @@ public final class DownloadManager {
         int notMetRequirements = message.arg1;
         initializeInternal(notMetRequirements);
         break;
-      case MSG_SET_DOWNLOADS_STARTED:
-        boolean downloadsStarted = message.arg1 != 0;
-        setDownloadsStarted(downloadsStarted);
+      case MSG_SET_DOWNLOADS_RESUMED:
+        boolean downloadsResumed = message.arg1 != 0;
+        setDownloadsResumed(downloadsResumed);
         break;
       case MSG_SET_NOT_MET_REQUIREMENTS:
         notMetRequirements = message.arg1;
@@ -604,11 +604,11 @@ public final class DownloadManager {
     }
   }
 
-  private void setDownloadsStarted(boolean downloadsStarted) {
-    if (this.downloadsStarted == downloadsStarted) {
+  private void setDownloadsResumed(boolean downloadsResumed) {
+    if (this.downloadsResumed == downloadsResumed) {
       return;
     }
-    this.downloadsStarted = downloadsStarted;
+    this.downloadsResumed = downloadsResumed;
     for (int i = 0; i < downloadInternals.size(); i++) {
       downloadInternals.get(i).updateStopState();
     }
@@ -813,7 +813,7 @@ public final class DownloadManager {
   }
 
   private boolean canStartDownloads() {
-    return downloadsStarted && notMetRequirements == 0;
+    return downloadsResumed && notMetRequirements == 0;
   }
 
   /* package */ static Download mergeRequest(
