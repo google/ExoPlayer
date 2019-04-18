@@ -263,7 +263,7 @@ public class DownloadTracker {
     }
 
     private void startDownload(DownloadRequest downloadRequest) {
-      DownloadService.sendNewDownload(
+      DownloadService.sendAddDownload(
           context, DemoDownloadService.class, downloadRequest, /* foreground= */ false);
     }
 

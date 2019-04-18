@@ -63,7 +63,8 @@ public abstract class DownloadService extends Service {
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
-  public static final String ACTION_ADD = "com.google.android.exoplayer.downloadService.action.ADD";
+  public static final String ACTION_ADD_DOWNLOAD =
+      "com.google.android.exoplayer.downloadService.action.ADD_DOWNLOAD";
 
   /**
    * Resumes all downloads except those that have a non-zero {@link Download#stopReason}. Extras:
@@ -72,8 +73,8 @@ public abstract class DownloadService extends Service {
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
-  public static final String ACTION_RESUME =
-      "com.google.android.exoplayer.downloadService.action.RESUME";
+  public static final String ACTION_RESUME_DOWNLOADS =
+      "com.google.android.exoplayer.downloadService.action.RESUME_DOWNLOADS";
 
   /**
    * Pauses all downloads. Extras:
@@ -82,8 +83,8 @@ public abstract class DownloadService extends Service {
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
-  public static final String ACTION_PAUSE =
-      "com.google.android.exoplayer.downloadService.action.PAUSE";
+  public static final String ACTION_PAUSE_DOWNLOADS =
+      "com.google.android.exoplayer.downloadService.action.PAUSE_DOWNLOADS";
 
   /**
    * Sets the stop reason for one or all downloads. To clear the stop reason, pass {@link
@@ -98,7 +99,7 @@ public abstract class DownloadService extends Service {
    * </ul>
    */
   public static final String ACTION_SET_STOP_REASON =
-      "com.google.android.exoplayer.downloadService.action.SET_MANUAL_STOP_REASON";
+      "com.google.android.exoplayer.downloadService.action.SET_STOP_REASON";
 
   /**
    * Removes a download. Extras:
@@ -108,18 +109,22 @@ public abstract class DownloadService extends Service {
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
-  public static final String ACTION_REMOVE =
-      "com.google.android.exoplayer.downloadService.action.REMOVE";
+  public static final String ACTION_REMOVE_DOWNLOAD =
+      "com.google.android.exoplayer.downloadService.action.REMOVE_DOWNLOAD";
 
-  /** Key for the {@link DownloadRequest} in {@link #ACTION_ADD} intents. */
+  /** Key for the {@link DownloadRequest} in {@link #ACTION_ADD_DOWNLOAD} intents. */
   public static final String KEY_DOWNLOAD_REQUEST = "download_request";
 
   /**
-   * Key for the content id in {@link #ACTION_SET_STOP_REASON} and {@link #ACTION_REMOVE} intents.
+   * Key for the content id in {@link #ACTION_SET_STOP_REASON} and {@link #ACTION_REMOVE_DOWNLOAD}
+   * intents.
    */
   public static final String KEY_CONTENT_ID = "content_id";
 
-  /** Key for the stop reason in {@link #ACTION_SET_STOP_REASON} and {@link #ACTION_ADD} intents. */
+  /**
+   * Key for the stop reason in {@link #ACTION_SET_STOP_REASON} and {@link #ACTION_ADD_DOWNLOAD}
+   * intents.
+   */
   public static final String KEY_STOP_REASON = "manual_stop_reason";
 
   /**
@@ -233,12 +238,12 @@ public abstract class DownloadService extends Service {
    * @param foreground Whether this intent will be used to start the service in the foreground.
    * @return Created Intent.
    */
-  public static Intent buildAddRequestIntent(
+  public static Intent buildAddDownloadIntent(
       Context context,
       Class<? extends DownloadService> clazz,
       DownloadRequest downloadRequest,
       boolean foreground) {
-    return buildAddRequestIntent(context, clazz, downloadRequest, STOP_REASON_NONE, foreground);
+    return buildAddDownloadIntent(context, clazz, downloadRequest, STOP_REASON_NONE, foreground);
   }
 
   /**
@@ -252,13 +257,13 @@ public abstract class DownloadService extends Service {
    * @param foreground Whether this intent will be used to start the service in the foreground.
    * @return Created Intent.
    */
-  public static Intent buildAddRequestIntent(
+  public static Intent buildAddDownloadIntent(
       Context context,
       Class<? extends DownloadService> clazz,
       DownloadRequest downloadRequest,
       int stopReason,
       boolean foreground) {
-    return getIntent(context, clazz, ACTION_ADD, foreground)
+    return getIntent(context, clazz, ACTION_ADD_DOWNLOAD, foreground)
         .putExtra(KEY_DOWNLOAD_REQUEST, downloadRequest)
         .putExtra(KEY_STOP_REASON, stopReason);
   }
@@ -274,7 +279,8 @@ public abstract class DownloadService extends Service {
    */
   public static Intent buildRemoveDownloadIntent(
       Context context, Class<? extends DownloadService> clazz, String id, boolean foreground) {
-    return getIntent(context, clazz, ACTION_REMOVE, foreground).putExtra(KEY_CONTENT_ID, id);
+    return getIntent(context, clazz, ACTION_REMOVE_DOWNLOAD, foreground)
+        .putExtra(KEY_CONTENT_ID, id);
   }
 
   /**
@@ -287,7 +293,7 @@ public abstract class DownloadService extends Service {
    */
   public static Intent buildResumeDownloadsIntent(
       Context context, Class<? extends DownloadService> clazz, boolean foreground) {
-    return getIntent(context, clazz, ACTION_RESUME, foreground);
+    return getIntent(context, clazz, ACTION_RESUME_DOWNLOADS, foreground);
   }
 
   /**
@@ -300,7 +306,7 @@ public abstract class DownloadService extends Service {
    */
   public static Intent buildPauseDownloadsIntent(
       Context context, Class<? extends DownloadService> clazz, boolean foreground) {
-    return getIntent(context, clazz, ACTION_PAUSE, foreground);
+    return getIntent(context, clazz, ACTION_PAUSE_DOWNLOADS, foreground);
   }
 
   /**
@@ -333,12 +339,12 @@ public abstract class DownloadService extends Service {
    * @param downloadRequest The request to be executed.
    * @param foreground Whether the service is started in the foreground.
    */
-  public static void sendNewDownload(
+  public static void sendAddDownload(
       Context context,
       Class<? extends DownloadService> clazz,
       DownloadRequest downloadRequest,
       boolean foreground) {
-    Intent intent = buildAddRequestIntent(context, clazz, downloadRequest, foreground);
+    Intent intent = buildAddDownloadIntent(context, clazz, downloadRequest, foreground);
     startService(context, intent, foreground);
   }
 
@@ -352,13 +358,13 @@ public abstract class DownloadService extends Service {
    *     if the download should be started.
    * @param foreground Whether the service is started in the foreground.
    */
-  public static void sendNewDownload(
+  public static void sendAddDownload(
       Context context,
       Class<? extends DownloadService> clazz,
       DownloadRequest downloadRequest,
       int stopReason,
       boolean foreground) {
-    Intent intent = buildAddRequestIntent(context, clazz, downloadRequest, stopReason, foreground);
+    Intent intent = buildAddDownloadIntent(context, clazz, downloadRequest, stopReason, foreground);
     startService(context, intent, foreground);
   }
 
@@ -412,7 +418,7 @@ public abstract class DownloadService extends Service {
    * @param stopReason An application defined stop reason.
    * @param foreground Whether the service is started in the foreground.
    */
-  public static void sendStopReason(
+  public static void sendSetStopReason(
       Context context,
       Class<? extends DownloadService> clazz,
       @Nullable String id,
@@ -488,7 +494,7 @@ public abstract class DownloadService extends Service {
       case ACTION_RESTART:
         // Do nothing.
         break;
-      case ACTION_ADD:
+      case ACTION_ADD_DOWNLOAD:
         DownloadRequest downloadRequest = intent.getParcelableExtra(KEY_DOWNLOAD_REQUEST);
         if (downloadRequest == null) {
           Log.e(TAG, "Ignored ADD: Missing " + KEY_DOWNLOAD_REQUEST + " extra");
@@ -497,10 +503,10 @@ public abstract class DownloadService extends Service {
           downloadManager.addDownload(downloadRequest, stopReason);
         }
         break;
-      case ACTION_RESUME:
+      case ACTION_RESUME_DOWNLOADS:
         downloadManager.resumeDownloads();
         break;
-      case ACTION_PAUSE:
+      case ACTION_PAUSE_DOWNLOADS:
         downloadManager.pauseDownloads();
         break;
       case ACTION_SET_STOP_REASON:
@@ -512,7 +518,7 @@ public abstract class DownloadService extends Service {
           downloadManager.setStopReason(contentId, stopReason);
         }
         break;
-      case ACTION_REMOVE:
+      case ACTION_REMOVE_DOWNLOAD:
         String contentId = intent.getStringExtra(KEY_CONTENT_ID);
         if (contentId == null) {
           Log.e(TAG, "Ignored REMOVE: Missing " + KEY_CONTENT_ID + " extra");
