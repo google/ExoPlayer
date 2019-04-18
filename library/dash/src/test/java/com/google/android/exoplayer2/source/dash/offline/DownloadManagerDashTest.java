@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
@@ -259,10 +258,7 @@ public class DownloadManagerDashTest {
                   ApplicationProvider.getApplicationContext(),
                   downloadIndex,
                   new DefaultDownloaderFactory(
-                      new DownloaderConstructorHelper(cache, fakeDataSourceFactory)),
-                  /* maxSimultaneousDownloads= */ 1,
-                  /* minRetryCount= */ 3,
-                  new Requirements(0));
+                      new DownloaderConstructorHelper(cache, fakeDataSourceFactory)));
 
           downloadManagerListener =
               new TestDownloadManagerListener(
