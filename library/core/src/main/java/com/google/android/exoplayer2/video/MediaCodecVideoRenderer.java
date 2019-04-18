@@ -369,6 +369,23 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         mediaCodecSelector.getDecoderInfos(
             format.sampleMimeType, requiresSecureDecoder, requiresTunnelingDecoder);
     decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
+    if (MimeTypes.VIDEO_DOLBY_VISION.equals(format.sampleMimeType)) {
+      // Fallback to primary decoders for H.265/HEVC or H.264/AVC for the relevant DV profiles.
+      Pair<Integer, Integer> codecProfileAndLevel =
+          MediaCodecUtil.getCodecProfileAndLevel(format.codecs);
+      if (codecProfileAndLevel != null) {
+        int profile = codecProfileAndLevel.first;
+        if (profile == 4 || profile == 8) {
+          decoderInfos.addAll(
+              mediaCodecSelector.getDecoderInfos(
+                  MimeTypes.VIDEO_H265, requiresSecureDecoder, requiresTunnelingDecoder));
+        } else if (profile == 9) {
+          decoderInfos.addAll(
+              mediaCodecSelector.getDecoderInfos(
+                  MimeTypes.VIDEO_H264, requiresSecureDecoder, requiresTunnelingDecoder));
+        }
+      }
+    }
     return Collections.unmodifiableList(decoderInfos);
   }
 
