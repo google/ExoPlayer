@@ -309,16 +309,26 @@ import java.util.List;
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(chunkIndex);
 
     // Check if the segment is completely encrypted using the identity key format.
+    DataSource dataSource = mediaDataSource;
     if (segment.fullSegmentEncryptionKeyUri != null) {
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.fullSegmentEncryptionKeyUri);
-      if (!keyUri.equals(encryptionKeyUri)) {
-        // Encryption is specified and the key has changed.
-        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex,
-            trackSelection.getSelectionReason(), trackSelection.getSelectionData());
-        return;
-      }
-      if (!Util.areEqual(segment.encryptionIV, encryptionIvString)) {
-        setEncryptionData(keyUri, segment.encryptionIV, encryptionKey);
+      // If the media data source is an HlsDecryptingDataSource, then it will
+      // take care of the decryption and so this HlsChunkSource will read
+      // decrypted data from it
+      if (mediaDataSource instanceof HlsDecryptingDataSource) {
+        clearEncryptionData();
+        dataSource = ((HlsDecryptingDataSource) mediaDataSource).
+            getDecryptingDataSource(keyUri, segment.encryptionIV);
+      } else {
+        if (!keyUri.equals(encryptionKeyUri)) {
+          // Encryption is specified and the key has changed.
+          out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex,
+              trackSelection.getSelectionReason(), trackSelection.getSelectionData());
+          return;
+        }
+        if (!Util.areEqual(segment.encryptionIV, encryptionIvString)) {
+          setEncryptionData(keyUri, segment.encryptionIV, encryptionKey);
+        }
       }
     } else {
       clearEncryptionData();
@@ -346,7 +356,7 @@ import java.util.List;
     out.chunk =
         new HlsMediaChunk(
             extractorFactory,
-            mediaDataSource,
+            dataSource,
             dataSpec,
             initDataSpec,
             selectedUrl,
