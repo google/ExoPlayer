@@ -58,6 +58,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.UdpDataSinkSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -123,6 +124,7 @@ public final class RtspSampleStreamWrapper implements
     private final MediaSession session;
     private final MediaTrack track;
     private final EventListener listener;
+    private final TransferListener transferListener;
     private final Runnable maybeFinishPrepareRunnable;
     private final Handler mainHandler;
 
@@ -164,12 +166,14 @@ public final class RtspSampleStreamWrapper implements
 
     public RtspSampleStreamWrapper(MediaSession session, MediaTrack track,
                                    TrackIdGenerator trackIdGenerator, long positionUs,
-                                   EventListener listener, Allocator allocator) {
+                                   EventListener listener, TransferListener transferListener,
+                                   Allocator allocator) {
         this.session = session;
         this.track = track;
         this.trackIdGenerator = trackIdGenerator;
         this.positionUs = positionUs;
         this.listener = listener;
+        this.transferListener = transferListener;
         this.allocator = allocator;
 
         mainHandler = new Handler();
@@ -976,6 +980,8 @@ public final class RtspSampleStreamWrapper implements
 
             localPort = getLocalUdpPort();
 
+            dataSource.addTransferListener(transferListener);
+
             DataSpec dataSpec = new DataSpec(Uri.parse((isUdpSchema ? "udp" : "rtp") + "://" +
                     IPV4_ANY_ADDR + ":" + localPort), DataSpec.FLAG_FORCE_BOUND_LOCAL_ADDRESS);
 
@@ -1059,6 +1065,8 @@ public final class RtspSampleStreamWrapper implements
                     dataSource = new RtpInternalDataSource(samplesSink);
                 }
             }
+
+            dataSource.addTransferListener(transferListener);
 
             DataSpec dataSpec = new DataSpec(Uri.parse(track.url()));
             dataSource.open(dataSpec);

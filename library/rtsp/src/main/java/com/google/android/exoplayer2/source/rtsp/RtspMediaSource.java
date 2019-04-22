@@ -99,6 +99,8 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     private Client client;
     private int prepareCount;
 
+    private @Nullable TransferListener transferListener;
+
     private RtspMediaSource(Uri uri, Client.Factory<? extends Client> factory) {
         this.uri = uri;
         this.factory = factory;
@@ -116,7 +118,11 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     @Override
     public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
         eventDispatcher = createEventDispatcher(id);
-        return new RtspMediaPeriod(this, client, eventDispatcher, allocator);
+        return new RtspMediaPeriod(this,
+                client,
+                transferListener,
+                eventDispatcher,
+                allocator);
     }
 
     @Override
@@ -126,7 +132,9 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
 
     @Override
     protected void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource,
-                                         @Nullable TransferListener mediaTransferListener) {
+                                         @Nullable TransferListener transferListener) {
+        this.transferListener = transferListener;
+
         client = new Client.Builder(factory)
                 .setUri(uri)
                 .setMode((prepareCount++ > 0) ? RTSP_INTERLEAVED : RTSP_AUTO_DETECT)

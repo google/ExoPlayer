@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.source.rtsp.media.MediaTrack;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TrackIdGenerator;
 
@@ -65,10 +66,13 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
     private final RtspMediaSource mediaSource;
     private final EventDispatcher eventDispatcher;
     private final TrackIdGenerator trackIdGenerator;
+    private final TransferListener  transferListener;
     private final IdentityHashMap<SampleStream, Integer> streamWrapperIndices;
 
     public RtspMediaPeriod(RtspMediaSource mediaSource, Client client,
-                           EventDispatcher eventDispatcher, Allocator allocator) {
+                           TransferListener transferListener, EventDispatcher eventDispatcher,
+                           Allocator allocator) {
+        this.transferListener = transferListener;
         this.eventDispatcher = eventDispatcher;
         this.mediaSource = mediaSource;
         this.allocator = allocator;
@@ -426,7 +430,7 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
 
     private RtspSampleStreamWrapper buildMediaSampleStream(MediaTrack track, long positionUs) {
         return new RtspSampleStreamWrapper(session, track, trackIdGenerator, positionUs, this,
-                allocator);
+                transferListener, allocator);
     }
 
     private void releaseAndCleanMediaStream(RtspSampleStreamWrapper sampleStream) {
