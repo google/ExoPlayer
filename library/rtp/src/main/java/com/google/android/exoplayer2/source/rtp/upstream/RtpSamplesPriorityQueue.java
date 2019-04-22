@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.source.rtp.RtpPacket;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-/* package */ final class RtpSamplesQueue {
+/* package */ final class RtpSamplesPriorityQueue {
 
     class RtpSample implements Comparable<RtpSample> {
         private RtpPacket packet;
@@ -81,7 +81,7 @@ import java.util.TreeSet;
     private final TreeSet<RtpSample> samples;
     private final RtpStatistics.RtpStatsInfo statsInfo;
 
-    public RtpSamplesQueue(int clockrate) {
+    public RtpSamplesPriorityQueue(int clockrate) {
         this.clockrate = clockrate;
 
         samples = new TreeSet<>();
@@ -207,20 +207,6 @@ import java.util.TreeSet;
                 lastSequence = statsInfo.baseSequence;
                 return packet;
             }
-        }
-
-        return null;
-    }
-
-    public synchronized RtpPacket poolFirst() {
-        if (isStarted && samples.size() > 0) {
-            RtpSample sample = samples.pollFirst();
-            RtpPacket packet = sample.packet();
-
-            statsInfo.baseSequence = packet.sequenceNumber();
-            lastSequence = statsInfo.baseSequence;
-
-            return packet;
         }
 
         return null;

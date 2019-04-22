@@ -15,20 +15,23 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
-import android.os.Handler;
+import android.os.SystemClock;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.source.MediaPeriod;
-import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.rtsp.core.Client;
 import com.google.android.exoplayer2.source.rtsp.media.MediaSession;
 import com.google.android.exoplayer2.source.rtsp.media.MediaTrack;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TrackIdGenerator;
 
@@ -38,13 +41,13 @@ import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA;
+import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
+
 /* package */ final class RtspMediaPeriod implements MediaPeriod, RtspSampleStreamWrapper.EventListener,
         SequenceableLoader.Callback<RtspSampleStreamWrapper> {
 
-    private final MediaSession session;
-    private final int minLoadableRetryCount;
-    private final Allocator allocator;
-
+    private long positionUs;
     private Callback callback;
 
     private boolean prepared;
@@ -53,18 +56,25 @@ import java.util.List;
 
     private TrackGroupArray trackGroups;
 
-    private final IdentityHashMap<SampleStream, Integer> streamWrapperIndices;
-
     private RtspSampleStreamWrapper[] sampleStreamWrappers;
     private RtspSampleStreamWrapper[] preparedSampleStreamWrappers;
 
+    private final ExoPlayer player;
+    private final Allocator allocator;
+    private final MediaSession session;
+    private final RtspMediaSource mediaSource;
+    private final EventDispatcher eventDispatcher;
     private final TrackIdGenerator trackIdGenerator;
+    private final IdentityHashMap<SampleStream, Integer> streamWrapperIndices;
 
-    public RtspMediaPeriod(MediaSession session, int minLoadableRetryCount,
-                           Allocator allocator) {
-        this.session = session;
-        this.minLoadableRetryCount = minLoadableRetryCount;
+    public RtspMediaPeriod(RtspMediaSource mediaSource, Client client,
+                           EventDispatcher eventDispatcher, Allocator allocator) {
+        this.eventDispatcher = eventDispatcher;
+        this.mediaSource = mediaSource;
         this.allocator = allocator;
+
+        player = client.player();
+        session = client.session();
 
         trackIdGenerator = new TrackIdGenerator(1, 1);
 
@@ -73,27 +83,35 @@ import java.util.List;
         preparedSampleStreamWrappers = new RtspSampleStreamWrapper[0];
 
         lastSeekPositionUs = C.POSITION_UNSET;
+
+        eventDispatcher.mediaPeriodCreated();
     }
 
     public void release() {
-        for (RtspSampleStreamWrapper sampleStreamWrapper : this.sampleStreamWrappers) {
-            sampleStreamWrapper.release();
-        }
+        synchronized (preparedSampleStreamWrappers) {
+            for (RtspSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+                sampleStreamWrapper.release();
+            }
 
-        session.close();
+            session.close();
+            eventDispatcher.mediaPeriodReleased();
+        }
     }
 
     @Override
     public void prepare(Callback callback, long positionUs) {
         this.callback = callback;
+        this.positionUs = positionUs;
 
         buildAndPrepareMediaStreams(positionUs);
     }
 
     @Override
     public void maybeThrowPrepareError() throws IOException {
-        for (RtspSampleStreamWrapper sampleStreamWrapper : this.sampleStreamWrappers) {
-            sampleStreamWrapper.maybeThrowPrepareError();
+        synchronized (preparedSampleStreamWrappers) {
+            for (RtspSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
+                sampleStreamWrapper.maybeThrowPrepareError();
+            }
         }
     }
 
@@ -282,13 +300,23 @@ import java.util.List;
 
     @Override
     public void onMediaStreamPrepareFailure(RtspSampleStreamWrapper sampleStream) {
-        if (--pendingPrepareCount > 0) {
-            return;
-        }
+        synchronized (preparedSampleStreamWrappers) {
+            if (--pendingPrepareCount > 0) {
+                return;
+            }
 
-        trackGroups = buildTrackGroups();
-        prepared = true;
-        callback.onPrepared(this);
+            if (preparedSampleStreamWrappers.length > 0) {
+                trackGroups = buildTrackGroups();
+                prepared = true;
+
+                callback.onPrepared(this);
+
+            } else {
+                eventDispatcher.loadError(new DataSpec(session.uri()), session.uri(), null,
+                        DATA_TYPE_MEDIA_INITIALIZATION, 0, 0, 0, null,
+                        false);
+            }
+        }
     }
 
     @Override
@@ -309,24 +337,52 @@ import java.util.List;
     }
 
     @Override
-    public void onMediaStreamPlaybackFailure(RtspSampleStreamWrapper sampleStream) {
+    public void onMediaStreamPlaybackCancel(RtspSampleStreamWrapper sampleStream) {
         synchronized (preparedSampleStreamWrappers) {
-
-            List<RtspSampleStreamWrapper> preparedSamples = new LinkedList<>(
-                    Arrays.asList(preparedSampleStreamWrappers));
-
-            if (preparedSamples.contains(sampleStream)) {
-                sampleStream.release();
-                preparedSamples.remove(sampleStream);
-            }
-
-            preparedSampleStreamWrappers = new RtspSampleStreamWrapper[preparedSamples.size()];
-
-            preparedSamples.toArray(preparedSampleStreamWrappers);
+            releaseAndCleanMediaStream(sampleStream);
 
             if (preparedSampleStreamWrappers.length == 0) {
-                session.close();
                 prepared = false;
+                session.close();
+
+                eventDispatcher.loadCanceled(new DataSpec(session.uri()), session.uri(), null,
+                        DATA_TYPE_MEDIA, 0, 0, 0);
+            }
+        }
+    }
+
+    @Override
+    public void onMediaStreamPlaybackComplete(RtspSampleStreamWrapper sampleStream) {
+        synchronized (preparedSampleStreamWrappers) {
+            releaseAndCleanMediaStream(sampleStream);
+
+            if (preparedSampleStreamWrappers.length == 0) {
+                prepared = false;
+                session.close();
+
+                eventDispatcher.loadCompleted(new DataSpec(session.uri()), session.uri(), null,
+                        DATA_TYPE_MEDIA, 0, 0, 0);
+            }
+        }
+    }
+
+    @Override
+    public void onMediaStreamPlaybackFailure(RtspSampleStreamWrapper sampleStream,
+                                             @RtspSampleStreamWrapper.PlaybackError int error) {
+        synchronized (preparedSampleStreamWrappers) {
+            releaseAndCleanMediaStream(sampleStream);
+
+            if (preparedSampleStreamWrappers.length == 0) {
+                prepared = false;
+                session.close();
+
+                eventDispatcher.loadError(new DataSpec(session.uri()), session.uri(), null,
+                        DATA_TYPE_MEDIA, 0, 0, 0, null, false);
+
+                // if UDP timeout, retrying with TCP
+                if (RtspSampleStreamWrapper.NO_DATA_RECEIVED == error && !session.isInterleaved()) {
+                    player.prepare(mediaSource, false, false);
+                }
             }
         }
     }
@@ -363,11 +419,28 @@ import java.util.List;
         pendingPrepareCount = mediaStreamCount;
 
         session.prepareStreams(sampleStreamWrappers);
+
+        eventDispatcher.loadStarted(new DataSpec(session.uri()), DATA_TYPE_MEDIA,
+                SystemClock.elapsedRealtime());
     }
 
     private RtspSampleStreamWrapper buildMediaSampleStream(MediaTrack track, long positionUs) {
         return new RtspSampleStreamWrapper(session, track, trackIdGenerator, positionUs, this,
-                allocator, minLoadableRetryCount);
+                allocator);
+    }
+
+    private void releaseAndCleanMediaStream(RtspSampleStreamWrapper sampleStream) {
+        List<RtspSampleStreamWrapper> preparedSamples = new LinkedList<>(
+                Arrays.asList(preparedSampleStreamWrappers));
+
+        if (preparedSamples.contains(sampleStream)) {
+            sampleStream.release();
+            preparedSamples.remove(sampleStream);
+        }
+
+        preparedSampleStreamWrappers = new RtspSampleStreamWrapper[preparedSamples.size()];
+
+        preparedSamples.toArray(preparedSampleStreamWrappers);
     }
 
     private TrackGroupArray buildTrackGroups() {

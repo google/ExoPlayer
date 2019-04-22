@@ -223,6 +223,16 @@ public final class Util {
   }
 
   /**
+   * Returns true if the URI is a rtsp stream.
+   *
+   * @param uri The uri to test.
+   */
+  public static boolean isRtspUri(Uri uri) {
+    String scheme = uri.getScheme();
+    return "rtsp".equals(scheme);
+  }
+
+  /**
    * Tests two objects for {@link Object#equals(Object)} equality, handling the case where one or
    * both may be null.
    *

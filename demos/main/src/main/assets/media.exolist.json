@@ -19,6 +19,22 @@
         "uri": "rtsp://207.224.178.221/live/ch00_0"
       },
       {
+        "name": "Test camera",
+        "uri": "rtsp://31.0.225.93/cam/realmonitor?channel=3&subtype=00&authbasic=YWRtaW46MTIzOTg3"
+      },
+      {
+        "name": "AXIS P7214 - Germany",
+        "uri": "rtsp://root:pass@80.84.207.150/axis-media/media.amp"
+      },
+      {
+        "name": "AXIS M7001 - Korea",
+        "uri": "rtsp://root:pass@121.187.230.163/axis-media/media.amp"
+      },
+      {
+        "name": "Sony SNC-WR632 - USA",
+        "uri": "rtsp://admin:admin@108.58.215.162/media/video1"
+      },
+      {
         "name": "Sony SNC-DH260 - California, Los Angeles",
         "uri": "rtsp://admin:admin@172.8.60.173/media/video1"
       },
@@ -27,12 +43,12 @@
         "uri": "rtsp://admin:admin@71.174.52.92/media/video1"
       },
       {
-        "name": "Linksys - Florida, Jacksonville",
-        "uri": "rtsp://admin:admin@73.28.232.32/img/video.sav"
+        "name": "Sony SNC-EP521 - Uttar Pradesh, India",
+        "uri": "rtsp://admin:admin@119.226.50.195/media/video1"
       },
       {
-        "name": "Live stream from SNC-EP521 Sony Camera",
-        "uri": "rtsp://admin:admin@119.226.50.195/media/video1"
+        "name": "Linksys - Florida, Jacksonville",
+        "uri": "rtsp://admin:admin@73.28.232.32/img/video.sav"
       },
       {
         "name": "Live stream from Danmarks plass",
@@ -45,6 +61,10 @@
       {
         "name": "Live stream TV from Hessdalen - Camera 3",
         "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen03.stream"
+      },
+      {
+        "name": "Live stream from the radar in Hessdalen",
+        "uri": "rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen05.stream"
       },
       {
         "name": "Video on Demand - Big Buck Bunny Comedy Film",

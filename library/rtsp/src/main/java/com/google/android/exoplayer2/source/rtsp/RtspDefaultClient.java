@@ -32,10 +32,16 @@ public final class RtspDefaultClient extends Client {
     public static Factory<RtspDefaultClient> factory() {
         return new Factory<RtspDefaultClient>() {
             private @Flags int flags;
+            private @Mode int mode;
             private @NatMethod int natMethod;
 
             public Factory<RtspDefaultClient> setFlags(@Flags int flags) {
                 this.flags = flags;
+                return this;
+            }
+
+            public Factory<RtspDefaultClient> setMode(@Mode int mode) {
+                this.mode = mode;
                 return this;
             }
 
@@ -45,7 +51,11 @@ public final class RtspDefaultClient extends Client {
             }
 
             public RtspDefaultClient create(Builder builder) {
-                return new RtspDefaultClient(builder.setFlags(flags).setNatMethod(natMethod));
+                return new RtspDefaultClient(builder
+                        .setUserAgent(USER_AGENT)
+                        .setFlags(flags)
+                        .setMode((mode < builder.mode) ? builder.mode : mode)
+                        .setNatMethod(natMethod));
             }
         };
     }
@@ -53,11 +63,6 @@ public final class RtspDefaultClient extends Client {
 
     RtspDefaultClient(Builder builder) {
         super(builder);
-    }
-
-    @Override
-    protected String userAgent() {
-        return USER_AGENT;
     }
 
     @Override
@@ -89,6 +94,10 @@ public final class RtspDefaultClient extends Client {
         builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
 
+        if (session.getId() != null) {
+            builder.header(Header.Session, session.getId());
+        }
+
         Transport transport = track.format().transport();
 
         if (isFlagSet(FLAG_ENABLE_RTCP_SUPPORT)) {
@@ -111,6 +120,10 @@ public final class RtspDefaultClient extends Client {
         Request.Builder builder = new Request.Builder().setup().url(trackId);
         builder.header(Header.CSeq, session.nextCSeq());
         builder.header(Header.UserAgent, USER_AGENT);
+
+        if (session.getId() != null) {
+            builder.header(Header.Session, session.getId());
+        }
 
         builder.header(Header.Transport, transport);
 

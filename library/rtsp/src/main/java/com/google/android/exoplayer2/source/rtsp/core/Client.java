@@ -17,8 +17,12 @@ package com.google.android.exoplayer2.source.rtsp.core;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.IntDef;
+import android.util.Log;
 
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.rtp.format.FormatSpecificParameter;
@@ -35,7 +39,6 @@ import com.google.android.exoplayer2.source.rtsp.message.Headers;
 import com.google.android.exoplayer2.source.rtsp.media.MediaType;
 import com.google.android.exoplayer2.source.rtsp.message.MessageBody;
 import com.google.android.exoplayer2.source.rtsp.message.Method;
-import com.google.android.exoplayer2.source.rtsp.message.Protocol;
 import com.google.android.exoplayer2.source.rtsp.message.Range;
 import com.google.android.exoplayer2.source.rtsp.message.Request;
 import com.google.android.exoplayer2.source.rtsp.message.Response;
@@ -55,16 +58,15 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class Client {
+public abstract class Client implements Dispatcher.EventListener {
 
     public interface Factory<T> {
         Factory<T> setFlags(@Flags int flags);
+        Factory<T> setMode(@Mode int mode);
         Factory<T> setNatMethod(@NatMethod int natMethod);
         T create(Builder builder);
     }
@@ -101,11 +103,7 @@ public abstract class Client {
     private static final Pattern regexFmtp = Pattern.compile("\\d+\\s+(.+)",
             Pattern.CASE_INSENSITIVE);
 
-    static final List<Method> METHODS = Collections.unmodifiableList(Arrays.asList(
-            Method.ANNOUNCE, Method.OPTIONS, Method.TEARDOWN));
-
-    static final List<Protocol> DEFAULT_PROTOCOLS = Collections.unmodifiableList(Arrays.asList(
-            Protocol.RTSP_1_0));
+    private static final int DEFAULT_PORT = 554;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true, value = {FLAG_ENABLE_RTCP_SUPPORT, FLAG_FORCE_RTCP_MUXED})
@@ -114,12 +112,11 @@ public abstract class Client {
     public static final int FLAG_FORCE_RTCP_MUXED = 1 << 1;
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef(flag = true, value = {FLAG_AUTO_DETECT, FLAG_FORCE_RTSP_INTERLEAVED,
-            FLAG_FORCE_RTSP_TUNNELING})
+    @IntDef(value = {RTSP_AUTO_DETECT, RTSP_INTERLEAVED})
     public @interface Mode {}
-    public static final int FLAG_AUTO_DETECT = 1;
-    public static final int FLAG_FORCE_RTSP_INTERLEAVED = 1 << 1;
-    public static final int FLAG_FORCE_RTSP_TUNNELING = 1 << 2;
+    public static final int RTSP_AUTO_DETECT = 0;
+    public static final int RTSP_INTERLEAVED = 1;
+    //public static final int RTSP_TUNNELING = 2;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {RTSP_NAT_NONE, RTSP_NAT_DUMMY})
@@ -139,6 +136,8 @@ public abstract class Client {
 
     private final List<Method> serverMethods = new ArrayList();
 
+    private final String userAgent;
+
     private final Dispatcher dispatcher;
     protected final MediaSession session;
 
@@ -146,6 +145,7 @@ public abstract class Client {
 
     private final Uri uri;
     private final int retries;
+    private ExoPlayer player;
     private @Flags int flags;
     private final EventListener listener;
     private final @NatMethod int natMethod;
@@ -154,35 +154,50 @@ public abstract class Client {
     private Credentials credentials;
 
     private boolean opened;
+    private boolean released;
 
     public Client(Builder builder) {
         uri = builder.uri;
+        mode = builder.mode;
         flags = builder.flags;
+        player = builder.player;
         retries = builder.retries;
         listener = builder.listener;
         natMethod = builder.natMethod;
-        mode = builder.mode;
+        userAgent = builder.userAgent;
 
-        dispatcher = new Dispatcher.Builder().client(this).build();
-        session = new MediaSession.Builder().client(this).build();
+        dispatcher = new Dispatcher.Builder(this)
+                .setUri(uri)
+                .setUserAgent(userAgent)
+                .build();
+
+        session = new MediaSession.Builder(this)
+                .build();
     }
 
     public final MediaSession session() { return session; }
 
+    public final ExoPlayer player() { return player; }
+
     protected final @ClientState int state() { return state; }
 
-    public final void open() throws IOException {
+    public final void open() throws IOException, NullPointerException {
         if (!opened) {
+            Log.v("Client", "opening: elapsedRealtime=[" + SystemClock.elapsedRealtime() + "]");
             dispatcher.connect();
             sendOptionsRequest();
 
+            player.getVideoComponent().addVideoListener(session);
             opened = true;
         }
     }
 
     public final void close() {
-        if (opened) {
+        if (opened || !released) {
             opened = false;
+            released = true;
+
+            player.getVideoComponent().removeVideoListener(session);
 
             session.release();
             dispatcher.close();
@@ -192,20 +207,20 @@ public abstract class Client {
         }
     }
 
+    public final void release() {
+        close();
+    }
+
     public final Uri uri() {
         return uri;
     }
 
-    public final boolean isMethodSupported(Method method) {
-        return METHODS.contains(method);
-    }
-
-    public final boolean isProtocolSupported(Protocol protocol) {
-        return DEFAULT_PROTOCOLS.contains(protocol);
-    }
-
     public boolean isFlagSet(@Flags int flag) {
-        return (flags & flag) != 0;
+        return (flags & flag) == flag;
+    }
+
+    public boolean isInterleavedMode() {
+        return RTSP_INTERLEAVED == mode;
     }
 
     public boolean isNatSet(@NatMethod int method) {
@@ -267,62 +282,67 @@ public abstract class Client {
         }
     }
 
-    // Default callbacks for incomming request messages
+    // Dispatcher.EventListener implementation
+    @Override
     public final void onAnnounceRequest(Request request) {
         Response.Builder builder = new Response.Builder().status(Status.OK);
         builder.header(Header.CSeq, request.getHeaders().value(Header.CSeq));
-        builder.header(Header.UserAgent, userAgent());
+        builder.header(Header.UserAgent, userAgent);
 
         dispatcher.execute(builder.build());
-
-        // TODO evaluate the announce code received
     }
 
+    @Override
     public final void onRedirectRequest(Request request) {
         Response.Builder builder = new Response.Builder().status(Status.MethodNotAllowed);
         builder.header(Header.CSeq, request.getHeaders().value(Header.CSeq));
-        builder.header(Header.UserAgent, userAgent());
+        builder.header(Header.UserAgent, userAgent);
 
         dispatcher.execute(builder.build());
     }
 
+    @Override
     public final void onOptionsRequest(Request request) {
         Response.Builder builder = new Response.Builder().status(Status.MethodNotAllowed);
         builder.header(Header.CSeq, request.getHeaders().value(Header.CSeq));
-        builder.header(Header.UserAgent, userAgent());
+        builder.header(Header.UserAgent, userAgent);
 
         dispatcher.execute(builder.build());
     }
 
+    @Override
     public final void onGetParameterRequest(Request request) {
         Response.Builder builder = new Response.Builder().status(Status.MethodNotAllowed);
         builder.header(Header.CSeq, request.getHeaders().value(Header.CSeq));
-        builder.header(Header.UserAgent, userAgent());
+        builder.header(Header.UserAgent, userAgent);
 
         dispatcher.execute(builder.build());
     }
 
+    @Override
     public final void onSetParameterRequest(Request request) {
         Response.Builder builder = new Response.Builder().status(Status.MethodNotAllowed);
         builder.header(Header.CSeq, request.getHeaders().value(Header.CSeq));
-        builder.header(Header.UserAgent, userAgent());
+        builder.header(Header.UserAgent, userAgent);
 
         dispatcher.execute(builder.build());
     }
 
-
-    // Default callbacks for incomming response messages
+    @Override
     public final void onAnnounceResponse(Response response) {
         // Not Applicable
     }
 
+    @Override
     public final void onOptionsResponse(Response response) {
         if (serverMethods.size() == 0) {
-            String publicHeader = response.getHeaders().value(Header.Public);
-            String[] names = publicHeader.split((publicHeader.indexOf(',') != -1) ? "," : " ");
+            if (response.getHeaders().contains(Header.Public)) {
+                String publicHeader = response.getHeaders().value(Header.Public);
+                String[] names = publicHeader.split((publicHeader.indexOf(',') != -1) ? "," : " ");
 
-            for (String name : names) {
-                serverMethods.add(Method.parse(name.trim()));
+                for (String name : names) {
+                    serverMethods.add(Method.parse(name.trim()));
+                }
             }
 
             if (state == IDLE) {
@@ -335,6 +355,7 @@ public abstract class Client {
         }
     }
 
+    @Override
     public final void onDescribeResponse(Response response) {
         MessageBody body = response.getMessageBody();
         Headers headers = response.getHeaders();
@@ -364,18 +385,19 @@ public abstract class Client {
                     }
 
                     for (Attribute attribute : sessionDescription.attributes()) {
-                        if (Attribute.RANGE.equalsIgnoreCase(attribute.name())) {
+                        String attrName = attribute.name();
+                        if (Attribute.RANGE.equalsIgnoreCase(attrName)) {
                             session.setDuration(Range.parse(attribute.value()).duration());
 
-                        } else if (Attribute.LENGTH.equalsIgnoreCase(attribute.name())) {
+                        } else if (Attribute.LENGTH.equalsIgnoreCase(attrName)) {
                             session.setDuration((long)Double.parseDouble(attribute.value()));
 
-                        } else if (Attribute.SDPLANG.equalsIgnoreCase(attribute.name())) {
+                        } else if (Attribute.SDPLANG.equalsIgnoreCase(attrName)) {
                             session.setLanguage(attribute.value());
                         }
                     }
 
-                    // We only support permanent sessions
+                    // Only support permanent sessions
                     if (sessionDescription.time() == null || sessionDescription.time().isZero()) {
 
                         for (MediaDescription mediaDescription :
@@ -412,14 +434,17 @@ public abstract class Client {
                                 }
 
                                 for (Attribute attribute : mediaDescription.attributes()) {
-                                    if (Attribute.RANGE.equalsIgnoreCase(attribute.name())) {
-                                        session.setDuration(Range.parse(attribute.value()).duration());
+                                    String attrName = attribute.name();
+                                    String attrValue = attribute.value();
 
-                                    } else if (Attribute.CONTROL.equalsIgnoreCase(attribute.name())) {
-                                        if (baseUrl != null && attribute.value().startsWith(baseUrl)) {
-                                            trackBuilder.url(attribute.value());
+                                    if (Attribute.RANGE.equalsIgnoreCase(attrName)) {
+                                        session.setDuration(Range.parse(attrValue).duration());
+
+                                    } else if (Attribute.CONTROL.equalsIgnoreCase(attrName)) {
+                                        if (baseUrl != null && attrValue.startsWith(baseUrl)) {
+                                            trackBuilder.url(attrValue);
                                         } else {
-                                            if (attribute.value().toLowerCase().startsWith("rtsp://")) {
+                                            if (attrValue.toLowerCase().startsWith("rtsp://")) {
                                                 trackBuilder.url(attribute.value());
 
                                             } else {
@@ -427,44 +452,47 @@ public abstract class Client {
                                                 Uri uri = session.uri();
                                                 String url = uri.getScheme() + "://" + uri.getHost()
                                                         + ((uri.getPort() > 0) ? ":" + uri.getPort()
-                                                        : "") + uri.getPath();
+                                                        : ":" + DEFAULT_PORT) + uri.getPath();
 
                                                 if (baseUrl != null) {
                                                     Uri uriBaseUrl = Uri.parse(baseUrl);
                                                     String scheme = uriBaseUrl.getScheme();
                                                     if (scheme != null &&
                                                             "rtsp".equalsIgnoreCase(scheme)) {
-                                                        if (!InetUtil.isPrivateIpAddress(uriBaseUrl.getHost())) {
+                                                        if (!InetUtil.isPrivateIpAddress(
+                                                                uriBaseUrl.getHost())) {
                                                             url = baseUrl;
                                                         }
                                                     }
                                                 }
 
                                                 if (url.lastIndexOf('/') == url.length() - 1) {
-                                                    trackBuilder.url(url + attribute.value());
+                                                    trackBuilder.url(url + attrValue);
                                                 } else {
-                                                    trackBuilder.url(url + "/" + attribute.value());
+                                                    trackBuilder.url(url + "/" + attrValue);
                                                 }
                                             }
                                         }
 
-                                    } else if (Attribute.RTCP_MUX.equalsIgnoreCase(attribute.name())) {
+                                    } else if (Attribute.RTCP_MUX.equalsIgnoreCase(attrName)) {
                                         trackBuilder.muxed(true);
                                         flags |= FLAG_FORCE_RTCP_MUXED;
 
-                                    } else if (Attribute.SDPLANG.equalsIgnoreCase(attribute.name())) {
-                                        trackBuilder.language(attribute.value());
+                                    } else if (Attribute.SDPLANG.equalsIgnoreCase(attrName)) {
+                                        trackBuilder.language(attrValue);
 
                                     } else if (payloadBuilder != null) {
-                                        if (Attribute.RTPMAP.equalsIgnoreCase(attribute.name())) {
-                                            Matcher matcher = regexRtpMap.matcher(attribute.value());
+                                        if (Attribute.RTPMAP.equalsIgnoreCase(attrName)) {
+                                            Matcher matcher = regexRtpMap.matcher(attrValue);
                                             if (matcher.find()) {
-                                                @RtpPayloadFormat.MediaCodec String encoding = matcher.group(1).toUpperCase();
+                                                @RtpPayloadFormat.MediaCodec String encoding =
+                                                        matcher.group(1).toUpperCase();
 
                                                 payloadBuilder.encoding(encoding);
 
                                                 if (matcher.group(2) != null) {
-                                                    payloadBuilder.clockrate(Integer.parseInt(matcher.group(2)));
+                                                    payloadBuilder.clockrate(
+                                                            Integer.parseInt(matcher.group(2)));
                                                 }
 
                                                 if (matcher.group(3) != null) {
@@ -473,31 +501,23 @@ public abstract class Client {
                                                 }
                                             }
                                         /* NOTE: fmtp is only supported AFTER the 'a=rtpmap:xxx' tag */
-                                        } else if (Attribute.FMTP.equalsIgnoreCase(attribute.name())) {
-                                            Matcher matcher = regexFmtp.matcher(attribute.value());
+                                        } else if (Attribute.FMTP.equalsIgnoreCase(attrName)) {
+                                            Matcher matcher = regexFmtp.matcher(attrValue);
 
                                             if (matcher.find()) {
-                                                String[] encodingParameters = matcher.group(1).split(";");
+                                                String[] encodingParameters = matcher.group(1).
+                                                        split(";");
                                                 for (String parameter : encodingParameters) {
-                                                    payloadBuilder.addEncodingParameter(FormatSpecificParameter.parse(parameter));
+                                                    payloadBuilder.addEncodingParameter(
+                                                            FormatSpecificParameter.parse(parameter));
                                                 }
                                             }
-                                        } else if (Attribute.FRAMERATE.equalsIgnoreCase(attribute.name())) {
+                                        } else if (Attribute.FRAMERATE.equalsIgnoreCase(attrName)) {
                                             ((RtpVideoPayload.Builder) payloadBuilder).framerate(
-                                                    Float.parseFloat(attribute.value()));
+                                                    Float.parseFloat(attrValue));
 
-                                        } else if (Attribute.FRAMESIZE.equalsIgnoreCase(attribute.name())) {
-                                            Matcher matcher = regexFrameSize.matcher(attribute.value());
-
-                                            if (matcher.find()) {
-                                                ((RtpVideoPayload.Builder) payloadBuilder).width(
-                                                        Integer.parseInt(matcher.group(2)));
-
-                                                ((RtpVideoPayload.Builder) payloadBuilder).height(
-                                                        Integer.parseInt(matcher.group(3)));
-                                            }
-                                        } else if (Attribute.XFRAMERATE.equalsIgnoreCase(attribute.name())) {
-                                            Matcher matcher = regexFrameSize.matcher(attribute.value());
+                                        } else if (Attribute.FRAMESIZE.equalsIgnoreCase(attrName)) {
+                                            Matcher matcher = regexFrameSize.matcher(attrValue);
 
                                             if (matcher.find()) {
                                                 ((RtpVideoPayload.Builder) payloadBuilder).width(
@@ -506,8 +526,18 @@ public abstract class Client {
                                                 ((RtpVideoPayload.Builder) payloadBuilder).height(
                                                         Integer.parseInt(matcher.group(3)));
                                             }
-                                        } else if (Attribute.XDIMENSIONS.equalsIgnoreCase(attribute.name())) {
-                                            Matcher matcher = regexXDimensions.matcher(attribute.value());
+                                        } else if (Attribute.XFRAMERATE.equalsIgnoreCase(attrName)) {
+                                            Matcher matcher = regexFrameSize.matcher(attrValue);
+
+                                            if (matcher.find()) {
+                                                ((RtpVideoPayload.Builder) payloadBuilder).width(
+                                                        Integer.parseInt(matcher.group(2)));
+
+                                                ((RtpVideoPayload.Builder) payloadBuilder).height(
+                                                        Integer.parseInt(matcher.group(3)));
+                                            }
+                                        } else if (Attribute.XDIMENSIONS.equalsIgnoreCase(attrName)) {
+                                            Matcher matcher = regexXDimensions.matcher(attrValue);
 
                                             if (matcher.find()) {
                                                 ((RtpVideoPayload.Builder) payloadBuilder).width(
@@ -517,17 +547,17 @@ public abstract class Client {
                                                         Integer.parseInt(matcher.group(3)));
                                             }
 
-                                        } else if (Attribute.PTIME.equalsIgnoreCase(attribute.name())) {
+                                        } else if (Attribute.PTIME.equalsIgnoreCase(attrName)) {
                                             ((RtpAudioPayload.Builder) payloadBuilder).
-                                                    ptime(Long.parseLong(attribute.value()));
+                                                    ptime(Long.parseLong(attrValue));
 
-                                        } else if (Attribute.MAXPTIME.equalsIgnoreCase(attribute.name())) {
+                                        } else if (Attribute.MAXPTIME.equalsIgnoreCase(attrName)) {
                                             ((RtpAudioPayload.Builder) payloadBuilder).
-                                                    maxptime(Long.parseLong(attribute.value()));
+                                                    maxptime(Long.parseLong(attrValue));
 
-                                        } else if (Attribute.QUALITY.equalsIgnoreCase(attribute.name())) {
+                                        } else if (Attribute.QUALITY.equalsIgnoreCase(attrName)) {
                                             ((RtpVideoPayload.Builder) payloadBuilder).
-                                                    quality(Integer.parseInt(attribute.value()));
+                                                    quality(Integer.parseInt(attrValue));
                                         }
                                     }
                                 }
@@ -554,8 +584,8 @@ public abstract class Client {
             } else {
 
                 Response.Builder builder = new Response.Builder().status(Status.UnsupportedMediaType);
-                builder.header(Header.CSeq, Integer.toString(session().nextCSeq()));
-                builder.header(Header.UserAgent, userAgent());
+                builder.header(Header.CSeq, Integer.toString(session.nextCSeq()));
+                builder.header(Header.UserAgent, userAgent);
                 builder.header(Header.Unsupported, mediaType.toString());
 
                 dispatcher.execute(builder.build());
@@ -566,6 +596,7 @@ public abstract class Client {
         }
     }
 
+    @Override
     public final void onSetupResponse(Response response) {
         if (session.getId() == null) {
             Pattern rexegSession = Pattern.compile("(\\S+);timeout=(\\S+)|(\\S+)",
@@ -593,32 +624,44 @@ public abstract class Client {
         session.continuePreparing();
     }
 
+    @Override
     public final void onPlayResponse(Response response) {
         state = PLAYING;
         session.onPlaySuccess();
     }
 
+    @Override
     public final void onPauseResponse(Response response) {
         state = READY;
         session.onPauseSuccess();
     }
 
+    @Override
     public final void onGetParameterResponse(Response response) {
     }
 
+    @Override
     public final void onRecordResponse(Response response) {
         state = RECORDING;
         // Not Supported
     }
 
+    @Override
     public final void onSetParameterResponse(Response response) {
         // Not Supported
     }
 
+    @Override
     public final void onTeardownResponse(Response response) {
-        state = INIT;
+        state = IDLE;
     }
 
+    @Override
+    public final void onEmbeddedBinaryData(InterleavedFrame frame) {
+        session.onIncomingInterleavedFrame(frame);
+    }
+
+    @Override
     public final void onUnauthorized(Request request, Response response) {
         Pattern regexAuth = Pattern.compile("(\\S+)\\s+(.+)", Pattern.CASE_INSENSITIVE);
         String w3Authenticate = response.getHeaders().value(Header.W3Authenticate);
@@ -662,11 +705,13 @@ public abstract class Client {
                 }
 
             } catch (IOException ex) {
+                close();
                 listener.onClientError(ex);
             }
         }
     }
 
+    @Override
     public final void onUnSuccess(Request request, Response response) {
         // when options method isn't supported from server a describe method is sent
         if ((Method.OPTIONS.equals(request.getMethod())) &&
@@ -694,21 +739,25 @@ public abstract class Client {
         }
     }
 
-    public final void onBadRequest() {
+    @Override
+    public final void onMalformedResponse(Response response) {
         close();
         listener.onClientError(null);
     }
 
+    @Override
     public final void onIOError() {
         close();
         listener.onClientError(null);
     }
 
+    @Override
     public final void onRequestTimeOut() {
         close();
         listener.onClientError(null);
     }
 
+    @Override
     public final void onNoResponse(Request request) {
         Method method = request.getMethod();
         if (Method.OPTIONS.equals(method) || Method.GET_PARAMETER.equals(method)) {
@@ -720,8 +769,6 @@ public abstract class Client {
         close();
         listener.onClientError(null);
     }
-
-    protected abstract String userAgent();
 
     protected abstract void sendOptionsRequest();
     protected abstract void sendDescribeRequest();
@@ -748,24 +795,32 @@ public abstract class Client {
 
 
     public static final class Builder {
-        Uri uri;
-        int retries;
-        @Flags int flags;
-        EventListener listener;
-        @NatMethod int natMethod;
-        @Mode int mode;
+        private Uri uri;
+        private int retries;
+        private @Flags int flags;
+        private String userAgent;
+        private ExoPlayer player;
+        private EventListener listener;
+        private @NatMethod int natMethod;
+        public @Mode int mode;
 
-        final Factory<? extends Client> factory;
+        private final Factory<? extends Client> factory;
 
-        Handler eventHandler;
-        MediaSourceEventListener eventListener;
+        private Handler eventHandler;
+        private MediaSourceEventListener eventListener;
 
         public Builder(Factory<? extends Client> factory) {
             this.factory = factory;
+            this.mode = RTSP_AUTO_DETECT;
         }
 
         public Builder setFlags(@Flags int flags) {
             this.flags = flags;
+            return this;
+        }
+
+        public Builder setMode(@Mode int mode) {
+            this.mode = mode;
             return this;
         }
 
@@ -774,8 +829,8 @@ public abstract class Client {
             return this;
         }
 
-        public Builder setMode(@Mode int mode) {
-            this.mode = mode;
+        public Builder setUserAgent(String userAgent) {
+            this.userAgent = userAgent;
             return this;
         }
 
@@ -800,6 +855,13 @@ public abstract class Client {
             return this;
         }
 
+        public Builder setPlayer(ExoPlayer player) {
+            if (player == null) throw new IllegalArgumentException("player is null");
+
+            this.player = player;
+            return this;
+        }
+
         public Builder setRetries(int retries) {
             if (retries < 0) throw new IllegalArgumentException("retries is wrong");
 
@@ -810,7 +872,14 @@ public abstract class Client {
         public Builder setUri(Uri uri) {
             if (uri == null) throw new NullPointerException("uri == null");
 
-            this.uri = uri;
+            if (uri.getPort() == C.PORT_UNSET) {
+                this.uri = Uri.parse(uri.getScheme() + "://" + uri.getHost() +
+                        ((uri.getPort() > 0) ? ":" + uri.getPort() : ":" + DEFAULT_PORT) +
+                        uri.getPath() + ((uri.getQuery() != null) ? "?" + uri.getQuery() : ""));
+            } else {
+                this.uri = uri;
+            }
+
             return this;
         }
 

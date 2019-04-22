@@ -22,7 +22,6 @@ import android.support.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
@@ -37,6 +36,9 @@ import com.google.android.exoplayer2.util.Assertions;
 
 import java.io.IOException;
 
+import static com.google.android.exoplayer2.source.rtsp.core.Client.RTSP_AUTO_DETECT;
+import static com.google.android.exoplayer2.source.rtsp.core.Client.RTSP_INTERLEAVED;
+
 public final class RtspMediaSource extends BaseMediaSource implements Client.EventListener {
 
     static {
@@ -47,10 +49,6 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     public static final class Factory {
         private final Client.Factory<? extends Client> factory;
 
-        private int minLoadableRetryCount;
-        private boolean treatLoadErrorsAsEndOfStream;
-        private boolean isCreateCalled;
-
         /**
          * Creates a factory for {@link RtspMediaSource}s.
          *
@@ -59,37 +57,6 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
          */
         public Factory(Client.Factory<? extends Client> factory) {
             this.factory = Assertions.checkNotNull(factory);
-            this.minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
-        }
-
-        /**
-         * Sets the minimum number of times to retry if a loading error occurs. The default value is
-         * {@link #DEFAULT_MIN_LOADABLE_RETRY_COUNT}.
-         *
-         * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
-         * @return This factory, for convenience.
-         * @throws IllegalStateException If one of the {@code create} methods has already been called.
-         */
-        public Factory setMinLoadableRetryCount(int minLoadableRetryCount) {
-            Assertions.checkState(!isCreateCalled);
-            this.minLoadableRetryCount = minLoadableRetryCount;
-            return this;
-        }
-
-        /**
-         * Sets whether load errors will be treated as end-of-stream signal (load errors will not be
-         * propagated). The default value is false.
-         *
-         * @param treatLoadErrorsAsEndOfStream If true, load errors will not be propagated by sample
-         *     streams, treating them as ended instead. If false, load errors will be propagated
-         *     normally by {@link RtspSampleStream#maybeThrowError()}.
-         * @return This factory, for convenience.
-         * @throws IllegalStateException If one of the {@code create} methods has already been called.
-         */
-        public Factory setTreatLoadErrorsAsEndOfStream(boolean treatLoadErrorsAsEndOfStream) {
-            Assertions.checkState(!isCreateCalled);
-            this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
-            return this;
         }
 
         /**
@@ -100,12 +67,7 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
          * @return The new {@link RtspMediaSource}.
          */
         public RtspMediaSource createMediaSource(Uri uri) {
-            isCreateCalled = true;
-            return new RtspMediaSource(
-                    uri,
-                    factory,
-                    minLoadableRetryCount,
-                    treatLoadErrorsAsEndOfStream);
+            return new RtspMediaSource(uri, factory);
         }
 
         /**
@@ -130,26 +92,16 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     }
 
 
-    /**
-     * The default minimum number of times to retry loading data prior to failing.
-     */
-    private static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
-
     private final Uri uri;
     private final Client.Factory<? extends Client> factory;
-    private final int minLoadableRetryCount;
-    private final boolean treatLoadErrorsAsEndOfStream;
     private EventDispatcher eventDispatcher;
 
     private Client client;
+    private int prepareCount;
 
-    private RtspMediaSource(Uri uri, Client.Factory<? extends Client> factory,
-                           int minLoadableRetryCount,
-                           boolean treatLoadErrorsAsEndOfStream) {
+    private RtspMediaSource(Uri uri, Client.Factory<? extends Client> factory) {
         this.uri = uri;
         this.factory = factory;
-        this.minLoadableRetryCount = minLoadableRetryCount;
-        this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
     }
 
     // MediaTrackSource implementation
@@ -164,7 +116,7 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     @Override
     public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
         eventDispatcher = createEventDispatcher(id);
-        return new RtspMediaPeriod(client.session(), minLoadableRetryCount, allocator);
+        return new RtspMediaPeriod(this, client, eventDispatcher, allocator);
     }
 
     @Override
@@ -175,28 +127,30 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     @Override
     protected void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource,
                                          @Nullable TransferListener mediaTransferListener) {
-        Player.VideoComponent videoComponent = player.getVideoComponent();
-        Assertions.checkNotNull(videoComponent, "VideoComponent is null");
+        client = new Client.Builder(factory)
+                .setUri(uri)
+                .setMode((prepareCount++ > 0) ? RTSP_INTERLEAVED : RTSP_AUTO_DETECT)
+                .setListener(this)
+                .setPlayer(player)
+                .build();
 
-        client = new Client.Builder(factory).setUri(uri).setListener(this).build();
-        eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
+        eventDispatcher = createEventDispatcher(null);
 
         try {
 
             client.open();
-            videoComponent.addVideoListener(client.session());
 
         } catch (IOException e) {
             eventDispatcher.loadError(
                 new DataSpec(uri), uri, null, C.DATA_TYPE_MEDIA_INITIALIZATION,
-                0, 0, 0, null, false);
+                0, 0, 0, e, false);
         }
     }
 
     @Override
     public void releaseSourceInternal() {
         if (client != null) {
-            client.close();
+            client.release();
             client = null;
         }
     }
@@ -213,11 +167,10 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     @Override
     public void onMediaDescriptionTypeUnSupported(MediaType mediaType) {
         if (eventDispatcher != null) {
-            eventDispatcher.loadError(
-                new DataSpec(uri), uri, null, C.DATA_TYPE_MEDIA,
+            eventDispatcher.loadError(new DataSpec(uri), uri, null, C.DATA_TYPE_MANIFEST,
                 0, 0, 0,
-                new IOException("Media Description Type [" + mediaType + "] is not supported"),
-                false);
+                    new IOException("Media Description Type [" + mediaType + "] is not supported"),
+                    false);
         }
     }
 
@@ -225,8 +178,7 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     public void onClientError(Throwable throwable) {
         if (eventDispatcher != null) {
             eventDispatcher.loadError(new DataSpec(uri), uri, null, C.DATA_TYPE_MEDIA,
-                0, 0, 0, (throwable == null) ? null :
-                    new IOException(throwable), false);
+                0, 0, 0, (IOException) throwable, false);
         }
     }
 }

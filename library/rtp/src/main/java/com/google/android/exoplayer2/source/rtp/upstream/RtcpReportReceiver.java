@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.source.rtp.rtcp.RtcpSdesPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpSrPacket;
 import com.google.android.exoplayer2.upstream.UdpDataSource;
 import java.io.IOException;
-import java.util.Random;
 
 /* package */ final class RtcpReportReceiver {
 

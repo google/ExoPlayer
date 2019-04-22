@@ -497,7 +497,7 @@ public class PlayerActivity extends Activity
                 new DefaultHlsPlaylistParserFactory(getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_OTHER:
-        if (uri.getScheme().equals("rtsp")) {
+        if (Util.isRtspUri(uri)) {
           return new RtspMediaSource.Factory(RtspDefaultClient.factory()
                   .setFlags(Client.FLAG_ENABLE_RTCP_SUPPORT)
                   .setNatMethod(Client.RTSP_NAT_DUMMY))

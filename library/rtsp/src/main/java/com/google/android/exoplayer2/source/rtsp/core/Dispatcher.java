@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.source.rtsp.core;
 
+import android.net.Uri;
 import android.support.annotation.IntDef;
+
 
 import com.google.android.exoplayer2.source.rtsp.message.InterleavedFrame;
 import com.google.android.exoplayer2.source.rtsp.message.Header;
@@ -31,8 +33,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,7 +44,37 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import javax.net.SocketFactory;
 
+import static com.google.android.exoplayer2.source.rtsp.message.Protocol.RTSP_1_0;
+
 /* package */ final class Dispatcher implements Sender.EventListener, Receiver.EventListener {
+
+    public interface EventListener {
+        void onAnnounceRequest(Request request);
+        void onRedirectRequest(Request request);
+        void onOptionsRequest(Request request);
+        void onGetParameterRequest(Request request);
+        void onSetParameterRequest(Request request);
+        void onAnnounceResponse(Response response);
+        void onOptionsResponse(Response response);
+        void onDescribeResponse(Response response);
+        void onSetupResponse(Response response);
+        void onPlayResponse(Response response);
+        void onPauseResponse(Response response);
+        void onGetParameterResponse(Response response);
+        void onRecordResponse(Response response);
+        void onSetParameterResponse(Response response);
+        void onTeardownResponse(Response response);
+        void onEmbeddedBinaryData(InterleavedFrame frame);
+        void onUnauthorized(Request request, Response response);
+        void onUnSuccess(Request request, Response response);
+        void onMalformedResponse(Response response);
+        void onNoResponse(Request request);
+        void onRequestTimeOut();
+        void onIOError();
+    }
+
+    static final List<Method> METHODS = Collections.unmodifiableList(Arrays.asList(
+            Method.ANNOUNCE, Method.OPTIONS, Method.TEARDOWN));
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true, value = {NONE, CONNECTED, FAILURE, DISCONNECTED})
@@ -54,23 +88,28 @@ import javax.net.SocketFactory;
     private final static int DEFAULT_TIMEOUT_MILLIS = 5000;
     private final static int DEFAULT_PORT = 554;
 
+    private Socket socket;
+    private InetAddress address;
+
+    private Uri uri;
+    private String userAgent;
+
+    private Receiver receiver;
+    private Sender sender;
+
+    private final EventListener listener;
     private final RequestMonitor requestMonitor;
 
-    Socket socket;
-    InetAddress address;
-
-    Receiver receiver;
-    Sender sender;
-
-    final Client client;
-
-    final Map<Integer, Request> outstanding;
-    final Map<Integer, Request> requests;
+    private final Map<Integer, Request> outstanding;
+    private final Map<Integer, Request> requests;
 
     private boolean opened;
 
     Dispatcher(Builder builder) {
-        client = builder.client;
+        uri = builder.uri;
+        listener = builder.listener;
+        userAgent = builder.userAgent;
+
         outstanding =  Collections.synchronizedMap(new LinkedHashMap());
         requests = Collections.synchronizedMap(new LinkedHashMap());
 
@@ -81,15 +120,15 @@ import javax.net.SocketFactory;
         if (!opened) {
             socket = SocketFactory.getDefault().createSocket();
 
-            address = InetAddress.getByName(client.session.uri().getHost());
+            address = InetAddress.getByName(uri.getHost());
 
-            int port = client.session.uri().getPort();
+            int port = uri.getPort();
 
             socket.connect(new InetSocketAddress(address, (port > 0) ? port : DEFAULT_PORT),
                 DEFAULT_TIMEOUT_MILLIS);
 
-            sender = new Sender(socket.getOutputStream(), this);
-            receiver = new Receiver(socket.getInputStream(), this);
+            sender = new Sender(socket.getOutputStream(),this);
+            receiver = new Receiver(socket.getInputStream(),this);
 
             opened = true;
         }
@@ -105,9 +144,9 @@ import javax.net.SocketFactory;
 
             requests.clear();
             outstanding.clear();
-
-            closeQuietly();
         }
+
+        closeQuietly();
     }
 
     private void closeQuietly() {
@@ -115,6 +154,7 @@ import javax.net.SocketFactory;
 
             if (socket != null) {
                 socket.close();
+                socket = null;
             }
 
         } catch (IOException e) {
@@ -163,26 +203,26 @@ import javax.net.SocketFactory;
             Integer cSeq = Integer.parseInt(message.getHeaders().value(Header.CSeq));
             requests.remove(cSeq);
         }
-        client.onIOError();
+        listener.onIOError();
     }
 
     @Override
     public void onSendFailure(InterleavedFrame message) {
-        client.onIOError();
+        listener.onIOError();
     }
 
     // Receiver.EventListener implementation
     @Override
     public void onReceiveSuccess(Request request) {
-        if (client.isProtocolSupported(request.getProtocol())) {
+        if (RTSP_1_0.equals((request.getProtocol()))) {
 
             Method method = request.getMethod();
 
-            if (client.isMethodSupported(method)) {
+            if (METHODS.contains(method)) {
 
                 if (request.getHeaders().value(Header.CSeq) == null) {
                     Response.Builder builder = new Response.Builder().status(Status.BadRequest);
-                    builder.header(Header.UserAgent, client.userAgent());
+                    builder.header(Header.UserAgent, userAgent);
 
                     execute(builder.build());
 
@@ -202,35 +242,35 @@ import javax.net.SocketFactory;
                                 Response.Builder builder = new Response.Builder().
                                         status(Status.SessionNotFound);
                                 builder.header(Header.CSeq, request.getHeaders().value(Header.CSeq));
-                                builder.header(Header.UserAgent, client.userAgent());
+                                builder.header(Header.UserAgent, userAgent);
 
                                 execute(builder.build());
 
                             } else {
 
                                 if (method.equals(Method.ANNOUNCE)) {
-                                    client.onAnnounceRequest(request);
+                                    listener.onAnnounceRequest(request);
 
                                 } else if (method.equals(Method.GET_PARAMETER)) {
-                                    client.onGetParameterRequest(request);
+                                    listener.onGetParameterRequest(request);
 
                                 } else if (method.equals(Method.SET_PARAMETER)) {
-                                    client.onSetParameterRequest(request);
+                                    listener.onSetParameterRequest(request);
 
                                 } else {
-                                    client.onRedirectRequest(request);
+                                    listener.onRedirectRequest(request);
                                 }
                             }
 
                         } else if (method.equals(Method.OPTIONS)) {
-                            client.onOptionsRequest(request);
+                            listener.onOptionsRequest(request);
 
                         } else {
 
                             Response.Builder builder = new Response.Builder().
                                     status(Status.MethodNotAllowed);
                             builder.header(Header.CSeq, request.getHeaders().value(Header.CSeq));
-                            builder.header(Header.UserAgent, client.userAgent());
+                            builder.header(Header.UserAgent, userAgent);
 
                             execute(builder.build());
                         }
@@ -240,7 +280,7 @@ import javax.net.SocketFactory;
                         Response.Builder builder = new Response.Builder().status(
                                 Status.OptionNotSupported);
                         builder.header(Header.CSeq, request.getHeaders().value(Header.CSeq));
-                        builder.header(Header.UserAgent, client.userAgent());
+                        builder.header(Header.UserAgent, userAgent);
                         builder.header(Header.Unsupported, require);
 
                         execute(builder.build());
@@ -251,7 +291,7 @@ import javax.net.SocketFactory;
 
                 Response.Builder builder = new Response.Builder().status(Status.NotImplemented);
                 builder.header(Header.CSeq, request.getHeaders().value(Header.CSeq));
-                builder.header(Header.UserAgent, client.userAgent());
+                builder.header(Header.UserAgent, userAgent);
 
                 execute(builder.build());
             }
@@ -259,7 +299,7 @@ import javax.net.SocketFactory;
         } else {
             Response.Builder builder = new Response.Builder().status(Status.RtspVersionNotSupported);
             builder.header(Header.CSeq, request.getHeaders().value(Header.CSeq));
-            builder.header(Header.UserAgent, client.userAgent());
+            builder.header(Header.UserAgent, userAgent);
 
             execute(builder.build());
         }
@@ -267,7 +307,7 @@ import javax.net.SocketFactory;
 
     @Override
     public void onReceiveSuccess(Response response) {
-        if (client.isProtocolSupported(response.getProtocol())) {
+        if (RTSP_1_0.equals(response.getProtocol())) {
 
             if (response.getHeaders() != null && response.getHeaders().contains(Header.CSeq)) {
                 Integer cSeq = Integer.parseInt(response.getHeaders().value(Header.CSeq));
@@ -282,25 +322,25 @@ import javax.net.SocketFactory;
                         requestMonitor.cancel(request);
 
                         if (method.equals(Method.ANNOUNCE)) {
-                            client.onAnnounceResponse(response);
+                            listener.onAnnounceResponse(response);
                         } else if (method.equals(Method.DESCRIBE)) {
-                            client.onDescribeResponse(response);
+                            listener.onDescribeResponse(response);
                         } else if (method.equals(Method.GET_PARAMETER)) {
-                            client.onGetParameterResponse(response);
+                            listener.onGetParameterResponse(response);
                         } else if (method.equals(Method.OPTIONS)) {
-                            client.onOptionsResponse(response);
+                            listener.onOptionsResponse(response);
                         } else if (method.equals(Method.PAUSE)) {
-                            client.onPauseResponse(response);
+                            listener.onPauseResponse(response);
                         } else if (method.equals(Method.PLAY)) {
-                            client.onPlayResponse(response);
+                            listener.onPlayResponse(response);
                         } else if (method.equals(Method.RECORD)) {
-                            client.onRecordResponse(response);
+                            listener.onRecordResponse(response);
                         } else if (method.equals(Method.SET_PARAMETER)) {
-                            client.onSetParameterResponse(response);
+                            listener.onSetParameterResponse(response);
                         } else if (method.equals(Method.SETUP)) {
-                            client.onSetupResponse(response);
+                            listener.onSetupResponse(response);
                         } else if (method.equals(Method.TEARDOWN)) {
-                            client.onTeardownResponse(response);
+                            listener.onTeardownResponse(response);
                         }
 
                     } else {
@@ -309,10 +349,10 @@ import javax.net.SocketFactory;
                         requestMonitor.cancel(request);
 
                         if (response.getStatus().equals(Status.Unauthorized)) {
-                            client.onUnauthorized(request, response);
+                            listener.onUnauthorized(request, response);
 
                         } else {
-                            client.onUnSuccess(request, response);
+                            listener.onUnSuccess(request, response);
                         }
                     }
 
@@ -321,25 +361,25 @@ import javax.net.SocketFactory;
                 } else {
 
                     if (response.getStatus().equals(Status.RequestTimeOut)) {
-                        client.onRequestTimeOut();
+                        listener.onRequestTimeOut();
 
                     } else {
 
                         Response.Builder builder = new Response.Builder().status(Status.BadRequest);
-                        builder.header(Header.UserAgent, client.userAgent());
+                        builder.header(Header.UserAgent, userAgent);
 
                         execute(builder.build());
                     }
                 }
             } else {
-                client.onBadRequest();
+                listener.onMalformedResponse(response);
             }
 
         } else {
 
             Response.Builder builder = new Response.Builder().status(Status.RtspVersionNotSupported);
             builder.header(Header.CSeq, response.getHeaders().value(Header.CSeq));
-            builder.header(Header.UserAgent, client.userAgent());
+            builder.header(Header.UserAgent, userAgent);
 
             execute(builder.build());
         }
@@ -347,19 +387,19 @@ import javax.net.SocketFactory;
 
     @Override
     public void onReceiveSuccess(InterleavedFrame interleavedFrame) {
-        client.session().onInterleavedFrame(interleavedFrame);
+        listener.onEmbeddedBinaryData(interleavedFrame);
     }
 
     @Override
     public void onReceiveFailure(@Receiver.ErrorCode int errorCode) {
         if (errorCode == Receiver.PARSE_ERROR) {
             Response.Builder builder = new Response.Builder().status(Status.BadRequest);
-            builder.header(Header.UserAgent, client.userAgent());
+            builder.header(Header.UserAgent, userAgent);
 
             execute(builder.build());
 
         } else if (errorCode == Receiver.IO_ERROR) {
-            client.onIOError();
+            listener.onIOError();
         }
     }
 
@@ -378,12 +418,10 @@ import javax.net.SocketFactory;
      * Monitor the request/reply message.
      */
     /* package */ final class RequestMonitor {
-        private final long DEFAULT_TIMEOUT_REQUEST = 50000;
+        private static final long DEFAULT_TIMEOUT_REQUEST = 10000;
 
         private final ExecutorService executorService = Executors.newSingleThreadExecutor();
         private final Map<Integer, Future<?>> tasks;
-
-        private boolean stopped;
 
         public RequestMonitor() {
             tasks = Collections.synchronizedMap(new LinkedHashMap());
@@ -421,7 +459,7 @@ import javax.net.SocketFactory;
 
                                 if (outstanding.containsKey(cSeq)) {
                                     requests.remove(cSeq);
-                                    client.onNoResponse(outstanding.remove(cSeq));
+                                    listener.onNoResponse(outstanding.remove(cSeq));
                                 }
 
                             } catch (InterruptedException ex) {
@@ -436,17 +474,30 @@ import javax.net.SocketFactory;
     }
 
     public static class Builder {
-        Client client;
+        private Uri uri;
+        private String userAgent;
+        private EventListener listener;
 
-        public Builder client(Client client) {
-            if (client == null) throw new NullPointerException("client == null");
+        public Builder(EventListener listener) {
+            if (listener == null) throw new NullPointerException("listener == null");
 
-            this.client = client;
+            this.listener = listener;
+        }
+
+        public Builder setUri(Uri uri) {
+            this.uri = uri;
+
+            return this;
+        }
+
+        public Builder setUserAgent(String userAgent) {
+            this.userAgent = userAgent;
+
             return this;
         }
 
         public Dispatcher build() {
-            if (client == null) throw new IllegalArgumentException("client == null");
+            if (uri == null) throw new IllegalStateException("uri == null");
 
             return new Dispatcher(this);
         }

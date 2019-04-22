@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.source.rtp.RtpPacket;
 import com.google.android.exoplayer2.source.rtp.format.RtpPayloadFormat;
+import com.google.android.exoplayer2.source.rtp.format.RtpPayloadFormat.UnsupportedFormatException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TrackIdGenerator;
 
@@ -39,7 +40,7 @@ public final class DefaultRtpExtractor implements Extractor {
     private final TrackIdGenerator trackIdGenerator;
 
     public DefaultRtpExtractor(RtpPayloadFormat payloadFormat,
-                               TrackIdGenerator trackIdGenerator) throws IOException {
+                               TrackIdGenerator trackIdGenerator) throws UnsupportedFormatException {
         this.trackIdGenerator = trackIdGenerator;
 
         sampleData = new ParsableByteArray();
@@ -48,7 +49,7 @@ public final class DefaultRtpExtractor implements Extractor {
         payloadReader = new DefaultRtpPayloadReaderFactory().createPayloadReader(payloadFormat);
 
         if (payloadReader == null) {
-            throw new IOException("Payload reader not found for media type=[" +
+            throw new UnsupportedFormatException("Payload reader not found for media type=[" +
                     payloadFormat.sampleMimeType() + "]");
         }
     }

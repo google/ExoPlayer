@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.upstream.UdpDataSinkSource;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.net.InetAddress;
 
 public final class RtpDataSinkSource extends UdpDataSinkSource  {
 
@@ -41,7 +40,7 @@ public final class RtpDataSinkSource extends UdpDataSinkSource  {
     private final @Flags int flags;
     private final byte[] packetBuffer;
 
-    private final RtpSamplesQueue samplesQueue;
+    private final RtpSamplesPriorityQueue samplesQueue;
 
     private RtpStatistics statistics;
     private RtcpStatsFeedback statsFeedback;
@@ -60,7 +59,7 @@ public final class RtpDataSinkSource extends UdpDataSinkSource  {
         this.flags = flags;
 
         packetBuffer = new byte[maxPacketSize];
-        samplesQueue = new RtpSamplesQueue(clockrate);
+        samplesQueue = new RtpSamplesPriorityQueue(clockrate);
 
         if (isSet(FLAG_ENABLE_RTCP_FEEDBACK)) {
             statistics = new RtpStatistics();
@@ -170,19 +169,6 @@ public final class RtpDataSinkSource extends UdpDataSinkSource  {
         return bytesRead;
     }
 
-    public void writeTo(RtpPacket packet, InetAddress address, int port)
-            throws IOException {
-        byte[] bytes = packet.getBytes();
-        super.writeTo(bytes, 0, bytes.length, address, port);
-    }
-
-    public void writeTo(RtcpPacket packet, InetAddress address, int port)
-            throws IOException {
-        if (isSet(FLAG_ENABLE_RTCP_FEEDBACK)) {
-            statsFeedback.sendTo(packet, address, port);
-        }
-    }
-
     @Override
     public void close() {
         if (isSet(FLAG_ENABLE_RTCP_FEEDBACK)) {
@@ -195,6 +181,6 @@ public final class RtpDataSinkSource extends UdpDataSinkSource  {
     }
 
     private boolean isSet(@Flags int flag) {
-        return (flags & flag) > 0;
+        return (flags & flag) == flag;
     }
 }

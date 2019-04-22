@@ -52,9 +52,12 @@ import java.util.regex.Pattern;
       void onReceiveFailure(@ErrorCode int errorCode);
   }
 
-  private static final Pattern regexStatus = Pattern.compile("(RTSP/\\d.\\d) (\\d+) (\\w+)", Pattern.CASE_INSENSITIVE);
-  private static final Pattern regexRequest = Pattern.compile("([A-Z_]+) rtsp://(.+) RTSP/(\\d.\\d)", Pattern.CASE_INSENSITIVE);
-  private static final Pattern rexegHeader = Pattern.compile("(\\S+):\\s+(.+)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern regexStatus = Pattern.compile(
+          "(RTSP/\\d.\\d) (\\d+) (\\w+)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern regexRequest = Pattern.compile(
+          "([A-Z_]+) rtsp://(.+) RTSP/(\\d.\\d)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern rexegHeader = Pattern.compile(
+          "(\\S+):\\s+(.+)", Pattern.CASE_INSENSITIVE);
 
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(flag = true, value = {PARSING_START_LINE, PARSING_HEADER_LINE, PARSING_BODY_LINE})
@@ -79,7 +82,7 @@ import java.util.regex.Pattern;
   private final InputStream inputStream;
   private final EventListener eventListener;
 
-  private boolean canceled;
+  private volatile boolean canceled;
 
   private @State int state;
 
@@ -93,26 +96,13 @@ import java.util.regex.Pattern;
     thread.start();
 
     handler = new Handler(thread.getLooper());
-
     handler.post(loader);
   }
 
   public void cancel() {
     if (!canceled) {
-        thread.quit();
         canceled = true;
-    }
-  }
-
-  private void close() {
-    try {
-
-        if (inputStream != null) {
-            inputStream.close();
-        }
-
-    } catch (IOException e) {
-        // Ignore.
+        thread.quit();
     }
   }
 
@@ -138,7 +128,8 @@ import java.util.regex.Pattern;
     private Message.Builder builder;
     private BufferedReader reader;
 
-    private void parseMessageBody(MediaType mediaType, int mediaLength) throws NullPointerException, IOException {
+    private void parseMessageBody(MediaType mediaType, int mediaLength)
+            throws NullPointerException, IOException {
       byte[] body = new byte[mediaLength];
       reader.readFully(body, 0, mediaLength);
       StringBuilder stringBuilder = new StringBuilder(new String(body, 0, mediaLength));
@@ -153,13 +144,14 @@ import java.util.regex.Pattern;
       Matcher matcher;
       int mediaLength = 0;
       MediaType mediaType = null;
+      boolean error = false;
       byte[] firstFourBytes = new byte[4];
 
       reader = new BufferedReader(new DataInputStream(inputStream));
 
       try {
 
-        while (!Thread.currentThread().isInterrupted() && !canceled) {
+        while (!Thread.currentThread().isInterrupted() && !canceled && !error) {
 
           try {
 
@@ -245,20 +237,18 @@ import java.util.regex.Pattern;
               }
             }
 
-          } catch (NullPointerException ex) {
-            state = PARSING_START_LINE;
+          } catch (NullPointerException | IllegalArgumentException ex) {
             builder = null;
-            eventListener.onReceiveFailure(PARSE_ERROR);
-
-          } catch (IllegalArgumentException ex) {
             state = PARSING_START_LINE;
-            builder = null;
             eventListener.onReceiveFailure(PARSE_ERROR);
 
           } catch (IOException ex) {
-            state = PARSING_START_LINE;
+            error = true;
             builder = null;
-            eventListener.onReceiveFailure(IO_ERROR);
+            state = PARSING_START_LINE;
+            if (!canceled) {
+              eventListener.onReceiveFailure(IO_ERROR);
+            }
           }
         }
       } finally {
@@ -304,7 +294,8 @@ import java.util.regex.Pattern;
       int requiredLength = peekBufferPosition + length;
       if (requiredLength > peekBuffer.length) {
         int newPeekCapacity = Util.constrainValue(peekBuffer.length * 2,
-                requiredLength + PEEK_MIN_FREE_SPACE_AFTER_RESIZE, requiredLength + PEEK_MAX_FREE_SPACE);
+                requiredLength + PEEK_MIN_FREE_SPACE_AFTER_RESIZE,
+                requiredLength + PEEK_MAX_FREE_SPACE);
         peekBuffer = Arrays.copyOf(peekBuffer, newPeekCapacity);
       }
     }

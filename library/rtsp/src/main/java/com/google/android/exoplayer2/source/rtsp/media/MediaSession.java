@@ -45,7 +45,7 @@ import static com.google.android.exoplayer2.source.rtsp.core.Client.FLAG_ENABLE_
 import static com.google.android.exoplayer2.source.rtsp.core.Client.FLAG_FORCE_RTCP_MUXED;
 import static com.google.android.exoplayer2.source.rtsp.core.Client.RTSP_NAT_DUMMY;
 
-public final class MediaSession implements VideoListener, RtcpOutgoingReportSink.EventListener {
+public final class MediaSession implements VideoListener {
 
     public interface EventListener {
         void onPausePlayback();
@@ -186,7 +186,7 @@ public final class MediaSession implements VideoListener, RtcpOutgoingReportSink
 
     public void setDuration(long duration) { this.duration = duration; }
 
-    public boolean isInterleaved() { return tcpChannels.length > 0; }
+    public boolean isInterleaved() { return client.isInterleavedMode() || tcpChannels.length > 0; }
 
     public @SessionState int getState() { return state; }
 
@@ -323,8 +323,17 @@ public final class MediaSession implements VideoListener, RtcpOutgoingReportSink
         tracks.clear();
         prepared.clear();
         preparing.clear();
+
         listeners.clear();
+        interleavedListeners.clear();
+
+        tcpChannels = new int[0];
+
         state = IDLE;
+        deliveryMode = UNICAST;
+        duration = C.TIME_UNSET;
+        timeout = DEFAULT_TIMEOUT_MILLIS;
+        pendingResetPosition = C.TIME_UNSET;
     }
 
     public final boolean isRtcpSupported() {
@@ -360,9 +369,11 @@ public final class MediaSession implements VideoListener, RtcpOutgoingReportSink
         MediaTrack track = sampleStreamWrapper.getMediaTrack();
         int localPort = sampleStreamWrapper.getLocalPort();
 
-        if (deliveryMode == INTERLEAVED) {
-            Transport transport = Transport.parse("RTP/AVP/TCP;interleaved=" + nextTcpChannel());
-            client.sendSetupRequest(track.url(), transport);
+        if (deliveryMode == INTERLEAVED || client.isInterleavedMode()) {
+            if (prepared.size() > 0) {
+                Transport transport = Transport.parse("RTP/AVP/TCP;interleaved=" + nextTcpChannel());
+                client.sendSetupRequest(track.url(), transport);
+            }
 
         } else {
             client.sendSetupRequest(track, localPort);
@@ -392,9 +403,10 @@ public final class MediaSession implements VideoListener, RtcpOutgoingReportSink
                     interleavedListeners.put(channel, sampleStreamWrapper);
                 }
 
-                deliveryMode = INTERLEAVED;
-
-                sampleStreamWrapper.prepare();
+                if (!client.isInterleavedMode()) {
+                    deliveryMode = INTERLEAVED;
+                    sampleStreamWrapper.prepare();
+                }
             }
         }
     }
@@ -431,7 +443,7 @@ public final class MediaSession implements VideoListener, RtcpOutgoingReportSink
         }
     }
 
-    public void onInterleavedFrame(InterleavedFrame interleavedFrame) {
+    public void onIncomingInterleavedFrame(InterleavedFrame interleavedFrame) {
         for(Map.Entry<Integer, RtspSampleStreamWrapper> entry : interleavedListeners.entrySet()) {
             Integer channel = entry.getKey();
             if (channel.intValue() == interleavedFrame.getChannel()) {
@@ -440,6 +452,10 @@ public final class MediaSession implements VideoListener, RtcpOutgoingReportSink
                 break;
             }
         }
+    }
+
+    public void onOutgoingInterleavedFrame(InterleavedFrame interleavedFrame) {
+        client.dispatch(interleavedFrame);
     }
 
     // VideoListener implementation
@@ -462,20 +478,11 @@ public final class MediaSession implements VideoListener, RtcpOutgoingReportSink
         // Do nothing.
     }
 
-    // FeedbackListener implementation
-
-    @Override
-    public void onOutgoingReport (RtcpPacket packet) {
-        if (packet != null) {
-            client.dispatch(new InterleavedFrame(tcpChannels[1], packet.getBytes()));
-        }
-    }
-
     /**
      * Monitor the keep alive message.
      */
     /* package */ final class KeepAliveMonitor {
-        private final ExecutorService executor = Executors.newSingleThreadExecutor();
+        private ExecutorService executor = Executors.newSingleThreadExecutor();
 
         private volatile boolean enabled;
         private final Runnable keepAliveRunnable;
@@ -511,8 +518,10 @@ public final class MediaSession implements VideoListener, RtcpOutgoingReportSink
         }
 
         public void start() {
-            enabled = true;
-            executor.execute(keepAliveRunnable);
+            if (!enabled) {
+                enabled = true;
+                executor.execute(keepAliveRunnable);
+            }
         }
 
         public void cancel() {
@@ -533,17 +542,13 @@ public final class MediaSession implements VideoListener, RtcpOutgoingReportSink
         String username;
         String password;
 
-        public final Builder client(Client client) {
+        public Builder(Client client) {
             if (client == null) throw new NullPointerException("client is null");
-
-            buildCredentialsByUri(client.uri());
-
             this.client = client;
-            return this;
         }
 
         public final MediaSession build() {
-            if (client == null) throw new IllegalStateException("client is null");
+            buildCredentialsByUri(client.uri());
 
             return new MediaSession(this);
         }
@@ -551,9 +556,7 @@ public final class MediaSession implements VideoListener, RtcpOutgoingReportSink
         private void buildCredentialsByUri(Uri uri) {
             if (uri == null) throw new NullPointerException("uri is null");
 
-            this.uri = Uri.parse(uri.getScheme() + "://" + uri.getHost() +
-                    ((uri.getPort() > 0) ? ":" + uri.getPort() : "") +
-                    uri.getPath() + ((uri.getQuery() != null) ? "?" + uri.getQuery() : ""));
+            this.uri = uri;
 
             if (uri.getUserInfo() != null) {
                 String[] values = uri.getUserInfo().split(":");

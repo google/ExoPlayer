@@ -120,9 +120,9 @@ import java.util.List;
             format = Format.createVideoSampleFormat(formatId, payloadFormat.sampleMimeType(),
                     payloadFormat.codecs(), payloadFormat.bitrate(), Format.NO_VALUE,
                     payloadFormat.width() > 0 ? payloadFormat.width() : Format.NO_VALUE,
-                    payloadFormat.height() > 0 ? payloadFormat.height() : Format.NO_VALUE, payloadFormat.framerate(),
-                    codecSpecificData, Format.NO_VALUE, payloadFormat.pixelWidthAspectRatio(),
-                    null);
+                    payloadFormat.height() > 0 ? payloadFormat.height() : Format.NO_VALUE,
+                    payloadFormat.framerate(), codecSpecificData, Format.NO_VALUE,
+                    payloadFormat.pixelWidthAspectRatio(),null);
 
             hasOutputFormat = true;
             output.format(format);

@@ -127,7 +127,7 @@ public abstract class RtcpPacket {
             }
 
             // Read and check the payload type
-            @PacketType int payloadType = (((int)packet[offset + 1]) & 0xFF);
+            @PacketType int payloadType = (int)((packet[offset + 1]) & 0xFF);
             if (payloadType < RtcpPacket.FIR || payloadType > RtcpPacket.TOKEN) {
                 return null;
             }
@@ -189,9 +189,9 @@ public abstract class RtcpPacket {
                     int sourceCount = ((int)packet[offset]) & 0x1F;
 
                     // Read the payload
-                    byte[] sdesPayload = Arrays.copyOfRange(packet, headLen, bytesLen-padLen);
+                    byte[] sdesPayload = Arrays.copyOfRange(packet, offset, offset+bytesLen-padLen);
 
-                    RtcpChunk[] chunks = getChunksFromPayload(sdesPayload, offset + 4, sourceCount);
+                    RtcpChunk[] chunks = getChunksFromPayload(sdesPayload, headLen, sourceCount);
 
                     if (chunks != null && sourceCount == chunks.length) {
                         builder.addPacket(new RtcpSdesPacket.Builder()
@@ -268,7 +268,7 @@ public abstract class RtcpPacket {
             for (int source = 0; source < sourceCount; source++) {
                 byte[] chunk = new byte[length];
                 System.arraycopy(payload, offset, chunk, 0, length);
-                chunks[source] = RtcpChunk.parse(payload, length);
+                chunks[source] = RtcpChunk.parse(chunk, length);
                 if (chunks[source] == null) {
                     return null;
                 }

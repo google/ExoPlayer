@@ -23,12 +23,73 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.UdpDataSource;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public final class RtpInternalDataSource extends UdpDataSource {
+
+    private final class TimeoutMonitor {
+        private Timer timer;
+        private TimerTask timerTask;
+
+        private boolean started;
+
+        public void start() {
+            if (!started) {
+                started = true;
+                timer = new Timer();
+                buildAndScheduleTask();
+            }
+        }
+
+        public void reset() {
+            if (started) {
+                timerTask.cancel();
+                timer.cancel();
+                timer.purge();
+
+            } else {
+                started = true;
+            }
+
+            timer = new Timer();
+            buildAndScheduleTask();
+        }
+
+        public void stop() {
+            if (started) {
+                timer.cancel();
+                timer.purge();
+                started = false;
+            }
+        }
+
+        private void buildAndScheduleTask() {
+            timerTask = new TimerTask() {
+                public void run() {
+                    if (bytesRead > 0) {
+                        bytesRead = 0;
+                    } else {
+                        canceled = true;
+                    }
+                }
+            };
+
+            try {
+                timer.schedule(timerTask, 5000);
+            } catch (IllegalStateException ex) {
+
+            }
+        }
+    }
 
     private Uri uri;
     private long length;
     private boolean opened;
+
+    private volatile boolean canceled;
+    private volatile long bytesRead;
+    private TimeoutMonitor timeoutMonitor;
 
     private RtcpIncomingReportSink reportSink;
     private final RtpInternalSamplesSink samplesSink;
@@ -38,11 +99,13 @@ public final class RtpInternalDataSource extends UdpDataSource {
 
     public RtpInternalDataSource(RtpInternalSamplesSink samplesSink) {
         this.samplesSink = samplesSink;
+        timeoutMonitor = new TimeoutMonitor();
     }
 
     public RtpInternalDataSource(RtpInternalSamplesSink samplesSink, RtcpIncomingReportSink reportSink,
                                  RtcpOutgoingReportSink outgoingReportSink) {
         this.samplesSink = samplesSink;
+        timeoutMonitor = new TimeoutMonitor();
 
         if (reportSink != null && outgoingReportSink != null) {
             this.reportSink = reportSink;
@@ -67,32 +130,42 @@ public final class RtpInternalDataSource extends UdpDataSource {
 
         opened = true;
         transferStarted(dataSpec);
+        timeoutMonitor.start();
         return length;
     }
 
     @Override
     public int read(byte[] buffer, int offset, int readLength) throws IOException {
-        RtpSamplesQueue samples = samplesSink.samples();
+        if (opened && !canceled) {
+            RtpSamplesQueue samples = samplesSink.samples();
 
-        RtpPacket packet = samples.pop();
-        if (packet != null) {
+            /* There is no reordering on stream sockets */
+            RtpPacket packet = samples.pop();
+            if (packet != null) {
 
-            if (statistics != null) {
-                if (feedbackSource.getRemoteSsrc() == Long.MIN_VALUE) {
-                    feedbackSource.setRemoteSsrc(packet.ssrc());
+                if (statistics != null) {
+                    if (feedbackSource.getRemoteSsrc() == Long.MIN_VALUE) {
+                        feedbackSource.setRemoteSsrc(packet.ssrc());
+                    }
+
+                    statistics.update(samples.getStatsInfo());
                 }
 
-                statistics.update(samples.getStatsInfo());
+                byte[] bytes = packet.getBytes();
+                System.arraycopy(bytes, 0, buffer, offset, bytes.length);
+
+                bytesTransferred(bytes.length);
+                bytesRead += bytes.length;
+
+                timeoutMonitor.reset();
+
+                return bytes.length;
             }
 
-            byte[] bytes = packet.getBytes();
-            System.arraycopy(bytes, 0, buffer, offset, bytes.length);
-
-            bytesTransferred(bytes.length);
-            return bytes.length;
+            return 0;
         }
 
-        return 0;
+        return C.RESULT_END_OF_INPUT;
     }
 
     @Override
@@ -104,6 +177,7 @@ public final class RtpInternalDataSource extends UdpDataSource {
     public void close() {
         if (opened) {
             opened = false;
+            timeoutMonitor.stop();
 
             if (statistics != null) {
                 reportSink.removeListener(feedbackSource);
@@ -113,9 +187,5 @@ public final class RtpInternalDataSource extends UdpDataSource {
 
             transferEnded();
         }
-    }
-
-    public int getLocalPort() {
-        return C.PORT_UNSET;
     }
 }

@@ -50,24 +50,11 @@ import java.util.concurrent.RejectedExecutionException;
 
     public void cancel() {
         if (!canceled) {
-            //close();
+            canceled = true;
+
             if (!executorService.isShutdown()) {
                 executorService.shutdown();
             }
-
-            canceled = true;
-        }
-    }
-
-    private void close() {
-        try {
-
-            if (outputStream != null) {
-                outputStream.close();
-            }
-
-        } catch (IOException e) {
-            // Ignore.
         }
     }
 
@@ -117,7 +104,9 @@ import java.util.concurrent.RejectedExecutionException;
                             }
 
                         } catch (IOException ex) {
-                            eventListener.onSendFailure(message);
+                            if (!canceled) {
+                                eventListener.onSendFailure(message);
+                            }
                         }
                     }
                 });
