@@ -52,6 +52,7 @@ public final class ActionFileUpgradeUtil {
    *     each download will be its custom cache key if one is specified, or else its URL.
    * @param downloadIndex The index into which the requests will be merged.
    * @param deleteOnFailure Whether to delete the action file if the merge fails.
+   * @param addNewDownloadsAsCompleted Whether to add new downloads as completed.
    * @throws IOException If an error occurs loading or merging the requests.
    */
   @SuppressWarnings("deprecation")
@@ -59,7 +60,8 @@ public final class ActionFileUpgradeUtil {
       File actionFilePath,
       @Nullable DownloadIdProvider downloadIdProvider,
       DefaultDownloadIndex downloadIndex,
-      boolean deleteOnFailure)
+      boolean deleteOnFailure,
+      boolean addNewDownloadsAsCompleted)
       throws IOException {
     ActionFile actionFile = new ActionFile(actionFilePath);
     if (actionFile.exists()) {
@@ -69,7 +71,7 @@ public final class ActionFileUpgradeUtil {
           if (downloadIdProvider != null) {
             request = request.copyWithId(downloadIdProvider.getId(request));
           }
-          mergeRequest(request, downloadIndex);
+          mergeRequest(request, downloadIndex, addNewDownloadsAsCompleted);
         }
         success = true;
       } finally {
@@ -85,10 +87,14 @@ public final class ActionFileUpgradeUtil {
    *
    * @param request The request to be merged.
    * @param downloadIndex The index into which the request will be merged.
+   * @param addNewDownloadAsCompleted Whether to add new downloads as completed.
    * @throws IOException If an error occurs merging the request.
    */
   /* package */ static void mergeRequest(
-      DownloadRequest request, DefaultDownloadIndex downloadIndex) throws IOException {
+      DownloadRequest request,
+      DefaultDownloadIndex downloadIndex,
+      boolean addNewDownloadAsCompleted)
+      throws IOException {
     Download download = downloadIndex.getDownload(request.id);
     if (download != null) {
       download = DownloadManager.mergeRequest(download, request, download.stopReason);
@@ -97,7 +103,7 @@ public final class ActionFileUpgradeUtil {
       download =
           new Download(
               request,
-              STATE_QUEUED,
+              addNewDownloadAsCompleted ? Download.STATE_COMPLETED : STATE_QUEUED,
               /* startTimeMs= */ nowMs,
               /* updateTimeMs= */ nowMs,
               /* contentLength= */ C.LENGTH_UNSET,
