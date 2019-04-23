@@ -25,6 +25,7 @@ project.ext {
     autoServiceVersion = '1.0-rc4'
     checkerframeworkVersion = '2.5.0'
     androidXTestVersion = '1.1.0'
+    truthVersion = '0.44'
     modulePrefix = ':'
     if (gradle.ext.has('exoplayerModulePrefix')) {
         modulePrefix += gradle.ext.exoplayerModulePrefix
