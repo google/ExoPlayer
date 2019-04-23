@@ -170,35 +170,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   }
 
   /**
-   * Copies playback info and resets playing and loading position.
-   *
-   * @param periodId New playing and loading {@link MediaPeriodId}.
-   * @param startPositionUs New start position. See {@link #startPositionUs}.
-   * @param contentPositionUs New content position. See {@link #contentPositionUs}. Value is ignored
-   *     if {@code periodId.isAd()} is true.
-   * @return Copied playback info with reset position.
-   */
-  @CheckResult
-  public PlaybackInfo resetToNewPosition(
-      MediaPeriodId periodId, long startPositionUs, long contentPositionUs) {
-    return new PlaybackInfo(
-        timeline,
-        manifest,
-        periodId,
-        startPositionUs,
-        periodId.isAd() ? contentPositionUs : C.TIME_UNSET,
-        playbackState,
-        isLoading,
-        trackGroups,
-        trackSelectorResult,
-        periodId,
-        startPositionUs,
-        /* totalBufferedDurationUs= */ 0,
-        startPositionUs);
-  }
-
-  /**
-   * Copied playback info with new playing position.
+   * Copies playback info with new playing position.
    *
    * @param periodId New playing media period. See {@link #periodId}.
    * @param positionUs New position. See {@link #positionUs}.

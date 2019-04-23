@@ -628,8 +628,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
       if (playbackInfo.startPositionUs == C.TIME_UNSET) {
         // Replace internal unset start position with externally visible start position of zero.
         playbackInfo =
-            playbackInfo.resetToNewPosition(
-                playbackInfo.periodId, /* startPositionUs= */ 0, playbackInfo.contentPositionUs);
+            playbackInfo.copyWithNewPosition(
+                playbackInfo.periodId,
+                /* positionUs= */ 0,
+                playbackInfo.contentPositionUs,
+                playbackInfo.totalBufferedDurationUs);
       }
       if (!this.playbackInfo.timeline.isEmpty() && playbackInfo.timeline.isEmpty()) {
         // Update the masking variables, which are used when the timeline becomes empty.
