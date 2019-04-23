@@ -54,8 +54,8 @@ public final class TtmlRenderUtilTest {
     String[] styleIds = {"s0", "s1"};
 
     TtmlStyle resolved = TtmlRenderUtil.resolveStyle(null, styleIds, globalStyles);
-    assertThat(resolved).isNotSameAs(globalStyles.get("s0"));
-    assertThat(resolved).isNotSameAs(globalStyles.get("s1"));
+    assertThat(resolved).isNotSameInstanceAs(globalStyles.get("s0"));
+    assertThat(resolved).isNotSameInstanceAs(globalStyles.get("s1"));
     assertThat(resolved.getId()).isNull();
 
     // inherited from s0
