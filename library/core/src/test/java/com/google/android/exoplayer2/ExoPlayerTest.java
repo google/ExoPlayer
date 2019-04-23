@@ -2092,7 +2092,7 @@ public final class ExoPlayerTest {
 
     testRunner.assertPlayedPeriodIndices(0, 1, 0, 1);
     assertThat(mediaSource.getCreatedMediaPeriods())
-        .containsAllOf(
+        .containsAtLeast(
             new MediaPeriodId(
                 timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0),
             new MediaPeriodId(
