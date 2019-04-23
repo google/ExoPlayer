@@ -4,6 +4,9 @@
 
 * Display last frame when seeking to end of stream
   ([#2568](https://github.com/google/ExoPlayer/issues/2568)).
+* Audio:
+  * Fix an issue where not all audio was played out when the configuration
+    for the underlying track was changing (e.g., at some period transitions).
 * UI: Fix `PlayerView` incorrectly consuming touch events if no controller is
   attached ([#6109](https://github.com/google/ExoPlayer/issues/6133)).
 * CEA608: Fix repetition of special North American characters

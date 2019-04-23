@@ -272,6 +272,7 @@ public final class DefaultAudioSink implements AudioSink {
   private int preV21OutputBufferOffset;
   private int drainingAudioProcessorIndex;
   private boolean handledEndOfStream;
+  private boolean stoppedAudioTrack;
 
   private boolean playing;
   private int audioSessionId;
@@ -465,19 +466,15 @@ public final class DefaultAudioSink implements AudioSink {
             processingEnabled,
             canApplyPlaybackParameters,
             availableAudioProcessors);
-    if (isInitialized()) {
-      if (!pendingConfiguration.canReuseAudioTrack(configuration)) {
-        // We need a new AudioTrack before we can handle more input. We should first stop() the
-        // track and wait for audio to play out (tracked by [Internal: b/33161961]), but for now we
-        // discard the audio track immediately.
-        flush();
-      } else if (flushAudioProcessors) {
-        // We don't need a new AudioTrack but audio processors need to be drained and flushed.
-        this.pendingConfiguration = pendingConfiguration;
-        return;
-      }
+    // If we have a pending configuration already, we always drain audio processors as the preceding
+    // configuration may have required it (even if this one doesn't).
+    boolean drainAudioProcessors = flushAudioProcessors || this.pendingConfiguration != null;
+    if (isInitialized()
+        && (!pendingConfiguration.canReuseAudioTrack(configuration) || drainAudioProcessors)) {
+      this.pendingConfiguration = pendingConfiguration;
+    } else {
+      configuration = pendingConfiguration;
     }
-    configuration = pendingConfiguration;
   }
 
   private void setupAudioProcessors() {
@@ -579,12 +576,21 @@ public final class DefaultAudioSink implements AudioSink {
     Assertions.checkArgument(inputBuffer == null || buffer == inputBuffer);
 
     if (pendingConfiguration != null) {
-      // We are waiting for audio processors to drain before applying a the new configuration.
       if (!drainAudioProcessorsToEndOfStream()) {
+        // There's still pending data in audio processors to write to the track.
         return false;
+      } else if (!pendingConfiguration.canReuseAudioTrack(configuration)) {
+        playPendingData();
+        if (hasPendingData()) {
+          // We're waiting for playout on the current audio track to finish.
+          return false;
+        }
+        flush();
+      } else {
+        // The current audio track can be reused for the new configuration.
+        configuration = pendingConfiguration;
+        pendingConfiguration = null;
       }
-      configuration = pendingConfiguration;
-      pendingConfiguration = null;
       playbackParameters =
           configuration.canApplyPlaybackParameters
               ? audioProcessorChain.applyPlaybackParameters(playbackParameters)
@@ -786,15 +792,8 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public void playToEndOfStream() throws WriteException {
-    if (handledEndOfStream || !isInitialized()) {
-      return;
-    }
-
-    if (drainAudioProcessorsToEndOfStream()) {
-      // The audio processors have drained, so drain the underlying audio track.
-      audioTrackPositionTracker.handleEndOfStream(getWrittenFrames());
-      audioTrack.stop();
-      bytesUntilNextAvSync = 0;
+    if (!handledEndOfStream && isInitialized() && drainAudioProcessorsToEndOfStream()) {
+      playPendingData();
       handledEndOfStream = true;
     }
   }
@@ -976,6 +975,7 @@ public final class DefaultAudioSink implements AudioSink {
       flushAudioProcessors();
       inputBuffer = null;
       outputBuffer = null;
+      stoppedAudioTrack = false;
       handledEndOfStream = false;
       drainingAudioProcessorIndex = C.INDEX_UNSET;
       avSyncHeader = null;
@@ -1221,6 +1221,15 @@ public final class DefaultAudioSink implements AudioSink {
   @SuppressWarnings("deprecation")
   private static void setVolumeInternalV3(AudioTrack audioTrack, float volume) {
     audioTrack.setStereoVolume(volume, volume);
+  }
+
+  private void playPendingData() {
+    if (!stoppedAudioTrack) {
+      stoppedAudioTrack = true;
+      audioTrackPositionTracker.handleEndOfStream(getWrittenFrames());
+      audioTrack.stop();
+      bytesUntilNextAvSync = 0;
+    }
   }
 
   /** Stores playback parameters with the position and media time at which they apply. */
