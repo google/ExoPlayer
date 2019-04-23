@@ -124,7 +124,7 @@ public class DrmInitDataTest {
   @Test
   public void testGetByIndex() {
     DrmInitData testInitData = new DrmInitData(DATA_1, DATA_2);
-    assertThat(getAllSchemeData(testInitData)).containsAllOf(DATA_1, DATA_2);
+    assertThat(getAllSchemeData(testInitData)).containsAtLeast(DATA_1, DATA_2);
   }
 
   @Test

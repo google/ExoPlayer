@@ -827,7 +827,7 @@ public final class ConcatenatingMediaSourceTest {
     Object childPeriodUid0 = childTimeline.getUidOfPeriod(/* periodIndex= */ 0);
     Object childPeriodUid1 = childTimeline.getUidOfPeriod(/* periodIndex= */ 1);
     assertThat(childSource.getCreatedMediaPeriods())
-        .containsAllOf(
+        .containsAtLeast(
             new MediaPeriodId(childPeriodUid0, /* windowSequenceNumber= */ 0),
             new MediaPeriodId(childPeriodUid0, /* windowSequenceNumber= */ 2),
             new MediaPeriodId(childPeriodUid0, /* windowSequenceNumber= */ 4),
@@ -863,7 +863,7 @@ public final class ConcatenatingMediaSourceTest {
     testRunner.assertPrepareAndReleaseAllPeriods();
     Object childPeriodUid = childTimeline.getUidOfPeriod(/* periodIndex= */ 0);
     assertThat(childSource.getCreatedMediaPeriods())
-        .containsAllOf(
+        .containsAtLeast(
             new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 0),
             new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 1),
             new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 2),

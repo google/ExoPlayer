@@ -325,7 +325,7 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(period1);
     List<EventWindowAndPeriodId> loadingEvents = listener.getEvents(EVENT_LOADING_CHANGED);
     assertThat(loadingEvents).hasSize(4);
-    assertThat(loadingEvents).containsAllOf(period0, period0);
+    assertThat(loadingEvents).containsAtLeast(period0, period0);
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED)).containsExactly(period0, period1);
     assertThat(listener.getEvents(EVENT_LOAD_STARTED))
         .containsExactly(
