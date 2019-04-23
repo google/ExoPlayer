@@ -40,7 +40,7 @@ android {
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
-    implementation 'androidx.media:media:1.0.0'
+    implementation 'androidx.media:media:1.0.1'
     implementation 'androidx.annotation:annotation:1.0.2'
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     testImplementation project(modulePrefix + 'testutils-robolectric')
