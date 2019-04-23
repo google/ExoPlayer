@@ -1321,7 +1321,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
       if (!queue.updateQueuedPeriods(rendererPositionUs, getMaxRendererReadPositionUs())) {
         seekToCurrentPosition(/* sendDiscontinuity= */ false);
       }
-      handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
     } else {
       // Something changed. Seek to new start position.
       MediaPeriodHolder periodHolder = queue.getFrontPeriod();
@@ -1341,6 +1340,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
           playbackInfo.copyWithNewPosition(
               newPeriodId, seekedToPositionUs, newContentPositionUs, getTotalBufferedDurationUs());
     }
+    handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
   }
 
   private long getMaxRendererReadPositionUs() {
