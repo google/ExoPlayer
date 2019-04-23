@@ -115,8 +115,10 @@ public class DemoApplication extends Application {
   private synchronized void initDownloadManager() {
     if (downloadManager == null) {
       DefaultDownloadIndex downloadIndex = new DefaultDownloadIndex(getDatabaseProvider());
-      upgradeActionFile(DOWNLOAD_TRACKER_ACTION_FILE, downloadIndex);
-      upgradeActionFile(DOWNLOAD_ACTION_FILE, downloadIndex);
+      upgradeActionFile(
+          DOWNLOAD_ACTION_FILE, downloadIndex, /* addNewDownloadsAsCompleted= */ false);
+      upgradeActionFile(
+          DOWNLOAD_TRACKER_ACTION_FILE, downloadIndex, /* addNewDownloadsAsCompleted= */ true);
       DownloaderConstructorHelper downloaderConstructorHelper =
           new DownloaderConstructorHelper(getDownloadCache(), buildHttpDataSourceFactory());
       downloadManager =
@@ -127,13 +129,15 @@ public class DemoApplication extends Application {
     }
   }
 
-  private void upgradeActionFile(String fileName, DefaultDownloadIndex downloadIndex) {
+  private void upgradeActionFile(
+      String fileName, DefaultDownloadIndex downloadIndex, boolean addNewDownloadsAsCompleted) {
     try {
       ActionFileUpgradeUtil.upgradeAndDelete(
           new File(getDownloadDirectory(), fileName),
           /* downloadIdProvider= */ null,
           downloadIndex,
-          /* deleteOnFailure= */ true);
+          /* deleteOnFailure= */ true,
+          addNewDownloadsAsCompleted);
     } catch (IOException e) {
       Log.e(TAG, "Failed to upgrade action file: " + fileName, e);
     }
