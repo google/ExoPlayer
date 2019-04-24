@@ -268,9 +268,9 @@ public final class DownloadManager {
   }
 
   /**
-   * Sets the requirements needed to be met to start downloads.
+   * Sets the requirements that need to be met for downloads to progress.
    *
-   * @param requirements Need to be met to start downloads.
+   * @param requirements A {@link Requirements}.
    */
   public void setRequirements(Requirements requirements) {
     if (requirements.equals(requirementsWatcher.getRequirements())) {

@@ -23,6 +23,8 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.BatteryManager;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.PowerManager;
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.util.Log;
@@ -31,10 +33,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * Defines a set of device state requirements.
- */
-public final class Requirements {
+/** Defines a set of device state requirements. */
+public final class Requirements implements Parcelable {
 
   /**
    * Requirement flags. Possible flag values are {@link #NETWORK}, {@link #NETWORK_UNMETERED},
@@ -205,4 +205,30 @@ public final class Requirements {
   public int hashCode() {
     return requirements;
   }
+
+  // Parcelable implementation.
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeInt(requirements);
+  }
+
+  public static final Parcelable.Creator<Requirements> CREATOR =
+      new Creator<Requirements>() {
+
+        @Override
+        public Requirements createFromParcel(Parcel in) {
+          return new Requirements(in.readInt());
+        }
+
+        @Override
+        public Requirements[] newArray(int size) {
+          return new Requirements[size];
+        }
+      };
 }
