@@ -67,6 +67,17 @@ public abstract class DownloadService extends Service {
       "com.google.android.exoplayer.downloadService.action.ADD_DOWNLOAD";
 
   /**
+   * Removes a download. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_CONTENT_ID} - The content id of a download to remove.
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_REMOVE_DOWNLOAD =
+      "com.google.android.exoplayer.downloadService.action.REMOVE_DOWNLOAD";
+
+  /**
    * Resumes all downloads except those that have a non-zero {@link Download#stopReason}. Extras:
    *
    * <ul>
@@ -91,10 +102,10 @@ public abstract class DownloadService extends Service {
    * Download#STOP_REASON_NONE}. Extras:
    *
    * <ul>
-   *   <li>{@link #KEY_CONTENT_ID} - The content id of a single download to update with the manual
-   *       stop reason. If omitted, all downloads will be updated.
+   *   <li>{@link #KEY_CONTENT_ID} - The content id of a single download to update with the stop
+   *       reason. If omitted, all downloads will be updated.
    *   <li>{@link #KEY_STOP_REASON} - An application provided reason for stopping the download or
-   *       downloads, or {@link Download#STOP_REASON_NONE} to clear the manual stop reason.
+   *       downloads, or {@link Download#STOP_REASON_NONE} to clear the stop reason.
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
@@ -102,15 +113,15 @@ public abstract class DownloadService extends Service {
       "com.google.android.exoplayer.downloadService.action.SET_STOP_REASON";
 
   /**
-   * Removes a download. Extras:
+   * Sets the requirements that need to be met for downloads to progress. Extras:
    *
    * <ul>
-   *   <li>{@link #KEY_CONTENT_ID} - The content id of a download to remove.
+   *   <li>{@link #KEY_REQUIREMENTS} - A {@link Requirements}.
    *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
    * </ul>
    */
-  public static final String ACTION_REMOVE_DOWNLOAD =
-      "com.google.android.exoplayer.downloadService.action.REMOVE_DOWNLOAD";
+  public static final String ACTION_SET_REQUIREMENTS =
+      "com.google.android.exoplayer.downloadService.action.SET_REQUIREMENTS";
 
   /** Key for the {@link DownloadRequest} in {@link #ACTION_ADD_DOWNLOAD} intents. */
   public static final String KEY_DOWNLOAD_REQUEST = "download_request";
@@ -125,7 +136,10 @@ public abstract class DownloadService extends Service {
    * Key for the stop reason in {@link #ACTION_SET_STOP_REASON} and {@link #ACTION_ADD_DOWNLOAD}
    * intents.
    */
-  public static final String KEY_STOP_REASON = "manual_stop_reason";
+  public static final String KEY_STOP_REASON = "stop_reason";
+
+  /** Key for the requirements in {@link #ACTION_SET_REQUIREMENTS} intents. */
+  public static final String KEY_REQUIREMENTS = "requirements";
 
   /**
    * Key for a boolean extra that can be set on any intent to indicate whether the service was
@@ -236,7 +250,7 @@ public abstract class DownloadService extends Service {
    * @param clazz The concrete download service being targeted by the intent.
    * @param downloadRequest The request to be executed.
    * @param foreground Whether this intent will be used to start the service in the foreground.
-   * @return Created Intent.
+   * @return The created intent.
    */
   public static Intent buildAddDownloadIntent(
       Context context,
@@ -255,7 +269,7 @@ public abstract class DownloadService extends Service {
    * @param stopReason An initial stop reason for the download, or {@link Download#STOP_REASON_NONE}
    *     if the download should be started.
    * @param foreground Whether this intent will be used to start the service in the foreground.
-   * @return Created Intent.
+   * @return The created intent.
    */
   public static Intent buildAddDownloadIntent(
       Context context,
@@ -275,7 +289,7 @@ public abstract class DownloadService extends Service {
    * @param clazz The concrete download service being targeted by the intent.
    * @param id The content id.
    * @param foreground Whether this intent will be used to start the service in the foreground.
-   * @return Created Intent.
+   * @return The created intent.
    */
   public static Intent buildRemoveDownloadIntent(
       Context context, Class<? extends DownloadService> clazz, String id, boolean foreground) {
@@ -289,7 +303,7 @@ public abstract class DownloadService extends Service {
    * @param context A {@link Context}.
    * @param clazz The concrete download service being targeted by the intent.
    * @param foreground Whether this intent will be used to start the service in the foreground.
-   * @return Created Intent.
+   * @return The created intent.
    */
   public static Intent buildResumeDownloadsIntent(
       Context context, Class<? extends DownloadService> clazz, boolean foreground) {
@@ -302,7 +316,7 @@ public abstract class DownloadService extends Service {
    * @param context A {@link Context}.
    * @param clazz The concrete download service being targeted by the intent.
    * @param foreground Whether this intent will be used to start the service in the foreground.
-   * @return Created Intent.
+   * @return The created intent.
    */
   public static Intent buildPauseDownloadsIntent(
       Context context, Class<? extends DownloadService> clazz, boolean foreground) {
@@ -318,7 +332,7 @@ public abstract class DownloadService extends Service {
    * @param id The content id, or {@code null} to set the stop reason for all downloads.
    * @param stopReason An application defined stop reason.
    * @param foreground Whether this intent will be used to start the service in the foreground.
-   * @return Created Intent.
+   * @return The created intent.
    */
   public static Intent buildSetStopReasonIntent(
       Context context,
@@ -329,6 +343,25 @@ public abstract class DownloadService extends Service {
     return getIntent(context, clazz, ACTION_SET_STOP_REASON, foreground)
         .putExtra(KEY_CONTENT_ID, id)
         .putExtra(KEY_STOP_REASON, stopReason);
+  }
+
+  /**
+   * Builds an {@link Intent} for setting the requirements that need to be met for downloads to
+   * progress.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param requirements A {@link Requirements}.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return The created intent.
+   */
+  public static Intent buildSetRequirementsIntent(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      Requirements requirements,
+      boolean foreground) {
+    return getIntent(context, clazz, ACTION_SET_REQUIREMENTS, foreground)
+        .putExtra(KEY_REQUIREMENTS, requirements);
   }
 
   /**
@@ -429,6 +462,24 @@ public abstract class DownloadService extends Service {
   }
 
   /**
+   * Starts the service if not started already and sets the requirements that need to be met for
+   * downloads to progress.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param requirements A {@link Requirements}.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendSetRequirements(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      Requirements requirements,
+      boolean foreground) {
+    Intent intent = buildSetRequirementsIntent(context, clazz, requirements, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
    * Starts a download service to resume any ongoing downloads.
    *
    * @param context A {@link Context}.
@@ -479,10 +530,12 @@ public abstract class DownloadService extends Service {
     lastStartId = startId;
     taskRemoved = false;
     String intentAction = null;
+    String contentId = null;
     if (intent != null) {
       intentAction = intent.getAction();
       startedInForeground |=
           intent.getBooleanExtra(KEY_FOREGROUND, false) || ACTION_RESTART.equals(intentAction);
+      contentId = intent.getStringExtra(KEY_CONTENT_ID);
     }
     // intentAction is null if the service is restarted or no action is specified.
     if (intentAction == null) {
@@ -497,10 +550,17 @@ public abstract class DownloadService extends Service {
       case ACTION_ADD_DOWNLOAD:
         DownloadRequest downloadRequest = intent.getParcelableExtra(KEY_DOWNLOAD_REQUEST);
         if (downloadRequest == null) {
-          Log.e(TAG, "Ignored ADD: Missing " + KEY_DOWNLOAD_REQUEST + " extra");
+          Log.e(TAG, "Ignored ADD_DOWNLOAD: Missing " + KEY_DOWNLOAD_REQUEST + " extra");
         } else {
           int stopReason = intent.getIntExtra(KEY_STOP_REASON, Download.STOP_REASON_NONE);
           downloadManager.addDownload(downloadRequest, stopReason);
+        }
+        break;
+      case ACTION_REMOVE_DOWNLOAD:
+        if (contentId == null) {
+          Log.e(TAG, "Ignored REMOVE_DOWNLOAD: Missing " + KEY_CONTENT_ID + " extra");
+        } else {
+          downloadManager.removeDownload(contentId);
         }
         break;
       case ACTION_RESUME_DOWNLOADS:
@@ -511,19 +571,18 @@ public abstract class DownloadService extends Service {
         break;
       case ACTION_SET_STOP_REASON:
         if (!intent.hasExtra(KEY_STOP_REASON)) {
-          Log.e(TAG, "Ignored SET_MANUAL_STOP_REASON: Missing " + KEY_STOP_REASON + " extra");
+          Log.e(TAG, "Ignored SET_STOP_REASON: Missing " + KEY_STOP_REASON + " extra");
         } else {
-          String contentId = intent.getStringExtra(KEY_CONTENT_ID);
           int stopReason = intent.getIntExtra(KEY_STOP_REASON, Download.STOP_REASON_NONE);
           downloadManager.setStopReason(contentId, stopReason);
         }
         break;
-      case ACTION_REMOVE_DOWNLOAD:
-        String contentId = intent.getStringExtra(KEY_CONTENT_ID);
-        if (contentId == null) {
-          Log.e(TAG, "Ignored REMOVE: Missing " + KEY_CONTENT_ID + " extra");
+      case ACTION_SET_REQUIREMENTS:
+        Requirements requirements = intent.getParcelableExtra(KEY_REQUIREMENTS);
+        if (requirements == null) {
+          Log.e(TAG, "Ignored SET_REQUIREMENTS: Missing " + KEY_REQUIREMENTS + " extra");
         } else {
-          downloadManager.removeDownload(contentId);
+          downloadManager.setRequirements(requirements);
         }
         break;
       default:
