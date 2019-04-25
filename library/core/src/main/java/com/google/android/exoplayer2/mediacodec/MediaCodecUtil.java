@@ -68,6 +68,10 @@ public final class MediaCodecUtil {
   private static final SparseIntArray AVC_LEVEL_NUMBER_TO_CONST;
   private static final String CODEC_ID_AVC1 = "avc1";
   private static final String CODEC_ID_AVC2 = "avc2";
+  // VP9
+  private static final SparseIntArray VP9_PROFILE_NUMBER_TO_CONST;
+  private static final SparseIntArray VP9_LEVEL_NUMBER_TO_CONST;
+  private static final String CODEC_ID_VP09 = "vp09";
   // HEVC.
   private static final Map<String, Integer> HEVC_CODEC_STRING_TO_PROFILE_LEVEL;
   private static final String CODEC_ID_HEV1 = "hev1";
@@ -80,7 +84,7 @@ public final class MediaCodecUtil {
   // MP4A AAC.
   private static final SparseIntArray MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE;
   private static final String CODEC_ID_MP4A = "mp4a";
-
+  
   // Lazily initialized.
   private static int maxH264DecodableFrameSize = -1;
 
@@ -242,6 +246,8 @@ public final class MediaCodecUtil {
       case CODEC_ID_AVC1:
       case CODEC_ID_AVC2:
         return getAvcProfileAndLevel(codec, parts);
+      case CODEC_ID_VP09:
+        return getVp9ProfileAndLevel(codec, parts);
       case CODEC_ID_HEV1:
       case CODEC_ID_HVC1:
         return getHevcProfileAndLevel(codec, parts);
@@ -640,6 +646,34 @@ public final class MediaCodecUtil {
     return new Pair<>(profile, level);
   }
 
+  private static Pair<Integer, Integer> getVp9ProfileAndLevel(String codec, String[] parts) {
+    if (parts.length < 3) {
+      Log.w(TAG, "Ignoring malformed VP9 codec string: " + codec);
+      return null;
+    }
+    int profileInteger;
+    int levelInteger;
+    try {
+      profileInteger = Integer.parseInt(parts[1]);
+      levelInteger = Integer.parseInt(parts[2]);
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Ignoring malformed VP9 codec string: " + codec);
+      return null;
+    }
+
+    int profile = VP9_PROFILE_NUMBER_TO_CONST.get(profileInteger, -1);
+    if (profile == -1) {
+      Log.w(TAG, "Unknown VP9 profile: " + profileInteger);
+      return null;
+    }
+    int level = VP9_LEVEL_NUMBER_TO_CONST.get(levelInteger, -1);
+    if (level == -1) {
+      Log.w(TAG, "Unknown VP9 level: " + levelInteger);
+      return null;
+    }
+    return new Pair<>(profile, level);
+  }
+
   /**
    * Conversion values taken from ISO 14496-10 Table A-1.
    *
@@ -894,6 +928,26 @@ public final class MediaCodecUtil {
     AVC_LEVEL_NUMBER_TO_CONST.put(50, CodecProfileLevel.AVCLevel5);
     AVC_LEVEL_NUMBER_TO_CONST.put(51, CodecProfileLevel.AVCLevel51);
     AVC_LEVEL_NUMBER_TO_CONST.put(52, CodecProfileLevel.AVCLevel52);
+
+    VP9_PROFILE_NUMBER_TO_CONST = new SparseIntArray();
+    VP9_PROFILE_NUMBER_TO_CONST.put(0, CodecProfileLevel.VP9Profile0);
+    VP9_PROFILE_NUMBER_TO_CONST.put(1, CodecProfileLevel.VP9Profile1);
+    VP9_PROFILE_NUMBER_TO_CONST.put(2, CodecProfileLevel.VP9Profile2);
+    VP9_PROFILE_NUMBER_TO_CONST.put(3, CodecProfileLevel.VP9Profile3);
+    VP9_LEVEL_NUMBER_TO_CONST = new SparseIntArray();
+    VP9_LEVEL_NUMBER_TO_CONST.put(10, CodecProfileLevel.VP9Level1);
+    VP9_LEVEL_NUMBER_TO_CONST.put(11, CodecProfileLevel.VP9Level11);
+    VP9_LEVEL_NUMBER_TO_CONST.put(20, CodecProfileLevel.VP9Level2);
+    VP9_LEVEL_NUMBER_TO_CONST.put(21, CodecProfileLevel.VP9Level21);
+    VP9_LEVEL_NUMBER_TO_CONST.put(30, CodecProfileLevel.VP9Level3);
+    VP9_LEVEL_NUMBER_TO_CONST.put(31, CodecProfileLevel.VP9Level31);
+    VP9_LEVEL_NUMBER_TO_CONST.put(40, CodecProfileLevel.VP9Level4);
+    VP9_LEVEL_NUMBER_TO_CONST.put(41, CodecProfileLevel.VP9Level41);
+    VP9_LEVEL_NUMBER_TO_CONST.put(50, CodecProfileLevel.VP9Level5);
+    VP9_LEVEL_NUMBER_TO_CONST.put(51, CodecProfileLevel.VP9Level51);
+    VP9_LEVEL_NUMBER_TO_CONST.put(60, CodecProfileLevel.VP9Level6);
+    VP9_LEVEL_NUMBER_TO_CONST.put(61, CodecProfileLevel.VP9Level61);
+    VP9_LEVEL_NUMBER_TO_CONST.put(62, CodecProfileLevel.VP9Level62);
 
     HEVC_CODEC_STRING_TO_PROFILE_LEVEL = new HashMap<>();
     HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L30", CodecProfileLevel.HEVCMainTierLevel1);
