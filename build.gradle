@@ -17,7 +17,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.1'
+        classpath 'com.android.tools.build:gradle:3.4.0'
         classpath 'com.novoda:bintray-release:0.9'
         classpath 'com.google.android.gms:strict-version-matcher-plugin:1.1.0'
     }
