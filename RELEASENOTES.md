@@ -6,6 +6,8 @@
   even if they are listed lower in the `MediaCodecList`.
 * Audio: fix an issue where not all audio was played out when the configuration
   for the underlying track was changing (e.g., at some period transitions).
+* UI: Change playback controls toggle from touch down to touch up events
+  ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
 
 ### 2.10.0 ###
 
