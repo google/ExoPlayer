@@ -46,18 +46,21 @@
 
 # Constructors accessed via reflection in DownloadHelper
 -dontnote com.google.android.exoplayer2.source.dash.DashMediaSource$Factory
--keepclassmembers class com.google.android.exoplayer2.source.dash.DashMediaSource$Factory {
+-keepclasseswithmembers class com.google.android.exoplayer2.source.dash.DashMediaSource$Factory {
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
+  ** setStreamKeys(java.util.List);
   com.google.android.exoplayer2.source.dash.DashMediaSource createMediaSource(android.net.Uri);
 }
 -dontnote com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory
--keepclassmembers class com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory {
+-keepclasseswithmembers class com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory {
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
+  ** setStreamKeys(java.util.List);
   com.google.android.exoplayer2.source.hls.HlsMediaSource createMediaSource(android.net.Uri);
 }
 -dontnote com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory
--keepclassmembers class com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory {
+-keepclasseswithmembers class com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory {
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
+  ** setStreamKeys(java.util.List);
   com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource createMediaSource(android.net.Uri);
 }
 
