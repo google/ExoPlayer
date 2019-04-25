@@ -303,6 +303,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   private boolean controllerHideDuringAds;
   private boolean controllerHideOnTouch;
   private int textureViewRotation;
+  private boolean isTouching;
 
   public PlayerView(Context context) {
     this(context, null);
@@ -1048,11 +1049,21 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   }
 
   @Override
-  public boolean onTouchEvent(MotionEvent ev) {
-    if (ev.getActionMasked() != MotionEvent.ACTION_DOWN) {
-      return false;
+  public boolean onTouchEvent(MotionEvent event) {
+    switch (event.getAction()) {
+      case MotionEvent.ACTION_DOWN:
+        isTouching = true;
+        return true;
+      case MotionEvent.ACTION_UP:
+        if (isTouching) {
+          isTouching = false;
+          performClick();
+          return true;
+        }
+        return false;
+      default:
+        return false;
     }
-    return performClick();
   }
 
   @Override
