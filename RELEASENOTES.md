@@ -8,6 +8,8 @@
 * UI:
   * Allow setting `DefaultTimeBar` attributes on `PlayerView` and
     `PlayerControlView`.
+  * Change playback controls toggle from touch down to touch up events
+    ([#5784](https://github.com/google/ExoPlayer/issues/5784)).
   * Fix issue where playback controls were not kept visible on key presses
     ([#5963](https://github.com/google/ExoPlayer/issues/5963)).
 * Add a playWhenReady flag to MediaSessionConnector.PlaybackPreparer methods
