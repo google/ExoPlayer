@@ -126,6 +126,9 @@
   * Add ability to include an extras `Bundle` when reporting a custom error.
 * LoadControl: Set minimum buffer for playbacks with video equal to maximum
   buffer ([#2083](https://github.com/google/ExoPlayer/issues/2083)).
+* Log warnings when extension native libraries can't be used, to help with
+  diagnosing playback failures
+  ([#5788](https://github.com/google/ExoPlayer/issues/5788)).
 
 ### 2.9.6 ###
 
