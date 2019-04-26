@@ -80,6 +80,17 @@ public final class Cea608Decoder extends CeaDecoder {
    * at which point the non-displayed memory becomes the displayed memory (and vice versa).
    */
   private static final byte CTRL_RESUME_CAPTION_LOADING = 0x20;
+
+  private static final byte CTRL_BACKSPACE = 0x21;
+
+  @SuppressWarnings("unused")
+  private static final byte CTRL_ALARM_OFF= 0x22; // not supported any more
+
+  @SuppressWarnings("unused")
+  private static final byte CTRL_ALARM_ON= 0x23; // not supported any more
+
+  private static final byte CTRL_DELETE_TO_END_OF_ROW = 0x24;
+
   /**
    * Command initiating roll-up style captioning, with the maximum of 2 rows displayed
    * simultaneously.
@@ -95,11 +106,25 @@ public final class Cea608Decoder extends CeaDecoder {
    * simultaneously.
    */
   private static final byte CTRL_ROLL_UP_CAPTIONS_4_ROWS = 0x27;
+
+  @SuppressWarnings("unused")
+  private static final byte CTRL_FLASH_ON = 0x28; // not supported any more
   /**
    * Command initiating paint-on style captioning. Subsequent data should be addressed immediately
    * to displayed memory without need for the {@link #CTRL_RESUME_CAPTION_LOADING} command.
    */
   private static final byte CTRL_RESUME_DIRECT_CAPTIONING = 0x29;
+  /**
+   * TEXT commands are switching to TEXT mode from CAPTION mode. All consecutive incoming
+   * data must be filtered out until a command is received that switches back to CAPTION mode
+   */
+  private static final byte CTRL_TEXT_RESTART = 0x2A;
+  private static final byte CTRL_RESUME_TEXT_DISPLAY = 0x2B;
+
+  private static final byte CTRL_ERASE_DISPLAYED_MEMORY = 0x2C;
+  private static final byte CTRL_CARRIAGE_RETURN = 0x2D;
+  private static final byte CTRL_ERASE_NON_DISPLAYED_MEMORY = 0x2E;
+
   /**
    * Command indicating the end of a pop-on style caption. At this point the caption loaded in
    * non-displayed memory should be swapped with the one in displayed memory. If no
@@ -107,13 +132,6 @@ public final class Cea608Decoder extends CeaDecoder {
    * receiver into pop-on style.
    */
   private static final byte CTRL_END_OF_CAPTION = 0x2F;
-
-  private static final byte CTRL_ERASE_DISPLAYED_MEMORY = 0x2C;
-  private static final byte CTRL_CARRIAGE_RETURN = 0x2D;
-  private static final byte CTRL_ERASE_NON_DISPLAYED_MEMORY = 0x2E;
-  private static final byte CTRL_DELETE_TO_END_OF_ROW = 0x24;
-
-  private static final byte CTRL_BACKSPACE = 0x21;
 
   // Basic North American 608 CC char set, mostly ASCII. Indexed by (char-0x20).
   private static final int[] BASIC_CHARACTER_SET = new int[] {
@@ -237,6 +255,11 @@ public final class Cea608Decoder extends CeaDecoder {
   private byte repeatableControlCc2;
   private int currentChannel;
 
+  // The incoming characters may belong to 3 different services based on the last received control
+  // codes. The 3 services are Captioning, Text and XDS. In this decoder we only intend to process
+  // bytes belonging to the Captioning service.
+  private boolean isInCaptionMode = true;
+
   public Cea608Decoder(String mimeType, int accessibilityChannel) {
     ccData = new ParsableByteArray();
     cueBuilders = new ArrayList<>();
@@ -288,6 +311,7 @@ public final class Cea608Decoder extends CeaDecoder {
     repeatableControlCc1 = 0;
     repeatableControlCc2 = 0;
     currentChannel = NTSC_CC_CHANNEL_1;
+    isInCaptionMode = true;
   }
 
   @Override
@@ -304,6 +328,38 @@ public final class Cea608Decoder extends CeaDecoder {
   protected Subtitle createSubtitle() {
     lastCues = cues;
     return new CeaSubtitle(cues);
+  }
+
+  private boolean isCodeForUnsupportedMode(byte cc1, byte cc2) {
+    // Control codes from 0x01 to 0x0F indicate the beginning of XDS Data
+    if (0x01 <= cc1 && cc1 <= 0x0F) {
+      return true;
+    }
+
+    // 2 commands switch to TEXT mode.
+    if (((cc1 & 0xF7) == 0x14) // first byte must be 0x14 or 0x1C based on channel
+        && (cc2 == CTRL_TEXT_RESTART || cc2 == CTRL_RESUME_TEXT_DISPLAY)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private static boolean isControlCodeSwitchingToCaptionMode(byte cc1, byte cc2) {
+    if ((cc1 & 0xF7) != 0x14) { // Matching commands must have the CC1 value: 0|0|0|1|CH|1|0|0 where CH is the channel bit
+      return false;
+    }
+
+    switch (cc2) {
+      case CTRL_END_OF_CAPTION:
+      case CTRL_RESUME_CAPTION_LOADING:
+      case CTRL_RESUME_DIRECT_CAPTIONING:
+      case CTRL_ROLL_UP_CAPTIONS_2_ROWS:
+      case CTRL_ROLL_UP_CAPTIONS_3_ROWS:
+      case CTRL_ROLL_UP_CAPTIONS_4_ROWS:
+        return true;
+    }
+    return false;
   }
 
   @SuppressWarnings("ByteBufferBackingArray")
@@ -363,6 +419,16 @@ public final class Cea608Decoder extends CeaDecoder {
         continue;
       }
 
+      if (isCodeForUnsupportedMode(ccData1, ccData2)) {
+        isInCaptionMode = false;
+        continue;
+      } else if (!isInCaptionMode) {
+        if (!isControlCodeSwitchingToCaptionMode(ccData1, ccData2)) {
+          continue;
+        } else {
+          isInCaptionMode = true;
+        }
+      }
       // Special North American character set.
       // ccData1 - 0|0|0|1|C|0|0|1
       // ccData2 - 0|0|1|1|X|X|X|X
