@@ -3,8 +3,10 @@
 ### 2.10.0 ###
 
 * Core library:
-  * Improve decoder re-use between playbacks. TODO: Write and link a blog post
-    here ([#2826](https://github.com/google/ExoPlayer/issues/2826)).
+  * Improve decoder re-use between playbacks
+    ([#2826](https://github.com/google/ExoPlayer/issues/2826)). Read
+    [this blog post](https://medium.com/google-exoplayer/improved-decoder-reuse-in-exoplayer-ef4c6d99591d)
+    for more details.
   * Rename `ExtractorMediaSource` to `ProgressiveMediaSource`.
   * Fix issue where using `ProgressiveMediaSource.Factory` would mean that
     `DefaultExtractorsFactory` would be kept by proguard. Custom
