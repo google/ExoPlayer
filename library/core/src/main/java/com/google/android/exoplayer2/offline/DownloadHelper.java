@@ -591,16 +591,27 @@ public final class DownloadHelper {
 
   /**
    * Builds a {@link DownloadRequest} for downloading the selected tracks. Must not be called until
-   * after preparation completes.
+   * after preparation completes. The uri of the {@link DownloadRequest} will be used as content id.
    *
    * @param data Application provided data to store in {@link DownloadRequest#data}.
    * @return The built {@link DownloadRequest}.
    */
   public DownloadRequest getDownloadRequest(@Nullable byte[] data) {
-    String downloadId = uri.toString();
+    return getDownloadRequest(uri.toString(), data);
+  }
+
+  /**
+   * Builds a {@link DownloadRequest} for downloading the selected tracks. Must not be called until
+   * after preparation completes.
+   *
+   * @param id The unique content id.
+   * @param data Application provided data to store in {@link DownloadRequest#data}.
+   * @return The built {@link DownloadRequest}.
+   */
+  public DownloadRequest getDownloadRequest(String id, @Nullable byte[] data) {
     if (mediaSource == null) {
       return new DownloadRequest(
-          downloadId, downloadType, uri, /* streamKeys= */ Collections.emptyList(), cacheKey, data);
+          id, downloadType, uri, /* streamKeys= */ Collections.emptyList(), cacheKey, data);
     }
     assertPreparedWithMedia();
     List<StreamKey> streamKeys = new ArrayList<>();
@@ -614,7 +625,7 @@ public final class DownloadHelper {
       }
       streamKeys.addAll(mediaPreparer.mediaPeriods[periodIndex].getStreamKeys(allSelections));
     }
-    return new DownloadRequest(downloadId, downloadType, uri, streamKeys, cacheKey, data);
+    return new DownloadRequest(id, downloadType, uri, streamKeys, cacheKey, data);
   }
 
   // Initialization of array of Lists.
