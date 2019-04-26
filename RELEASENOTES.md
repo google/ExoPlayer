@@ -23,7 +23,8 @@
     ([#5520](https://github.com/google/ExoPlayer/issues/5520)).
 * Offline:
   * Improve offline support. `DownloadManager` now tracks all offline content,
-    not just tasks in progress. TODO: Write and link a blog post here.
+    not just tasks in progress.  Read [this page](https://exoplayer.dev/downloading-media.html) for
+    more details.
 * Caching:
   * Improve performance of `SimpleCache`
     ([#4253](https://github.com/google/ExoPlayer/issues/4253)).
