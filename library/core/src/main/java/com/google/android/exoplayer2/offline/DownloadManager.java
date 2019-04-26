@@ -133,11 +133,13 @@ public final class DownloadManager {
   private static final int MSG_SET_DOWNLOADS_PAUSED = 1;
   private static final int MSG_SET_NOT_MET_REQUIREMENTS = 2;
   private static final int MSG_SET_STOP_REASON = 3;
-  private static final int MSG_ADD_DOWNLOAD = 4;
-  private static final int MSG_REMOVE_DOWNLOAD = 5;
-  private static final int MSG_DOWNLOAD_THREAD_STOPPED = 6;
-  private static final int MSG_CONTENT_LENGTH_CHANGED = 7;
-  private static final int MSG_RELEASE = 8;
+  private static final int MSG_SET_MAX_PARALLEL_DOWNLOADS = 4;
+  private static final int MSG_SET_MIN_RETRY_COUNT = 5;
+  private static final int MSG_ADD_DOWNLOAD = 6;
+  private static final int MSG_REMOVE_DOWNLOAD = 7;
+  private static final int MSG_DOWNLOAD_THREAD_STOPPED = 8;
+  private static final int MSG_CONTENT_LENGTH_CHANGED = 9;
+  private static final int MSG_RELEASE = 10;
 
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
@@ -179,16 +181,16 @@ public final class DownloadManager {
   private boolean initialized;
   private boolean released;
   private boolean downloadsPaused;
+  private int maxParallelDownloads;
+  private int minRetryCount;
   private RequirementsWatcher requirementsWatcher;
 
   // Mutable fields that are accessed on the internal thread.
   @Requirements.RequirementFlags private int notMetRequirements;
   private boolean downloadsPausedInternal;
+  private int maxParallelDownloadsInternal;
+  private int minRetryCountInternal;
   private int parallelDownloads;
-
-  // TODO: Fix these to properly support changes at runtime.
-  private volatile int maxParallelDownloads;
-  private volatile int minRetryCount;
 
   /**
    * Constructs a {@link DownloadManager}.
@@ -221,7 +223,9 @@ public final class DownloadManager {
     this.downloadIndex = downloadIndex;
     this.downloaderFactory = downloaderFactory;
     maxParallelDownloads = DEFAULT_MAX_PARALLEL_DOWNLOADS;
+    maxParallelDownloadsInternal = DEFAULT_MAX_PARALLEL_DOWNLOADS;
     minRetryCount = DEFAULT_MIN_RETRY_COUNT;
+    minRetryCountInternal = DEFAULT_MIN_RETRY_COUNT;
     downloadsPaused = true;
     downloadsPausedInternal = true;
 
@@ -319,9 +323,15 @@ public final class DownloadManager {
    *
    * @param maxParallelDownloads The maximum number of parallel downloads.
    */
-  // TODO: Fix to properly support changes at runtime.
   public void setMaxParallelDownloads(int maxParallelDownloads) {
+    if (this.maxParallelDownloads == maxParallelDownloads) {
+      return;
+    }
     this.maxParallelDownloads = maxParallelDownloads;
+    pendingMessages++;
+    internalHandler
+        .obtainMessage(MSG_SET_MAX_PARALLEL_DOWNLOADS, maxParallelDownloads, /* unused */ 0)
+        .sendToTarget();
   }
 
   /**
@@ -338,9 +348,15 @@ public final class DownloadManager {
    *
    * @param minRetryCount The minimum number of times that a download will be retried.
    */
-  // TODO: Fix to properly support changes at runtime.
   public void setMinRetryCount(int minRetryCount) {
+    if (this.minRetryCount == minRetryCount) {
+      return;
+    }
     this.minRetryCount = minRetryCount;
+    pendingMessages++;
+    internalHandler
+        .obtainMessage(MSG_SET_MIN_RETRY_COUNT, minRetryCount, /* unused */ 0)
+        .sendToTarget();
   }
 
   /** Returns the used {@link DownloadIndex}. */
@@ -587,6 +603,14 @@ public final class DownloadManager {
         int stopReason = message.arg1;
         setStopReasonInternal(id, stopReason);
         break;
+      case MSG_SET_MAX_PARALLEL_DOWNLOADS:
+        int maxParallelDownloads = message.arg1;
+        setMaxParallelDownloadsInternal(maxParallelDownloads);
+        break;
+      case MSG_SET_MIN_RETRY_COUNT:
+        int minRetryCount = message.arg1;
+        setMinRetryCountInternal(minRetryCount);
+        break;
       case MSG_ADD_DOWNLOAD:
         DownloadRequest request = (DownloadRequest) message.obj;
         stopReason = message.arg1;
@@ -688,6 +712,15 @@ public final class DownloadManager {
     }
   }
 
+  private void setMaxParallelDownloadsInternal(int maxParallelDownloads) {
+    maxParallelDownloadsInternal = maxParallelDownloads;
+    // TODO: Start or stop downloads if necessary.
+  }
+
+  private void setMinRetryCountInternal(int minRetryCount) {
+    minRetryCountInternal = minRetryCount;
+  }
+
   private void addDownloadInternal(DownloadRequest request, int stopReason) {
     DownloadInternal downloadInternal = getDownload(request.id);
     if (downloadInternal != null) {
@@ -736,14 +769,14 @@ public final class DownloadManager {
     boolean tryToStartDownloads = false;
     if (!downloadThread.isRemove) {
       // If maxParallelDownloads was hit, there might be a download waiting for a slot.
-      tryToStartDownloads = parallelDownloads == maxParallelDownloads;
+      tryToStartDownloads = parallelDownloads == maxParallelDownloadsInternal;
       parallelDownloads--;
     }
     getDownload(downloadId)
         .onDownloadThreadStopped(downloadThread.isCanceled, downloadThread.finalError);
     if (tryToStartDownloads) {
       for (int i = 0;
-          parallelDownloads < maxParallelDownloads && i < downloadInternals.size();
+          parallelDownloads < maxParallelDownloadsInternal && i < downloadInternals.size();
           i++) {
         downloadInternals.get(i).start();
       }
@@ -804,7 +837,7 @@ public final class DownloadManager {
     }
     boolean isRemove = downloadInternal.isInRemoveState();
     if (!isRemove) {
-      if (parallelDownloads == maxParallelDownloads) {
+      if (parallelDownloads == maxParallelDownloadsInternal) {
         return START_THREAD_TOO_MANY_DOWNLOADS;
       }
       parallelDownloads++;
@@ -813,7 +846,12 @@ public final class DownloadManager {
     DownloadProgress downloadProgress = downloadInternal.download.progress;
     DownloadThread downloadThread =
         new DownloadThread(
-            request, downloader, downloadProgress, isRemove, minRetryCount, internalHandler);
+            request,
+            downloader,
+            downloadProgress,
+            isRemove,
+            minRetryCountInternal,
+            internalHandler);
     downloadThreads.put(downloadId, downloadThread);
     downloadThread.start();
     logd("Download is started", downloadInternal);
