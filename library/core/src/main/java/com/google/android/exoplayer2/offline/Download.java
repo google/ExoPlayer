@@ -43,7 +43,17 @@ public final class Download {
   })
   public @interface State {}
   // Important: These constants are persisted into DownloadIndex. Do not change them.
-  /** The download is waiting to be started. */
+  /**
+   * The download is waiting to be started. A download may be queued because the {@link
+   * DownloadManager}
+   *
+   * <ul>
+   *   <li>Is {@link DownloadManager#getDownloadsPaused() paused}
+   *   <li>Has {@link DownloadManager#getRequirements() Requirements} that are not met
+   *   <li>Has already started {@link DownloadManager#getMaxParallelDownloads()
+   *       maxParallelDownloads}
+   * </ul>
+   */
   public static final int STATE_QUEUED = 0;
   /** The download is stopped for a specified {@link #stopReason}. */
   public static final int STATE_STOPPED = 1;
