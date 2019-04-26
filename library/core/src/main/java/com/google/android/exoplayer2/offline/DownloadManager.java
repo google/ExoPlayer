@@ -34,8 +34,14 @@ import android.os.Message;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSource.Factory;
+import com.google.android.exoplayer2.upstream.cache.Cache;
+import com.google.android.exoplayer2.upstream.cache.CacheEvictor;
+import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -182,6 +188,24 @@ public final class DownloadManager {
   // TODO: Fix these to properly support changes at runtime.
   private volatile int maxParallelDownloads;
   private volatile int minRetryCount;
+
+  /**
+   * Constructs a {@link DownloadManager}.
+   *
+   * @param context Any context.
+   * @param databaseProvider Provides the SQLite database in which downloads are persisted.
+   * @param cache A cache to be used to store downloaded data. The cache should be configured with
+   *     an {@link CacheEvictor} that will not evict downloaded content, for example {@link
+   *     NoOpCacheEvictor}.
+   * @param upstreamFactory A {@link Factory} for creating {@link DataSource}s for downloading data.
+   */
+  public DownloadManager(
+      Context context, DatabaseProvider databaseProvider, Cache cache, Factory upstreamFactory) {
+    this(
+        context,
+        new DefaultDownloadIndex(databaseProvider),
+        new DefaultDownloaderFactory(new DownloaderConstructorHelper(cache, upstreamFactory)));
+  }
 
   /**
    * Constructs a {@link DownloadManager}.
