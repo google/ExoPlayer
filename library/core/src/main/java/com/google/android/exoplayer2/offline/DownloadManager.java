@@ -130,7 +130,7 @@ public final class DownloadManager {
 
   // Messages posted to the background handler.
   private static final int MSG_INITIALIZE = 0;
-  private static final int MSG_SET_DOWNLOADS_RESUMED = 1;
+  private static final int MSG_SET_DOWNLOADS_PAUSED = 1;
   private static final int MSG_SET_NOT_MET_REQUIREMENTS = 2;
   private static final int MSG_SET_STOP_REASON = 3;
   private static final int MSG_ADD_DOWNLOAD = 4;
@@ -178,11 +178,12 @@ public final class DownloadManager {
   private int activeDownloadCount;
   private boolean initialized;
   private boolean released;
+  private boolean downloadsPaused;
   private RequirementsWatcher requirementsWatcher;
 
   // Mutable fields that are accessed on the internal thread.
   @Requirements.RequirementFlags private int notMetRequirements;
-  private boolean downloadsResumed;
+  private boolean downloadsPausedInternal;
   private int parallelDownloads;
 
   // TODO: Fix these to properly support changes at runtime.
@@ -221,6 +222,8 @@ public final class DownloadManager {
     this.downloaderFactory = downloaderFactory;
     maxParallelDownloads = DEFAULT_MAX_PARALLEL_DOWNLOADS;
     minRetryCount = DEFAULT_MIN_RETRY_COUNT;
+    downloadsPaused = true;
+    downloadsPausedInternal = true;
 
     downloadInternals = new ArrayList<>();
     downloads = new ArrayList<>();
@@ -306,6 +309,11 @@ public final class DownloadManager {
     onRequirementsStateChanged(requirementsWatcher, notMetRequirements);
   }
 
+  /** Returns the maximum number of parallel downloads. */
+  public int getMaxParallelDownloads() {
+    return maxParallelDownloads;
+  }
+
   /**
    * Sets the maximum number of parallel downloads.
    *
@@ -314,6 +322,14 @@ public final class DownloadManager {
   // TODO: Fix to properly support changes at runtime.
   public void setMaxParallelDownloads(int maxParallelDownloads) {
     this.maxParallelDownloads = maxParallelDownloads;
+  }
+
+  /**
+   * Returns the minimum number of times that a download will be retried. A download will fail if
+   * the specified number of retries is exceeded without any progress being made.
+   */
+  public int getMinRetryCount() {
+    return minRetryCount;
   }
 
   /**
@@ -341,19 +357,41 @@ public final class DownloadManager {
     return Collections.unmodifiableList(new ArrayList<>(downloads));
   }
 
-  /** Resumes all downloads except those that have a non-zero {@link Download#stopReason}. */
+  /** Returns whether downloads are currently paused. */
+  public boolean getDownloadsPaused() {
+    return downloadsPaused;
+  }
+
+  /**
+   * Resumes downloads.
+   *
+   * <p>If the {@link #setRequirements(Requirements) Requirements} are met up to {@link
+   * #getMaxParallelDownloads() maxParallelDownloads} will be started, excluding those with non-zero
+   * {@link Download#stopReason stopReasons}.
+   */
   public void resumeDownloads() {
+    if (!downloadsPaused) {
+      return;
+    }
+    downloadsPaused = false;
     pendingMessages++;
     internalHandler
-        .obtainMessage(MSG_SET_DOWNLOADS_RESUMED, /* downloadsResumed */ 1, /* unused */ 0)
+        .obtainMessage(MSG_SET_DOWNLOADS_PAUSED, /* downloadsPaused */ 0, /* unused */ 0)
         .sendToTarget();
   }
 
-  /** Pauses all downloads. */
+  /**
+   * Pauses downloads. Downloads that would otherwise be making progress transition to {@link
+   * Download#STATE_QUEUED}.
+   */
   public void pauseDownloads() {
+    if (downloadsPaused) {
+      return;
+    }
+    downloadsPaused = true;
     pendingMessages++;
     internalHandler
-        .obtainMessage(MSG_SET_DOWNLOADS_RESUMED, /* downloadsResumed */ 0, /* unused */ 0)
+        .obtainMessage(MSG_SET_DOWNLOADS_PAUSED, /* downloadsPaused */ 1, /* unused */ 0)
         .sendToTarget();
   }
 
@@ -536,9 +574,9 @@ public final class DownloadManager {
         int notMetRequirements = message.arg1;
         initializeInternal(notMetRequirements);
         break;
-      case MSG_SET_DOWNLOADS_RESUMED:
-        boolean downloadsResumed = message.arg1 != 0;
-        setDownloadsResumed(downloadsResumed);
+      case MSG_SET_DOWNLOADS_PAUSED:
+        boolean downloadsPaused = message.arg1 != 0;
+        setDownloadsPausedInternal(downloadsPaused);
         break;
       case MSG_SET_NOT_MET_REQUIREMENTS:
         notMetRequirements = message.arg1;
@@ -604,11 +642,11 @@ public final class DownloadManager {
     }
   }
 
-  private void setDownloadsResumed(boolean downloadsResumed) {
-    if (this.downloadsResumed == downloadsResumed) {
+  private void setDownloadsPausedInternal(boolean downloadsPaused) {
+    if (this.downloadsPausedInternal == downloadsPaused) {
       return;
     }
-    this.downloadsResumed = downloadsResumed;
+    this.downloadsPausedInternal = downloadsPaused;
     for (int i = 0; i < downloadInternals.size(); i++) {
       downloadInternals.get(i).updateStopState();
     }
@@ -820,7 +858,7 @@ public final class DownloadManager {
   }
 
   private boolean canStartDownloads() {
-    return downloadsResumed && notMetRequirements == 0;
+    return !downloadsPausedInternal && notMetRequirements == 0;
   }
 
   /* package */ static Download mergeRequest(
