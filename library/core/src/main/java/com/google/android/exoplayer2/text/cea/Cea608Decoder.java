@@ -83,12 +83,6 @@ public final class Cea608Decoder extends CeaDecoder {
 
   private static final byte CTRL_BACKSPACE = 0x21;
 
-  @SuppressWarnings("unused")
-  private static final byte CTRL_ALARM_OFF= 0x22; // not supported any more
-
-  @SuppressWarnings("unused")
-  private static final byte CTRL_ALARM_ON= 0x23; // not supported any more
-
   private static final byte CTRL_DELETE_TO_END_OF_ROW = 0x24;
 
   /**
@@ -258,7 +252,7 @@ public final class Cea608Decoder extends CeaDecoder {
   // The incoming characters may belong to 3 different services based on the last received control
   // codes. The 3 services are Captioning, Text and XDS. In this decoder we only intend to process
   // bytes belonging to the Captioning service.
-  private boolean isInCaptionMode = true;
+  private boolean isInCaptionMode;
 
   public Cea608Decoder(String mimeType, int accessibilityChannel) {
     ccData = new ParsableByteArray();
@@ -291,6 +285,7 @@ public final class Cea608Decoder extends CeaDecoder {
 
     setCaptionMode(CC_MODE_UNKNOWN);
     resetCueBuilders();
+    isInCaptionMode = true;
   }
 
   @Override
@@ -330,14 +325,14 @@ public final class Cea608Decoder extends CeaDecoder {
     return new CeaSubtitle(cues);
   }
 
-  private boolean isCodeForUnsupportedMode(byte cc1, byte cc2) {
+  private static boolean isCodeForUnsupportedMode(byte cc1, byte cc2) {
     // Control codes from 0x01 to 0x0F indicate the beginning of XDS Data
     if (0x01 <= cc1 && cc1 <= 0x0F) {
       return true;
     }
 
     // 2 commands switch to TEXT mode.
-    if (((cc1 & 0xF7) == 0x14) // first byte must be 0x14 or 0x1C based on channel
+    if ((isModeSwitchCommand(cc1))
         && (cc2 == CTRL_TEXT_RESTART || cc2 == CTRL_RESUME_TEXT_DISPLAY)) {
       return true;
     }
@@ -345,8 +340,13 @@ public final class Cea608Decoder extends CeaDecoder {
     return false;
   }
 
+  // first byte of these commands must be 0x14 or 0x1C based on channel
+  private static boolean isModeSwitchCommand(byte cc1) {
+    return (cc1 & 0xF7) == 0x14;
+  }
+
   private static boolean isControlCodeSwitchingToCaptionMode(byte cc1, byte cc2) {
-    if ((cc1 & 0xF7) != 0x14) { // Matching commands must have the CC1 value: 0|0|0|1|CH|1|0|0 where CH is the channel bit
+    if (!isModeSwitchCommand(cc1)) {
       return false;
     }
 
