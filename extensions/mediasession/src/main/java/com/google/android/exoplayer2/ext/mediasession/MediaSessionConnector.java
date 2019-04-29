@@ -146,6 +146,9 @@ public final class MediaSessionConnector {
   private static final int EDITOR_MEDIA_SESSION_FLAGS =
       BASE_MEDIA_SESSION_FLAGS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 
+  private static final MediaMetadataCompat METADATA_EMPTY =
+      new MediaMetadataCompat.Builder().build();
+
   /** Receiver of media commands sent by a media controller. */
   public interface CommandReceiver {
     /**
@@ -639,8 +642,8 @@ public final class MediaSessionConnector {
     MediaMetadataCompat metadata =
         mediaMetadataProvider != null && player != null
             ? mediaMetadataProvider.getMetadata(player)
-            : null;
-    mediaSession.setMetadata(metadata);
+            : METADATA_EMPTY;
+    mediaSession.setMetadata(metadata != null ? metadata : METADATA_EMPTY);
   }
 
   /**
@@ -888,7 +891,7 @@ public final class MediaSessionConnector {
     @Override
     public MediaMetadataCompat getMetadata(Player player) {
       if (player.getCurrentTimeline().isEmpty()) {
-        return null;
+        return METADATA_EMPTY;
       }
       MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
       if (player.isPlayingAd()) {
