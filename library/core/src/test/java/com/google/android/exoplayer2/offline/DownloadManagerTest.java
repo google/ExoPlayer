@@ -359,7 +359,7 @@ public class DownloadManagerTest {
   }
 
   @Test
-  public void stopAndResume() throws Throwable {
+  public void pauseAndResume() throws Throwable {
     DownloadRunner runner1 = new DownloadRunner(uri1);
     DownloadRunner runner2 = new DownloadRunner(uri2);
     DownloadRunner runner3 = new DownloadRunner(uri3);
@@ -370,10 +370,12 @@ public class DownloadManagerTest {
 
     runOnMainThread(() -> downloadManager.pauseDownloads());
 
+    // TODO: This should be assertQueued. Fix implementation and update test.
     runner1.getTask().assertStopped();
 
     // remove requests aren't stopped.
     runner2.getDownloader(1).unblock().assertReleased();
+    // TODO: This should be assertQueued. Fix implementation and update test.
     runner2.getTask().assertStopped();
     // Although remove2 is finished, download2 doesn't start.
     runner2.getDownloader(2).assertDoesNotStart();
