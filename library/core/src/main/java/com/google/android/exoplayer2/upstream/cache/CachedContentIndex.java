@@ -94,7 +94,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Nullable private Storage previousStorage;
 
   /** Returns whether the file is an index file. */
-  public static final boolean isIndexFile(String fileName) {
+  public static boolean isIndexFile(String fileName) {
     // Atomic file backups add additional suffixes to the file name.
     return fileName.startsWith(FILE_NAME_ATOMIC);
   }

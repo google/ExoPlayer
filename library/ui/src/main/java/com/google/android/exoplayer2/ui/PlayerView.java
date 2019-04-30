@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.ui;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -1076,8 +1075,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * Should be called when the player is visible to the user and if {@code surface_type} is {@code
    * spherical_view}. It is the counterpart to {@link #onPause()}.
    *
-   * <p>This method should typically be called in {@link Activity#onStart()}, or {@link
-   * Activity#onResume()} for API versions &lt;= 23.
+   * <p>This method should typically be called in {@code Activity.onStart()}, or {@code
+   * Activity.onResume()} for API versions &lt;= 23.
    */
   public void onResume() {
     if (surfaceView instanceof SphericalSurfaceView) {
@@ -1089,8 +1088,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * Should be called when the player is no longer visible to the user and if {@code surface_type}
    * is {@code spherical_view}. It is the counterpart to {@link #onResume()}.
    *
-   * <p>This method should typically be called in {@link Activity#onStop()}, or {@link
-   * Activity#onPause()} for API versions &lt;= 23.
+   * <p>This method should typically be called in {@code Activity.onStop()}, or {@code
+   * Activity.onPause()} for API versions &lt;= 23.
    */
   public void onPause() {
     if (surfaceView instanceof SphericalSurfaceView) {
@@ -1316,7 +1315,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     logo.setBackgroundColor(resources.getColor(R.color.exo_edit_mode_background_color, null));
   }
 
-  @SuppressWarnings("deprecation")
   private static void configureEditModeLogo(Resources resources, ImageView logo) {
     logo.setImageDrawable(resources.getDrawable(R.drawable.exo_edit_mode_logo));
     logo.setBackgroundColor(resources.getColor(R.color.exo_edit_mode_background_color));

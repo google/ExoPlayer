@@ -253,13 +253,11 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
       if (windowIndex == C.INDEX_UNSET) {
         return false;
       }
-      if (adMediaPeriodId != null) {
-        int newPeriodIndex = newTimeline.getIndexOfPeriod(adMediaPeriodId.periodUid);
-        if (newPeriodIndex == C.INDEX_UNSET) {
-          return false;
-        }
+      if (adMediaPeriodId == null) {
+        return true;
       }
-      return true;
+      int newPeriodIndex = newTimeline.getIndexOfPeriod(adMediaPeriodId.periodUid);
+      return newPeriodIndex != C.INDEX_UNSET;
     }
 
     public boolean belongsToSession(

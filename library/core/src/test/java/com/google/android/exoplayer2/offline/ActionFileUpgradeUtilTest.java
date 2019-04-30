@@ -198,7 +198,6 @@ public class ActionFileUpgradeUtilTest {
     assertThat(download.state).isEqualTo(state);
   }
 
-  @SuppressWarnings("unchecked")
   private static List<StreamKey> asList(StreamKey... streamKeys) {
     return Arrays.asList(streamKeys);
   }

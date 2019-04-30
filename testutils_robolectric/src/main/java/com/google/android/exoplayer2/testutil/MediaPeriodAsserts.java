@@ -176,8 +176,8 @@ public final class MediaPeriodAsserts {
     for (int i = 0; i < trackGroup.length; i++) {
       allFormats.add(trackGroup.getFormat(i));
     }
-    for (int i = 0; i < formats.length; i++) {
-      if (!allFormats.remove(formats[i])) {
+    for (Format format : formats) {
+      if (!allFormats.remove(format)) {
         return false;
       }
     }
@@ -189,22 +189,21 @@ public final class MediaPeriodAsserts {
     DummyMainThread dummyMainThread = new DummyMainThread();
     ConditionVariable preparedCondition = new ConditionVariable();
     dummyMainThread.runOnMainThread(
-        () -> {
-          mediaPeriod.prepare(
-              new Callback() {
-                @Override
-                public void onPrepared(MediaPeriod mediaPeriod) {
-                  trackGroupArray.set(mediaPeriod.getTrackGroups());
-                  preparedCondition.open();
-                }
+        () ->
+            mediaPeriod.prepare(
+                new Callback() {
+                  @Override
+                  public void onPrepared(MediaPeriod mediaPeriod) {
+                    trackGroupArray.set(mediaPeriod.getTrackGroups());
+                    preparedCondition.open();
+                  }
 
-                @Override
-                public void onContinueLoadingRequested(MediaPeriod source) {
-                  // Ignore.
-                }
-              },
-              /* positionUs= */ 0);
-        });
+                  @Override
+                  public void onContinueLoadingRequested(MediaPeriod source) {
+                    // Ignore.
+                  }
+                },
+                /* positionUs= */ 0));
     try {
       preparedCondition.block();
     } catch (InterruptedException e) {

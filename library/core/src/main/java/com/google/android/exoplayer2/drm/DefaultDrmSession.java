@@ -500,7 +500,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void handleMessage(Message msg) {
       Object request = msg.obj;
       Object response;

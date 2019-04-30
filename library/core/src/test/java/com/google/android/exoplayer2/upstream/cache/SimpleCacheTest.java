@@ -401,11 +401,8 @@ public class SimpleCacheTest {
   private static void addCache(SimpleCache simpleCache, String key, int position, int length)
       throws IOException {
     File file = simpleCache.startFile(key, position, length);
-    FileOutputStream fos = new FileOutputStream(file);
-    try {
+    try (FileOutputStream fos = new FileOutputStream(file)) {
       fos.write(generateData(key, position, length));
-    } finally {
-      fos.close();
     }
     simpleCache.commitFile(file, length);
   }
@@ -413,11 +410,8 @@ public class SimpleCacheTest {
   private static void assertCachedDataReadCorrect(CacheSpan cacheSpan) throws IOException {
     assertThat(cacheSpan.isCached).isTrue();
     byte[] expected = generateData(cacheSpan.key, (int) cacheSpan.position, (int) cacheSpan.length);
-    FileInputStream inputStream = new FileInputStream(cacheSpan.file);
-    try {
+    try (FileInputStream inputStream = new FileInputStream(cacheSpan.file)) {
       assertThat(toByteArray(inputStream)).isEqualTo(expected);
-    } finally {
-      inputStream.close();
     }
   }
 

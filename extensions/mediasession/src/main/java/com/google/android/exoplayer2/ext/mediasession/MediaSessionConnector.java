@@ -952,8 +952,7 @@ public final class MediaSessionConnector {
             }
             if (description.getMediaId() != null) {
               builder.putString(
-                  MediaMetadataCompat.METADATA_KEY_MEDIA_ID,
-                  String.valueOf(description.getMediaId()));
+                  MediaMetadataCompat.METADATA_KEY_MEDIA_ID, description.getMediaId());
             }
             if (description.getMediaUri() != null) {
               builder.putString(
