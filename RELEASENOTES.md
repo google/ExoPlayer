@@ -103,6 +103,8 @@
     ([#5441](https://github.com/google/ExoPlayer/issues/5441)).
   * Parse `EXT-X-MEDIA` `CHARACTERISTICS` attribute into `Format.roleFlags`.
   * Add metadata entry for HLS tracks to expose master playlist information.
+  * Prevent `IndexOutOfBoundsException` in some live HLS scenarios
+    ([#5816](https://github.com/google/ExoPlayer/issues/5816)).
 * Support for playing spherical videos on Daydream.
 * Cast extension: Work around Cast framework returning a limited-size queue
   items list ([#4964](https://github.com/google/ExoPlayer/issues/4964)).
