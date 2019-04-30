@@ -278,8 +278,7 @@ import java.util.Map;
     long chunkMediaSequence =
         getChunkMediaSequence(
             previous, switchingTrack, mediaPlaylist, startOfPlaylistInPeriodUs, loadPositionUs);
-    if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
-      if (previous != null && switchingTrack) {
+    if (chunkMediaSequence < mediaPlaylist.mediaSequence && previous != null && switchingTrack) {
         // We try getting the next chunk without adapting in case that's the reason for falling
         // behind the live window.
         selectedTrackIndex = oldTrackIndex;
@@ -289,10 +288,11 @@ import java.util.Map;
         startOfPlaylistInPeriodUs =
             mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
         chunkMediaSequence = previous.getNextChunkIndex();
-      } else {
-        fatalError = new BehindLiveWindowException();
-        return;
-      }
+    }
+
+    if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
+      fatalError = new BehindLiveWindowException();
+      return;
     }
 
     int segmentIndexInPlaylist = (int) (chunkMediaSequence - mediaPlaylist.mediaSequence);
