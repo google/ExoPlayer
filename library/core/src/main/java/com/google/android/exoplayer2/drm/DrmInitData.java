@@ -428,7 +428,6 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
       dest.writeByte((byte) (requiresSecureDecryption ? 1 : 0));
     }
 
-    @SuppressWarnings("hiding")
     public static final Parcelable.Creator<SchemeData> CREATOR =
         new Parcelable.Creator<SchemeData>() {
 

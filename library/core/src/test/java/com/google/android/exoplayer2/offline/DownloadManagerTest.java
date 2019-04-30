@@ -763,15 +763,10 @@ public class DownloadManagerTest {
 
     private void block() throws InterruptedException {
       try {
-        while (true) {
-          try {
-            blocker.block();
-            break;
-          } catch (InterruptedException e) {
-            interrupted = true;
-            throw e;
-          }
-        }
+        blocker.block();
+      } catch (InterruptedException e) {
+        interrupted = true;
+        throw e;
       } finally {
         blocker.close();
       }

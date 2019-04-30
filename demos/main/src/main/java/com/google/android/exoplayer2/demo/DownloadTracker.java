@@ -82,7 +82,6 @@ public class DownloadTracker {
     return download != null && download.state != Download.STATE_FAILED;
   }
 
-  @SuppressWarnings("unchecked")
   public DownloadRequest getDownloadRequest(Uri uri) {
     Download download = downloads.get(uri);
     return download != null && download.state != Download.STATE_FAILED ? download.request : null;

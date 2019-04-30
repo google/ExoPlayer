@@ -199,7 +199,6 @@ public final class CacheDataSink implements DataSink {
     outputStreamBytesWritten = 0;
   }
 
-  @SuppressWarnings("ThrowFromFinallyBlock")
   private void closeCurrentOutputStream() throws IOException {
     if (outputStream == null) {
       return;

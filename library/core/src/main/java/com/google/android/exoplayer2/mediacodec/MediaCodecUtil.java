@@ -827,7 +827,6 @@ public final class MediaCodecUtil {
 
   }
 
-  @SuppressWarnings("deprecation")
   private static final class MediaCodecListCompatV16 implements MediaCodecListCompat {
 
     @Override

@@ -156,10 +156,10 @@ public abstract class MappingTrackSelector extends TrackSelector {
     public @RendererSupport int getRendererSupport(int rendererIndex) {
       int bestRendererSupport = RENDERER_SUPPORT_NO_TRACKS;
       int[][] rendererFormatSupport = rendererFormatSupports[rendererIndex];
-      for (int i = 0; i < rendererFormatSupport.length; i++) {
-        for (int j = 0; j < rendererFormatSupport[i].length; j++) {
+      for (int[] trackGroupFormatSupport : rendererFormatSupport) {
+        for (int trackFormatSupport : trackGroupFormatSupport) {
           int trackRendererSupport;
-          switch (rendererFormatSupport[i][j] & RendererCapabilities.FORMAT_SUPPORT_MASK) {
+          switch (trackFormatSupport & RendererCapabilities.FORMAT_SUPPORT_MASK) {
             case RendererCapabilities.FORMAT_HANDLED:
               return RENDERER_SUPPORT_PLAYABLE_TRACKS;
             case RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES:

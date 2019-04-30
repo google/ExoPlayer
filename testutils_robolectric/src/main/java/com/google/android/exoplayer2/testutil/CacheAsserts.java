@@ -114,14 +114,11 @@ public final class CacheAsserts {
    */
   public static void assertReadData(DataSource dataSource, DataSpec dataSpec, byte[] expected)
       throws IOException {
-    DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
     byte[] bytes = null;
-    try {
+    try (DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec)) {
       bytes = Util.toByteArray(inputStream);
     } catch (IOException e) {
       // Ignore
-    } finally {
-      inputStream.close();
     }
     assertThat(bytes).isEqualTo(expected);
   }

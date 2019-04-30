@@ -80,7 +80,6 @@ public final class SphericalSurfaceView extends GLSurfaceView {
   private final SensorManager sensorManager;
   private final @Nullable Sensor orientationSensor;
   private final OrientationListener orientationListener;
-  private final Renderer renderer;
   private final Handler mainHandler;
   private final TouchTracker touchTracker;
   private final SceneRenderer scene;
@@ -114,7 +113,7 @@ public final class SphericalSurfaceView extends GLSurfaceView {
     this.orientationSensor = orientationSensor;
 
     scene = new SceneRenderer();
-    renderer = new Renderer(scene);
+    Renderer renderer = new Renderer(scene);
 
     touchTracker = new TouchTracker(context, renderer, PX_PER_DEGREES);
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -332,7 +331,7 @@ public final class SphericalSurfaceView extends GLSurfaceView {
     private float calculateFieldOfViewInYDirection(float aspect) {
       boolean landscapeMode = aspect > 1;
       if (landscapeMode) {
-        double halfFovX = FIELD_OF_VIEW_DEGREES / 2;
+        double halfFovX = FIELD_OF_VIEW_DEGREES / 2f;
         double tanY = Math.tan(Math.toRadians(halfFovX)) / aspect;
         double halfFovY = Math.toDegrees(Math.atan(tanY));
         return (float) (halfFovY * 2);

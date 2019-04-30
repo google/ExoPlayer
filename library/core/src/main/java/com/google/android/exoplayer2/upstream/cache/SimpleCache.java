@@ -780,7 +780,6 @@ public final class SimpleCache implements Cache {
    *
    * @param files The files belonging to the root directory.
    * @return The loaded UID, or {@link #UID_UNSET} if a UID has not yet been created.
-   * @throws IOException If there is an error loading or generating the UID.
    */
   private static long loadUid(File[] files) {
     for (File file : files) {
