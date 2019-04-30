@@ -963,7 +963,7 @@ public final class ImaAdsLoader
   }
 
   @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
     if (adsManager == null) {
       return;
     }

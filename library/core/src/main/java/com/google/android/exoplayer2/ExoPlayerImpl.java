@@ -193,6 +193,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
   }
 
   @Override
+  @Player.State
   public int getPlaybackState() {
     return playbackInfo.playbackState;
   }
@@ -658,7 +659,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
   }
 
   private PlaybackInfo getResetPlaybackInfo(
-      boolean resetPosition, boolean resetState, int playbackState) {
+      boolean resetPosition, boolean resetState, @Player.State int playbackState) {
     if (resetPosition) {
       maskingWindowIndex = 0;
       maskingPeriodIndex = 0;

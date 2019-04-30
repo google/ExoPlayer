@@ -255,7 +255,7 @@ import java.util.ArrayList;
   // Player.EventListener implementation.
 
   @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
     updateCurrentItemIndex();
   }
 

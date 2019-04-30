@@ -94,7 +94,7 @@ public final class CastPlayer extends BasePlayer {
   private CastTimeline currentTimeline;
   private TrackGroupArray currentTrackGroups;
   private TrackSelectionArray currentTrackSelection;
-  private int playbackState;
+  @Player.State private int playbackState;
   private int repeatMode;
   private int currentWindowIndex;
   private boolean playWhenReady;
@@ -305,6 +305,7 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
+  @Player.State
   public int getPlaybackState() {
     return playbackState;
   }

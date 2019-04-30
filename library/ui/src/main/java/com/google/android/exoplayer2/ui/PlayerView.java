@@ -1427,7 +1427,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     // Player.EventListener implementation
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
       updateBuffering();
       updateErrorMessage();
       if (isPlayingAd() && controllerHideDuringAds) {

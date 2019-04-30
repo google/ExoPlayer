@@ -31,7 +31,7 @@ import java.util.ArrayList;
   private final Timeline timeline;
 
   private boolean prepared;
-  private int state;
+  @Player.State private int state;
   private boolean playWhenReady;
   private long position;
   private long contentPosition;
@@ -96,8 +96,8 @@ import java.util.ArrayList;
     }
   }
 
-  /** Sets the state of this player with the given {@code STATE} constant. */
-  public void setState(int state, boolean playWhenReady) {
+  /** Sets the {@link Player.State} of this player. */
+  public void setState(@Player.State int state, boolean playWhenReady) {
     boolean notify = this.state != state || this.playWhenReady != playWhenReady;
     this.state = state;
     this.playWhenReady = playWhenReady;
@@ -131,6 +131,7 @@ import java.util.ArrayList;
   }
 
   @Override
+  @Player.State
   public int getPlaybackState() {
     return state;
   }

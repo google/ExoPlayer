@@ -994,7 +994,7 @@ public final class MediaSessionConnector {
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
       invalidateMediaSessionPlaybackState();
     }
 
