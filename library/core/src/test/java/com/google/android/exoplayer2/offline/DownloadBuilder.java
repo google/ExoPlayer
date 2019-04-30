@@ -40,7 +40,7 @@ import java.util.List;
   @Nullable private String cacheKey;
   private byte[] customMetadata;
 
-  private int state;
+  @Download.State private int state;
   private long startTimeMs;
   private long updateTimeMs;
   private long contentLength;
@@ -111,7 +111,7 @@ import java.util.List;
     return this;
   }
 
-  public DownloadBuilder setState(int state) {
+  public DownloadBuilder setState(@Download.State int state) {
     this.state = state;
     return this;
   }

@@ -137,7 +137,7 @@ public final class DownloadManager {
   private static final int MSG_SET_MIN_RETRY_COUNT = 5;
   private static final int MSG_ADD_DOWNLOAD = 6;
   private static final int MSG_REMOVE_DOWNLOAD = 7;
-  private static final int MSG_DOWNLOAD_THREAD_STOPPED = 8;
+  private static final int MSG_TASK_STOPPED = 8;
   private static final int MSG_CONTENT_LENGTH_CHANGED = 9;
   private static final int MSG_RELEASE = 10;
 
@@ -168,7 +168,7 @@ public final class DownloadManager {
   private final ArrayList<Download> downloads;
 
   private int pendingMessages;
-  private int activeDownloadCount;
+  private int activeTaskCount;
   private boolean initialized;
   private boolean downloadsPaused;
   private int maxParallelDownloads;
@@ -244,7 +244,7 @@ public final class DownloadManager {
    * download requirements are not met).
    */
   public boolean isIdle() {
-    return activeDownloadCount == 0 && pendingMessages == 0;
+    return activeTaskCount == 0 && pendingMessages == 0;
   }
 
   /**
@@ -465,7 +465,7 @@ public final class DownloadManager {
       mainHandler.removeCallbacksAndMessages(/* token= */ null);
       // Reset state.
       pendingMessages = 0;
-      activeDownloadCount = 0;
+      activeTaskCount = 0;
       initialized = false;
       downloads.clear();
     }
@@ -503,8 +503,8 @@ public final class DownloadManager {
         break;
       case MSG_PROCESSED:
         int processedMessageCount = message.arg1;
-        int activeDownloadCount = message.arg2;
-        onMessageProcessed(processedMessageCount, activeDownloadCount);
+        int activeTaskCount = message.arg2;
+        onMessageProcessed(processedMessageCount, activeTaskCount);
         break;
       default:
         throw new IllegalStateException();
@@ -543,9 +543,9 @@ public final class DownloadManager {
     }
   }
 
-  private void onMessageProcessed(int processedMessageCount, int activeDownloadCount) {
+  private void onMessageProcessed(int processedMessageCount, int activeTaskCount) {
     this.pendingMessages -= processedMessageCount;
-    this.activeDownloadCount = activeDownloadCount;
+    this.activeTaskCount = activeTaskCount;
     if (isIdle()) {
       for (Listener listener : listeners) {
         listener.onIdle(this);
@@ -627,7 +627,7 @@ public final class DownloadManager {
     private final DownloaderFactory downloaderFactory;
     private final Handler mainHandler;
     private final ArrayList<DownloadInternal> downloadInternals;
-    private final HashMap<String, DownloadThread> downloadThreads;
+    private final HashMap<String, Task> activeTasks;
 
     // Mutable fields that are accessed on the internal thread.
     @Requirements.RequirementFlags private int notMetRequirements;
@@ -653,7 +653,7 @@ public final class DownloadManager {
       this.minRetryCount = minRetryCount;
       this.downloadsPaused = downloadsPaused;
       downloadInternals = new ArrayList<>();
-      downloadThreads = new HashMap<>();
+      activeTasks = new HashMap<>();
     }
 
     @Override
@@ -694,14 +694,14 @@ public final class DownloadManager {
           id = (String) message.obj;
           removeDownload(id);
           break;
-        case MSG_DOWNLOAD_THREAD_STOPPED:
-          DownloadThread downloadThread = (DownloadThread) message.obj;
-          onDownloadThreadStopped(downloadThread);
+        case MSG_TASK_STOPPED:
+          Task task = (Task) message.obj;
+          onTaskStopped(task);
           processedExternalMessage = false; // This message is posted internally.
           break;
         case MSG_CONTENT_LENGTH_CHANGED:
-          downloadThread = (DownloadThread) message.obj;
-          onDownloadThreadContentLengthChanged(downloadThread);
+          task = (Task) message.obj;
+          onContentLengthChanged(task);
           processedExternalMessage = false; // This message is posted internally.
           break;
         case MSG_RELEASE:
@@ -711,7 +711,7 @@ public final class DownloadManager {
           throw new IllegalStateException();
       }
       mainHandler
-          .obtainMessage(MSG_PROCESSED, processedExternalMessage ? 1 : 0, downloadThreads.size())
+          .obtainMessage(MSG_PROCESSED, processedExternalMessage ? 1 : 0, activeTasks.size())
           .sendToTarget();
     }
 
@@ -832,18 +832,17 @@ public final class DownloadManager {
       }
     }
 
-    private void onDownloadThreadStopped(DownloadThread downloadThread) {
-      logd("Download is stopped", downloadThread.request);
-      String downloadId = downloadThread.request.id;
-      downloadThreads.remove(downloadId);
+    private void onTaskStopped(Task task) {
+      logd("Task is stopped", task.request);
+      String downloadId = task.request.id;
+      activeTasks.remove(downloadId);
       boolean tryToStartDownloads = false;
-      if (!downloadThread.isRemove) {
+      if (!task.isRemove) {
         // If maxParallelDownloads was hit, there might be a download waiting for a slot.
         tryToStartDownloads = parallelDownloads == maxParallelDownloads;
         parallelDownloads--;
       }
-      getDownload(downloadId)
-          .onDownloadThreadStopped(downloadThread.isCanceled, downloadThread.finalError);
+      getDownload(downloadId).onTaskStopped(task.isCanceled, task.finalError);
       if (tryToStartDownloads) {
         for (int i = 0;
             parallelDownloads < maxParallelDownloads && i < downloadInternals.size();
@@ -853,16 +852,16 @@ public final class DownloadManager {
       }
     }
 
-    private void onDownloadThreadContentLengthChanged(DownloadThread downloadThread) {
-      String downloadId = downloadThread.request.id;
-      getDownload(downloadId).setContentLength(downloadThread.contentLength);
+    private void onContentLengthChanged(Task task) {
+      String downloadId = task.request.id;
+      getDownload(downloadId).setContentLength(task.contentLength);
     }
 
     private void release() {
-      for (DownloadThread downloadThread : downloadThreads.values()) {
-        downloadThread.cancel(/* released= */ true);
+      for (Task task : activeTasks.values()) {
+        task.cancel(/* released= */ true);
       }
-      downloadThreads.clear();
+      activeTasks.clear();
       downloadInternals.clear();
       thread.quit();
       synchronized (this) {
@@ -871,7 +870,7 @@ public final class DownloadManager {
       }
     }
 
-    private void onDownloadChangedInternal(DownloadInternal downloadInternal, Download download) {
+    private void onDownloadChanged(DownloadInternal downloadInternal, Download download) {
       logd("Download state is changed", downloadInternal);
       try {
         downloadIndex.putDownload(download);
@@ -884,7 +883,7 @@ public final class DownloadManager {
       mainHandler.obtainMessage(MSG_DOWNLOAD_CHANGED, download).sendToTarget();
     }
 
-    private void onDownloadRemovedInternal(DownloadInternal downloadInternal, Download download) {
+    private void onDownloadRemoved(DownloadInternal downloadInternal, Download download) {
       logd("Download is removed", downloadInternal);
       try {
         downloadIndex.removeDownload(download.request.id);
@@ -896,11 +895,11 @@ public final class DownloadManager {
     }
 
     @StartThreadResults
-    private int startDownloadThread(DownloadInternal downloadInternal) {
+    private int startTask(DownloadInternal downloadInternal) {
       DownloadRequest request = downloadInternal.download.request;
       String downloadId = request.id;
-      if (downloadThreads.containsKey(downloadId)) {
-        if (stopDownloadThreadInternal(downloadId)) {
+      if (activeTasks.containsKey(downloadId)) {
+        if (stopDownloadTask(downloadId)) {
           return START_THREAD_WAIT_DOWNLOAD_CANCELLATION;
         }
         return START_THREAD_WAIT_REMOVAL_TO_FINISH;
@@ -914,19 +913,25 @@ public final class DownloadManager {
       }
       Downloader downloader = downloaderFactory.createDownloader(request);
       DownloadProgress downloadProgress = downloadInternal.download.progress;
-      DownloadThread downloadThread =
-          new DownloadThread(request, downloader, downloadProgress, isRemove, minRetryCount, this);
-      downloadThreads.put(downloadId, downloadThread);
-      downloadThread.start();
-      logd("Download is started", downloadInternal);
+      Task task =
+          new Task(
+              request,
+              downloader,
+              downloadProgress,
+              isRemove,
+              minRetryCount,
+              /* internalHandler= */ this);
+      activeTasks.put(downloadId, task);
+      task.start();
+      logd("Task is started", downloadInternal);
       return START_THREAD_SUCCEEDED;
     }
 
-    private boolean stopDownloadThreadInternal(String downloadId) {
-      DownloadThread downloadThread = downloadThreads.get(downloadId);
-      if (downloadThread != null && !downloadThread.isRemove) {
-        downloadThread.cancel(/* released= */ false);
-        logd("Download is cancelled", downloadThread.request);
+    private boolean stopDownloadTask(String downloadId) {
+      Task task = activeTasks.get(downloadId);
+      if (task != null && !task.isRemove) {
+        task.cancel(/* released= */ false);
+        logd("Task is cancelled", task.request);
         return true;
       }
       return false;
@@ -1025,7 +1030,7 @@ public final class DownloadManager {
       if (state == STATE_QUEUED || state == STATE_DOWNLOADING) {
         startOrQueue();
       } else if (isInRemoveState()) {
-        internalHandler.startDownloadThread(this);
+        internalHandler.startTask(this);
       }
     }
 
@@ -1043,7 +1048,7 @@ public final class DownloadManager {
         return;
       }
       this.contentLength = contentLength;
-      internalHandler.onDownloadChangedInternal(this, getUpdatedDownload());
+      internalHandler.onDownloadChanged(this, getUpdatedDownload());
     }
 
     private void updateStopState() {
@@ -1054,12 +1059,12 @@ public final class DownloadManager {
         }
       } else {
         if (state == STATE_DOWNLOADING || state == STATE_QUEUED) {
-          internalHandler.stopDownloadThreadInternal(download.request.id);
+          internalHandler.stopDownloadTask(download.request.id);
           setState(STATE_STOPPED);
         }
       }
       if (oldDownload == download) {
-        internalHandler.onDownloadChangedInternal(this, getUpdatedDownload());
+        internalHandler.onDownloadChanged(this, getUpdatedDownload());
       }
     }
 
@@ -1068,14 +1073,14 @@ public final class DownloadManager {
       // state immediately.
       state = initialState;
       if (isInRemoveState()) {
-        internalHandler.startDownloadThread(this);
+        internalHandler.startTask(this);
       } else if (canStart()) {
         startOrQueue();
       } else {
         setState(STATE_STOPPED);
       }
       if (state == initialState) {
-        internalHandler.onDownloadChangedInternal(this, getUpdatedDownload());
+        internalHandler.onDownloadChanged(this, getUpdatedDownload());
       }
     }
 
@@ -1085,7 +1090,7 @@ public final class DownloadManager {
 
     private void startOrQueue() {
       Assertions.checkState(!isInRemoveState());
-      @StartThreadResults int result = internalHandler.startDownloadThread(this);
+      @StartThreadResults int result = internalHandler.startTask(this);
       Assertions.checkState(result != START_THREAD_WAIT_REMOVAL_TO_FINISH);
       if (result == START_THREAD_SUCCEEDED || result == START_THREAD_WAIT_DOWNLOAD_CANCELLATION) {
         setState(STATE_DOWNLOADING);
@@ -1097,18 +1102,18 @@ public final class DownloadManager {
     private void setState(@Download.State int newState) {
       if (state != newState) {
         state = newState;
-        internalHandler.onDownloadChangedInternal(this, getUpdatedDownload());
+        internalHandler.onDownloadChanged(this, getUpdatedDownload());
       }
     }
 
-    private void onDownloadThreadStopped(boolean isCanceled, @Nullable Throwable error) {
+    private void onTaskStopped(boolean isCanceled, @Nullable Throwable error) {
       if (isIdle()) {
         return;
       }
       if (isCanceled) {
-        internalHandler.startDownloadThread(this);
+        internalHandler.startTask(this);
       } else if (state == STATE_REMOVING) {
-        internalHandler.onDownloadRemovedInternal(this, getUpdatedDownload());
+        internalHandler.onDownloadRemoved(this, getUpdatedDownload());
       } else if (state == STATE_RESTARTING) {
         initialize(STATE_QUEUED);
       } else { // STATE_DOWNLOADING
@@ -1123,7 +1128,7 @@ public final class DownloadManager {
     }
   }
 
-  private static class DownloadThread extends Thread implements Downloader.ProgressListener {
+  private static class Task extends Thread implements Downloader.ProgressListener {
 
     private final DownloadRequest request;
     private final Downloader downloader;
@@ -1137,7 +1142,7 @@ public final class DownloadManager {
 
     private long contentLength;
 
-    private DownloadThread(
+    private Task(
         DownloadRequest request,
         Downloader downloader,
         DownloadProgress downloadProgress,
@@ -1203,7 +1208,7 @@ public final class DownloadManager {
       }
       Handler internalHandler = this.internalHandler;
       if (internalHandler != null) {
-        internalHandler.obtainMessage(MSG_DOWNLOAD_THREAD_STOPPED, this).sendToTarget();
+        internalHandler.obtainMessage(MSG_TASK_STOPPED, this).sendToTarget();
       }
     }
 
