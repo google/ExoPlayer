@@ -913,7 +913,7 @@ public final class AnalyticsCollectorTest {
 
     @Override
     public void onPlayerStateChanged(
-        EventTime eventTime, boolean playWhenReady, int playbackState) {
+        EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {
       reportedEvents.add(new ReportedEvent(EVENT_PLAYER_STATE_CHANGED, eventTime));
     }
 

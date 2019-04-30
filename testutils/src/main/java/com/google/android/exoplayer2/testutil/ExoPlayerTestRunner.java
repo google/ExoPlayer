@@ -589,7 +589,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   }
 
   @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
     if (playbackState == Player.STATE_ENDED
         || (playbackState == Player.STATE_IDLE && playerWasPrepared)) {

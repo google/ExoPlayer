@@ -464,7 +464,7 @@ public class AnalyticsCollector
   }
 
   @Override
-  public final void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public final void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
     EventTime eventTime = generatePlayingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onPlayerStateChanged(eventTime, playWhenReady, playbackState);

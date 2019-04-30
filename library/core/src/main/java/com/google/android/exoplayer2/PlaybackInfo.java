@@ -52,7 +52,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    */
   public final long contentPositionUs;
   /** The current playback state. One of the {@link Player}.STATE_ constants. */
-  public final int playbackState;
+  @Player.State public final int playbackState;
   /** Whether the player is currently loading. */
   public final boolean isLoading;
   /** The currently available track groups. */
@@ -128,7 +128,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       MediaPeriodId periodId,
       long startPositionUs,
       long contentPositionUs,
-      int playbackState,
+      @Player.State int playbackState,
       boolean isLoading,
       TrackGroupArray trackGroups,
       TrackSelectorResult trackSelectorResult,

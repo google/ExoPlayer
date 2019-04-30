@@ -361,9 +361,9 @@ public interface Player {
      * #getPlaybackState()} changes.
      *
      * @param playWhenReady Whether playback will proceed when ready.
-     * @param playbackState One of the {@code STATE} constants.
+     * @param playbackState The new {@link State playback state}.
      */
-    default void onPlayerStateChanged(boolean playWhenReady, int playbackState) {}
+    default void onPlayerStateChanged(boolean playWhenReady, @State int playbackState) {}
 
     /**
      * Called when the value of {@link #getRepeatMode()} changes.
@@ -443,6 +443,14 @@ public interface Player {
     }
   }
 
+  /**
+   * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
+   * {@link #STATE_ENDED}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
+  @interface State {}
   /**
    * The player does not have any media to play.
    */
@@ -581,10 +589,11 @@ public interface Player {
   void removeListener(EventListener listener);
 
   /**
-   * Returns the current state of the player.
+   * Returns the current {@link State playback state} of the player.
    *
-   * @return One of the {@code STATE} constants defined in this interface.
+   * @return The current {@link State playback state}.
    */
+  @State
   int getPlaybackState();
 
   /**

@@ -183,7 +183,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
 
   @Override
   public final void onPlayerStateChanged(
-      EventTime eventTime, boolean playWhenReady, int playbackState) {
+      EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {
     Log.d(tag, "state [" + playWhenReady + ", " + playbackState + "]");
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
     if (playbackState == Player.STATE_ENDED

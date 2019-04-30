@@ -18,13 +18,13 @@ package com.google.android.exoplayer2.ext.leanback;
 import android.content.Context;
 import android.os.Handler;
 import androidx.annotation.Nullable;
+import android.util.Pair;
+import android.view.Surface;
+import android.view.SurfaceHolder;
 import androidx.leanback.R;
 import androidx.leanback.media.PlaybackGlueHost;
 import androidx.leanback.media.PlayerAdapter;
 import androidx.leanback.media.SurfaceHolderGlueHost;
-import android.util.Pair;
-import android.view.Surface;
-import android.view.SurfaceHolder;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
@@ -271,7 +271,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     // Player.EventListener implementation.
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
       notifyStateChanged();
     }
 

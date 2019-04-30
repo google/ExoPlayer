@@ -627,7 +627,7 @@ public class PlayerActivity extends AppCompatActivity
   private class PlayerEventListener implements Player.EventListener {
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
       if (playbackState == Player.STATE_ENDED) {
         showControls();
       }

@@ -139,7 +139,7 @@ public class VpxPlaybackTest {
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
       if (playbackState == Player.STATE_ENDED
           || (playbackState == Player.STATE_IDLE && playbackException != null)) {
         player.release();

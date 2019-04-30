@@ -873,6 +873,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  @Player.State
   public int getPlaybackState() {
     verifyApplicationThread();
     return player.getPlaybackState();

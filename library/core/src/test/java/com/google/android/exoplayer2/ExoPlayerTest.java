@@ -509,7 +509,7 @@ public final class ExoPlayerTest {
           private int currentPlaybackState = Player.STATE_IDLE;
 
           @Override
-          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+          public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
             currentPlaybackState = playbackState;
           }
 
@@ -2113,7 +2113,7 @@ public final class ExoPlayerTest {
     final EventListener eventListener1 =
         new EventListener() {
           @Override
-          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+          public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
             eventListener1States.add(playbackState);
             if (playbackState == Player.STATE_READY) {
               playerReference.get().stop(/* reset= */ true);
@@ -2123,7 +2123,7 @@ public final class ExoPlayerTest {
     final EventListener eventListener2 =
         new EventListener() {
           @Override
-          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+          public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
             eventListener2States.add(playbackState);
           }
         };
@@ -2170,7 +2170,7 @@ public final class ExoPlayerTest {
           }
 
           @Override
-          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+          public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
             eventListenerPlayWhenReady.add(playWhenReady);
             eventListenerStates.add(playbackState);
             if (playbackState == Player.STATE_READY) {
@@ -2219,7 +2219,7 @@ public final class ExoPlayerTest {
     EventListener eventListener =
         new EventListener() {
           @Override
-          public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+          public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
             if (playbackState == Player.STATE_READY && clockAtStartMs.get() == C.TIME_UNSET) {
               clockAtStartMs.set(clock.elapsedRealtime());
             }
