@@ -173,6 +173,7 @@ public final class DownloadManager {
   private boolean downloadsPaused;
   private int maxParallelDownloads;
   private int minRetryCount;
+  private int notMetRequirements;
   private RequirementsWatcher requirementsWatcher;
 
   /**
@@ -212,7 +213,7 @@ public final class DownloadManager {
     requirementsListener = this::onRequirementsStateChanged;
     requirementsWatcher =
         new RequirementsWatcher(context, requirementsListener, DEFAULT_REQUIREMENTS);
-    int notMetRequirements = requirementsWatcher.start();
+    notMetRequirements = requirementsWatcher.start();
 
     mainHandler = new Handler(Util.getLooper(), this::handleMainMessage);
     HandlerThread internalThread = new HandlerThread("DownloadManager file i/o");
@@ -274,9 +275,19 @@ public final class DownloadManager {
     listeners.remove(listener);
   }
 
-  /** Returns the requirements needed to be met to start downloads. */
+  /** Returns the requirements needed to be met to progress. */
   public Requirements getRequirements() {
     return requirementsWatcher.getRequirements();
+  }
+
+  /**
+   * Returns the requirements needed for downloads to progress that are not currently met.
+   *
+   * @return The not met {@link Requirements.RequirementFlags}, or 0 if all requirements are met.
+   */
+  @Requirements.RequirementFlags
+  public int getNotMetRequirements() {
+    return getRequirements().getNotMetRequirements(context);
   }
 
   /**
@@ -413,7 +424,7 @@ public final class DownloadManager {
    * @param request The download request.
    */
   public void addDownload(DownloadRequest request) {
-    addDownload(request, Download.STOP_REASON_NONE);
+    addDownload(request, STOP_REASON_NONE);
   }
 
   /**
@@ -478,6 +489,10 @@ public final class DownloadManager {
     for (Listener listener : listeners) {
       listener.onRequirementsStateChanged(this, requirements, notMetRequirements);
     }
+    if (this.notMetRequirements == notMetRequirements) {
+      return;
+    }
+    this.notMetRequirements = notMetRequirements;
     pendingMessages++;
     internalHandler
         .obtainMessage(MSG_SET_NOT_MET_REQUIREMENTS, notMetRequirements, /* unused */ 0)
@@ -747,10 +762,6 @@ public final class DownloadManager {
     }
 
     private void setNotMetRequirements(@Requirements.RequirementFlags int notMetRequirements) {
-      // TODO: Move this deduplication check to the main thread.
-      if (this.notMetRequirements == notMetRequirements) {
-        return;
-      }
       this.notMetRequirements = notMetRequirements;
       logdFlags("Not met requirements are changed", notMetRequirements);
       for (int i = 0; i < downloadInternals.size(); i++) {
