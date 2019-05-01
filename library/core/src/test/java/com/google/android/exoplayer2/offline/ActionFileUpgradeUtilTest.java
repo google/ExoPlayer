@@ -38,6 +38,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class ActionFileUpgradeUtilTest {
 
+  private static final long NOW_MS = 1234;
+
   private File tempFile;
   private ExoDatabaseProvider databaseProvider;
   private DefaultDownloadIndex downloadIndex;
@@ -113,7 +115,7 @@ public class ActionFileUpgradeUtilTest {
             data);
 
     ActionFileUpgradeUtil.mergeRequest(
-        request, downloadIndex, /* addNewDownloadAsCompleted= */ false);
+        request, downloadIndex, /* addNewDownloadAsCompleted= */ false, NOW_MS);
 
     assertDownloadIndexContainsRequest(request, Download.STATE_QUEUED);
   }
@@ -141,9 +143,9 @@ public class ActionFileUpgradeUtilTest {
             /* customCacheKey= */ "key123",
             new byte[] {5, 4, 3, 2, 1});
     ActionFileUpgradeUtil.mergeRequest(
-        request1, downloadIndex, /* addNewDownloadAsCompleted= */ false);
+        request1, downloadIndex, /* addNewDownloadAsCompleted= */ false, NOW_MS);
     ActionFileUpgradeUtil.mergeRequest(
-        request2, downloadIndex, /* addNewDownloadAsCompleted= */ false);
+        request2, downloadIndex, /* addNewDownloadAsCompleted= */ false, NOW_MS);
 
     Download download = downloadIndex.getDownload(request2.id);
     assertThat(download).isNotNull();
@@ -178,16 +180,16 @@ public class ActionFileUpgradeUtilTest {
             /* customCacheKey= */ "key123",
             new byte[] {5, 4, 3, 2, 1});
     ActionFileUpgradeUtil.mergeRequest(
-        request1, downloadIndex, /* addNewDownloadAsCompleted= */ false);
+        request1, downloadIndex, /* addNewDownloadAsCompleted= */ false, NOW_MS);
 
     // Merging existing download, keeps it queued.
     ActionFileUpgradeUtil.mergeRequest(
-        request1, downloadIndex, /* addNewDownloadAsCompleted= */ true);
+        request1, downloadIndex, /* addNewDownloadAsCompleted= */ true, NOW_MS);
     assertThat(downloadIndex.getDownload(request1.id).state).isEqualTo(Download.STATE_QUEUED);
 
     // New download is merged as completed.
     ActionFileUpgradeUtil.mergeRequest(
-        request2, downloadIndex, /* addNewDownloadAsCompleted= */ true);
+        request2, downloadIndex, /* addNewDownloadAsCompleted= */ true, NOW_MS);
     assertThat(downloadIndex.getDownload(request2.id).state).isEqualTo(Download.STATE_COMPLETED);
   }
 
