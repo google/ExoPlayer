@@ -40,10 +40,10 @@ public class BaseDataSourceTest {
     testSource.read(/* buffer= */ null, /* offset= */ 0, /* readLength= */ 100);
     testSource.close();
 
-    assertThat(transferListener.lastTransferInitializingSource).isSameAs(testSource);
-    assertThat(transferListener.lastTransferStartSource).isSameAs(testSource);
-    assertThat(transferListener.lastBytesTransferredSource).isSameAs(testSource);
-    assertThat(transferListener.lastTransferEndSource).isSameAs(testSource);
+    assertThat(transferListener.lastTransferInitializingSource).isSameInstanceAs(testSource);
+    assertThat(transferListener.lastTransferStartSource).isSameInstanceAs(testSource);
+    assertThat(transferListener.lastBytesTransferredSource).isSameInstanceAs(testSource);
+    assertThat(transferListener.lastTransferEndSource).isSameInstanceAs(testSource);
 
     assertThat(transferListener.lastTransferInitializingDataSpec).isEqualTo(dataSpec);
     assertThat(transferListener.lastTransferStartDataSpec).isEqualTo(dataSpec);
@@ -69,10 +69,10 @@ public class BaseDataSourceTest {
     testSource.read(/* buffer= */ null, /* offset= */ 0, /* readLength= */ 100);
     testSource.close();
 
-    assertThat(transferListener.lastTransferInitializingSource).isSameAs(testSource);
-    assertThat(transferListener.lastTransferStartSource).isSameAs(testSource);
-    assertThat(transferListener.lastBytesTransferredSource).isSameAs(testSource);
-    assertThat(transferListener.lastTransferEndSource).isSameAs(testSource);
+    assertThat(transferListener.lastTransferInitializingSource).isSameInstanceAs(testSource);
+    assertThat(transferListener.lastTransferStartSource).isSameInstanceAs(testSource);
+    assertThat(transferListener.lastBytesTransferredSource).isSameInstanceAs(testSource);
+    assertThat(transferListener.lastTransferEndSource).isSameInstanceAs(testSource);
 
     assertThat(transferListener.lastTransferInitializingDataSpec).isEqualTo(dataSpec);
     assertThat(transferListener.lastTransferStartDataSpec).isEqualTo(dataSpec);
