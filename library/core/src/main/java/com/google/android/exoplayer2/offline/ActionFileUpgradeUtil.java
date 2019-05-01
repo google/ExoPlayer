@@ -67,11 +67,12 @@ public final class ActionFileUpgradeUtil {
     if (actionFile.exists()) {
       boolean success = false;
       try {
+        long nowMs = System.currentTimeMillis();
         for (DownloadRequest request : actionFile.load()) {
           if (downloadIdProvider != null) {
             request = request.copyWithId(downloadIdProvider.getId(request));
           }
-          mergeRequest(request, downloadIndex, addNewDownloadsAsCompleted);
+          mergeRequest(request, downloadIndex, addNewDownloadsAsCompleted, nowMs);
         }
         success = true;
       } finally {
@@ -93,13 +94,13 @@ public final class ActionFileUpgradeUtil {
   /* package */ static void mergeRequest(
       DownloadRequest request,
       DefaultDownloadIndex downloadIndex,
-      boolean addNewDownloadAsCompleted)
+      boolean addNewDownloadAsCompleted,
+      long nowMs)
       throws IOException {
     Download download = downloadIndex.getDownload(request.id);
     if (download != null) {
-      download = DownloadManager.mergeRequest(download, request, download.stopReason);
+      download = DownloadManager.mergeRequest(download, request, download.stopReason, nowMs);
     } else {
-      long nowMs = System.currentTimeMillis();
       download =
           new Download(
               request,
