@@ -22,9 +22,7 @@ import android.os.ConditionVariable;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.Download.State;
 import com.google.android.exoplayer2.offline.DownloadManager;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -138,7 +136,6 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   }
 
   private void assertStateInternal(String taskId, int expectedState, int timeoutMs) {
-    ArrayList<Integer> receivedStates = new ArrayList<>();
     while (true) {
       Integer state = null;
       try {
@@ -150,25 +147,8 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
         if (expectedState == state) {
           return;
         }
-        receivedStates.add(state);
       } else {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < receivedStates.size(); i++) {
-          if (i > 0) {
-            sb.append(',');
-          }
-          int receivedState = receivedStates.get(i);
-          String receivedStateString =
-              receivedState == STATE_REMOVED ? "REMOVED" : Download.getStateString(receivedState);
-          sb.append(receivedStateString);
-        }
-        fail(
-            String.format(
-                Locale.US,
-                "for download (%s) expected:<%s> but was:<%s>",
-                taskId,
-                Download.getStateString(expectedState),
-                sb));
+        fail("Didn't receive expected state: " + expectedState);
       }
     }
   }
