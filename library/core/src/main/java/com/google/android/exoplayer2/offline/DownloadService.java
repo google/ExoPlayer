@@ -127,18 +127,18 @@ public abstract class DownloadService extends Service {
   public static final String KEY_DOWNLOAD_REQUEST = "download_request";
 
   /**
-   * Key for the content id in {@link #ACTION_SET_STOP_REASON} and {@link #ACTION_REMOVE_DOWNLOAD}
-   * intents.
+   * Key for the {@link String} content id in {@link #ACTION_SET_STOP_REASON} and {@link
+   * #ACTION_REMOVE_DOWNLOAD} intents.
    */
   public static final String KEY_CONTENT_ID = "content_id";
 
   /**
-   * Key for the stop reason in {@link #ACTION_SET_STOP_REASON} and {@link #ACTION_ADD_DOWNLOAD}
-   * intents.
+   * Key for the integer stop reason in {@link #ACTION_SET_STOP_REASON} and {@link
+   * #ACTION_ADD_DOWNLOAD} intents.
    */
   public static final String KEY_STOP_REASON = "stop_reason";
 
-  /** Key for the requirements in {@link #ACTION_SET_REQUIREMENTS} intents. */
+  /** Key for the {@link Requirements} in {@link #ACTION_SET_REQUIREMENTS} intents. */
   public static final String KEY_REQUIREMENTS = "requirements";
 
   /**
@@ -155,7 +155,6 @@ public abstract class DownloadService extends Service {
   public static final long DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL = 1000;
 
   private static final String TAG = "DownloadService";
-  private static final boolean DEBUG = false;
 
   // Keep DownloadManagerListeners for each DownloadService as long as there are downloads (and the
   // process is running). This allows DownloadService to restart when there's no scheduler.
@@ -506,7 +505,6 @@ public abstract class DownloadService extends Service {
 
   @Override
   public void onCreate() {
-    logd("onCreate");
     if (channelId != null) {
       NotificationUtil.createNotificationChannel(
           this, channelId, channelNameResourceId, NotificationUtil.IMPORTANCE_LOW);
@@ -541,7 +539,6 @@ public abstract class DownloadService extends Service {
     if (intentAction == null) {
       intentAction = ACTION_INIT;
     }
-    logd("onStartCommand action: " + intentAction + " startId: " + startId);
     switch (intentAction) {
       case ACTION_INIT:
       case ACTION_RESTART:
@@ -573,7 +570,7 @@ public abstract class DownloadService extends Service {
         if (!intent.hasExtra(KEY_STOP_REASON)) {
           Log.e(TAG, "Ignored SET_STOP_REASON: Missing " + KEY_STOP_REASON + " extra");
         } else {
-          int stopReason = intent.getIntExtra(KEY_STOP_REASON, Download.STOP_REASON_NONE);
+          int stopReason = intent.getIntExtra(KEY_STOP_REASON, /* defaultValue= */ 0);
           downloadManager.setStopReason(contentId, stopReason);
         }
         break;
@@ -598,13 +595,11 @@ public abstract class DownloadService extends Service {
 
   @Override
   public void onTaskRemoved(Intent rootIntent) {
-    logd("onTaskRemoved rootIntent: " + rootIntent);
     taskRemoved = true;
   }
 
   @Override
   public void onDestroy() {
-    logd("onDestroy");
     isDestroyed = true;
     DownloadManagerHelper downloadManagerHelper = downloadManagerListeners.get(getClass());
     boolean unschedule = !downloadManager.isWaitingForRequirements();
@@ -713,16 +708,8 @@ public abstract class DownloadService extends Service {
     }
     if (Util.SDK_INT < 28 && taskRemoved) { // See [Internal: b/74248644].
       stopSelf();
-      logd("stopSelf()");
     } else {
-      boolean stopSelfResult = stopSelfResult(lastStartId);
-      logd("stopSelf(" + lastStartId + ") result: " + stopSelfResult);
-    }
-  }
-
-  private void logd(String message) {
-    if (DEBUG) {
-      Log.d(TAG, message);
+      stopSelfResult(lastStartId);
     }
   }
 
