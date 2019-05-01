@@ -45,7 +45,7 @@ public final class TtmlRenderUtilTest {
     String[] styleIds = {"s0"};
 
     assertThat(TtmlRenderUtil.resolveStyle(null, styleIds, globalStyles))
-        .isSameAs(globalStyles.get("s0"));
+        .isSameInstanceAs(globalStyles.get("s0"));
   }
 
   @Test
@@ -74,7 +74,7 @@ public final class TtmlRenderUtilTest {
     style.setBackgroundColor(Color.YELLOW);
 
     TtmlStyle resolved = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
-    assertThat(resolved).isSameAs(style);
+    assertThat(resolved).isSameInstanceAs(style);
 
     // inline attribute not overridden
     assertThat(resolved.getBackgroundColor()).isEqualTo(YELLOW);
@@ -90,7 +90,7 @@ public final class TtmlRenderUtilTest {
     style.setBackgroundColor(Color.YELLOW);
 
     TtmlStyle resolved = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
-    assertThat(resolved).isSameAs(style);
+    assertThat(resolved).isSameInstanceAs(style);
 
     // inline attribute not overridden
     assertThat(resolved.getBackgroundColor()).isEqualTo(YELLOW);
@@ -101,7 +101,7 @@ public final class TtmlRenderUtilTest {
   @Test
   public void testResolveStyleOnlyInlineStyle() {
     TtmlStyle inlineStyle = new TtmlStyle();
-    assertThat(TtmlRenderUtil.resolveStyle(inlineStyle, null, null)).isSameAs(inlineStyle);
+    assertThat(TtmlRenderUtil.resolveStyle(inlineStyle, null, null)).isSameInstanceAs(inlineStyle);
   }
 
   private static Map<String, TtmlStyle> getGlobalStyles() {

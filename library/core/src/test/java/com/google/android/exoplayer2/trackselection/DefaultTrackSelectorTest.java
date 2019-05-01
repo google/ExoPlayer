@@ -1491,7 +1491,7 @@ public final class DefaultTrackSelectorTest {
     assertThat(selection.length()).isEqualTo(1);
     assertThat(selection.getIndexInTrackGroup(0)).isEqualTo(expectedTrack);
     assertThat(selection.getFormat(0))
-        .isSameAs(expectedTrackGroup.getFormat(selection.getIndexInTrackGroup(0)));
+        .isSameInstanceAs(expectedTrackGroup.getFormat(selection.getIndexInTrackGroup(0)));
   }
 
   private static void assertNoSelection(TrackSelection selection) {
@@ -1506,7 +1506,7 @@ public final class DefaultTrackSelectorTest {
     for (int i = 0; i < expectedTracks.length; i++) {
       assertThat(selection.getIndexInTrackGroup(i)).isEqualTo(expectedTracks[i]);
       assertThat(selection.getFormat(i))
-          .isSameAs(expectedTrackGroup.getFormat(selection.getIndexInTrackGroup(i)));
+          .isSameInstanceAs(expectedTrackGroup.getFormat(selection.getIndexInTrackGroup(i)));
     }
   }
 

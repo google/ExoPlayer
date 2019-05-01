@@ -202,7 +202,7 @@ public class TrackSelectionUtilTest {
             MAX_DURATION_US,
             bitratesArrayToUse);
 
-    assertThat(bitrates).isSameAs(bitratesArrayToUse);
+    assertThat(bitrates).isSameInstanceAs(bitratesArrayToUse);
   }
 
   @Test
@@ -436,7 +436,7 @@ public class TrackSelectionUtilTest {
             MAX_DURATION_US,
             bitratesArrayToUse);
 
-    assertThat(bitrates).isSameAs(bitratesArrayToUse);
+    assertThat(bitrates).isSameInstanceAs(bitratesArrayToUse);
   }
 
   @Test
