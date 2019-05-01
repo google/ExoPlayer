@@ -69,7 +69,9 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   private static final int COLUMN_INDEX_BYTES_DOWNLOADED = 13;
 
   private static final String WHERE_ID_EQUALS = COLUMN_ID + " = ?";
-  private static final String WHERE_STATE_TERMINAL =
+  private static final String WHERE_STATE_IS_DOWNLOADING =
+      COLUMN_STATE + " = " + Download.STATE_DOWNLOADING;
+  private static final String WHERE_STATE_IS_TERMINAL =
       getStateQuery(Download.STATE_COMPLETED, Download.STATE_FAILED);
 
   private static final String[] COLUMNS =
@@ -219,13 +221,26 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   }
 
   @Override
+  public void setDownloadingStatesToQueued() throws DatabaseIOException {
+    ensureInitialized();
+    try {
+      ContentValues values = new ContentValues();
+      values.put(COLUMN_STATE, Download.STATE_QUEUED);
+      SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+      writableDatabase.update(tableName, values, WHERE_STATE_IS_DOWNLOADING, /* whereArgs= */ null);
+    } catch (SQLException e) {
+      throw new DatabaseIOException(e);
+    }
+  }
+
+  @Override
   public void setStopReason(int stopReason) throws DatabaseIOException {
     ensureInitialized();
     try {
       ContentValues values = new ContentValues();
       values.put(COLUMN_STOP_REASON, stopReason);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-      writableDatabase.update(tableName, values, WHERE_STATE_TERMINAL, /* whereArgs= */ null);
+      writableDatabase.update(tableName, values, WHERE_STATE_IS_TERMINAL, /* whereArgs= */ null);
     } catch (SQLException e) {
       throw new DatabaseIOException(e);
     }
@@ -239,7 +254,10 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
       values.put(COLUMN_STOP_REASON, stopReason);
       SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
       writableDatabase.update(
-          tableName, values, WHERE_STATE_TERMINAL + " AND " + WHERE_ID_EQUALS, new String[] {id});
+          tableName,
+          values,
+          WHERE_STATE_IS_TERMINAL + " AND " + WHERE_ID_EQUALS,
+          new String[] {id});
     } catch (SQLException e) {
       throw new DatabaseIOException(e);
     }
