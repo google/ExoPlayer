@@ -28,7 +28,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import androidx.annotation.RequiresApi;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -53,8 +52,6 @@ public final class RequirementsWatcher {
         @Requirements.RequirementFlags int notMetRequirements);
   }
 
-  private static final String TAG = "RequirementsWatcher";
-
   private final Context context;
   private final Listener listener;
   private final Requirements requirements;
@@ -75,7 +72,6 @@ public final class RequirementsWatcher {
     this.listener = listener;
     this.requirements = requirements;
     handler = new Handler(Util.getLooper());
-    logd(this + " created");
   }
 
   /**
@@ -110,7 +106,6 @@ public final class RequirementsWatcher {
     }
     receiver = new DeviceStatusChangeReceiver();
     context.registerReceiver(receiver, filter, null, handler);
-    logd(this + " started");
     return notMetRequirements;
   }
 
@@ -121,20 +116,11 @@ public final class RequirementsWatcher {
     if (networkCallback != null) {
       unregisterNetworkCallback();
     }
-    logd(this + " stopped");
   }
 
   /** Returns watched {@link Requirements}. */
   public Requirements getRequirements() {
     return requirements;
-  }
-
-  @Override
-  public String toString() {
-    if (!Scheduler.DEBUG) {
-      return super.toString();
-    }
-    return "RequirementsWatcher{" + requirements + '}';
   }
 
   @TargetApi(23)
@@ -163,14 +149,7 @@ public final class RequirementsWatcher {
     int notMetRequirements = requirements.getNotMetRequirements(context);
     if (this.notMetRequirements != notMetRequirements) {
       this.notMetRequirements = notMetRequirements;
-      logd("notMetRequirements has changed: " + notMetRequirements);
       listener.onRequirementsStateChanged(this, notMetRequirements);
-    }
-  }
-
-  private static void logd(String message) {
-    if (Scheduler.DEBUG) {
-      Log.d(TAG, message);
     }
   }
 
@@ -178,7 +157,6 @@ public final class RequirementsWatcher {
     @Override
     public void onReceive(Context context, Intent intent) {
       if (!isInitialStickyBroadcast()) {
-        logd(RequirementsWatcher.this + " received " + intent.getAction());
         checkRequirements();
       }
     }
@@ -200,7 +178,6 @@ public final class RequirementsWatcher {
       handler.post(
           () -> {
             if (networkCallback != null) {
-              logd(RequirementsWatcher.this + " NetworkCallback");
               checkRequirements();
             }
           });

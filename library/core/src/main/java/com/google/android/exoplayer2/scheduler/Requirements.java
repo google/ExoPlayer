@@ -27,7 +27,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.PowerManager;
 import androidx.annotation.IntDef;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -55,8 +54,6 @@ public final class Requirements implements Parcelable {
   public static final int DEVICE_IDLE = 1 << 2;
   /** Requirement that the device is charging. */
   public static final int DEVICE_CHARGING = 1 << 3;
-
-  private static final String TAG = "Requirements";
 
   @RequirementFlags private final int requirements;
 
@@ -135,7 +132,6 @@ public final class Requirements implements Parcelable {
     if (networkInfo == null
         || !networkInfo.isConnected()
         || !isInternetConnectivityValidated(connectivityManager)) {
-      logd("No network info, connection or connectivity.");
       return requirements & (NETWORK | NETWORK_UNMETERED);
     }
 
@@ -172,7 +168,6 @@ public final class Requirements implements Parcelable {
     }
     Network activeNetwork = connectivityManager.getActiveNetwork();
     if (activeNetwork == null) {
-      logd("No active network.");
       return false;
     }
     NetworkCapabilities networkCapabilities =
@@ -180,14 +175,7 @@ public final class Requirements implements Parcelable {
     boolean validated =
         networkCapabilities == null
             || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
-    logd("Network capability validated: " + validated);
     return !validated;
-  }
-
-  private static void logd(String message) {
-    if (Scheduler.DEBUG) {
-      Log.d(TAG, message);
-    }
   }
 
   @Override

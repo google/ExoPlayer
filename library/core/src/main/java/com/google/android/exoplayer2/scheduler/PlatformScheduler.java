@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.util.Util;
 @TargetApi(21)
 public final class PlatformScheduler implements Scheduler {
 
+  private static final boolean DEBUG = false;
   private static final String TAG = "PlatformScheduler";
   private static final String KEY_SERVICE_ACTION = "service_action";
   private static final String KEY_SERVICE_PACKAGE = "service_package";
