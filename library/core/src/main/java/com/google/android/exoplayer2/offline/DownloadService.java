@@ -683,7 +683,7 @@ public abstract class DownloadService extends Service {
     // Do nothing.
   }
 
-  private void notifyDownloadChange(Download download) {
+  private void notifyDownloadChanged(Download download) {
     onDownloadChanged(download);
     if (foregroundNotificationUpdater != null) {
       if (download.state == Download.STATE_DOWNLOADING
@@ -834,7 +834,7 @@ public abstract class DownloadService extends Service {
     @Override
     public void onDownloadChanged(DownloadManager downloadManager, Download download) {
       if (downloadService != null) {
-        downloadService.notifyDownloadChange(download);
+        downloadService.notifyDownloadChanged(download);
       }
     }
 

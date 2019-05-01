@@ -134,7 +134,8 @@ public final class DownloadManager {
   private static final int MSG_REMOVE_DOWNLOAD = 7;
   private static final int MSG_TASK_STOPPED = 8;
   private static final int MSG_CONTENT_LENGTH_CHANGED = 9;
-  private static final int MSG_RELEASE = 10;
+  private static final int MSG_UPDATE_PROGRESS = 10;
+  private static final int MSG_RELEASE = 11;
 
   private static final String TAG = "DownloadManager";
 
@@ -569,6 +570,8 @@ public final class DownloadManager {
 
   private static final class InternalHandler extends Handler {
 
+    private static final int UPDATE_PROGRESS_INTERVAL_MS = 5000;
+
     public boolean released;
 
     private final HandlerThread thread;
@@ -650,11 +653,13 @@ public final class DownloadManager {
         case MSG_CONTENT_LENGTH_CHANGED:
           task = (Task) message.obj;
           onContentLengthChanged(task);
-          processedExternalMessage = false; // This message is posted internally.
-          break;
+          return; // No need to post back to mainHandler.
+        case MSG_UPDATE_PROGRESS:
+          updateProgress();
+          return; // No need to post back to mainHandler.
         case MSG_RELEASE:
           release();
-          return; // Don't post back to mainHandler on release.
+          return; // No need to post back to mainHandler.
         default:
           throw new IllegalStateException();
       }
@@ -868,7 +873,9 @@ public final class DownloadManager {
               minRetryCount,
               /* internalHandler= */ this);
       activeTasks.put(download.request.id, activeTask);
-      activeDownloadTaskCount++;
+      if (activeDownloadTaskCount++ == 0) {
+        sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, UPDATE_PROGRESS_INTERVAL_MS);
+      }
       activeTask.start();
       return activeTask;
     }
@@ -933,8 +940,8 @@ public final class DownloadManager {
       activeTasks.remove(downloadId);
 
       boolean isRemove = task.isRemove;
-      if (!isRemove) {
-        activeDownloadTaskCount--;
+      if (!isRemove && --activeDownloadTaskCount == 0) {
+        removeMessages(MSG_UPDATE_PROGRESS);
       }
 
       if (task.isCanceled) {
@@ -1011,6 +1018,22 @@ public final class DownloadManager {
             new DownloadUpdate(download, /* isRemove= */ true, new ArrayList<>(downloads));
         mainHandler.obtainMessage(MSG_DOWNLOAD_UPDATE, update).sendToTarget();
       }
+    }
+
+    // Progress updates.
+
+    private void updateProgress() {
+      for (int i = 0; i < downloads.size(); i++) {
+        Download download = downloads.get(i);
+        if (download.state == STATE_DOWNLOADING) {
+          try {
+            downloadIndex.putDownload(download);
+          } catch (IOException e) {
+            Log.e(TAG, "Failed to update index.", e);
+          }
+        }
+      }
+      sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, UPDATE_PROGRESS_INTERVAL_MS);
     }
 
     // Helper methods.
