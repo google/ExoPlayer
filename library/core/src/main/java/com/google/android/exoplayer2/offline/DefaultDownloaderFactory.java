@@ -112,7 +112,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
           .getConstructor(Uri.class, List.class, DownloaderConstructorHelper.class);
     } catch (NoSuchMethodException e) {
       // The downloader is present, but the expected constructor is missing.
-      throw new RuntimeException("DASH downloader constructor missing", e);
+      throw new RuntimeException("Downloader constructor missing", e);
     }
   }
   // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
