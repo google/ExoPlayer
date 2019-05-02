@@ -2,8 +2,11 @@
 
 ### dev-v2 (not yet released) ###
 
-* Decoders: prefer codecs that advertise format support over ones that do not,
-  even if they are listed lower in the `MediaCodecList`.
+* Decoders:
+  * Prefer codecs that advertise format support over ones that do not, even if
+    they are listed lower in the `MediaCodecList`.
+  * CEA-608: Handle XDS and TEXT modes
+    ([5807](https://github.com/google/ExoPlayer/pull/5807)).
 * Audio: fix an issue where not all audio was played out when the configuration
   for the underlying track was changing (e.g., at some period transitions).
 * UI: Change playback controls toggle from touch down to touch up events
