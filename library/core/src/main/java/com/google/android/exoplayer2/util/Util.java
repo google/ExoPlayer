@@ -390,7 +390,7 @@ public final class Util {
    *
    * @param dataSource The {@link DataSource} to close.
    */
-  public static void closeQuietly(DataSource dataSource) {
+  public static void closeQuietly(@Nullable DataSource dataSource) {
     try {
       if (dataSource != null) {
         dataSource.close();
@@ -406,7 +406,7 @@ public final class Util {
    *
    * @param closeable The {@link Closeable} to close.
    */
-  public static void closeQuietly(Closeable closeable) {
+  public static void closeQuietly(@Nullable Closeable closeable) {
     try {
       if (closeable != null) {
         closeable.close();
