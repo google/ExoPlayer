@@ -31,6 +31,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.database.DatabaseProvider;
@@ -192,12 +193,9 @@ public final class DownloadManager {
     downloads = Collections.emptyList();
     listeners = new CopyOnWriteArraySet<>();
 
-    requirementsListener = this::onRequirementsStateChanged;
-    requirementsWatcher =
-        new RequirementsWatcher(context, requirementsListener, DEFAULT_REQUIREMENTS);
-    notMetRequirements = requirementsWatcher.start();
-
-    mainHandler = new Handler(Util.getLooper(), this::handleMainMessage);
+    @SuppressWarnings("methodref.receiver.bound.invalid")
+    Handler mainHandler = Util.createHandler(this::handleMainMessage);
+    this.mainHandler = mainHandler;
     HandlerThread internalThread = new HandlerThread("DownloadManager file i/o");
     internalThread.start();
     internalHandler =
@@ -209,6 +207,13 @@ public final class DownloadManager {
             maxParallelDownloads,
             minRetryCount,
             downloadsPaused);
+
+    @SuppressWarnings("methodref.receiver.bound.invalid")
+    RequirementsWatcher.Listener requirementsListener = this::onRequirementsStateChanged;
+    this.requirementsListener = requirementsListener;
+    requirementsWatcher =
+        new RequirementsWatcher(context, requirementsListener, DEFAULT_REQUIREMENTS);
+    notMetRequirements = requirementsWatcher.start();
 
     pendingMessages = 1;
     internalHandler
@@ -822,7 +827,7 @@ public final class DownloadManager {
             activeTask = syncQueuedDownload(activeTask, download);
             break;
           case STATE_DOWNLOADING:
-            activeTask = Assertions.checkNotNull(activeTask);
+            Assertions.checkNotNull(activeTask);
             syncDownloadingDownload(activeTask, download, accumulatingDownloadTaskCount);
             break;
           case STATE_REMOVING:
@@ -848,6 +853,8 @@ public final class DownloadManager {
       }
     }
 
+    @Nullable
+    @CheckResult
     private Task syncQueuedDownload(@Nullable Task activeTask, Download download) {
       if (activeTask != null) {
         // We have a task, which must be a download task. If the download state is queued we need to
@@ -919,7 +926,8 @@ public final class DownloadManager {
     private void onContentLengthChanged(Task task) {
       String downloadId = task.request.id;
       long contentLength = task.contentLength;
-      Download download = getDownload(downloadId, /* loadFromIndex= */ false);
+      Download download =
+          Assertions.checkNotNull(getDownload(downloadId, /* loadFromIndex= */ false));
       if (contentLength == download.contentLength || contentLength == C.LENGTH_UNSET) {
         return;
       }
@@ -1125,7 +1133,7 @@ public final class DownloadManager {
 
     private volatile InternalHandler internalHandler;
     private volatile boolean isCanceled;
-    private Throwable finalError;
+    @Nullable private Throwable finalError;
 
     private long contentLength;
 
@@ -1145,6 +1153,7 @@ public final class DownloadManager {
       contentLength = C.LENGTH_UNSET;
     }
 
+    @SuppressWarnings("nullness:assignment.type.incompatible")
     public void cancel(boolean released) {
       if (released) {
         // Download threads are GC roots for as long as they're running. The time taken for
@@ -1218,10 +1227,9 @@ public final class DownloadManager {
 
   private static final class DownloadUpdate {
 
-    private final Download download;
-    private final boolean isRemove;
-
-    private final List<Download> downloads;
+    public final Download download;
+    public final boolean isRemove;
+    public final List<Download> downloads;
 
     public DownloadUpdate(Download download, boolean isRemove, List<Download> downloads) {
       this.download = download;
