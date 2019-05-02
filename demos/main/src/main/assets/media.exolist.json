@@ -330,11 +330,11 @@
     "samples": [
       {
         "name": "Super speed",
-        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism"
+        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism/Manifest"
       },
       {
         "name": "Super speed (PlayReady)",
-        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism",
+        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism/Manifest",
         "drm_scheme": "playready"
       }
     ]
