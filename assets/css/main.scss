@@ -1,0 +1,76 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+@charset "utf-8";
+
+
+@import
+
+    "skins/{{ site.text_skin | default: site.data.variables.default.text_skin }}",
+    // "skins/chocolate",
+    // "skins/dark",
+    // "skins/default",
+    // "skins/forest",
+    // "skins/ocean",
+    // "skins/orange",
+
+    "skins/highlight/{{ site.highlight_theme | default: site.data.variables.default.highlight_theme }}",
+    // "skins/highlight/tomorrow",
+    // "skins/highlight/tomorrow-night",
+    // "skins/highlight/tomorrow-night-eighties",
+    // "skins/highlight/tomorrow-night-blue",
+    // "skins/highlight/tomorrow-night-bright",
+
+
+    "common/variables",
+    "common/function",
+    "common/classes",
+    "common/reset",
+    "common/print",
+    "common/components/button",
+    "common/components/image",
+    "common/components/card",
+    "common/components/gallery",
+    "common/components/hero",
+    "common/components/menu",
+    "common/components/modal",
+    "common/components/toc",
+    "common/components/item",
+    "common/components/swiper",
+
+    "animate/fade-in",
+    "animate/fade-in-down",
+    "animate/fade-in-up",
+
+    "components/main",
+    "components/header",
+    "components/footer",
+    "components/article-list",
+    "components/article-info",
+    "components/article-header",
+    "components/article-content",
+    "components/article-footer",
+    "components/author-links",
+    "components/author-profile",
+    "components/tags",
+    "components/search",
+    "components/lightbox",
+    "components/extensions",
+
+
+    "additional/alert",
+    "additional/tag",
+    "additional/photo-frame",
+
+    "layout/base",
+    "layout/page",
+
+    "layout/article",
+    "layout/articles",
+    "layout/archive",
+    "layout/home",
+    "layout/landing",
+    "layout/404",
+
+    "custom"
+;

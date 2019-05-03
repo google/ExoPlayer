@@ -1,0 +1,80 @@
+$grid-columns: 12;
+
+.grid-container {
+  @include overflow(hidden);
+}
+.cell {
+  min-width: 0;
+}
+
+@mixin make-cell($columns) {
+  @if $columns == "auto" {
+    @include flex(1 1 0);
+    width: auto;
+  } @else if $columns == "shrink" {
+    @include flex(0 0 auto);
+    width: auto;
+  } @else if $columns == "stretch" {
+    @include flex(1);
+  } @else {
+    @include flex(none);
+    width: percentage($columns / $grid-columns);
+  }
+}
+
+@mixin make-grid-cell($columns, $breakpoint) {
+  @include media-breakpoint-up($breakpoint) {
+    .cell--#{breakpoint-infix($breakpoint)}#{$columns} {
+      @include make-cell($columns);
+    }
+  }
+}
+
+.grid {
+  @include flexbox();
+  @include flex-wrap(wrap);
+  & > {
+    @each $breakpoint in map-keys($responsive) {
+      @for $i from 1 through $grid-columns {
+        @include make-grid-cell($i, $breakpoint);
+      }
+      @include make-grid-cell("auto", $breakpoint);
+      @include make-grid-cell("shrink", $breakpoint);
+      @include make-grid-cell("stretch", $breakpoint);
+    }
+  }
+}
+
+.grid--reverse {
+  flex-direction: row-reverse;
+}
+
+@mixin make-grid() {
+  $types: ("p");
+  $directions: ("x", "y", "");
+  $spacers: (0, 1, 2, 3, 4, 5);
+
+  @each $type in $types {
+    @each $direction in $directions {
+      @each $spacer in $spacers {
+        @if $direction == "" {
+          .grid--#{$type}-#{$spacer} {
+            @include make-spacing("m", "", $spacer, true);
+            .cell {
+              @include make-spacing($type, "", $spacer);
+            }
+          }
+        } @else {
+          .grid--#{$type}#{$direction}-#{$spacer} {
+            @include make-spacing("m", $direction, $spacer, true);
+            .cell {
+              @include make-spacing($type, $direction, $spacer);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@include make-grid();

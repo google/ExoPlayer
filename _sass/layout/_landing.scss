@@ -1,0 +1,23 @@
+.layout--landing {
+  .heros {
+    max-width: map-get($layout, content-max-width) * 2;
+    margin-right: auto;
+    margin-left: auto;
+  }
+  .hero {
+    img {
+      display: block;
+      width: 100%;
+      margin: 0 auto;
+    }
+  }
+  .hero__content {
+    margin-bottom: 0;
+  }
+  .hero__cover {
+    max-width: map-get($layout, content-max-width);
+  }
+  .hero__cover--full-width {
+    max-width: none;
+  }
+}

@@ -1,0 +1,39 @@
+{%- if page.key and
+  site.comments.gitalk.clientID and
+	site.comments.gitalk.clientSecret and
+	site.comments.gitalk.repository and
+	site.comments.gitalk.owner and
+	site.comments.gitalk.admin -%}
+
+	<!-- fix text color in the input textarea of gitalk -->
+	<style type="text/css">
+		.gitalk-wrapper .gt-header-textarea {
+			color: #333 !important;
+		}
+	</style>
+
+	{%- include snippets/get-sources.html -%}
+	{%- assign _sources = __return -%}
+	<div class="gitalk-wrapper" id="js-gitalk-container"></div>
+	{%- assign _admin = '' -%}
+	{%- for _admin_id in site.comments.gitalk.admin -%}
+		{%- assign _admin = _admin | append: ", '" | append: _admin_id | append: "'" -%}
+	{%- endfor -%}
+	{%- assign _last = _admin | size | minus: 1 -%}
+	{%- assign _admin = _admin | slice: 2, _last -%}
+	<script>
+		window.Lazyload.css('{{ _sources.gitalk.css }}');
+		window.Lazyload.js('{{ _sources.gitalk.js }}', function() {
+			var gitalk = new Gitalk({
+				clientID: '{{ site.comments.gitalk.clientID }}',
+				clientSecret: '{{ site.comments.gitalk.clientSecret }}',
+				repo: '{{ site.comments.gitalk.repository }}',
+				owner: '{{ site.comments.gitalk.owner }}',
+				admin: [{{ _admin }}],
+				id: '{{ page.key }}'
+			});
+			gitalk.render('js-gitalk-container');
+		});
+	</script>
+
+{%- endif -%}

@@ -1,0 +1,59 @@
+header:
+  - title:      Javadoc
+    url:        doc/reference/
+  - title:      GitHub
+    url:        https://github.com/google/ExoPlayer
+  - title:      Blog
+    url:        https://medium.com/google-exoplayer
+
+en:
+  - title:
+    children:
+      - title:  Home
+        url:    index.html
+      - title:  Pros and cons
+        url:    pros-and-cons.html
+      - title:  Demo application
+        url:    demo-application.html
+      - title:  Supported formats
+        url:    supported-formats.html
+      - title:  Supported devices
+        url:    supported-devices.html
+  - title:      Getting started
+    children:
+      - title:  Hello world
+        url:    hello-world.html
+      - title:  Listening to player events
+        url:    listening-to-player-events.html
+      - title:  Media sources
+        url:    media-sources.html
+      - title:  Playlists
+        url:    playlists.html
+      - title:  Track selection
+        url:    track-selection.html
+      - title:  UI components
+        url:    ui-components.html
+      - title:  Downloading media
+        url:    downloading-media.html
+  - title:      Adaptive streaming
+    children:
+      - title:  DASH
+        url:    dash.html
+      - title:  HLS
+        url:    hls.html
+      - title:  SmoothStreaming
+        url:    smoothstreaming.html
+  - title:      Advanced topics
+    children:
+      - title:  Digital rights management
+        url:    drm.html
+      - title:  Troubleshooting
+        url:    troubleshooting.html
+      - title:  Customization
+        url:    customization.html
+      - title:  Battery consumption
+        url:    battery-consumption.html
+      - title:  APK shrinking
+        url:    shrinking.html
+      - title:  OEM testing
+        url:    oems.html

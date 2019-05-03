@@ -1,0 +1,35 @@
+{%- include snippets/get-sources.html -%}
+{%- assign _sources = __return -%}
+
+{%- include snippets/get-nav-url.html path="/assets/search.js" -%}
+{%- assign _paths_search_js = __return -%}
+
+<script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.4',
+      sources: {
+        font_awesome: '{{ _sources.font_awesome }}',
+        jquery: '{{ _sources.jquery }}',
+        leancloud_js_sdk: '{{ _sources.leancloud_js_sdk }}',
+        chart: '{{ _sources.chart }}',
+        gitalk: {
+          js: '{{ _sources.gitalk.js }}',
+          css: '{{ _sources.gitalk.css }}'
+        },
+        valine: '{{ _sources.valine }}',
+        mathjax: '{{ _sources.mathjax }}',
+        mermaid: '{{ _sources.mermaid }}'
+      },
+      site: {
+        toc: {
+          selectors: '{{ site.toc.selectors | default: site.data.variables.default.toc.selectors }}'
+        }
+      },
+      paths: {
+        search_js: '{{ _paths_search_js }}'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>

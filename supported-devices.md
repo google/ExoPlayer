@@ -1,7 +1,5 @@
 ---
-layout: default
 title: Supported devices
-weight: 4
 ---
 
 The minimum Android versions required for core ExoPlayer use cases are:

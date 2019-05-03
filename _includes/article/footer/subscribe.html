@@ -1,0 +1,6 @@
+{%- assign _paths_rss = site.paths.rss | default: site.data.variables.default.paths.rss -%}
+{%- include snippets/get-nav-url.html path=_paths_rss -%}
+{%- assign _paths_rss = __return -%}
+{%- include snippets/get-locale-string.html key='SUBSCRIBE' -%}
+{%- assign _locale_nav_subscribe = __return -%}
+<div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="{{ _paths_rss }}">{{ _locale_nav_subscribe }}</a></div>

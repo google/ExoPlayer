@@ -1,7 +1,5 @@
 ---
-layout: default
-title: Shrinking ExoPlayer
-exclude_from_menu: true
+title: APK shrinking
 ---
 
 Minimizing APK size is an important aspect of developing a good Android
@@ -15,27 +13,29 @@ page outlines some simple steps that can help to achieve this.
 The most convenient way to use ExoPlayer is to add a dependency to the full
 library:
 
-```gradle
+~~~
 implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
-```
+~~~
+{: .language-gradle}
 
 However this may pull in more features than your app needs. Instead, depend only
 on the library modules that you actually need. For example the following will
 add dependencies on the Core, DASH and UI library modules, as might be required
 for an app that plays DASH content:
 
-```gradle
+~~~
 implementation 'com.google.android.exoplayer:exoplayer-core:2.X.X'
 implementation 'com.google.android.exoplayer:exoplayer-dash:2.X.X'
 implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
-```
+~~~
+{: .language-gradle}
 
 ## Use ProGuard and shrink resources ##
 
 Classes that are not used by your app can be removed by enabling ProGuard in
 your app module's `build.gradle` file:
 
-```gradle
+~~~
 buildTypes {
    release {
        minifyEnabled true
@@ -47,7 +47,8 @@ buildTypes {
        ]
    }
 }
-```
+~~~
+{: .language-gradle}
 
 ExoPlayer is structured in a way that allows ProGuard to remove unused
 functionality. For example, for an app that plays DASH content, ExoPlayer's
@@ -56,9 +57,9 @@ contribution to the APK size can be reduced by approximately 40%.
 Enabling `shrinkResources` in your app module's `build.gradle` file can result
 in a further reduction in size.
 
-## Specify which Extractor implementations your app needs ##
+## Specify which extractors your app needs ##
 
-If your app uses `ExtractorMediaSource`, be aware that by default it will use
+If your app uses `ProgressiveMediaSource`, be aware that by default it will use
 `DefaultExtractorsFactory`. `DefaultExtractorsFactory` depends on all of the
 `Extractor` implementations provided in the ExoPlayer library, and as a result
 none of them will be removed by ProGuard. If you know that your app only needs
@@ -66,27 +67,29 @@ to play a small number of container formats, you can specify your own
 `ExtractorsFactory` instead. For example, an app that only needs to play mp4
 files can define a factory like:
 
-{% highlight java %}
+~~~
 private class Mp4ExtractorsFactory implements ExtractorsFactory {
   @Override
   public Extractor[] createExtractors() {
       return new Extractor[] {new Mp4Extractor()};
   }
 }
-{% endhighlight %}
+~~~
+{: .language-java}
 
-And use it when instantiating `ExtractorMediaSource` instances, like:
+And use it when instantiating `ProgressiveMediaSource` instances, like:
 
-{% highlight java %}
-new ExtractorMediaSource.Factory(mediaDataSourceFactory)
-    .setExtractorsFactory(new Mp4ExtractorsFactory())
+~~~
+new ProgressiveMediaSource.Factory(
+        mediaDataSourceFactory, new Mp4ExtractorsFactory())
     .createMediaSource(uri);
-{% endhighlight %}
+~~~
+{: .language-java}
 
 This will allow other `Extractor` implementations to be removed by ProGuard,
 which can result in a significant reduction in size.
 
-## Specify which Renderer implementations your app needs ##
+## Specify which renderers your app needs ##
 
 If your app uses `SimpleExoPlayer`, be aware that by default the player's
 renderers will be created using `DefaultRenderersFactory`.
@@ -96,7 +99,7 @@ by ProGuard. If you know that your app only needs a subset of renderers, you can
 specify your own `RenderersFactory` instead. For example, an app that only plays
 audio can define a factory like:
 
-{% highlight java %}
+~~~
 private class AudioOnlyRenderersFactory implements RenderersFactory {
 
   private final Context context;
@@ -118,14 +121,16 @@ private class AudioOnlyRenderersFactory implements RenderersFactory {
   }
 
 }
-{% endhighlight %}
+~~~
+{: .language-java}
 
 And use it when instantiating `SimpleExoPlayer` instances, like:
 
-{% highlight java %}
+~~~
 SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(
     context, new AudioOnlyRenderersFactory(context), trackSelector);
-{% endhighlight %}
+~~~
+{: .language-java}
 
 This will allow other `Renderer` implementations to be removed by ProGuard. In
 this particular example video, text and metadata renderers are removed.

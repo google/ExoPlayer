@@ -1,0 +1,20 @@
+@media print {
+  a {
+    @include plain() {
+      text-decoration: underline;
+    }
+    @include hover() {
+      text-decoration: underline;
+    }
+    @include active() {
+      text-decoration: underline;
+    }
+  }
+
+  img,
+  tr,
+  pre,
+  blockquote {
+    page-break-inside: avoid;
+  }
+}

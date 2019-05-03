@@ -1,6 +1,6 @@
 # ExoPlayer website #
 
-The [ExoPlayer website](https://google.github.io/ExoPlayer/) is hosted on
+The [ExoPlayer website](https://exoplayer.dev/) is hosted on
 GitHub Pages, and is statically generated using Jekyll.
 
 * GitHub provides a guide describing how to setup a GitHub Pages site using

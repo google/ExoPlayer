@@ -1,7 +1,5 @@
 ---
-layout: default
 title: Battery consumption
-exclude_from_menu: true
 ---
 
 ## How important is battery consumption due to media playback? ##
@@ -11,12 +9,11 @@ good Android application. Media playback can be a major cause of battery drain,
 however its importance for a particular app heavily depends on its usage
 patterns. If an app is only used to play small amounts of media each day, then
 the corresponding battery consumption will only be a small percentage of the
-total consumption of the device. In such cases the choice of media player is
-unlikely to make a significant difference, so it makes sense to prioritize
-feature set and reliability over optimizing for battery when selecting which
-player to use. On the other hand, if an app is often used to play large amounts
-of content each day, then optimizing for battery consumption should be weighted
-more heavily when choosing between a number of viable options.
+total consumption of the device. In such it makes sense to prioritize feature
+set and reliability over optimizing for battery when selecting which player to
+use. On the other hand, if an app is often used to play large amounts of media
+each day, then optimizing for battery consumption should be weighted more
+heavily when choosing between a number of viable options.
 
 ## How power efficient is ExoPlayer? ##
 
@@ -40,7 +37,7 @@ Regardless of which media player is used, choosing between `SurfaceView` and
 draw during video playback by as much as 30% on some devices. `SurfaceView`
 should therefore be preferred where possible. Read more about choosing between
 `SurfaceView` and `TextureView`
-[here]({{ site.baseurl }}/faqs.html#should-i-use-surfaceview-or-textureview).
+[here]({{ site.baseurl }}/ui-components.html#choosing-a-surface-type).
 
 Below are some power consumption measurements for playing 1080p and 480p video
 on Pixel 2, measured using a [Monsoon power monitor][]. As mentioned above,
@@ -68,9 +65,11 @@ that are using `AudioTrack` directly.
 Whether the increased robustness, flexibility and feature set that ExoPlayer
 provides over MediaPlayer is worth the increased power consumption for audio
 only use cases is something an app developer must decide, taking their
-requirements and the app's usage pattern into account. We hope to add public
-APIs for audio offload in a future version of Android, which will allow
-ExoPlayer and other application level media players to utilize the same audio
-offload functionality that MediaPlayer has access to today.
+requirements and app usage patterns into account.
+
+New public APIs in Android Q will enable ExoPlayer, as well as other application
+level media players, to utilize audio offload functionality. We plan to make use
+of these APIs in a future ExoPlayer release.
+{:.info}
 
 [Monsoon power monitor]: https://www.msoon.com/battery-configuration

@@ -1,0 +1,67 @@
+@mixin menu-direction($direction: default) {
+  @if $direction == default {
+    $direction: "horizontal";
+  }
+  @if $direction == "vertical" {
+    @include flex-direction(column);
+  } @else {
+    @include flex-direction(row);
+  }
+}
+
+@mixin menu($horizontal-spacer: default, $horizontal-item-vertical-spacer: default, $wrap: default) {
+  @if $horizontal-spacer == default {
+    $horizontal-spacer: map-get($menu, horizontal-spacer);
+  }
+  @if $horizontal-item-vertical-spacer == default {
+    $horizontal-item-vertical-spacer: map-get($menu, horizontal-item-vertical-spacer);
+  }
+  @if $wrap == default {
+    $wrap: wrap;
+  }
+  @include flexbox();
+  @include flex-wrap($wrap);
+  margin-top: 0;
+  margin-bottom: 0;
+  & > li {
+    @if $horizontal-item-vertical-spacer {
+      margin-top: map-get($spacers, $horizontal-item-vertical-spacer);
+      margin-bottom: map-get($spacers, $horizontal-item-vertical-spacer);
+    }
+    margin-right: map-get($spacers, $horizontal-spacer);
+    list-style-type: none;
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.menu {
+  @include menu();
+  @include menu-direction();
+  @include align-items(center);
+}
+
+.menu--vertical {
+  @include menu-direction("vertical");
+  @include align-items(normal);
+  & > li {
+    margin-right: 0;
+  }
+}
+
+.menu--inline {
+  @include inline-flex();
+}
+
+.menu--center {
+  @include justify-content(center);
+}
+
+.menu--nowrap {
+  @include flex-wrap(nowrap);
+}
+
+.menu--grow {
+  @include flex-grow(1);
+}

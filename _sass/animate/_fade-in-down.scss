@@ -1,0 +1,10 @@
+@include keyframes(fade-in-down) {
+  from {
+    opacity: 0;
+    @include transform(translateY(-2rem));
+  }
+  to {
+    opacity: 1;
+    @include transform(translateY(0));
+  }
+}

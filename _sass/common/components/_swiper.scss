@@ -1,0 +1,48 @@
+.swiper {
+  position: relative;
+  @include overflow(hidden);
+}
+
+.swiper__wrapper, .swiper__slide {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper__wrapper {
+  @include flexbox();
+}
+
+.swiper__wrapper--animation {
+  @include transition(transform map-get($animation, duration) map-get($animation, timing-function));
+}
+
+.swiper__slide {
+  @include flex-shrink(0);
+  & > img {
+    max-width: 100%;
+  }
+}
+
+.swiper__button {
+  position: absolute;
+  top: 50%;
+  @extend .button, .button--circle;
+  @include transform(translate(0, -50%));
+  @include clickable($text-color-d, rgba($main-color-3, .4));
+}
+
+.swiper--light .swiper__button {
+  @include clickable($text-color-theme-light, rgba($main-color-theme-dark, .4));
+}
+
+.swiper--dark .swiper__button {
+  @include clickable($text-color-theme-dark, rgba($main-color-theme-light, .4));
+}
+
+.swiper__button--prev {
+  left: 10px;
+}
+
+.swiper__button--next {
+  right: 10px;
+}

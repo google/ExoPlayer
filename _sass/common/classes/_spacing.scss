@@ -1,0 +1,81 @@
+@mixin make-spacing($property, $side, $spacer, $negative: false) {
+
+  $css_property: null;
+  $css_sides: null;
+
+  @if ($property == "m") {
+    $css_property: "margin";
+  } @else if ($property == "p") {
+    $css_property: "padding";
+  }
+
+  @if ($side == "t") {
+    $css_sides: ("top");
+  }
+  @else if ($side == "b") {
+    $css_sides: ("bottom");
+  }
+  @else if ($side == "l") {
+    $css_sides: ("left");
+  }
+  @else if ($side == "r") {
+    $css_sides: ("right");
+  }
+  @else if ($side == "x") {
+    $css_sides: ("left", "right");
+  }
+  @else if ($side == "y") {
+    $css_sides: ("top", "bottom");
+  }
+  @else if ($side == "") {
+    $css_sides: ("");
+  }
+
+  @each $side in $css_sides {
+    @if ($spacer == "auto") {
+      @if ($side == "") {
+        #{$css_property}: auto;
+      } @else {
+        #{$css_property}-#{$side}: auto;
+      }
+    } @else {
+      @if ($side == "") {
+        @if ($negative == true) {
+          #{$css_property}: - map-get($spacers, $spacer);
+        } @else {
+          #{$css_property}: map-get($spacers, $spacer);
+        }
+      } @else {
+        @if ($negative == true) {
+          #{$css_property}-#{$side}: - map-get($spacers, $spacer);
+        } @else {
+          #{$css_property}-#{$side}: map-get($spacers, $spacer);
+        }
+      }
+    }
+  }
+}
+
+@mixin make-spacings() {
+  $propertys: ("m", "p");
+  $sides: ("t", "b", "l", "r", "x", "y", "");
+  $spacers: (0, 1, 2, 3, 4, 5);
+
+  @each $property in $propertys {
+    @each $side in $sides {
+      @each $spacer in $spacers {
+        .#{$property}#{$side}-#{$spacer} {
+          @include make-spacing($property, $side, $spacer);
+        }
+      }
+    }
+  }
+
+  @each $side in $sides {
+    .m#{$side}-auto {
+      @include make-spacing("m", $side, "auto");
+    }
+  }
+}
+
+@include make-spacings();

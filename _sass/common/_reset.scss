@@ -1,0 +1,160 @@
+@mixin block-elements {
+  h1, h2, h3, h4, h5, h6, p,
+  hr, blockquote, figure, pre, .highlighter-rouge,
+  ul, ol, dl, table, .footnotes {
+    @content;
+  }
+}
+@mixin heading-elements {
+  h1, h2, h3, h4, h5, h6 {
+    @content;
+  }
+}
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+/**
+ * 1. Prevent adjustments of font size after orientation changes in iOS.
+ **/
+
+html {
+  font-size: map-get($base, font-size-root);
+  -webkit-text-size-adjust: 100%; /* 1 */
+  @media print {
+    font-size: map-get($base, font-size-root-sm);
+  }
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  font: map-get($base, font-weight) #{map-get($base, font-size)}/#{map-get($base, line-height)} map-get($base, font-family);
+  ::-moz-selection {
+    background: $select-color;
+  }
+  ::-webkit-selection {
+    background: $select-color;
+  }
+  ::selection {
+    background: $select-color;
+  }
+}
+
+@include block-elements() {
+  padding: 0;
+  margin: map-get($spacers, 2) 0;
+}
+
+input, textarea, select, button {
+  font: map-get($base, font-weight) #{map-get($base, font-size)}/#{map-get($base, line-height)} map-get($base, font-family);
+  color: $text-color;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong {
+  font-weight: map-get($base, font-weight-bold);
+}
+
+h1 {
+  font-size: map-get($base, font-size-h1);
+  color: $text-color-d;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h1-sm);
+  }
+}
+
+h2 {
+  font-size: map-get($base, font-size-h2);
+  color: $text-color-d;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h2-sm);
+  }
+}
+
+h3 {
+  font-size: map-get($base, font-size-h3);
+  color: $text-color-d;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h3-sm);
+  }
+}
+
+h4 {
+  font-size: map-get($base, font-size-h4);
+  color: $text-color;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h4-sm);
+  }
+}
+
+h5 {
+  font-size: map-get($base, font-size-h5);
+  color: $text-color;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h5-sm);
+  }
+}
+
+h6 {
+  font-size: map-get($base, font-size-h6);
+  color: $text-color-l;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h6-sm);
+  }
+}
+
+a {
+  font-weight: map-get($base, font-weight-bold);
+  @include link-colors($main-color-1);
+}
+
+pre, code {
+  font-family: map-get($base, font-family-code);
+}
+
+code {
+  font-size: map-get($base, font-size-xs);
+  line-height: map-get($base, line-height-sm);
+}
+
+figure > img {
+  display: block;
+}
+
+figcaption {
+  font-size: map-get($base, font-size-sm);
+}
+
+button {
+  padding: 0;
+  margin: 0;
+  font-size: map-get($spacers, 3);
+  cursor: pointer;
+  background-color: transparent;
+  border-width: 0;
+  outline: none;
+}
+
+input {
+  &::-ms-clear {
+    display: none;
+  }
+  &:focus {
+    outline: none;
+  }
+}
+
+// mermaid
+.mermaidTooltip {
+  display: none;
+}

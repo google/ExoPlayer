@@ -1,7 +1,5 @@
 ---
-layout: default
-title: Digital Rights Management
-exclude_from_menu: true
+title: Digital rights management
 ---
 
 ExoPlayer uses Android's [`MediaDrm`][] API to support DRM protected playbacks.
@@ -13,7 +11,7 @@ with the streaming formats for which they're supported, are:
 | Widevine "cenc" | 4.4 | 19 | DASH, HLS (FMP4 only) |
 | Widevine "cbcs", "cbc1" and "cens" | 7.1 | 25 | DASH, HLS (FMP4 only) |
 | ClearKey | 5.0 | 21 | DASH |
-| PlayReady SL2000 | AndroidTV | AndroidTV | DASH, SmoothStreaming |
+| PlayReady SL2000 | AndroidTV | AndroidTV | DASH, SmoothStreaming, HLS (FMP4 only) |
 
 In order to play DRM protected content with ExoPlayer, your app must inject a
 `DrmSessionManager` when instantiating the player. `ExoPlayerFactory` provides
@@ -32,8 +30,11 @@ sections below.
 To play streams with rotating keys, it's necessary to set the `multiSession`
 constructor argument to `true` when instantiating `DefaultDrmSessionManager`.
 
-{% include known-issue-box.html issue-id="3561" description="The player view may
-flicker when key rotation occurs." %}
+{% include known-issue-box.html issue-id="4133" description="There may be a
+slight pause in playback when key rotation occurs." %}
+
+{% include known-issue-box.html issue-id="3561" description="On API level 22
+and below, the output surface may flicker when key rotation occurs." %}
 
 ### Multi-key content ###
 
@@ -66,8 +67,8 @@ requires extra license requests to play multi-key content, which is less
 efficient and robust than the alternative described above.
 
 {% include known-issue-box.html issue-id="4133" description="When using this
-license server configuration, adaptation between streams that use different keys
-will not be completely seamless." %}
+license server configuration, there may be a slight pause in playback when
+adapting between streams that use different keys." %}
 
 ### Offline keys ###
 
@@ -80,5 +81,5 @@ key set can be specified per playback. As a result, offline playback of
 multi-key content is currently supported only when the license server is
 configured as described in Case 1 above." %}
 
-[main demo app]: {{ site.releasev2 }}/demos/main
+[main demo app]: {{ site.release_v2 }}/demos/main
 [`MediaDrm`]: {{ site.android_sdk }}/android/media/MediaDrm.html

@@ -1,0 +1,14 @@
+@each $breakpoint in map-keys($responsive) {
+  @include media-breakpoint-up($breakpoint) {
+    .d-#{breakpoint-infix($breakpoint)}none {
+      display: none !important;
+    }
+  }
+}
+
+.d-print-none {
+  @media print {
+    display: none !important;
+  }
+}
+
