@@ -51,7 +51,7 @@ public final class GlUtil {
   }
 
   /**
-   * Builds a GL shader program from vertex & fragment shader code.
+   * Builds a GL shader program from vertex and fragment shader code.
    *
    * @param vertexCode GLES20 vertex shader program as arrays of strings. Strings are joined by
    *     adding a new line character in between each of them.
@@ -64,7 +64,7 @@ public final class GlUtil {
   }
 
   /**
-   * Builds a GL shader program from vertex & fragment shader code.
+   * Builds a GL shader program from vertex and fragment shader code.
    *
    * @param vertexCode GLES20 vertex shader program.
    * @param fragmentCode GLES20 fragment shader program.
