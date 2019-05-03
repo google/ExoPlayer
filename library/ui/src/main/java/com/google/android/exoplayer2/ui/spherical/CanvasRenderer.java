@@ -72,7 +72,7 @@ public final class CanvasRenderer {
     "}"
   };
 
-  // The quad has 2 triangles built from 4 total vertices. Each vertex has 3 position & 2 texture
+  // The quad has 2 triangles built from 4 total vertices. Each vertex has 3 position and 2 texture
   // coordinates.
   private static final int POSITION_COORDS_PER_VERTEX = 3;
   private static final int TEXTURE_COORDS_PER_VERTEX = 2;
@@ -253,8 +253,8 @@ public final class CanvasRenderer {
    * Translates an orientation into pixel coordinates on the canvas.
    *
    * <p>This is a minimal hit detection system that works for this quad because it has no model
-   * matrix. All the math is based on the fact that its size & distance are hard-coded into this
-   * class. For a more complex 3D mesh, a general bounding box & ray collision system would be
+   * matrix. All the math is based on the fact that its size and distance are hard-coded into this
+   * class. For a more complex 3D mesh, a general bounding box and ray collision system would be
    * required.
    *
    * @param yaw Yaw of the orientation in radians.
@@ -287,7 +287,7 @@ public final class CanvasRenderer {
       return null;
     }
     // Convert from the polar coordinates of the controller to the rectangular coordinates of the
-    // View. Note the negative yaw & pitch used to generate Android-compliant x & y coordinates.
+    // View. Note the negative yaw and pitch used to generate Android-compliant x and y coordinates.
     float clickXPixel = (float) (widthPixel - clickXUnit * widthPixel / widthUnit);
     float clickYPixel = (float) (heightPixel - clickYUnit * heightPixel / heightUnit);
     return new PointF(clickXPixel, clickYPixel);
