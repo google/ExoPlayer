@@ -306,9 +306,10 @@ public final class DownloadManager {
   /**
    * Sets the maximum number of parallel downloads.
    *
-   * @param maxParallelDownloads The maximum number of parallel downloads.
+   * @param maxParallelDownloads The maximum number of parallel downloads. Must be greater than 0.
    */
   public void setMaxParallelDownloads(int maxParallelDownloads) {
+    Assertions.checkArgument(maxParallelDownloads > 0);
     if (this.maxParallelDownloads == maxParallelDownloads) {
       return;
     }
@@ -334,6 +335,7 @@ public final class DownloadManager {
    * @param minRetryCount The minimum number of times that a download will be retried.
    */
   public void setMinRetryCount(int minRetryCount) {
+    Assertions.checkArgument(minRetryCount >= 0);
     if (this.minRetryCount == minRetryCount) {
       return;
     }
